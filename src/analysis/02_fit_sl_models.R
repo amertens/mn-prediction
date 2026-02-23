@@ -132,7 +132,7 @@ DHS_SL_clustered <- function(d, Xvars, outcome = "mod_sev_anemia",
     res                  = res,
     cv_risk_w_sl_revere  = cv_risk,
     task                 = SL_task,
-    Xvars                = SL_task$column_names
+    Xvars                = covars
   )
 }
 
