@@ -26,6 +26,10 @@
 #           DHS_SL_clustered (defined in 02_fit_sl_models.R)
 # =============================================================================
 
+#temp for speed:
+cfg$B=10
+cfg$K=2
+
 cat("\n[04] Bootstrap uncertainty...\n")
 cat(sprintf("  B = %d replicates, K = %d folds, seed = %d\n",
             cfg$B, cfg$K, cfg$seed))

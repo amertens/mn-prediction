@@ -1,0 +1,7 @@
+Admin1,n_reps,boot_mean,ci_lo,ci_hi,outcome,model_type,obs_prevalence,pred_prevalence
+Banjul,10,NA,NA,NA,women_iron,binary_prob,0.18406593406593408,0.18408607484518466
+Lower River,10,NA,NA,NA,women_iron,binary_prob,0.4413793103448276,0.4392500056449852
+Maccarthy Island,10,NA,NA,NA,women_iron,binary_prob,0.4119496855345912,0.4127985904402231
+North Bank,10,NA,NA,NA,women_iron,binary_prob,0.24666666666666667,0.2514152224530595
+Upper River,10,NA,NA,NA,women_iron,binary_prob,0.41025641025641024,0.40928319692287896
+Western,10,NA,NA,NA,women_iron,binary_prob,0.25217391304347825,0.2514384643461689
