@@ -32,6 +32,10 @@ cat(sprintf("  B = %d replicates, K = %d folds, seed = %d\n",
 
 library(future.apply)
 
+# Always load the latest DHS_SL_clustered definition before bootstrapping
+# so it can be updated without re-running model fitting (script 02).
+source(here::here("src/analysis/sl_helpers.R"))
+
 dir.create(cfg$out_tables, showWarnings = FALSE, recursive = TRUE)
 
 # ---- Helper: one bootstrap iteration ----------------------------------------
