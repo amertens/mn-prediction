@@ -125,16 +125,16 @@ build_dataset <- function(outcome_cfg, df, Xvars_full, cluster_id) {
 
 cat("  Building per-outcome datasets:\n")
 gw_data_list <- list(
-  df_child_VitA = build_dataset(cfg$outcomes$child_vitA, df, Xvars_full, cfg$cluster_id),
-  df_mom_VitA   = build_dataset(cfg$outcomes$women_vitA, df, Xvars_full, cfg$cluster_id),
-  df_child_iron = build_dataset(cfg$outcomes$child_iron, df, Xvars_full, cfg$cluster_id),
-  df_mom_iron   = build_dataset(cfg$outcomes$women_iron, df, Xvars_full, cfg$cluster_id)
+  child_vitA = build_dataset(cfg$outcomes$child_vitA, df, Xvars_full, cfg$cluster_id),
+  women_vitA = build_dataset(cfg$outcomes$women_vitA, df, Xvars_full, cfg$cluster_id),
+  child_iron = build_dataset(cfg$outcomes$child_iron, df, Xvars_full, cfg$cluster_id),
+  women_iron = build_dataset(cfg$outcomes$women_iron, df, Xvars_full, cfg$cluster_id)
 )
 
 # Summary
-cat(sprintf("\n  Vitamin A (children): n = %d\n", nrow(gw_data_list$df_child_VitA)))
-cat(sprintf("  Vitamin A (women)   : n = %d\n", nrow(gw_data_list$df_mom_VitA)))
-cat(sprintf("  Iron (children)     : n = %d\n", nrow(gw_data_list$df_child_iron)))
-cat(sprintf("  Iron (women)        : n = %d\n", nrow(gw_data_list$df_mom_iron)))
+cat(sprintf("\n  Vitamin A (children): n = %d\n", nrow(gw_data_list$child_vitA)))
+cat(sprintf("  Vitamin A (women)   : n = %d\n", nrow(gw_data_list$women_vitA)))
+cat(sprintf("  Iron (children)     : n = %d\n", nrow(gw_data_list$child_iron)))
+cat(sprintf("  Iron (women)        : n = %d\n", nrow(gw_data_list$women_iron)))
 
 cat("[01] Done.\n\n")
