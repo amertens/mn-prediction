@@ -182,10 +182,10 @@ sl_results_cont <- list()
 
 sl_results_cont$child_vitA <- safe_fit(
   label      = "children / Vitamin A (continuous)",
-  d          = gw_data_list$df_child_VitA,
+  d          = gw_data_list$child_vitA,
   outcome    = cfg$outcomes$child_vitA$continuous,
   population = cfg$outcomes$child_vitA$population,
-  Xvars      = Xvars_full[Xvars_full %in% colnames(gw_data_list$df_child_VitA)],
+  Xvars      = Xvars_full[Xvars_full %in% colnames(gw_data_list$child_vitA)],
   id         = id,
   folds      = K,
   sl         = slmod,
@@ -194,10 +194,10 @@ sl_results_cont$child_vitA <- safe_fit(
 
 sl_results_cont$women_vitA <- safe_fit(
   label      = "women / Vitamin A (continuous)",
-  d          = gw_data_list$df_mom_VitA,
+  d          = gw_data_list$women_vitA,
   outcome    = cfg$outcomes$women_vitA$continuous,
   population = cfg$outcomes$women_vitA$population,
-  Xvars      = Xvars_full[Xvars_full %in% colnames(gw_data_list$df_mom_VitA)],
+  Xvars      = Xvars_full[Xvars_full %in% colnames(gw_data_list$women_vitA)],
   id         = id,
   folds      = K,
   sl         = slmod,
@@ -206,10 +206,10 @@ sl_results_cont$women_vitA <- safe_fit(
 
 sl_results_cont$child_iron <- safe_fit(
   label      = "children / Iron (continuous)",
-  d          = gw_data_list$df_child_iron,
+  d          = gw_data_list$child_iron,
   outcome    = cfg$outcomes$child_iron$continuous,
   population = cfg$outcomes$child_iron$population,
-  Xvars      = Xvars_full[Xvars_full %in% colnames(gw_data_list$df_child_iron)],
+  Xvars      = Xvars_full[Xvars_full %in% colnames(gw_data_list$child_iron)],
   id         = id,
   folds      = K,
   sl         = slmod,
@@ -218,10 +218,10 @@ sl_results_cont$child_iron <- safe_fit(
 
 sl_results_cont$women_iron <- safe_fit(
   label      = "women / Iron (continuous)",
-  d          = gw_data_list$df_mom_iron,
+  d          = gw_data_list$women_iron,
   outcome    = cfg$outcomes$women_iron$continuous,
   population = cfg$outcomes$women_iron$population,
-  Xvars      = Xvars_full[Xvars_full %in% colnames(gw_data_list$df_mom_iron)],
+  Xvars      = Xvars_full[Xvars_full %in% colnames(gw_data_list$women_iron)],
   id         = id,
   folds      = K,
   sl         = slmod,
@@ -257,7 +257,7 @@ get_bin_data <- function(d, bin_col) {
 sl_results_bin <- list()
 
 # -- children VitA binary --
-d_tmp <- get_bin_data(gw_data_list$df_child_VitA, cfg$outcomes$child_vitA$binary)
+d_tmp <- get_bin_data(gw_data_list$child_vitA, cfg$outcomes$child_vitA$binary)
 if (!is.null(d_tmp)) {
   sl_results_bin$child_vitA <- safe_fit(
     label      = "children / Vitamin A (binary)",
@@ -273,7 +273,7 @@ if (!is.null(d_tmp)) {
 }
 
 # -- women VitA binary --
-d_tmp <- get_bin_data(gw_data_list$df_mom_VitA, cfg$outcomes$women_vitA$binary)
+d_tmp <- get_bin_data(gw_data_list$women_vitA, cfg$outcomes$women_vitA$binary)
 if (!is.null(d_tmp)) {
   sl_results_bin$women_vitA <- safe_fit(
     label      = "women / Vitamin A (binary)",
@@ -289,7 +289,7 @@ if (!is.null(d_tmp)) {
 }
 
 # -- children iron binary --
-d_tmp <- get_bin_data(gw_data_list$df_child_iron, cfg$outcomes$child_iron$binary)
+d_tmp <- get_bin_data(gw_data_list$child_iron, cfg$outcomes$child_iron$binary)
 if (!is.null(d_tmp)) {
   sl_results_bin$child_iron <- safe_fit(
     label      = "children / Iron (binary)",
@@ -305,7 +305,7 @@ if (!is.null(d_tmp)) {
 }
 
 # -- women iron binary --
-d_tmp <- get_bin_data(gw_data_list$df_mom_iron, cfg$outcomes$women_iron$binary)
+d_tmp <- get_bin_data(gw_data_list$women_iron, cfg$outcomes$women_iron$binary)
 if (!is.null(d_tmp)) {
   sl_results_bin$women_iron <- safe_fit(
     label      = "women / Iron (binary)",
