@@ -1,0 +1,7 @@
+Admin1,n,obs_prevalence,pred_prevalence,outcome,label,pred_type
+Banjul,364,0.18406593406593408,0.18408607484518466,women_iron,Iron deficiency (women),binary_prob
+Lower River,145,0.4413793103448276,0.4392500056449852,women_iron,Iron deficiency (women),binary_prob
+Maccarthy Island,318,0.4119496855345912,0.4127985904402231,women_iron,Iron deficiency (women),binary_prob
+North Bank,150,0.24666666666666667,0.2514152224530595,women_iron,Iron deficiency (women),binary_prob
+Upper River,195,0.41025641025641024,0.40928319692287896,women_iron,Iron deficiency (women),binary_prob
+Western,230,0.25217391304347825,0.2514384643461689,women_iron,Iron deficiency (women),binary_prob
