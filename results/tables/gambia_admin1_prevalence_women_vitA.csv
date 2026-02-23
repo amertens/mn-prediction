@@ -1,0 +1,7 @@
+Admin1,n,obs_prevalence,pred_prevalence,outcome,label,pred_type
+Banjul,371,0.005390835579514825,0.007020686152980997,women_vitA,Vitamin A (women),binary_prob
+Lower River,145,0.041379310344827586,0.04021216794441722,women_vitA,Vitamin A (women),binary_prob
+Maccarthy Island,318,0.05345911949685535,0.050456363272172323,women_vitA,Vitamin A (women),binary_prob
+North Bank,152,0.019736842105263157,0.027884804293147256,women_vitA,Vitamin A (women),binary_prob
+Upper River,196,0.05612244897959184,0.050150748345530106,women_vitA,Vitamin A (women),binary_prob
+Western,231,0.012987012987012988,0.01355542338406671,women_vitA,Vitamin A (women),binary_prob
