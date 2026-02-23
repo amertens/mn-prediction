@@ -275,16 +275,11 @@ make_scatter <- function(tbl, outcome_cfg, outfile) {
 admin1_prev_list <- list()
 cv_perf_rows     <- list()
 
-outcome_keys <- names(cfg$outcomes)
-dataset_keys <- c("child_vitA", "women_vitA", "child_iron", "women_iron")
-# Map between cfg$outcomes keys and gw_data_list keys / sl_results keys
-key_map <- setNames(dataset_keys, outcome_keys)   # they match 1-to-1 here
-
-for (tag in outcome_keys) {
+for (tag in names(cfg$outcomes)) {
 
   cat(sprintf("  Processing: %s\n", tag))
   outcome_cfg <- cfg$outcomes[[tag]]
-  d_orig      <- gw_data_list[[key_map[tag]]]
+  d_orig      <- gw_data_list[[tag]]
   res_cont    <- sl_results_cont[[tag]]
   res_bin     <- sl_results_bin[[tag]]
 
