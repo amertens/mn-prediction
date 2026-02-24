@@ -98,6 +98,7 @@ SuperLearner ensemble with multi-source proxy predictors.
 ## Outcome and Population Structure
 
 **Data source:** Gambia Micronutrient Survey (GMS) — individual-level biochemical measurements with cluster GPS coordinates
+(N = 3,209 individuals; 3,049 merged columns across all domains before leakage exclusion)
 
 **Four outcomes, fitted independently:**
 
@@ -128,27 +129,33 @@ Both a continuous SL (squared error loss) and binary SL (logistic loss) are fit 
 
 ## Predictor Domains and Leakage Prevention
 
-**Nine predictor domains** identified by column prefix in the merged dataset:
+**Nine predictor domains** identified by column prefix in the merged dataset
+(n = 3,209 individuals; 3,049 total columns before leakage removal):
 
-| Domain | Prefix | Source | N predictors |
-|---|---|---|---|
-| GW | `gw_` | GMS non-outcome survey covariates (demog., anthropometric, dietary) | [PENDING] |
-| DHS | `dhs2019_` | 2019 DHS cluster-level aggregates | [PENDING] |
-| MICS | `mics_` | MICS cluster-level aggregates | [PENDING] |
-| IHME | `ihme_` | IHME geospatial estimates | [PENDING] |
-| LSMS | `lsms_` | LSMS household consumption proxies | [PENDING] |
-| MAP | `MAP_` | Malaria Atlas Project rasters | [PENDING] |
-| WFP | `wfp_` | WFP market access / food security indicators | [PENDING] |
-| FLUNET | `flunet_` | FluNet seasonal illness proxies | [PENDING] |
-| GEE | `gee_` | Google Earth Engine satellite covariates | [PENDING] |
+| Domain | Prefix | Source | Raw N cols | In model |
+|---|---|---|---|---|
+| GW | `gw_` | GMS non-outcome survey covariates (demog., anthropometric, dietary) | 599 | 599 − leakage-excluded [PENDING] |
+| DHS | `dhs2019_` | 2019 DHS cluster-level aggregates | 1,875 | 1,875 |
+| MICS | `mics_` | MICS cluster-level aggregates | 290 | 290 |
+| IHME | `ihme_` | IHME geospatial estimates | 60 | 60 |
+| LSMS | `lsms_` | LSMS household consumption proxies | **0** | — (absent from Gambia dataset) |
+| MAP | `MAP_` | Malaria Atlas Project rasters | 26 | 26 |
+| WFP | `wfp_` | WFP market access / food security indicators | 45 (+1 extra) | 46 |
+| FLUNET | `flunet_` | FluNet seasonal illness proxies | **0** | — (absent from Gambia dataset) |
+| GEE | `gee_` | Google Earth Engine satellite covariates | 142 | 142 |
+| **Total** | | | **3,037** | **~3,040 − leakage** |
+
+*Note: LSMS and FLUNET are absent from the Gambia merged dataset; these domains will show
+`[no columns, skip]` in ablation output. WFP includes `nearest_market_id` as an extra column
+(`cfg$domains$WFP$extra`).*
 
 **Leakage prevention** (`cfg$gw_exclude_patterns` in `src/analysis/config.R`):
 GW columns matching `RBP`, `rbp`, `VAD`, `LogFer`, `logfer`, `IDA`, `Brinda`, `Thurn` are
 excluded before constructing `Xvars_full`. Thresholds and binary indicators cannot appear
-as predictors.
+as predictors. Exact post-exclusion GW count: [PENDING — from script 01 console output].
 
 ::: {.notes}
-Pattern-matching exclusion is explicit and reproducible. Any new outcome-related GW column must be added to cfg$gw_exclude_patterns. GW is the most information-rich domain but also the most leakage-prone.
+Dataset: 3,209 rows × 3,049 columns. DHS is by far the largest domain (1,875 cols — cluster-level aggregated indicators). GW has 599 raw cols; exact number retained after leakage exclusion depends on how many match the exclusion patterns. LSMS and FLUNET are structurally absent — this is a data availability issue, not a code issue. The ablation study will skip these two domains automatically.
 :::
 
 ---
@@ -450,15 +457,15 @@ Positive → domain contributes to discrimination; negative → domain adds nois
 
 | Domain | N cols | child_vitA | women_vitA | child_iron | women_iron |
 |---|---|---|---|---|---|
-| GW | [PENDING] | [PENDING] | [PENDING] | [PENDING] | [PENDING] |
-| DHS | [PENDING] | [PENDING] | [PENDING] | [PENDING] | [PENDING] |
-| MICS | [PENDING] | [PENDING] | [PENDING] | [PENDING] | [PENDING] |
-| IHME | [PENDING] | [PENDING] | [PENDING] | [PENDING] | [PENDING] |
-| LSMS | [PENDING] | [PENDING] | [PENDING] | [PENDING] | [PENDING] |
-| MAP | [PENDING] | [PENDING] | [PENDING] | [PENDING] | [PENDING] |
-| WFP | [PENDING] | [PENDING] | [PENDING] | [PENDING] | [PENDING] |
-| FLUNET | [PENDING] | [PENDING] | [PENDING] | [PENDING] | [PENDING] |
-| GEE | [PENDING] | [PENDING] | [PENDING] | [PENDING] | [PENDING] |
+| GW | 599−excl. | [PENDING] | [PENDING] | [PENDING] | [PENDING] |
+| DHS | 1,875 | [PENDING] | [PENDING] | [PENDING] | [PENDING] |
+| MICS | 290 | [PENDING] | [PENDING] | [PENDING] | [PENDING] |
+| IHME | 60 | [PENDING] | [PENDING] | [PENDING] | [PENDING] |
+| LSMS | **0** | *absent* | *absent* | *absent* | *absent* |
+| MAP | 26 | [PENDING] | [PENDING] | [PENDING] | [PENDING] |
+| WFP | 46 | [PENDING] | [PENDING] | [PENDING] | [PENDING] |
+| FLUNET | **0** | *absent* | *absent* | *absent* | *absent* |
+| GEE | 142 | [PENDING] | [PENDING] | [PENDING] | [PENDING] |
 
 ::: {.notes}
 Ablation is a marginal permutation-based method, not causal. Two correlated domains may each show low individual ΔAUC even though jointly they contribute substantially. Negative ΔAUC can occur when a domain adds noise that NNLS cannot fully suppress. Domain columns skipped (ΔAUC = NA) indicate that domain is absent from the merged dataset.
