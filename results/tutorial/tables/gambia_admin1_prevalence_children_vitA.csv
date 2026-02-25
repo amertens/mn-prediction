@@ -1,0 +1,5 @@
+Admin1,n,obs_prevalence,pred_prevalence,outcome,label,pred_type
+Region_A,77,0.7662337662337663,0.5731542036052842,child_vitA,Vitamin A – children,binary_prob
+Region_B,86,0.5930232558139535,0.6036188419329839,child_vitA,Vitamin A – children,binary_prob
+Region_C,76,0.2894736842105263,0.555717116485922,child_vitA,Vitamin A – children,binary_prob
+Region_D,71,0.6056338028169014,0.5633702269800597,child_vitA,Vitamin A – children,binary_prob
