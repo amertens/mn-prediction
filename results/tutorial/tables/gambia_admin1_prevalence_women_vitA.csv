@@ -1,0 +1,5 @@
+Admin1,n,obs_prevalence,pred_prevalence,outcome,label,pred_type
+Region_A,45,0.5111111111111111,0.5229548425207217,women_vitA,Vitamin A – women,binary_prob
+Region_B,55,0.38181818181818183,0.5769946543624243,women_vitA,Vitamin A – women,binary_prob
+Region_C,41,0.12195121951219512,0.3945185093852324,women_vitA,Vitamin A – women,binary_prob
+Region_D,49,0.42857142857142855,0.5183178692296024,women_vitA,Vitamin A – women,binary_prob

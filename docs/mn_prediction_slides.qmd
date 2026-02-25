@@ -26,7 +26,7 @@ execute:
 
 ---
 
-## The Biomarker Data Gap
+## The Biomarker Data Gap {.smaller}
 
 :::: {.columns}
 ::: {.column width="65%"}
@@ -51,7 +51,7 @@ Frame the problem narrowly: we are not trying to replace surveys. We are extract
 
 ---
 
-## Policy Need and Current Modeling Gaps
+## Policy Need and Current Modeling Gaps {.smaller}
 
 **Sub-national estimates are required for:**
 
@@ -75,7 +75,7 @@ The GMS clusters do not span all Admin1 units uniformly. Prediction fills spatia
 
 ---
 
-## Objective
+## Objective {.smaller}
 
 ::: {.callout-note appearance="minimal"}
 **Primary objective:** Estimate Admin1 and national prevalence of vitamin A deficiency
@@ -95,7 +95,7 @@ SuperLearner ensemble with multi-source proxy predictors.
 
 ---
 
-## Outcome and Population Structure
+## Outcome and Population Structure {.smaller}
 
 **Data source:** Gambia Micronutrient Survey (GMS) — individual-level biochemical measurements with cluster GPS coordinates
 (N = 3,209 individuals; 3,049 merged columns across all domains before leakage exclusion)
@@ -127,7 +127,7 @@ Both a continuous SL (squared error loss) and binary SL (logistic loss) are fit 
 
 ---
 
-## Predictor Domains and Leakage Prevention
+## Predictor Domains and Leakage Prevention {.smaller}
 
 **Nine predictor domains** identified by column prefix in the merged dataset
 (n = 3,209 individuals; 3,049 total columns before leakage removal):
@@ -164,7 +164,7 @@ Dataset: 3,209 rows × 3,049 columns. DHS is by far the largest domain (1,875 co
 
 ---
 
-## SuperLearner Ensemble: Learner Library
+## SuperLearner Ensemble: Learner Library {.smaller}
 
 **Primary stack: `slmod2_bin`** — 5 base learners, NNLS metalearner, binomial log-likelihood loss
 

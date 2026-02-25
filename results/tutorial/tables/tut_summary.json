@@ -1,0 +1,99 @@
+{
+  "n_total": 500,
+  "n_clusters": 20,
+  "n_admin1": 4,
+  "outcomes": {
+    "child_vitA": {
+      "label": "VAD \u2014 children",
+      "n": 303,
+      "obs_prev": 0.6535,
+      "rmse": 0.2566,
+      "r2": 0.6245,
+      "auc_cont": 0.884,
+      "auc_bin": 0.878,
+      "brier_bin": 0.1309,
+      "brier_null": 0.2264,
+      "calib_intercept": 0.5098,
+      "calib_slope": 0.1257,
+      "nat_boot_mean": 0.6514,
+      "nat_ci_lo": 0.5294,
+      "nat_ci_hi": 0.6951,
+      "admin1": [
+        {
+          "Admin1": "Region_A",
+          "obs_prevalence": 0.5974025974025974,
+          "boot_mean": 0.6132557977303079,
+          "ci_lo": 0.5600022214409935,
+          "ci_hi": 0.752678898302516
+        },
+        {
+          "Admin1": "Region_B",
+          "obs_prevalence": 0.8192771084337349,
+          "boot_mean": 0.7853085023380733,
+          "ci_lo": 0.3896379063920934,
+          "ci_hi": 0.8517553900061349
+        },
+        {
+          "Admin1": "Region_C",
+          "obs_prevalence": 0.4683544303797468,
+          "boot_mean": 0.4880470873192253,
+          "ci_lo": 0.434458741559461,
+          "ci_hi": 0.5517455650624893
+        },
+        {
+          "Admin1": "Region_D",
+          "obs_prevalence": 0.734375,
+          "boot_mean": 0.725263475028109,
+          "ci_lo": 0.6394652560068165,
+          "ci_hi": 0.8092369541705268
+        }
+      ]
+    },
+    "women_vitA": {
+      "label": "VAD \u2014 women",
+      "n": 197,
+      "obs_prev": 0.4162,
+      "rmse": 0.2078,
+      "r2": 0.725,
+      "auc_cont": 0.913,
+      "auc_bin": 0.897,
+      "brier_bin": 0.1308,
+      "brier_null": 0.243,
+      "calib_intercept": 0.4853,
+      "calib_slope": 0.1239,
+      "nat_boot_mean": 0.4144,
+      "nat_ci_lo": 0.3555,
+      "nat_ci_hi": 0.466,
+      "admin1": [
+        {
+          "Admin1": "Region_A",
+          "obs_prevalence": 0.3409090909090909,
+          "boot_mean": 0.3396903724487149,
+          "ci_lo": 0.2481590400779792,
+          "ci_hi": 0.4294639504586047
+        },
+        {
+          "Admin1": "Region_B",
+          "obs_prevalence": 0.6730769230769231,
+          "boot_mean": 0.655944940407061,
+          "ci_lo": 0.5388876771431118,
+          "ci_hi": 0.7355515871408894
+        },
+        {
+          "Admin1": "Region_C",
+          "obs_prevalence": 0.2363636363636363,
+          "boot_mean": 0.2604989907647412,
+          "ci_lo": 0.1718628991595951,
+          "ci_hi": 0.3449276121272444
+        },
+        {
+          "Admin1": "Region_D",
+          "obs_prevalence": 0.4130434782608695,
+          "boot_mean": 0.3968615360991633,
+          "ci_lo": 0.2302052569433694,
+          "ci_hi": 0.5144275182371902
+        }
+      ]
+    }
+  }
+}
