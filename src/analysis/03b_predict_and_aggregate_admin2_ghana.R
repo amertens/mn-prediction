@@ -115,11 +115,11 @@ for (pat in leak_patterns) {
 }
 gw_vars <- gw_vars[!gw_vars %in% c("gw_cn", "gw_hhid", "gw_childid")]
 
-Xvars_full <- c("Admin1", "Admin2", "gw_month", gw_vars, dhs_vars, mics_vars,
+Xvars <- c("Admin1", "Admin2", "gw_month", dhs_vars, mics_vars,
                  ihme_vars, lsms_vars, map_vars, wfp_vars, flunet_vars, gee_vars)
-Xvars_full <- Xvars_full[Xvars_full %in% colnames(df)]
+Xvars <- Xvars[Xvars %in% colnames(df)]
 
-cat(sprintf("  Predictors: %d\n", length(Xvars_full)))
+cat(sprintf("  Predictors: %d\n", length(Xvars)))
 
 # ============================================================================
 # 3. Prepare women vitamin A dataset
@@ -128,7 +128,7 @@ cat("  Preparing women vitamin A dataset...\n")
 
 # Women = rows where gw_childid is NA (mothers, not children)
 df_women_vitA <- df %>%
-  dplyr::select(dataid, gw_wVADAdjThurn, gw_cnum, dplyr::all_of(Xvars_full)) %>%
+  dplyr::select(dataid, gw_wVADAdjThurn, gw_cnum, dplyr::all_of(Xvars)) %>%
   as.data.frame() %>%
   dplyr::filter(is.na(df$gw_childid), !is.na(gw_wVADAdjThurn))
 
@@ -137,7 +137,7 @@ cat(sprintf("  Women Vitamin A dataset: %d rows\n", nrow(df_women_vitA)))
 # ============================================================================
 # 4. Fit binary SL model (or load if previously saved)
 # ============================================================================
-model_file <- file.path(out_models, "res_bin_GW_Ghana_SL_women_vitA_full_admin2.rds")
+model_file <- file.path(out_models, "res_bin_GW_Ghana_SL_women_vitA.rds")
 
 if (file.exists(model_file)) {
   cat(sprintf("  Loading pre-fitted model: %s\n", basename(model_file)))
@@ -152,9 +152,9 @@ if (file.exists(model_file)) {
   res_bin <- try(DHS_SL(
     d       = df_women_vitA,
     outcome = "gw_wVADAdjThurn",
-    Xvars   = Xvars_full,
+    Xvars   = Xvars,
     id      = "gw_cnum",
-    folds   = 5,
+    folds   = 2,
     CV      = FALSE,
     sl      = slmod_bin
   ))
