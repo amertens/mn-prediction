@@ -305,7 +305,8 @@ cat(sprintf("Fold sizes: %s individuals\n",
 SL_LIBRARY <- c(
   "SL.mean",         # intercept-only baseline
   "SL.glmnet",       # elastic net (alpha tuned by inner CV)
-  "SL.ranger_fast",  # random forest (200 trees)
+  "SL.randomForest",  # random forest (500 trees)
+  #"SL.ranger_fast",  # random forest (200 trees)
   "SL.mgcv_gam",     # penalised GAM (smooth terms)
   "SL.gam_spatial"   # GAM + 2-D thin-plate spline on coordinates
 )
@@ -316,13 +317,47 @@ cat("Base learners:", paste(SL_LIBRARY, collapse = ", "), "\n")
 
 ```{r sl-cont, cache=TRUE}
 cat("Fitting continuous SuperLearner (Y ~ X)...\n")
+
+
+fit_sl_continuous= function(df,
+                               outcome    = "Y",
+                               X_cols     = NULL,
+                               foldid     = NULL,
+                               sl_library = c("SL.mean", "SL.glmnet",
+                                              "SL.randomForest",
+                                              #"SL.ranger_fast",
+                                              "SL.mgcv_gam",
+                                              "SL.gam_spatial"),
+                               ...) {
+  if (is.null(X_cols))
+    X_cols <- get_predictor_cols(df)
+
+  # Drop all-NA columns
+  X_cols <- X_cols[X_cols %in% colnames(df)]
+  X_cols <- X_cols[!sapply(df[, X_cols, drop = FALSE],
+                            function(x) all(is.na(x)))]
+
+  Y <- df[[outcome]]
+  X <- df[, X_cols, drop = FALSE]
+
+  cv_control <- if (!is.null(foldid)) list(validRows = foldid, V=length(foldid)) else list(V = 5L)
+
+  SuperLearner::SuperLearner(
+    Y          = Y,
+    X          = X,
+    family     = gaussian(),
+    SL.library = sl_library,
+    cvControl  = cv_control,
+    ...
+  )
+}
+
 sl_cont <- fit_sl_continuous(
   df      = df_proc,
   outcome = "Y",
   X_cols  = prep$pred_cols,
   foldid  = folds,
-  sl_library = SL_LIBRARY
-)
+  sl_library = SL_LIBRARY)
 cat("Done.\n")
 
 # CV predictions (out-of-fold)
@@ -346,6 +381,41 @@ make_scatter(df_proc$Y, df_proc$pred_cont,
 
 ```{r sl-bin, cache=TRUE}
 cat("Fitting binary SuperLearner (D ~ X)...\n")
+
+
+
+
+fit_sl_binary =  function(df,
+                           outcome    = "D",
+                           X_cols     = NULL,
+                           foldid     = NULL,
+                           sl_library = c("SL.mean", "SL.glmnet",
+                                          "SL.ranger_fast",
+                                          "SL.mgcv_gam",
+                                          "SL.gam_spatial"),
+                           ...) {
+  if (is.null(X_cols))
+    X_cols <- get_predictor_cols(df)
+
+  X_cols <- X_cols[X_cols %in% colnames(df)]
+  X_cols <- X_cols[!sapply(df[, X_cols, drop = FALSE],
+                            function(x) all(is.na(x)))]
+
+  Y <- as.numeric(df[[outcome]])
+  X <- df[, X_cols, drop = FALSE]
+
+  cv_control <- if (!is.null(foldid)) list(validRows = foldid, V=length(foldid)) else list(V = 5L)
+  
+  SuperLearner::SuperLearner(
+    Y          = Y,
+    X          = X,
+    family     = binomial(),
+    SL.library = sl_library,
+    cvControl  = cv_control,
+    ...
+  )
+}
+
 sl_bin <- fit_sl_binary(
   df      = df_proc,
   outcome = "D",
@@ -623,6 +693,22 @@ grid_proc <- apply_preprocessing(grid_raw,
                                    impute_stats  = prep$impute_stats,
                                    scale_params  = prep$scale_params,
                                    method        = "indicator")
+
+predict_grid <- function(sl_fit, grid_df, X_cols) {
+  # Align columns to those used in fitting
+  fit_cols <- (sl_fit$varNames)
+  available <- intersect(fit_cols, colnames(grid_df))
+  missing_cols <- setdiff(fit_cols, colnames(grid_df))
+  
+  newX <- grid_df[, available, drop = FALSE]
+  for (col in missing_cols) newX[[col]] <- 0   # fill missing with 0
+  
+  newX <- newX[, fit_cols, drop = FALSE]        # exact column order
+  
+  preds <- predict(sl_fit, newdata = newX)$pred
+  grid_df$sl_pred <- as.numeric(preds)
+  grid_df
+}
 
 # Predict continuous biomarker
 grid_proc <- predict_grid(sl_cont, grid_proc, prep$pred_cols)
