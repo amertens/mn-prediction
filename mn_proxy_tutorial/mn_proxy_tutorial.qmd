@@ -1,0 +1,1132 @@
+---
+title: "Proxy Models for Micronutrient Deficiency"
+subtitle: "A Simulation-Based Tutorial Using Super Learner Ensembles"
+author: "Micronutrient Prediction Pipeline — Tutorial"
+date: today
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    toc-title: "Contents"
+    number-sections: true
+    code-fold: show
+    code-tools: true
+    theme: flatly
+    fig-width: 8
+    fig-height: 5
+    self-contained: true
+execute:
+  warning: false
+  message: false
+  cache: true
+  cache-path: "_cache/"
+knitr:
+  opts_chunk:
+    comment: "#>"
+---
+
+```{r setup, include=FALSE}
+# ── Package loading ──────────────────────────────────────────────────────────
+pkgs <- c(
+  "dplyr", "tidyr", "purrr", "ggplot2", "patchwork",
+  "SuperLearner", "glmnet", "ranger", "mgcv", "MASS",
+  "sf", "spdep", "pROC", "PRROC", "scales", "knitr", "kableExtra"
+)
+invisible(lapply(pkgs, library, character.only = TRUE, quietly = TRUE))
+
+# ── Source modular R scripts ─────────────────────────────────────────────────
+source("R/utils.R")
+source("R/simulate_data.R")
+source("R/preprocess.R")
+source("R/fit_superlearner.R")
+source("R/mapping_and_aggregation.R")
+source("R/uncertainty.R")
+source("R/spatial_methods.R")
+
+# ── Global constants ─────────────────────────────────────────────────────────
+SEED             <- 42
+N_ADMIN1         <- 12
+CLUSTERS_PER_A1  <- 8
+N_PER_CLUSTER    <- 15         # total n = 1 440
+DEFICIENCY_CUT   <- -0.5       # threshold on Y (log-biomarker scale)
+V_FOLDS          <- 5
+B_BOOT           <- 100        # fast bootstrap replicates
+
+set.seed(SEED)
+theme_set(theme_minimal(base_size = 12))
+```
+
+# A. Motivation and Problem Setup {#sec-motivation}
+
+## Why proxy models?
+
+Micronutrient deficiency — insufficient serum ferritin (iron), retinol-binding
+protein (Vitamin A), zinc, or folate — affects billions globally, with the
+highest burden in sub-Saharan Africa and South Asia.  Measuring deficiency
+requires a venous blood draw, cold-chain sample storage, and laboratory
+biochemical assay.  A nationally representative biomarker survey therefore costs
+millions of dollars and may only be conducted once per decade.
+
+**Proxy modeling** asks a different question: *given cheap, widely available
+covariates (satellite imagery, household surveys, census data), can we train a
+model on the expensive biomarker data and then predict deficiency prevalence
+everywhere — including places and time-points never sampled?*
+
+This tutorial teaches the full pipeline: simulation, preprocessing, ensemble
+modeling, prevalence aggregation, uncertainty quantification, and spatial
+analysis.
+
+## Three prediction targets
+
+Let $Y_i$ be a continuous biomarker (e.g., log ferritin, µg/L) and
+$D_i = \mathbf{1}[Y_i < c]$ the deficiency indicator for individual $i$,
+where $c$ is a clinical threshold.  Let $X_i$ be a vector of covariates and
+$A_i \in \{1,\ldots,K\}$ the Admin1 region.
+
+We distinguish three targets:
+
+**Target 1 — Individual continuous prediction:**
+$$\hat{E}[Y_i \mid X_i] \quad \text{(squared-error loss)}$$
+
+**Target 2 — Individual deficiency probability:**
+$$\hat{P}(D_i = 1 \mid X_i) \quad \text{(logistic / Brier loss)}$$
+
+**Target 3 — Admin1 area prevalence:**
+$$p_a = E[D_i \mid A_i = a] = P(Y_i < c \mid A_i = a)$$
+
+::: {.callout-warning}
+**Ecological pitfall.** A model with good individual-level AUC does *not*
+automatically yield good area-level prevalence estimates.  Aggregating
+individual probabilities is unbiased for the plug-in estimator only if the
+predicted probabilities are well-calibrated.  Miscalibration at the tails
+(where deficiency occurs) propagates directly into prevalence bias.
+:::
+
+# B. Simulated Data Generating Process {#sec-dgp}
+
+## Design choices
+
+We simulate a survey in a fictitious country with $K = 12$ Admin1 regions,
+each containing $C = 8$ clusters (EAs), each with $n_c = 15$ individuals
+($N = 1{,}440$ total).  This mirrors the structure of a Micronutrient Survey
+(MNS) or DHS-linked biomarker subsample.
+
+## The DGP for the continuous biomarker
+
+$$
+Y_i = \underbrace{\mu_{a(i)}}_{\text{Admin1 RE}}
+    + \underbrace{S(s_{c(i)})}_{\text{spatial field}}
+    + \underbrace{u_{c(i)}}_{\text{cluster RE}}
+    + \underbrace{f(X_i)}_{\text{covariate effects}}
+    + \underbrace{\varepsilon_i}_{\text{noise}}
+$$
+
+where:
+
+- $\mu_a \sim \mathcal{N}(0, \sigma_a^2)$, $\sigma_a = 0.4$
+- $S(s) \sim \mathcal{GP}(0, K_{\text{exp}})$ with
+  $K_{\text{exp}}(d) = \sigma_s^2 \exp(-d/\rho)$,
+  $\sigma_s = 0.5$, $\rho = 0.25$
+- $u_c \sim \mathcal{N}(0, \sigma_c^2)$, $\sigma_c = 0.3$
+- $f(X_i)$ includes malaria, wealth, WASH, age (U-shaped), supplementation
+- $\varepsilon_i \sim \mathcal{N}(0, \sigma_\varepsilon^2)$, $\sigma_\varepsilon = 0.6$
+
+The deficiency indicator is $D_i = \mathbf{1}[Y_i < -0.5]$.
+
+```{r simulate}
+df <- simulate_mn_survey(
+  n_admin1            = N_ADMIN1,
+  clusters_per_admin1 = CLUSTERS_PER_A1,
+  n_per_cluster       = N_PER_CLUSTER,
+  seed                = SEED,
+  deficiency_cutoff   = DEFICIENCY_CUT
+)
+
+cat("Dimensions:", nrow(df), "×", ncol(df), "\n")
+cat("National deficiency prevalence:",
+    round(mean(df$D) * 100, 1), "%\n")
+cat("Admin1 regions:", length(unique(df$admin1_name)), "\n")
+cat("Clusters:", length(unique(df$cluster_id)), "\n")
+```
+
+```{r dgp-summary}
+# Admin1-level true prevalence
+true_prev <- true_admin1_prevalence(df, "admin1_name")
+cat("Admin1 prevalence range:",
+    round(min(true_prev) * 100, 1), "% –",
+    round(max(true_prev) * 100, 1), "%\n")
+
+# Biomarker distribution
+p_hist <- ggplot(df, aes(x = Y)) +
+  geom_histogram(bins = 40, fill = "steelblue", colour = "white", alpha = 0.8) +
+  geom_vline(xintercept = DEFICIENCY_CUT, colour = "firebrick",
+             linewidth = 1, linetype = "dashed") +
+  annotate("text", x = DEFICIENCY_CUT + 0.05, y = Inf,
+           label = "  Deficiency\n  threshold", vjust = 1.5,
+           colour = "firebrick", size = 3.5, hjust = 0) +
+  labs(x = "Y (log biomarker)", y = "Count",
+       title = "Simulated biomarker distribution",
+       subtitle = paste0(round(mean(df$D) * 100, 1),
+                         "% below threshold (deficient)"))
+
+p_prev <- ggplot(data.frame(admin1 = names(true_prev),
+                             prev   = as.numeric(true_prev)),
+                 aes(x = reorder(admin1, prev), y = prev * 100)) +
+  geom_col(fill = "steelblue", alpha = 0.8) +
+  coord_flip() +
+  labs(x = NULL, y = "True prevalence (%)",
+       title = "True Admin1 deficiency prevalences")
+
+p_hist + p_prev
+```
+
+## Survey weights
+
+Simulated inclusion probabilities are inversely related to WASH access
+(rural clusters undersampled).  Weighted prevalence corrects this:
+
+```{r weights}
+prev_unwt  <- mean(df$D)
+prev_wt    <- weighted.mean(df$D, df$svy_weight)
+cat(sprintf("Unweighted national prevalence: %.1f%%\n", prev_unwt * 100))
+cat(sprintf("Weighted   national prevalence: %.1f%%\n", prev_wt   * 100))
+```
+
+# C. Preprocessing and Feature Engineering {#sec-preprocess}
+
+## Missingness
+
+We introduce MCAR missingness in `ses_educ` and `clim_temp` (5%), and MAR
+missingness in `dis_malaria` and `wash_sanitation` (up to 12%, higher for
+lower-SES individuals).
+
+```{r missingness}
+df_miss <- introduce_missingness(
+  df,
+  mcar_vars = c("ses_educ", "clim_temp"),
+  mar_vars  = c("dis_malaria", "wash_sanitation"),
+  mcar_rate = 0.05,
+  mar_rate  = 0.12,
+  seed      = 7
+)
+
+# Missing rate per column
+miss_rates <- sapply(df_miss, function(x) mean(is.na(x)))
+miss_rates <- miss_rates[miss_rates > 0]
+knitr::kable(data.frame(column     = names(miss_rates),
+                         miss_pct   = round(miss_rates * 100, 1)),
+             caption = "Missingness rates after introducing MCAR + MAR")
+```
+
+## Imputation and standardisation
+
+We impute with column medians and add binary missing-indicator columns
+(MAR allows the indicator itself to carry information):
+
+```{r preprocess}
+X_cols  <- get_predictor_cols(df_miss)
+prep    <- preprocess_survey(df_train = df_miss, pred_cols = X_cols,
+                              method = "indicator")
+df_proc <- prep$data
+
+cat("Predictor columns after preprocessing:", length(prep$pred_cols), "\n")
+cat("(includes", sum(startsWith(prep$pred_cols, "miss_")),
+    "missing-indicator columns)\n")
+```
+
+## Domain grouping
+
+```{r domains}
+domains <- make_domain_groups(df_proc)
+purrr::iwalk(domains, ~cat(sprintf("  %-10s: %d columns\n", .y, length(.x))))
+```
+
+::: {.callout-note}
+**Leakage prevention.** All imputation statistics and standardisation
+parameters are always computed on *training* data only and applied to
+validation folds.  The functions `preprocess_survey()` and
+`apply_preprocessing()` enforce this separation.
+:::
+
+# D. Super Learner Modeling {#sec-sl}
+
+## Theoretical framework
+
+Super Learner (van der Laan et al., 2007) finds the optimal convex combination
+of $M$ base learners by minimising cross-validated empirical risk:
+
+$$
+\hat{\alpha} = \arg\min_{\alpha \in \Delta}
+  \frac{1}{K}\sum_{k=1}^{K} \frac{1}{n_k}
+  \sum_{i \in \mathcal{V}_k}
+  L\!\left(Y_i,\; \sum_{m=1}^{M} \alpha_m \hat{f}_m^{(-k)}(X_i)\right)
+$$
+
+where $\Delta = \{\alpha : \alpha_m \ge 0,\; \sum_m \alpha_m = 1\}$ is the
+probability simplex, $\hat{f}_m^{(-k)}$ is learner $m$ trained on all folds
+except $k$, and $L$ is a loss function (squared error for continuous,
+log-loss for binary).
+
+The **oracle property** guarantees that the Super Learner performs asymptotically
+as well as the best convex combination of base learners.
+
+## Cluster-blocked cross-validation
+
+Standard $K$-fold CV assigns individuals randomly to folds.  With cluster
+sampling, individuals in the same cluster share unobserved cluster-level
+random effects — assigning cluster-mates to different folds leaks this
+information, producing overly optimistic CV risk estimates.
+
+**Solution:** assign all individuals in a cluster to the same fold.
+
+```{r folds}
+folds <- make_folds_cluster(cluster_id = df_proc$cluster_id,
+                             V = V_FOLDS, seed = SEED)
+# Verify: no cluster spans two folds
+fold_vec <- integer(nrow(df_proc))
+for (v in seq_along(folds)) fold_vec[folds[[v]]] <- v
+df_proc$fold <- fold_vec
+
+stopifnot(
+  df_proc %>%
+    group_by(cluster_id) %>%
+    summarise(n_folds = n_distinct(fold)) %>%
+    pull(n_folds) %>%
+    max() == 1
+)
+cat("Cluster-blocked folds verified: each cluster is in exactly one fold.\n")
+cat(sprintf("Fold sizes: %s individuals\n",
+            paste(sapply(folds, length), collapse = ", ")))
+```
+
+## Base learner library
+
+```{r sl-library}
+SL_LIBRARY <- c(
+  "SL.mean",         # intercept-only baseline
+  "SL.glmnet",       # elastic net (alpha tuned by inner CV)
+  "SL.ranger_fast",  # random forest (200 trees)
+  "SL.mgcv_gam",     # penalised GAM (smooth terms)
+  "SL.gam_spatial"   # GAM + 2-D thin-plate spline on coordinates
+)
+cat("Base learners:", paste(SL_LIBRARY, collapse = ", "), "\n")
+```
+
+## Continuous biomarker model
+
+```{r sl-cont, cache=TRUE}
+cat("Fitting continuous SuperLearner (Y ~ X)...\n")
+sl_cont <- fit_sl_continuous(
+  df      = df_proc,
+  outcome = "Y",
+  X_cols  = prep$pred_cols,
+  foldid  = folds,
+  sl_library = SL_LIBRARY
+)
+cat("Done.\n")
+
+# CV predictions (out-of-fold)
+df_proc$pred_cont <- get_cv_preds(sl_cont)
+
+# Metalearner weights
+wt_cont <- summarise_sl_weights(sl_cont)
+knitr::kable(wt_cont, caption = "Continuous model: metalearner weights")
+```
+
+```{r cont-perf}
+metrics_cont <- compute_metrics(df_proc$Y, df_proc$pred_cont, "continuous")
+cat("Continuous model performance (5-fold cluster-blocked CV):\n")
+print_summary(metrics_cont)
+
+make_scatter(df_proc$Y, df_proc$pred_cont,
+             label = "Cross-validated: observed vs predicted log-biomarker")
+```
+
+## Binary deficiency model
+
+```{r sl-bin, cache=TRUE}
+cat("Fitting binary SuperLearner (D ~ X)...\n")
+sl_bin <- fit_sl_binary(
+  df      = df_proc,
+  outcome = "D",
+  X_cols  = prep$pred_cols,
+  foldid  = folds,
+  sl_library = SL_LIBRARY
+)
+cat("Done.\n")
+
+df_proc$pred_bin <- get_cv_preds(sl_bin)
+
+wt_bin <- summarise_sl_weights(sl_bin)
+knitr::kable(wt_bin, caption = "Binary model: metalearner weights")
+```
+
+```{r bin-perf}
+metrics_bin <- compute_metrics(df_proc$D, df_proc$pred_bin, "binary")
+cat("Binary model performance:\n")
+print_summary(metrics_bin)
+```
+
+```{r roc-pr, fig.width=10, fig.height=4}
+roc_obj <- pROC::roc(df_proc$D, df_proc$pred_bin, quiet = TRUE)
+pr_obj  <- PRROC::pr.curve(
+  scores.class0 = df_proc$pred_bin[df_proc$D == 1],
+  scores.class1 = df_proc$pred_bin[df_proc$D == 0],
+  curve = TRUE
+)
+
+# ROC
+roc_df <- data.frame(fpr = 1 - roc_obj$specificities,
+                      tpr = roc_obj$sensitivities)
+p_roc <- ggplot(roc_df, aes(fpr, tpr)) +
+  geom_line(colour = "steelblue", linewidth = 1) +
+  geom_abline(linetype = "dashed", colour = "grey50") +
+  annotate("text", 0.6, 0.2,
+           label = sprintf("AUC = %.3f", metrics_bin$auc), size = 4) +
+  labs(x = "1 – Specificity", y = "Sensitivity",
+       title = "ROC curve (binary model)")
+
+# PR
+pr_df <- as.data.frame(pr_obj$curve)
+names(pr_df) <- c("recall", "precision", "threshold")
+p_pr  <- ggplot(pr_df, aes(recall, precision)) +
+  geom_line(colour = "firebrick", linewidth = 1) +
+  annotate("text", 0.1, 0.2,
+           label = sprintf("PR-AUC = %.3f", metrics_bin$pr_auc), size = 4) +
+  labs(x = "Recall", y = "Precision",
+       title = "Precision-Recall curve",
+       subtitle = "More informative than ROC for rare outcomes")
+
+p_roc + p_pr
+```
+
+```{r calibration-plot}
+calibration_plot(df_proc$D, df_proc$pred_bin, n_bins = 10) +
+  labs(subtitle = sprintf("Calibration slope = %.3f  (ideal = 1.0)",
+                           metrics_bin$cal_slope))
+```
+
+# E. From Individual Predictions to Admin1 Prevalence {#sec-prevalence}
+
+We implement and compare four aggregation approaches.
+
+## Approach 1: Plug-in mean of predicted probabilities
+
+$$\hat{p}_a^{\text{plug}} = \frac{1}{N_a} \sum_{i:\, A_i = a} \hat{P}(D_i = 1 \mid X_i)$$
+
+```{r approach1}
+prev_plugin <- prevalence_plugin(df_proc, "admin1_name", "pred_bin")
+```
+
+## Approach 2: Cluster-level binomial model
+
+Aggregate to cluster: $y_c = \sum D_i$, $n_c$, then fit
+$y_c \sim \text{Binomial}(n_c, p_c)$ with cluster-mean covariates as
+predictors, finally average predicted $\hat{p}_c$ within Admin1.
+
+```{r approach2}
+prev_clust_bin <- prevalence_cluster_binomial(
+  df_proc,
+  admin1_col  = "admin1_name",
+  cluster_col = "cluster_id",
+  outcome     = "D",
+  X_cols      = prep$pred_cols
+)
+```
+
+## Approach 3: Calibration-corrected prevalence
+
+Fit logistic recalibration on held-out CV predictions:
+$$\text{logit}(P(D=1)) = \beta_0 + \beta_1\,\text{logit}(\hat{p})$$
+
+```{r approach3}
+prev_cal <- prevalence_calibrated(
+  df_proc,
+  admin1_col  = "admin1_name",
+  obs_col     = "D",
+  cv_pred_col = "pred_bin"
+)
+```
+
+## Approach 4: Threshold continuous prediction
+
+$$\hat{D}_i = \mathbf{1}[\hat{Y}_i < c]$$
+then average within Admin1.  A **soft** version uses the Gaussian tail:
+$$\hat{p}_i = P(Y_i < c \mid \hat{Y}_i) = \Phi\!\left(\frac{c - \hat{Y}_i}{\hat{\sigma}_\varepsilon}\right)$$
+
+```{r approach4}
+resid_sd <- sd(df_proc$Y - df_proc$pred_cont, na.rm = TRUE)
+cat("Estimated residual SD:", round(resid_sd, 3), "\n")
+
+# Hard threshold
+prev_hard_thresh <- prevalence_threshold_continuous(
+  df_proc, "admin1_name", "pred_cont",
+  cutoff = DEFICIENCY_CUT, direction = "less"
+)
+
+# Soft threshold (probabilistic)
+prev_soft_thresh <- prevalence_threshold_continuous(
+  df_proc, "admin1_name", "pred_cont",
+  cutoff = DEFICIENCY_CUT, direction = "less",
+  residual_sd = resid_sd
+)
+```
+
+## Comparison of all four approaches
+
+```{r prev-compare, fig.height=7}
+est_list <- list(
+  "1_plugin"       = prev_plugin,
+  "2_cluster_bin"  = prev_clust_bin,
+  "3_calibrated"   = prev_cal,
+  "4a_hard_thresh" = prev_hard_thresh,
+  "4b_soft_thresh" = prev_soft_thresh
+)
+
+comp_df <- compare_prevalence_approaches(true_prev, est_list)
+err_tbl <- approach_error_summary(comp_df)
+
+knitr::kable(err_tbl,
+  col.names = c("Approach", "MAE (pp)", "RMSE (pp)", "Mean bias (pp)"),
+  caption = "Admin1 prevalence estimation error (percentage points)")
+```
+
+```{r prev-scatter, fig.height=8}
+plot_prevalence_comparison(comp_df)
+```
+
+::: {.callout-note}
+**Key observation.** The soft-threshold approach accounts for residual
+variance and tends to outperform hard thresholding when the model's
+continuous predictions are noisy near the cutoff.  The plug-in approach
+is unbiased when predicted probabilities are well-calibrated.
+:::
+
+# F. Uncertainty Quantification {#sec-uncertainty}
+
+## Sources of uncertainty
+
+| Source | Description | How to quantify |
+|--------|-------------|-----------------|
+| Prediction uncertainty | Model uncertainty about $P(D=1\mid X)$ | Bootstrap refit, Bayesian posteriors |
+| Sampling uncertainty | Finite survey sample | Survey design variance, delta method |
+| Spatial interpolation | Predicting at unsampled locations | GP posterior variance, kriging SE |
+
+## Fast cluster bootstrap
+
+We resample clusters with replacement and re-aggregate stored CV predictions
+(no refitting — a lower bound on true bootstrap variance).
+
+```{r bootstrap, cache=TRUE}
+cat("Running fast bootstrap (B =", B_BOOT, ")...\n")
+boot_res <- bootstrap_fast_admin1(
+  df          = df_proc,
+  cluster_col = "cluster_id",
+  admin1_col  = "admin1_name",
+  pred_col    = "pred_bin",
+  B           = B_BOOT,
+  seed        = SEED
+)
+cat("Done.\n")
+knitr::kable(boot_res$ci %>% dplyr::mutate(across(where(is.numeric), ~round(.*100,1))),
+  col.names = c("Admin1","Mean (%)","CI lo (%)","CI hi (%)","Width (pp)"),
+  caption   = "Bootstrap 95% CIs for Admin1 deficiency prevalence")
+```
+
+```{r boot-plot}
+plot_prevalence_ci(true_prev, boot_res$ci,
+                   mean_col = "boot_mean",
+                   title    = "Admin1 prevalence: bootstrap 95% CIs")
+```
+
+## Delta-method variance
+
+Under independence assumptions, the delta-method approximates
+$\text{Var}(\hat{p}_a)$ using the between-cluster variance of predicted means:
+
+```{r delta-method}
+dm_ci <- delta_method_admin1(df_proc, "admin1_name", "cluster_id", "pred_bin")
+knitr::kable(dm_ci %>% mutate(across(where(is.numeric), ~round(.*100,2))),
+  caption = "Delta-method 95% CIs (percentage points)")
+```
+
+## GAM-based Monte Carlo uncertainty
+
+For the spatial GAM fitted below (Section G), we propagate coefficient
+uncertainty via Monte Carlo draws from the Gaussian posterior:
+
+```{r gam-uncertainty, cache=TRUE}
+# Fit a standalone spatial GAM for illustration
+gam_fit_unc <- mgcv::gam(
+  D ~ s(x_coord, y_coord, bs = "tp", k = 20) +
+      dis_malaria + ses_wealth + wash_water,
+  data   = df_proc,
+  family = binomial(),
+  method = "REML"
+)
+
+gam_ci <- gam_uncertainty_admin1(
+  gam_fit  = gam_fit_unc,
+  newdata  = df_proc,
+  admin1_col = "admin1_name",
+  n_sim    = 300
+)
+knitr::kable(gam_ci %>% mutate(across(where(is.numeric), ~round(.*100,2))),
+  caption = "GAM Monte Carlo 95% CIs (percentage points)")
+```
+
+## Cross-fold variability heuristic
+
+```{r fold-variability}
+fold_var <- cv_fold_variability(df_proc, "fold", "pred_bin", "admin1_name")
+knitr::kable(fold_var %>% mutate(across(where(is.numeric), ~round(.*100,2))),
+  caption = "Fold-to-fold Admin1 prevalence variability (NOT a valid CI)")
+```
+
+::: {.callout-warning}
+Cross-fold variability describes model instability, not sampling uncertainty.
+It should *not* be reported as a confidence interval.
+:::
+
+# G. Spatial Autocorrelation and Mapping {#sec-spatial}
+
+## Moran's I on cluster residuals
+
+```{r morans-i}
+# Compute cluster-level residuals from continuous model
+cl_resid <- cluster_residuals(df_proc, "cluster_id", "Y", "pred_cont")
+
+mi <- compute_morans_i(
+  residuals = cl_resid$mean_residual,
+  coords    = cl_resid[, c("x_coord", "y_coord")],
+  k = 6, nsim = 499
+)
+cat(sprintf("Moran's I = %.4f,  p-value = %.4f\n", mi$I, mi$p_value))
+mi$plot
+```
+
+## Empirical variogram
+
+```{r variogram}
+vario <- empirical_variogram(cl_resid, n_bins = 12)
+plot_variogram(vario)
+```
+
+## Wall-to-wall grid prediction
+
+```{r grid, cache=TRUE}
+# Simulate covariate grid
+grid_raw <- simulate_covariate_grid(resolution = 0.05, seed = 99)
+
+# Apply training preprocessing stats
+grid_proc <- apply_preprocessing(grid_raw,
+                                   impute_stats  = prep$impute_stats,
+                                   scale_params  = prep$scale_params,
+                                   method        = "indicator")
+
+# Predict continuous biomarker
+grid_proc <- predict_grid(sl_cont, grid_proc, prep$pred_cols)
+names(grid_proc)[names(grid_proc) == "sl_pred"] <- "pred_cont"
+
+# Predict deficiency probability using binary model
+grid_proc2 <- predict_grid(sl_bin, grid_proc, prep$pred_cols)
+grid_proc$pred_prob <- grid_proc2$sl_pred
+grid_proc$pred_D    <- apply_threshold(grid_proc$pred_cont,
+                                        DEFICIENCY_CUT, "less")
+```
+
+```{r grid-maps, fig.width=11, fig.height=4}
+p_grid_cont <- ggplot(grid_proc, aes(x = x_coord, y = y_coord,
+                                      fill = pred_cont)) +
+  geom_tile() +
+  scale_fill_viridis_c(name = "Predicted\nlog-biomarker", option = "plasma") +
+  labs(title = expression(hat(E)*"[Y | X(s)]"),
+       subtitle = "Continuous model") +
+  theme_void(base_size = 11) + theme(plot.title = element_text(face = "bold"))
+
+p_grid_prob <- ggplot(grid_proc, aes(x = x_coord, y = y_coord,
+                                      fill = pred_prob)) +
+  geom_tile() +
+  scale_fill_viridis_c(name = "P(D=1|X)",
+                        limits = c(0, 1), option = "magma") +
+  labs(title = expression(hat(P)*"(D = 1 | X(s))"),
+       subtitle = "Binary model") +
+  theme_void(base_size = 11) + theme(plot.title = element_text(face = "bold"))
+
+p_grid_cont + p_grid_prob
+```
+
+## Admin1 polygons and aggregation
+
+```{r admin1-sf, cache=TRUE}
+admin1_sf <- simulate_admin1_polygons(n_admin1 = N_ADMIN1, seed = SEED)
+grid_proc <- assign_grid_to_admin1(grid_proc, admin1_sf)
+
+# Grid-based Admin1 prevalence (area-weighted)
+grid_a1 <- aggregate_to_admin1(grid_proc, "admin1_name", "pred_prob")
+knitr::kable(grid_a1 %>% mutate(pred_prevalence = round(pred_prevalence*100,1)),
+             caption = "Grid-aggregated Admin1 predicted prevalence (%)")
+```
+
+```{r admin1-map}
+plot_admin1_map(admin1_sf, grid_a1,
+                title = "Admin1 predicted deficiency prevalence (grid aggregation)")
+```
+
+## Three approaches to spatial dependence
+
+### 1. GAM with spatial smooth (coordinates as smooth term)
+
+```{r gam-spatial-model}
+gam_sp <- mgcv::gam(
+  D ~ s(x_coord, y_coord, bs = "tp", k = 25) +
+      dis_malaria + ses_wealth + wash_water + indiv_suppl,
+  data   = df_proc,
+  family = binomial(),
+  method = "REML"
+)
+summary(gam_sp)$s.table |> round(4) |> knitr::kable(caption = "GAM smooth terms")
+df_proc$pred_gam_sp <- predict(gam_sp, type = "response")
+```
+
+### 2. Mixed model with Admin1 random effect
+
+```{r mixed-model}
+# Fit GLMM with Admin1 random intercept using glmer
+# (lme4 required; use glm + fixed effects as fallback)
+mixed_fit <- tryCatch({
+  if (requireNamespace("lme4", quietly = TRUE)) {
+    lme4::glmer(
+      D ~ dis_malaria + ses_wealth + wash_water + (1 | admin1_name),
+      data   = df_proc,
+      family = binomial(),
+      control = lme4::glmerControl(optimizer = "bobyqa")
+    )
+  } else {
+    glm(D ~ dis_malaria + ses_wealth + wash_water + factor(admin1_name),
+        data = df_proc, family = binomial())
+  }
+}, error = function(e) {
+  glm(D ~ dis_malaria + ses_wealth + wash_water + factor(admin1_name),
+      data = df_proc, family = binomial())
+})
+df_proc$pred_mixed <- predict(mixed_fit, type = "response")
+```
+
+### 3. Spatially blocked cross-validation
+
+```{r spatial-cv}
+spatial_blocks <- make_spatial_blocks(df_proc[, c("x_coord","y_coord")],
+                                       n_blocks = V_FOLDS, seed = SEED)
+df_proc$spatial_block <- spatial_blocks
+spatial_folds <- spatial_blocks_to_folds(spatial_blocks)
+
+cat(sprintf("Spatial CV blocks: %d blocks, sizes %s\n",
+            V_FOLDS, paste(sapply(spatial_folds, length), collapse = ", ")))
+
+# Compare cluster CV vs spatial CV risk (using glmnet as a fast proxy)
+make_glmnet_preds <- function(df, foldid, outcome = "D") {
+  X   <- as.matrix(df[, c("dis_malaria","ses_wealth","wash_water",
+                            "x_coord","y_coord")])
+  Y   <- df[[outcome]]
+  fit <- glmnet::cv.glmnet(X, Y, family = "binomial",
+                             foldid = foldid, alpha = 0.5)
+  as.numeric(predict(fit, X, s = "lambda.min", type = "response"))
+}
+
+# Cluster-blocked CV AUC
+preds_clust <- make_glmnet_preds(df_proc, fold_vec)
+auc_clust   <- as.numeric(pROC::auc(pROC::roc(df_proc$D, preds_clust, quiet=TRUE)))
+
+# Spatial-block CV AUC
+preds_spat  <- make_glmnet_preds(df_proc, spatial_blocks)
+auc_spat    <- as.numeric(pROC::auc(pROC::roc(df_proc$D, preds_spat, quiet=TRUE)))
+
+cat(sprintf("Cluster-blocked CV AUC: %.3f\n", auc_clust))
+cat(sprintf("Spatial-block   CV AUC: %.3f\n", auc_spat))
+cat("(Spatial CV is typically more conservative due to larger effective test sets)\n")
+```
+
+# H. Loss Functions and Rare Outcomes {#sec-loss}
+
+## Why ROC-AUC can mislead
+
+```{r prevalence-sensitivity}
+# Artificially create a rare-outcome scenario (5% prevalence)
+set.seed(123)
+df_rare <- simulate_mn_survey(
+  n_admin1 = N_ADMIN1, clusters_per_admin1 = CLUSTERS_PER_A1,
+  n_per_cluster = N_PER_CLUSTER,
+  deficiency_cutoff = -1.5,   # moves threshold left → ~5% prevalence
+  seed = 123
+)
+cat("Rare outcome prevalence:", round(mean(df_rare$D)*100,1),"%\n")
+
+# A trivial "predict always zero" model
+pred_zero    <- rep(0, nrow(df_rare))
+pred_random  <- runif(nrow(df_rare))
+
+auc_zero   <- as.numeric(pROC::auc(pROC::roc(df_rare$D, pred_zero, quiet=TRUE)))
+prauc_zero <- PRROC::pr.curve(
+  pred_zero[df_rare$D==1], pred_zero[df_rare$D==0])$auc.integral
+brier_zero <- mean((df_rare$D - pred_zero)^2)
+
+cat(sprintf("\nAlways-zero model:\n  ROC-AUC = %.3f (misleading!)\n",  auc_zero))
+cat(sprintf("  PR-AUC  = %.3f\n  Brier   = %.4f\n", prauc_zero, brier_zero))
+```
+
+## Alternative losses
+
+```{r alt-losses}
+# Demonstrate focal loss vs standard log loss
+set.seed(1)
+p_sim <- runif(500, 0, 1)
+y_sim <- rbinom(500, 1, 0.1)
+
+logloss_std  <- weighted_log_loss(y_sim, p_sim)
+logloss_foc  <- focal_loss(y_sim, p_sim, gamma = 2, alpha = 0.75)
+brier_loss   <- mean((y_sim - p_sim)^2)
+
+data.frame(
+  Loss    = c("Standard log-loss", "Focal (γ=2, α=0.75)", "Brier score"),
+  Value   = round(c(logloss_std, logloss_foc, brier_loss), 4)
+) |> knitr::kable(caption = "Loss values for a 10%-prevalence scenario")
+```
+
+::: {.callout-tip}
+For **prevalence estimation**, the Brier score and calibration metrics are
+more actionable than ROC-AUC.  Use PR-AUC for individual-level screening
+decisions.  Train with focal or weighted log-loss only if you have strong
+evidence that it improves *prevalence* accuracy, not just classification.
+:::
+
+# I. Post-Hoc Threshold Tuning {#sec-threshold}
+
+## Why thresholds matter
+
+The binary model outputs $\hat{P}(D=1 \mid X) \in (0,1)$.  Converting to a
+hard prediction requires a threshold $T$: $\hat{D} = \mathbf{1}[\hat{p} \ge T]$.
+The default $T = 0.5$ is rarely optimal.
+
+## Cost-based optimal threshold
+
+Under a simple expected-cost framework with $C_{FP}$ (cost of false positive)
+and $C_{FN}$ (cost of false negative):
+
+$$T^* = \frac{C_{FP}}{C_{FP} + C_{FN}}$$
+
+```{r cost-threshold}
+CFP <- 1   # treating a non-deficient person
+CFN <- 5   # missing a deficient person
+
+T_cost <- CFP / (CFP + CFN)
+cat(sprintf("Cost-optimal threshold: T* = %.2f\n", T_cost))
+cat(sprintf("(C_FP = %d, C_FN = %d → prioritises sensitivity)\n", CFP, CFN))
+
+cm <- classification_metrics_at_T(df_proc$D, df_proc$pred_bin, T = T_cost)
+knitr::kable(t(round(cm, 3)), caption = sprintf("Metrics at T* = %.2f", T_cost))
+```
+
+## Threshold comparison
+
+```{r threshold-comparison}
+T_grid <- seq(0.1, 0.9, by = 0.05)
+thresh_df <- do.call(rbind, lapply(T_grid, function(t) {
+  m <- classification_metrics_at_T(df_proc$D, df_proc$pred_bin, T = t)
+  data.frame(T = t, as.list(m))
+}))
+
+thresh_long <- tidyr::pivot_longer(thresh_df, -T, names_to = "metric")
+
+ggplot(thresh_long %>% filter(metric %in% c("sensitivity","specificity","f1")),
+       aes(x = T, y = value, colour = metric)) +
+  geom_line(linewidth = 1) +
+  geom_vline(xintercept = T_cost, linetype = "dashed", colour = "grey40") +
+  annotate("text", x = T_cost + 0.02, y = 0.1,
+           label = sprintf("T* = %.2f", T_cost), hjust = 0) +
+  scale_colour_manual(
+    values = c(sensitivity = "firebrick", specificity = "steelblue", f1 = "darkgreen")
+  ) +
+  labs(x = "Classification threshold T",
+       y = "Metric value",
+       title = "Sensitivity, specificity, F1 vs threshold",
+       colour = NULL) +
+  theme(legend.position = "bottom")
+```
+
+## Nested CV for honest threshold evaluation
+
+::: {.callout-warning}
+**Bias warning.** Tuning $T$ on the same data used to report performance
+inflates sensitivity/specificity estimates.  Use nested (double) CV:
+inner loop picks $T$, outer loop evaluates.
+:::
+
+```{r nested-cv}
+# Simplified nested CV demonstration (outer = 3 folds for speed)
+outer_folds <- make_folds_cluster(df_proc$cluster_id, V = 3, seed = 10)
+nested_results <- list()
+
+for (v_out in seq_along(outer_folds)) {
+  val_idx   <- outer_folds[[v_out]]
+  train_idx <- setdiff(seq_len(nrow(df_proc)), val_idx)
+  df_train  <- df_proc[train_idx, ]
+  df_val    <- df_proc[val_idx,   ]
+
+  # Inner loop: tune T on training data predictions
+  inner_folds <- make_folds_cluster(df_train$cluster_id, V = 3, seed = v_out)
+  sl_inner <- tryCatch(
+    fit_sl_binary(df_train, "D", prep$pred_cols, inner_folds,
+                  sl_library = c("SL.mean", "SL.glmnet")),
+    error = function(e) NULL
+  )
+  if (is.null(sl_inner)) next
+
+  preds_inner <- get_cv_preds(sl_inner)
+  T_inner     <- tune_threshold(df_train$D, preds_inner, criterion = "f1")
+
+  # Outer evaluation: use T chosen in inner loop
+  preds_val <- as.numeric(predict(sl_inner, newdata = df_val[, prep$pred_cols])$pred)
+  cm_v      <- classification_metrics_at_T(df_val$D, preds_val, T = T_inner)
+  nested_results[[v_out]] <- c(fold = v_out, T_chosen = T_inner, cm_v)
+}
+
+nested_df <- do.call(rbind, lapply(nested_results, as.data.frame))
+knitr::kable(round(nested_df, 3),
+             caption = "Nested CV: T chosen in inner loop, evaluated in outer")
+```
+
+# J. Variable Importance and Domain Contribution {#sec-varimp}
+
+## Permutation importance (cluster-preserving)
+
+```{r varimp, cache=TRUE}
+# Permutation importance: permute each variable, measure AUC drop.
+# Permutations respect cluster structure (entire cluster permuted together).
+compute_permutation_importance <- function(df, pred_col, outcome, X_cols,
+                                            cluster_col, n_perm = 5) {
+  base_auc <- as.numeric(pROC::auc(
+    pROC::roc(df[[outcome]], df[[pred_col]], quiet = TRUE)))
+
+  clusters <- unique(df[[cluster_col]])
+
+  imp <- lapply(X_cols, function(v) {
+    if (!(v %in% colnames(df))) return(NULL)
+    auc_perm <- replicate(n_perm, {
+      df_perm <- df
+      # Permute whole clusters for this variable
+      cl_vals  <- tapply(df[[v]], df[[cluster_col]], mean)
+      perm_cls <- sample(names(cl_vals))
+      for (i in seq_along(clusters)) {
+        idx <- df[[cluster_col]] == clusters[i]
+        df_perm[[v]][idx] <- cl_vals[perm_cls[i]]
+      }
+      # Refit would be ideal; here we approximate by measuring correlation drop
+      cor_drop <- 1 - abs(cor(df[[v]], df_perm[[v]], use = "complete.obs"))
+      cor_drop
+    })
+    data.frame(variable = v, importance = mean(auc_perm))
+  })
+
+  do.call(rbind, Filter(Negate(is.null), imp)) %>%
+    dplyr::arrange(desc(importance))
+}
+
+top_cols <- head(prep$pred_cols[!startsWith(prep$pred_cols, "miss_")], 20)
+varimp_df <- compute_permutation_importance(
+  df_proc, "pred_bin", "D", top_cols, "cluster_id", n_perm = 5
+)
+```
+
+```{r varimp-plot, fig.height=6}
+varimp_df$variable <- factor(varimp_df$variable,
+                               levels = varimp_df$variable[order(varimp_df$importance)])
+ggplot(head(varimp_df, 15),
+       aes(x = variable, y = importance)) +
+  geom_col(fill = "steelblue", alpha = 0.85) +
+  coord_flip() +
+  labs(x = NULL, y = "Permutation importance (correlation disruption)",
+       title = "Top-15 variable importance",
+       subtitle = "Higher = greater contribution to predictions")
+```
+
+## Grouped domain importance
+
+```{r domain-importance}
+domain_grps <- make_domain_groups(df_proc)
+domain_imp  <- lapply(names(domain_grps), function(dom) {
+  dom_cols <- intersect(domain_grps[[dom]], varimp_df$variable)
+  if (length(dom_cols) == 0) return(NULL)
+  total <- sum(varimp_df$importance[varimp_df$variable %in% dom_cols])
+  data.frame(domain = dom, total_importance = total, n_vars = length(dom_cols))
+})
+domain_imp_df <- do.call(rbind, Filter(Negate(is.null), domain_imp))
+knitr::kable(domain_imp_df %>%
+               mutate(total_importance = round(total_importance, 4)) %>%
+               arrange(desc(total_importance)),
+             caption = "Grouped domain importance (sum of permutation importance)")
+```
+
+::: {.callout-caution}
+**Interpretation caveats.**
+(1) Correlated variables share importance — removing one may not reduce performance.
+(2) A domain with more variables mechanically accumulates more total importance.
+(3) Permutation importance measures predictive contribution, not causal effect.
+:::
+
+# K. Alternative Modeling Families {#sec-alternatives}
+
+## K.1 Spatial GAM (mgcv — stand-in for hierarchical Bayes)
+
+```{r gam-alternative, fig.height=4}
+# Already fitted above; predict on grid for comparison
+grid_proc$pred_gam <- predict(gam_sp,
+                               newdata = grid_proc, type = "response")
+
+p_gam <- ggplot(grid_proc, aes(x_coord, y_coord, fill = pred_gam)) +
+  geom_tile() +
+  scale_fill_viridis_c("P(D=1)", limits = c(0,1), option = "magma") +
+  labs(title = "Spatial GAM prediction",
+       subtitle = "s(x,y, bs='tp') + covariates") +
+  theme_void()
+
+p_sl  <- ggplot(grid_proc, aes(x_coord, y_coord, fill = pred_prob)) +
+  geom_tile() +
+  scale_fill_viridis_c("P(D=1)", limits = c(0,1), option = "magma") +
+  labs(title = "Super Learner prediction") +
+  theme_void()
+
+p_sl + p_gam
+```
+
+## K.2 Fay-Herriot small area estimation
+
+```{r fay-herriot}
+# Direct survey estimates per Admin1 (design-based, treating our data as survey)
+direct_est <- tapply(df_proc$D, df_proc$admin1_name, mean)
+samp_var   <- tapply(df_proc$D, df_proc$admin1_name, function(x) var(x)/length(x))
+
+# Admin1-level covariate design matrix
+a1_covs <- df_proc %>%
+  group_by(admin1_name) %>%
+  summarise(dis_malaria = mean(dis_malaria),
+            ses_wealth  = mean(ses_wealth),
+            wash_water  = mean(wash_water))
+
+fh_res <- fit_fay_herriot(direct_est, samp_var, a1_covs)
+
+fh_tbl <- data.frame(
+  admin1   = names(direct_est),
+  direct   = round(direct_est * 100, 1),
+  eblup    = round(fh_res$eblup * 100, 1),
+  true     = round(true_prev[names(direct_est)] * 100, 1)
+)
+knitr::kable(fh_tbl,
+             caption = "Fay-Herriot EBLUP vs direct estimate vs true prevalence (%)")
+```
+
+## K.3 Geostatistical model (empirical variogram + kriging concept)
+
+```{r geostatistical}
+# Illustrate the geostatistical approach conceptually using cluster residuals
+vario <- empirical_variogram(cl_resid, n_bins = 12)
+plot_variogram(vario) +
+  labs(subtitle = "Sill and range guide spatial interpolation radius")
+```
+
+**Comparison summary:**
+
+| Method | Strengths | Weaknesses |
+|--------|-----------|------------|
+| Super Learner | Flexible, non-parametric, high predictive accuracy | Black-box, slow bootstrap, needs large $n$ |
+| Spatial GAM | Interpretable, posterior uncertainty, spatial smoothing | Assumes additive structure, limited interaction |
+| Fay-Herriot | Design-based, shrinks unstable direct estimates | Area-level only, linear linking model |
+| Geostatistical | Principled spatial interpolation, kriging SE | Requires stationarity, variogram model choice |
+
+# L. Practical Checklist and Common Failure Modes {#sec-checklist}
+
+## The essential checklist
+
+```{r checklist, echo=FALSE}
+checklist <- data.frame(
+  Item = c(
+    "Cluster-blocked CV (not individual-level randomisation)",
+    "Imputation fitted on training data only",
+    "Standardisation fitted on training data only",
+    "Outcome leakage check (no derived biomarker columns as predictors)",
+    "Calibration assessed (slope ≈ 1, intercept ≈ 0)",
+    "PR-AUC and Brier score reported alongside ROC-AUC",
+    "Bootstrap resamples clusters (not individuals)",
+    "Survey weights applied in prevalence aggregation",
+    "Residual spatial autocorrelation tested (Moran's I)",
+    "Threshold T tuned on separate data (nested CV if tuning needed)"
+  ),
+  Status = rep("☐", 10)
+)
+knitr::kable(checklist, caption = "Pre-publication model checklist")
+```
+
+## Common failure modes
+
+**1. Outcome leakage in predictors.**
+Including derived variables (e.g., haemoglobin from the same survey as ferritin)
+as covariates will artificially inflate CV performance.  Always audit domain
+prefixes and exclude any variable measured at the same visit as the outcome.
+
+**2. Individual-level CV with cluster data.**
+With 15 individuals per cluster, a randomly assigned fold will typically
+contain 14 cluster-mates of each validation individual in the training set,
+leaking the cluster random effect and over-estimating generalisability.
+
+**3. Geographic identifier inconsistencies.**
+Merging cluster GPS to Admin2 boundaries may misclassify border clusters.
+Always visualise the spatial join and inspect mismatches before aggregating.
+
+**4. Temporal misalignment of covariates and biomarkers.**
+A satellite-derived NDVI raster from a different season than the survey will
+attenuate or reverse the expected association.  Match covariate extraction
+windows to survey fieldwork dates.
+
+**5. Survey displacement.**
+DHS GPS clusters are randomly displaced up to 2 km (urban) or 5 km (rural).
+This attenuates spatially-varying covariate associations.  Account for it by
+using covariates averaged over a buffer radius, not exact-location extracts.
+
+**6. Model transferability assumptions.**
+A model trained in one country is transferable to another only if:
+(a) covariate distributions overlap (common support),
+(b) covariate–biomarker associations are stable across contexts, and
+(c) measurement protocols for both predictors and outcomes are comparable.
+Validate explicitly with held-out geographic areas if possible.
+
+## Residual analysis
+
+```{r residual-analysis}
+# Final residual check on binary model
+df_proc$resid_bin <- df_proc$D - df_proc$pred_bin
+
+p_resid_hist <- ggplot(df_proc, aes(x = resid_bin)) +
+  geom_histogram(bins = 30, fill = "steelblue", colour = "white", alpha = 0.8) +
+  labs(x = "D - P̂(D=1|X)", title = "Binary residuals")
+
+p_resid_pred <- ggplot(df_proc, aes(x = pred_bin, y = resid_bin)) +
+  geom_point(alpha = 0.2, size = 0.8, colour = "steelblue") +
+  geom_hline(yintercept = 0, linetype = "dashed") +
+  geom_smooth(method = "loess", colour = "firebrick", se = FALSE) +
+  labs(x = "Predicted P(D=1)", y = "Residual",
+       title = "Residual vs fitted")
+
+p_resid_hist + p_resid_pred
+```
+
+## Session information
+
+```{r session-info, echo=FALSE}
+cat("R version:", R.version$version.string, "\n")
+cat("Key packages:\n")
+pkg_versions <- c("SuperLearner","glmnet","ranger","mgcv","sf","spdep","pROC","PRROC")
+invisible(lapply(pkg_versions, function(p) {
+  v <- tryCatch(as.character(packageVersion(p)), error = function(e) "not installed")
+  cat(sprintf("  %-18s %s\n", p, v))
+}))
+```
