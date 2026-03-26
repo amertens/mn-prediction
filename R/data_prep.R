@@ -107,8 +107,8 @@ build_outcome_dataset <- function(merged_data, cc, oc) {
   # Convert to standard 0/1 where 1=deficient, 0=not deficient.
   if (!is.null(oc$binary) && oc$binary %in% colnames(d)) {
     yb <- d[[oc$binary]]
-    yb_vals <- sort(unique(yb[!is.na(yb)]))
-    if (length(yb_vals) == 2 && identical(yb_vals, c(1, 2))) {
+    yb_vals <- sort(unique(as.numeric(yb[!is.na(yb)])))
+    if (length(yb_vals) == 2 && all(yb_vals == c(1, 2))) {
       cat(sprintf("  Recoding %s from {1,2} to {1,0} (1=deficient, 2=not → 0)\n",
                   oc$binary))
       d[[oc$binary]] <- ifelse(d[[oc$binary]] == 1, 1, 0)

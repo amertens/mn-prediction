@@ -177,7 +177,15 @@
       "Bash(xargs grep:*)",
       "Bash(grep -B 5 -A 10 \"binary.*outcome\\\\|oc$binary\" /c/Users/andre/OneDrive/Documents/mn-prediction/R/data_prep.R)",
       "Bash(grep -n \"gw_cFeDefAdj\\\\|gw_cIDA\\\\|gw_wFeDefAdj\\\\|gw_wIDA\" /c/Users/andre/OneDrive/Documents/mn-prediction/src/SierraLeone/*.R)",
-      "Bash(\"/c/Program Files/R/R-4.4.2/bin/Rscript.exe\" --vanilla -e \"parse\\(''R/data_prep.R''\\); cat\\(''OK\\\\n''\\)\")"
+      "Bash(\"/c/Program Files/R/R-4.4.2/bin/Rscript.exe\" --vanilla -e \"parse\\(''R/data_prep.R''\\); cat\\(''OK\\\\n''\\)\")",
+      "Bash(find /c/Users/andre/OneDrive/Documents/mn-prediction/_targets/objects -type f -exec ls -lh {})",
+      "Bash(Rscript:*)",
+      "Bash(python3:*)",
+      "Bash(\"/c/Program Files/R/R-4.4.2/bin/Rscript.exe\" --vanilla -e \"parse\\(''R/diagnostics.R''\\); cat\\(''diagnostics.R OK\\\\n''\\)\")",
+      "Bash(\"/c/Program Files/R/R-4.4.2/bin/Rscript.exe\" --vanilla -e \"parse\\(''R/transportability.R''\\); cat\\(''OK\\\\n''\\)\")",
+      "Bash(\"/c/Program Files/R/R-4.4.2/bin/Rscript.exe\" --vanilla -e \"d <- readRDS\\(''_targets/objects/pooled_women_iron''\\); cat\\(''OK '', ncol\\(d[[''data'']]\\), ''\\\\n''\\)\")",
+      "Bash(\"/c/Program Files/R/R-4.4.2/bin/Rscript.exe\" --vanilla -e \"d <- readRDS\\(''_targets/objects/pooled_women_iron''\\); df <- d[[''data'']]; cat\\(sum\\(sapply\\(df, is.list\\)\\), ''list cols\\\\n''\\)\")",
+      "Bash(\"/c/Program Files/R/R-4.4.2/bin/Rscript.exe\" --vanilla -e \"d <- readRDS\\(''_targets/objects/pooled_women_iron''\\); df <- d[[''data'']]; cat\\(sum\\(sapply\\(df, function\\(x\\) inherits\\(x,''haven_labelled''\\)\\)\\), ''haven cols\\\\n''\\); cat\\(''Y range:'', range\\(df[[''Y_binary'']], na.rm=TRUE\\), ''\\\\n''\\)\")"
     ]
   }
 }

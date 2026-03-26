@@ -28,7 +28,7 @@ knitr:
 
 # Introduction
 
-This tutorial walks through every stage of the micronutrient deficiency prediction pipeline, using vitamin A deficiency (VAD) in Gambian children as the running example. For each step, we discuss:
+This tutorial walks through every stage of the micronutrient deficiency prediction pipeline, using vitamin A deficiency (VAD) in Gambian children as the running example. The pipeline now covers **4 countries** (Gambia, Ghana, Sierra Leone, Malawi), but we demonstrate with Gambia throughout for clarity. For each step, we discuss:
 
 1. **What we do** and the key decisions involved
 2. **Alternative approaches** that could be used instead
@@ -60,10 +60,10 @@ The outcome data comes from the Gambia Micronutrient Survey (GMS), a nationally 
 
 | Outcome | Population | n |
 |---------|------------|---|
-| Vitamin A deficiency | Children | 1,020 |
-| Vitamin A deficiency | Women | 1,413 |
-| Iron deficiency anaemia | Children | 1,013 |
-| Iron deficiency anaemia | Women | 1,402 |
+| Vitamin A deficiency | Children | ~1,947 |
+| Vitamin A deficiency | Women | ~2,367 |
+| Iron deficiency anaemia | Children | ~1,931 |
+| Iron deficiency anaemia | Women | ~2,356 |
 
 ### Alternatives
 
@@ -109,6 +109,7 @@ Even after removing the 26 columns matching explicit leakage patterns (RBP, VAD,
 | MAP | `MAP_` | Malaria Atlas | Raster (~5 km) | Pf prevalence, ITN coverage, IRS coverage |
 | WFP | `wfp_` | WFP VAM | Market-level | Commodity prices, market distance |
 | FluNet | `flunet_` | WHO FluNet | National/seasonal | Influenza positivity rates |
+| FSEC | `fsec_` | HFID / Cadre Harmonisé | Admin-2 | Food security indicators, IPC phase classification |
 | GEE | `gee_` | Google Earth Engine | Raster (1--10 km) | NDVI, rainfall, night lights, land cover |
 
 **Key merging decisions:**
@@ -142,7 +143,7 @@ Before model fitting, the predictors undergo a six-step preprocessing chain:
 6. **Recipe-based cleaning:**
    - Zero-variance removal (post-imputation)
    - Near-zero variance removal
-   - High-correlation removal (threshold: $r$ > 0.90)
+   - High-correlation removal (threshold: $r$ > 0.85)
    - Normalization (center and scale all numeric predictors)
 
 For proxy-only models, this chain reduces ~2,500 raw proxy columns to ~100--300 final predictors.
@@ -169,18 +170,22 @@ We use the SuperLearner (van der Laan et al., 2007) implemented via the `sl3` R 
 | Learner | Description |
 |---------|-------------|
 | `Lrnr_mean` | Intercept-only (prevalence baseline) |
-| `Lrnr_glmnet` | Elastic net (penalized regression) |
+| `Lrnr_glmnet` (LASSO) | LASSO penalized regression ($\alpha$ = 1) |
 | `Lrnr_ranger` | Random forest |
 
-**Full mode stack** (5+ learners with screener pipelines --- for publication, ~2--4 hours):
+**Full mode stack** (7 learners --- for publication, ~2--4 hours):
 
 | Learner | Description |
 |---------|-------------|
 | `Lrnr_mean` | Intercept-only |
-| `Lrnr_glmnet` | Elastic net |
-| `Lrnr_ranger` | Random forest |
-| `Lrnr_glm_fast` | Fast GLM with correlation-screened predictors |
-| RF-screened pipeline | Top-20 RF importance $\rightarrow$ RF |
+| `Lrnr_glmnet` (LASSO) | LASSO ($\alpha$ = 1) |
+| `Lrnr_glmnet` (elastic net 0.75) | Elastic net ($\alpha$ = 0.75) |
+| `Lrnr_glmnet` (ridge) | Ridge regression ($\alpha$ = 0) |
+| `Lrnr_ranger` (conservative) | Random forest (shallow trees) |
+| `Lrnr_ranger` (deeper) | Random forest (deeper trees) |
+| `Lrnr_xgboost` | Gradient-boosted trees |
+
+Note: the full stack no longer uses screener pipelines; all learners receive the full preprocessed predictor set directly.
 
 ## 2.2 Cross-validation strategy
 
@@ -209,7 +214,7 @@ For each outcome, we fit:
 ### Sensitivity analyses
 
 - Compare blocked vs. random CV to quantify "optimism bias" from ignoring clusters.
-- Compare the fast (3-learner) and full (5+ learner) stacks to assess whether the additional complexity improves predictions.
+- Compare the fast (3-learner) and full (7-learner) stacks to assess whether the additional complexity improves predictions.
 - Compare proxy-only vs. full-predictor models to quantify the value-add of survey variables.
 
 ### Interpretation
@@ -272,9 +277,9 @@ Bootstrap CIs from proxy-only models will be **wider** than from models with sur
 
 # Stage 5: Domain Ablation
 
-## 5.1 Leave-one-domain-out importance
+## 5.1 Permutation-based domain importance
 
-To understand which proxy domains drive performance, we use domain ablation: remove all columns from one domain, refit the model, and measure the performance drop.
+To understand which proxy domains drive performance, we use **permutation-based domain ablation**: randomly shuffle all columns from one domain simultaneously and measure the performance drop on the already-fitted model. This approach does not require refitting the SuperLearner for each domain, making it computationally efficient and avoiding instability from small-sample refitting.
 
 Since the primary analysis uses only proxy predictors, the `GW` domain is automatically excluded from ablation (it's not in the model). The ablation tests each external domain in turn:
 
@@ -286,16 +291,40 @@ Since the primary analysis uses only proxy predictors, the `GW` domain is automa
 | MICS | Value of WASH and education indicators |
 | MAP | Value of malaria-specific geospatial data |
 | WFP | Value of food security and market access data |
+| FSEC | Value of food security (HFID / Cadre Harmonisé) indicators |
+
+### Conceptual domain ablation
+
+In addition to the source-based ablation above, the pipeline also performs **conceptual domain ablation** that groups predictors by topic category (e.g., "health", "agriculture", "demographics", "infrastructure") regardless of which data source they come from. This reveals which *thematic areas* of information matter most, complementing the source-based view.
 
 ### Alternatives
 
-- **Permutation importance:** Randomly shuffle one variable (or domain) and measure performance drop without refitting. Faster but may understate importance of correlated predictors.
+- **Refit ablation:** Remove one domain and refit the model from scratch. More principled but computationally expensive and can be unstable with small sample sizes.
 - **SHAP values:** Shapley additive explanations provide per-prediction variable importance. More granular but computationally expensive.
 - **Conditional importance:** Measure importance conditional on other predictors being present, which accounts for correlation between domains.
 
 ### Interpretation
 
 The domain ablation reveals which **data investments** are most important for prediction quality. If DHS indicators dominate, then maintaining DHS survey frequency is critical for this approach. If GEE dominates, then satellite-based monitoring can serve as a low-cost substitute for some survey data.
+
+
+# Stage 5b: Transportability and Multi-Country Analysis
+
+## 5b.1 Leave-one-country-out (LOCO) cross-validation
+
+With the pipeline now covering 4 countries, we can assess **transportability**: how well does a model trained on data from some countries predict deficiency in a held-out country? This is evaluated using leave-one-country-out (LOCO) cross-validation:
+
+1. **Hold out** one country entirely
+2. **Train** the SuperLearner on the remaining countries' pooled data
+3. **Predict** on the held-out country
+4. **Evaluate** performance (AUC, Brier score) in the held-out country
+5. **Repeat** for each country
+
+This provides a rigorous test of whether the proxy-based prediction approach generalizes across different West African settings with distinct dietary patterns, health systems, and ecological zones.
+
+### Interpretation
+
+If LOCO performance is close to within-country CV performance, the model captures generalizable relationships between proxy predictors and micronutrient status. If LOCO performance is substantially worse, country-specific factors (food systems, supplementation programs, local dietary practices) dominate and country-specific models may be needed.
 
 
 # Stage 6: Admin-2 Prediction and Validation
@@ -366,7 +395,7 @@ The area-level model is the most policy-relevant output. It provides **full nati
 
 # Worked Example: Vitamin A Deficiency in Gambian Children
 
-This section walks through the actual results from the proxy-only model for child vitamin A deficiency (`child_vitA`) in the Gambia, interpreting each stage's output. The model was fit on 1,020 children from the Gambia Micronutrient Survey using only proxy predictors (no `gw_` survey variables).
+This section walks through the actual results from the proxy-only model for child vitamin A deficiency (`child_vitA`) in the Gambia, interpreting each stage's output. The model was fit on ~1,947 children from the Gambia Micronutrient Survey using only proxy predictors (no `gw_` survey variables).
 
 ## Interpreting CV Performance
 
@@ -547,6 +576,7 @@ Bringing together all stages, the proxy-only model for child vitamin A deficienc
 | Ensemble | SuperLearner (NNLS) | Single learner (LASSO) | SL may add ~2--5% AUC vs. best single learner |
 | Bootstrap replicates | 10 (fast) / 200 (full) | 500--1000 | CIs stabilize by B=200 |
 | Area-level model | Elastic net on GEE | BYM2 / kriging | Elastic net is simpler; spatial models need adjacency structure |
+| Correlation threshold | $r$ > 0.85 | $r$ > 0.90 or 0.95 | Lower threshold removes more redundancy; higher retains more signal |
 | Preprocessing | 6-step pipeline | PCA / minimal cleaning | Current approach balances dimension reduction with interpretability |
 
 
@@ -565,16 +595,20 @@ targets::tar_make()
 # Visualize dependency graph:
 targets::tar_visnetwork()
 
-# Read cached results:
+# Read cached results (use store = "_targets_full" for full-mode results):
 targets::tar_read(cv_perf_gambia_child_vitA)
 targets::tar_read(area_model_gambia_child_vitA)
+# Or from full pipeline:
+# targets::tar_read(cv_perf_gambia_child_vitA, store = "_targets_full")
 ```
 
 ## Adding a new country
 
 1. Add an entry to `get_country_configs()` in `R/config.R`
 2. Run `targets::tar_make()` --- new targets are auto-generated
-3. All cross-country comparisons update automatically
+3. All cross-country comparisons and LOCO transportability analyses update automatically
+
+Currently configured countries: Gambia, Ghana, Sierra Leone, Malawi.
 
 ## Adding a new outcome
 

@@ -191,9 +191,22 @@ fit_area_level_model <- function(svy_admin2, cc, oc, params) {
     return(list(area_preds = NULL, loo_summary = NULL, polygons = NULL))
   }
 
-  # Download GADM boundaries
-  gadm <- geodata::gadm(cc$gadm_code, level = 2,
-                         path = tempdir()) %>% sf::st_as_sf()
+  # Download GADM boundaries (with retry and error handling)
+  gadm_raw <- tryCatch(
+    geodata::gadm(cc$gadm_code, level = 2, path = here::here("data", "gadm")),
+    error = function(e) {
+      # Retry once — GADM server can be flaky
+      tryCatch(
+        geodata::gadm(cc$gadm_code, level = 2, path = here::here("data", "gadm")),
+        error = function(e2) NULL
+      )
+    }
+  )
+  if (is.null(gadm_raw)) {
+    warning(sprintf("GADM download failed for %s — skipping area model", cc$gadm_code))
+    return(list(area_preds = NULL, loo_summary = NULL, polygons = NULL))
+  }
+  gadm <- sf::st_as_sf(gadm_raw)
   gadm$Admin2 <- gadm$NAME_2
   all_polys <- gadm
 

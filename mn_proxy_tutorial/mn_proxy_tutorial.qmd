@@ -76,6 +76,15 @@ This tutorial teaches the full pipeline: simulation, preprocessing, ensemble
 modeling, prevalence aggregation, uncertainty quantification, and spatial
 analysis.
 
+::: {.callout-tip}
+**Multi-country application.** The companion production pipeline applies these
+methods to real biomarker data from four countries — The Gambia, Ghana, Sierra
+Leone, and Malawi — predicting vitamin A deficiency (children and women) and
+iron deficiency (children and women) using ~200+ proxy predictors from DHS,
+MICS, IHME-GBD, MAP, Google Earth Engine, and food security indicators (HFID,
+Cadre Harmonisé). See `docs/results_report.qmd` for the full results.
+:::
+
 ## Three prediction targets
 
 Let $Y_i$ be a continuous biomarker (e.g., log ferritin, µg/L) and
@@ -248,6 +257,15 @@ validation folds.  The functions `preprocess_survey()` and
 `apply_preprocessing()` enforce this separation.
 :::
 
+::: {.callout-tip}
+**Correlation filtering in production.** The production pipeline applies
+`recipes::step_corr(threshold = 0.85)` to remove highly correlated predictors.
+With ~200+ proxy variables from IHME, MAP, and GEE, many indicators are
+near-copies of each other (e.g., multiple IHME anemia estimates). The 0.85
+threshold (rather than the more common 0.90) more aggressively removes
+redundancy, reducing effective dimensionality and improving SL stability.
+:::
+
 # D. Super Learner Modeling {#sec-sl}
 
 ## Theoretical framework
@@ -300,6 +318,22 @@ cat(sprintf("Fold sizes: %s individuals\n",
 ```
 
 ## Base learner library
+
+::: {.callout-note}
+**Production pipeline uses `sl3`.** This tutorial uses the `SuperLearner` R
+package for pedagogical simplicity.  The production pipeline uses `sl3` with a
+stack designed for the "many weak predictors, rare outcome" setting:
+
+- **Fast mode** (3 learners): Mean + Lasso (α=1) + Ranger (min.node.size=10)
+- **Full mode** (7 learners): Mean + Lasso + Elastic Net (α=0.75) + Ridge +
+  Ranger (conservative) + Ranger (deeper) + XGBoost (max_depth=3, η=0.05,
+  min_child_weight=20)
+
+Key design choices: lasso for aggressive variable selection, ridge to capture
+distributed weak signal across correlated proxy blocks, conservative tree
+depths and minimum node sizes to prevent overfitting on rare outcomes, and
+no screener pipelines (which can fail when p >> n).
+:::
 
 ```{r sl-library}
 SL_LIBRARY <- c(
@@ -799,6 +833,16 @@ mixed_fit <- tryCatch({
 df_proc$pred_mixed <- predict(mixed_fit, type = "response")
 ```
 
+::: {.callout-tip}
+**Production pipeline: cross-country transportability.** The production
+pipeline goes beyond spatial CV with **leave-one-country-out (LOCO)**
+cross-validation: train the SL on three countries and predict the held-out
+fourth.  This directly tests whether proxy-based predictions generalise across
+national boundaries — a stricter test than within-country spatial blocking.
+Only covariates available across all countries (IHME, MAP, GEE, food security)
+are used in LOCO, excluding country-specific DHS/MICS indicators.
+:::
+
 ### 3. Spatially blocked cross-validation
 
 ```{r spatial-cv}
@@ -860,6 +904,16 @@ brier_zero <- mean((df_rare$D - pred_zero)^2)
 cat(sprintf("\nAlways-zero model:\n  ROC-AUC = %.3f (misleading!)\n",  auc_zero))
 cat(sprintf("  PR-AUC  = %.3f\n  Brier   = %.4f\n", prauc_zero, brier_zero))
 ```
+
+::: {.callout-tip}
+**Production diagnostics.** The production pipeline computes a full diagnostic
+suite for each country×outcome: ROC-AUC, PR-AUC, Brier score, Brier skill
+score, calibration slope/intercept, binned calibration tables, reliability
+plots, and PR curves.  For rare outcomes like women's vitamin A deficiency
+(prevalence 1–4%), PR-AUC and calibration are far more informative than
+ROC-AUC.  See `R/diagnostics.R` and the diagnostics section in
+`docs/results_report.qmd`.
+:::
 
 ## Alternative losses
 
@@ -1058,6 +1112,29 @@ knitr::kable(domain_imp_df %>%
 (1) Correlated variables share importance — removing one may not reduce performance.
 (2) A domain with more variables mechanically accumulates more total importance.
 (3) Permutation importance measures predictive contribution, not causal effect.
+:::
+
+::: {.callout-tip}
+**Production pipeline: conceptual domain importance.** The production pipeline
+extends grouped importance in two ways, both using the fitted SL model without
+refitting:
+
+1. **Leave-one-out (LOO):** shuffle one conceptual domain at a time (e.g.,
+   "Climate", "Food Security", "Water and Sanitation") and measure AUC drop.
+   Domains with larger AUC drops contribute more to prediction.
+2. **Add-one-in (AOI):** shuffle *all* domains except one, measuring how much
+   predictive power each domain retains in isolation.
+
+Variables are classified into ~25 Level-1 conceptual domains (e.g., Child
+Health, Fertility, Malaria) and ~80 Level-2 sub-domains using the official DHS
+indicator taxonomy plus custom mappings for IHME, MAP, GEE, and food security
+variables.  See `metadata/variable_conceptual_domains.csv` and
+`R/conceptual_ablation.R`.
+
+Critically, all permutation predictions use **cross-validated** predictions
+(`predict_fold(task, "validation")`) to match the baseline metric.  Using
+in-sample predictions would inflate all metrics and make domain importance
+uninterpretable.
 :::
 
 # K. Alternative Modeling Families {#sec-alternatives}
