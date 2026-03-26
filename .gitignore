@@ -2,3 +2,8 @@
 .Rhistory
 .RData
 .Ruserdata
+/data/
+data
+
+# targets pipeline cache (large, machine-specific)
+_targets/

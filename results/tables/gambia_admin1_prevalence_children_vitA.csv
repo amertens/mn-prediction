@@ -1,0 +1,7 @@
+Admin1,n,obs_prevalence,pred_prevalence,outcome,label,pred_type
+Banjul,169,0.13609467455621302,0.1505825323353039,child_vitA,Vitamin A (children),binary_prob
+Lower River,133,0.23308270676691728,0.21747484315148655,child_vitA,Vitamin A (children),binary_prob
+Maccarthy Island,309,0.37216828478964403,0.35986655876302776,child_vitA,Vitamin A (children),binary_prob
+North Bank,93,0.1827956989247312,0.1781182100442686,child_vitA,Vitamin A (children),binary_prob
+Upper River,165,0.3393939393939394,0.3223747235574941,child_vitA,Vitamin A (children),binary_prob
+Western,151,0.15894039735099338,0.14958653692480345,child_vitA,Vitamin A (children),binary_prob

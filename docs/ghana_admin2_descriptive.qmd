@@ -1,0 +1,645 @@
+---
+title: "Ghana Micronutrient Deficiency & GEE Predictors"
+subtitle: "Admin1 and Admin2 descriptive analysis with SuperLearner prediction"
+author: "MN Prediction Pipeline"
+date: today
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    code-fold: true
+    code-summary: "Show code"
+    theme: cosmo
+    self-contained: true
+    fig-width: 8
+    fig-height: 6
+execute:
+  warning: false
+  message: false
+---
+
+```{r setup}
+library(here)
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+library(sf)
+library(viridis)
+library(scales)
+library(knitr)
+library(patchwork)
+library(geodata)
+library(terra)
+library(exactextractr)
+library(readr)
+library(SuperLearner)
+```
+
+## Overview
+
+This report describes the Admin1- and Admin2-level analytic datasets for Ghana,
+built by aggregating individual-level micronutrient survey data (2017 Ghana
+Micronutrient Survey) and merging with **all** Google Earth Engine (GEE) raster
+predictors in the `data/Ghana_GEE rasters/` folder, averaged over each
+administrative unit. Multi-layer .tif files are handled by extracting each layer
+as a separate variable.
+
+**Survey design:** The Ghana Micronutrient Survey 2017 uses a **stratified,
+cluster-sampled design** with survey weights. Prevalence estimates are computed
+using the `srvyr` package with:
+
+- **PSU (cluster):** `gw_cnum` (90 enumeration areas)
+- **Strata:** `gw_Strata`
+- **Weights:** `gw_sWeight`
+- **Lonely PSU handling:** `options(survey.lonely.psu = "adjust")`
+
+This ensures correct variance estimation and confidence intervals that account
+for the complex survey design, rather than treating observations as independent.
+
+**Outcome:** Vitamin A deficiency (VAD) prevalence in children, defined as
+retinol-binding protein (RBP, Brinda-adjusted) < 0.70 µmol/L.
+
+**GEE predictors:** All .tif rasters from the Ghana GEE folder, including NDVI,
+TRMM precipitation, population density, land surface temperature, FLDAS climate
+variables, soil properties (multiple depth layers), crop classification,
+human modification index, settlement type, nighttime lights, grassland cover,
+and net primary productivity (WAPOR).
+
+
+## Build the Datasets
+
+```{r build-dataset}
+a1_path    <- here::here("data", "Ghana_admin1_analytic.rds")
+a1_sf_path <- here::here("data", "Ghana_admin1_analytic_sf.rds")
+a2_path    <- here::here("data", "Ghana_admin2_analytic.rds")
+a2_sf_path <- here::here("data", "Ghana_admin2_analytic_sf.rds")
+
+if (all(file.exists(a1_path, a1_sf_path, a2_path, a2_sf_path))) {
+  admin1_df <- readRDS(a1_path)
+  admin1_sf <- readRDS(a1_sf_path)
+  admin2_df <- readRDS(a2_path)
+  admin2_sf <- readRDS(a2_sf_path)
+  cat("Loaded saved datasets.\n")
+} else {
+  cat("Building datasets from scratch...\n")
+  source(here::here("scripts", "07_ghana_admin2_gee_dataset.R"))
+  admin1_df <- readRDS(a1_path)
+  admin1_sf <- readRDS(a1_sf_path)
+  admin2_df <- readRDS(a2_path)
+  admin2_sf <- readRDS(a2_sf_path)
+}
+
+# Identify GEE predictor columns (all starting with gee_)
+gee_cols <- grep("^gee_", names(admin1_df), value = TRUE)
+cat(sprintf("GEE predictor columns: %d\n", length(gee_cols)))
+
+# Full GADM polygons for mapping (grey = no data)
+poly_a1 <- geodata::gadm(country = "GHA", level = 1, path = tempdir())
+poly_a1 <- sf::st_as_sf(poly_a1) %>%
+  select(NAME_1) %>% rename(Admin1_gadm = NAME_1) %>%
+  sf::st_transform(crs = 4326)
+
+poly_a2 <- geodata::gadm(country = "GHA", level = 2, path = tempdir())
+poly_a2 <- sf::st_as_sf(poly_a2) %>%
+  select(NAME_1, NAME_2) %>%
+  rename(Admin1_gadm = NAME_1, Admin2_gadm = NAME_2) %>%
+  sf::st_transform(crs = 4326)
+
+# Map join
+map_a1 <- poly_a1 %>%
+  left_join(admin1_df %>% select(-Admin1_gadm), by = c("Admin1_gadm" = "Admin1"))
+
+gee_cols_a2 <- grep("^gee_", names(admin2_df), value = TRUE)
+map_a2 <- poly_a2 %>%
+  left_join(
+    admin2_df %>% select(Admin2_gadm, svy_prev_vad, n_children,
+                         all_of(gee_cols_a2)),
+    by = "Admin2_gadm"
+  )
+```
+
+
+## Survey Data Summary
+
+### National
+
+```{r national-summary}
+data.frame(
+  Metric = c("Total children (complete cases)", "National weighted VAD prevalence",
+             "GEE predictor variables"),
+  Value  = c(sprintf("%d", sum(admin1_df$n_children)),
+             sprintf("%.1f%%", weighted.mean(admin1_df$svy_prev_vad,
+                                              admin1_df$n_children) * 100),
+             as.character(length(gee_cols)))
+) %>% kable()
+```
+
+### Admin1 Regions (survey-weighted)
+
+```{r admin1-table}
+admin1_df %>%
+  arrange(desc(svy_prev_vad)) %>%
+  mutate(
+    `Weighted prev` = sprintf("%.1f%% [%.1f, %.1f]",
+      svy_prev_vad * 100, svy_prev_vad_low * 100, svy_prev_vad_upp * 100),
+    `Raw prev` = sprintf("%.1f%%", raw_prev_vad * 100),
+    `Mean RBP` = round(mean_rbp, 3)
+  ) %>%
+  select(Admin1, n_children, `Weighted prev`, `Raw prev`, `Mean RBP`) %>%
+  kable(caption = "Admin1 VAD prevalence (survey-weighted with 95% CI)")
+```
+
+### Admin2 Districts (survey-weighted, top 20)
+
+```{r admin2-table}
+admin2_df %>%
+  arrange(desc(svy_prev_vad)) %>%
+  head(20) %>%
+  mutate(
+    `Weighted prev` = sprintf("%.1f%% [%.1f, %.1f]",
+      svy_prev_vad * 100, svy_prev_vad_low * 100, svy_prev_vad_upp * 100),
+    `Raw prev` = sprintf("%.1f%%", raw_prev_vad * 100)
+  ) %>%
+  select(Admin1, Admin2, n_children, `Weighted prev`, `Raw prev`) %>%
+  kable(caption = "Top 20 Admin2 districts by VAD prevalence (survey-weighted)")
+```
+
+### Weighted vs Unweighted Prevalence
+
+```{r weighted-vs-raw, fig.width=6, fig.height=5}
+ggplot(admin2_df, aes(x = raw_prev_vad, y = svy_prev_vad)) +
+  geom_abline(slope = 1, intercept = 0, linetype = "dashed", colour = "grey50") +
+  geom_point(aes(size = n_children), alpha = 0.6, colour = "steelblue") +
+  scale_x_continuous(labels = percent_format(1)) +
+  scale_y_continuous(labels = percent_format(1)) +
+  scale_size_area(name = "n", max_size = 5) +
+  labs(x = "Unweighted (raw) prevalence",
+       y = "Survey-weighted prevalence",
+       title = "Impact of Survey Weights on Admin2 Prevalence",
+       subtitle = "Dashed = 1:1 line") +
+  coord_fixed() +
+  theme_minimal(base_size = 12) +
+  theme(plot.title = element_text(face = "bold"))
+```
+
+
+## Maps: VAD Prevalence
+
+### Admin1 Prevalence Map
+
+```{r map-admin1-prev, fig.width=8, fig.height=7}
+ggplot(map_a1) +
+  geom_sf(aes(fill = svy_prev_vad), colour = "white", linewidth = 0.4) +
+  scale_fill_viridis_c(
+    name   = "VAD\nprevalence",
+    labels = percent_format(accuracy = 1),
+    limits = c(0, NA),
+    na.value = "grey85",
+    option = "plasma"
+  ) +
+  labs(
+    title    = "Vitamin A Deficiency Prevalence (Children) — Admin1",
+    subtitle = "Ghana 2017 | Survey-weighted estimates",
+    caption  = sprintf("%d regions | Survey design: stratified cluster sample",
+                       nrow(admin1_df))
+  ) +
+  theme_void(base_size = 12) +
+  theme(plot.title = element_text(face = "bold", size = 14),
+        legend.position = "right")
+```
+
+### Admin1 Forest Plot with 95% CIs
+
+```{r admin1-forest, fig.width=7, fig.height=5}
+forest_a1 <- admin1_df %>%
+  arrange(svy_prev_vad) %>%
+  mutate(Admin1 = factor(Admin1, levels = Admin1))
+
+ggplot(forest_a1, aes(x = svy_prev_vad, y = Admin1,
+                       xmin = svy_prev_vad_low, xmax = svy_prev_vad_upp)) +
+  geom_errorbarh(colour = "steelblue", height = 0.4, linewidth = 0.6) +
+  geom_point(colour = "steelblue", size = 2.5) +
+  scale_x_continuous(labels = percent_format(1), limits = c(0, NA)) +
+  labs(x = "Survey-weighted VAD prevalence (95% CI)",
+       y = NULL,
+       title = "Admin1 VAD Prevalence with Survey Design CIs") +
+  theme_minimal(base_size = 11) +
+  theme(plot.title = element_text(face = "bold"))
+```
+
+### Admin2 Prevalence Map
+
+```{r map-admin2-prev, fig.width=8, fig.height=7}
+ggplot(map_a2) +
+  geom_sf(aes(fill = svy_prev_vad), colour = "white", linewidth = 0.2) +
+  scale_fill_viridis_c(
+    name   = "VAD\nprevalence",
+    labels = percent_format(accuracy = 1),
+    limits = c(0, NA),
+    na.value = "grey85",
+    option = "plasma"
+  ) +
+  labs(
+    title    = "Vitamin A Deficiency Prevalence (Children) — Admin2",
+    subtitle = "Ghana 2017 | Survey-weighted estimates",
+    caption  = sprintf("%d / %d districts with data | Grey = no survey data",
+                       sum(!is.na(map_a2$svy_prev_vad)), nrow(map_a2))
+  ) +
+  theme_void(base_size = 12) +
+  theme(plot.title = element_text(face = "bold", size = 14),
+        legend.position = "right")
+```
+
+
+## GEE Raster Predictors: Overview
+
+```{r gee-inventory}
+# Categorise GEE variables by source
+gee_categories <- data.frame(variable = gee_cols) %>%
+  mutate(
+    source = case_when(
+      grepl("ndvi", variable)     ~ "NDVI (vegetation)",
+      grepl("trmm", variable)     ~ "TRMM (precipitation)",
+      grepl("popdens", variable)  ~ "Population density",
+      grepl("soil", variable)     ~ "Soil properties",
+      grepl("fldas", variable)    ~ "FLDAS (climate/land surface)",
+      grepl("wapor", variable)    ~ "WAPOR (net primary production)",
+      grepl("lst", variable)      ~ "LST (land surface temperature)",
+      grepl("gpw_dem", variable)  ~ "GPW (demographics)",
+      grepl("gpw_grass", variable) ~ "GPW (grasslands)",
+      grepl("esa", variable)      ~ "ESA (crop classification)",
+      grepl("ghsl", variable)     ~ "GHSL (settlement type)",
+      grepl("ccnl", variable)     ~ "CCNL (nighttime lights)",
+      grepl("ghm|human_mod", variable) ~ "Human modification",
+      TRUE                        ~ "Other"
+    )
+  )
+
+gee_categories %>%
+  count(source, name = "n_variables") %>%
+  arrange(desc(n_variables)) %>%
+  kable(caption = sprintf("GEE predictor categories (%d total variables)", length(gee_cols)))
+```
+
+### Summary Statistics (selected predictors)
+
+```{r gee-summary}
+# Pick a few representative single-layer variables for detailed stats
+# Dynamically select one from each major category if available
+representative <- c(
+  grep("^gee_ndvi_2017$", gee_cols, value = TRUE),
+  grep("^gee_trmm_2017$", gee_cols, value = TRUE),
+  grep("^gee_popdens.*2017$", gee_cols, value = TRUE),
+  grep("^gee_lst.*2015", gee_cols, value = TRUE),
+  grep("^gee_ccnl", gee_cols, value = TRUE),
+  grep("^gee_ghsl", gee_cols, value = TRUE),
+  grep("^gee_global", gee_cols, value = TRUE)
+)
+# If none matched via those patterns, fall back to first few gee_cols
+if (length(representative) == 0) representative <- head(gee_cols, 7)
+
+admin1_df %>%
+  select(any_of(representative)) %>%
+  pivot_longer(everything(), names_to = "variable", values_to = "value") %>%
+  group_by(variable) %>%
+  summarise(
+    n      = sum(!is.na(value)),
+    mean   = round(mean(value, na.rm = TRUE), 3),
+    sd     = round(sd(value, na.rm = TRUE), 3),
+    min    = round(min(value, na.rm = TRUE), 3),
+    median = round(median(value, na.rm = TRUE), 3),
+    max    = round(max(value, na.rm = TRUE), 3),
+    .groups = "drop"
+  ) %>%
+  kable(caption = "Summary statistics for selected GEE predictors (Admin1 means)")
+```
+
+### Missingness
+
+```{r gee-missingness}
+na_counts <- admin1_df %>%
+  select(all_of(gee_cols)) %>%
+  summarise(across(everything(), ~sum(is.na(.)))) %>%
+  pivot_longer(everything(), names_to = "variable", values_to = "n_missing") %>%
+  filter(n_missing > 0)
+
+if (nrow(na_counts) > 0) {
+  na_counts %>%
+    arrange(desc(n_missing)) %>%
+    head(20) %>%
+    kable(caption = "GEE variables with missing values at Admin1 (top 20)")
+} else {
+  cat("No missing values across any GEE predictor at Admin1 level.\n")
+}
+```
+
+
+## Correlation with VAD Prevalence
+
+```{r top-correlations, fig.width=8, fig.height=6}
+# Compute correlation of each GEE predictor with VAD prevalence (Admin1)
+cor_with_vad <- sapply(gee_cols, function(v) {
+  x <- admin1_df[[v]]
+  if (all(is.na(x)) || sd(x, na.rm = TRUE) == 0) return(NA_real_)
+  cor(x, admin1_df$svy_prev_vad, use = "complete.obs")
+})
+
+cor_df <- data.frame(
+  variable = names(cor_with_vad),
+  correlation = cor_with_vad,
+  abs_cor = abs(cor_with_vad)
+) %>%
+  filter(!is.na(correlation)) %>%
+  arrange(desc(abs_cor))
+
+# Show top 20
+cor_df %>%
+  head(20) %>%
+  mutate(correlation = round(correlation, 3)) %>%
+  kable(caption = "Top 20 GEE predictors most correlated with VAD prevalence (Admin1)")
+```
+
+```{r cor-barplot, fig.width=8, fig.height=5}
+top_n_cor <- min(20, nrow(cor_df))
+cor_top <- cor_df %>% head(top_n_cor)
+
+cor_top %>%
+  mutate(variable = factor(variable, levels = rev(variable))) %>%
+  ggplot(aes(x = variable, y = correlation,
+             fill = ifelse(correlation > 0, "Positive", "Negative"))) +
+  geom_col(alpha = 0.8, width = 0.7) +
+  scale_fill_manual(values = c("Positive" = "steelblue", "Negative" = "firebrick"),
+                    guide = "none") +
+  coord_flip() +
+  labs(x = NULL, y = "Pearson r with VAD prevalence",
+       title = sprintf("Top %d GEE Predictors Correlated with VAD (Admin1)", top_n_cor)) +
+  theme_minimal(base_size = 10) +
+  theme(plot.title = element_text(face = "bold"))
+```
+
+
+## SuperLearner Analysis
+
+We fit a SuperLearner ensemble on the Admin1-level dataset (n = `r nrow(admin1_df)`)
+to predict survey-weighted VAD prevalence from all available GEE predictors.
+Variables with zero variance or all-NA values are removed. Because n is small,
+we use leave-one-out cross-validation (LOOCV).
+
+**Learner library:**
+
+- `SL.mean` — intercept-only baseline (grand mean)
+- `SL.glmnet` — elastic net (handles p > n via regularisation)
+- `SL.randomForest` — random forest (500 trees)
+
+```{r sl-prep}
+# Prepare Admin1 analytic matrix with all GEE predictors
+sl_data <- admin1_df %>%
+  filter(!is.na(svy_prev_vad)) %>%
+  as.data.frame()
+
+Y <- sl_data$svy_prev_vad
+
+# Select GEE columns, drop all-NA or zero-variance
+X <- sl_data[, gee_cols, drop = FALSE]
+keep <- sapply(X, function(col) {
+  !all(is.na(col)) && sd(col, na.rm = TRUE) > 0
+})
+X <- X[, keep, drop = FALSE]
+
+# Impute remaining NA with column median (required for SL)
+for (j in seq_len(ncol(X))) {
+  nas <- is.na(X[[j]])
+  if (any(nas)) X[[j]][nas] <- median(X[[j]], na.rm = TRUE)
+}
+
+cat(sprintf("SuperLearner: n = %d, p = %d predictors, V = %d (LOOCV)\n",
+            nrow(X), ncol(X), nrow(X)))
+```
+
+```{r sl-fit}
+set.seed(12345)
+
+# Custom RF wrapper for high-dimensional, small-n setting:
+# cap mtry = sqrt(p), increase nodesize = 5
+SL.rf.small <- function(Y, X, newX, family, mtry = max(1, floor(sqrt(ncol(X)))),
+                         nodesize = 5, ntree = 500, ...) {
+  SuperLearner::SL.randomForest(
+    Y = Y, X = X, newX = newX, family = family,
+    mtry = mtry, nodesize = nodesize, ntree = ntree, ...
+  )
+}
+
+sl_fit <- SuperLearner::SuperLearner(
+  Y          = Y,
+  X          = X,
+  family     = gaussian(),
+  SL.library = c("SL.mean", "SL.glmnet", "SL.rf.small"),
+  cvControl  = list(V = nrow(X))   # LOOCV
+)
+
+cat("SuperLearner fit complete.\n")
+```
+
+### Metalearner Weights
+
+```{r sl-weights}
+coef_df <- data.frame(
+  Learner = sl_fit$libraryNames,
+  Weight  = round(coef(sl_fit), 4)
+)
+kable(coef_df, caption = "SuperLearner metalearner (NNLS) weights")
+```
+
+### Cross-Validated Performance
+
+```{r sl-performance}
+cv_preds <- sl_fit$Z %*% coef(sl_fit)
+cv_preds <- as.numeric(cv_preds)
+
+r2_cv  <- 1 - sum((Y - cv_preds)^2) / sum((Y - mean(Y))^2)
+mse_cv <- mean((Y - cv_preds)^2)
+mae_cv <- mean(abs(Y - cv_preds))
+cor_cv <- cor(Y, cv_preds)
+
+perf_df <- data.frame(
+  Metric = c("CV R-squared", "CV MSE", "CV MAE (pp)", "CV Pearson r",
+             "Predictors used"),
+  Value  = c(sprintf("%.3f", r2_cv),
+             sprintf("%.6f", mse_cv),
+             sprintf("%.1f", mae_cv * 100),
+             sprintf("%.3f", cor_cv),
+             as.character(ncol(X)))
+)
+kable(perf_df, caption = "LOOCV performance of SuperLearner ensemble (all GEE predictors)")
+```
+
+```{r sl-scatter, fig.width=6, fig.height=5}
+sl_results <- data.frame(
+  Admin1    = sl_data$Admin1,
+  observed  = Y,
+  predicted = cv_preds,
+  n_children = sl_data$n_children
+)
+
+ggplot(sl_results, aes(x = observed, y = predicted)) +
+  geom_abline(slope = 1, intercept = 0, linetype = "dashed", colour = "grey50") +
+  geom_point(aes(size = n_children), colour = "steelblue", alpha = 0.7) +
+  ggrepel::geom_text_repel(aes(label = Admin1), size = 2.5, max.overlaps = 20) +
+  scale_x_continuous(labels = percent_format(1)) +
+  scale_y_continuous(labels = percent_format(1)) +
+  scale_size_area(name = "n", max_size = 6) +
+  labs(x = "Observed (survey-weighted) VAD prevalence",
+       y = "LOOCV predicted VAD prevalence",
+       title = "SuperLearner: Observed vs Predicted (Admin1)",
+       subtitle = sprintf("LOOCV R² = %.3f | MAE = %.1f pp | p = %d predictors",
+                          r2_cv, mae_cv * 100, ncol(X))) +
+  coord_fixed() +
+  theme_minimal(base_size = 12) +
+  theme(plot.title = element_text(face = "bold"))
+```
+
+### Individual Learner CV Risks
+
+```{r sl-learner-risks}
+risk_df <- data.frame(
+  Learner  = sl_fit$libraryNames,
+  CV_Risk  = round(sl_fit$cvRisk, 6),
+  Weight   = round(coef(sl_fit), 4)
+) %>%
+  arrange(CV_Risk)
+
+kable(risk_df, caption = "Individual learner CV risks (MSE) and ensemble weights")
+```
+
+
+## Variable Importance
+
+We assess variable importance using a **permutation-based** approach: for each
+predictor, we randomly shuffle its values across Admin1 units, re-predict using
+the fitted SuperLearner, and measure the increase in prediction error (MSE).
+A larger increase indicates higher importance. This is repeated 20 times per
+variable and averaged.
+
+```{r varimp}
+set.seed(12345)
+
+n_perm <- 20
+baseline_mse <- mean((Y - predict(sl_fit, X)$pred[, 1])^2)
+
+varimp_results <- lapply(names(X), function(var) {
+  mse_perms <- replicate(n_perm, {
+    X_perm <- X
+    X_perm[[var]] <- sample(X_perm[[var]])
+    pred_perm <- predict(sl_fit, X_perm)$pred[, 1]
+    mean((Y - pred_perm)^2)
+  })
+
+  data.frame(
+    Variable     = var,
+    MSE_permuted = mean(mse_perms),
+    stringsAsFactors = FALSE
+  )
+})
+
+varimp_df <- do.call(rbind, varimp_results) %>%
+  mutate(
+    MSE_baseline = baseline_mse,
+    Delta_MSE    = MSE_permuted - MSE_baseline,
+    Pct_increase = Delta_MSE / MSE_baseline * 100
+  ) %>%
+  arrange(desc(Delta_MSE))
+
+# Show top 20
+varimp_df %>%
+  head(20) %>%
+  mutate(across(where(is.numeric), ~round(.x, 6))) %>%
+  mutate(Pct_increase = sprintf("+%.1f%%", Pct_increase)) %>%
+  kable(caption = "Top 20 most important GEE predictors (permutation importance)")
+```
+
+```{r varimp-plot, fig.width=8, fig.height=6}
+top_n_imp <- min(20, sum(varimp_df$Delta_MSE > 0))
+if (top_n_imp == 0) top_n_imp <- min(10, nrow(varimp_df))
+
+varimp_top <- varimp_df %>%
+  head(top_n_imp) %>%
+  mutate(Variable = factor(Variable, levels = rev(Variable)))
+
+ggplot(varimp_top, aes(x = Variable, y = Delta_MSE)) +
+  geom_col(fill = "steelblue", alpha = 0.8, width = 0.7) +
+  coord_flip() +
+  labs(x = NULL,
+       y = "Increase in MSE when permuted",
+       title = sprintf("Top %d Variable Importance (Permutation)", top_n_imp),
+       subtitle = "Higher = more important for predicting VAD prevalence") +
+  theme_minimal(base_size = 10) +
+  theme(plot.title = element_text(face = "bold"))
+```
+
+### Importance by Source Category
+
+```{r varimp-by-category, fig.width=7, fig.height=5}
+varimp_cat <- varimp_df %>%
+  mutate(
+    source = case_when(
+      grepl("ndvi", Variable)     ~ "NDVI",
+      grepl("trmm", Variable)     ~ "TRMM precip",
+      grepl("popdens", Variable)  ~ "Pop density",
+      grepl("soil", Variable)     ~ "Soil properties",
+      grepl("fldas", Variable)    ~ "FLDAS climate",
+      grepl("wapor", Variable)    ~ "WAPOR NPP",
+      grepl("lst", Variable)      ~ "LST temp",
+      grepl("gpw_dem", Variable)  ~ "GPW demographics",
+      grepl("gpw_grass", Variable) ~ "Grasslands",
+      grepl("esa", Variable)      ~ "ESA crops",
+      grepl("ghsl", Variable)     ~ "Settlement",
+      grepl("ccnl", Variable)     ~ "Night lights",
+      grepl("ghm|human_mod", Variable) ~ "Human mod",
+      TRUE                        ~ "Other"
+    )
+  ) %>%
+  group_by(source) %>%
+  summarise(
+    n_vars           = n(),
+    total_importance = sum(pmax(Delta_MSE, 0)),
+    max_importance   = max(Delta_MSE),
+    .groups = "drop"
+  ) %>%
+  arrange(desc(total_importance))
+
+varimp_cat %>%
+  mutate(source = factor(source, levels = rev(source))) %>%
+  ggplot(aes(x = source, y = total_importance)) +
+  geom_col(fill = "steelblue", alpha = 0.8, width = 0.7) +
+  coord_flip() +
+  labs(x = NULL,
+       y = "Total permutation importance (sum of Delta MSE)",
+       title = "Variable Importance by Data Source",
+       subtitle = "Aggregated across all variables within each category") +
+  theme_minimal(base_size = 11) +
+  theme(plot.title = element_text(face = "bold"))
+```
+
+```{r varimp-cat-table}
+varimp_cat %>%
+  mutate(across(where(is.numeric) & !matches("n_vars"), ~round(.x, 6))) %>%
+  kable(caption = "Importance by source category")
+```
+
+
+## Next Steps
+
+This Admin1/Admin2-level dataset with `r length(gee_cols)` GEE predictors is
+ready for machine learning prediction models:
+
+1. **Add other countries** — repeat this pipeline for Gambia, Malawi, and
+   Sierra Leone to build a multi-country training set.
+2. **Feature selection** — use the variable importance results to select the
+   most predictive subset of GEE covariates.
+3. **Fit richer ML models** — with more observations (multi-country), use the
+   full SuperLearner stack (elastic net, random forest, GAM, XGBoost) and
+   spatial block CV.
+4. **Spatial validation** — leave-one-region-out CV to assess out-of-sample
+   prediction accuracy across regions.
+5. **Wall-to-wall prediction** — predict VAD prevalence for all GADM Admin2
+   polygons (including those without survey data) using the fitted model.

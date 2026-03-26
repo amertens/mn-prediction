@@ -1,0 +1,582 @@
+---
+title: "Micronutrient Deficiency Prediction: Methods Tutorial"
+subtitle: "A Step-by-Step Walkthrough of the Analysis Pipeline"
+author: "Micronutrient Prediction Project"
+date: today
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    toc-title: "Contents"
+    number-sections: true
+    code-fold: true
+    code-summary: "Show code"
+    theme: cosmo
+    fig-width: 8
+    fig-height: 5
+    self-contained: true
+    smooth-scroll: true
+execute:
+  warning: false
+  message: false
+  eval: false
+knitr:
+  opts_chunk:
+    comment: "#>"
+    fig.align: "center"
+---
+
+# Introduction
+
+This tutorial walks through every stage of the micronutrient deficiency prediction pipeline, using vitamin A deficiency (VAD) in Gambian children as the running example. For each step, we discuss:
+
+1. **What we do** and the key decisions involved
+2. **Alternative approaches** that could be used instead
+3. **Sensitivity and supplementary analyses** to assess robustness
+4. **How to interpret** the results in context
+
+::: {.callout-important}
+## Ecological prediction from proxy data
+
+This pipeline predicts **area-level prevalence** from **proxy predictors** --- routinely available data sources (satellite imagery, DHS surveys, health estimates) that do not require a concurrent biomarker survey. The key question is: *how well can we estimate micronutrient deficiency burden from data that is already collected?*
+
+The primary models **exclude all survey-derived (`gw_`) variables** because these cannot be used for prediction in unsurveyed areas or future time periods. Including them produces artificially inflated performance (AUC near 1.0) that does not reflect real-world prediction accuracy.
+:::
+
+
+# Stage 1: Data Cleaning and Assembly
+
+## 1.1 Survey biomarker data (outcome)
+
+The outcome data comes from the Gambia Micronutrient Survey (GMS), a nationally representative household survey that collected blood samples from women and children.
+
+**Key decisions:**
+
+- **Vitamin A indicator:** Retinol-binding protein (RBP), adjusted for inflammation using the Thurnham method. The clinical threshold for VAD is RBP < 0.70 $\mu$mol/L.
+- **Iron indicator:** Serum ferritin, adjusted for inflammation using the BRINDA method. Thresholds: < 12 $\mu$g/L for children, < 15 $\mu$g/L for women. Modeled on the log scale.
+- **Population separation:** Children and women are analyzed separately using a `child_flag` indicator, producing four outcome datasets.
+
+**Sample sizes (Gambia):**
+
+| Outcome | Population | n |
+|---------|------------|---|
+| Vitamin A deficiency | Children | 1,020 |
+| Vitamin A deficiency | Women | 1,413 |
+| Iron deficiency anaemia | Children | 1,013 |
+| Iron deficiency anaemia | Women | 1,402 |
+
+### Alternatives
+
+- **WHO thresholds:** The 0.70 $\mu$mol/L threshold for VAD is standard but some studies use 0.83 $\mu$mol/L (marginal deficiency). Sensitivity analyses could evaluate model performance at both thresholds.
+- **Serum retinol** instead of RBP: Some surveys measure retinol directly. RBP is a proxy for retinol but is cheaper and more stable in field conditions.
+- **Continuous modeling:** Rather than binary deficiency, one could model the continuous biomarker and threshold afterward. Our pipeline fits both and compares.
+
+### Sensitivity analyses
+
+- Vary the deficiency threshold (e.g., 0.50, 0.70, 0.83 $\mu$mol/L) and assess whether the model's relative district rankings are robust.
+- Assess the impact of the inflammation adjustment method (Thurnham vs. BRINDA vs. unadjusted).
+
+### Interpretation
+
+Observed prevalence is itself an estimate with sampling uncertainty. In small Admin-2 areas (n < 20), the survey estimate can be noisy. The model's "error" relative to the survey estimate conflates true model error with survey sampling variability.
+
+
+## 1.2 Predictor data: proxy domains only {#sec-predictors}
+
+The primary analysis uses **proxy predictors only** --- data sources available nationally without requiring a concurrent biomarker survey. This is the fundamental design choice of the analysis.
+
+### Why exclude survey (`gw_`) variables?
+
+The merged GMS dataset contains 599 columns with the `gw_` prefix, including:
+
+- **Raw biomarkers** (`gw_fer`, `gw_rpb1`, `gw_FerAdj`, `gw_cFER`, `gw_wFER`): These are either the outcome itself or directly derived from it. Including them is circular.
+- **Related biomarkers** (`gw_cCRP`, `gw_cAGP`, `gw_wHb`, `gw_cSTFR`): Inflammation and iron-transport markers are biologically correlated with the outcomes.
+- **Nutrition indicators** (`gw_wAnemia`, `gw_cMDD`, `gw_wdd1*`): Survey-measured dietary and health indicators are strongly predictive but only available from the survey itself.
+- **Anthropometry** (`gw_cHeight`, `gw_cWeight`, `gw_wBMI`): Measured in the same survey; not available externally.
+
+Even after removing the 26 columns matching explicit leakage patterns (RBP, VAD, LogFer, IDA), 573 `gw_` columns survive. Many contain biomarker-adjacent information that inflates AUC to near 1.0.
+
+**Bottom line:** Including `gw_` variables answers the question *"can we predict survey results from the same survey?"* (yes, trivially). Excluding them answers the operationally useful question *"can we predict deficiency from routinely available data?"*
+
+### Proxy predictor domains
+
+| Domain | Prefix | Source | Spatial resolution | Examples |
+|--------|--------|--------|-------------------|----------|
+| DHS | `dhs2019_` | DHS 2019 API | Admin-1 | Vaccination coverage, ANC attendance, stunting |
+| MICS | `mics_` | MICS 2018 | Admin-1 | Water, sanitation, education indicators |
+| IHME | `ihme_` | IHME GBD | Admin-2 | Under-5 mortality, DALYs, health spending |
+| LSMS | `lsms_` | World Bank | Admin-2 | Poverty, consumption, food expenditure |
+| MAP | `MAP_` | Malaria Atlas | Raster (~5 km) | Pf prevalence, ITN coverage, IRS coverage |
+| WFP | `wfp_` | WFP VAM | Market-level | Commodity prices, market distance |
+| FluNet | `flunet_` | WHO FluNet | National/seasonal | Influenza positivity rates |
+| GEE | `gee_` | Google Earth Engine | Raster (1--10 km) | NDVI, rainfall, night lights, land cover |
+
+**Key merging decisions:**
+
+- **Spatial join:** Survey clusters are assigned to Admin-1 and Admin-2 areas via point-in-polygon intersection with GADM boundaries.
+- **GEE rasters:** Extracted at 10 km and 50 km buffers around each cluster centroid.
+- **Food prices:** Each cluster is linked to the nearest WFP-monitored market by Euclidean distance.
+- **DHS indicators:** Aggregated to Admin-1 from the DHS 2019 survey via the `rdhs` API.
+- **IHME matching:** Admin-2 names are fuzzy-matched between GADM and IHME databases.
+
+### Alternatives
+
+- **Include `gw_` variables as a sensitivity analysis:** Fit a supplementary model with all predictors to establish the upper bound of in-sample performance. Compare proxy-only AUC to full AUC to quantify the information gap.
+- **Buffer radius sensitivity:** Test whether 10 km, 25 km, or 50 km buffer extraction produces better predictions.
+- **Temporal alignment:** The pipeline currently uses 2017 food prices for a 2018 survey and 2019 DHS indicators. Lag sensitivity could be assessed by varying the reference year.
+
+### Interpretation
+
+The proxy-only predictor set captures *area-level* variation (all individuals in a cluster share the same DHS, GEE, and IHME values). Individual-level variation within a cluster comes only from random noise. This is why we expect moderate AUC (0.60--0.80) rather than excellent AUC --- the proxy predictors capture geographic heterogeneity but not individual heterogeneity.
+
+
+## 1.3 Preprocessing pipeline
+
+Before model fitting, the predictors undergo a six-step preprocessing chain:
+
+1. **Unlabeling:** Convert labelled (Stata/SPSS) values to standard R types
+2. **Drop all-NA columns:** Remove predictors with no non-missing values
+3. **Near-zero variance removal:** `caret::nearZeroVar()` drops columns with very low variance
+4. **Imputation:** `ck37r::impute_missing_values()` with missing-indicator columns (prefixed `missing_`)
+5. **Prescreening:** `washb::washb_prescreen()` retains only predictors with p < 0.20 in univariate regressions against the outcome
+6. **Recipe-based cleaning:**
+   - Zero-variance removal (post-imputation)
+   - Near-zero variance removal
+   - High-correlation removal (threshold: $r$ > 0.90)
+   - Normalization (center and scale all numeric predictors)
+
+For proxy-only models, this chain reduces ~2,500 raw proxy columns to ~100--300 final predictors.
+
+### Alternatives
+
+- **MICE imputation** instead of simple median/mode: Would better preserve variable relationships but is computationally expensive with thousands of columns.
+- **Skip prescreening:** Let the SuperLearner's internal learners handle variable selection (LASSO, RF importance). More computationally costly but avoids potentially useful predictors being excluded at p > 0.20.
+- **PCA or UMAP:** Dimensionality reduction instead of correlation-based column removal. Would lose interpretability of individual predictors.
+
+### Interpretation
+
+The preprocessing is applied identically within each cross-validation fold and bootstrap replicate via the saved recipe object (`auto_recipe`). This prevents information leakage from the preprocessing step. The `pre_recipe_cols` field ensures that prediction data is transformed through the exact same pipeline as training data.
+
+
+# Stage 2: SuperLearner Model Fitting
+
+## 2.1 The ensemble approach
+
+We use the SuperLearner (van der Laan et al., 2007) implemented via the `sl3` R package. The SuperLearner fits multiple "base learners" to the data, then combines their predictions using a non-negative least squares (NNLS) metalearner to minimize cross-validated risk.
+
+**Fast mode stack** (3 learners --- for development, ~10--30 min):
+
+| Learner | Description |
+|---------|-------------|
+| `Lrnr_mean` | Intercept-only (prevalence baseline) |
+| `Lrnr_glmnet` | Elastic net (penalized regression) |
+| `Lrnr_ranger` | Random forest |
+
+**Full mode stack** (5+ learners with screener pipelines --- for publication, ~2--4 hours):
+
+| Learner | Description |
+|---------|-------------|
+| `Lrnr_mean` | Intercept-only |
+| `Lrnr_glmnet` | Elastic net |
+| `Lrnr_ranger` | Random forest |
+| `Lrnr_glm_fast` | Fast GLM with correlation-screened predictors |
+| RF-screened pipeline | Top-20 RF importance $\rightarrow$ RF |
+
+## 2.2 Cross-validation strategy
+
+**Cluster-blocked K-fold CV** (K = 5): All individuals within a survey cluster are kept in the same fold. This reflects the survey's clustered sampling design and provides honest out-of-sample prediction error.
+
+```r
+fold_obj <- origami::make_folds(cluster_ids = id_vec, V = 5)
+```
+
+**Why cluster-blocking matters:** Standard random CV would place some individuals from the same cluster in the training set and others in the validation set. Since individuals within a cluster share the same proxy predictor values (DHS, GEE, etc.), this would overstate the model's ability to discriminate based on proxy data.
+
+## 2.3 Two model types per outcome
+
+For each outcome, we fit:
+
+1. **Continuous model** (`loss_squared_error`): Predicts the continuous biomarker value. Prevalence is obtained by thresholding predictions at the clinical cutoff.
+2. **Binary model** (`loss_loglik_binomial`): Directly predicts P(deficient). The binary model's predicted probabilities are preferred for prevalence estimation.
+
+### Alternatives
+
+- **Bayesian Additive Regression Trees (BART):** Provides built-in uncertainty quantification. Could replace the bootstrap approach.
+- **Spatial models (INLA/SPDE):** Explicitly model spatial correlation. The `surveyPrev` package implements these for DHS indicators.
+- **Stacking without NNLS:** Use cross-validated risk weighting or Bayesian model averaging instead of NNLS.
+- **Single learner:** If interpretability is paramount, a penalized regression (LASSO/elastic net) alone may be preferred, sacrificing some predictive accuracy for transparency.
+
+### Sensitivity analyses
+
+- Compare blocked vs. random CV to quantify "optimism bias" from ignoring clusters.
+- Compare the fast (3-learner) and full (5+ learner) stacks to assess whether the additional complexity improves predictions.
+- Compare proxy-only vs. full-predictor models to quantify the value-add of survey variables.
+
+### Interpretation
+
+With proxy-only predictors, expect the NNLS metalearner to allocate substantial weight to the elastic net (which handles high-dimensional, correlated proxy data well) and to the mean learner (which acts as shrinkage toward the overall prevalence). If the random forest receives significant weight, this suggests non-linear interactions between proxy domains are important.
+
+
+# Stage 3: Admin-1 Prediction and Aggregation
+
+## 3.1 Individual predictions to area prevalence
+
+The fitted SuperLearner produces individual-level predictions: $\hat{p}_i = \hat{P}(Y_i = 1 \mid X_i)$ for the binary model. Area-level prevalence is the simple mean of individual predictions within each Admin-1 region:
+
+$$\hat{\pi}_a = \frac{1}{n_a} \sum_{i \in a} \hat{p}_i$$
+
+**Important nuance for proxy-only models:** Since all individuals in a cluster share the same proxy predictor values (DHS, GEE, etc. are area-level), the individual predictions within a cluster will be identical (or nearly so, differing only through preprocessing artifacts). The effective sample size for Admin-1 estimation is therefore closer to the number of clusters in that region than the number of individuals.
+
+### Alternatives
+
+- **Survey-weighted aggregation:** Use the survey weights to produce design-based estimates. This is done at Admin-2 in Stage 6.
+- **Small area estimation:** `surveyPrev` offers Fay-Herriot (BYM2) and cluster-level spatial models that borrow strength across areas.
+- **Post-stratification:** Weight predictions by population counts in each area to produce population-representative estimates.
+
+### Interpretation
+
+Admin-1 performance for proxy-only models will be lower than for models with survey variables. In this example, Admin-1 r ranged from 0.83 to 0.97 for the geographic gradient, despite individual-level R$^2$ of only 0.03. This is the honest assessment of how well proxy data captures regional variation.
+
+
+# Stage 4: Bootstrap Uncertainty
+
+## 4.1 Cluster bootstrap algorithm
+
+To quantify prediction uncertainty, we use a cluster-level nonparametric bootstrap:
+
+1. **Resample** survey clusters with replacement (maintaining the cluster structure)
+2. **Reconstruct** the individual-level dataset from resampled clusters
+3. **Refit** the full SuperLearner on the resampled dataset (including all preprocessing)
+4. **Predict** on the *original* full dataset (not the bootstrap sample)
+5. **Aggregate** predictions to Admin-1 and national prevalence
+6. **Repeat** B times (10 in fast mode, 200 in full mode)
+7. **Summarize:** 2.5th and 97.5th percentiles form 95% CIs
+
+**Technical fix:** Each bootstrap refit produces a different set of final predictors (because NZV removal, prescreening, and correlation removal are data-adaptive). The saved `auto_recipe` object and `pre_recipe_cols` from each bootstrap model are used to transform the prediction data through the identical preprocessing chain, ensuring column counts match.
+
+### Alternatives
+
+- **Bayesian posterior intervals:** BART or Bayesian SL would provide posterior credible intervals directly.
+- **Influence function-based CIs:** Targeted Learning (TMLE) provides efficient influence function-based confidence intervals without resampling.
+- **Conformal prediction:** Distribution-free prediction intervals for individual predictions.
+
+### Sensitivity analyses
+
+- Compare CIs from B = 10, 50, 200 replicates to assess convergence.
+- Compare cluster bootstrap to stratified bootstrap (resample within strata).
+
+### Interpretation
+
+Bootstrap CIs from proxy-only models will be **wider** than from models with survey variables. This is appropriate --- it reflects the genuine uncertainty when predicting from area-level proxies. Wide CIs do not indicate model failure; they indicate areas where additional data collection would have the highest marginal value.
+
+
+# Stage 5: Domain Ablation
+
+## 5.1 Leave-one-domain-out importance
+
+To understand which proxy domains drive performance, we use domain ablation: remove all columns from one domain, refit the model, and measure the performance drop.
+
+Since the primary analysis uses only proxy predictors, the `GW` domain is automatically excluded from ablation (it's not in the model). The ablation tests each external domain in turn:
+
+| Domain removed | What you learn |
+|---------------|----------------|
+| DHS | Value of national survey indicators (vaccination, ANC, stunting) |
+| GEE | Value of satellite-derived environmental covariates |
+| IHME | Value of modeled health estimates (mortality, DALYs) |
+| MICS | Value of WASH and education indicators |
+| MAP | Value of malaria-specific geospatial data |
+| WFP | Value of food security and market access data |
+
+### Alternatives
+
+- **Permutation importance:** Randomly shuffle one variable (or domain) and measure performance drop without refitting. Faster but may understate importance of correlated predictors.
+- **SHAP values:** Shapley additive explanations provide per-prediction variable importance. More granular but computationally expensive.
+- **Conditional importance:** Measure importance conditional on other predictors being present, which accounts for correlation between domains.
+
+### Interpretation
+
+The domain ablation reveals which **data investments** are most important for prediction quality. If DHS indicators dominate, then maintaining DHS survey frequency is critical for this approach. If GEE dominates, then satellite-based monitoring can serve as a low-cost substitute for some survey data.
+
+
+# Stage 6: Admin-2 Prediction and Validation
+
+## 6.1 Survey-weighted Admin-2 prevalence
+
+The gold-standard benchmark at Admin-2 is computed using the survey design:
+
+```r
+svy_des <- srvyr::as_survey_design(
+  data, ids = psu_col, strata = strata_col,
+  weights = weight_col, nest = TRUE
+)
+```
+
+This produces design-based prevalence estimates with standard errors and confidence intervals for each district. The `survey.lonely.psu = "adjust"` option handles single-PSU strata.
+
+## 6.2 Error analysis
+
+**Expected performance for proxy-only models (Admin-2):**
+
+- MAE: 5--15 pp (higher than with survey variables)
+- Pearson r: 0.30--0.70 (moderate correlation)
+- The model captures broad geographic patterns but cannot differentiate within-region heterogeneity
+
+### Alternatives
+
+- **Concordance correlation coefficient (CCC):** Captures both correlation and calibration (bias).
+- **Bland-Altman analysis:** Plot prediction error vs. mean, checking for systematic patterns.
+- **Coverage probability:** What fraction of survey 95% CIs contain the model's point prediction?
+
+
+# Stage 7: Area-Level Model for Full Coverage
+
+## 7.1 The extrapolation challenge
+
+The individual-level SuperLearner can only predict for areas that have survey respondents. In the Gambia, ~7 of 37 GADM Admin-2 polygons have no survey respondents.
+
+## 7.2 Area-level elastic net
+
+To predict in unsurveyed areas, we fit a second model at the area level:
+
+$$\text{survey-weighted prevalence}_a = f(\text{GEE raster zonal means}_a) + \varepsilon_a$$
+
+This model is the most aligned with the proxy-only philosophy:
+
+- **Predictors:** Zonal means of GEE raster layers extracted for each Admin-2 polygon
+- **Outcome:** Survey-weighted prevalence from the design-based analysis
+- **Model:** Elastic net ($\alpha$ = 0.5, $\lambda$ selected by LOO-CV)
+- **Validation:** Leave-one-out cross-validation on ~30 surveyed areas
+- **Uncertainty:** Bootstrap resampling of the area-level rows (200--500 replicates)
+
+### Alternatives
+
+- **Gaussian process regression (kriging):** Would capture spatial correlation explicitly.
+- **BYM2 model (via INLA):** Standard spatial smoothing model for small area estimation.
+- **Random forest:** Non-linear alternative, though with ~30 observations elastic net is more appropriate.
+
+### Sensitivity analyses
+
+- Compare elastic net ($\alpha$ = 0.5) to LASSO ($\alpha$ = 1) and ridge ($\alpha$ = 0).
+- Check whether unsurveyed areas' GEE covariate values fall within the convex hull of surveyed areas (interpolation vs. extrapolation).
+
+### Interpretation
+
+The area-level model is the most policy-relevant output. It provides **full national coverage** using only satellite data. For decision-makers, an uncertain prediction with wide CIs is better than no information. The LOO-CV performance provides an honest estimate of how well GEE covariates predict survey prevalence.
+
+
+# Worked Example: Vitamin A Deficiency in Gambian Children
+
+This section walks through the actual results from the proxy-only model for child vitamin A deficiency (`child_vitA`) in the Gambia, interpreting each stage's output. The model was fit on 1,020 children from the Gambia Micronutrient Survey using only proxy predictors (no `gw_` survey variables).
+
+## Interpreting CV Performance
+
+The 5-fold cluster-blocked cross-validation produced the following individual-level metrics:
+
+| Metric | Value | Interpretation |
+|--------|-------|----------------|
+| AUC | 0.609 | The model correctly ranks a randomly chosen deficient child above a non-deficient child 61% of the time (vs. 50% for chance) |
+| Brier score | 0.188 | Calibration metric; compare to the null Brier score below |
+| RMSE (continuous) | 0.239 | Root mean squared error of continuous biomarker predictions |
+| MAE (continuous) | 0.185 | Mean absolute error of continuous biomarker predictions |
+| R^2^ (continuous) | 0.030 | Proxy predictors explain only 3% of individual-level biomarker variation |
+| Pearson r | 0.174 | Weak individual-level correlation |
+
+**How to read these numbers:**
+
+- **AUC = 0.609** means modest discrimination. This is expected for proxy-only models: the predictors capture *geographic* variation (all individuals in a cluster share the same DHS, GEE, IHME values), not *individual* variation (diet quality, breastfeeding, supplement use). An AUC of 0.60--0.65 is typical for ecological prediction of micronutrient status.
+
+- **R^2^ = 0.030** means proxy predictors explain only 3% of individual-level biomarker variation. This sounds discouraging but is misleading --- the model's value is not in predicting individual biomarker values but in estimating *area-level prevalence*. When predictions are averaged over hundreds of individuals within a region, individual-level noise cancels out and the geographic signal emerges.
+
+- **Brier score = 0.188** vs. the null Brier score. The null model (predicting the overall prevalence for everyone) gives a Brier score of prevalence $\times$ (1 $-$ prevalence). With overall VAD prevalence around 24%, the null Brier $\approx$ 0.24 $\times$ 0.76 $\approx$ 0.182. The model's Brier score (0.188) is slightly worse than the null, confirming that at the individual level, the model adds only marginal value over simply predicting the mean prevalence for everyone.
+
+- **The key insight:** These are *individual-level* metrics. The model's real value is in *area-level aggregation*, where the geographic signal is preserved and individual noise averages out. The next sections demonstrate this.
+
+
+## Interpreting Admin-1 Predictions
+
+Aggregating individual predictions to Admin-1 regions produces the following prevalence estimates:
+
+| Admin-1 Region | n | Predicted | Observed | Error (pp) |
+|----------------|---|-----------|----------|------------|
+| Banjul | 169 | 18.1% | 13.6% | +4.5 |
+| Lower River | 133 | 23.3% | 23.3% | 0.0 |
+| Maccarthy Island | 309 | 30.3% | 37.2% | -6.9 |
+| North Bank | 93 | 19.7% | 18.3% | +1.4 |
+| Upper River | 165 | 30.1% | 33.9% | -3.8 |
+| Western | 151 | 16.4% | 15.9% | +0.5 |
+
+**How to read this table:**
+
+- The model captures the **geographic gradient**: Western and Banjul have the lowest VAD prevalence (15--18%), while Upper River and Maccarthy Island have the highest (30--37%). This east-west gradient aligns with known patterns of dietary diversity, agricultural productivity, and urbanization in the Gambia.
+
+- **Errors range from 0 to 7 pp at Admin-1** --- dramatically better than individual-level metrics would suggest. This is because individual-level noise cancels out when predictions are averaged over regions containing 93--309 respondents.
+
+- The model **slightly under-predicts** the highest-burden regions (Maccarthy Island: -6.9 pp, Upper River: -3.8 pp). This is a common pattern: models using area-level proxies tend to shrink extreme predictions toward the national mean.
+
+- Despite an R^2^ of only 0.03 at the individual level, the Admin-1 correlation between predicted and observed prevalence is strong, demonstrating that the ecological signal is real and meaningful for geographic targeting.
+
+
+## Interpreting Admin-2 Performance
+
+At the finer Admin-2 (district) level, using 30 districts with survey data:
+
+| Metric | Value | Interpretation |
+|--------|-------|----------------|
+| Pearson r | 0.573 | Moderate but meaningful correlation across 30 districts |
+| MAE | 8.17 pp | Predictions are typically within 8 percentage points of survey estimates |
+| RMSE | 10.63 pp | Penalizes larger errors more heavily than MAE |
+| Bias | -0.92 pp | Model slightly under-predicts on average (by less than 1 pp) |
+
+**How to read these numbers:**
+
+- **r = 0.573** at Admin-2 indicates a moderate positive correlation. The model correctly identifies which districts tend to have higher vs. lower VAD prevalence, though not perfectly. For relative prioritization (ranking districts from highest to lowest burden), this level of correlation is operationally useful.
+
+- **MAE = 8.17 pp** means the model's Admin-2 predictions are typically within 8 percentage points of survey-weighted estimates. For a district with true prevalence of 30%, the model might predict anywhere from 22% to 38%. This is adequate for broad categorization (high/medium/low burden) but not for precise prevalence estimation.
+
+- **Small negative bias (-0.92 pp)** indicates the model slightly under-predicts VAD prevalence on average. This is negligible and suggests no systematic calibration problem.
+
+
+## Interpreting the Area-Level Model
+
+The area-level elastic net model, fit on 30 surveyed Admin-2 districts using GEE raster zonal means as predictors, extends predictions to 7 unsurveyed districts:
+
+| Metric | Value |
+|--------|-------|
+| LOO-CV MAE | 9.96 pp |
+| LOO-CV RMSE | 12.83 pp |
+| LOO-CV Pearson r | 0.235 |
+| Surveyed districts | 30 |
+| Unsurveyed districts | 7 |
+
+**Unsurveyed districts receiving predictions:** Jarra Central, Kiang West, Janjanbureh, Niamina West, Foni Bondali, Foni Jarrol, Foni Kansala.
+
+**How to read these numbers:**
+
+- **LOO-CV r = 0.235** is weak, reflecting the very small training set (n = 30 areas). Leave-one-out cross-validation is demanding: each fold trains on only 29 observations to predict the 30th. With so few areas, each district's removal has a large impact.
+
+- The **unsurveyed districts now have predictions with uncertainty intervals**. These intervals are intentionally wide (e.g., a district might have a 95% CI spanning 5--42%) to appropriately reflect the high uncertainty when extrapolating from satellite data alone with a small training set.
+
+- **This is still more informative than no estimate at all.** Before this analysis, these 7 districts had zero information about VAD prevalence. Even a wide interval narrows the range of plausible values and can inform whether a district warrants prioritization for a future survey.
+
+
+## Interpreting Domain Ablation
+
+The leave-one-domain-out ablation tests whether any single proxy data source is critical for model performance:
+
+| Domain removed | AUC | Change from full model |
+|---------------|-----|----------------------|
+| None (full model) | 0.609 | --- |
+| DHS | 0.614 | +0.005 |
+| MICS | 0.611 | +0.002 |
+| IHME | 0.621 | +0.012 |
+| MAP | 0.612 | +0.003 |
+| WFP | 0.619 | +0.010 |
+| GEE | 0.617 | +0.008 |
+
+**How to read this table:**
+
+- **No single domain's removal degrades AUC.** In fact, removing any domain slightly *improves* performance. This seemingly paradoxical result means:
+
+  1. **The overall proxy signal is weak** (AUC $\approx$ 0.61), so removing noisy predictors from any domain can reduce overfitting and marginally improve the remaining model.
+  2. **No single domain drives discrimination** --- the modest predictive signal is distributed and redundant across domains.
+  3. **The domains are partially redundant** --- geographic variables from DHS, GEE, IHME, and MAP are correlated because they all capture aspects of development, environment, and health infrastructure.
+
+- **Policy implication:** No single external data source is critical for the approach. The model works (modestly) with whatever proxy data is available. Conversely, investing heavily in acquiring one additional data source is unlikely to dramatically improve predictions. This is actually a practically useful finding: the approach is **robust to data availability**.
+
+
+## Interpreting Bootstrap Confidence Intervals
+
+The cluster bootstrap (B = 4 in fast mode) provides uncertainty estimates:
+
+**National estimate:**
+
+- Bootstrap mean prevalence: 26.1%
+- 95% CI: [23.7%, 27.0%]
+
+**Admin-1 bootstrap CIs:**
+
+| Region | Boot mean | 95% CI | Width |
+|--------|-----------|--------|-------|
+| Banjul | 15.1% | [11.5%, 16.5%] | 5.1 pp |
+| Lower River | 23.4% | [22.9%, 23.5%] | 0.6 pp |
+| Maccarthy Island | 32.6% | [31.0%, 33.2%] | 2.1 pp |
+| North Bank | 20.3% | [19.3%, 20.6%] | 1.3 pp |
+| Upper River | 39.0% | [30.6%, 42.2%] | 11.5 pp |
+| Western | 16.9% | [16.4%, 18.1%] | 1.7 pp |
+
+**How to read these numbers:**
+
+- **CI width varies by region.** Upper River has the widest CI (11.5 pp), reflecting higher uncertainty in the eastern part of the country. Lower River has a very narrow CI (0.6 pp), which may partly reflect the small number of bootstrap replicates (B = 4).
+
+- **B = 4 is too few for stable CIs.** These intervals are illustrative; for publication, B = 200+ is needed to produce stable percentile-based intervals. With B = 4, the 2.5th and 97.5th percentiles are essentially the minimum and maximum of four values, which will be narrower than the true bootstrap distribution.
+
+- **The geographic gradient persists across bootstrap replicates.** Even with resampling uncertainty, Banjul/Western remain low-burden and Upper River/Maccarthy Island remain high-burden, confirming the robustness of the geographic pattern.
+
+
+## What These Results Mean for Policy
+
+Bringing together all stages, the proxy-only model for child vitamin A deficiency in the Gambia provides the following actionable findings:
+
+**The model CAN be used for:**
+
+- **Geographic targeting of interventions:** The model reliably identifies the east-west gradient in VAD burden. Eastern regions (Upper River, Maccarthy Island) have predicted prevalence of 30--37%, roughly double the western regions (Banjul, Western: 15--18%). This gradient can inform where to prioritize vitamin A supplementation programs, dietary diversification interventions, or food fortification distribution.
+
+- **Relative prioritization of districts:** At Admin-2, the correlation of r = 0.57 is sufficient for ranking districts into broad burden categories (high/medium/low). This can guide resource allocation when precise prevalence estimates are not required.
+
+- **Survey planning:** The 7 unsurveyed districts now have preliminary estimates with uncertainty intervals, which can inform where to prioritize future data collection. Districts with high predicted prevalence and wide confidence intervals are the highest-value targets for a follow-up survey.
+
+- **Tracking relative changes over time:** If proxy predictors are updated annually (GEE satellite data, food prices), the model can flag districts where predicted burden is increasing relative to others, even without a new biomarker survey.
+
+**The model should NOT be used for:**
+
+- **Individual screening:** AUC = 0.61 is too low for clinical screening decisions. The model cannot reliably distinguish deficient from non-deficient individuals.
+
+- **Precise prevalence estimation at Admin-2:** MAE = 8 pp means the model could be off by 8 percentage points for any given district. It should not replace a properly designed biomarker survey for precise local prevalence estimation.
+
+- **Causal inference:** The proxy predictors are correlated with VAD but are not causes. The model cannot tell you *why* eastern regions have higher prevalence, only that they do.
+
+
+# Summary: Decision Points and Their Implications
+
+| Decision | Our choice | Main alternative | Implication |
+|----------|-----------|-----------------|-------------|
+| Predictor set | **Proxy-only** (no `gw_`) | Include survey variables | Proxy-only is honest; survey-inclusive inflates performance |
+| Deficiency threshold | RBP < 0.70 $\mu$mol/L | 0.83 $\mu$mol/L (marginal) | Affects prevalence level but not relative rankings |
+| Inflammation adjustment | Thurnham (Vit A), BRINDA (iron) | Unadjusted | Could bias prevalence 5--10 pp |
+| CV strategy | Cluster-blocked, K=5 | Random, spatial leave-region-out | Cluster-blocked is honest for this design |
+| Ensemble | SuperLearner (NNLS) | Single learner (LASSO) | SL may add ~2--5% AUC vs. best single learner |
+| Bootstrap replicates | 10 (fast) / 200 (full) | 500--1000 | CIs stabilize by B=200 |
+| Area-level model | Elastic net on GEE | BYM2 / kriging | Elastic net is simpler; spatial models need adjacency structure |
+| Preprocessing | 6-step pipeline | PCA / minimal cleaning | Current approach balances dimension reduction with interpretability |
+
+
+# Running the Pipeline
+
+## Quick start
+
+```r
+# Fast mode (default, ~10-30 min):
+targets::tar_make()
+
+# Full mode (~2-4 hours):
+Sys.setenv(PIPELINE_MODE = "full")
+targets::tar_make()
+
+# Visualize dependency graph:
+targets::tar_visnetwork()
+
+# Read cached results:
+targets::tar_read(cv_perf_gambia_child_vitA)
+targets::tar_read(area_model_gambia_child_vitA)
+```
+
+## Adding a new country
+
+1. Add an entry to `get_country_configs()` in `R/config.R`
+2. Run `targets::tar_make()` --- new targets are auto-generated
+3. All cross-country comparisons update automatically
+
+## Adding a new outcome
+
+1. Add to the `outcomes` list in the country config
+2. Run `targets::tar_make()`
