@@ -1,0 +1,17 @@
+held_out,n_train,n_test,auc,brier,calib_intercept,calib_slope,outcome
+Gambia,2753,1947,NA,NA,NA,NA,child_vitA
+Ghana,3535,1165,NA,NA,NA,NA,child_vitA
+SierraLeone,4214,486,NA,NA,NA,NA,child_vitA
+Malawi,3598,1102,NA,NA,NA,NA,child_vitA
+Gambia,2586,2367,NA,NA,NA,NA,women_vitA
+Ghana,3948,1005,NA,NA,NA,NA,women_vitA
+SierraLeone,4179,774,NA,NA,NA,NA,women_vitA
+Malawi,4146,807,NA,NA,NA,NA,women_vitA
+Gambia,2747,1931,NA,NA,NA,NA,child_iron
+Ghana,3519,1159,NA,NA,NA,NA,child_iron
+SierraLeone,4192,486,NA,NA,NA,NA,child_iron
+Malawi,3576,1102,NA,NA,NA,NA,child_iron
+Gambia,2720,2356,NA,NA,NA,NA,women_iron
+Ghana,3990,1086,NA,NA,NA,NA,women_iron
+SierraLeone,4249,827,NA,NA,NA,NA,women_iron
+Malawi,4269,807,NA,NA,NA,NA,women_iron

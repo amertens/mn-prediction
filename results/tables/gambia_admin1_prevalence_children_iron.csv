@@ -1,0 +1,7 @@
+Admin1,n,obs_prevalence,pred_prevalence,outcome,label,pred_type
+Banjul,168,0.31547619047619047,0.3232770166606526,child_iron,Iron deficiency (children),binary_prob
+Lower River,133,0.44360902255639095,0.449734357995407,child_iron,Iron deficiency (children),binary_prob
+Maccarthy Island,306,0.5,0.4990255284347659,child_iron,Iron deficiency (children),binary_prob
+North Bank,93,0.40860215053763443,0.4166272619266679,child_iron,Iron deficiency (children),binary_prob
+Upper River,164,0.4451219512195122,0.44199739055131576,child_iron,Iron deficiency (children),binary_prob
+Western,149,0.3288590604026846,0.3447618340547357,child_iron,Iron deficiency (children),binary_prob

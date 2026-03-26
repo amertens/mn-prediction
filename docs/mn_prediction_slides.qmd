@@ -112,14 +112,14 @@ SuperLearner ensemble with multi-source proxy predictors.
 - Population split: `gw_child_flag` (1 = children; 0 = women); non-overlapping subsets
 - Cluster identifier: `gw_cnum` — used for blocked CV folds and bootstrap resampling
 
-**Sample sizes** *(from `results/tables/gambia_cv_performance.csv` once available)*:
+**Sample sizes** *(from targets pipeline)*:
 
 | Outcome | n |
 |---|---|
-| VAD — children | [PENDING] |
-| VAD — women | [PENDING] |
-| IDA — children | [PENDING] |
-| IDA — women | [PENDING] |
+| VAD — children | 1,020 |
+| VAD — women | 1,413 |
+| IDA — children | 1,013 |
+| IDA — women | 1,402 |
 
 ::: {.notes}
 Both a continuous SL (squared error loss) and binary SL (logistic loss) are fit for each outcome. Binary model predictions are used for prevalence estimation when available; continuous model is retained for RMSE evaluation and as fallback.
@@ -127,35 +127,33 @@ Both a continuous SL (squared error loss) and binary SL (logistic loss) are fit 
 
 ---
 
-## Predictor Domains and Leakage Prevention
+## Predictor Strategy: Proxy-Only Models
 
-**Nine predictor domains** identified by column prefix in the merged dataset
-(n = 3,209 individuals; 3,049 total columns before leakage removal):
+**Primary analysis uses proxy predictors only** — external data sources available
+without a concurrent biomarker survey. The `gw_` (survey) domain is **excluded**
+because it contains biomarkers, nutrition indicators, and anthropometry from the
+same survey as the outcome, producing artificially inflated AUC (near 1.0).
 
-| Domain | Prefix | Source | Raw N cols | In model |
+| Domain | Prefix | Source | N cols | In primary model |
 |---|---|---|---|---|
-| GW | `gw_` | GMS non-outcome survey covariates (demog., anthropometric, dietary) | 599 | 599 − leakage-excluded [PENDING] |
-| DHS | `dhs2019_` | 2019 DHS cluster-level aggregates | 1,875 | 1,875 |
-| MICS | `mics_` | MICS cluster-level aggregates | 290 | 290 |
-| IHME | `ihme_` | IHME geospatial estimates | 60 | 60 |
-| LSMS | `lsms_` | LSMS household consumption proxies | **0** | — (absent from Gambia dataset) |
-| MAP | `MAP_` | Malaria Atlas Project rasters | 26 | 26 |
-| WFP | `wfp_` | WFP market access / food security indicators | 45 (+1 extra) | 46 |
-| FLUNET | `flunet_` | FluNet seasonal illness proxies | **0** | — (absent from Gambia dataset) |
-| GEE | `gee_` | Google Earth Engine satellite covariates | 142 | 142 |
-| **Total** | | | **3,037** | **~3,040 − leakage** |
+| DHS | `dhs2019_` | 2019 DHS cluster-level aggregates | 1,875 | Yes |
+| MICS | `mics_` | MICS cluster-level aggregates | 290 | Yes |
+| IHME | `ihme_` | IHME geospatial estimates | 60 | Yes |
+| MAP | `MAP_` | Malaria Atlas Project rasters | 26 | Yes |
+| WFP | `wfp_` | WFP market access / food security | 46 | Yes |
+| GEE | `gee_` | Google Earth Engine satellite covariates | 142 | Yes |
+| LSMS | `lsms_` | LSMS household consumption | **0** | — (absent) |
+| FLUNET | `flunet_` | FluNet seasonal illness | **0** | — (absent) |
+| ~~GW~~ | ~~`gw_`~~ | ~~GMS survey covariates~~ | ~~599~~ | **No** (leakage) |
+| **Total proxy** | | | **~2,400** | **~2,400** |
 
-*Note: LSMS and FLUNET are absent from the Gambia merged dataset; these domains will show
-`[no columns, skip]` in ablation output. WFP includes `nearest_market_id` as an extra column
-(`cfg$domains$WFP$extra`).*
-
-**Leakage prevention** (`cfg$gw_exclude_patterns` in `src/analysis/config.R`):
-GW columns matching `RBP`, `rbp`, `VAD`, `LogFer`, `logfer`, `IDA`, `Brinda`, `Thurn` are
-excluded before constructing `Xvars_full`. Thresholds and binary indicators cannot appear
-as predictors. Exact post-exclusion GW count: [PENDING — from script 01 console output].
+**Why exclude GW?** The 599 `gw_` columns include raw biomarkers (`gw_fer`, `gw_rpb1`),
+inflammation markers (`gw_cCRP`, `gw_cAGP`), anemia indicators, and anthropometry —
+all measured in the same survey as the outcome. Including them inflates AUC to ~1.0
+but does not reflect real-world prediction accuracy.
 
 ::: {.notes}
-Dataset: 3,209 rows × 3,049 columns. DHS is by far the largest domain (1,875 cols — cluster-level aggregated indicators). GW has 599 raw cols; exact number retained after leakage exclusion depends on how many match the exclusion patterns. LSMS and FLUNET are structurally absent — this is a data availability issue, not a code issue. The ablation study will skip these two domains automatically.
+The proxy-only approach answers the operationally relevant question: "how well can we predict micronutrient deficiency from routinely available data?" Expected AUC is 0.60-0.80, which is modest but useful for screening and prioritization. The GW-inclusive model serves as a supplementary upper-bound analysis.
 :::
 
 ---
@@ -225,7 +223,7 @@ Cluster-blocking is the single most important design choice for CV validity in s
 
 ## Bootstrap Uncertainty: Cluster-Level Resampling
 
-**B = 200 bootstrap replicates** (B ≥ 500 for publication)
+**B = 4 bootstrap replicates** (fast mode; B ≥ 200 for development, B ≥ 500 for publication)
 
 **Algorithm per replicate:**
 
@@ -237,13 +235,13 @@ Cluster-blocking is the single most important design choice for CV validity in s
 | 4 | **Predict** on all individuals in the **original** dataset |
 | 5 | Aggregate to Admin1 mean prevalence and national mean prevalence |
 
-**Outputs:** Mean, 2.5th, 97.5th percentiles across B → 95% percentile CI
+**Outputs:** Mean, 2.5th, 97.5th percentiles across B replicates → 95% percentile CI
 
 **CIs capture:** finite-sample variability + ensemble weight variability + prescreening variability
 **CIs do not capture:** model misspecification, distribution shift, extrapolation uncertainty
 
 ::: {.notes}
-B=200 is suitable for development. Prediction on the original full dataset (step 4) rather than the bootstrap-resampled dataset stabilises Admin1 aggregation. The bootstrap refit is computationally expensive because the full preprocessing + SL stack runs B times.
+Current results use B=4 (fast mode). Prediction on the original full dataset (step 4) rather than the bootstrap-resampled dataset stabilises Admin1 aggregation. The bootstrap refit is computationally expensive because the full preprocessing + SL stack runs B times.
 :::
 
 ---
@@ -259,10 +257,10 @@ B=200 is suitable for development. Prediction on the original full dataset (step
 
 | Outcome | RMSE | MAE | R² | Pearson *r* | AUC (cont. score) |
 |---|---|---|---|---|---|
-| VAD — children | [PENDING] | [PENDING] | [PENDING] | [PENDING] | [PENDING] |
-| VAD — women | [PENDING] | [PENDING] | [PENDING] | [PENDING] | [PENDING] |
-| IDA — children | [PENDING] | [PENDING] | [PENDING] | [PENDING] | [PENDING] |
-| IDA — women | [PENDING] | [PENDING] | [PENDING] | [PENDING] | [PENDING] |
+| VAD — children | 0.239 | 0.185 | 0.030 | 0.174 | [PENDING] |
+| VAD — women | 0.479 | 0.321 | 0.051 | 0.231 | [PENDING] |
+| IDA — children | 0.834 | 0.680 | 0.006 | 0.082 | [PENDING] |
+| IDA — women | 0.914 | 0.755 | 0.022 | 0.148 | [PENDING] |
 
 - RMSE is on the biomarker scale (µmol/L for RBP; log µg/L for ferritin) — do not compare across micronutrients
 - AUC computed by treating the continuous prediction as a ranking score for the binary threshold (prediction negated for "less than" cutoffs so that higher score = more deficient)
@@ -281,10 +279,10 @@ R² can be negative if the SL performs worse than the mean. R² vs. mean (R2_vs_
 
 | Outcome | AUC | Brier score | Null Brier | Calib. intercept | Calib. slope |
 |---|---|---|---|---|---|
-| VAD — children | [PENDING] | [PENDING] | [PENDING] | [PENDING] | [PENDING] |
-| VAD — women | [PENDING] | [PENDING] | [PENDING] | [PENDING] | [PENDING] |
-| IDA — children | [PENDING] | [PENDING] | [PENDING] | [PENDING] | [PENDING] |
-| IDA — women | [PENDING] | [PENDING] | [PENDING] | [PENDING] | [PENDING] |
+| VAD — children | 0.609 | 0.188 | 0.193 | [PENDING] | [PENDING] |
+| VAD — women | 0.671 | 0.029 | 0.029 | [PENDING] | [PENDING] |
+| IDA — children | 0.513 | 0.243 | 0.244 | [PENDING] | [PENDING] |
+| IDA — women | 0.595 | 0.210 | 0.215 | [PENDING] | [PENDING] |
 
 *Null Brier = prev × (1 − prev); compute from observed prevalence.*
 
@@ -301,36 +299,29 @@ Calibration regression: logit(predicted probability) ~ observed binary outcome. 
 
 ## Admin1 Observed vs. Predicted Prevalence
 
-> Source: `results/figures/admin1_scatter_{outcome}.png`
-> Populate when pipeline output is committed
-
 :::: {.columns}
 ::: {.column width="50%"}
 **VAD — Children**
-`results/figures/admin1_scatter_children_vitA.png`
 
-Admin1 R² = [PENDING]
+![](../results/figures/admin1_scatter_children_vitA.png){width=100%}
 :::
 ::: {.column width="50%"}
 **VAD — Women**
-`results/figures/admin1_scatter_women_vitA.png`
 
-Admin1 R² = [PENDING]
+![](../results/figures/admin1_scatter_women_vitA.png){width=100%}
 :::
 ::::
 
 :::: {.columns}
 ::: {.column width="50%"}
 **IDA — Children**
-`results/figures/admin1_scatter_children_iron.png`
 
-Admin1 R² = [PENDING]
+![](../results/figures/admin1_scatter_children_iron.png){width=100%}
 :::
 ::: {.column width="50%"}
 **IDA — Women**
-`results/figures/admin1_scatter_women_iron.png`
 
-Admin1 R² = [PENDING]
+![](../results/figures/admin1_scatter_women_iron.png){width=100%}
 :::
 ::::
 
@@ -348,15 +339,14 @@ The Gambia has 5–8 Admin1 LGAs/regions. R² on a small N of Admin1 units is un
 
 ## Admin1 Predicted Deficiency Prevalence
 
-> Source: `results/tables/gambia_admin1_prevalence_{tag}.csv`
-> Columns: `Admin1`, `n`, `obs_prevalence`, `pred_prevalence`
-
-| Admin1 Region | n | VAD children | VAD women | IDA children | IDA women |
-|---|---|---|---|---|---|
-| [Region] | [n] | obs / pred | obs / pred | obs / pred | obs / pred |
-
-*Populate this table from the four `gambia_admin1_prevalence_*.csv` files.*
-*Format: observed% / predicted% per cell.*
+| Admin1 Region | VAD children (obs / pred) | VAD women (obs / pred) | IDA children (obs / pred) | IDA women (obs / pred) |
+|---|---|---|---|---|
+| Banjul | 13.6% / 15.1% | 0.5% / 0.7% | 31.5% / 32.3% | 18.4% / 18.4% |
+| Lower River | 23.3% / 21.7% | 4.1% / 4.0% | 44.4% / 45.0% | 44.1% / 43.9% |
+| Maccarthy Island | 37.2% / 36.0% | 5.3% / 5.0% | 50.0% / 49.9% | 41.2% / 41.3% |
+| North Bank | 18.3% / 17.8% | 2.0% / 2.8% | 40.9% / 41.7% | 24.7% / 25.1% |
+| Upper River | 33.9% / 32.2% | 5.6% / 5.0% | 44.5% / 44.2% | 41.0% / 40.9% |
+| Western | 15.9% / 15.0% | 1.3% / 1.4% | 32.9% / 34.5% | 25.2% / 25.1% |
 
 - Predicted prevalence = mean binary SL predicted probability per Admin1 unit
 - Observed prevalence = mean of pre-computed Thurnham/Brinda-adjusted binary indicator
@@ -370,22 +360,20 @@ For Admin1 units with thin survey cluster coverage, predictions are genuine extr
 
 ## National Prevalence with 95% Confidence Intervals
 
-> Source: `results/tables/gambia_national_ci_{tag}.csv`
-> Columns: `outcome`, `boot_mean`, `ci_lo`, `ci_hi`, `obs_prevalence`
-
 | Outcome | Observed (survey) | Predicted mean | 95% CI |
 |---|---|---|---|
-| VAD — children | [PENDING] | [PENDING] | \[[PENDING], [PENDING]\] |
-| VAD — women | [PENDING] | [PENDING] | \[[PENDING], [PENDING]\] |
-| IDA — children | [PENDING] | [PENDING] | \[[PENDING], [PENDING]\] |
-| IDA — women | [PENDING] | [PENDING] | \[[PENDING], [PENDING]\] |
+| VAD — children | 26.1% | 26.1% | \[23.7%, 27.0%\] |
+| VAD — women | 3.0% | 6.1% | \[3.6%, 7.1%\] |
+| IDA — children | 42.0% | 42.1% | \[41.8%, 43.0%\] |
+| IDA — women | 31.2% | 30.7% | \[30.6%, 30.8%\] |
 
 - National estimate = mean predicted probability across all individuals with non-missing Admin1
-- 95% CI = 2.5th / 97.5th percentile of B = 200 bootstrap replicates
+- 95% CI = 2.5th / 97.5th percentile of B = 4 bootstrap replicates (fast mode; increase to B ≥ 200 for stable CIs)
 - **Coherence check:** predicted mean should be close to observed survey prevalence (< 5 pp divergence expected); large divergence indicates calibration drift at national scale
+- Note: VAD — women shows predicted mean (6.1%) diverging from observed (3.0%), suggesting calibration drift at low prevalence
 
 ::: {.notes}
-B=200 is sufficient for point estimates and moderately wide CIs. For publication-grade CIs on tail percentiles, rerun with B=500–1000. The obs_prevalence column in the CI table uses the adjusted binary column averaged over all individuals with non-missing Admin1.
+Current results use B=4 (fast mode). CIs are rough — rerun with B=200–500 for stable intervals. For publication-grade CIs on tail percentiles, use B=500–1000. The obs_prevalence column in the CI table uses the adjusted binary column averaged over all individuals with non-missing Admin1.
 :::
 
 ---
@@ -396,15 +384,12 @@ B=200 is sufficient for point estimates and moderately wide CIs. For publication
 
 ## Bootstrap CI Width by Admin1
 
-> Source: `results/tables/gambia_admin1_ci_{tag}.csv`
-> Columns: `Admin1`, `boot_mean`, `ci_lo`, `ci_hi`, `n_reps`
-
-**CI width = `ci_hi − ci_lo` per Admin1 unit across B = 200 replicates:**
+**CI width = `ci_hi − ci_lo` per Admin1 unit across B = 4 replicates (fast mode):**
 
 | Admin1 | VAD children CI width | IDA women CI width |
 |---|---|---|
-| Widest | [PENDING] | [PENDING] |
-| Narrowest | [PENDING] | [PENDING] |
+| Widest | Upper River (11.5 pp) | Upper River (6.1 pp) |
+| Narrowest | Lower River (0.6 pp) | Western (1.6 pp) |
 
 - CI width expected to be inversely related to number of survey clusters per Admin1
 - **Interpretation:** Wide CIs do not indicate model failure — they indicate genuine statistical uncertainty given the survey design
@@ -449,23 +434,22 @@ not posterior predictive intervals over all possible model specifications.
 
 ## Domain Contribution: ΔAUC by Domain and Outcome
 
-> Source: `results/tables/gambia_domain_ablation_summary.csv`
-> Columns: `outcome`, `domain`, `n_dom_cols`, `auc_full`, `auc_reduced`, `delta_auc`, `delta_brier`
-
 **ΔAUC = AUC(full model) − AUC(model with domain removed)**
 Positive → domain contributes to discrimination; negative → domain adds noise
 
+Full model AUC: child_vitA = 0.609, women_vitA = 0.671, child_iron = 0.513, women_iron = 0.595
+
 | Domain | N cols | child_vitA | women_vitA | child_iron | women_iron |
 |---|---|---|---|---|---|
-| GW | 599−excl. | [PENDING] | [PENDING] | [PENDING] | [PENDING] |
-| DHS | 1,875 | [PENDING] | [PENDING] | [PENDING] | [PENDING] |
-| MICS | 290 | [PENDING] | [PENDING] | [PENDING] | [PENDING] |
-| IHME | 60 | [PENDING] | [PENDING] | [PENDING] | [PENDING] |
+| GW | 599−excl. | *excluded* | *excluded* | *excluded* | *excluded* |
+| DHS | 1,875 | −0.005 | −0.011 | −0.013 | −0.007 |
+| MICS | 290 | −0.003 | +0.005 | −0.002 | +0.000 |
+| IHME | 60 | −0.012 | −0.001 | −0.001 | +0.004 |
 | LSMS | **0** | *absent* | *absent* | *absent* | *absent* |
-| MAP | 26 | [PENDING] | [PENDING] | [PENDING] | [PENDING] |
-| WFP | 46 | [PENDING] | [PENDING] | [PENDING] | [PENDING] |
+| MAP | 26 | −0.003 | +0.014 | −0.004 | +0.005 |
+| WFP | 46 | −0.010 | +0.007 | −0.012 | −0.000 |
 | FLUNET | **0** | *absent* | *absent* | *absent* | *absent* |
-| GEE | 142 | [PENDING] | [PENDING] | [PENDING] | [PENDING] |
+| GEE | 142 | −0.008 | −0.018 | −0.017 | +0.010 |
 
 ::: {.notes}
 Ablation is a marginal permutation-based method, not causal. Two correlated domains may each show low individual ΔAUC even though jointly they contribute substantially. Negative ΔAUC can occur when a domain adds noise that NNLS cannot fully suppress. Domain columns skipped (ΔAUC = NA) indicate that domain is absent from the merged dataset.
@@ -524,7 +508,7 @@ The pipeline separation (sl_helpers.R defining DHS_SL_clustered and one_bootstra
 
 4. **Static predictor vintage** — External domain data (DHS, MICS, IHME) reflects a fixed survey year; predictive performance may degrade as these data become stale relative to the target year
 
-5. **B = 200 bootstrap** — Sufficient for development; B ≥ 500 required for stable tail-percentile CIs at publication standard
+5. **B = 4 bootstrap (fast mode)** — Current results use minimal replicates; B ≥ 200 for development, B ≥ 500 for stable tail-percentile CIs at publication standard
 
 6. **Single-country, single-wave** — NNLS weights observed in Gambia may not replicate in Ghana or Sierra Leone; within-country performance does not guarantee cross-country transportability
 
@@ -540,9 +524,11 @@ The pipeline separation (sl_helpers.R defining DHS_SL_clustered and one_bootstra
 ::: {.column width="50%"}
 **Immediate priorities:**
 
-- Run pipeline; commit `results/` to populate all `[PENDING]` slots
-- Increase bootstrap to B = 500–1000 for publication-grade CIs
+- ~~Run pipeline~~ — fast-mode results populated (B = 4)
+- Rerun in full mode (B = 200–500) for publication-grade CIs
 - Extract learner weights from saved `.rds` models; summarize NNLS allocation
+- Compute calibration intercept/slope for binary models
+- Compute AUC from continuous model scores
 
 **Short-term:**
 
@@ -570,16 +556,17 @@ The pipeline separation (sl_helpers.R defining DHS_SL_clustered and one_bootstra
 | File | Purpose |
 |---|---|
 | `scripts/run_gambia_pipeline.R` | End-to-end runner |
-| `src/analysis/config.R` | All parameters (K=5, B=200, seed=12345) |
+| `src/analysis/config.R` | All parameters (K=5, B=4 fast / B=200 full, seed=12345) |
 | `src/analysis/sl_helpers.R` | `DHS_SL_clustered` + `one_bootstrap` |
 | `scripts/tutorial_simulated_pipeline.R` | Full pipeline on simulated data (~1–2 min) |
 
 **R packages:** sl3, origami, future.apply, ck37r, washb, recipes, pROC, caret, data.table
 
 ::: {.callout-warning}
-All `[PENDING]` cells in this presentation are populated by running
-`scripts/run_gambia_pipeline.R` and committing the `results/` directory to the repository.
-Do not substitute modelled values from other publications.
+Results populated from fast-mode targets pipeline (B = 4 bootstrap replicates).
+Remaining `[PENDING]` cells require extracting NNLS learner weights, calibration
+statistics, and continuous-model AUC from saved model objects.
+Rerun with `PIPELINE_MODE=full` (B ≥ 200) for publication-quality CIs.
 :::
 
 ---

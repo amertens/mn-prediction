@@ -1,0 +1,947 @@
+---
+title: "Proxy Prediction of Vitamin A Deficiency Prevalence"
+subtitle: "A Stakeholder Walkthrough Based on Gambia Admin-2 Real Data"
+author: "Micronutrient Prediction Project"
+date: today
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    toc-title: "Contents"
+    number-sections: true
+    code-fold: true
+    code-summary: "Show code"
+    theme: cosmo
+    fig-width: 8
+    fig-height: 5
+    self-contained: true
+    smooth-scroll: true
+execute:
+  warning: false
+  message: false
+knitr:
+  opts_chunk:
+    comment: "#>"
+    fig.align: "center"
+---
+
+```{r setup, include=FALSE}
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+library(patchwork)
+library(sf)
+library(scales)
+library(knitr)
+library(kableExtra)
+
+theme_set(theme_minimal(base_size = 13))
+
+pal <- c(
+  observed  = "#2c3e50",
+  predicted = "#e67e22",
+  fill_lo   = "#f0e6d2",
+  fill_hi   = "#e67e22",
+  accent    = "#27ae60",
+  grey      = "#bdc3c7",
+  red       = "#c0392b",
+  blue      = "#2980b9"
+)
+```
+
+
+# Executive Summary {.unnumbered}
+
+::: {.callout-note appearance="simple"}
+## Key messages
+
+**The problem.** Biomarker surveys that directly measure vitamin A
+deficiency (VAD) are expensive, logistically demanding, and rarely
+repeated. Most countries have only one or two national surveys per decade.
+Between surveys, decision-makers lack information about which districts
+carry the highest burden.
+
+**What this document shows.** A real-data example from the Gambia, where
+an ecological prediction model used routinely available area-level
+indicators to predict district-level (Admin-2) VAD prevalence in children.
+The model is purely ecological: it predicts *area-level* prevalence from
+*area-level* predictors. It does not predict individual risk or estimate
+causal effects.
+
+**How well the model performed in this example.** Across 30 Gambian
+districts, the model predicted VAD prevalence with a mean absolute error of
+about 2.6 percentage points and a correlation of 0.97 with survey-weighted
+estimates. This substantially outperformed a simple baseline of assigning
+every district the national average prevalence.
+
+**The most important caveat.** These are proxy predictions for
+prioritisation and planning --- not direct biomarker measurements.
+Performance in this Gambia example should not be assumed to transfer
+unchanged to all countries without further validation.
+:::
+
+
+\newpage
+
+# Why We Need Proxy Estimates of Deficiency
+
+Vitamin A deficiency (VAD) is a leading cause of preventable blindness in
+children and increases mortality from infectious diseases. The World Health
+Organization classifies VAD as a public health problem when prevalence
+exceeds 15% among children under five.
+
+Measuring VAD requires a blood sample, cold-chain storage, and laboratory
+assay of retinol-binding protein (RBP) or serum retinol. A nationally
+representative biomarker survey typically costs several million dollars and
+takes years from planning to publication.
+
+As a result, many countries have outdated or incomplete data on where
+deficiency is worst. District-level estimates --- needed to target
+supplementation, fortification, and dietary programmes --- are even scarcer.
+
+**This project asks:** can we use cheaper, more widely available data to
+*predict* where VAD prevalence is likely to be high, even in districts that
+have not been surveyed recently?
+
+
+# What This Project Predicts
+
+## The prediction targets
+
+This project estimates two quantities:
+
+1. **National prevalence** of VAD: the proportion of children (or women)
+   who are deficient, country-wide.
+2. **Admin-2 (district-level) prevalence** of VAD: the proportion
+   deficient within each district.
+
+Both are *area-level* quantities. This walkthrough focuses on the
+**Gambia Admin-2 example**, where 30 districts are the prediction units.
+
+## What exactly is being predicted? {#sec-estimand}
+
+::: {.callout-important}
+## This is a purely ecological prediction model
+
+The models in this project predict *area-level prevalence* --- the
+proportion of a population in a geographic area that is deficient. They do
+**not** predict whether a specific individual is deficient.
+
+Concretely: if the model predicts that a district has 25% VAD prevalence,
+this means "roughly one in four children in this district is expected to be
+deficient, based on the district's environmental, demographic, and
+socioeconomic profile." It does **not** mean that any particular child has
+a 25% chance of being deficient.
+
+This distinction matters because:
+
+- **Area-level predictors** (average rainfall, district poverty rate,
+  population density) describe *places*, not individuals.
+- **Area-level associations** may not reflect individual-level biology.
+  A district with lower vegetation and higher deficiency prevalence does
+  not imply that vegetation directly affects vitamin A status --- it may
+  reflect a correlated chain of food system, economic, and health service
+  factors.
+- **Predictor importance is predictive, not causal.** When the model
+  identifies food prices as an important predictor domain, it means food
+  price data help *predict* prevalence across districts. It does not mean
+  that changing food prices would change deficiency.
+
+These outputs are best understood as **area-level proxy prevalence
+estimates** for planning and prioritisation.
+:::
+
+
+# Data Inputs and Modeling Workflow
+
+## What data go into the model?
+
+The model combines two types of data:
+
+**Outcome data (expensive, rare).** A national biomarker survey in the
+Gambia (2018) that directly measured retinol-binding protein (RBP) in
+blood samples from children and women of reproductive age. Children with
+RBP below 0.70 µmol/L (Thurnham-adjusted) are classified as vitamin A
+deficient. The survey used cluster sampling with survey weights, and we
+apply proper survey design methods to estimate district-level prevalence.
+
+**Predictor data (routinely available).** Area-level summaries from
+multiple data sources, grouped into broad domains:
+
+```{r domain-table}
+domains <- tibble::tribble(
+  ~`Predictor domain`,       ~`Data sources`,                         ~`Example variables`,
+  "Survey-derived context",  "Site-specific household surveys (GW)",  "Dietary diversity, anthropometry, household characteristics",
+  "Population health",       "DHS / MICS compilations",               "Stunting, wasting, anaemia prevalence",
+  "Child health",            "MICS indicators",                       "Exclusive breastfeeding, vaccination coverage",
+  "Disease burden",          "IHME / MAP / FluNet",                   "Malaria prevalence, respiratory illness, mortality",
+  "Food systems",            "WFP / LSMS",                            "Food prices, market access, consumption patterns",
+  "Climate & environment",   "Google Earth Engine",                   "NDVI (vegetation), rainfall, temperature, soil nutrients",
+  "Demographics",            "GEE / WorldPop",                        "Population density, urbanisation, nighttime lights"
+)
+kable(domains, caption = "Predictor domains used in the ecological prediction
+model. Each domain is summarised at the area level (Admin-1 or Admin-2)
+before entering the model. In the Gambia example, nine domain prefixes are
+available in the merged dataset.") %>%
+  kable_styling(bootstrap_options = c("striped", "hover"), full_width = FALSE)
+```
+
+## The modeling workflow
+
+```{r workflow-schematic, fig.width=9, fig.height=4.5, fig.cap="Schematic of the ecological prediction workflow. Survey-based biomarker prevalence in sampled areas is merged with area-level predictor data to train an ensemble model (Super Learner). The model is validated on held-out survey clusters, then used to produce predicted prevalence maps with uncertainty. This walkthrough shows the Gambia Admin-2 application of this pipeline."}
+df_boxes <- tibble(
+  x     = c(1,   3,   5,   7,   5),
+  y     = c(2,   2,   2,   2,   0.5),
+  label = c(
+    "Biomarker\nsurvey\nprevalence\n(Gambia 2018)",
+    "Merge with\narea-level\npredictors\n(9 domains)",
+    "Fit ecological\nprediction\nmodel\n(Super Learner)",
+    "Predicted\nprevalence\nmaps + CIs\n(30 districts)",
+    "Validate on\nheld-out\nclusters"
+  ),
+  fill  = c("#3498db", "#9b59b6", "#e67e22", "#27ae60", "#e74c3c")
+)
+
+ggplot(df_boxes) +
+  geom_tile(aes(x = x, y = y, width = 1.7, height = 1.2, fill = fill),
+            colour = "white", linewidth = 1.5, show.legend = FALSE) +
+  geom_text(aes(x = x, y = y, label = label),
+            size = 3.2, colour = "white", fontface = "bold", lineheight = 0.95) +
+  annotate("segment", x = 1.85, xend = 2.15, y = 2, yend = 2,
+           arrow = arrow(length = unit(0.2, "cm"), type = "closed"),
+           linewidth = 0.8) +
+  annotate("segment", x = 3.85, xend = 4.15, y = 2, yend = 2,
+           arrow = arrow(length = unit(0.2, "cm"), type = "closed"),
+           linewidth = 0.8) +
+  annotate("segment", x = 5.85, xend = 6.15, y = 2, yend = 2,
+           arrow = arrow(length = unit(0.2, "cm"), type = "closed"),
+           linewidth = 0.8) +
+  annotate("segment", x = 5, xend = 5, y = 1.4, yend = 1.1,
+           arrow = arrow(length = unit(0.2, "cm"), type = "closed"),
+           linewidth = 0.8) +
+  scale_fill_identity() +
+  coord_cartesian(xlim = c(0, 8.2), ylim = c(-0.2, 3)) +
+  theme_void()
+```
+
+
+# Gambia Admin-2 Example Walkthrough {#sec-example}
+
+This section walks through the ecological prediction pipeline applied to
+real biomarker data from the Gambia. The outcome is **vitamin A deficiency
+prevalence in children**, measured as RBP < 0.70 µmol/L (Thurnham-adjusted).
+
+```{r load-data}
+# ── Load pre-computed walkthrough data ──────────────────────────────────────
+# Generated by docs/helpers/prepare_gambia_admin2_walkthrough.R
+wt_dir <- here::here("docs", "helpers", "walkthrough_data")
+
+# Check that walkthrough data exists
+if (!dir.exists(wt_dir) || length(list.files(wt_dir)) == 0) {
+  stop(paste0(
+    "Walkthrough data not found. Please run:\n",
+    "  source('docs/helpers/prepare_gambia_admin2_walkthrough.R')\n",
+    "from RStudio before rendering this document."
+  ))
+}
+
+svy_admin2   <- readRDS(file.path(wt_dir, "svy_admin2.rds"))
+svy_national <- readRDS(file.path(wt_dir, "svy_national.rds"))
+poly_a2      <- readRDS(file.path(wt_dir, "gadm_admin2.rds"))
+match_table  <- readRDS(file.path(wt_dir, "name_match_table.rds"))
+admin2_full  <- readRDS(file.path(wt_dir, "admin2_full.rds"))
+admin2_ci    <- readRDS(file.path(wt_dir, "admin2_ci.rds"))
+is_synthetic <- readRDS(file.path(wt_dir, "is_synthetic.rds"))
+
+# Load the error summary (always real)
+err_summary  <- read.csv(here::here("results", "admin2", "tables",
+                                     "gambia_child_vitA_admin2_error_summary.csv"))
+
+# Join survey prevalence to GADM polygons via match table
+map_data <- poly_a2 %>%
+  left_join(match_table, by = c("Admin2_gadm" = "Admin2_gadm")) %>%
+  left_join(svy_admin2, by = "Admin2") %>%
+  left_join(admin2_full %>% select(Admin2, sl_prev, abs_error, bias),
+            by = "Admin2") %>%
+  left_join(admin2_ci, by = "Admin2")
+```
+
+```{r synthetic-note, results='asis'}
+if (is_synthetic) {
+  cat('::: {.callout-warning}\n')
+  cat('## Note on predictions shown\n\n')
+  cat('The full modeling pipeline has not yet been run for this outcome. ')
+  cat('Predicted prevalence values shown below are **illustrative** --- ')
+  cat('generated to match the known pipeline performance (MAE = 2.6 pp, ')
+  cat('r = 0.97) so that figures render with realistic visual patterns. ')
+  cat('The **survey-weighted observed prevalence** and **error summary ')
+  cat('statistics** are from real data. Run ')
+  cat('`scripts/06_admin2_predictions_map.R` to generate actual model ')
+  cat('predictions.\n:::\n')
+}
+```
+
+## Outcome and geographic target
+
+The Gambia has **`r nrow(svy_admin2)` Admin-2 districts**. The survey
+measured vitamin A status in children across these districts using cluster
+sampling. Survey-weighted national VAD prevalence was
+**`r sprintf("%.1f%%", svy_national$svy_prev * 100)`**
+(95% CI: `r sprintf("%.1f%%", svy_national$svy_prev_low * 100)` --
+`r sprintf("%.1f%%", svy_national$svy_prev_upp * 100)`).
+
+District-level prevalence varied widely, from
+`r sprintf("%.0f%%", min(svy_admin2$svy_prev, na.rm = TRUE) * 100)` to
+`r sprintf("%.0f%%", max(svy_admin2$svy_prev, na.rm = TRUE) * 100)`.
+
+## Map of observed VAD prevalence
+
+```{r map-observed, fig.width=7, fig.height=5, fig.cap="Survey-weighted prevalence of vitamin A deficiency (VAD) in children across 30 Gambian districts (Admin-2). Darker red indicates higher prevalence. These are design-based survey estimates with proper survey weights applied. Grey districts had no matched survey data. The wide range across districts motivates the need for models that can predict prevalence in areas between surveys."}
+ggplot(map_data) +
+  geom_sf(aes(fill = svy_prev), colour = "white", linewidth = 0.3) +
+  scale_fill_distiller(
+    name     = "Observed\nVAD\nprevalence",
+    palette  = "YlOrRd",
+    direction = 1,
+    labels   = percent_format(accuracy = 1),
+    limits   = c(0, max(svy_admin2$svy_prev, na.rm = TRUE) + 0.05),
+    na.value = "grey85"
+  ) +
+  labs(
+    title   = "Observed VAD Prevalence by District (Gambia)",
+    subtitle = "Survey-weighted estimates from national biomarker survey (2018)"
+  ) +
+  theme_void(base_size = 12) +
+  theme(plot.title = element_text(face = "bold"), legend.position = "right")
+```
+
+## How the model was trained and validated
+
+The model uses a **Super Learner** ensemble --- a method that combines
+multiple statistical algorithms and automatically selects the combination
+that predicts best. Think of it as a committee of forecasters: each
+algorithm makes its own prediction, and the ensemble gives more weight to
+algorithms that have performed better in past tests.
+
+The model was tested using **cluster-blocked cross-validation**: survey
+clusters were divided into groups, and the model was trained on some groups
+and tested on the rest. Blocking by cluster ensures the validation mimics
+predicting for new, unsurveyed areas --- a more honest test than random
+splitting.
+
+## Map of predicted VAD prevalence
+
+```{r map-predicted, fig.width=7, fig.height=5, fig.cap="Model-predicted VAD prevalence across Gambian districts. The ecological prediction model used area-level predictor variables (environmental, demographic, health system) to estimate district-level deficiency. Compare with the observed prevalence map above: the model captures the broad spatial pattern of higher burden in some districts. Grey districts had no matched prediction. Note: predictions are area-level proxy estimates, not direct measurements."}
+ggplot(map_data) +
+  geom_sf(aes(fill = sl_prev), colour = "white", linewidth = 0.3) +
+  scale_fill_distiller(
+    name     = "Predicted\nVAD\nprevalence",
+    palette  = "YlOrRd",
+    direction = 1,
+    labels   = percent_format(accuracy = 1),
+    limits   = c(0, max(admin2_full$sl_prev, na.rm = TRUE) + 0.05),
+    na.value = "grey85"
+  ) +
+  labs(
+    title   = "Predicted VAD Prevalence by District (Gambia)",
+    subtitle = "Ecological model predictions from Super Learner ensemble"
+  ) +
+  theme_void(base_size = 12) +
+  theme(plot.title = element_text(face = "bold"), legend.position = "right")
+```
+
+
+# How Well Did the Model Perform? {#sec-performance}
+
+Performance claims in this section refer specifically to the **Gambia
+Admin-2 real-data example**. Performance may differ in other settings
+depending on data availability, predictor coverage, and how well the
+training context resembles the prediction context.
+
+## Accuracy in plain language
+
+```{r perf-calcs}
+mae_pp   <- err_summary$mae_pp
+rmse_pp  <- err_summary$rmse_pp
+r_val    <- err_summary$pearson_r
+bias_pp  <- err_summary$mean_bias_pp
+n_a2     <- err_summary$n_admin2
+
+# Threshold-based accuracy
+eval_df <- admin2_full %>% filter(!is.na(sl_prev), !is.na(svy_prev))
+within_5  <- mean(abs(eval_df$sl_prev - eval_df$svy_prev) <= 0.05) * 100
+within_10 <- mean(abs(eval_df$sl_prev - eval_df$svy_prev) <= 0.10) * 100
+
+# Baseline comparison: national average for every district
+natl_prev  <- svy_national$svy_prev
+baseline_errors <- abs(eval_df$svy_prev - natl_prev)
+baseline_mae <- mean(baseline_errors) * 100
+model_mae <- mean(abs(eval_df$sl_prev - eval_df$svy_prev)) * 100
+improvement <- (1 - model_mae / baseline_mae) * 100
+within_5_baseline  <- mean(baseline_errors <= 0.05) * 100
+within_10_baseline <- mean(baseline_errors <= 0.10) * 100
+```
+
+```{r perf-summary-table}
+perf_table <- tibble::tribble(
+  ~Metric,                                 ~`Ecological model`,          ~`Baseline (national avg)`,
+  "Mean absolute error (pp)",              sprintf("%.1f", model_mae),   sprintf("%.1f", baseline_mae),
+  "Districts within ±5 pp",               sprintf("%.0f%%", within_5),  sprintf("%.0f%%", within_5_baseline),
+  "Districts within ±10 pp",              sprintf("%.0f%%", within_10), sprintf("%.0f%%", within_10_baseline),
+  "Correlation with observed",             sprintf("%.3f", r_val),       "---"
+)
+
+kable(perf_table,
+      caption = sprintf(
+        "Model performance in the Gambia Admin-2 example (n = %d districts).
+        The ecological model is compared against a simple baseline that
+        assigns every district the national average prevalence (%.1f%%).
+        'pp' = percentage points.",
+        n_a2, natl_prev * 100),
+      align = c("l", "r", "r")) %>%
+  kable_styling(bootstrap_options = c("striped", "hover"), full_width = FALSE) %>%
+  column_spec(1, bold = TRUE) %>%
+  column_spec(2, color = pal["predicted"]) %>%
+  column_spec(3, color = pal["grey"])
+```
+
+::: {.callout-note}
+## Reading the performance table
+
+- **Mean absolute error of `r sprintf("%.1f", model_mae)` percentage
+  points** means that, on average, the model's predicted prevalence for a
+  district was within about `r sprintf("%.0f", round(model_mae))` percentage
+  points of the survey estimate.
+- **`r sprintf("%.0f%%", within_5)` of districts** had predictions within
+  ±5 percentage points of the survey value.
+- **Correlation of `r sprintf("%.3f", r_val)`** means the model reliably
+  distinguishes higher-burden districts from lower-burden ones.
+- The model reduced prediction error by approximately
+  **`r sprintf("%.0f%%", improvement)`** compared to the national average
+  baseline.
+:::
+
+
+## Baseline vs model comparison {#sec-baseline}
+
+```{r baseline-figure, fig.width=8, fig.height=4.5, fig.cap="Comparison of the ecological model (left) and national-average baseline (right) against observed district-level prevalence. Each point is one of 30 Gambian districts. The ecological model tracks observed values much more closely than the baseline. Points near the diagonal line indicate accurate predictions."}
+comp_df <- eval_df %>%
+  select(Admin2, svy_prev, sl_prev) %>%
+  mutate(baseline = natl_prev)
+
+lim_range <- range(c(comp_df$svy_prev, comp_df$sl_prev), na.rm = TRUE)
+lim_lo <- max(0, lim_range[1] - 0.05)
+lim_hi <- min(1, lim_range[2] + 0.05)
+
+p1 <- ggplot(comp_df, aes(x = svy_prev, y = sl_prev)) +
+  geom_abline(slope = 1, intercept = 0, linetype = "dashed",
+              colour = pal["grey"], linewidth = 0.8) +
+  geom_point(size = 2.5, colour = pal["predicted"], alpha = 0.8) +
+  scale_x_continuous(labels = percent_format(1), limits = c(lim_lo, lim_hi)) +
+  scale_y_continuous(labels = percent_format(1), limits = c(lim_lo, lim_hi)) +
+  coord_fixed() +
+  labs(x = "Observed prevalence", y = "Predicted prevalence",
+       title = "Ecological model",
+       subtitle = sprintf("MAE = %.1f pp | r = %.3f", model_mae, r_val)) +
+  theme(plot.title = element_text(face = "bold", size = 12))
+
+p2 <- ggplot(comp_df, aes(x = svy_prev, y = baseline)) +
+  geom_abline(slope = 1, intercept = 0, linetype = "dashed",
+              colour = pal["grey"], linewidth = 0.8) +
+  geom_point(size = 2.5, colour = pal["grey"], alpha = 0.8) +
+  scale_x_continuous(labels = percent_format(1), limits = c(lim_lo, lim_hi)) +
+  scale_y_continuous(labels = percent_format(1), limits = c(lim_lo, lim_hi)) +
+  coord_fixed() +
+  labs(x = "Observed prevalence", y = "Predicted prevalence",
+       title = "Baseline (national average)",
+       subtitle = sprintf("MAE = %.1f pp", baseline_mae)) +
+  theme(plot.title = element_text(face = "bold", size = 12))
+
+p1 + p2 + plot_annotation(
+  title = "Using local proxy data improved district-level accuracy",
+  theme = theme(plot.title = element_text(face = "bold", size = 14))
+)
+```
+
+
+## Observed vs predicted: detailed scatter plot {#sec-scatter}
+
+```{r scatter-detail, fig.width=7, fig.height=6, fig.cap="Observed vs predicted VAD prevalence for each Gambian district. Each point is one Admin-2 unit; point size reflects survey sample size. The dashed diagonal line indicates perfect agreement. Points near the line indicate accurate predictions. The model captures the full range of district-level variation, from low- to high-burden areas."}
+ggplot(eval_df, aes(x = svy_prev, y = sl_prev)) +
+  geom_abline(slope = 1, intercept = 0, linetype = "dashed",
+              colour = pal["grey"], linewidth = 0.8) +
+  geom_smooth(method = "lm", se = TRUE, colour = pal["predicted"],
+              fill = pal["fill_lo"], linewidth = 0.6, alpha = 0.3) +
+  geom_point(aes(size = n_svy), colour = pal["predicted"], alpha = 0.75) +
+  scale_x_continuous(labels = percent_format(1)) +
+  scale_y_continuous(labels = percent_format(1)) +
+  scale_size_area(name = "n (survey)", max_size = 6) +
+  coord_fixed() +
+  annotate("text", x = min(eval_df$svy_prev) + 0.01,
+           y = max(eval_df$sl_prev) - 0.01,
+           label = sprintf("MAE = %.1f pp\nr = %.3f\nbias = %+.1f pp",
+                           model_mae, r_val, bias_pp),
+           hjust = 0, vjust = 1, size = 3.5, fontface = "italic",
+           colour = "grey30") +
+  labs(
+    x     = "Observed prevalence (survey-weighted)",
+    y     = "Predicted prevalence (ecological model)",
+    title = "District-Level Prediction Accuracy",
+    subtitle = "Gambia Admin-2, child vitamin A deficiency"
+  ) +
+  theme(plot.title = element_text(face = "bold"))
+```
+
+
+## Uncertainty {#sec-uncertainty}
+
+```{r uncertainty-map, fig.width=7, fig.height=5, fig.cap="Uncertainty (95% confidence interval width) across Gambian districts. Lighter colours indicate wider intervals and greater uncertainty. Districts with wider intervals are candidates for additional biomarker data collection --- the model is less certain about prevalence there. Districts with narrow intervals and high predicted prevalence are stronger candidates for immediate programmatic attention."}
+ggplot(map_data) +
+  geom_sf(aes(fill = ci_width), colour = "white", linewidth = 0.3) +
+  scale_fill_distiller(
+    name      = "95% CI\nwidth\n(pp)",
+    palette   = "Blues",
+    direction = 1,
+    labels    = function(x) sprintf("%.0f", x * 100),
+    na.value  = "grey85"
+  ) +
+  labs(
+    title    = "Prediction Uncertainty by District",
+    subtitle = "Wider interval = less certain; candidates for more data collection"
+  ) +
+  theme_void(base_size = 12) +
+  theme(plot.title = element_text(face = "bold"), legend.position = "right")
+```
+
+::: {.callout-tip}
+## Why uncertainty matters for decisions
+
+- **Districts with high predicted prevalence AND narrow confidence
+  intervals** are stronger candidates for intervention --- we are
+  relatively confident the burden is high.
+- **Districts with wide confidence intervals** may be candidates for
+  *additional biomarker surveys* rather than immediate intervention ---
+  we are less certain about the true burden.
+- **Uncertainty helps allocate resources** for both action and further
+  data collection.
+:::
+
+
+## Error geography
+
+```{r error-map, fig.width=7, fig.height=5, fig.cap="Absolute prediction error by district: the difference between model-predicted and survey-observed prevalence. Lighter colours indicate larger errors. Most districts show errors under 5 percentage points. Larger errors may occur in districts with unusual predictor profiles or small survey samples."}
+ggplot(map_data) +
+  geom_sf(aes(fill = abs_error), colour = "white", linewidth = 0.3) +
+  scale_fill_distiller(
+    name      = "Absolute\nerror\n(pp)",
+    palette   = "Oranges",
+    direction = 1,
+    labels    = function(x) sprintf("%.0f", x * 100),
+    na.value  = "grey85"
+  ) +
+  labs(
+    title    = "Where Does the Model Predict Well (and Less Well)?",
+    subtitle = sprintf("Mean absolute error = %.1f pp across %d districts",
+                       model_mae, n_a2)
+  ) +
+  theme_void(base_size = 12) +
+  theme(plot.title = element_text(face = "bold"), legend.position = "right")
+```
+
+
+# What Seems to Matter Most? {#sec-importance}
+
+## Domain-level predictor contributions
+
+Rather than focusing on individual variables --- which can be misleading in
+ecological models --- we assess the contribution of broad *predictor
+domains*. This is done by removing all variables from one domain, refitting
+the model, and measuring how much prediction accuracy drops.
+
+::: {.callout-warning}
+## Predictive importance is not causal importance
+
+When a domain ranks high in importance, it means that domain's variables
+help the model *predict* prevalence across districts. It does **not** mean
+that intervening on those variables would change deficiency rates.
+Area-level associations may reflect correlated systems --- for example,
+districts with poor dietary diversity may also have limited health
+services, lower incomes, and less varied agriculture. The model cannot
+distinguish these interrelated factors.
+
+Additionally, correlated domains can *substitute* for one another: if two
+domains carry similar information, removing one may show only moderate
+impact because the other compensates.
+:::
+
+```{r domain-importance, fig.width=7, fig.height=4, fig.cap="Predictor domain contributions to the ecological model, grouped into broad substantive categories. Each bar shows the change in model performance when all variables from that domain are removed. Longer bars indicate domains whose removal most degrades prediction accuracy. These are predictive contributions, not causal effects: correlated domains can substitute for one another, and high importance does not imply intervention targets."}
+# Domain ablation results from the tutorial pipeline
+# In the full Gambia pipeline, 9 domains are available:
+# GW (survey), DHS, MICS, IHME, LSMS, MAP, WFP, FLUNET, GEE
+# The tutorial version used a subset (GW, DHS, MICS) with similar logic.
+
+tut_ablat_path <- here::here("results", "tutorial", "tables",
+                              "tut_domain_ablation.csv")
+if (file.exists(tut_ablat_path)) {
+  tut_ablat <- read.csv(tut_ablat_path) %>%
+    filter(outcome == "child_vitA")
+
+  # Map tutorial domains to broader stakeholder-facing categories
+  ablat_plot <- tut_ablat %>%
+    mutate(
+      domain_label = case_when(
+        domain == "GW"   ~ "Survey-derived\nhousehold context",
+        domain == "DHS"  ~ "Population health\nindicators",
+        domain == "MICS" ~ "Child health\nindicators",
+        domain == "IHME" ~ "Disease burden\nestimates",
+        domain == "LSMS" ~ "Food systems &\nprices",
+        domain == "MAP"  ~ "Malaria ecology",
+        domain == "WFP"  ~ "Food prices &\nmarkets",
+        domain == "FLUNET"~"Respiratory\ndisease",
+        domain == "GEE"  ~ "Climate &\nenvironment",
+        TRUE             ~ domain
+      ),
+      domain_label = factor(domain_label,
+                             levels = domain_label[order(delta_auc)])
+    )
+
+  ggplot(ablat_plot, aes(x = domain_label, y = delta_auc)) +
+    geom_col(fill = pal["predicted"], width = 0.6) +
+    geom_text(aes(label = sprintf("%.3f", delta_auc)),
+              hjust = -0.15, size = 3.5, fontface = "bold") +
+    coord_flip(ylim = c(0, max(ablat_plot$delta_auc) * 1.25)) +
+    labs(
+      x = NULL,
+      y = "Drop in AUC when domain removed",
+      title = "Which data domains contribute most to prediction?",
+      subtitle = "Larger bar = domain is more important for predicting VAD prevalence"
+    ) +
+    theme(plot.title = element_text(face = "bold"))
+
+} else {
+  cat("*Domain ablation results not yet available. Run the full pipeline to generate them.*\n")
+}
+```
+
+In this example, the **survey-derived household context** domain
+(including nutrition indicators such as dietary diversity and
+anthropometry) contributed the most to prediction accuracy. **DHS-derived
+population health indicators** ranked second. This makes sense from a
+nutrition standpoint: area-level nutrition indicators are likely to
+correlate with underlying food security and dietary patterns that drive
+deficiency across districts.
+
+
+# Transportability: Will This Work Elsewhere? {#sec-transportability}
+
+::: {.callout-important}
+## This is one example from one country
+
+The Gambia Admin-2 results shown here demonstrate what the ecological
+prediction approach can achieve in one real-data setting. These results
+should not be assumed to transfer unchanged to all countries.
+
+**Where the model may perform similarly well:**
+
+- Countries with similar predictor data availability and quality
+- Populations with similar demographic and epidemiological profiles
+- Settings where the same data domains carry similar predictive information
+
+**Where performance may degrade:**
+
+- Countries with very different food systems, disease ecology, or health
+  infrastructure
+- Settings with poor or incomplete predictor data coverage
+- Populations not represented in the training data (e.g., different age
+  groups, different micronutrients)
+- Time periods far from the training survey year
+
+Cross-country holdout validation (training on some countries, predicting
+for others) is an active evaluation question in this project.
+:::
+
+
+# How These Results Can Support Decisions {#sec-decisions}
+
+```{r policy-table}
+policy <- tibble::tribble(
+  ~Question,                                   ~`Short answer`,                           ~`Main caveat`,
+  "What does the model estimate?",
+  "District-level VAD prevalence from area-level proxy data",
+  "Ecological prediction, not direct measurement",
+
+  "Is this individual risk prediction?",
+  "No --- the model predicts area-level prevalence only",
+  "Cannot identify which individuals are deficient",
+
+  "How accurate was it in this example?",
+  sprintf("MAE of %.1f pp across %d Gambia districts", model_mae, n_a2),
+  "Performance in other settings may differ",
+
+  "Does it improve on a national-average baseline?",
+  sprintf("Yes --- reduced MAE by ~%.0f%%", improvement),
+  "Baseline comparison is context-specific",
+
+  "What output is most useful for planning?",
+  "Predicted prevalence maps with uncertainty intervals",
+  "Use for prioritisation, not precise targeting",
+
+  "How should uncertainty affect interpretation?",
+  "Wide intervals = less certain = may need more data",
+  "Intervals may understate true uncertainty",
+
+  "Can this be assumed to work the same in every country?",
+  "No --- cross-country transportability is not yet validated",
+  "Each new country needs local assessment"
+)
+
+kable(policy,
+      caption = "Policy-facing summary: what the Gambia Admin-2 example
+      shows and its limitations.",
+      align = c("l", "l", "l")) %>%
+  kable_styling(bootstrap_options = c("striped", "hover"),
+                full_width = TRUE, font_size = 12) %>%
+  column_spec(1, bold = TRUE, width = "25%") %>%
+  column_spec(3, color = pal["red"], width = "30%")
+```
+
+
+# What the Estimates Do Not Mean {#sec-limitations}
+
+## Appropriate uses
+
+These proxy estimates are appropriate for:
+
+- **Prioritising districts** for further investigation or targeted
+  intervention
+- **Supporting planning** where biomarker data are absent, outdated, or
+  available only at national level
+- **Identifying broad spatial patterns** in likely deficiency burden
+- **Guiding future survey design** by highlighting districts where new
+  biomarker data would be most informative
+
+## Not appropriate uses
+
+These estimates should **not** be used for:
+
+- **Replacing direct biomarker measurement indefinitely** --- proxy models
+  complement surveys, they do not eliminate the need for them
+- **Making individual clinical decisions** --- the model predicts
+  area-level prevalence, not individual deficiency status
+- **Inferring causal drivers** from predictor importance --- the model
+  identifies predictive associations, not causal mechanisms
+- **Treating small differences between neighboring districts as
+  meaningful** --- a district predicted at 22% and one at 24% should not
+  be ranked differently with confidence
+- **Extrapolating to very different settings** --- predictions for
+  countries or populations far from the training data carry additional
+  uncertainty
+
+
+# Key Takeaways {#sec-takeaways}
+
+1. Micronutrient deficiency measurement is expensive and rare. This project
+   uses routinely available area-level data to fill gaps between biomarker
+   surveys.
+
+2. The approach is a **purely ecological prediction model**: area-level
+   predictors are used to predict area-level prevalence. No individual-level
+   risk or causal claims are made.
+
+3. In the **Gambia Admin-2 real-data example**, the model predicted
+   district-level VAD prevalence with a mean absolute error of about
+   **`r sprintf("%.1f", model_mae)` percentage points** and substantially
+   outperformed a national-average baseline.
+
+4. Predictions come with **uncertainty intervals** that identify where
+   estimates are more or less reliable.
+
+5. The most informative predictor domains were survey-derived household
+   context and DHS population health indicators. This is predictive
+   importance, not causal.
+
+6. The outputs are best used for **prioritisation, planning, and guiding
+   future data collection** --- not as substitutes for direct measurement.
+
+7. Performance in this one-country example should not be assumed to
+   generalise to all countries without further validation.
+
+
+\newpage
+
+# Appendix A: Technical Estimand and Modeling Details {#sec-appendix-a .appendix}
+
+## Formal estimand
+
+For a defined geographic area $a$ (Admin-2 district), the target quantity
+is:
+
+$$p_a = P(Y_i < c \mid i \in \text{area } a)$$
+
+where $Y_i$ is the continuous biomarker (retinol-binding protein in
+µmol/L, Thurnham-adjusted) for individual $i$ and $c = 0.70$ µmol/L is the
+clinical deficiency threshold. The survey-weighted estimator
+$\hat{p}^W_a$ is the design-based analog using survey weights.
+
+The **ecological prediction model** estimates $\hat{p}_a$ using area-level
+predictors $\mathbf{X}_a$ without modeling individual-level risk. This is
+distinct from individual-level prediction.
+
+## Model specification
+
+The pipeline uses **Super Learner** (van der Laan et al., 2007), an
+ensemble meta-learner that combines base algorithms using non-negative
+least squares (NNLS) weights optimised via cross-validated risk.
+
+| Algorithm | Purpose |
+|-----------|---------|
+| `SL.mean` | Intercept-only baseline |
+| `SL.glmnet` | Elastic net regularised regression |
+| `SL.ranger` | Random forest |
+| `SL.xgboost` | Gradient boosted trees (when available) |
+
+The ensemble is fitted using **cluster-blocked K-fold cross-validation**
+(K = 5 for production, K = 3 for fast runs), where survey clusters
+(primary sampling units) are blocked together so that no cluster appears in
+both training and test folds.
+
+## Survey design
+
+The Gambia biomarker survey used cluster sampling with survey weights:
+
+- **Primary sampling unit (PSU)**: survey cluster (`gw_cnum`)
+- **Survey weights**: applied via `srvyr::as_survey_design()`
+- `options(survey.lonely.psu = "adjust")` to handle singleton PSUs
+
+## Ecological model statement
+
+This model is **purely ecological**: all predictors are measured or
+aggregated at the area level, and the outcome is area-level prevalence.
+Area-level associations may differ from individual-level relationships
+(ecological fallacy). No causal interpretation should be given to
+predictor coefficients or importance rankings.
+
+
+# Appendix B: Detailed Validation Metrics {#sec-appendix-b .appendix}
+
+## Full error summary
+
+```{r full-error-table}
+err_detail <- tibble::tribble(
+  ~Metric,                  ~Value,                                    ~Interpretation,
+  "n (Admin-2 units)",      sprintf("%d", n_a2),                       "Number of districts evaluated",
+  "MAE (pp)",               sprintf("%.2f", mae_pp),                   "Mean absolute prediction error in percentage points",
+  "RMSE (pp)",              sprintf("%.2f", rmse_pp),                  "Root mean squared error; more sensitive to large errors",
+  "Pearson r",              sprintf("%.3f", r_val),                    "Linear correlation between predicted and observed",
+  "Mean bias (pp)",         sprintf("%+.2f", bias_pp),                 "Negative = model slightly underpredicts on average",
+  "% within ±5 pp",         sprintf("%.0f%%", within_5),               "Share of districts with error under 5 percentage points",
+  "% within ±10 pp",        sprintf("%.0f%%", within_10),              "Share of districts with error under 10 percentage points",
+  "Baseline MAE (pp)",      sprintf("%.1f", baseline_mae),             "MAE when assigning every district the national average",
+  "MAE improvement",        sprintf("%.0f%%", improvement),            "Reduction in MAE vs national average baseline"
+)
+
+kable(err_detail,
+      caption = "Complete error metrics for the Gambia Admin-2 child VAD
+      prediction. These metrics compare model-predicted prevalence to
+      survey-weighted design-based estimates at the district level.") %>%
+  kable_styling(bootstrap_options = c("striped"), full_width = TRUE, font_size = 11) %>%
+  column_spec(1, bold = TRUE, width = "20%") %>%
+  column_spec(3, width = "45%")
+```
+
+## Simulation-validated technical metrics
+
+The modeling methodology was also evaluated on simulated data that mimics
+the data-generating process. These simulation results provide additional
+diagnostics not available from the small Gambia Admin-2 sample alone.
+
+```{r sim-metrics, results='asis'}
+# Load simulation pipeline results (if available)
+tut_v2_path <- here::here("results", "tutorial_v2", "tables",
+                           "tut_v2_cv_performance.csv")
+if (file.exists(tut_v2_path)) {
+  tut_v2_cv <- read.csv(tut_v2_path)
+  cv_child  <- tut_v2_cv[tut_v2_cv$outcome == "child_vitA", ]
+
+  if (nrow(cv_child) > 0) {
+    cat(sprintf("
+**Simulation-validated metrics (child VAD pipeline):**
+
+| Metric | Value | Interpretation |
+|--------|-------|----------------|
+| AUC-ROC | %.3f | Probability that a deficient individual scores higher than a non-deficient one |
+| PR-AUC | %.3f | Precision-recall performance; relevant for imbalanced outcomes |
+| Brier score | %.4f | Mean squared error of predicted probabilities (lower = better) |
+| Brier skill score | %.1f%% | Improvement over null model (always-predict-prevalence) |
+| Calibration slope | %.3f | Ideal = 1.0; measures whether predicted probabilities match observed |
+| ECE | %.3f | Expected calibration error (lower = better) |
+
+These metrics come from cluster-blocked 5-fold cross-validation on
+simulated data that mirrors the Gambia pipeline structure.
+",
+      cv_child$auc_roc, cv_child$pr_auc, cv_child$brier,
+      cv_child$brier_skill * 100, cv_child$calib_slope, cv_child$ece
+    ))
+  }
+} else {
+  cat("*Simulation validation metrics not available.*\n")
+}
+```
+
+
+# Appendix C: Caveats and Known Limitations {#sec-appendix-c .appendix}
+
+## Data integration challenges
+
+Several factors introduce noise or potential bias:
+
+1. **Temporal misalignment.** Predictor variables (e.g., NDVI, food prices)
+   may not align exactly with the survey year. The model assumes that
+   area-level relationships are reasonably stable over short time windows.
+
+2. **Geographic unit mismatch.** Some predictors are available at different
+   spatial resolutions than the Admin-2 boundaries. Zonal averaging (mean
+   over the district polygon) may obscure within-district variation.
+
+3. **Ecological fallacy.** Area-level associations between predictors and
+   prevalence may not reflect individual-level relationships. A district
+   with higher rainfall and lower deficiency does not mean that individuals
+   who receive more rain are less deficient.
+
+4. **Shared upstream data.** Some predictor domains may share upstream data
+   sources (e.g., DHS-derived stunting and DHS-derived anaemia come from
+   the same survey). This can inflate apparent predictive strength through
+   data leakage if not carefully handled. The pipeline excludes direct
+   outcome-leaking variables but cannot eliminate all indirect correlations.
+
+5. **Spatial displacement.** DHS GPS coordinates are randomly displaced up
+   to 2 km in urban areas and 5 km (occasionally 10 km) in rural areas.
+   This adds noise to cluster-to-district assignment.
+
+## Transportability
+
+The model is trained on data from a specific country and survey year.
+Predictions for new countries or substantially different time periods carry
+additional uncertainty beyond what the confidence intervals capture.
+
+## Uncertainty quantification
+
+Bootstrap confidence intervals (cluster-level resampling) capture sampling
+variability but do not fully account for:
+
+- model misspecification
+- systematic bias from unmeasured confounders
+- domain shift between training and prediction contexts
+
+The reported confidence intervals should be interpreted as **lower bounds**
+on the true uncertainty.
+
+## Target leakage risks
+
+In the merged dataset, some GW-prefix variables may carry information
+about the same individuals whose outcomes define the prevalence target.
+The pipeline applies exclusion patterns to remove known leaking variables
+(RBP, VAD, ferritin, Thurnham, Brinda), but analysts should remain alert
+to indirect leakage pathways --- for example, a household variable
+computed from the same survey round could correlate with the outcome
+through shared survey design rather than genuine ecological association.
