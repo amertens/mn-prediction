@@ -1,0 +1,16 @@
+n,n_events,prevalence,roc_auc,pr_auc,brier,brier_skill,calib_int,calib_slope,model_type,country,outcome
+1947,611,0.3138,0.5853,NA,0.2126,0.0127,0.0962,0.8912,binary,Gambia,child_vitA
+2367,93,0.0393,0.6649,NA,0.0373,0.0109,1.0709,1.3168,binary,Gambia,women_vitA
+1931,884,0.4578,0.4995,NA,0.2484,-7e-4,-0.0978,0.3697,binary,Gambia,child_iron
+2356,830,0.3523,0.5636,NA,0.2262,0.0087,-0.0189,0.8851,binary,Gambia,women_iron
+1165,240,0.206,0.5672,NA,0.1614,0.0136,0.0071,1.0046,binary,Ghana,child_vitA
+992,13,0.0131,0.6226,NA,0.013,-0.0015,2.3224,1.6871,binary,Ghana,women_vitA
+1159,208,0.1795,0.7711,NA,0.1247,0.15310000000000001,0.2263,1.106,binary,Ghana,child_iron
+981,83,0.0846,0.6218,NA,0.0761,0.0178,-0.1817,0.921,binary,Ghana,women_iron
+486,89,0.1831,0.5674,0.2194,0.1484,0.0077,-0.2687,0.7963,binary,Sierra Leone,child_vitA
+774,18,0.0233,0.5769,0.0286,0.0228,-0.0029,-0.9914,0.802,binary,Sierra Leone,women_vitA
+486,28,0.0576,0.4485,0.0797,0.053900000000000003,0.0066,-0.3643,0.8501,binary,Sierra Leone,child_iron
+1102,219,0.1987,0.5387,0.2151,0.159,0.0018,-0.3941,0.6943,binary,Malawi,child_vitA
+807,17,0.0211,0.63,0.0403,0.0203,0.014,-0.2479,1.0016,binary,Malawi,women_vitA
+1102,107,0.0971,0.4679,0.1319,0.0873,0.0047,-0.8199,0.6412,binary,Malawi,child_iron
+752,74,0.0984,0.5549,0.1235,0.088,0.0078,-0.4733,0.7792,binary,Malawi,women_iron

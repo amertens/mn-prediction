@@ -1,6 +1,6 @@
 ---
 title: "Estimating Subnational Micronutrient Deficiency Prevalence"
-subtitle: "A SuperLearner Ensemble Approach — The Gambia"
+subtitle: "A SuperLearner Ensemble Approach — A Multi-Country Analysis"
 author: "[Authors]"
 date: "2026"
 format:
@@ -13,9 +13,11 @@ format:
     incremental: false
     fig-align: center
     toc: false
-    footer: "SuperLearner Micronutrient Pipeline — Gambia"
+    footer: "SuperLearner Micronutrient Pipeline — Multi-Country"
     highlight-style: github
     self-contained: true
+    smaller: true
+    scrollable: true
 execute:
   echo: false
   warning: false
@@ -34,8 +36,8 @@ execute:
   yet nationally representative **biochemical surveys are rare**
 - Blood-based biomarker collection (retinol, ferritin, zinc) requires cold-chain logistics
   and laboratory capacity; surveys occur at **decadal intervals**
-- The Gambia Micronutrient Survey (GMS) is one of very few nationally representative
-  individual-level biomarker datasets in the region
+- National micronutrient surveys (e.g., Gambia GMS, Ghana DHS+, Sierra Leone MNS, Malawi MNS)
+  are among the few nationally representative individual-level biomarker datasets in the region
 - Between survey cycles, **sub-national burden is essentially unknown**; program allocation
   relies on outdated or modelled estimates
 :::
@@ -46,7 +48,7 @@ execute:
 ::::
 
 ::: {.notes}
-Frame the problem narrowly: we are not trying to replace surveys. We are extracting maximum information from a single high-quality survey by leveraging correlated proxy data to produce sub-national estimates.
+Frame the problem narrowly: we are not trying to replace surveys. We are extracting maximum information from nationally representative biomarker surveys across four countries by leveraging correlated proxy data to produce sub-national estimates.
 :::
 
 ---
@@ -70,7 +72,7 @@ Frame the problem narrowly: we are not trying to replace surveys. We are extract
 > **Our approach:** Data-adaptive ensemble trained on survey data; predict at individual level using nationally available proxy predictors; aggregate to Admin1.
 
 ::: {.notes}
-The GMS clusters do not span all Admin1 units uniformly. Prediction fills spatial gaps using predictor similarity to observed clusters, not spatial smoothing.
+Survey clusters do not span all Admin1 units uniformly in any country. Prediction fills spatial gaps using predictor similarity to observed clusters, not spatial smoothing.
 :::
 
 ---
@@ -79,15 +81,17 @@ The GMS clusters do not span all Admin1 units uniformly. Prediction fills spatia
 
 ::: {.callout-note appearance="minimal"}
 **Primary objective:** Estimate Admin1 and national prevalence of vitamin A deficiency
-(VAD) and iron deficiency anaemia (IDA) for children and women in The Gambia using a
-SuperLearner ensemble with multi-source proxy predictors.
+(VAD) and iron deficiency anaemia (IDA) for children and women across four countries
+(Gambia, Ghana, Sierra Leone, Malawi) using a SuperLearner ensemble with multi-source
+proxy predictors.
 :::
 
 **Secondary objectives:**
 
 - Quantify Admin1 and national prediction uncertainty via cluster-level bootstrap (95% CI)
-- Assess domain-specific contribution to predictive performance via leave-one-domain-out ablation
-- Produce a reproducible, configurable pipeline suitable for multi-country extension
+- Assess domain-specific contribution to predictive performance via permutation-based domain ablation
+- Evaluate cross-country transportability via leave-one-country-out (LOCO) validation
+- Identify key predictor themes via conceptual variable importance analysis
 
 ---
 
@@ -97,10 +101,11 @@ SuperLearner ensemble with multi-source proxy predictors.
 
 ## Outcome and Population Structure
 
-**Data source:** Gambia Micronutrient Survey (GMS) — individual-level biochemical measurements with cluster GPS coordinates
-(N = 3,209 individuals; 3,049 merged columns across all domains before leakage exclusion)
+**Data sources:** Individual-level biochemical surveys with cluster GPS coordinates from four countries:
+Gambia (GMS), Ghana (DHS+), Sierra Leone (MNS), Malawi (MNS).
+Each country contributes ~2,000-5,000 individuals; ~2,500 merged proxy predictor columns per country after leakage exclusion.
 
-**Four outcomes, fitted independently:**
+**Four outcomes, fitted independently per country:**
 
 | Population | Micronutrient | Continuous marker | Binary threshold | Adjustment |
 |---|---|---|---|---|
@@ -109,17 +114,10 @@ SuperLearner ensemble with multi-source proxy predictors.
 | Children | Iron | log(Ferritin µg/L) | ferritin < 12 µg/L → IDA | Brinda |
 | Women | Iron | log(Ferritin µg/L) | ferritin < 15 µg/L → IDA | Brinda |
 
-- Population split: `gw_child_flag` (1 = children; 0 = women); non-overlapping subsets
-- Cluster identifier: `gw_cnum` — used for blocked CV folds and bootstrap resampling
+- Population split by country-specific child flag (e.g., `gw_child_flag`); non-overlapping subsets
+- Cluster identifier per country (e.g., `gw_cnum`) — used for blocked CV folds and bootstrap resampling
 
-**Sample sizes** *(from targets pipeline)*:
-
-| Outcome | n |
-|---|---|
-| VAD — children | 1,020 |
-| VAD — women | 1,413 |
-| IDA — children | 1,013 |
-| IDA — women | 1,402 |
+**Sample sizes vary by country** — see results report for current per-country totals.
 
 ::: {.notes}
 Both a continuous SL (squared error loss) and binary SL (logistic loss) are fit for each outcome. Binary model predictions are used for prevalence estimation when available; continuous model is retained for RMSE evaluation and as fallback.
@@ -130,30 +128,30 @@ Both a continuous SL (squared error loss) and binary SL (logistic loss) are fit 
 ## Predictor Strategy: Proxy-Only Models
 
 **Primary analysis uses proxy predictors only** — external data sources available
-without a concurrent biomarker survey. The `gw_` (survey) domain is **excluded**
-because it contains biomarkers, nutrition indicators, and anthropometry from the
-same survey as the outcome, producing artificially inflated AUC (near 1.0).
+without a concurrent biomarker survey. Country-specific survey domains (e.g., `gw_`)
+are **excluded** because they contain biomarkers, nutrition indicators, and anthropometry
+from the same survey as the outcome, producing artificially inflated AUC (near 1.0).
 
-| Domain | Prefix | Source | N cols | In primary model |
+| Domain | Prefix | Source | Approx. N cols | In primary model |
 |---|---|---|---|---|
-| DHS | `dhs2019_` | 2019 DHS cluster-level aggregates | 1,875 | Yes |
+| DHS | `dhs_` | DHS cluster-level aggregates | 1,875 | Yes |
 | MICS | `mics_` | MICS cluster-level aggregates | 290 | Yes |
 | IHME | `ihme_` | IHME geospatial estimates | 60 | Yes |
 | MAP | `MAP_` | Malaria Atlas Project rasters | 26 | Yes |
 | WFP | `wfp_` | WFP market access / food security | 46 | Yes |
 | GEE | `gee_` | Google Earth Engine satellite covariates | 142 | Yes |
-| LSMS | `lsms_` | LSMS household consumption | **0** | — (absent) |
-| FLUNET | `flunet_` | FluNet seasonal illness | **0** | — (absent) |
-| ~~GW~~ | ~~`gw_`~~ | ~~GMS survey covariates~~ | ~~599~~ | **No** (leakage) |
-| **Total proxy** | | | **~2,400** | **~2,400** |
+| **FSEC** | `fsec_` | HFID + Cadre Harmonise food security | varies | Yes |
+| LSMS | `lsms_` | LSMS household consumption | **0** | -- (absent) |
+| ~~Survey~~ | ~~`gw_`/`gh_`/etc.~~ | ~~Country survey covariates~~ | ~~varies~~ | **No** (leakage) |
+| **Total proxy** | | | **~2,500** | **~2,500** |
 
-**Why exclude GW?** The 599 `gw_` columns include raw biomarkers (`gw_fer`, `gw_rpb1`),
-inflammation markers (`gw_cCRP`, `gw_cAGP`), anemia indicators, and anthropometry —
-all measured in the same survey as the outcome. Including them inflates AUC to ~1.0
-but does not reflect real-world prediction accuracy.
+**Why exclude survey domains?** Country-specific survey columns include raw biomarkers,
+inflammation markers, anemia indicators, and anthropometry -- all measured in the same
+survey as the outcome. Including them inflates AUC to ~1.0 but does not reflect
+real-world prediction accuracy.
 
 ::: {.notes}
-The proxy-only approach answers the operationally relevant question: "how well can we predict micronutrient deficiency from routinely available data?" Expected AUC is 0.60-0.80, which is modest but useful for screening and prioritization. The GW-inclusive model serves as a supplementary upper-bound analysis.
+The proxy-only approach answers the operationally relevant question: "how well can we predict micronutrient deficiency from routinely available data?" Expected AUC is 0.60-0.80, which is modest but useful for screening and prioritization. The survey-inclusive model serves as a supplementary upper-bound analysis. The new FSEC domain integrates food insecurity data from HFID and Cadre Harmonise datasets.
 :::
 
 ---
@@ -164,29 +162,33 @@ The proxy-only approach answers the operationally relevant question: "how well c
 
 ## SuperLearner Ensemble: Learner Library
 
-**Primary stack: `slmod2_bin`** — 5 base learners, NNLS metalearner, binomial log-likelihood loss
+**FAST stack** — 3 base learners, NNLS metalearner, binomial log-likelihood loss
 
-| # | Learner (sl3 object) | Algorithm | Prescreening |
+| # | Learner | Algorithm | Notes |
 |---|---|---|---|
-| 1 | `lrnr_mean` | Intercept / mean | None |
-| 2 | `cor_glm` | GLM (`Lrnr_glm_fast`) | Correlation filter (p < 0.10) |
-| 3 | `lrnr_glmnet` | Elastic net (α auto-tuned via CV) | None |
-| 4 | `ranger_lrnr` | Random forest (`ranger`) | None |
-| 5 | `rf_prescreened` | Random forest | RF permutation importance — top 20 |
+| 1 | `lrnr_mean` | Intercept / mean | Baseline |
+| 2 | `lrnr_lasso` | Lasso (glmnet, alpha = 1) | L1-penalized GLM |
+| 3 | `ranger_lrnr` | Random forest (`ranger`, min.node.size = 10) | Conservative trees |
+
+**FULL stack** — 7 base learners (used for publication runs)
+
+| # | Learner | Algorithm | Notes |
+|---|---|---|---|
+| 1 | `lrnr_mean` | Intercept / mean | Baseline |
+| 2 | `lrnr_lasso` | Lasso (alpha = 1) | L1 penalty |
+| 3 | `lrnr_enet` | Elastic net (alpha = 0.75) | Mixed L1/L2 |
+| 4 | `lrnr_ridge` | Ridge (alpha = 0) | L2 penalty |
+| 5 | `ranger_conservative` | Random forest (conservative) | Larger min.node.size |
+| 6 | `ranger_deeper` | Random forest (deeper) | Smaller min.node.size |
+| 7 | `xgboost_lrnr` | XGBoost | Gradient boosting |
 
 - **Metalearner:** NNLS (`Lrnr_nnls`) — non-negative, sum-to-one; interpretable convex combination
-- **Continuous fallback** (`slmod`): identical stack with squared error loss
-- **NNLS learner weights** *(from `cv_risk_w_sl_revere` in saved `.rds` models)*:
-
-| Outcome | mean | cor_glm | glmnet | ranger | rf_prescreened |
-|---|---|---|---|---|---|
-| child_vitA | [PENDING] | [PENDING] | [PENDING] | [PENDING] | [PENDING] |
-| women_vitA | [PENDING] | [PENDING] | [PENDING] | [PENDING] | [PENDING] |
-| child_iron | [PENDING] | [PENDING] | [PENDING] | [PENDING] | [PENDING] |
-| women_iron | [PENDING] | [PENDING] | [PENDING] | [PENDING] | [PENDING] |
+- **Continuous fallback**: identical stack with squared error loss
+- **No screener pipelines** — removed because they crashed with p >> n in multi-country data
+- **NNLS learner weights:** See results report for current per-country weight allocations
 
 ::: {.notes}
-The prescreened learners (cor_glm, rf_prescreened) reduce effective dimensionality before fitting. The NZV + washb_prescreen + recipes pipeline further reduces the feature matrix before the sl3 task is constructed. Feature counts vary per bootstrap replicate because preprocessing is data-adaptive.
+The previous pipeline used prescreened learners (cor_glm, rf_prescreened) to reduce dimensionality, but these crashed with p >> n in multi-country datasets. The current stacks rely on regularization (lasso/ridge/elastic net) and tree-based learners that handle high-dimensional data natively.
 :::
 
 ---
@@ -202,28 +204,28 @@ The prescreened learners (cor_glm, rf_prescreened) reduce effective dimensionali
 3. Missing value imputation — median/mode + binary missingness indicators (`ck37r`)
 4. Second NZV pass (post-imputation indicators may be near-zero)
 5. Marginal association prescreen: `washb_prescreen(pval = 0.20)` — retains predictors with p < 0.20 marginal association
-6. `recipes` pipeline: `step_zv` → `step_nzv` → `step_corr(r > 0.9)` → `step_normalize`
+6. `recipes` pipeline: `step_zv` → `step_nzv` → `step_corr(r > 0.85)` → `step_normalize`
 :::
 ::: {.column width="48%"}
 **Cross-validation design:**
 
 - K = **5** folds
-- **Cluster-blocked:** `origami::make_folds(cluster_ids = gw_cnum, V = 5)`
+- **Cluster-blocked:** `origami::make_folds(cluster_ids = cluster_id, V = 5)`
 - No cluster contributes to both training and validation in any fold
 - Prevents within-cluster correlation from inflating CV performance
-- Rationale: GMS clusters contain O(10–25) individuals with correlated outcomes; standard random split would inflate AUC
+- Rationale: Survey clusters contain O(10-25) individuals with correlated outcomes; standard random split would inflate AUC
 :::
 ::::
 
 ::: {.notes}
-Cluster-blocking is the single most important design choice for CV validity in survey data. Standard random individual splitting in clustered data produces optimistic AUC estimates because the learner sees correlated individuals from the same cluster in both the training and validation fold.
+Cluster-blocking is the single most important design choice for CV validity in survey data. Standard random individual splitting in clustered data produces optimistic AUC estimates because the learner sees correlated individuals from the same cluster in both the training and validation fold. This applies identically across all four countries.
 :::
 
 ---
 
 ## Bootstrap Uncertainty: Cluster-Level Resampling
 
-**B = 4 bootstrap replicates** (fast mode; B ≥ 200 for development, B ≥ 500 for publication)
+**Bootstrap run for one illustrative country x outcome** (Malawi women_vitA, B = 100 in fast mode) to save compute. Full-mode: B >= 200 per country x outcome for publication.
 
 **Algorithm per replicate:**
 
@@ -241,7 +243,7 @@ Cluster-blocking is the single most important design choice for CV validity in s
 **CIs do not capture:** model misspecification, distribution shift, extrapolation uncertainty
 
 ::: {.notes}
-Current results use B=4 (fast mode). Prediction on the original full dataset (step 4) rather than the bootstrap-resampled dataset stabilises Admin1 aggregation. The bootstrap refit is computationally expensive because the full preprocessing + SL stack runs B times.
+Current illustrative bootstrap uses Malawi women_vitA with B=100. Prediction on the original full dataset (step 4) rather than the bootstrap-resampled dataset stabilises Admin1 aggregation. The bootstrap refit is computationally expensive because the full preprocessing + SL stack runs B times per country x outcome.
 :::
 
 ---
@@ -252,83 +254,75 @@ Current results use B=4 (fast mode). Prediction on the original full dataset (st
 
 ## CV Performance: Continuous Models
 
-> Source: `results/tables/gambia_cv_performance.csv`
-> Populate from model_type = `"continuous"` rows
+> Source: `results/tables/cv_performance_all.csv` — results for all four countries
+> See results report for full per-country tables
 
-| Outcome | RMSE | MAE | R² | Pearson *r* | AUC (cont. score) |
-|---|---|---|---|---|---|
-| VAD — children | 0.239 | 0.185 | 0.030 | 0.174 | [PENDING] |
-| VAD — women | 0.479 | 0.321 | 0.051 | 0.231 | [PENDING] |
-| IDA — children | 0.834 | 0.680 | 0.006 | 0.082 | [PENDING] |
-| IDA — women | 0.914 | 0.755 | 0.022 | 0.148 | [PENDING] |
+CV performance varies by country and outcome. See the results report for current values across Gambia, Ghana, Sierra Leone, and Malawi.
 
 - RMSE is on the biomarker scale (µmol/L for RBP; log µg/L for ferritin) — do not compare across micronutrients
-- AUC computed by treating the continuous prediction as a ranking score for the binary threshold (prediction negated for "less than" cutoffs so that higher score = more deficient)
-- R² reported relative to null model (intercept only)
+- AUC computed by treating the continuous prediction as a ranking score for the binary threshold
+- R² reported relative to null model (intercept only); can be negative if SL performs worse than the mean
 
 ::: {.notes}
-R² can be negative if the SL performs worse than the mean. R² vs. mean (R2_vs_mean column) is a more stable reference. AUC for the continuous model serves as a comparison baseline for the binary model AUC.
+R² can be negative if the SL performs worse than the mean. R² vs. mean (R2_vs_mean column) is a more stable reference. AUC for the continuous model serves as a comparison baseline for the binary model AUC. Performance varies substantially across countries due to differing predictor coverage and sample sizes.
 :::
 
 ---
 
 ## CV Performance: Binary Models
 
-> Source: `results/tables/gambia_cv_performance.csv`
-> Populate from model_type = `"binary"` rows
+> Source: `results/tables/cv_performance_all.csv` — results for all four countries
+> See results report for full per-country tables
 
-| Outcome | AUC | Brier score | Null Brier | Calib. intercept | Calib. slope |
-|---|---|---|---|---|---|
-| VAD — children | 0.609 | 0.188 | 0.193 | [PENDING] | [PENDING] |
-| VAD — women | 0.671 | 0.029 | 0.029 | [PENDING] | [PENDING] |
-| IDA — children | 0.513 | 0.243 | 0.244 | [PENDING] | [PENDING] |
-| IDA — women | 0.595 | 0.210 | 0.215 | [PENDING] | [PENDING] |
+Binary model AUC, Brier scores, and calibration statistics are computed per country x outcome. See the results report for current values across all four countries.
 
-*Null Brier = prev × (1 − prev); compute from observed prevalence.*
+*Null Brier = prev x (1 - prev); compute from observed prevalence.*
 
 - **Perfect calibration:** intercept = 0, slope = 1
-- Slope < 1 → predicted probabilities are too extreme (over-dispersion)
-- Slope > 1 → predicted probabilities are too conservative
-- Binary model preferred for prevalence estimation when its AUC ≥ continuous model AUC
+- Slope < 1 -> predicted probabilities are too extreme (over-dispersion)
+- Slope > 1 -> predicted probabilities are too conservative
+- Binary model preferred for prevalence estimation when its AUC >= continuous model AUC
 
 ::: {.notes}
-Calibration regression: logit(predicted probability) ~ observed binary outcome. The Brier score is prevalence-sensitive; always compare to null model Brier to assess whether the model adds value.
+Calibration regression: logit(predicted probability) ~ observed binary outcome. The Brier score is prevalence-sensitive; always compare to null model Brier to assess whether the model adds value. Cross-country variation in AUC reflects differences in predictor informativeness and outcome prevalence.
 :::
 
 ---
 
 ## Admin1 Observed vs. Predicted Prevalence
 
-:::: {.columns}
-::: {.column width="50%"}
-**VAD — Children**
+Admin1 scatter plots are generated per country x outcome. See the results report for current figures across all four countries.
 
-![](../results/figures/admin1_scatter_children_vitA.png){width=100%}
-:::
-::: {.column width="50%"}
-**VAD — Women**
+*Dashed line = 45-degree identity. Points above = over-prediction; below = under-prediction.*
 
-![](../results/figures/admin1_scatter_women_vitA.png){width=100%}
-:::
-::::
-
-:::: {.columns}
-::: {.column width="50%"}
-**IDA — Children**
-
-![](../results/figures/admin1_scatter_children_iron.png){width=100%}
-:::
-::: {.column width="50%"}
-**IDA — Women**
-
-![](../results/figures/admin1_scatter_women_iron.png){width=100%}
-:::
-::::
-
-*Dashed line = 45° identity. Points above = over-prediction; below = under-prediction.*
+- Each country has a different number of Admin1 units (Gambia: 5-8; Ghana: 10; Sierra Leone: 14; Malawi: 28)
+- R-squared on a small N of Admin1 units is unstable; interpret alongside individual-level AUC
+- Systematic deviation from the identity line indicates a national-scale calibration issue
 
 ::: {.notes}
-The Gambia has 5–8 Admin1 LGAs/regions. R² on a small N of Admin1 units is unstable; interpret alongside individual-level AUC. Systematic deviation from the 45° line indicates a national-scale calibration issue.
+Admin1 scatter plots are produced by the targets pipeline for each country x outcome combination. Countries with more Admin1 units (e.g., Malawi with 28 districts) provide more stable area-level validation.
+:::
+
+---
+
+## Evaluating Models for Rare Outcomes
+
+**Three dimensions of model quality:**
+
+| Dimension | Metric | What it tells you |
+|---|---|---|
+| **Discrimination** | ROC-AUC, **PR-AUC** | Can the model rank individuals by risk? |
+| **Calibration** | Cal. slope, Cal. intercept | Are predicted probabilities accurate? |
+| **Prevalence recovery** | Predicted vs. observed prevalence | Does the model get the right burden estimate? |
+
+**Why standard AUC can mislead:**
+
+- With 5% prevalence, predicting "not deficient" for everyone gives 95% accuracy
+- PR-AUC is more informative: a no-skill classifier has PR-AUC = prevalence
+- For **subnational mapping**, calibration and prevalence recovery matter more than discrimination
+
+::: {.notes}
+The goal of this project is area-level prevalence estimation, not individual diagnosis. A model with AUC = 0.60 can still recover area-level prevalence well if it is properly calibrated. The key question is: does the model systematically over- or under-estimate prevalence in different areas? Calibration slope near 1 and intercept near 0 indicate good aggregate performance even when individual-level discrimination is modest.
 :::
 
 ---
@@ -339,41 +333,30 @@ The Gambia has 5–8 Admin1 LGAs/regions. R² on a small N of Admin1 units is un
 
 ## Admin1 Predicted Deficiency Prevalence
 
-| Admin1 Region | VAD children (obs / pred) | VAD women (obs / pred) | IDA children (obs / pred) | IDA women (obs / pred) |
-|---|---|---|---|---|
-| Banjul | 13.6% / 15.1% | 0.5% / 0.7% | 31.5% / 32.3% | 18.4% / 18.4% |
-| Lower River | 23.3% / 21.7% | 4.1% / 4.0% | 44.4% / 45.0% | 44.1% / 43.9% |
-| Maccarthy Island | 37.2% / 36.0% | 5.3% / 5.0% | 50.0% / 49.9% | 41.2% / 41.3% |
-| North Bank | 18.3% / 17.8% | 2.0% / 2.8% | 40.9% / 41.7% | 24.7% / 25.1% |
-| Upper River | 33.9% / 32.2% | 5.6% / 5.0% | 44.5% / 44.2% | 41.0% / 40.9% |
-| Western | 15.9% / 15.0% | 1.3% / 1.4% | 32.9% / 34.5% | 25.2% / 25.1% |
+Admin1 predicted vs. observed prevalence tables are generated per country. See the results report for full tables across Gambia, Ghana, Sierra Leone, and Malawi.
 
 - Predicted prevalence = mean binary SL predicted probability per Admin1 unit
 - Observed prevalence = mean of pre-computed Thurnham/Brinda-adjusted binary indicator
-- Interpretation: Admin1 units with largest obs–pred discrepancy warrant qualitative review of local predictor values
+- Interpretation: Admin1 units with largest obs-pred discrepancy warrant qualitative review of local predictor values
+- Admin1 error tables available in `results/tables/admin2_error_all.csv`
 
 ::: {.notes}
-For Admin1 units with thin survey cluster coverage, predictions are genuine extrapolations based on predictor similarity to well-sampled units. The scatter plots (previous slide) visualise this obs–pred agreement directly.
+For Admin1 units with thin survey cluster coverage, predictions are genuine extrapolations based on predictor similarity to well-sampled units. The scatter plots (previous slide) visualise this obs-pred agreement directly. Multi-country comparison reveals which countries have the best-calibrated Admin1 predictions.
 :::
 
 ---
 
 ## National Prevalence with 95% Confidence Intervals
 
-| Outcome | Observed (survey) | Predicted mean | 95% CI |
-|---|---|---|---|
-| VAD — children | 26.1% | 26.1% | \[23.7%, 27.0%\] |
-| VAD — women | 3.0% | 6.1% | \[3.6%, 7.1%\] |
-| IDA — children | 42.0% | 42.1% | \[41.8%, 43.0%\] |
-| IDA — women | 31.2% | 30.7% | \[30.6%, 30.8%\] |
+Bootstrap CIs are currently available for the illustrative case: **Malawi women_vitA (B = 100, fast mode)**. See the results report for current bootstrap CI values.
 
 - National estimate = mean predicted probability across all individuals with non-missing Admin1
-- 95% CI = 2.5th / 97.5th percentile of B = 4 bootstrap replicates (fast mode; increase to B ≥ 200 for stable CIs)
+- 95% CI = 2.5th / 97.5th percentile of B bootstrap replicates
 - **Coherence check:** predicted mean should be close to observed survey prevalence (< 5 pp divergence expected); large divergence indicates calibration drift at national scale
-- Note: VAD — women shows predicted mean (6.1%) diverging from observed (3.0%), suggesting calibration drift at low prevalence
+- Full-mode bootstrap (B >= 200 per country x outcome) is needed for publication-grade CIs
 
 ::: {.notes}
-Current results use B=4 (fast mode). CIs are rough — rerun with B=200–500 for stable intervals. For publication-grade CIs on tail percentiles, use B=500–1000. The obs_prevalence column in the CI table uses the adjusted binary column averaged over all individuals with non-missing Admin1.
+Current results use B=100 for one illustrative country x outcome (Malawi women_vitA). Full-mode runs with B=200-500 per country x outcome are needed for stable intervals across all countries. For publication-grade CIs on tail percentiles, use B=500-1000.
 :::
 
 ---
@@ -384,12 +367,9 @@ Current results use B=4 (fast mode). CIs are rough — rerun with B=200–500 fo
 
 ## Bootstrap CI Width by Admin1
 
-**CI width = `ci_hi − ci_lo` per Admin1 unit across B = 4 replicates (fast mode):**
+**CI width = `ci_hi - ci_lo` per Admin1 unit across B replicates.**
 
-| Admin1 | VAD children CI width | IDA women CI width |
-|---|---|---|
-| Widest | Upper River (11.5 pp) | Upper River (6.1 pp) |
-| Narrowest | Lower River (0.6 pp) | Western (1.6 pp) |
+Bootstrap CI widths are available for the illustrative case (Malawi women_vitA, B = 100). See the results report for current values.
 
 - CI width expected to be inversely related to number of survey clusters per Admin1
 - **Interpretation:** Wide CIs do not indicate model failure — they indicate genuine statistical uncertainty given the survey design
@@ -432,27 +412,24 @@ not posterior predictive intervals over all possible model specifications.
 
 ---
 
-## Domain Contribution: ΔAUC by Domain and Outcome
+## Domain Contribution: Permutation-Based Ablation
 
-**ΔAUC = AUC(full model) − AUC(model with domain removed)**
-Positive → domain contributes to discrimination; negative → domain adds noise
+**Method: Permutation-based domain ablation** — for each domain, shuffle all its columns
+(breaking the association with the outcome) and re-evaluate the trained model. No model
+refitting is required, making this computationally efficient across 4 countries x 4 outcomes.
 
-Full model AUC: child_vitA = 0.609, women_vitA = 0.671, child_iron = 0.513, women_iron = 0.595
+**ΔAUC = AUC(full model) - AUC(model with domain shuffled)**
+Positive -> domain contributes to discrimination; negative -> domain adds noise.
 
-| Domain | N cols | child_vitA | women_vitA | child_iron | women_iron |
-|---|---|---|---|---|---|
-| GW | 599−excl. | *excluded* | *excluded* | *excluded* | *excluded* |
-| DHS | 1,875 | −0.005 | −0.011 | −0.013 | −0.007 |
-| MICS | 290 | −0.003 | +0.005 | −0.002 | +0.000 |
-| IHME | 60 | −0.012 | −0.001 | −0.001 | +0.004 |
-| LSMS | **0** | *absent* | *absent* | *absent* | *absent* |
-| MAP | 26 | −0.003 | +0.014 | −0.004 | +0.005 |
-| WFP | 46 | −0.010 | +0.007 | −0.012 | −0.000 |
-| FLUNET | **0** | *absent* | *absent* | *absent* | *absent* |
-| GEE | 142 | −0.008 | −0.018 | −0.017 | +0.010 |
+Results are computed per country x outcome. See `results/tables/domain_ablation_all.csv` and the results report for full tables.
+
+**Two types of domain ablation are now available:**
+
+1. **Data-source ablation** — shuffles domains by data source prefix (DHS, MICS, IHME, MAP, WFP, GEE, FSEC)
+2. **Conceptual ablation** — shuffles domains by thematic category (Climate, Food Security, Child Health, Fertility, Malaria, etc.) using DHS indicator lookup to classify ~2,500 predictors
 
 ::: {.notes}
-Ablation is a marginal permutation-based method, not causal. Two correlated domains may each show low individual ΔAUC even though jointly they contribute substantially. Negative ΔAUC can occur when a domain adds noise that NNLS cannot fully suppress. Domain columns skipped (ΔAUC = NA) indicate that domain is absent from the merged dataset.
+Ablation is a marginal permutation-based method, not causal. Two correlated domains may each show low individual delta-AUC even though jointly they contribute substantially. The conceptual ablation provides a complementary view by grouping predictors by topic rather than data source, revealing which thematic areas drive prediction.
 :::
 
 ---
@@ -468,11 +445,39 @@ Ablation is a marginal permutation-based method, not causal. Two correlated doma
 | **DHS / MICS** (survey aggregates) | Estimates depend on external survey vintage | Outdated DHS data may degrade predictions post-survey year |
 | **WFP / LSMS** (food security) | Market access and poverty are key drivers | Intervention should target food-insecure areas |
 
-**Next step from ablation results:**
+**Conceptual variable importance:**
 
-- Retain domains with ΔAUC > threshold; fit parsimonious model
-- Test whether performance degrades by < 5% of AUC — if not, remove low-contribution domains
-- Parsimonious model reduces computational burden for multi-country extension
+- ~2,500 proxy predictors classified into DHS-derived categories (Child Health, Fertility, Malaria, Climate, Food Security, etc.) using official DHS indicator lookup
+- Reveals which thematic areas drive prediction, complementing data-source ablation
+- See `results/conceptual_ablation/` for per-country results
+
+---
+
+# Transportability {background-color="#1a3a5c"}
+
+---
+
+## Leave-One-Country-Out (LOCO) Cross-Validation
+
+**Design:** Train the SuperLearner on 3 countries, predict on the held-out 4th country.
+Repeat for each of the 4 countries as the held-out set.
+
+| Step | Action |
+|---|---|
+| 1 | Select one country as the held-out test set |
+| 2 | Train the full SL pipeline on the remaining 3 countries |
+| 3 | Predict on all individuals in the held-out country |
+| 4 | Evaluate AUC, Brier score, and Admin1 prevalence recovery |
+
+**Key findings:** See `results/tables/transportability_loco_results.csv` and the results report for current LOCO AUC values across all country x outcome combinations.
+
+- LOCO AUC is generally lower than within-country CV AUC, reflecting cross-country heterogeneity in the biomarker-predictor relationship
+- Some country x outcome combinations transport better than others
+- Countries with more similar predictor distributions show better transportability
+
+::: {.notes}
+LOCO validation is the strongest test of model generalizability. Performance degradation from within-country CV to LOCO indicates the degree to which country-specific patterns drive prediction. This analysis was not available in the original Gambia-only pipeline.
+:::
 
 ---
 
@@ -488,9 +493,11 @@ Ablation is a marginal permutation-based method, not causal. Two correlated doma
 
 3. **Explicit uncertainty quantification** — Bootstrap CIs propagate both sampling and model uncertainty; outputs include intervals, not only point estimates
 
-4. **Reproducible, configurable pipeline** — All parameters centralised in `config.R` (K, B, thresholds, domain prefixes, leakage patterns); extending to a new country requires updating only `data_path` and `admin1` column name
+4. **Reproducible, configurable pipeline** — All parameters centralised in `config.R` (K, B, thresholds, domain prefixes, leakage patterns); currently running across four countries with standardised outputs
 
 5. **Data-adaptive ensemble** — NNLS weights respond to empirical performance of each base learner per outcome; no learner is hard-coded as dominant
+
+6. **Cross-country transportability** — LOCO validation provides honest out-of-country prediction assessment, beyond within-country CV
 
 ::: {.notes}
 The pipeline separation (sl_helpers.R defining DHS_SL_clustered and one_bootstrap, sourced independently of model fitting) means function updates do not require re-running expensive model fits.
@@ -504,13 +511,11 @@ The pipeline separation (sl_helpers.R defining DHS_SL_clustered and one_bootstra
 
 2. **No spatial random effects** — Individuals treated as conditionally independent given predictors; spatial autocorrelation in residuals is not modelled (a Gaussian process component would be more principled for gridded prediction)
 
-3. **Transportability not validated** — Models fitted and evaluated on same country; stability of the biomarker–predictor relationship across countries is an open empirical question
+3. **Static predictor vintage** — External domain data (DHS, MICS, IHME) reflects a fixed survey year; predictive performance may degrade as these data become stale relative to the target year
 
-4. **Static predictor vintage** — External domain data (DHS, MICS, IHME) reflects a fixed survey year; predictive performance may degrade as these data become stale relative to the target year
+4. **Bootstrap coverage limited** — Full bootstrap (B >= 200) currently run only for one illustrative country x outcome (Malawi women_vitA); remaining country x outcome combinations need full-mode runs for publication-grade CIs
 
-5. **B = 4 bootstrap (fast mode)** — Current results use minimal replicates; B ≥ 200 for development, B ≥ 500 for stable tail-percentile CIs at publication standard
-
-6. **Single-country, single-wave** — NNLS weights observed in Gambia may not replicate in Ghana or Sierra Leone; within-country performance does not guarantee cross-country transportability
+5. **Cross-country heterogeneity** — NNLS weights and predictor importance vary across countries; LOCO transportability analysis shows performance degradation when predicting on held-out countries, indicating the biomarker-predictor relationship is not fully portable
 
 ---
 
@@ -522,24 +527,24 @@ The pipeline separation (sl_helpers.R defining DHS_SL_clustered and one_bootstra
 
 :::: {.columns}
 ::: {.column width="50%"}
+**Completed:**
+
+- ~~Multi-country pipeline~~ — Gambia, Ghana, Sierra Leone, Malawi
+- ~~Transportability~~ — LOCO cross-validation (train on 3, predict on held-out 4th)
+- ~~Food security integration~~ — FSEC domain (HFID + Cadre Harmonise)
+- ~~Conceptual variable importance~~ — DHS-derived thematic categories
+- ~~Permutation-based domain ablation~~ — efficient, no refitting needed
+
 **Immediate priorities:**
 
-- ~~Run pipeline~~ — fast-mode results populated (B = 4)
-- Rerun in full mode (B = 200–500) for publication-grade CIs
-- Extract learner weights from saved `.rds` models; summarize NNLS allocation
-- Compute calibration intercept/slope for binary models
-- Compute AUC from continuous model scores
-
-**Short-term:**
-
-- Multi-country pooled model (Ghana + Sierra Leone data present in `data/IPD/`)
-- Country holdout transportability: fit on 2 countries, validate on 3rd
-- Parsimonious model from top ablation-ranked domains
+- Full-mode bootstrap (B >= 200) for all country x outcome combinations
+- Publication-grade CI tables across all four countries
 :::
 ::: {.column width="50%"}
 **Longer-term:**
 
-- Gridded (pixel-level) prevalence maps using `sl_surface()` with GEE rasters (`src/0-SL-setup.R`)
+- Gridded (pixel-level) prevalence maps using GEE rasters
+- Additional countries beyond the current four
 - Integrate Admin1 CIs into DInA prioritization framework
 - Add survey sampling weights for design-consistent prevalence estimates
 - Evaluate Gaussian process residual component to account for spatial autocorrelation
@@ -555,18 +560,20 @@ The pipeline separation (sl_helpers.R defining DHS_SL_clustered and one_bootstra
 
 | File | Purpose |
 |---|---|
-| `scripts/run_gambia_pipeline.R` | End-to-end runner |
-| `src/analysis/config.R` | All parameters (K=5, B=4 fast / B=200 full, seed=12345) |
-| `src/analysis/sl_helpers.R` | `DHS_SL_clustered` + `one_bootstrap` |
-| `scripts/tutorial_simulated_pipeline.R` | Full pipeline on simulated data (~1–2 min) |
+| `_targets.R` | Main targets pipeline definition |
+| `R/config.R` | All parameters (K=5, B=100 fast / B>=200 full, seed=12345) |
+| `R/data_prep.R` | Data loading and preprocessing |
+| `R/domain_ablation.R` | Permutation-based domain ablation |
+| `R/conceptual_ablation.R` | Conceptual (thematic) variable importance |
+| `R/transportability.R` | LOCO cross-country validation |
 
 **R packages:** sl3, origami, future.apply, ck37r, washb, recipes, pROC, caret, data.table
 
 ::: {.callout-warning}
-Results populated from fast-mode targets pipeline (B = 4 bootstrap replicates).
-Remaining `[PENDING]` cells require extracting NNLS learner weights, calibration
-statistics, and continuous-model AUC from saved model objects.
-Rerun with `PIPELINE_MODE=full` (B ≥ 200) for publication-quality CIs.
+Results populated from fast-mode targets pipeline. Bootstrap CIs available for
+one illustrative country x outcome (Malawi women_vitA, B = 100).
+Rerun with `PIPELINE_MODE=full` (B >= 200) for publication-quality CIs across
+all four countries.
 :::
 
 ---
@@ -578,13 +585,15 @@ Rerun with `PIPELINE_MODE=full` (B ≥ 200) for publication-quality CIs.
 
 This pipeline applies a SuperLearner ensemble (sl3, R) to estimate Admin1 and national
 prevalence of vitamin A deficiency (VAD) and iron deficiency anaemia (IDA) for children
-and women in The Gambia, using individual-level GMS biomarker data as the outcome and nine
-proxy predictor domains — household survey aggregates (DHS, MICS), geospatial covariates
-(GEE, MAP), food security indicators (WFP, LSMS), and direct GMS survey covariates — as
-features. The ensemble integrates five base learners under non-negative least squares
-meta-learning with cluster-blocked 5-fold cross-validation. Binary deficiency models
-directly optimize log-likelihood loss, avoiding post-hoc threshold instability. Cluster-level
-bootstrap (B = 200) propagates sampling and model uncertainty into 95% CIs for Admin1 and
-national prevalence. A domain ablation study identifies the relative contribution of each
-predictor domain. The pipeline is configured for immediate extension to Ghana and Sierra Leone.
+and women across four countries (Gambia, Ghana, Sierra Leone, Malawi), using individual-level
+biomarker survey data as the outcome and multi-source proxy predictor domains -- household
+survey aggregates (DHS, MICS), geospatial covariates (GEE, MAP), food security indicators
+(WFP, FSEC), and health estimates (IHME) -- as features. The ensemble integrates base learners
+(lasso, elastic net, ridge, random forest, xgboost) under non-negative least squares
+meta-learning with cluster-blocked 5-fold cross-validation. Binary deficiency models directly
+optimize log-likelihood loss, avoiding post-hoc threshold instability. Permutation-based domain
+ablation and conceptual variable importance identify the relative contribution of each predictor
+domain and thematic area. Leave-one-country-out (LOCO) cross-validation evaluates
+transportability across countries. Cluster-level bootstrap propagates sampling and model
+uncertainty into 95% CIs for Admin1 and national prevalence.
 :::

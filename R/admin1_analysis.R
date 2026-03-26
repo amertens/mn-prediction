@@ -87,28 +87,56 @@ aggregate_admin1 <- function(sl_result, outcome_data, cc, oc, model_type = "bina
 
   admin1_col <- cc$admin1_col
 
+  # Use survey weights for prevalence estimation if available.
+  # All MN surveys (Ghana GMS 2017, Gambia GMNS 2018, SL SLMS 2013, Malawi)
+  # use stratified cluster sampling with unequal probability of selection —
+  # unweighted means can be biased.
+  wt_col <- cc$weight_col
+  has_weights <- !is.null(wt_col) && wt_col %in% colnames(d) &&
+                 any(!is.na(d[[wt_col]]) & d[[wt_col]] > 0)
+
+  if (has_weights) {
+    d$`.wt` <- as.numeric(d[[wt_col]])
+    d$`.wt`[is.na(d$`.wt`) | d$`.wt` <= 0] <- 1
+  } else {
+    d$`.wt` <- 1
+  }
+
   admin1_prev <- d %>%
     dplyr::filter(!is.na(.data[[admin1_col]])) %>%
     dplyr::group_by(.data[[admin1_col]]) %>%
     dplyr::summarise(
       n          = dplyr::n(),
-      sl_prev    = mean(pred_deficient, na.rm = TRUE),
+      sl_prev    = stats::weighted.mean(pred_deficient, `.wt`, na.rm = TRUE),
       .groups    = "drop"
     ) %>%
     dplyr::rename(Admin1 = dplyr::all_of(admin1_col))
 
-  # Attach observed binary prevalence where available
+  # Attach observed binary prevalence (survey-weighted) where available
   if (!is.null(oc$binary) && oc$binary %in% colnames(d)) {
     obs_prev <- d %>%
       dplyr::filter(!is.na(.data[[admin1_col]])) %>%
       dplyr::group_by(.data[[admin1_col]]) %>%
       dplyr::summarise(
-        obs_prev = mean(.data[[oc$binary]], na.rm = TRUE),
+        obs_prev = stats::weighted.mean(.data[[oc$binary]], `.wt`, na.rm = TRUE),
         .groups  = "drop"
       ) %>%
       dplyr::rename(Admin1 = dplyr::all_of(admin1_col))
 
     admin1_prev <- dplyr::left_join(admin1_prev, obs_prev, by = "Admin1")
+  }
+
+  # Compute error metrics
+  if ("obs_prev" %in% colnames(admin1_prev)) {
+    admin1_prev <- admin1_prev %>%
+      dplyr::mutate(
+        abs_error     = abs(sl_prev - obs_prev),
+        pct_error     = dplyr::if_else(
+          obs_prev > 0.01,
+          100 * abs(sl_prev - obs_prev) / obs_prev,
+          NA_real_
+        )
+      )
   }
 
   admin1_prev$outcome    <- oc$tag

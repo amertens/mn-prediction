@@ -87,7 +87,7 @@ tar_option_set(
     "ggplot2", "sf", "geodata", "terra", "exactextractr",
     "srvyr", "survey", "scales", "viridis", "patchwork", "ggrepel",
     "sl3", "origami", "caret", "data.table", "ck37r", "labelled",
-    "recipes", "future.apply", "glmnet", "pROC", "haven", "readxl"
+    "recipes", "future.apply", "glmnet", "pROC", "ROCR", "haven", "readxl"
   ),
   # Increase memory limit for SL fitting
   memory = "transient",
@@ -327,6 +327,19 @@ make_outcome_targets <- function(country_name, outcome_name, cc, oc, params,
           cc_val     = cc
         )
       )
+    ),
+
+    # ── 12. Post-hoc diagnostics (cheap — uses existing predictions) ────
+    tar_target_raw(
+      paste0("diagnostics_", suffix),
+      substitute(
+        run_diagnostics(sl_fit, cc_val, oc_val),
+        list(
+          sl_fit = as.symbol(paste0("sl_fit_", suffix)),
+          cc_val = cc,
+          oc_val = oc
+        )
+      )
     )
   )
 }
@@ -479,6 +492,7 @@ if (length(all_country_configs) >= 2) {
 cv_perf_names <- character()
 admin2_error_names <- character()
 ablation_names <- character()
+diagnostics_names <- character()
 
 for (country_name in names(all_country_configs)) {
   cc <- all_country_configs[[country_name]]
@@ -487,6 +501,7 @@ for (country_name in names(all_country_configs)) {
     cv_perf_names <- c(cv_perf_names, paste0("cv_perf_", suffix))
     admin2_error_names <- c(admin2_error_names, paste0("admin2_error_", suffix))
     ablation_names <- c(ablation_names, paste0("ablation_", suffix))
+    diagnostics_names <- c(diagnostics_names, paste0("diagnostics_", suffix))
   }
 }
 
@@ -525,6 +540,28 @@ summary_targets <- list(
     )
   ),
 
+  # Combined diagnostics (metrics, calibration tables, PR curves)
+  tar_target_raw(
+    "diagnostics_all",
+    substitute({
+      diag_list <- diag_vals
+      # Extract binary metrics
+      bin_metrics <- dplyr::bind_rows(lapply(diag_list, function(x) x$binary_metrics))
+      cont_metrics <- dplyr::bind_rows(lapply(diag_list, function(x) x$continuous_metrics))
+      cal_tables <- dplyr::bind_rows(lapply(diag_list, function(x) x$calibration_table))
+      pr_curves <- dplyr::bind_rows(lapply(diag_list, function(x) x$pr_curve))
+      roc_curves <- dplyr::bind_rows(lapply(diag_list, function(x) x$roc_curve))
+      list(
+        binary_metrics = bin_metrics,
+        continuous_metrics = cont_metrics,
+        calibration_tables = cal_tables,
+        pr_curves = pr_curves,
+        roc_curves = roc_curves
+      )
+    },
+    list(diag_vals = make_list_expr(diagnostics_names)))
+  ),
+
   # Save combined CSV tables
   tar_target(
     save_tables,
@@ -541,7 +578,16 @@ summary_targets <- list(
       if (!is.null(ablation_all) && nrow(ablation_all) > 0)
         readr::write_csv(ablation_all, file.path(out_dir, "domain_ablation_all.csv"))
 
-      list(cv_perf = cv_perf, admin2_error = admin2_error_all, ablation = ablation_all)
+      # Save diagnostics tables
+      if (!is.null(diagnostics_all$binary_metrics) && nrow(diagnostics_all$binary_metrics) > 0)
+        readr::write_csv(diagnostics_all$binary_metrics,
+                         file.path(out_dir, "diagnostics_binary.csv"))
+      if (!is.null(diagnostics_all$continuous_metrics) && nrow(diagnostics_all$continuous_metrics) > 0)
+        readr::write_csv(diagnostics_all$continuous_metrics,
+                         file.path(out_dir, "diagnostics_continuous.csv"))
+
+      list(cv_perf = cv_perf, admin2_error = admin2_error_all,
+           ablation = ablation_all, diagnostics = diagnostics_all)
     }
   )
 )

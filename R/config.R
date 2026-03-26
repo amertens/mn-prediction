@@ -378,7 +378,7 @@ get_pipeline_params <- function(mode = Sys.getenv("PIPELINE_MODE", "fast")) {
     # check relative performance across outcomes, and debug visualisations.
     c(base, list(
       K        = 5L,        # CV folds (same — fewer folds barely saves time)
-      B_boot   = 4L,        # admin1 bootstrap (minimal for debugging)
+      B_boot   = 100L,      # admin1 bootstrap
       B_admin2 = 4L,        # admin2 individual SL bootstrap
       B_area   = 10L,       # area-level model bootstrap (already fast)
       sl_stack = "fast",    # 3-learner stack: mean + glmnet + ranger

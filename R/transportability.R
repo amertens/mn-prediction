@@ -69,7 +69,21 @@ build_pooled_dataset <- function(all_merged, all_configs, outcome_tag) {
     country_proxy_cols[[cn]] <- proxy_cols
 
     # Harmonize: rename binary outcome to Y_binary
+    # Handle 1/2 factor coding (1=deficient, 2=not) same as build_outcome_dataset
+    yb <- d[[bin_col]]
+    yb_vals <- sort(unique(as.numeric(yb[!is.na(yb)])))
+    if (length(yb_vals) == 2 && all(yb_vals == c(1, 2))) {
+      cat(sprintf("  [pool] Recoding %s from {1,2} to {1,0}\n", bin_col))
+      d[[bin_col]] <- ifelse(as.numeric(d[[bin_col]]) == 1, 1L, 0L)
+    }
+    # Ensure values are in {0, 1}
     d$Y_binary <- as.integer(d[[bin_col]])
+    bad <- !d$Y_binary %in% c(0L, 1L) & !is.na(d$Y_binary)
+    if (any(bad)) {
+      cat(sprintf("  [pool] WARNING: %d values of %s not in {0,1} — setting to NA\n",
+                  sum(bad), bin_col))
+      d$Y_binary[bad] <- NA_integer_
+    }
 
     # Add country identifier and make cluster IDs globally unique
     d$country <- cn
@@ -107,7 +121,20 @@ build_pooled_dataset <- function(all_merged, all_configs, outcome_tag) {
                         Xvars_common))
 
   stacked <- dplyr::bind_rows(lapply(country_frames, function(d) {
-    d[, intersect(keep_cols, colnames(d)), drop = FALSE]
+    d_sub <- d[, intersect(keep_cols, colnames(d)), drop = FALSE]
+    # Ensure all columns are atomic (haven labels, list columns can cause
+    # is.nan() errors in sl3). Convert factors/labelled to numeric.
+    for (col in colnames(d_sub)) {
+      v <- d_sub[[col]]
+      if (is.list(v)) {
+        d_sub[[col]] <- as.numeric(unlist(v))
+      } else if (inherits(v, "haven_labelled")) {
+        d_sub[[col]] <- as.numeric(v)
+      } else if (is.factor(v)) {
+        d_sub[[col]] <- as.numeric(as.character(v))
+      }
+    }
+    d_sub
   }))
 
   cat(sprintf("[pool] Pooled dataset: %d rows x %d cols\n",
