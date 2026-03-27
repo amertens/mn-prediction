@@ -74,11 +74,9 @@ n_workers <- as.integer(Sys.getenv("TARGETS_WORKERS", "4"))
 future::plan(future::multisession, workers = n_workers)
 options(future.globals.maxSize = 3 * 1024^3)  # 3 GB — SL objects are large
 
-# ── Bootstrap restriction ──────────────────────────────────────────────────
-# Bootstrap is the most expensive step. Restrict to one country×outcome.
-# Set BOOTSTRAP_COMBO="all" to run for every combination.
-# Default: best-performing combo (highest AUC in fast mode).
-bootstrap_combo <- Sys.getenv("BOOTSTRAP_COMBO", "malawi_women_vitA")
+# ── Note: Bootstrap replaced by conformal prediction intervals ────────────
+# Conformal intervals use existing CV residuals — no refitting needed.
+# The old bootstrap code is preserved in R/bootstrap.R for reference.
 
 # ── Packages available to all targets ────────────────────────────────────────
 tar_option_set(
@@ -87,7 +85,7 @@ tar_option_set(
     "ggplot2", "sf", "geodata", "terra", "exactextractr",
     "srvyr", "survey", "scales", "viridis", "patchwork", "ggrepel",
     "sl3", "origami", "caret", "data.table", "ck37r", "labelled",
-    "recipes", "future.apply", "glmnet", "pROC", "ROCR", "haven", "readxl"
+    "recipes", "future.apply", "glmnet", "hal9001", "pROC", "ROCR", "haven", "readxl"
   ),
   # Increase memory limit for SL fitting
   memory = "transient",
@@ -128,12 +126,10 @@ message(sprintf(
 # =============================================================================
 
 #' Generate targets for one country x one outcome combination
-make_outcome_targets <- function(country_name, outcome_name, cc, oc, params,
-                                 bootstrap_combo = "all") {
+make_outcome_targets <- function(country_name, outcome_name, cc, oc, params) {
 
   # Create unique target name suffixes: e.g., "gambia_child_vitA"
   suffix <- paste0(tolower(country_name), "_", outcome_name)
-  run_bootstrap <- (bootstrap_combo == "all" || bootstrap_combo == suffix)
 
   list(
     # ── 1. Build outcome-specific dataset ──────────────────────────────────
@@ -196,30 +192,22 @@ make_outcome_targets <- function(country_name, outcome_name, cc, oc, params,
       ))
     ),
 
-    # ── 5. Bootstrap CIs (EXPENSIVE — only for selected combo) ────────────
-    if (run_bootstrap) {
-      tar_target_raw(
-        paste0("bootstrap_ci_", suffix),
-        substitute(
-          run_bootstrap_ci(outcome_data, cc_val, oc_val, sl_learners, params_val),
-          list(
-            outcome_data = as.symbol(paste0("outcome_data_", suffix)),
-            cc_val       = cc,
-            oc_val       = oc,
-            sl_learners  = as.symbol("sl_learners"),
-            params_val   = params
-          )
+    # ── 5. Conformal prediction intervals (FAST — uses existing CV preds) ──
+    # Replaces the expensive bootstrap (B × SL refits) with distribution-free
+    # conformal intervals derived from the cross-validated residuals.
+    # Runs for ALL country×outcome combos since it's essentially free.
+    tar_target_raw(
+      paste0("conformal_ci_", suffix),
+      substitute(
+        compute_conformal_ci(outcome_data, sl_fit, cc_val, oc_val),
+        list(
+          outcome_data = as.symbol(paste0("outcome_data_", suffix)),
+          sl_fit       = as.symbol(paste0("sl_fit_", suffix)),
+          cc_val       = cc,
+          oc_val       = oc
         )
       )
-    } else {
-      tar_target_raw(
-        paste0("bootstrap_ci_", suffix),
-        substitute(
-          list(national_ci = NULL, admin1_ci = NULL, skipped = TRUE),
-          list()
-        )
-      )
-    },
+    ),
 
     # ── 6. Domain ablation (EXPENSIVE — cached) ───────────────────────────
     tar_target_raw(
@@ -340,6 +328,20 @@ make_outcome_targets <- function(country_name, outcome_name, cc, oc, params,
           oc_val = oc
         )
       )
+    ),
+
+    # ── 13. National estimates: survey-weighted observed vs predicted ─────
+    tar_target_raw(
+      paste0("national_est_", suffix),
+      substitute(
+        compute_national_estimates(outcome_data, sl_fit, cc_val, oc_val),
+        list(
+          outcome_data = as.symbol(paste0("outcome_data_", suffix)),
+          sl_fit       = as.symbol(paste0("sl_fit_", suffix)),
+          cc_val       = cc,
+          oc_val       = oc
+        )
+      )
     )
   )
 }
@@ -407,8 +409,7 @@ for (country_name in names(all_country_configs)) {
   # Per-outcome targets
   for (outcome_name in names(cc$outcomes)) {
     oc <- cc$outcomes[[outcome_name]]
-    outcome_targets <- make_outcome_targets(country_name, outcome_name, cc, oc, params,
-                                              bootstrap_combo = bootstrap_combo)
+    outcome_targets <- make_outcome_targets(country_name, outcome_name, cc, oc, params)
     country_targets <- c(country_targets, outcome_targets)
   }
 }
@@ -482,6 +483,106 @@ if (length(all_country_configs) >= 2) {
       )
     )
   ))
+
+  # ── GEE-only LOCO: uses only remote sensing predictors ──────────────────
+  for (otag in outcome_tags) {
+    pooled_gee_name <- paste0("pooled_gee_", otag)
+
+    transport_targets <- c(transport_targets, list(
+      tar_target_raw(
+        pooled_gee_name,
+        substitute({
+          all_merged <- merged_list_val
+          build_pooled_gee_only(all_merged, get_country_configs(), otag_val)
+        }, list(
+          merged_list_val = merged_list_expr,
+          otag_val        = otag
+        ))
+      )
+    ))
+
+    loco_gee_name <- paste0("loco_gee_", otag)
+    transport_targets <- c(transport_targets, list(
+      tar_target_raw(
+        loco_gee_name,
+        substitute(
+          run_loco_gee_only(pooled_gee_data, sl_learners, pipeline_params),
+          list(pooled_gee_data = as.symbol(pooled_gee_name))
+        )
+      )
+    ))
+  }
+
+  # Combined GEE-only transportability summary
+  loco_gee_target_names <- paste0("loco_gee_", outcome_tags)
+  loco_gee_syms <- lapply(loco_gee_target_names, as.symbol)
+  names(loco_gee_syms) <- outcome_tags
+  loco_gee_list_expr <- as.call(c(list(as.symbol("list")), loco_gee_syms))
+
+  transport_targets <- c(transport_targets, list(
+    tar_target_raw(
+      "transportability_gee_summary",
+      substitute(
+        summarize_transportability(loco_list_val),
+        list(loco_list_val = loco_gee_list_expr)
+      )
+    )
+  ))
+}
+
+
+# ── Out-of-sample prediction: Côte d'Ivoire ─────────────────────────────────
+# Uses pooled area-level models from all surveyed countries to predict
+# micronutrient deficiency prevalence in an unsurveyed country.
+oos_targets <- list()
+
+civ_raster_dir <- here::here("data", "Cote_dIvoire_GEE_rasters")
+if (dir.exists(civ_raster_dir) && length(all_country_configs) >= 2) {
+
+  # Extract GEE covariates for Côte d'Ivoire Admin-2 polygons (once)
+  oos_targets <- c(oos_targets, list(
+    tar_target(
+      oos_gee_civ,
+      extract_gee_for_country("CIV", civ_raster_dir)
+    )
+  ))
+
+  # Build svy_admin2 symbol list for all countries
+  first_cc <- all_country_configs[[1]]
+  outcome_tags_oos <- names(first_cc$outcomes)
+
+  for (otag in outcome_tags_oos) {
+    # Collect svy_admin2 targets for all countries into a named list
+    svy_syms <- list()
+    for (cn in names(all_country_configs)) {
+      svy_name <- paste0("svy_admin2_", tolower(cn), "_", otag)
+      svy_syms[[cn]] <- as.symbol(svy_name)
+    }
+    svy_list_expr <- as.call(c(list(as.symbol("list")), svy_syms))
+
+    oos_name <- paste0("oos_civ_", otag)
+    oos_targets <- c(oos_targets, list(
+      tar_target_raw(
+        oos_name,
+        substitute({
+          svy_list <- svy_list_val
+          oc <- get_country_configs()[[1]]$outcomes[[otag_val]]
+          predict_oos_pooled(
+            svy_admin2_list = svy_list,
+            country_configs = get_country_configs(),
+            oos_gadm_code   = "CIV",
+            oos_raster_dir  = raster_dir_val,
+            oc              = oc,
+            params          = pipeline_params
+          )
+        }, list(
+          svy_list_val   = svy_list_expr,
+          otag_val       = otag,
+          raster_dir_val = civ_raster_dir
+        ))
+      )
+    ))
+  }
 }
 
 
@@ -493,6 +594,7 @@ cv_perf_names <- character()
 admin2_error_names <- character()
 ablation_names <- character()
 diagnostics_names <- character()
+national_est_names <- character()
 
 for (country_name in names(all_country_configs)) {
   cc <- all_country_configs[[country_name]]
@@ -502,6 +604,7 @@ for (country_name in names(all_country_configs)) {
     admin2_error_names <- c(admin2_error_names, paste0("admin2_error_", suffix))
     ablation_names <- c(ablation_names, paste0("ablation_", suffix))
     diagnostics_names <- c(diagnostics_names, paste0("diagnostics_", suffix))
+    national_est_names <- c(national_est_names, paste0("national_est_", suffix))
   }
 }
 
@@ -562,6 +665,15 @@ summary_targets <- list(
     list(diag_vals = make_list_expr(diagnostics_names)))
   ),
 
+  # Combined national estimates
+  tar_target_raw(
+    "national_estimates_all",
+    substitute(
+      dplyr::bind_rows(target_vals),
+      list(target_vals = make_list_expr(national_est_names))
+    )
+  ),
+
   # Save combined CSV tables
   tar_target(
     save_tables,
@@ -578,7 +690,6 @@ summary_targets <- list(
       if (!is.null(ablation_all) && nrow(ablation_all) > 0)
         readr::write_csv(ablation_all, file.path(out_dir, "domain_ablation_all.csv"))
 
-      # Save diagnostics tables
       if (!is.null(diagnostics_all$binary_metrics) && nrow(diagnostics_all$binary_metrics) > 0)
         readr::write_csv(diagnostics_all$binary_metrics,
                          file.path(out_dir, "diagnostics_binary.csv"))
@@ -586,11 +697,17 @@ summary_targets <- list(
         readr::write_csv(diagnostics_all$continuous_metrics,
                          file.path(out_dir, "diagnostics_continuous.csv"))
 
+      # Save national estimates
+      if (!is.null(national_estimates_all) && nrow(national_estimates_all) > 0)
+        readr::write_csv(national_estimates_all,
+                         file.path(out_dir, "national_estimates_all.csv"))
+
       list(cv_perf = cv_perf, admin2_error = admin2_error_all,
-           ablation = ablation_all, diagnostics = diagnostics_all)
+           ablation = ablation_all, diagnostics = diagnostics_all,
+           national = national_estimates_all)
     }
   )
 )
 
 # ── Combine everything ──────────────────────────────────────────────────────
-c(static_targets, country_targets, transport_targets, summary_targets)
+c(static_targets, country_targets, transport_targets, oos_targets, summary_targets)

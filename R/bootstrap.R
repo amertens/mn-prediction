@@ -27,6 +27,10 @@ one_bootstrap_rep <- function(b, outcome_data, cc, oc, sl_learner, params,
 
   Y_name <- if (use_binary && !is.null(oc$binary)) oc$binary else oc$continuous
 
+  # Use replicate-specific seed so each bootstrap sample is different
+  # even if DHS_SL_clustered() resets set.seed() internally.
+  set.seed(params$seed + b * 1000L)
+
   # Resample clusters with replacement
   clusters <- unique(d[[cluster_col]])
   boot_clusters <- sample(clusters, replace = TRUE)

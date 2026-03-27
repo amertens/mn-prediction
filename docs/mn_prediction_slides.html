@@ -910,6 +910,7 @@ text-indent: -1em;
 }
 .reveal .slide:not(.center) {
 height: 100%;
+overflow-y: auto;
 }
 .reveal .slide.scrollable {
 overflow-y: auto;
@@ -1416,7 +1417,7 @@ overflow: hidden!important;
 display:block!important;
 }</style></aside>
 </section>
-<section id="preprocessing-pipeline-and-cross-validation-design" class="slide level2">
+<section id="preprocessing-pipeline-and-cross-validation-design" class="slide level2 scrollable">
 <h2>Preprocessing Pipeline and Cross-Validation Design</h2>
 <div class="columns">
 <div class="column" style="width:52%;">
@@ -1764,7 +1765,7 @@ display:block!important;
 <h1>Domain Ablation Results</h1>
 
 </section>
-<section id="domain-contribution-permutation-based-ablation" class="slide level2">
+<section id="domain-contribution-permutation-based-ablation" class="slide level2 scrollable">
 <h2>Domain Contribution: Permutation-Based Ablation</h2>
 <p><strong>Method: Permutation-based domain ablation</strong> — for each domain, shuffle all its columns (breaking the association with the outcome) and re-evaluate the trained model. No model refitting is required, making this computationally efficient across 4 countries x 4 outcomes.</p>
 <p><strong>ΔAUC = AUC(full model) - AUC(model with domain shuffled)</strong> Positive -&gt; domain contributes to discrimination; negative -&gt; domain adds noise.</p>
@@ -1899,7 +1900,7 @@ display:block!important;
 <h1>Methodological Reflections</h1>
 
 </section>
-<section id="strengths" class="slide level2">
+<section id="strengths" class="slide level2 scrollable">
 <h2>Strengths</h2>
 <ol type="1">
 <li><p><strong>No post-hoc threshold tuning</strong> — Binary SL directly maximizes log-likelihood for the binary deficiency outcome; clinical thresholds (Thurnham/Brinda) are pre-specified independently of the predictor data</p></li>
@@ -1923,7 +1924,7 @@ overflow: hidden!important;
 display:block!important;
 }</style></aside>
 </section>
-<section id="limitations" class="slide level2">
+<section id="limitations" class="slide level2 scrollable">
 <h2>Limitations</h2>
 <ol type="1">
 <li><p><strong>Survey support dependence</strong> — Admin1 units with no nearby survey clusters are extrapolated purely from predictor similarity; a stronger assumption than interpolation within the survey support</p></li>
@@ -3020,7 +3021,7 @@ window.QuartoSupport = function () {
 'autoAnimateUnmatched': true,
 'jumpToSlide': true,
 'menu': {"side":"left","useTextContentForMissingTitles":true,"markers":false,"loadIcons":false,"custom":[{"title":"Tools","icon":"<i class=\"fas fa-gear\"></i>","content":"<ul class=\"slide-menu-items\">\n<li class=\"slide-tool-item active\" data-item=\"0\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.fullscreen(event)\"><kbd>f</kbd> Fullscreen</a></li>\n<li class=\"slide-tool-item\" data-item=\"1\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.speakerMode(event)\"><kbd>s</kbd> Speaker View</a></li>\n<li class=\"slide-tool-item\" data-item=\"2\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.overview(event)\"><kbd>o</kbd> Slide Overview</a></li>\n<li class=\"slide-tool-item\" data-item=\"3\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.togglePdfExport(event)\"><kbd>e</kbd> PDF Export Mode</a></li>\n<li class=\"slide-tool-item\" data-item=\"4\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.toggleScrollView(event)\"><kbd>r</kbd> Scroll View Mode</a></li>\n<li class=\"slide-tool-item\" data-item=\"5\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.keyboardHelp(event)\"><kbd>?</kbd> Keyboard Help</a></li>\n</ul>"}],"openButton":true},
-'smaller': false,
+'smaller': true,
  
         // Display controls in the bottom right corner
         controls: false,

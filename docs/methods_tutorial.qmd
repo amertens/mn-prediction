@@ -139,7 +139,7 @@ Before model fitting, the predictors undergo a six-step preprocessing chain:
 2. **Drop all-NA columns:** Remove predictors with no non-missing values
 3. **Near-zero variance removal:** `caret::nearZeroVar()` drops columns with very low variance
 4. **Imputation:** `ck37r::impute_missing_values()` with missing-indicator columns (prefixed `missing_`)
-5. **Prescreening:** `washb::washb_prescreen()` retains only predictors with p < 0.20 in univariate regressions against the outcome
+5. **Prescreening:** `washb::washb_prescreen()` retains only predictors with p < 0.20 in univariate regressions against the outcome (using binomial family for binary outcomes, gaussian for continuous)
 6. **Recipe-based cleaning:**
    - Zero-variance removal (post-imputation)
    - Near-zero variance removal
@@ -161,33 +161,46 @@ The preprocessing is applied identically within each cross-validation fold and b
 
 # Stage 2: SuperLearner Model Fitting
 
-## 2.1 The ensemble approach
+## 2.1 The modeling unit: individual-level prediction
+
+The SuperLearner is fit at the **individual level** --- each row is one surveyed child or woman. Each individual has:
+
+- **Proxy predictors ($X_i$):** Area-level indicators (DHS/MICS at Admin-1, IHME/MAP at Admin-2, GEE rasters extracted at cluster coordinates, food security indicators). All individuals in a cluster share the same proxy values.
+- **Binary outcome ($Y_i$):** A 0/1 indicator of micronutrient deficiency for that individual.
+
+The SuperLearner learns $\hat{P}(Y_i = 1 \mid X_i)$ for each individual. Subnational prevalence estimates are then computed by averaging these individual predictions within Admin-1 or Admin-2 regions:
+
+$$\hat{\pi}_a = \frac{1}{n_a} \sum_{i \in a} \hat{P}(Y_i = 1 \mid X_i)$$
+
+Because the predictors are area-level, all individuals in the same cluster receive (nearly) identical predictions. The effective sample size for regional aggregation is therefore closer to the number of *clusters* in the region than the number of *individuals*. Individual-level metrics (AUC, Brier score) will be modest; the model's value emerges at the aggregate level.
+
+## 2.2 The ensemble approach
 
 We use the SuperLearner (van der Laan et al., 2007) implemented via the `sl3` R package. The SuperLearner fits multiple "base learners" to the data, then combines their predictions using a non-negative least squares (NNLS) metalearner to minimize cross-validated risk.
 
-**Fast mode stack** (3 learners --- for development, ~10--30 min):
+**Fast mode stack** (3 learners --- for development, ~5--10 min):
 
 | Learner | Description |
 |---------|-------------|
 | `Lrnr_mean` | Intercept-only (prevalence baseline) |
-| `Lrnr_glmnet` (LASSO) | LASSO penalized regression ($\alpha$ = 1) |
-| `Lrnr_ranger` | Random forest |
+| `Lrnr_glmnet` (LASSO, $\alpha=1$) | LASSO penalized regression |
+| `Lrnr_ranger` (`min.node.size=10`) | Random forest with conservative splits |
 
 **Full mode stack** (7 learners --- for publication, ~2--4 hours):
 
 | Learner | Description |
 |---------|-------------|
 | `Lrnr_mean` | Intercept-only |
-| `Lrnr_glmnet` (LASSO) | LASSO ($\alpha$ = 1) |
-| `Lrnr_glmnet` (elastic net 0.75) | Elastic net ($\alpha$ = 0.75) |
-| `Lrnr_glmnet` (ridge) | Ridge regression ($\alpha$ = 0) |
-| `Lrnr_ranger` (conservative) | Random forest (shallow trees) |
-| `Lrnr_ranger` (deeper) | Random forest (deeper trees) |
-| `Lrnr_xgboost` | Gradient-boosted trees |
+| `Lrnr_glmnet` (LASSO, $\alpha=1$) | Aggressive variable selection |
+| `Lrnr_glmnet` (elastic net, $\alpha=0.75$) | Moderate regularization |
+| `Lrnr_glmnet` (ridge, $\alpha=0$) | Distributed weak signal across correlated predictors |
+| `Lrnr_ranger` (conservative, `min.node.size=10`) | Shallow random forest |
+| `Lrnr_ranger` (deeper, `min.node.size=5`) | Deeper random forest |
+| `Lrnr_xgboost` (`max_depth=3`, `eta=0.05`, `min_child_weight=20`) | Gradient-boosted trees with conservative regularization |
 
-Note: the full stack no longer uses screener pipelines; all learners receive the full preprocessed predictor set directly.
+Neither stack uses screener pipelines. All learners receive the full preprocessed predictor set directly and handle high dimensionality natively via their built-in regularization.
 
-## 2.2 Cross-validation strategy
+## 2.3 Cross-validation strategy
 
 **Cluster-blocked K-fold CV** (K = 5): All individuals within a survey cluster are kept in the same fold. This reflects the survey's clustered sampling design and provides honest out-of-sample prediction error.
 
@@ -197,12 +210,12 @@ fold_obj <- origami::make_folds(cluster_ids = id_vec, V = 5)
 
 **Why cluster-blocking matters:** Standard random CV would place some individuals from the same cluster in the training set and others in the validation set. Since individuals within a cluster share the same proxy predictor values (DHS, GEE, etc.), this would overstate the model's ability to discriminate based on proxy data.
 
-## 2.3 Two model types per outcome
+## 2.4 Two model types per outcome
 
-For each outcome, we fit:
+For each outcome, we fit two SuperLearner models on the same individual-level data:
 
-1. **Continuous model** (`loss_squared_error`): Predicts the continuous biomarker value. Prevalence is obtained by thresholding predictions at the clinical cutoff.
-2. **Binary model** (`loss_loglik_binomial`): Directly predicts P(deficient). The binary model's predicted probabilities are preferred for prevalence estimation.
+1. **Continuous model** (`loss_squared_error`): Predicts the continuous biomarker concentration (e.g., log-ferritin, RBP). The NNLS metalearner minimizes cross-validated mean squared error. Prevalence is obtained by applying the clinical threshold to each individual's predicted biomarker value and averaging the resulting 0/1 indicators within regions.
+2. **Binary model** (`loss_loglik_binomial`): Directly predicts $\hat{P}(\text{deficient}_i \mid X_i)$ using negative binomial log-likelihood as the loss function. The metalearner optimizes the calibration of individual-level probability estimates. The binary model's predicted probabilities are preferred for prevalence estimation when the outcome is not rare.
 
 ### Alternatives
 
@@ -222,15 +235,69 @@ For each outcome, we fit:
 With proxy-only predictors, expect the NNLS metalearner to allocate substantial weight to the elastic net (which handles high-dimensional, correlated proxy data well) and to the mean learner (which acts as shrinkage toward the overall prevalence). If the random forest receives significant weight, this suggests non-linear interactions between proxy domains are important.
 
 
+## 2.5 Loss functions and rare outcomes {#sec-loss-functions}
+
+The choice of loss function determines what the SuperLearner's metalearner optimizes when combining base learner predictions. This choice has important consequences, especially for rare outcomes.
+
+### Current approach: `loss_loglik_binomial` (negative log-likelihood)
+
+The binary model uses `sl3::loss_loglik_binomial`, which is the negative log-likelihood for Bernoulli outcomes:
+
+$$\mathcal{L}(\hat{p}, y) = -\left[ y \log(\hat{p}) + (1 - y) \log(1 - \hat{p}) \right]$$
+
+This loss function optimizes the **calibration** of individual probability estimates. A model that predicts $\hat{p}_i = \bar{Y}$ (the marginal prevalence) for every individual achieves a strong baseline under log-loss, because log-loss is minimized by the true conditional probability $P(Y=1 \mid X)$, and when predictors carry little individual-level signal, that conditional probability is close to the marginal prevalence.
+
+**Good for:** Well-calibrated $\hat{P}(\text{deficient})$ estimates at the individual level.
+
+**Issue with rare outcomes:** When prevalence is very low (e.g., women's vitamin A deficiency at 2--4%), the optimal individual prediction under log-loss is approximately the marginal prevalence for everyone. The loss function does not sufficiently reward distinguishing high-risk from low-risk *areas* --- a model predicting 3% everywhere has good individual log-loss but zero ability to identify high-burden regions.
+
+### Alternative: `loss_squared_error` (Brier score)
+
+The continuous model uses `sl3::loss_squared_error`, which for binary outcomes is equivalent to the Brier score:
+
+$$\mathcal{L}(\hat{p}, y) = (\hat{p} - y)^2$$
+
+The Brier score decomposes into calibration + discrimination (resolution) + uncertainty. It is somewhat more sensitive to discrimination than log-loss because incorrect confident predictions are penalized quadratically rather than logarithmically. However, for rare events, the Brier score is also dominated by calibration: predicting 3% for everyone gives Brier = $0.03 \times 0.97 \approx 0.029$, which is hard to improve upon at the individual level.
+
+### Alternative: Weighted cross-entropy / focal loss
+
+Upweighting the rare class (deficient individuals) in the loss function forces the model to focus on correctly identifying deficiency cases:
+
+$$\mathcal{L}(\hat{p}, y) = -\left[ w_1 \cdot y \log(\hat{p}) + w_0 \cdot (1 - y) \log(1 - \hat{p}) \right]$$
+
+where $w_1 \gg w_0$. Focal loss (Lin et al., 2017) is a related approach that downweights easy-to-classify examples. These approaches can improve sensitivity to deficiency but are not standard in `sl3` and would require a custom loss function.
+
+### The deeper issue: individual-level loss vs. aggregate-level goals
+
+The fundamental tension is that the pipeline optimizes an **individual-level** loss but the goal is accurate **area-level** prevalence:
+
+- If the target is accurate Admin-1 prevalence, we want to minimize $|\bar{\hat{p}}_a - \bar{Y}_a|$ within regions.
+- Individual-level log-loss does not directly optimize this aggregate quantity.
+- A model that predicts 3% for everyone has excellent individual log-loss when true prevalence is 3%, but **zero ability to identify high-burden regions**.
+- The problem is acute when predictors are area-level (as in this pipeline): the model needs to learn that cluster A's covariates predict 8% while cluster B's predict 1%, but individual-level loss gives little reward for this distinction when the outcome is rare.
+
+**Two-stage approach:** The pipeline partially addresses this through the area-level model targets (`fit_area_level_model`). These fit an elastic net on **Admin-2 survey-weighted prevalences** as the outcome, with GEE raster zonal means as predictors. This second-stage model directly optimizes area-level prediction accuracy, side-stepping the rare-event problem entirely because the outcome is now a continuous prevalence (e.g., 0.02 to 0.15) rather than a binary indicator.
+
+### Practical recommendations
+
+| Outcome prevalence | Recommended approach | Rationale |
+|---|---|---|
+| **Common (20--45%)**, e.g., child iron deficiency | Binary SL with `loss_loglik_binomial` works well | Enough deficient individuals per area for the loss function to reward geographic discrimination |
+| **Rare (2--4%)**, e.g., women's vitamin A deficiency | Continuous biomarker model + clinical threshold, or area-level model directly | Avoids the rare-event problem: continuous model predicts a biomarker value (not a near-zero probability), and area-level models use prevalence as the outcome |
+| **Moderate (10--20%)**, e.g., child vitamin A deficiency | Either approach; compare both | Binary model may work but verify it outperforms the intercept-only baseline at Admin-1/2 aggregation |
+
+The area-level `glmnet` models (`fit_area_level_model`) that regress survey-weighted Admin-2 prevalences on GEE rasters may be more appropriate than the individual-level SL for rare outcomes, because they directly optimize the quantity of interest (area prevalence) without needing to solve the individual-level rare-event discrimination problem.
+
+
 # Stage 3: Admin-1 Prediction and Aggregation
 
 ## 3.1 Individual predictions to area prevalence
 
-The fitted SuperLearner produces individual-level predictions: $\hat{p}_i = \hat{P}(Y_i = 1 \mid X_i)$ for the binary model. Area-level prevalence is the simple mean of individual predictions within each Admin-1 region:
+As described in @sec-loss-functions, the fitted SuperLearner produces individual-level predictions: $\hat{p}_i = \hat{P}(Y_i = 1 \mid X_i)$ for the binary model. Area-level prevalence is the simple mean of individual predictions within each Admin-1 region:
 
 $$\hat{\pi}_a = \frac{1}{n_a} \sum_{i \in a} \hat{p}_i$$
 
-**Important nuance for proxy-only models:** Since all individuals in a cluster share the same proxy predictor values (DHS, GEE, etc. are area-level), the individual predictions within a cluster will be identical (or nearly so, differing only through preprocessing artifacts). The effective sample size for Admin-1 estimation is therefore closer to the number of clusters in that region than the number of individuals.
+Since all individuals in a cluster share the same proxy predictor values, individual predictions within a cluster are identical (or nearly so). The effective sample size for Admin-1 estimation is therefore closer to the number of clusters in that region than the number of individuals.
 
 ### Alternatives
 
@@ -254,8 +321,10 @@ To quantify prediction uncertainty, we use a cluster-level nonparametric bootstr
 3. **Refit** the full SuperLearner on the resampled dataset (including all preprocessing)
 4. **Predict** on the *original* full dataset (not the bootstrap sample)
 5. **Aggregate** predictions to Admin-1 and national prevalence
-6. **Repeat** B times (10 in fast mode, 200 in full mode)
+6. **Repeat** B times (20 in fast mode, 200 in full mode)
 7. **Summarize:** 2.5th and 97.5th percentiles form 95% CIs
+
+**Computational restriction:** Because bootstrap is the most expensive step (each replicate refits the full SuperLearner), it is restricted to a single illustrative country-outcome combination by default (controlled by the `BOOTSTRAP_COMBO` environment variable, defaulting to `ghana_child_iron`). Set `BOOTSTRAP_COMBO="all"` to run bootstrap for every combination.
 
 **Technical fix:** Each bootstrap refit produces a different set of final predictors (because NZV removal, prescreening, and correlation removal are data-adaptive). The saved `auto_recipe` object and `pre_recipe_cols` from each bootstrap model are used to transform the prediction data through the identical preprocessing chain, ensuring column counts match.
 
@@ -267,7 +336,7 @@ To quantify prediction uncertainty, we use a cluster-level nonparametric bootstr
 
 ### Sensitivity analyses
 
-- Compare CIs from B = 10, 50, 200 replicates to assess convergence.
+- Compare CIs from B = 20, 50, 200 replicates to assess convergence.
 - Compare cluster bootstrap to stratified bootstrap (resample within strata).
 
 ### Interpretation
@@ -279,7 +348,7 @@ Bootstrap CIs from proxy-only models will be **wider** than from models with sur
 
 ## 5.1 Permutation-based domain importance
 
-To understand which proxy domains drive performance, we use **permutation-based domain ablation**: randomly shuffle all columns from one domain simultaneously and measure the performance drop on the already-fitted model. This approach does not require refitting the SuperLearner for each domain, making it computationally efficient and avoiding instability from small-sample refitting.
+To understand which proxy domains drive performance, we use **permutation-based domain ablation**: randomly shuffle all columns from one domain simultaneously and measure the change in AUC on the already-fitted model's cross-validated predictions. This approach does not require refitting the SuperLearner for each domain (unlike refit-based ablation), making it computationally efficient and avoiding instability from small-sample refitting. Permutation importance can be computed in seconds from the existing SL fit.
 
 Since the primary analysis uses only proxy predictors, the `GW` domain is automatically excluded from ablation (it's not in the model). The ablation tests each external domain in turn:
 
@@ -321,6 +390,14 @@ With the pipeline now covering 4 countries, we can assess **transportability**: 
 5. **Repeat** for each country
 
 This provides a rigorous test of whether the proxy-based prediction approach generalizes across different West African settings with distinct dietary patterns, health systems, and ecological zones.
+
+### GEE-only LOCO
+
+In addition to the full-predictor LOCO, the pipeline runs a **GEE-only LOCO** analysis (`run_loco_gee_only`) that restricts predictors to satellite-derived remote sensing variables only. This tests whether environmental covariates alone --- available globally and updated continuously --- can predict micronutrient deficiency across countries without any survey-derived indicators (DHS, MICS, etc.).
+
+### Out-of-sample prediction for unsurveyed countries
+
+The pipeline also performs fully out-of-sample prediction for countries with no biomarker survey data. Using pooled area-level models from all surveyed countries, GEE raster covariates are extracted for the unsurveyed country's Admin-2 polygons and predictions are generated. Currently configured for **Cote d'Ivoire** as the target unsurveyed country.
 
 ### Interpretation
 
@@ -515,7 +592,7 @@ The leave-one-domain-out ablation tests whether any single proxy data source is 
 
 ## Interpreting Bootstrap Confidence Intervals
 
-The cluster bootstrap (B = 4 in fast mode) provides uncertainty estimates:
+The cluster bootstrap (B = 20 in fast mode, restricted to a single illustrative combo) provides uncertainty estimates:
 
 **National estimate:**
 
@@ -537,7 +614,7 @@ The cluster bootstrap (B = 4 in fast mode) provides uncertainty estimates:
 
 - **CI width varies by region.** Upper River has the widest CI (11.5 pp), reflecting higher uncertainty in the eastern part of the country. Lower River has a very narrow CI (0.6 pp), which may partly reflect the small number of bootstrap replicates (B = 4).
 
-- **B = 4 is too few for stable CIs.** These intervals are illustrative; for publication, B = 200+ is needed to produce stable percentile-based intervals. With B = 4, the 2.5th and 97.5th percentiles are essentially the minimum and maximum of four values, which will be narrower than the true bootstrap distribution.
+- **B = 20 is marginal for stable CIs.** These intervals are illustrative; for publication, B = 200+ is needed to produce stable percentile-based intervals. With few replicates, the 2.5th and 97.5th percentiles can be unstable.
 
 - **The geographic gradient persists across bootstrap replicates.** Even with resampling uncertainty, Banjul/Western remain low-burden and Upper River/Maccarthy Island remain high-burden, confirming the robustness of the geographic pattern.
 
@@ -574,7 +651,7 @@ Bringing together all stages, the proxy-only model for child vitamin A deficienc
 | Inflammation adjustment | Thurnham (Vit A), BRINDA (iron) | Unadjusted | Could bias prevalence 5--10 pp |
 | CV strategy | Cluster-blocked, K=5 | Random, spatial leave-region-out | Cluster-blocked is honest for this design |
 | Ensemble | SuperLearner (NNLS) | Single learner (LASSO) | SL may add ~2--5% AUC vs. best single learner |
-| Bootstrap replicates | 10 (fast) / 200 (full) | 500--1000 | CIs stabilize by B=200 |
+| Bootstrap replicates | 20 (fast) / 200 (full) | 500--1000 | CIs stabilize by B=200; restricted to single combo by default |
 | Area-level model | Elastic net on GEE | BYM2 / kriging | Elastic net is simpler; spatial models need adjacency structure |
 | Correlation threshold | $r$ > 0.85 | $r$ > 0.90 or 0.95 | Lower threshold removes more redundancy; higher retains more signal |
 | Preprocessing | 6-step pipeline | PCA / minimal cleaning | Current approach balances dimension reduction with interpretability |

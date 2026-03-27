@@ -33,12 +33,23 @@ aggregate_admin2_sl <- function(sl_fit, outcome_data, cc, oc) {
 
   admin2_col <- cc$admin2_col
 
+  # Use survey weights for predicted prevalence aggregation
+  wt_col <- cc$weight_col
+  has_weights <- !is.null(wt_col) && wt_col %in% colnames(d) &&
+                 any(!is.na(d[[wt_col]]) & d[[wt_col]] > 0)
+  if (has_weights) {
+    d$`.wt` <- as.numeric(d[[wt_col]])
+    d$`.wt`[is.na(d$`.wt`) | d$`.wt` <= 0] <- 1
+  } else {
+    d$`.wt` <- 1
+  }
+
   d %>%
     dplyr::filter(!is.na(.data[[admin2_col]])) %>%
     dplyr::group_by(.data[[admin2_col]]) %>%
     dplyr::summarise(
       n_sl    = dplyr::n(),
-      sl_prev = mean(deficient, na.rm = TRUE),
+      sl_prev = stats::weighted.mean(deficient, `.wt`, na.rm = TRUE),
       .groups = "drop"
     ) %>%
     dplyr::rename(Admin2 = dplyr::all_of(admin2_col))
@@ -294,24 +305,68 @@ fit_area_level_model <- function(svy_admin2, cc, oc, params) {
     if (any(na_idx)) X_all[na_idx, j] <- col_medians[j]
   }
 
+  # ── HAL (Highly Adaptive Lasso) for area-level model ──────────────────
+  # HAL is a nonparametric estimator that:
+  #   - Converges at n^{-1/3} rate (faster than most nonparametric methods)
+  #   - Has built-in L1 regularization via the lasso penalty
+  #   - Discovers interactions automatically via indicator basis functions
+  #   - Provides valid semiparametric inference
+  #   - Works well in small-n settings (n=30-100 Admin2 areas)
+  #
+  # We use max_degree=2 (main effects + pairwise interactions) and
+  # smoothness_orders=0 (piecewise constant, appropriate for geographic data).
+  # The number of knots is kept small to control computation.
+
+  # HAL parameters — conservative for small n
+  hal_max_degree   <- if (nrow(X_train) < 20) 1L else 2L
+  hal_num_knots    <- if (nrow(X_train) < 30) c(3, 1) else c(5, 2)
+  if (hal_max_degree == 1L) hal_num_knots <- hal_num_knots[1]
+
+  # Helper: fit HAL with fallback to glmnet
+  fit_hal_safe <- function(X, Y, ...) {
+    tryCatch({
+      hal9001::fit_hal(
+        X = X, Y = Y,
+        max_degree       = hal_max_degree,
+        num_knots        = hal_num_knots,
+        smoothness_orders = 0L,
+        family           = "gaussian",
+        ...
+      )
+    }, error = function(e) {
+      cat(sprintf("  HAL failed (%s), falling back to glmnet\n", e$message))
+      NULL
+    })
+  }
+
+  # Helper: predict from HAL or glmnet
+  predict_hal_safe <- function(fit, newdata) {
+    if (inherits(fit, "hal9001")) {
+      as.numeric(predict(fit, new_data = newdata))
+    } else {
+      # glmnet fallback
+      as.numeric(predict(fit, newdata, s = "lambda.min"))
+    }
+  }
+
   # LOO-CV
-  cat("  Running LOO-CV...\n")
+  cat(sprintf("  Running LOO-CV (HAL, max_degree=%d)...\n", hal_max_degree))
   loo_preds <- rep(NA_real_, nrow(X_train))
-  n_loo_folds <- max(min(nrow(X_train) - 1, 10), 3)
   for (i in seq_len(nrow(X_train))) {
     n_remain <- nrow(X_train) - 1
     if (n_remain < 3) next
-    fit_loo <- tryCatch(
-      glmnet::cv.glmnet(
-        x = X_train[-i, , drop = FALSE], y = Y_train[-i],
-        alpha = 0.5, nfolds = min(n_remain, 10),
-        type.measure = "mse"
-      ),
-      error = function(e) NULL
-    )
+    fit_loo <- fit_hal_safe(X_train[-i, , drop = FALSE], Y_train[-i])
+    # Fallback to glmnet if HAL fails
+    if (is.null(fit_loo)) {
+      fit_loo <- tryCatch(
+        glmnet::cv.glmnet(
+          x = X_train[-i, , drop = FALSE], y = Y_train[-i],
+          alpha = 0.5, nfolds = min(n_remain, 10), type.measure = "mse"
+        ), error = function(e) NULL
+      )
+    }
     if (!is.null(fit_loo))
-      loo_preds[i] <- as.numeric(predict(fit_loo, X_train[i, , drop = FALSE],
-                                          s = "lambda.min"))
+      loo_preds[i] <- predict_hal_safe(fit_loo, X_train[i, , drop = FALSE])
   }
   loo_preds <- pmin(pmax(loo_preds, 0), 1)
 
@@ -322,6 +377,7 @@ fit_area_level_model <- function(svy_admin2, cc, oc, params) {
       country      = cc$country,
       n_train      = sum(loo_valid),
       n_predictors = length(valid_vars),
+      model_type   = "HAL",
       loo_mae_pp   = round(mean(abs(Y_train[loo_valid] - loo_preds[loo_valid])) * 100, 2),
       loo_rmse_pp  = round(sqrt(mean((Y_train[loo_valid] - loo_preds[loo_valid])^2)) * 100, 2),
       loo_r        = round(cor(Y_train[loo_valid], loo_preds[loo_valid]), 3)
@@ -332,24 +388,28 @@ fit_area_level_model <- function(svy_admin2, cc, oc, params) {
     cat(sprintf("  LOO-CV: MAE = %.1f pp, r = %.3f\n",
                 loo_summary$loo_mae_pp, loo_summary$loo_r))
 
-  # Final model
+  # Final model on all training data
   set.seed(params$seed)
-  fit_area <- tryCatch(
-    glmnet::cv.glmnet(
-      x = X_train, y = Y_train, alpha = 0.5,
-      nfolds = max(min(nrow(X_train), 10), 3), type.measure = "mse"
-    ),
-    error = function(e) {
-      warning("Area-level glmnet failed: ", e$message)
-      NULL
-    }
-  )
+  fit_area <- fit_hal_safe(X_train, Y_train)
+  # Fallback to glmnet if HAL fails on full data
+  if (is.null(fit_area)) {
+    fit_area <- tryCatch(
+      glmnet::cv.glmnet(
+        x = X_train, y = Y_train, alpha = 0.5,
+        nfolds = max(min(nrow(X_train), 10), 3), type.measure = "mse"
+      ),
+      error = function(e) {
+        warning("Both HAL and glmnet failed for area model: ", e$message)
+        NULL
+      }
+    )
+  }
 
   if (is.null(fit_area)) {
     return(list(area_preds = NULL, loo_summary = loo_summary, polygons = all_polys))
   }
 
-  yhat_all <- pmin(pmax(as.numeric(predict(fit_area, X_all, s = "lambda.min")), 0), 1)
+  yhat_all <- pmin(pmax(predict_hal_safe(fit_area, X_all), 0), 1)
 
   area_preds <- data.frame(
     Admin2         = gee_admin2$Admin2,
@@ -369,17 +429,19 @@ fit_area_level_model <- function(svy_admin2, cc, oc, params) {
 
   for (b in seq_len(B_AREA)) {
     idx_b <- sample(nrow(X_train), replace = TRUE)
-    fit_b <- tryCatch(
-      glmnet::cv.glmnet(
-        x = X_train[idx_b, , drop = FALSE], y = Y_train[idx_b],
-        alpha = 0.5, nfolds = min(length(unique(idx_b)), 10),
-        type.measure = "mse"
-      ),
-      error = function(e) NULL
-    )
+    fit_b <- fit_hal_safe(X_train[idx_b, , drop = FALSE], Y_train[idx_b])
+    if (is.null(fit_b)) {
+      # glmnet fallback for this bootstrap rep
+      fit_b <- tryCatch(
+        glmnet::cv.glmnet(
+          x = X_train[idx_b, , drop = FALSE], y = Y_train[idx_b],
+          alpha = 0.5, nfolds = min(length(unique(idx_b)), 10),
+          type.measure = "mse"
+        ), error = function(e) NULL
+      )
+    }
     if (!is.null(fit_b))
-      boot_all[, b] <- pmin(pmax(
-        as.numeric(predict(fit_b, X_all, s = "lambda.min")), 0), 1)
+      boot_all[, b] <- pmin(pmax(predict_hal_safe(fit_b, X_all), 0), 1)
   }
 
   valid_boots <- sum(!is.na(boot_all[1, ]))
