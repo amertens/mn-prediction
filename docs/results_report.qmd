@@ -168,7 +168,7 @@ for (ctry in countries) {
 boot_ci <- list()
 for (ctry in countries) {
   for (oc in outcomes) {
-    tname <- paste0("bootstrap_ci_", ctry, "_", oc)
+    tname <- paste0("conformal_ci_", ctry, "_", oc)
     obj <- load_target(tname)
     if (!is.null(obj)) {
       boot_ci[[paste0(ctry, "_", oc)]] <- obj

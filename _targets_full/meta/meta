@@ -2,7 +2,6 @@ name|type|data|command|depend|seed|path|time|size|bytes|format|repository|iterat
 bootstrap_ci_ghana_women_vitA|stem|e652964aab0e6a48|01bcdbc80a68c415|2c530c1562a7fbd1|756644245||t20538.4645656935s|s110b|110|rds|local|vector|||8.64|package rlang was built under R version 4.4.3. package ggplot2 was built under R version 4.4.3. package terra was built under R version 4.4.3. package exactextractr was built under R version 4.4.3. package srvyr was built under R version 4.4.3. package scales was built under R version 4.4.3. package viridisLite was built under R version 4.4.3. package data.table was built under R version 4.4.3. package recipes was built under R version 4.4.3|
 bootstrap_ci_gambia_child_vitA|stem|e652964aab0e6a48|01bcdbc80a68c415|2c530c1562a7fbd1|433066791||t20538.46458486s|s110b|110|rds|local|vector|||8.77|package rlang was built under R version 4.4.3. package ggplot2 was built under R version 4.4.3. package terra was built under R version 4.4.3. package exactextractr was built under R version 4.4.3. package srvyr was built under R version 4.4.3. package scales was built under R version 4.4.3. package viridisLite was built under R version 4.4.3. package data.table was built under R version 4.4.3. package recipes was built under R version 4.4.3|
 bootstrap_ci_malawi_women_iron|stem|e652964aab0e6a48|01bcdbc80a68c415|2c530c1562a7fbd1|-2121505196||t20538.4645910262s|s110b|110|rds|local|vector|||8.72|package rlang was built under R version 4.4.3. package ggplot2 was built under R version 4.4.3. package terra was built under R version 4.4.3. package exactextractr was built under R version 4.4.3. package srvyr was built under R version 4.4.3. package scales was built under R version 4.4.3. package viridisLite was built under R version 4.4.3. package data.table was built under R version 4.4.3. package recipes was built under R version 4.4.3|
-pipeline_params|stem|67d77c0080b93115|cdeb46b0c65d2187|1994cef6332bdb47|-1458812725||t20538.4645935619s|s180b|180|rds|local|vector|||0.02||
 bootstrap_ci_sierraleone_women_iron|stem|e652964aab0e6a48|01bcdbc80a68c415|2c530c1562a7fbd1|905294769||t20538.4645997505s|s110b|110|rds|local|vector|||8.81|package rlang was built under R version 4.4.3. package ggplot2 was built under R version 4.4.3. package terra was built under R version 4.4.3. package exactextractr was built under R version 4.4.3. package srvyr was built under R version 4.4.3. package scales was built under R version 4.4.3. package viridisLite was built under R version 4.4.3. package data.table was built under R version 4.4.3. package recipes was built under R version 4.4.3|
 bootstrap_ci_ghana_child_iron|stem|e652964aab0e6a48|01bcdbc80a68c415|2c530c1562a7fbd1|-1592744951||t20538.464602076s|s110b|110|rds|local|vector|||0||
 merged_raw_malawi|stem|8e1f5c2f3b1ce21b|2afc1faeb23e5cfa|a7c003576ebbf8ec|479645124||t20538.4646570361s|s1354411b|1354411|rds|local|vector|||0.77||
@@ -43,22 +42,18 @@ sl_fit_gambia_child_vitA|stem|eedcb8b74364836a|031d4e0c74e14085|5c8abfbfaf463e0e
 outcome_data_sierraleone_women_vitA|stem|77ffdd13e620d6bd|6acd011786e9c338|d522fcc2bfd01f0c|565751951||t20538.4737595539s|s1331239b|1331239|rds|local|vector|||0.25||
 outcome_data_gambia_child_iron|stem|103a79be0e20914a|33497653e64aeaba|194d331690bda65d|-2141723003||t20538.4740855685s|s752042b|752042|rds|local|vector|||0.43||
 svy_admin2_sierraleone_women_vitA|stem|b02fb666b6014aab|d3eaf80d58e5737d|80922df5dca1ab4c|-1021967769||t20538.4742937873s|s852b|852|rds|local|vector|||0.35||
-admin1_prev_gambia_child_vitA|stem|3e5e63e09ed1f8f2|41d88a073e864d39|9baf28d4ee083c7e|1050151100||t20538.4745232213s|s399b|399|rds|local|vector|||0.28||
 svy_admin2_gambia_child_vitA|stem|7522d4f1f2ab5bc5|9436bc6874054af4|f1c91de08905c892|-660542673||t20538.4745982117s|s1498b|1498|rds|local|vector|||0.4||
 sl_fit_ghana_child_vitA|stem|3cba536edbc762aa|2a20bc5780d2630e|e611c9e647bd9316|-2026830060||t20538.4748056351s|s45837761b|45837761|rds|local|vector|||563|The following column has zero variance so scaling cannot be used  lsms_hh_se.ppp2011.ℹ Consider using step_zv recipesstep_zv to remove those columns  before normalizing.|
 ablation_gambia_child_vitA|stem|ee78d14952b73456|e5f45cb5eeb2ae7b|948f4dcccd462199|56454930||t20538.4750179765s|s420b|420|rds|local|vector|||26.32||
 sl_fit_ghana_women_vitA|stem|b87839c754b4c3f3|491b0503d976e813|587b2c49c291b5e2|-1165349474||t20538.4752969215s|s34613302b|34613302|rds|local|vector|||453.86|glm.fit fitted probabilities numerically 0 or 1 occurred. glm.fit fitted probabilities numerically 0 or 1 occurred. glm.fit fitted probabilities numerically 0 or 1 occurred. glm.fit fitted probabilities numerically 0 or 1 occurred. glm.fit fitted probabilities numerically 0 or 1 occurred. one multinomial or binomial class has fewer than 8  observations dangerous ground. one multinomial or binomial class has fewer than 8  observations dangerous ground. one multinomial or binomial class has fewer than 8  observations dangerous ground. one multinomial or binomial class has fewer than 8  observations dangerous ground. one multinomial or binomial class has fewer than 8  observations dangerous ground. one multinomial or binomial class has fewer than 8  observations dangerous ground. one multinomial or binomial class has fewer than 8  observations dangerous ground. one multinomial or binomial class has fewer than 8  observations dangerous ground. one multinomial or binomial class has fewer than 8  observations dangerous ground. one multinomial or binomial class has fewer than 8  observations dangerous ground. one multinomial or binomial class has fewer than 8  observations dangerous ground. one multinomial or binomial class has fewer than 8  observations dangerous ground|
-plot_admin1_scatter_gambia_child_vitA|stem|c0f795750adb2520|34263f41a9f3527c|e86d2486967621d7|14486865||t20538.4754684073s|s340312b|340312|rds|local|vector|||0.2||
 admin2_sl_ghana_child_vitA|stem|34d295127f4a3faa|29c20d1dd977fbfd|d2fe178f42c3999c|-748551096||t20538.475498694s|s1613b|1613|rds|local|vector|||0.36||
 svy_admin2_gambia_women_iron|stem|e68eb95e8063f1f2|9db5b4f3d3c5e87b|3ee1644ad355c2a3|1729330015||t20538.4755201764s|s1509b|1509|rds|local|vector|||0.41||
 diagnostics_gambia_child_vitA|stem|e64e2a6a83c6db73|0379163033acb9b4|0e362c523237a7f8|883278227||t20538.4755376573s|s2216b|2216|rds|local|vector|||0.27||
 admin2_sl_gambia_child_vitA|stem|8e9b0d8b628df711|c024bb5dc5ec3f75|53ff31aa65b24cfe|2050326699||t20538.4757010581s|s733b|733|rds|local|vector|||0.14||
 admin2_sl_ghana_women_vitA|stem|c4ed9b5b3786af01|83dfeb81416e596a|236d7e212c145344|-1965609308||t20538.4757334121s|s1610b|1610|rds|local|vector|||0.25||
-admin1_prev_ghana_women_vitA|stem|c67128eb08f10984|b9ceed8221bb4821|dc305be4ac664ebd|1442221221||t20538.4759642721s|s587b|587|rds|local|vector|||0.46||
 admin2_error_gambia_child_vitA|stem|6554edef6d3a3861|37cb319cb1cb07e1|2cb74824951737c0|419013039||t20538.4761692403s|s247b|247|rds|local|vector|||0.06||
 admin2_error_ghana_child_vitA|stem|6acc58b3ceaa40fa|a77dab197b1b672a|5d805c17f7e4731f|-1206450436||t20538.4762547708s|s247b|247|rds|local|vector|||0.05||
 sl_fit_sierraleone_women_iron|stem|5aaa93a347d96091|9e92bf3b7a270925|3ebdb6b907320bca|-303242899||t20538.4762880896s|s136b|136|rds|local|vector|||0.06||
-plot_admin1_scatter_ghana_women_vitA|stem|8ff0ef7e80e82c7a|5ea3c903e72f068c|242feff446708bec|1400191296||t20538.4763659728s|s340996b|340996|rds|local|vector|||0.14||
 ablation_ghana_child_vitA|stem|d709ed80b78ebeb3|fd57ce6abe3e43fc|fbf3811ce6e6d0ef|-2040111226||t20538.4763950223s|s466b|466|rds|local|vector|||31.27||
 outcome_data_ghana_women_iron|stem|56f3e16ac08cc947|45a421da6262e205|a6296214fb3199e0|1491139220||t20538.4764444523s|s1125095b|1125095|rds|local|vector|||0.58||
 outcome_data_ghana_child_iron|stem|c996c65fb8b5fa9a|d9d9741e2abbe381|a6296214fb3199e0|1961535227||t20538.4764805626s|s1199549b|1199549|rds|local|vector|||0.61||
@@ -71,17 +66,12 @@ admin2_sl_sierraleone_child_vitA|stem|3f4023c337a50b65|6bb1e442c03ae0c1|74ddf812
 ablation_sierraleone_child_vitA|stem|ba05f249981483de|bc8d23d24c0ff074|fde7477632bcb796|318249625||t20538.4782106525s|s352b|352|rds|local|vector|||5.15||
 sl_fit_gambia_women_iron|stem|f06ffc9d4bc3d383|5f8776551b57b102|bee13bfc90cc4aba|-1257604062||t20538.4785036933s|s29876083b|29876083|rds|local|vector|||453.36||
 svy_admin2_ghana_child_iron|stem|eb9c3aff80d42f7c|d7071bf76f46bf34|44ad7844282bc745|357672089||t20538.4787613264s|s2277b|2277|rds|local|vector|||0.6||
-admin1_prev_gambia_women_iron|stem|eeefd36754959aac|351f71d87a521055|2a6080934281b328|373057753||t20538.479137889s|s398b|398|rds|local|vector|||0.44||
 admin2_error_sierraleone_child_vitA|stem|1ffe1ab70636159f|560ecc9596d491a6|8d0ce07b32203462|-207590075||t20538.4791754976s|s249b|249|rds|local|vector|||0.06||
 plot_admin2_forest_sierraleone_women_iron|stem|4d420e734d24941e|ce92051d9b9ec52f|05a242659193a823|94008792||t20538.4792230979s|s44b|44|rds|local|vector|||0.06||
 sl_fit_ghana_women_iron|stem|b41d814af3c371c8|a35a22952a69b652|203eb64e6f99e02d|679810383||t20538.4828836201s|s39984469b|39984469|rds|local|vector|||521.89||
-admin1_prev_sierraleone_child_vitA|stem|13c10ab1de0133b7|34a337351a9f715f|008b1387e3220ba9|-1310010500||t20538.4831810889s|s322b|322|rds|local|vector|||0.3||
 admin2_sl_gambia_women_iron|stem|243d8f8fff870874|c13132948f16eb21|128f6da24d2a8d9c|1623836131||t20538.483210192s|s733b|733|rds|local|vector|||0.27||
 admin2_sl_sierraleone_women_iron|stem|4d420e734d24941e|c82458abeae7af18|78bb57734d9f050c|-2026594620||t20538.4837384835s|s44b|44|rds|local|vector|||0.07||
 ablation_ghana_women_iron|stem|98ac2136e7fa671b|f9ba0aba08d4f1f2|b9f5fa3121a67df7|-16084532||t20538.4837696627s|s491b|491|rds|local|vector|||46.22||
-plot_admin1_scatter_sierraleone_child_vitA|stem|7f99cf554ea8ffdc|2bf20bf0b2d957e1|dcdea4c2c67d21a2|833596693||t20538.4838018994s|s339929b|339929|rds|local|vector|||0.22||
-plot_admin1_scatter_gambia_women_iron|stem|aabc8a6d0b7fdf24|b1d940ac5af3c908|e3dcc56ee0bee10d|1356212198||t20538.4838405849s|s340325b|340325|rds|local|vector|||0.17||
-admin1_prev_sierraleone_women_iron|stem|4d420e734d24941e|0bc59acb00a68788|781c786ce2739f37|-1598326265||t20538.4848512182s|s44b|44|rds|local|vector|||0.06||
 plot_admin2_coverage_sierraleone_women_iron|stem|4d420e734d24941e|005cf5dcd2f689da|f1ac90b3efa00545|790524067||t20538.4850484391s|s44b|44|rds|local|vector|||0.04||
 plot_admin2_coverage_ghana_women_iron|stem|43c623788c9c8163|c9160261c6ad0749|0bd73360f015b235|1345682815||t20538.4854272943s|s75240806b|75240806|rds|local|vector|||0.26||
 diagnostics_malawi_women_iron|stem|d4f1ad684c1d2f97|0837973d4b829b38|567051775c54fbef|-159774949||t20538.4854662405s|s2874b|2874|rds|local|vector|||0.41||
@@ -96,31 +86,23 @@ sl_fit_ghana_child_iron|stem|fea3452444391a6c|f0ec3673b30128cb|5db6e4a725b2e337|
 svy_admin2_gambia_women_vitA|stem|8dd0be3709f76a96|f79e3e1ad0a66b81|e25e7f2e33dcb855|658840450||t20538.4922178969s|s1212b|1212|rds|local|vector|||0.54||
 diagnostics_malawi_women_vitA|stem|9d3397b1ef0c7a57|cfebd80b47980021|9c97dc4da61f51da|1944890453||t20538.4922456546s|s2590b|2590|rds|local|vector|||0.31||
 ablation_sierraleone_women_vitA|stem|a3d6edec15dadbb7|5102813a614ba2b9|7d530465e78a6ef1|-1991330967||t20538.4924875535s|s324b|324|rds|local|vector|||7.54||
-admin1_prev_ghana_child_iron|stem|b0d15d87324554f0|3a98775ff21a1cc9|96e8c2d326ae4b16|-1695094560||t20538.4925749188s|s611b|611|rds|local|vector|||1.19||
 sl_fit_gambia_child_iron|stem|14652b15f45f37f4|b99b41b6abbff290|ede6f601a2e9dc8b|1950455702||t20538.493716544s|s29297501b|29297501|rds|local|vector|||740.47||
 svy_admin2_malawi_child_iron|stem|0ef6a37dc9c6bd14|f395afeaf7170175|953537165ad7f9bd|-559158363||t20538.493940669s|s2387b|2387|rds|local|vector|||0.92||
 svy_admin2_malawi_child_vitA|stem|06f4549a13595f7f|e0ce24773d25356a|7067d7c171005452|20231679||t20538.4939605633s|s2629b|2629|rds|local|vector|||0.8||
 svy_admin2_malawi_women_iron|stem|8befde2ea2bb4481|1eb21814265547a8|d444521a5ba803cf|437637838||t20538.4964909135s|s2121b|2121|rds|local|vector|||0.8||
 sl_fit_malawi_child_vitA|stem|853a1eef0aa54b45|d2ae5eeda6dba474|357bb54f64081355|871639855||t20538.4979497653s|s35651363b|35651363|rds|local|vector|||315.51||
 ablation_gambia_child_iron|stem|40ba4335341a47b3|997ed90989b3e7b6|a32b57ca9c6bab2d|1444690317||t20538.4979840522s|s420b|420|rds|local|vector|||33.72||
-admin1_prev_gambia_child_iron|stem|acc91c717f2f53ac|5b6d8ffe165510ba|06453f7762f1327a|-2143302559||t20538.4981269657s|s393b|393|rds|local|vector|||0.36||
 plot_admin2_coverage_gambia_women_vitA|stem|4f88ad8488627fc0|120f7942a7a96c52|ffc4d7df3f42a56f|-505459265||t20538.4983797878s|s1229209b|1229209|rds|local|vector|||0.12||
 plot_admin2_forest_gambia_women_vitA|stem|48cb037fd26d50e9|741bc489dd4cfa2a|be8ed02d7723ee09|1299300201||t20538.4988098263s|s497708b|497708|rds|local|vector|||0.2||
 sl_fit_gambia_women_vitA|stem|f6dc0cddb8b6661f|622ecbe1b4b254c7|10455adc7bd4cdf3|1142196500||t20538.4992965842s|s25839397b|25839397|rds|local|vector|||918.02||
 cv_perf_ghana_women_vitA|stem|8b50363212ac5902|625e60f5904c6368|e92d497d2e3c963e|-1244413148||t20538.4995131363s|s327b|327|rds|local|vector|||0.1|argument is not numeric or logical returning NA|
-admin1_prev_ghana_child_vitA|stem|ac4a3482b8c5853d|344244de3b506c77|da7be43af05fcbe6|-1605087909||t20538.4997793948s|s627b|627|rds|local|vector|||1.05||
 ablation_malawi_child_vitA|stem|fc4e208191144663|ec762ac301293c61|184f0480f4d71137|-85762988||t20538.5001245042s|s391b|391|rds|local|vector|||19.2||
 plot_admin2_forest_malawi_child_iron|stem|bef6a2d263d6aa21|d1b8ee6b4bfa8c68|db7a68ac4c40123c|1637612268||t20538.5006539519s|s3334909b|3334909|rds|local|vector|||0.16||
 diagnostics_gambia_women_vitA|stem|fa8ac51ea6d7774b|90cd183be546107a|1b26e148fd3f412c|-158684037||t20538.5007583152s|s2004b|2004|rds|local|vector|||0.37||
-plot_admin1_scatter_gambia_child_iron|stem|0ed7f932b4505558|3725ebb8252c5f99|6c054a3bdb56c8d7|-327579729||t20538.5010154536s|s340289b|340289|rds|local|vector|||0.11||
-admin1_prev_malawi_child_vitA|stem|704d6bfd811d558b|03182ef5fe104e85|0cb98ea844d04770|-2117795787||t20538.501444612s|s880b|880|rds|local|vector|||0.16||
 cv_perf_gambia_child_iron|stem|977a093495f7d77e|75a99a9654d85ab7|9fcffeca7cfc52a7|2062556017||t20538.5350171834s|s334b|334|rds|local|vector|||0.05|argument is not numeric or logical returning NA|
 cv_perf_gambia_women_vitA|stem|04d892e2080226b8|2c5e30db4bb4b7c7|5896b3a5d8c7df5f|-54962137||t20538.5351910842s|s329b|329|rds|local|vector|||13.71|package rlang was built under R version 4.4.3. package ggplot2 was built under R version 4.4.3. package terra was built under R version 4.4.3. package exactextractr was built under R version 4.4.3. package srvyr was built under R version 4.4.3. package scales was built under R version 4.4.3. package viridisLite was built under R version 4.4.3. package data.table was built under R version 4.4.3. package recipes was built under R version 4.4.3. argument is not numeric or logical returning NA|
-plot_admin2_forest_malawi_women_iron|stem|328077f9019eab8a|e84c2ceb0814b4fc|49d80a6e206a3fcd|1442639334||t20538.5352502831s|s3326208b|3326208|rds|local|vector|||55.37|package rlang was built under R version 4.4.3. package ggplot2 was built under R version 4.4.3. package terra was built under R version 4.4.3. package exactextractr was built under R version 4.4.3. package srvyr was built under R version 4.4.3. package scales was built under R version 4.4.3. package viridisLite was built under R version 4.4.3. package data.table was built under R version 4.4.3. package recipes was built under R version 4.4.3. geom_errorbarh was deprecated in ggplot2 4.0.0.ℹ Please use the orientation argument of geom_errorbar instead.|
-admin1_prev_gambia_women_vitA|stem|9e7ab2214c7bfdd2|287282ac092e351f|7e448ba25b840b6f|-2065520276||t20538.5352547482s|s400b|400|rds|local|vector|||22.64|package rlang was built under R version 4.4.3. package ggplot2 was built under R version 4.4.3. package terra was built under R version 4.4.3. package exactextractr was built under R version 4.4.3. package srvyr was built under R version 4.4.3. package scales was built under R version 4.4.3. package viridisLite was built under R version 4.4.3. package data.table was built under R version 4.4.3. package recipes was built under R version 4.4.3|
 diagnostics_malawi_child_vitA|stem|70b238adb6ffbaae|a4e2d4ec0fe89402|add290a82769bb86|-1265403811||t20538.5352609355s|s3273b|3273|rds|local|vector|||0.28||
 cv_perf_malawi_women_vitA|stem|3d288e980f7b5a3a|f96cec5b9b63ca62|e5b22f7644f8c8d9|1906891949||t20538.5365240035s|s329b|329|rds|local|vector|||0.03|argument is not numeric or logical returning NA|
-plot_admin1_scatter_ghana_child_iron|stem|28f02fdf1bfdb742|7ca1eaadf3281f12|d31e03ae96cad25e|1502315569||t20538.5368635639s|s341092b|341092|rds|local|vector|||1.42||
 admin2_sl_ghana_women_iron|stem|340dfb3f5dba2b3b|ff5554c084f2880d|70fab5e6d6fd5751|-441364701||t20538.5373532423s|s1618b|1618|rds|local|vector|||1.03||
 ablation_malawi_child_iron|stem|e4caa48228ad6d4e|d020d920db120735|21c60fea7f980d36|2071793843||t20538.5411032571s|s391b|391|rds|local|vector|||40.03||
 admin2_error_ghana_women_iron|stem|33a04a5523966aaa|c05f8aa7cf9d407c|ca0041fb37fafbdb|894695685||t20538.5509333988s|s246b|246|rds|local|vector|||24.05|package rlang was built under R version 4.4.3. package ggplot2 was built under R version 4.4.3. package terra was built under R version 4.4.3. package exactextractr was built under R version 4.4.3. package srvyr was built under R version 4.4.3. package scales was built under R version 4.4.3. package viridisLite was built under R version 4.4.3. package data.table was built under R version 4.4.3. package recipes was built under R version 4.4.3|
@@ -142,9 +124,7 @@ ablation_ghana_child_iron|stem|fa25bb3265ded76d|bb471dfb95eeb0e9|1daeaed92218943
 ablation_ghana_women_vitA|stem|2aa69592e64cb50a|3a7d1ae97a341d6d|b1d6d85bf730c474|927161043||t20538.5576027383s|s487b|487|rds|local|vector|||28.87||
 ablation_malawi_women_iron|stem|a0745894498d5dc6|26bb1ceeab77dcf8|4aa735c167a85c07|-1944293341||t20538.5578802902s|s386b|386|rds|local|vector|||15.59||
 ablation_malawi_women_vitA|stem|dda3f4f4464ba6ab|c3a644a3eb82f2dc|edbe13d5aa1848d1|1553853302||t20538.5580519332s|s393b|393|rds|local|vector|||11.55||
-admin1_prev_malawi_women_iron|stem|2f3398ad7be50179|433931bf15f157c4|8568e8553f36de01|-189488127||t20538.5582179345s|s835b|835|rds|local|vector|||0.21||
 admin2_sl_malawi_child_vitA|stem|79af9879229959ea|2708a587ebde53a0|560b740e767aa782|2135802178||t20538.5584263127s|s1683b|1683|rds|local|vector|||0.14||
-admin1_prev_malawi_child_iron|stem|22df9f6667f8a4c8|7c379135ab4fcaf1|91b71411eae1fd3e|-1907715837||t20538.5584425709s|s889b|889|rds|local|vector|||0.21||
 diagnostics_ghana_women_iron|stem|49437320aa251ac3|7204e01da8de564c|ffcc82e27633d41c|1975865647||t20538.5586923403s|s1928b|1928|rds|local|vector|||0.25||
 admin2_error_malawi_child_vitA|stem|7cc2cb97f15c7ea3|172a522767bdaea4|288b9a9a0a5f8f51|63200765||t20538.5586928219s|s245b|245|rds|local|vector|||0.04||
 diagnostics_gambia_child_iron|stem|938f133df8d04988|0f84d9d504fa1363|195119ad58c928b8|451772767||t20538.5587061116s|s2313b|2313|rds|local|vector|||0.28||
@@ -178,116 +158,13 @@ svy_admin2_gambia_child_iron|stem|1579ddb960720bbe|1ddec60192a6d0c8|1c7d47e07a5d
 plot_admin1_scatter_malawi_child_vitA|stem|02b1317d283bb2c7|e6aaa7af13c2bb68|b0aa18072978dd21|-193011484||t20538.5687762773s|s341876b|341876|rds|local|vector|||0.12||
 diagnostics_ghana_women_vitA|stem|abf586bf59b559ff|bd1f07976256b26f|d072e4a3ff168969|-306609394||t20538.5690673645s|s1736b|1736|rds|local|vector|||0.28||
 admin2_sl_gambia_child_iron|stem|9e915fa7c1483d56|24e50386e4646192|587702b64f21eb76|-1450518020||t20538.5722707136s|s732b|732|rds|local|vector|||0.23||
-make_list_expr|function|3fb9bcd10bebbbb8|||||||||||||||
-transport_targets|object|340bf4e3f2d1dd22|||||||||||||||
-get_pipeline_params|function|8ed0b3d83a353ef3|||||||||||||||
-getDHSdata|function|4cb39d65ae48812d|||||||||||||||
-apply_threshold|function|fb976adca3d0f57e|||||||||||||||
-auc_pr_brier_from_sl3|function|bcfde5dbe3fbb872|||||||||||||||
-makeVlist|function|fdd336a8f77587db|||||||||||||||
-load_conceptual_domains|function|337e9fef47650295|||||||||||||||
-extract_dhs_indicator_id|function|4ccca72f5570e3d7|||||||||||||||
-load_dhs_lookup|function|b62cd52d04ab2823|||||||||||||||
-build_name_lookup|function|f8718dc99bb063af|||||||||||||||
-plot_admin2_forest|function|8a042d4a1bd00a39|||||||||||||||
-pipeline_mode|object|0ef34a20ac16db2a|||||||||||||||
-ablation_names|object|b96b896a252abeeb|||||||||||||||
-n_workers|object|50003b5d5254d75e|||||||||||||||
-all_country_configs|object|ba54174633153764|||||||||||||||
-predict_on_new_data|function|79462ea49bbf2a67|||||||||||||||
-CH_COUNTRY_MAP|object|9de68643f6fbe94e|||||||||||||||
-COUNTRY_SURVEY_YEARS|object|31dd63028267b6da|||||||||||||||
-outcome_name|object|02ac79d123cb0b55|||||||||||||||
-clean_DHS|function|4460e053164d54a5|||||||||||||||
-hfid_path|object|71a1ee6914e9c8ba|||||||||||||||
-merged_target_name|object|ed6505e3871426bd|||||||||||||||
-loco_target_names|object|92cdffbad4cf44e9|||||||||||||||
-calc_mn_importance|function|1a7cbf946af3d43d|||||||||||||||
-plot_calibration|function|f459b4877f5d2f3d|||||||||||||||
-compute_perf_metrics|function|71f25e71435cea1a|||||||||||||||
-cc|object|1e5463811dbdf1a7|||||||||||||||
-suffix|object|b98cf8b0882d572a|||||||||||||||
-plot_admin2_coverage|function|3f44e93d474f688d|||||||||||||||
-admin2_error_names|object|4eb120a45c1f2771|||||||||||||||
-fit_area_level_model|function|7951409cc0c78502|||||||||||||||
-oc|object|cdb59c014a4b2f8f|||||||||||||||
-compute_binary_diagnostics|function|30ff9d8a5677387d|||||||||||||||
-plot_conceptual_forest|function|79ac0756a8c60f0d|||||||||||||||
-plot_reliability|function|5d9594cba2246238|||||||||||||||
-compute_svy_admin2|function|75813661f5ca7d42|||||||||||||||
-static_targets|object|cccf8e3edab6a206|||||||||||||||
-build_outcome_dataset|function|5eca3244c59b7ed6|||||||||||||||
-get_country_configs|function|2cec03d465ce3351|||||||||||||||
-loco_syms|object|fdb8c01486607cd4|||||||||||||||
-outcome_tags|object|08619f1e034f7dad|||||||||||||||
-cv_perf_names|object|74fad7ecdda4eceb|||||||||||||||
-getDHSgeo|function|b15dc3029e1855a5|||||||||||||||
-plot_pr_curve|function|3e4263fabc9e2032|||||||||||||||
-auc_from_sl3|function|c94f83d5b8e2a55d|||||||||||||||
-params|object|ed4473a486d008d1|||||||||||||||
-summary_targets|object|98769e3c1cc18ffe|||||||||||||||
-fit_sl_models|function|b9c518160ab6826c|||||||||||||||
-compute_admin2_error|function|c8a35b19f16b17db|||||||||||||||
-merged_syms|object|089cf3e73844ec1c|||||||||||||||
-otag|object|02ac79d123cb0b55|||||||||||||||
-compute_continuous_diagnostics|function|404f143817b254da|||||||||||||||
-outcome_targets|object|3f71bdff21ce03a0|||||||||||||||
-country_targets|object|af3e568e76d4669b|||||||||||||||
-COMMON_DOMAIN_PREFIXES|object|e33165cf4f091bd7|||||||||||||||
-country_names_lower|object|1f428b3c052291d1|||||||||||||||
-raw_target_name|object|988e9e35510496be|||||||||||||||
-evaluate_sl_performance|function|ac6b702cf0c32e6c|||||||||||||||
-summarize_transportability|function|2fea74af0e29bc53|||||||||||||||
-plot_leave_one_in_forest|function|d3be3cc36b388edb|||||||||||||||
-HFID_COUNTRY_MAP|object|71dced7381e09c4f|||||||||||||||
-plot_admin1_scatter|function|9eac525c56480636|||||||||||||||
-pooled_name|object|2ef5f450b4de7387|||||||||||||||
-country_name|object|699d284a8374561a|||||||||||||||
-merged_list_expr|object|fa00dace126817e1|||||||||||||||
-first_cc|object|e0bd3800afd5ea75|||||||||||||||
-loco_list_expr|object|f0d2d699663819bb|||||||||||||||
-make_outcome_targets|function|a375f61c4077995b|||||||||||||||
-extract_predictions|function|3fe34f6bfe6ac6d5|||||||||||||||
-loco_name|object|ab7670ccab4902fc|||||||||||||||
-bootstrap_combo|object|f68f602012657b2e|||||||||||||||
-setup_sl_learners|function|9d966578bc983d6b|||||||||||||||
-ch_path|object|b0640292e31d8438|||||||||||||||
-load_merged_data|function|d0325c14d95bb365|||||||||||||||
-diagnostics_names|object|a47faa159c801d94|||||||||||||||
-aggregate_admin1|function|1b5126ff98788761|||||||||||||||
-extract_cv_performance|function|f732059ff417c134|||||||||||||||
-one_bootstrap_rep|function|9dc03cfd2534b54a|||||||||||||||
-aggregate_admin2_sl|function|2368b9ecfea00cb8|||||||||||||||
-classify_variables|function|51f7d148f18c10e6|||||||||||||||
-classify_variables_l2|function|ac20c1852b117237|||||||||||||||
-merge_by_admin|function|322d6e7fa002c1f0|||||||||||||||
-run_loco_cv|function|cfbfdfdd69e0cab5|||||||||||||||
-load_ch_country|function|fea58f4fbec20455|||||||||||||||
-permute_domain|function|8a8e53f0d15d7f06|||||||||||||||
-build_pooled_dataset|function|914a60a57e5c6f16|||||||||||||||
-load_hfid_country|function|e752fca00667f104|||||||||||||||
-run_diagnostics|function|78a04831632a8bbb|||||||||||||||
-run_bootstrap_ci|function|e726f2ad9026cbdf|||||||||||||||
-run_conceptual_permutation|function|a149429c2f70202e|||||||||||||||
-run_leave_one_in|function|4825fd47b217edd7|||||||||||||||
-run_domain_ablation|function|1cb7c7d0117cdbc4|||||||||||||||
-merge_food_security|function|dfdc1d4442b2e4e3|||||||||||||||
-area_model_gambia_women_iron|stem|ddfd62de21a0e0d7|b352737aac35940c|4ad27ef075a28aec|-1254306001||t20538.5785011857s|s154399b|154399|rds|local|vector|||294.11|package rlang was built under R version 4.4.3. package ggplot2 was built under R version 4.4.3. package terra was built under R version 4.4.3. package exactextractr was built under R version 4.4.3. package srvyr was built under R version 4.4.3. package scales was built under R version 4.4.3. package viridisLite was built under R version 4.4.3. package data.table was built under R version 4.4.3. package recipes was built under R version 4.4.3. Option groupedFALSE enforced in cv.glmnet, since  3 observations per fold. Option groupedFALSE enforced in cv.glmnet, since  3 observations per fold. Option groupedFALSE enforced in cv.glmnet, since  3 observations per fold. Option groupedFALSE enforced in cv.glmnet, since  3 observations per fold. Option groupedFALSE enforced in cv.glmnet, since  3 observations per fold. Option groupedFALSE enforced in cv.glmnet, since  3 observations per fold. Option groupedFALSE enforced in cv.glmnet, since  3 observations per fold. Option groupedFALSE enforced in cv.glmnet, since  3 observations per fold. Option groupedFALSE enforced in cv.glmnet, since  3 observations per fold. Option groupedFALSE enforced in cv.glmnet, since  3 observations per fold. Option groupedFALSE enforced in cv.glmnet, since  3 observations per fold. Option groupedFALSE enforced in cv.glmnet, since  3 observations per fold. Option groupedFALSE enforced in cv.glmnet, since  3 observations per fold. Option groupedFALSE enforced in cv.glmnet, since  3 observations per fold. Option groupedFALSE enforced in cv.glmnet, since  3 observations per fold. Option groupedFALSE enforced in cv.glmnet, since  3 observations per fold. Option groupedFALSE enforced in cv.glmnet, since  3 observations per fold. Option groupedFALSE enforced in cv.glmnet, since  3 observations per fold. Option groupedFALSE enforced in cv.glmnet, since  3 observations per fold. Option groupedFALSE enforced in cv.glmnet, since  3 observations per fold. Option groupedFALSE enforced in cv.glmnet,|
-area_model_gambia_women_vitA|stem|1e764f13590b5f0c|68b9306fa28c2720|733d18ca01a049d6|898149820||t20538.5786394477s|s154948b|154948|rds|local|vector|||303.19|package rlang was built under R version 4.4.3. package ggplot2 was built under R version 4.4.3. package terra was built under R version 4.4.3. package exactextractr was built under R version 4.4.3. package srvyr was built under R version 4.4.3. package scales was built under R version 4.4.3. package viridisLite was built under R version 4.4.3. package data.table was built under R version 4.4.3. package recipes was built under R version 4.4.3. Option groupedFALSE enforced in cv.glmnet, since  3 observations per fold. Option groupedFALSE enforced in cv.glmnet, since  3 observations per fold. Option groupedFALSE enforced in cv.glmnet, since  3 observations per fold. Option groupedFALSE enforced in cv.glmnet, since  3 observations per fold. Option groupedFALSE enforced in cv.glmnet, since  3 observations per fold. Option groupedFALSE enforced in cv.glmnet, since  3 observations per fold. Option groupedFALSE enforced in cv.glmnet, since  3 observations per fold. Option groupedFALSE enforced in cv.glmnet, since  3 observations per fold. Option groupedFALSE enforced in cv.glmnet, since  3 observations per fold. Option groupedFALSE enforced in cv.glmnet, since  3 observations per fold. Option groupedFALSE enforced in cv.glmnet, since  3 observations per fold. Option groupedFALSE enforced in cv.glmnet, since  3 observations per fold. Option groupedFALSE enforced in cv.glmnet, since  3 observations per fold. Option groupedFALSE enforced in cv.glmnet, since  3 observations per fold. Option groupedFALSE enforced in cv.glmnet, since  3 observations per fold. Option groupedFALSE enforced in cv.glmnet, since  3 observations per fold. Option groupedFALSE enforced in cv.glmnet, since  3 observations per fold. Option groupedFALSE enforced in cv.glmnet, since  3 observations per fold. Option groupedFALSE enforced in cv.glmnet, since  3 observations per fold. Option groupedFALSE enforced in cv.glmnet, since  3 observations per fold. Option groupedFALSE enforced in cv.glmnet,|
-area_model_malawi_child_iron|stem|1365347e6fa0efc0|733a58883d391c3d|a8c5323b4ab7b558|-1921281494||t20538.5810692366s|s2958472b|2958472|rds|local|vector|||510.15|package rlang was built under R version 4.4.3. package ggplot2 was built under R version 4.4.3. package terra was built under R version 4.4.3. package exactextractr was built under R version 4.4.3. package srvyr was built under R version 4.4.3. package scales was built under R version 4.4.3. package viridisLite was built under R version 4.4.3. package data.table was built under R version 4.4.3. package recipes was built under R version 4.4.3|
-area_model_ghana_child_iron|stem|b0683a8b92855a98|5c20a2bc81352380|8f0da6b2be78220e|-579435370||t20538.581805859s|s113b|113|rds|local|vector|||60.67|GADM download failed for GHA  skipping area model|
-area_model_gambia_child_vitA|stem|b0683a8b92855a98|27e322762285cb66|10539d5200479f81|1424879243||t20538.5825588751s|s113b|113|rds|local|vector|||60.98|GADM download failed for GMB  skipping area model|
-area_model_malawi_women_iron|stem|e9d81f9ad0f414b6|e8186634edac9615|d9630ab3c4001d76|-1547029092||t20538.5835481566s|s2955576b|2955576|rds|local|vector|||431.47||
-area_model_sierraleone_women_iron|stem|b0683a8b92855a98|15b5da96b017dc75|275dd7a8a680d369|-1844675152||t20538.5836334623s|s113b|113|rds|local|vector|||0.34|Too few survey Admin2 estimates for arealevel model|
 area_model_sierraleone_women_vitA|stem|b0683a8b92855a98|29d285020203f684|291985fd33d923e7|1009072255||t20538.5843639853s|s113b|113|rds|local|vector|||60.5|GADM download failed for SLE  skipping area model|
-area_model_sierraleone_child_iron|stem|b0683a8b92855a98|fdba7ca4511ea49a|3a82b102502ab68b|-1703063445||t20538.5850902013s|s113b|113|rds|local|vector|||60.64|GADM download failed for SLE  skipping area model|
 plot_admin2_coverage_sierraleone_women_vitA|stem|4d420e734d24941e|b6be361f04820f54|805cacaf4bda8949|-745089997||t20538.58511818s|s44b|44|rds|local|vector|||0.01||
 plot_admin2_forest_sierraleone_child_iron|stem|4d420e734d24941e|4e5520de6b1f4b2d|1b9bae0021226eac|-1648868648||t20538.5851544157s|s44b|44|rds|local|vector|||0.05||
 plot_admin2_forest_sierraleone_women_vitA|stem|4d420e734d24941e|0892f601569165e6|410bb2147aa9f196|-2011384946||t20538.5852086906s|s44b|44|rds|local|vector|||0.05||
 area_model_ghana_women_vitA|stem|b0683a8b92855a98|27673a2aa267f6ea|cca3803af919e0e7|1225091988||t20538.5859569017s|s113b|113|rds|local|vector|||60.73|GADM download failed for GHA  skipping area model|
 area_model_malawi_women_vitA|stem|f478acba995ffe43|57025bd6f2cc3cd5|665f58620ca4e7b1|-288817475||t20538.5861896222s|s2953877b|2953877|rds|local|vector|||309.64||
 plot_admin2_coverage_ghana_child_iron|stem|4d420e734d24941e|97fb2ab274a99183|0a73ee65ece78b90|-1057892275||t20538.5862207105s|s44b|44|rds|local|vector|||0.03||
-area_model_ghana_women_iron|stem|9b4de3fa0205d17e|e1121b61ececca29|1dc7ba474f2d511b|-821614181||t20538.5866729105s|s8248742b|8248742|rds|local|vector|||683.53||
 plot_admin2_coverage_ghana_women_vitA|stem|4d420e734d24941e|ba4fbfb6afd99692|91e4c90543c20001|1180819136||t20538.5866887926s|s44b|44|rds|local|vector|||0.01||
 area_model_sierraleone_child_vitA|stem|b0683a8b92855a98|5f1f4e6034c677ac|a44fa1271fea5a71|-264546186||t20538.5874085295s|s113b|113|rds|local|vector|||60.75|GADM download failed for SLE  skipping area model|
 plot_admin2_forest_ghana_women_vitA|stem|4d420e734d24941e|0d7cbd2685116417|b83025296d37ea6a|984544381||t20538.5874378038s|s44b|44|rds|local|vector|||0.03||
@@ -340,9 +217,133 @@ plot_admin2_coverage_gambia_child_iron|stem|472fe8c8c6b8aad0|b9b78a2dcff622e6|52
 plot_admin2_forest_gambia_child_iron|stem|65660406920ee1b0|b5f6d65af9f46e13|888356976b8cc482|-1924679662||t20538.5943719037s|s499327b|499327|rds|local|vector|||0.16||
 plot_admin1_scatter_malawi_child_iron|stem|a4bc44093572d026|1df9f814c9a2a03e|a68eceb69e887562|-297366669||t20538.5943797339s|s341872b|341872|rds|local|vector|||0.14||
 bootstrap_ci_gambia_child_iron|stem|e652964aab0e6a48|01bcdbc80a68c415|2c530c1562a7fbd1|1735762036||t20538.5943800845s|s110b|110|rds|local|vector|||0||
+admin1_prev_gambia_child_vitA|stem|e315f063616e91b1|41d88a073e864d39|a914bdfa89584282|1050151100||t20538.6533755389s|s527b|527|rds|local|vector|||40.59|package rlang was built under R version 4.4.3. package ggplot2 was built under R version 4.4.3. package terra was built under R version 4.4.3. package exactextractr was built under R version 4.4.3. package srvyr was built under R version 4.4.3. package scales was built under R version 4.4.3. package viridisLite was built under R version 4.4.3. package data.table was built under R version 4.4.3. package recipes was built under R version 4.4.3|
+plot_admin1_scatter_gambia_child_vitA|stem|4fdb95034f0fd663|34263f41a9f3527c|947ebafc2b6b7d56|14486865||t20538.6534078657s|s340763b|340763|rds|local|vector|||0.14||
+admin1_prev_gambia_women_iron|stem|4b617c3ad4753f73|351f71d87a521055|1e1ca64264bbb3b5|373057753||t20538.6537364612s|s524b|524|rds|local|vector|||0.34||
+plot_admin1_scatter_gambia_women_iron|stem|f96dca013cb1e3ed|b1d940ac5af3c908|7dd6ab6c7fad0f9e|1356212198||t20538.6537715519s|s340763b|340763|rds|local|vector|||0.16||
+area_model_gambia_women_iron|stem|ddfd62de21a0e0d7|b352737aac35940c|cb2a3fd0cfaa2594|-1254306001||t20538.6552714917s|s154399b|154399|rds|local|vector|||126.31|Option groupedFALSE enforced in cv.glmnet, since  3 observations per fold. Option groupedFALSE enforced in cv.glmnet, since  3 observations per fold. Option groupedFALSE enforced in cv.glmnet, since  3 observations per fold. Option groupedFALSE enforced in cv.glmnet, since  3 observations per fold. Option groupedFALSE enforced in cv.glmnet, since  3 observations per fold. Option groupedFALSE enforced in cv.glmnet, since  3 observations per fold. Option groupedFALSE enforced in cv.glmnet, since  3 observations per fold. Option groupedFALSE enforced in cv.glmnet, since  3 observations per fold. Option groupedFALSE enforced in cv.glmnet, since  3 observations per fold. Option groupedFALSE enforced in cv.glmnet, since  3 observations per fold. Option groupedFALSE enforced in cv.glmnet, since  3 observations per fold. Option groupedFALSE enforced in cv.glmnet, since  3 observations per fold. Option groupedFALSE enforced in cv.glmnet, since  3 observations per fold. Option groupedFALSE enforced in cv.glmnet, since  3 observations per fold. Option groupedFALSE enforced in cv.glmnet, since  3 observations per fold. Option groupedFALSE enforced in cv.glmnet, since  3 observations per fold. Option groupedFALSE enforced in cv.glmnet, since  3 observations per fold. Option groupedFALSE enforced in cv.glmnet, since  3 observations per fold. Option groupedFALSE enforced in cv.glmnet, since  3 observations per fold. Option groupedFALSE enforced in cv.glmnet, since  3 observations per fold. Option groupedFALSE enforced in cv.glmnet, since  3 observations per fold. Option groupedFALSE enforced in cv.glmnet, since  3 observations per fold. Option groupedFALSE enforced in cv.glmnet, since  3 observations per fold. Option groupedFALSE enforced in cv.glmnet, since  3 observations per fold. Option groupedFALSE enforced in cv.glmnet, since  3 observations per fold. Option groupedFALSE enforced in cv.glmnet, since  3 observations per fold. Option groupedFALSE enforced in cv.glmnet, si|
+admin1_prev_gambia_child_iron|stem|d2208f13abb25762|5b6d8ffe165510ba|58b5ed5452a1c83d|-2143302559||t20538.6557801117s|s526b|526|rds|local|vector|||0.17||
+plot_admin1_scatter_gambia_child_iron|stem|486e1a4e1f6b52a6|3725ebb8252c5f99|c7448ad6527427fb|-327579729||t20538.6557948555s|s340755b|340755|rds|local|vector|||0.07||
+pipeline_params|stem|67d77c0080b93115|cdeb46b0c65d2187|abe5807b5801de54|-1458812725||t20538.7066963521s|s180b|180|rds|local|vector|||64.95|package rlang was built under R version 4.4.3. package ggplot2 was built under R version 4.4.3. package terra was built under R version 4.4.3. package exactextractr was built under R version 4.4.3. package srvyr was built under R version 4.4.3. package scales was built under R version 4.4.3. package viridisLite was built under R version 4.4.3. package data.table was built under R version 4.4.3. package recipes was built under R version 4.4.3|
+bootstrap_ci_malawi_women_vitA|stem|e652964aab0e6a48|01bcdbc80a68c415|2c530c1562a7fbd1|662015609||t20538.7066977926s|s110b|110|rds|local|vector|||66.11|package rlang was built under R version 4.4.3. package ggplot2 was built under R version 4.4.3. package terra was built under R version 4.4.3. package exactextractr was built under R version 4.4.3. package srvyr was built under R version 4.4.3. package scales was built under R version 4.4.3. package viridisLite was built under R version 4.4.3. package data.table was built under R version 4.4.3. package recipes was built under R version 4.4.3|
+area_model_malawi_women_iron|stem|b0683a8b92855a98|e8186634edac9615|0c20246ded1ee2c0|-1547029092||t20538.7070785781s|s113b|113|rds|local|vector|||2.13|cannot open compressed file CUsersandreAppDataLocalRwinlibrary4.4geodataMetapackage.rds, probable reason Not enough space. cannot open compressed file excountries.rds, probable reason No such file or directory. cannot remove file CUsersandreOneDriveDocumentsmnpredictiondatagadmgadmgadm41_MWI_2_pk.rds, reason Permission denied. cannot remove file CUsersandreOneDriveDocumentsmnpredictiondatagadmgadmgadm41_MWI_2_pk.rds, reason Permission denied. GADM download failed for MWI  skipping area model|
+plot_admin2_forest_malawi_women_iron|stem|4d420e734d24941e|e84c2ceb0814b4fc|bd84805c0eece192|1442639334||t20538.7070951202s|s44b|44|rds|local|vector|||0.04||
+admin1_prev_gambia_women_vitA|stem|979ed81ae1aac0c7|287282ac092e351f|bbaf200fd11f661f|-2065520276||t20538.7072840931s|s525b|525|rds|local|vector|||9|package rlang was built under R version 4.4.3. package ggplot2 was built under R version 4.4.3. package terra was built under R version 4.4.3. package exactextractr was built under R version 4.4.3. package srvyr was built under R version 4.4.3. package scales was built under R version 4.4.3. package viridisLite was built under R version 4.4.3. package data.table was built under R version 4.4.3. package recipes was built under R version 4.4.3|
+admin1_prev_malawi_child_vitA|stem|831e9a148b60cc0b|03182ef5fe104e85|0426a0bcc3b108c2|-2117795787||t20538.7072875639s|s1387b|1387|rds|local|vector|||0.25||
+admin1_prev_ghana_women_vitA|stem|867721866e5fe48c|b9ceed8221bb4821|12d3078c370dc42c|1442221221||t20538.7075459151s|s735b|735|rds|local|vector|||2.29||
+plot_admin1_scatter_ghana_women_vitA|stem|9ca6c7ca4fbd971a|5ea3c903e72f068c|7716170e96f7b3fe|1400191296||t20538.7076140272s|s341536b|341536|rds|local|vector|||0.64||
+area_model_gambia_women_vitA|stem|1e764f13590b5f0c|68b9306fa28c2720|ef6d8197efc65731|898149820||t20538.7078795756s|s154948b|154948|rds|local|vector|||101.01|package rlang was built under R version 4.4.3. package ggplot2 was built under R version 4.4.3. package terra was built under R version 4.4.3. package exactextractr was built under R version 4.4.3. package srvyr was built under R version 4.4.3. package scales was built under R version 4.4.3. package viridisLite was built under R version 4.4.3. package data.table was built under R version 4.4.3. package recipes was built under R version 4.4.3. Option groupedFALSE enforced in cv.glmnet, since  3 observations per fold. Option groupedFALSE enforced in cv.glmnet, since  3 observations per fold. Option groupedFALSE enforced in cv.glmnet, since  3 observations per fold. Option groupedFALSE enforced in cv.glmnet, since  3 observations per fold. Option groupedFALSE enforced in cv.glmnet, since  3 observations per fold. Option groupedFALSE enforced in cv.glmnet, since  3 observations per fold. Option groupedFALSE enforced in cv.glmnet, since  3 observations per fold. Option groupedFALSE enforced in cv.glmnet, since  3 observations per fold. Option groupedFALSE enforced in cv.glmnet, since  3 observations per fold. Option groupedFALSE enforced in cv.glmnet, since  3 observations per fold. Option groupedFALSE enforced in cv.glmnet, since  3 observations per fold. Option groupedFALSE enforced in cv.glmnet, since  3 observations per fold. Option groupedFALSE enforced in cv.glmnet, since  3 observations per fold. Option groupedFALSE enforced in cv.glmnet, since  3 observations per fold. Option groupedFALSE enforced in cv.glmnet, since  3 observations per fold. Option groupedFALSE enforced in cv.glmnet, since  3 observations per fold. Option groupedFALSE enforced in cv.glmnet, since  3 observations per fold. Option groupedFALSE enforced in cv.glmnet, since  3 observations per fold. Option groupedFALSE enforced in cv.glmnet, since  3 observations per fold. Option groupedFALSE enforced in cv.glmnet, since  3 observations per fold. Option groupedFALSE enforced in cv.glmnet,|
+admin1_prev_ghana_child_iron|stem|023b6fb61f5a2d6b|3a98775ff21a1cc9|71bfb4806eae1ca0|-1695094560||t20538.7083316363s|s887b|887|rds|local|vector|||1.41||
+admin1_prev_ghana_child_vitA|stem|449110c5bd18e637|344244de3b506c77|c13a9ba9d0a6609b|-1605087909||t20538.7088098504s|s904b|904|rds|local|vector|||0.85||
+plot_admin1_scatter_ghana_child_iron|stem|7d65cc7b5d27e8f9|7ca1eaadf3281f12|03df10ac682b5b65|1502315569||t20538.7088444705s|s342055b|342055|rds|local|vector|||0.21||
+area_model_malawi_child_iron|stem|1365347e6fa0efc0|733a58883d391c3d|1bb712221f84dd6d|-1921281494||t20538.710055535s|s2958472b|2958472|rds|local|vector|||284.77||
+area_model_gambia_child_vitA|stem|3d00024aa68b0ac7|27e322762285cb66|3ac44ff19aa96516|1424879243||t20538.7120444553s|s155075b|155075|rds|local|vector|||167.6|Option groupedFALSE enforced in cv.glmnet, since  3 observations per fold. Option groupedFALSE enforced in cv.glmnet, since  3 observations per fold. Option groupedFALSE enforced in cv.glmnet, since  3 observations per fold. Option groupedFALSE enforced in cv.glmnet, since  3 observations per fold. Option groupedFALSE enforced in cv.glmnet, since  3 observations per fold. Option groupedFALSE enforced in cv.glmnet, since  3 observations per fold. Option groupedFALSE enforced in cv.glmnet, since  3 observations per fold. Option groupedFALSE enforced in cv.glmnet, since  3 observations per fold. Option groupedFALSE enforced in cv.glmnet, since  3 observations per fold. Option groupedFALSE enforced in cv.glmnet, since  3 observations per fold. Option groupedFALSE enforced in cv.glmnet, since  3 observations per fold. Option groupedFALSE enforced in cv.glmnet, since  3 observations per fold. Option groupedFALSE enforced in cv.glmnet, since  3 observations per fold. Option groupedFALSE enforced in cv.glmnet, since  3 observations per fold. Option groupedFALSE enforced in cv.glmnet, since  3 observations per fold. Option groupedFALSE enforced in cv.glmnet, since  3 observations per fold. Option groupedFALSE enforced in cv.glmnet, since  3 observations per fold. Option groupedFALSE enforced in cv.glmnet, since  3 observations per fold. Option groupedFALSE enforced in cv.glmnet, since  3 observations per fold. Option groupedFALSE enforced in cv.glmnet, since  3 observations per fold. Option groupedFALSE enforced in cv.glmnet, since  3 observations per fold. Option groupedFALSE enforced in cv.glmnet, since  3 observations per fold. Option groupedFALSE enforced in cv.glmnet, since  3 observations per fold. Option groupedFALSE enforced in cv.glmnet, since  3 observations per fold. Option groupedFALSE enforced in cv.glmnet, since  3 observations per fold. Option groupedFALSE enforced in cv.glmnet, since  3 observations per fold. Option groupedFALSE enforced in cv.glmnet, si|
+area_model_ghana_child_iron|stem|3a00a0d46b5a2bac|5c20a2bc81352380|5c3fcea8cff6a3bd|-579435370||t20538.7135405213s|s8243143b|8243143|rds|local|vector|||400.56||
+admin1_prev_malawi_women_iron|stem|b65ca2b5c787a93d|433931bf15f157c4|9487e582637d79f0|-189488127||t20538.7136843913s|s1320b|1320|rds|local|vector|||0.35||
+admin1_prev_malawi_child_iron|stem|5d7e850887af2a57|7c379135ab4fcaf1|272f0c3b9d2db00f|-1907715837||t20538.7137885278s|s1369b|1369|rds|local|vector|||0.16||
+area_model_sierraleone_women_iron|stem|b0683a8b92855a98|15b5da96b017dc75|cc9c76268bbfb76a|-1844675152||t20538.7138533962s|s113b|113|rds|local|vector|||0.27|Too few survey Admin2 estimates for arealevel model|
+admin1_prev_sierraleone_child_vitA|stem|1bdaf262c0687e94|34a337351a9f715f|a5dfe324de1f3ad4|-1310010500||t20538.7139422975s|s412b|412|rds|local|vector|||0.25||
+plot_admin1_scatter_sierraleone_child_vitA|stem|3f356727ef41f36e|2bf20bf0b2d957e1|c1b1bbb923452bbe|833596693||t20538.7139728694s|s340256b|340256|rds|local|vector|||0.14||
+area_model_ghana_women_iron|stem|9b4de3fa0205d17e|e1121b61ececca29|7a6012519ecec7f3|-821614181||t20538.7148632617s|s8248742b|8248742|rds|local|vector|||617.97||
+admin1_prev_sierraleone_women_iron|stem|4d420e734d24941e|0bc59acb00a68788|d14b9e5879e3c8bc|-1598326265||t20538.7149135366s|s44b|44|rds|local|vector|||0.28||
+make_list_expr|function|3fb9bcd10bebbbb8|||||||||||||||
+transport_targets|object|340bf4e3f2d1dd22|||||||||||||||
+get_pipeline_params|function|fd0a3a2a653776e7|||||||||||||||
+getDHSdata|function|4cb39d65ae48812d|||||||||||||||
+apply_threshold|function|fb976adca3d0f57e|||||||||||||||
+auc_pr_brier_from_sl3|function|bcfde5dbe3fbb872|||||||||||||||
+makeVlist|function|fdd336a8f77587db|||||||||||||||
+load_conceptual_domains|function|337e9fef47650295|||||||||||||||
+extract_dhs_indicator_id|function|4ccca72f5570e3d7|||||||||||||||
+load_dhs_lookup|function|b62cd52d04ab2823|||||||||||||||
+build_name_lookup|function|f8718dc99bb063af|||||||||||||||
+plot_admin2_forest|function|8a042d4a1bd00a39|||||||||||||||
+pipeline_mode|object|0ef34a20ac16db2a|||||||||||||||
+ablation_names|object|b96b896a252abeeb|||||||||||||||
+n_workers|object|50003b5d5254d75e|||||||||||||||
+all_country_configs|object|ba54174633153764|||||||||||||||
+predict_on_new_data|function|79462ea49bbf2a67|||||||||||||||
+CH_COUNTRY_MAP|object|9de68643f6fbe94e|||||||||||||||
+COUNTRY_SURVEY_YEARS|object|31dd63028267b6da|||||||||||||||
+outcome_name|object|02ac79d123cb0b55|||||||||||||||
+clean_DHS|function|4460e053164d54a5|||||||||||||||
+hfid_path|object|71a1ee6914e9c8ba|||||||||||||||
+merged_target_name|object|ed6505e3871426bd|||||||||||||||
+loco_target_names|object|92cdffbad4cf44e9|||||||||||||||
+calc_mn_importance|function|1a7cbf946af3d43d|||||||||||||||
+plot_calibration|function|f459b4877f5d2f3d|||||||||||||||
+compute_perf_metrics|function|71f25e71435cea1a|||||||||||||||
+cc|object|1e5463811dbdf1a7|||||||||||||||
+suffix|object|b98cf8b0882d572a|||||||||||||||
+plot_admin2_coverage|function|3f44e93d474f688d|||||||||||||||
+admin2_error_names|object|4eb120a45c1f2771|||||||||||||||
+fit_area_level_model|function|624e366d43e516da|||||||||||||||
+oc|object|cdb59c014a4b2f8f|||||||||||||||
+compute_binary_diagnostics|function|30ff9d8a5677387d|||||||||||||||
+plot_conceptual_forest|function|79ac0756a8c60f0d|||||||||||||||
+plot_reliability|function|5d9594cba2246238|||||||||||||||
+compute_svy_admin2|function|75813661f5ca7d42|||||||||||||||
+static_targets|object|cccf8e3edab6a206|||||||||||||||
+build_outcome_dataset|function|5eca3244c59b7ed6|||||||||||||||
+get_country_configs|function|2cec03d465ce3351|||||||||||||||
+loco_syms|object|fdb8c01486607cd4|||||||||||||||
+outcome_tags|object|08619f1e034f7dad|||||||||||||||
+cv_perf_names|object|74fad7ecdda4eceb|||||||||||||||
+getDHSgeo|function|b15dc3029e1855a5|||||||||||||||
+plot_pr_curve|function|3e4263fabc9e2032|||||||||||||||
+auc_from_sl3|function|c94f83d5b8e2a55d|||||||||||||||
+params|object|ed4473a486d008d1|||||||||||||||
+summary_targets|object|306a2357d6337915|||||||||||||||
+fit_sl_models|function|b9c518160ab6826c|||||||||||||||
+compute_admin2_error|function|c8a35b19f16b17db|||||||||||||||
+merged_syms|object|089cf3e73844ec1c|||||||||||||||
+otag|object|02ac79d123cb0b55|||||||||||||||
+compute_continuous_diagnostics|function|404f143817b254da|||||||||||||||
+outcome_targets|object|3f71bdff21ce03a0|||||||||||||||
+country_targets|object|272b61c94fc76a2d|||||||||||||||
+COMMON_DOMAIN_PREFIXES|object|e33165cf4f091bd7|||||||||||||||
+country_names_lower|object|1f428b3c052291d1|||||||||||||||
+raw_target_name|object|988e9e35510496be|||||||||||||||
+evaluate_sl_performance|function|ac6b702cf0c32e6c|||||||||||||||
+summarize_transportability|function|2fea74af0e29bc53|||||||||||||||
+plot_leave_one_in_forest|function|d3be3cc36b388edb|||||||||||||||
+HFID_COUNTRY_MAP|object|71dced7381e09c4f|||||||||||||||
+plot_admin1_scatter|function|9eac525c56480636|||||||||||||||
+pooled_name|object|2ef5f450b4de7387|||||||||||||||
+country_name|object|699d284a8374561a|||||||||||||||
+merged_list_expr|object|fa00dace126817e1|||||||||||||||
+first_cc|object|e0bd3800afd5ea75|||||||||||||||
+loco_list_expr|object|f0d2d699663819bb|||||||||||||||
+make_outcome_targets|function|a375f61c4077995b|||||||||||||||
+extract_predictions|function|3fe34f6bfe6ac6d5|||||||||||||||
+loco_name|object|ab7670ccab4902fc|||||||||||||||
+bootstrap_combo|object|2650aaf0e29a495d|||||||||||||||
+setup_sl_learners|function|9d966578bc983d6b|||||||||||||||
+ch_path|object|b0640292e31d8438|||||||||||||||
+load_merged_data|function|d0325c14d95bb365|||||||||||||||
+diagnostics_names|object|a47faa159c801d94|||||||||||||||
+aggregate_admin1|function|1eedb35403923369|||||||||||||||
+extract_cv_performance|function|f732059ff417c134|||||||||||||||
+one_bootstrap_rep|function|ec56201851409bde|||||||||||||||
+aggregate_admin2_sl|function|2368b9ecfea00cb8|||||||||||||||
+classify_variables|function|51f7d148f18c10e6|||||||||||||||
+classify_variables_l2|function|ac20c1852b117237|||||||||||||||
+merge_by_admin|function|322d6e7fa002c1f0|||||||||||||||
+run_loco_cv|function|cfbfdfdd69e0cab5|||||||||||||||
+load_ch_country|function|fea58f4fbec20455|||||||||||||||
+permute_domain|function|8a8e53f0d15d7f06|||||||||||||||
+build_pooled_dataset|function|914a60a57e5c6f16|||||||||||||||
+load_hfid_country|function|e752fca00667f104|||||||||||||||
+run_diagnostics|function|78a04831632a8bbb|||||||||||||||
+run_bootstrap_ci|function|9df597906ca903a5|||||||||||||||
+run_conceptual_permutation|function|a149429c2f70202e|||||||||||||||
+run_leave_one_in|function|4825fd47b217edd7|||||||||||||||
+run_domain_ablation|function|1cb7c7d0117cdbc4|||||||||||||||
+merge_food_security|function|dfdc1d4442b2e4e3|||||||||||||||
+area_model_sierraleone_child_iron|stem|b0683a8b92855a98|fdba7ca4511ea49a|54602e20fbb4f126|-1703063445||t20538.5850902013s||113|rds|local|vector|||||_future_ Future area_model_sierraleone_child_iron of class MultisessionFuture interrupted, while running on localhost pid 4416
 make_list_expr|function|3fb9bcd10bebbbb8
 transport_targets|object|340bf4e3f2d1dd22
-get_pipeline_params|function|8ed0b3d83a353ef3
+get_pipeline_params|function|fd0a3a2a653776e7
 getDHSdata|function|4cb39d65ae48812d
 apply_threshold|function|fb976adca3d0f57e
 auc_pr_brier_from_sl3|function|bcfde5dbe3fbb872
@@ -387,14 +388,14 @@ getDHSgeo|function|b15dc3029e1855a5
 plot_pr_curve|function|3e4263fabc9e2032
 auc_from_sl3|function|c94f83d5b8e2a55d
 params|object|ed4473a486d008d1
-summary_targets|object|98769e3c1cc18ffe
+summary_targets|object|306a2357d6337915
 fit_sl_models|function|b9c518160ab6826c
 compute_admin2_error|function|c8a35b19f16b17db
 merged_syms|object|089cf3e73844ec1c
 otag|object|02ac79d123cb0b55
 compute_continuous_diagnostics|function|404f143817b254da
 outcome_targets|object|3f71bdff21ce03a0
-country_targets|object|af3e568e76d4669b
+country_targets|object|272b61c94fc76a2d
 COMMON_DOMAIN_PREFIXES|object|e33165cf4f091bd7
 country_names_lower|object|1f428b3c052291d1
 raw_target_name|object|988e9e35510496be
@@ -411,14 +412,14 @@ loco_list_expr|object|f0d2d699663819bb
 make_outcome_targets|function|a375f61c4077995b
 extract_predictions|function|3fe34f6bfe6ac6d5
 loco_name|object|ab7670ccab4902fc
-bootstrap_combo|object|f68f602012657b2e
+bootstrap_combo|object|2650aaf0e29a495d
 setup_sl_learners|function|9d966578bc983d6b
 ch_path|object|b0640292e31d8438
 load_merged_data|function|d0325c14d95bb365
 diagnostics_names|object|a47faa159c801d94
 aggregate_admin1|function|1eedb35403923369
 extract_cv_performance|function|f732059ff417c134
-one_bootstrap_rep|function|9dc03cfd2534b54a
+one_bootstrap_rep|function|ec56201851409bde
 aggregate_admin2_sl|function|2368b9ecfea00cb8
 classify_variables|function|51f7d148f18c10e6
 classify_variables_l2|function|ac20c1852b117237
@@ -429,15 +430,8 @@ permute_domain|function|8a8e53f0d15d7f06
 build_pooled_dataset|function|914a60a57e5c6f16
 load_hfid_country|function|e752fca00667f104
 run_diagnostics|function|78a04831632a8bbb
-run_bootstrap_ci|function|e726f2ad9026cbdf
+run_bootstrap_ci|function|9df597906ca903a5
 run_conceptual_permutation|function|a149429c2f70202e
 run_leave_one_in|function|4825fd47b217edd7
 run_domain_ablation|function|1cb7c7d0117cdbc4
 merge_food_security|function|dfdc1d4442b2e4e3
-admin1_prev_gambia_child_vitA|stem|e315f063616e91b1|41d88a073e864d39|a914bdfa89584282|1050151100||t20538.6533755389s|s527b|527|rds|local|vector|||40.59|package rlang was built under R version 4.4.3. package ggplot2 was built under R version 4.4.3. package terra was built under R version 4.4.3. package exactextractr was built under R version 4.4.3. package srvyr was built under R version 4.4.3. package scales was built under R version 4.4.3. package viridisLite was built under R version 4.4.3. package data.table was built under R version 4.4.3. package recipes was built under R version 4.4.3|
-plot_admin1_scatter_gambia_child_vitA|stem|4fdb95034f0fd663|34263f41a9f3527c|947ebafc2b6b7d56|14486865||t20538.6534078657s|s340763b|340763|rds|local|vector|||0.14||
-admin1_prev_gambia_women_iron|stem|4b617c3ad4753f73|351f71d87a521055|1e1ca64264bbb3b5|373057753||t20538.6537364612s|s524b|524|rds|local|vector|||0.34||
-plot_admin1_scatter_gambia_women_iron|stem|f96dca013cb1e3ed|b1d940ac5af3c908|7dd6ab6c7fad0f9e|1356212198||t20538.6537715519s|s340763b|340763|rds|local|vector|||0.16||
-area_model_gambia_women_iron|stem|ddfd62de21a0e0d7|b352737aac35940c|cb2a3fd0cfaa2594|-1254306001||t20538.6552714917s|s154399b|154399|rds|local|vector|||126.31|Option groupedFALSE enforced in cv.glmnet, since  3 observations per fold. Option groupedFALSE enforced in cv.glmnet, since  3 observations per fold. Option groupedFALSE enforced in cv.glmnet, since  3 observations per fold. Option groupedFALSE enforced in cv.glmnet, since  3 observations per fold. Option groupedFALSE enforced in cv.glmnet, since  3 observations per fold. Option groupedFALSE enforced in cv.glmnet, since  3 observations per fold. Option groupedFALSE enforced in cv.glmnet, since  3 observations per fold. Option groupedFALSE enforced in cv.glmnet, since  3 observations per fold. Option groupedFALSE enforced in cv.glmnet, since  3 observations per fold. Option groupedFALSE enforced in cv.glmnet, since  3 observations per fold. Option groupedFALSE enforced in cv.glmnet, since  3 observations per fold. Option groupedFALSE enforced in cv.glmnet, since  3 observations per fold. Option groupedFALSE enforced in cv.glmnet, since  3 observations per fold. Option groupedFALSE enforced in cv.glmnet, since  3 observations per fold. Option groupedFALSE enforced in cv.glmnet, since  3 observations per fold. Option groupedFALSE enforced in cv.glmnet, since  3 observations per fold. Option groupedFALSE enforced in cv.glmnet, since  3 observations per fold. Option groupedFALSE enforced in cv.glmnet, since  3 observations per fold. Option groupedFALSE enforced in cv.glmnet, since  3 observations per fold. Option groupedFALSE enforced in cv.glmnet, since  3 observations per fold. Option groupedFALSE enforced in cv.glmnet, since  3 observations per fold. Option groupedFALSE enforced in cv.glmnet, since  3 observations per fold. Option groupedFALSE enforced in cv.glmnet, since  3 observations per fold. Option groupedFALSE enforced in cv.glmnet, since  3 observations per fold. Option groupedFALSE enforced in cv.glmnet, since  3 observations per fold. Option groupedFALSE enforced in cv.glmnet, since  3 observations per fold. Option groupedFALSE enforced in cv.glmnet, si|
-admin1_prev_gambia_child_iron|stem|d2208f13abb25762|5b6d8ffe165510ba|58b5ed5452a1c83d|-2143302559||t20538.6557801117s|s526b|526|rds|local|vector|||0.17||
-plot_admin1_scatter_gambia_child_iron|stem|486e1a4e1f6b52a6|3725ebb8252c5f99|c7448ad6527427fb|-327579729||t20538.6557948555s|s340755b|340755|rds|local|vector|||0.07||

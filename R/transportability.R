@@ -432,6 +432,72 @@ predict_on_new_data <- function(fit, newdata, Xvars) {
 }
 
 
+# =============================================================================
+# GEE-Only LOCO Analysis
+#
+# Uses only Google Earth Engine (remotely sensed) variables for LOCO CV.
+# Tests whether freely available satellite-derived data alone can predict
+# micronutrient deficiency prevalence across countries.
+# =============================================================================
+
+#' Build a pooled dataset using only GEE variables
+#'
+#' Same structure as build_pooled_dataset() but restricts predictors to
+#' variables matching "gee_" prefix (Google Earth Engine remote sensing).
+#' This tests whether freely available satellite-derived data alone can
+#' predict micronutrient deficiency across countries.
+#'
+#' @param all_merged Named list of merged data frames (one per country)
+#' @param all_configs Output of get_country_configs()
+#' @param outcome_tag Character, e.g. "child_vitA"
+#' @return list with data, Xvars_common, outcome_tag
+build_pooled_gee_only <- function(all_merged, all_configs, outcome_tag) {
+
+  pooled <- build_pooled_dataset(all_merged, all_configs, outcome_tag)
+
+  if (is.null(pooled) || nrow(pooled$data) == 0) return(pooled)
+
+  # Restrict to GEE variables only
+  gee_vars <- grep("^gee_", pooled$Xvars_common, value = TRUE)
+  cat(sprintf("[pool_gee] %d GEE variables out of %d total common predictors\n",
+              length(gee_vars), length(pooled$Xvars_common)))
+
+  if (length(gee_vars) == 0) {
+    warning("No GEE variables found in common predictors")
+    return(NULL)
+  }
+
+  pooled$Xvars_common <- gee_vars
+  pooled
+}
+
+
+#' Run leave-one-country-out CV using only GEE (remote sensing) predictors
+#'
+#' Identical to run_loco_cv() but filters the pooled dataset to only
+#' use variables with "gee_" prefix. This tests whether freely available
+#' satellite-derived data can predict micronutrient deficiency across borders.
+#'
+#' @param pooled_gee Output from build_pooled_gee_only()
+#' @param sl_learners Output from setup_sl_learners()
+#' @param params Pipeline parameters
+#' @return data.frame with one row per held-out country
+run_loco_gee_only <- function(pooled_gee, sl_learners, params) {
+
+  if (is.null(pooled_gee) || nrow(pooled_gee$data) == 0) {
+    warning("No pooled GEE data available for LOCO")
+    return(data.frame())
+  }
+
+  cat(sprintf("\n[LOCO-GEE] Using %d GEE-only predictors\n",
+              length(pooled_gee$Xvars_common)))
+
+  # Delegate to the standard LOCO function — it uses pooled$Xvars_common
+  # which we've already restricted to gee_ variables
+  run_loco_cv(pooled_gee, sl_learners, params)
+}
+
+
 #' Summarize transportability results across outcomes
 #'
 #' @param loco_list Named list of run_loco_cv() outputs (one per outcome)
