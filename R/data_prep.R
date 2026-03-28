@@ -5,6 +5,34 @@
 # Wrapped as pure functions so targets can track inputs/outputs.
 # =============================================================================
 
+
+#' Load GADM admin boundaries with local caching
+#'
+#' Downloads once from geodata::gadm(), saves as RDS in data/admin_boundaries/,
+#' then loads from cache on subsequent runs.
+#'
+#' @param country_code ISO country code (e.g., "GM", "GH", "SLE")
+#' @param level Admin level (1 or 2)
+#' @param cache_dir Directory to cache boundaries (default: data/admin_boundaries/)
+#' @return sf object with admin boundaries
+load_gadm_cached <- function(country_code, level = 2,
+                             cache_dir = here::here("data", "admin_boundaries")) {
+  dir.create(cache_dir, showWarnings = FALSE, recursive = TRUE)
+  cache_file <- file.path(cache_dir, sprintf("gadm41_%s_%d.rds", country_code, level))
+
+  if (file.exists(cache_file)) {
+    cat(sprintf("[load_gadm_cached] Loading cached: %s\n", basename(cache_file)))
+    return(readRDS(cache_file))
+  }
+
+  cat(sprintf("[load_gadm_cached] Downloading GADM %s level %d...\n", country_code, level))
+  poly <- geodata::gadm(country = country_code, level = level, path = tempdir())
+  poly_sf <- sf::st_as_sf(poly)
+  saveRDS(poly_sf, cache_file)
+  cat(sprintf("[load_gadm_cached] Cached to: %s\n", basename(cache_file)))
+  poly_sf
+}
+
 #' Load the merged country dataset from disk and harmonize columns
 #'
 #' Handles cross-country differences:
@@ -95,6 +123,71 @@ load_merged_data <- function(data_path) {
   }
 
   d
+}
+
+
+#' Load DHS admin-1 estimates and pivot to wide format
+#'
+#' Converts the long-format `*_dhs_admin1_direct.rds` file produced by
+#' DHS_admin2_aggregation.R into the legacy wide format that merge scripts
+#' expect: one row per admin-1 region, with columns named
+#' `dhs{YEAR}_{indicator}` and a key column `dhs{YEAR}_DHSREGEN`.
+#'
+#' Falls back to the old `*_dhs_aggregation.rds` file if it still exists.
+#'
+#' @param dhs_dir  Path to data/DHS/clean/ directory
+#' @param country  Country name (e.g., "Gambia")
+#' @param year     DHS survey year (e.g., 2019)
+#' @return data.frame in wide format, or NULL if no file found
+load_dhs_admin1 <- function(dhs_dir, country, year) {
+
+  prefix <- paste0("dhs", year, "_")
+
+
+  # --- Try new long-format file first ---
+  long_path <- file.path(dhs_dir, paste0(country, "_", year, "_dhs_admin1_direct.rds"))
+  if (file.exists(long_path)) {
+    long_df <- readRDS(long_path)
+    cat(sprintf("[load_dhs_admin1] Loaded long format: %s (%d rows, %d indicators)\n",
+                basename(long_path), nrow(long_df), length(unique(long_df$indicator))))
+
+    # Pivot to wide: one row per admin1, columns = dhs{YEAR}_{indicator}
+    wide <- long_df %>%
+      dplyr::select(admin1.name, indicator, direct.est) %>%
+      tidyr::pivot_wider(
+        names_from  = indicator,
+        values_from = direct.est,
+        names_prefix = prefix
+      ) %>%
+      dplyr::rename(!!paste0(prefix, "DHSREGEN") := admin1.name)
+
+    cat(sprintf("[load_dhs_admin1] Pivoted to wide: %d regions x %d columns\n",
+                nrow(wide), ncol(wide)))
+    return(as.data.frame(wide))
+  }
+
+  # --- Fallback: old legacy wide file ---
+  # Try multiple naming conventions used across countries
+  legacy_candidates <- c(
+    file.path(dhs_dir, paste0(country, "_", year, "_dhs_aggregation.rds")),
+    file.path(dhs_dir, paste0("SL_", year, "_dhs_aggregation.rds")),     # Sierra Leone
+    file.path(dhs_dir, paste0(country, "_", year, "_dhs_aggregation.rds"))
+  )
+  for (lp in unique(legacy_candidates)) {
+    if (file.exists(lp)) {
+      wide <- readRDS(lp)
+      cat(sprintf("[load_dhs_admin1] Loaded legacy file: %s (%d regions x %d cols)\n",
+                  basename(lp), nrow(wide), ncol(wide)))
+      # Add prefix if not already present
+      if (!any(grepl(paste0("^", prefix), names(wide)))) {
+        names(wide) <- paste0(prefix, names(wide))
+      }
+      return(as.data.frame(wide))
+    }
+  }
+
+  warning(sprintf("[load_dhs_admin1] No admin-1 DHS file found for %s %d", country, year))
+  NULL
 }
 
 
@@ -202,9 +295,32 @@ build_outcome_dataset <- function(merged_data, cc, oc) {
   domain_vars <- list()
   Xvars_all <- character()
 
+  # Add external predictor domains if the columns exist in the data
+  # (merged via merge_external_predictors)
+  external_domains <- list(
+    CHIRPS    = list(prefix = "chirps_"),
+    WorldPop  = list(prefix = "worldpop_"),
+    MAP2      = list(prefix = "map2_"),
+    Soil      = list(prefix = "soil_"),
+    Nightlights = list(prefix = "ntl_"),
+    GDL       = list(prefix = "gdl_"),
+    Crop      = list(prefix = "crop_"),
+    IPC       = list(prefix = "ipc_"),
+    ACLED     = list(prefix = "acled_"),
+    WFP_ext   = list(prefix = "wfp_")
+  )
 
-  for (nm in names(cc$domains)) {
-    dom <- cc$domains[[nm]]
+  # Merge external domains into config domains (only if columns exist)
+  all_domains <- cc$domains
+  for (nm in names(external_domains)) {
+    pfx <- external_domains[[nm]]$prefix
+    if (any(startsWith(all_cols, pfx))) {
+      all_domains[[nm]] <- external_domains[[nm]]
+    }
+  }
+
+  for (nm in names(all_domains)) {
+    dom <- all_domains[[nm]]
     prefix_cols <- all_cols[startsWith(all_cols, dom$prefix)]
     if (!is.null(dom$extra)) prefix_cols <- c(prefix_cols, intersect(dom$extra, all_cols))
 

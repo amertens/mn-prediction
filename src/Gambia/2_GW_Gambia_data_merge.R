@@ -32,7 +32,7 @@ gw_vars <- colnames(d)
 #-------------------------------------------------------------------------------
 
 
-gee <- read.csv(here("data/gee/gambia2018_buffers_01.08.2026.csv")) %>% select(SR,MICS_Cluster_Number.x, trmm_Jan_10km:grassland_50km) #%>%
+gee <- read.csv(here("data/GEE/gambia2018_buffers_01.08.2026.csv")) %>% select(SR,MICS_Cluster_Number.x, trmm_Jan_10km:grassland_50km) #%>%
 #mutate(EACode=as.character(EACode))
 colnames(gee)= paste0("gee_",colnames(gee))
 head(gee)
@@ -65,8 +65,8 @@ summary(d$longitude)
 d$lat= as.numeric(d$latitude)
 d$lon= as.numeric(d$longitude)
 
-poly.adm <- geodata::gadm(country="GM", level=2, path=tempdir())
-poly.adm <- sf::st_as_sf(poly.adm) %>% select(NAME_1, NAME_2) %>% rename(Admin1 = NAME_1, Admin2 = NAME_2)
+source(here("R", "data_prep.R"))
+poly.adm <- load_gadm_cached("GM", level = 2) %>% select(NAME_1, NAME_2) %>% rename(Admin1 = NAME_1, Admin2 = NAME_2)
 d_sf <- st_as_sf(d, coords = c("longitude","latitude"), crs = 4326)
 poly.adm <- st_transform(poly.adm, crs = 4326)
 
@@ -457,12 +457,24 @@ summary(df$mics_hc4)
 #-------------------------------------------------------------------------------
 
 #-------------------------------------------------------------------------------
-# DHS Admin-1 indicators (existing, from rdhs API)
+# DHS Admin-1 indicators (from surveyPrev direct estimates, pivoted to wide)
 #-------------------------------------------------------------------------------
 
-dhs2019_adm1 <- readRDS(here("data/DHS/clean/Gambia_2019_dhs_aggregation.rds"))
-colnames(dhs2019_adm1) <- paste0("dhs2019_", colnames(dhs2019_adm1))
-df <- left_join(as.data.frame(df), dhs2019_adm1, by = c("Admin1_old" = "dhs2019_DHSREGEN"))
+source(here("R", "data_prep.R"))
+dhs2019_adm1 <- load_dhs_admin1(
+  dhs_dir = here("data", "DHS", "clean"),
+  country = "Gambia",
+  year    = 2019
+)
+if (!is.null(dhs2019_adm1)) {
+  dhs_vars <- setdiff(names(dhs2019_adm1), "dhs2019_DHSREGEN")
+  df <- left_join(as.data.frame(df), dhs2019_adm1, by = c("Admin1_old" = "dhs2019_DHSREGEN"))
+  cat(sprintf("  DHS admin-1 merge complete: %d dhs2019_ columns added\n",
+              sum(grepl("^dhs2019_", colnames(df)))))
+} else {
+  dhs_vars <- c()
+  warning("Admin-1 DHS file not found for Gambia 2019")
+}
 
 #-------------------------------------------------------------------------------
 # DHS Admin-2 indicators (from surveyPrev FH BYM2 smoothed estimates)
@@ -488,7 +500,10 @@ if (!is.null(dhs2019_adm2)) {
   cat(sprintf("  DHS Admin2 name matching: %d/%d matched\n", n_matched, length(source_a2)))
 
   dhs2019_adm2 <- dhs2019_adm2[!is.na(dhs2019_adm2$Admin2), ]
+  # Remove duplicate Admin2 rows (multiple source names mapped to same target)
+  dhs2019_adm2 <- dhs2019_adm2[!duplicated(dhs2019_adm2$Admin2), ]
   df <- left_join(df, dhs2019_adm2, by = "Admin2")
+  dhs_vars <- c(dhs_vars, grep("_adm2$", colnames(df), value = TRUE))
   cat(sprintf("  DHS admin-2 merge complete: %d _adm2 columns added\n",
               sum(grepl("_adm2$", colnames(df)))))
 } else {

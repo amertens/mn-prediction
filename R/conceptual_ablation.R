@@ -276,30 +276,14 @@ run_conceptual_permutation <- function(sl_fit, outcome_data, oc,
         data.table::set(shuffled_data, j = v, value = shuffled_data[[v]][perm_idx])
       }
 
-      # Create new task with shuffled data
-      perm_task <- tryCatch(
-        sl3::sl3_Task$new(
-          data       = shuffled_data,
-          covariates = xvars,
-          outcome    = "Y",
-          id         = "id",
-          folds      = task$folds
-        ),
-        error = function(e) NULL
-      )
-      if (is.null(perm_task)) next
-
-      # Use predict_fold "validation" to get cross-validated predictions,
-      # matching how the baseline AUC was computed. predict() would use
-      # the full model on training data, inflating performance.
-      yhat_perm <- tryCatch(
-        as.numeric(sl_model$predict_fold(perm_task, "validation")),
-        error = function(e) {
-          # Fall back to regular predict if predict_fold fails
-          tryCatch(as.numeric(sl_model$predict(perm_task)),
-                   error = function(e2) NULL)
-        }
-      )
+      # Predict on shuffled data using the model wrapper
+      # Note: with mlr3, we use resubstitution predict (not CV predict)
+      # since the mlr3 wrapper doesn't support predict_fold.
+      # The permutation baseline is also computed from resubstitution.
+      yhat_perm <- tryCatch({
+        perm_df <- data.frame(shuffled_data)
+        as.numeric(sl_model$predict(perm_df))
+      }, error = function(e) NULL)
       if (is.null(yhat_perm) || length(yhat_perm) != length(Y)) next
 
       if (use_binary) {

@@ -164,24 +164,12 @@ build_pooled_dataset <- function(all_merged, all_configs, outcome_tag) {
 #' @return data.frame with one row per held-out country
 run_loco_cv <- function(pooled, sl_learners, params) {
 
-  source(here::here("src", "analysis", "sl_helpers.R"), local = FALSE)
-  source(here::here("src", "0-functions.R"), local = FALSE)
-
   d       <- pooled$data
   Xvars   <- pooled$Xvars_common
   countries <- unique(d$country)
 
-  # Use binary SL stack
-  sl_learner <- sl_learners$slmod2_bin
-
-  # Make cfg available for sl_helpers
-  cfg <- list(
-    seed       = params$seed,
-    admin1     = "Admin1",
-    cluster_id = "pooled_cluster",
-    K          = params$K
-  )
-  assign("cfg", cfg, envir = globalenv())
+  # Use mlr3 library from sl_learners
+  mlr3_lib <- sl_learners$library
 
   results <- list()
 
@@ -195,17 +183,19 @@ run_loco_cv <- function(pooled, sl_learners, params) {
                 paste(setdiff(countries, held_out), collapse = " + ")))
     cat(sprintf("  Test:  %d rows (%s)\n", nrow(test_data), held_out))
 
-    # Fit SL on training countries
+    # Fit mlr3 SL on training countries
     fit <- tryCatch({
       t0 <- proc.time()
-      res <- DHS_SL_clustered(
+      res <- mlr3_SL_clustered(
         d          = train_data,
         Xvars      = Xvars,
         outcome    = "Y_binary",
         population = "pooled",
         id         = "pooled_cluster",
         folds      = params$K,
-        sl         = sl_learner
+        mlr3_library = mlr3_lib,
+        outcome_type = "binomial",
+        prescreen  = TRUE
       )
       elapsed <- (proc.time() - t0)["elapsed"]
       cat(sprintf("  SL fit in %.1f min\n", elapsed / 60))
@@ -242,12 +232,10 @@ run_loco_cv <- function(pooled, sl_learners, params) {
       NULL
     })
 
-    # If prediction failed, try a simpler approach: refit on train+test together
-    # using the same preprocessing, then extract test predictions from CV
+    # If prediction failed, try manual preprocessing fallback
     if (is.null(preds) || length(preds) != nrow(test_data)) {
       cat("  Trying direct prediction with manual preprocessing...\n")
       preds <- tryCatch({
-        # Use the model's fitted task covariates to predict
         final_covars <- fit$Xvars
         pre_cols <- fit$pre_recipe_cols
 
@@ -262,10 +250,7 @@ run_loco_cv <- function(pooled, sl_learners, params) {
                                        prefix = "missing_")$data
         )
 
-        # Align to pre-recipe columns (pad missing with 0)
-        for (col in setdiff(pre_cols, colnames(cov0))) cov0[[col]] <- 0
-        cov0 <- cov0[, intersect(pre_cols, colnames(cov0)), drop = FALSE]
-        # Pad any still-missing pre_cols
+        # Align to pre-recipe columns
         for (col in setdiff(pre_cols, colnames(cov0))) cov0[[col]] <- 0
         cov0 <- cov0[, pre_cols, drop = FALSE]
 
@@ -277,12 +262,8 @@ run_loco_cv <- function(pooled, sl_learners, params) {
         for (col in setdiff(final_covars, colnames(cov0))) cov0[[col]] <- 0
         cov0 <- cov0[, final_covars, drop = FALSE]
 
-        pred_task <- sl3::sl3_Task$new(
-          data       = data.table::data.table(cov0),
-          covariates = final_covars,
-          outcome    = NULL
-        )
-        as.numeric(fit$sl_fit$predict(pred_task))
+        # Use the mlr3 wrapper's predict method
+        as.numeric(fit$sl_fit$predict(cov0))
       }, error = function(e) {
         cat(sprintf("  Manual prediction also failed for %s: %s\n", held_out, e$message))
         NULL
@@ -419,13 +400,8 @@ predict_on_new_data <- function(fit, newdata, Xvars) {
   for (col in missing_final) cov0[[col]] <- 0
   cov0 <- cov0[, final_covars, drop = FALSE]
 
-  # Build sl3 task and predict
-  pred_task <- sl3::sl3_Task$new(
-    data       = data.table::data.table(cov0),
-    covariates = final_covars,
-    outcome    = NULL
-  )
-  result <- as.numeric(fit$sl_fit$predict(pred_task))
+  # Predict using the model wrapper (works for both sl3 and mlr3)
+  result <- as.numeric(fit$sl_fit$predict(cov0))
   cat(sprintf("    [predict] Got %d predictions, range: [%.4f, %.4f]\n",
               length(result), min(result, na.rm=TRUE), max(result, na.rm=TRUE)))
   result

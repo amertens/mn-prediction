@@ -31,7 +31,7 @@ gw_vars <- colnames(d)
 # GEE data
 #-------------------------------------------------------------------------------
 
-gee <- read.csv(here("data/gee/SL2012_buffers_01.08.2026.csv")) %>% select(SR,cnum.x, trmm_Jan_10km:grassland_50km) %>% rename(cnum=cnum.x)
+gee <- read.csv(here("data/GEE/SL2012_buffers_01.08.2026.csv")) %>% select(SR,cnum.x, trmm_Jan_10km:grassland_50km) %>% rename(cnum=cnum.x)
 head(gee)
 colnames(gee)= paste0("gee_",colnames(gee))
 head(gee)
@@ -57,7 +57,8 @@ summary(d$longitude)
 d$lat= as.numeric(d$latitude)
 d$lon= as.numeric(d$longitude)
 
-poly.adm <- geodata::gadm(country="SLE", level=2, path=tempdir())
+source(here("R", "data_prep.R"))
+poly.adm <- load_gadm_cached("SLE", level = 2)
 poly.adm <- sf::st_as_sf(poly.adm) %>% select(NAME_1, NAME_2) %>% rename(Admin1 = NAME_1, Admin2 = NAME_2)
 d_sf <- st_as_sf(d, coords = c("longitude","latitude"), crs = 4326)
 poly.adm <- st_transform(poly.adm, crs = 4326)
@@ -430,13 +431,24 @@ table(is.na(df$ihme_2_to_10_years_2_to_10_both_malaria_prevalence_rate ))
 
 
 #-------------------------------------------------------------------------------
-# DHS Admin-1 indicators
+# DHS Admin-1 indicators (from surveyPrev direct estimates, pivoted to wide)
 #-------------------------------------------------------------------------------
 
-dhs2013 <- readRDS(here("data/DHS/clean/SL_2013_dhs_aggregation.rds"))
-colnames(dhs2013) <- paste0("dhs2013_",colnames(dhs2013))
-dhs_vars <- c(colnames(dhs2013))
-df <- left_join(as.data.frame(df), dhs2013, by = c("Admin1" = "dhs2013_DHSREGEN"))
+source(here("R", "data_prep.R"))
+dhs2013_adm1 <- load_dhs_admin1(
+  dhs_dir = here("data", "DHS", "clean"),
+  country = "Sierra Leone",
+  year    = 2013
+)
+if (!is.null(dhs2013_adm1)) {
+  dhs_vars <- names(dhs2013_adm1)
+  df <- left_join(as.data.frame(df), dhs2013_adm1, by = c("Admin1" = "dhs2013_DHSREGEN"))
+  cat(sprintf("  DHS admin-1 merge complete: %d dhs2013_ columns added\n",
+              sum(grepl("^dhs2013_", colnames(df)))))
+} else {
+  dhs_vars <- c()
+  warning("Admin-1 DHS file not found for Sierra Leone 2013")
+}
 
 #-------------------------------------------------------------------------------
 # DHS Admin-2 indicators (from surveyPrev FH BYM2 smoothed estimates)

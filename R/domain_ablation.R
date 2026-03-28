@@ -50,17 +50,30 @@ compute_perf_metrics <- function(Y, yhat, use_binary) {
 permute_domain <- function(sl_fit_obj, domain_cols, domain_name,
                            use_binary, n_perm = 5, seed = 12345L) {
 
-  task     <- sl_fit_obj$task
+  # Extract components — handle both sl3 and mlr3 wrapper formats
   fit      <- sl_fit_obj$sl_fit
-  Y        <- sl_fit_obj$res$Y
-  covars   <- task$nodes$covariates
+  Y        <- as.numeric(sl_fit_obj$res$Y)
+
+  # Get covariates and task data from whichever format is available
+  if (!is.null(sl_fit_obj$task) && !is.null(sl_fit_obj$task$nodes)) {
+    # sl3 format
+    covars  <- sl_fit_obj$task$nodes$covariates
+    task_dt <- data.table::copy(sl_fit_obj$task$data)
+  } else {
+    # mlr3 wrapper format — use stored train_data
+    covars  <- sl_fit_obj$Xvars
+    task_dt <- sl_fit_obj$train_data
+
+    if (is.null(task_dt)) {
+      cat(sprintf("  [permute] No train_data stored for %s, skipping\n", domain_name))
+      return(NULL)
+    }
+    task_dt <- data.table::as.data.table(task_dt)
+  }
 
   # Which domain columns are actually in the final task covariates?
   perm_cols <- intersect(domain_cols, covars)
   if (length(perm_cols) == 0) return(NULL)
-
-  # Get the underlying data.table
-  task_dt <- data.table::copy(task$data)
 
   perm_results <- list()
 
@@ -72,26 +85,16 @@ permute_domain <- function(sl_fit_obj, domain_cols, domain_name,
     # between these predictors and the outcome while preserving marginals)
     n_rows <- nrow(dt_perm)
     for (col in perm_cols) {
-      data.table::set(dt_perm, j = col, value = dt_perm[[col]][sample.int(n_rows)])
+      if (col %in% colnames(dt_perm)) {
+        data.table::set(dt_perm, j = col, value = dt_perm[[col]][sample.int(n_rows)])
+      }
     }
 
-    # Build a new task with permuted data and predict
-    perm_task <- tryCatch(
-      sl3::sl3_Task$new(
-        data       = dt_perm,
-        covariates = covars,
-        outcome    = "Y",
-        id         = task$nodes$id,
-        folds      = task$folds
-      ),
-      error = function(e) NULL
-    )
-    if (is.null(perm_task)) next
-
-    yhat_perm <- tryCatch(
-      as.numeric(fit$predict(perm_task)),
-      error = function(e) NULL
-    )
+    # Predict on permuted data using the model wrapper
+    yhat_perm <- tryCatch({
+      perm_df <- data.frame(dt_perm)
+      as.numeric(fit$predict(perm_df))
+    }, error = function(e) NULL)
     if (is.null(yhat_perm) || length(yhat_perm) != length(Y)) next
 
     perm_results[[r]] <- compute_perf_metrics(Y, yhat_perm, use_binary)
@@ -134,13 +137,41 @@ run_domain_ablation <- function(outcome_data, sl_fit, cc, oc, sl_learners, param
     return(data.frame())
   }
 
-  domains <- names(outcome_data$domain_vars)
-  domains <- setdiff(domains, "GW")  # GW not used in primary model
+  # Get the model's actual covariates (what it was trained on)
+  final_covars <- tryCatch(
+    fit_obj$task$nodes$covariates,
+    error = function(e) fit_obj$Xvars
+  )
+  if (is.null(final_covars) || length(final_covars) == 0) {
+    # Try mlr3 style
+    final_covars <- tryCatch(fit_obj$Xvars, error = function(e) character())
+  }
 
-  # Only check domains with columns in the final fitted model's covariates
-  final_covars <- fit_obj$task$nodes$covariates
+  if (length(final_covars) == 0) {
+    cat(sprintf("[permutation] %s — %s | No covariates found, skipping\n",
+                cc$country, oc$tag))
+    return(data.frame())
+  }
+
+  # Classify variables into conceptual domains using the mapping file
+  # This replaces the old outcome_data$domain_vars approach
+  source_classify <- tryCatch(
+    classify_variables(final_covars),
+    error = function(e) {
+      cat(sprintf("  [permutation] classify_variables failed: %s\n", e$message))
+      setNames(rep("Unknown", length(final_covars)), final_covars)
+    }
+  )
+
+  # Build domain_vars list: domain name -> vector of variable names
+  domain_vars <- split(names(source_classify), source_classify)
+  domain_vars <- domain_vars[names(domain_vars) != "Unknown"]  # drop Unknown
+  domain_vars <- domain_vars[names(domain_vars) != "Missingness Indicators"]  # drop imputation flags
+
+  domains <- names(domain_vars)
+  # Only keep domains with ≥1 variable in the final model
   domains <- domains[sapply(domains, function(nm) {
-    length(intersect(outcome_data$domain_vars[[nm]], final_covars)) > 0
+    length(intersect(domain_vars[[nm]], final_covars)) > 0
   })]
 
   n_domains <- length(domains)
@@ -157,7 +188,7 @@ run_domain_ablation <- function(outcome_data, sl_fit, cc, oc, sl_learners, param
 
   # Permute each domain
   perm_list <- lapply(domains, function(dom) {
-    dom_cols <- outcome_data$domain_vars[[dom]]
+    dom_cols <- domain_vars[[dom]]
     cat(sprintf("  Permuting %s (%d vars in model)\n", dom,
                 length(intersect(dom_cols, final_covars))))
     permute_domain(fit_obj, dom_cols, dom, use_binary,

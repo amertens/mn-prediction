@@ -36,10 +36,10 @@ gw_vars <- colnames(d)
 
 
 
-# gee_old <- read.csv(here("data/gee/ghana2017_buffers_clean.csv")) %>% select(SR,EACode, trmm_mean_10km:wapor_npp_11_Dec_50km) #%>%
+# gee_old <- read.csv(here("data/GEE/ghana2017_buffers_clean.csv")) %>% select(SR,EACode, trmm_mean_10km:wapor_npp_11_Dec_50km) #%>%
 # head(gee_old)
 
-gee <- read.csv(here("data/gee/ghana2017_buffers_01.08.2026.csv"))
+gee <- read.csv(here("data/GEE/ghana2017_buffers_01.08.2026.csv"))
 colnames(gee)= gsub("\\.x","",colnames(gee))
 gee <- gee %>% select(SR,EACode, trmm_Jan_10km:grassland_50km) #%>%
 head(gee)
@@ -79,22 +79,39 @@ summary(d$longitude)
 d$lat= as.numeric(d$latitude)
 d$lon= as.numeric(d$longitude)
 
-poly.adm <- geodata::gadm(country="GH", level=2, path=tempdir())
+source(here("R", "data_prep.R"))
+poly.adm <- load_gadm_cached("GH", level = 2)
 poly.adm <- sf::st_as_sf(poly.adm) %>% select(NAME_1, NAME_2) %>% rename(Admin1 = NAME_1, Admin2 = NAME_2)
 d_sf <- st_as_sf(d, coords = c("longitude","latitude"), crs = 4326)
 poly.adm <- st_transform(poly.adm, crs = 4326)
 #df <- as.data.frame(st_join(d_sf, poly.adm, join = st_within))
 df <- (st_join(d_sf, poly.adm, join = st_within))
 
-#get old borders for some merges
-poly.adm1_old <- st_read(here("data/old_ghana_admin_boundaries/gadm36_GHA_1.shp")) %>%
-  select(NAME_1) %>%
-  rename(Admin1_old = NAME_1)
-poly.adm2_old <- st_read(here("data/old_ghana_admin_boundaries/gadm36_GHA_2.shp")) %>%
-  select(NAME_2) %>%
-  rename(Admin2_old = NAME_2)
-df <- (st_join(df, poly.adm1_old, join = st_within))
-df <- (st_join(df, poly.adm2_old, join = st_within))
+#get old region names via lookup (Ghana split from 10 to 16 regions in 2019)
+#GADM v4.1 uses the new 16-region names; DHS/MICS/LSMS use the old 10-region names
+ghana_new_to_old_admin1 <- c(
+  "Ahafo"          = "Brong Ahafo",
+  "Bono"           = "Brong Ahafo",
+  "Bono East"      = "Brong Ahafo",
+  "North East"     = "Northern",
+  "Savannah"       = "Northern",
+  "Northern"       = "Northern",
+  "Oti"            = "Volta",
+  "Volta"          = "Volta",
+  "Western North"  = "Western",
+  "Western"        = "Western",
+  "Ashanti"        = "Ashanti",
+  "Central"        = "Central",
+  "Eastern"        = "Eastern",
+  "Greater Accra"  = "Greater Accra",
+  "Upper East"     = "Upper East",
+  "Upper West"     = "Upper West"
+)
+df$Admin1_old <- ghana_new_to_old_admin1[df$Admin1]
+# Admin2_old: use Admin2 directly (admin-2 names didn't change)
+df$Admin2_old <- df$Admin2
+cat(sprintf("  Admin1_old mapping: %d/%d rows matched\n",
+            sum(!is.na(df$Admin1_old)), nrow(df)))
 
 
 table(df$Admin1)
@@ -467,26 +484,30 @@ summary(df$mics_hc4)
 
 
 #-------------------------------------------------------------------------------
-# DHS Admin-1 indicators
+# DHS Admin-1 indicators (from surveyPrev direct estimates, pivoted to wide)
 #-------------------------------------------------------------------------------
 
-dhs2014 <- readRDS(here("data/DHS/clean/Ghana_2014_dhs_aggregation.rds"))
-dhs2016 <- readRDS(here("data/DHS/clean/Ghana_2016_dhs_aggregation.rds"))
-dhs2017 <- readRDS(here("data/DHS/clean/Ghana_2017_dhs_aggregation.rds"))
-
-dhs2014$DHSREGEN[dhs2014$DHSREGEN=="Brong-Ahafo"] <- "Brong Ahafo"
-dhs2016$DHSREGEN[dhs2016$DHSREGEN=="Brong-Ahafo"] <- "Brong Ahafo"
-dhs2017$DHSREGEN[dhs2017$DHSREGEN=="Brong-Ahafo"] <- "Brong Ahafo"
-
-colnames(dhs2014) <- paste0("dhs2014_",colnames(dhs2014))
-colnames(dhs2016) <- paste0("dhs2016_",colnames(dhs2016))
-colnames(dhs2017) <- paste0("dhs2017_",colnames(dhs2017))
-
-dhs_vars <- c(colnames(dhs2014), colnames(dhs2016), colnames(dhs2017))
-
-df <- left_join(as.data.frame(df), dhs2014, by = c("Admin1_old" = "dhs2014_DHSREGEN"))
-df <- left_join(as.data.frame(df), dhs2016, by = c("Admin1_old" = "dhs2016_DHSREGEN"))
-df <- left_join(as.data.frame(df), dhs2017, by = c("Admin1_old" = "dhs2017_DHSREGEN"))
+source(here("R", "data_prep.R"))
+dhs_vars <- c()
+for (dhs_yr in c(2014, 2016, 2017)) {
+  dhs_adm1 <- load_dhs_admin1(
+    dhs_dir = here("data", "DHS", "clean"),
+    country = "Ghana",
+    year    = dhs_yr
+  )
+  if (!is.null(dhs_adm1)) {
+    key_col <- paste0("dhs", dhs_yr, "_DHSREGEN")
+    # Fix name inconsistencies
+    if (key_col %in% names(dhs_adm1)) {
+      dhs_adm1[[key_col]][dhs_adm1[[key_col]] == "Brong-Ahafo"] <- "Brong Ahafo"
+    }
+    dhs_vars <- c(dhs_vars, names(dhs_adm1))
+    df <- left_join(as.data.frame(df), dhs_adm1, by = c("Admin1_old" = key_col))
+    cat(sprintf("  DHS admin-1 %d merge complete\n", dhs_yr))
+  } else {
+    cat(sprintf("  DHS admin-1 %d: no file found (skipping)\n", dhs_yr))
+  }
+}
 
 #-------------------------------------------------------------------------------
 # DHS Admin-2 indicators (from surveyPrev FH BYM2 smoothed estimates)
@@ -510,6 +531,7 @@ for (dhs_yr in c(2014, 2017)) {
     n_matched <- sum(!is.na(dhs_adm2$Admin2))
     cat(sprintf("  DHS %d Admin2 name matching: %d/%d matched\n", dhs_yr, n_matched, length(source_a2)))
     dhs_adm2 <- dhs_adm2[!is.na(dhs_adm2$Admin2), ]
+    dhs_adm2 <- dhs_adm2[!duplicated(dhs_adm2$Admin2), ]
     df <- left_join(df, dhs_adm2, by = "Admin2")
     cat(sprintf("  DHS %d admin-2 merge complete\n", dhs_yr))
   } else {
@@ -629,14 +651,14 @@ print(high_fact$categorical_summary %>% filter(Over_Limit))
 
 #drop unneeded columns
 df <- df %>% select(-all_of(very_high_fact$high_level_variables))
-df <- df %>% subset(., select = -c(dhs2014_REG_ID, dhs2014_REGCODE, dhs2014_REGNAME, dhs2014_REGNOTES, dhs2014_geometry,
-                                   dhs2014_REG_ID, dhs2014_REGNAME,
-                                   dhs2016_REG_ID, dhs2016_REGCODE, dhs2016_REGNAME, dhs2016_REGNOTES, dhs2016_geometry,
-                                   dhs2016_REG_ID, dhs2016_REGNAME,
-                                   dhs2017_REG_ID, dhs2017_REGCODE, dhs2017_REGNAME, dhs2017_REGNOTES, dhs2017_geometry,
-                                   dhs2017_REG_ID, dhs2017_REGNAME,
-                                   ihme_adm2_name , Admin2_old ,
-                                   gw_District, `gw_District Name`, gw_EANAME, gw_EACode))
+# Drop legacy DHS spatial columns and other unneeded columns (safe: only drop if they exist)
+drop_cols <- c("dhs2014_REG_ID", "dhs2014_REGCODE", "dhs2014_REGNAME", "dhs2014_REGNOTES", "dhs2014_geometry",
+               "dhs2016_REG_ID", "dhs2016_REGCODE", "dhs2016_REGNAME", "dhs2016_REGNOTES", "dhs2016_geometry",
+               "dhs2017_REG_ID", "dhs2017_REGCODE", "dhs2017_REGNAME", "dhs2017_REGNOTES", "dhs2017_geometry",
+               "ihme_adm2_name", "Admin2_old",
+               "gw_District", "gw_District Name", "gw_EANAME", "gw_EACode")
+drop_cols <- intersect(drop_cols, colnames(df))
+if (length(drop_cols) > 0) df <- df %>% select(-all_of(drop_cols))
 
 
 

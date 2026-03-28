@@ -117,11 +117,9 @@ build_spatial_info <- function(country, iso3, year) {
   geo <- getDHSgeo(country = country, year = year)
   cat(sprintf("    GPS clusters: %d\n", nrow(geo)))
 
-  poly.adm1 <- geodata::gadm(country = iso3, level = 1, path = tempdir())
-  poly.adm1 <- sf::st_as_sf(poly.adm1)
-
-  poly.adm2 <- geodata::gadm(country = iso3, level = 2, path = tempdir())
-  poly.adm2 <- sf::st_as_sf(poly.adm2)
+  source(here::here("R", "data_prep.R"))
+  poly.adm1 <- load_gadm_cached(iso3, level = 1)
+  poly.adm2 <- load_gadm_cached(iso3, level = 2)
 
   cat(sprintf("    Admin1: %d | Admin2: %d polygons\n", nrow(poly.adm1), nrow(poly.adm2)))
 

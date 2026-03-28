@@ -323,25 +323,118 @@ extract_nightlights <- function(admin2_sf, country_iso3, survey_year,
       cat(sprintf("[NTL] Downloading VIIRS annual composite for %s %d ...\n",
                   country_iso3, survey_year))
 
-      # blackmarbler downloads VIIRS Black Marble product (VNP46A4 = annual)
-      # It saves to the working directory by default, so we set output_location
-      r_ntl <- blackmarbler::bm_raster(
-        roi_sf        = admin2_sf,
-        product_id    = "VNP46A4",
-        date          = survey_year,
-        bearer        = bearer_token,
-        output_location_type = "file",
-        file_dir      = ntl_dir
-      )
+      # VIIRS nighttime lights — try multiple sources
+      ntl_year <- max(as.integer(survey_year), 2012L)
+
+      r_ntl <- NULL
+
+      # Method 1: EOG direct download (no auth needed)
+      # Colorado School of Mines hosts annual VIIRS composites as cloud-free GeoTIFFs
+      cat("[NTL] Trying EOG direct download (no auth needed)...\n")
+      r_ntl <- tryCatch({
+        # EOG hosts annual composites at ~500m resolution
+        # URL pattern for v2.2 annual composites (median masked)
+        eog_url <- sprintf(
+          "https://eogdata.mines.edu/nighttime_light/annual/v22/%d/VNP46A4/vcmslcfg/",
+          ntl_year
+        )
+
+        # The files are large (~1GB global). Instead, use the average_masked tiles.
+        # For Africa, tiles are typically h17v07, h17v08, h18v07, h18v08
+        # But easier: use the vsicurl to read directly and crop
+        # Try the global low-res version first
+        eog_avg_url <- sprintf(
+          "/vsicurl/https://eogdata.mines.edu/nighttime_light/annual/v22/%d/VNP46A4/vcmslcfg/VNP46A4_t%d.average_masked.tif",
+          ntl_year, ntl_year
+        )
+
+        cat(sprintf("[NTL] Trying global composite for %d...\n", ntl_year))
+        r_global <- tryCatch(terra::rast(eog_avg_url), error = function(e) NULL)
+
+        if (!is.null(r_global)) {
+          bbox_ext <- terra::ext(
+            bbox["xmin"] - 0.5, bbox["xmax"] + 0.5,
+            bbox["ymin"] - 0.5, bbox["ymax"] + 0.5
+          )
+          cropped <- terra::crop(r_global, bbox_ext)
+          cat(sprintf("[NTL] Cropped EOG raster: %d x %d pixels\n",
+                      terra::nrow(cropped), terra::ncol(cropped)))
+          terra::writeRaster(cropped, cached_file, overwrite = TRUE)
+          cropped
+        } else {
+          NULL
+        }
+      }, error = function(e) {
+        cat(sprintf("[NTL] EOG download failed: %s\n", e$message))
+        NULL
+      })
+
+      # Method 2: Use existing CCNL rasters from GEE directory
+      if (is.null(r_ntl)) {
+        cat("[NTL] Trying existing CCNL raster from GEE directory...\n")
+        # Search for CCNL files in the GEE raster directories
+        gee_dirs <- list.dirs(here::here("data"), recursive = FALSE)
+        gee_dirs <- gee_dirs[grepl("GEE", gee_dirs, ignore.case = TRUE)]
+
+        for (gd in gee_dirs) {
+          ccnl_files <- list.files(gd, pattern = "CCNL.*\\.tif$", full.names = TRUE,
+                                   ignore.case = TRUE)
+          # Also check if the directory name matches our country
+          country_match <- grepl(gsub("_", ".", country_iso3), gd, ignore.case = TRUE) ||
+                           grepl(gsub("_", " ", gsub("GEE.*", "", basename(gd))),
+                                 admin2_sf$Admin1[1], ignore.case = TRUE)
+          if (length(ccnl_files) > 0 && country_match) {
+            cat(sprintf("[NTL] Found CCNL raster: %s\n", basename(ccnl_files[1])))
+            r_ntl <- tryCatch({
+              r <- terra::rast(ccnl_files[1])
+              if (terra::nlyr(r) > 1) r <- r[[1]]
+              terra::writeRaster(r, cached_file, overwrite = TRUE)
+              r
+            }, error = function(e) {
+              cat(sprintf("[NTL] Cannot read CCNL: %s\n", e$message))
+              NULL
+            })
+            if (!is.null(r_ntl)) break
+          }
+        }
+      }
+
+      # Method 3: Try blackmarbler (needs NASA auth)
+      if (is.null(r_ntl) && .has_pkg("blackmarbler") &&
+          !is.null(bearer_token) && nchar(bearer_token) > 10) {
+        cat("[NTL] Trying NASA Black Marble via blackmarbler...\n")
+        r_ntl <- tryCatch({
+          country_sf <- sf::st_union(admin2_sf)
+          country_sf <- sf::st_sf(geometry = country_sf)
+
+          blackmarbler::bm_raster(
+            roi_sf     = country_sf,
+            product_id = "VNP46A4",
+            date       = ntl_year,
+            bearer     = bearer_token,
+            h5_dir     = ntl_dir,
+            quiet      = FALSE
+          )
+        }, error = function(e) {
+          cat(sprintf("[NTL] blackmarbler failed: %s\n", e$message))
+          NULL
+        })
+      }
 
       # blackmarbler may return a SpatRaster; save for caching
-      if (inherits(r_ntl, "SpatRaster")) {
+      if (!is.null(r_ntl) && inherits(r_ntl, "SpatRaster")) {
         terra::writeRaster(r_ntl, cached_file, overwrite = TRUE)
+        cat(sprintf("[NTL] Saved raster: %s\n", cached_file))
+      } else {
+        cat("[NTL] bm_raster returned NULL or non-raster object\n")
+        cat(sprintf("[NTL] Object class: %s\n", paste(class(r_ntl), collapse = ", ")))
       }
+    } else {
+      cat(sprintf("[NTL] Using cached: %s\n", basename(cached_file)))
     }
 
     if (!file.exists(cached_file)) {
-      warning("[NTL] No raster available — returning empty result")
+      cat("[NTL] No raster file available — returning empty result\n")
       return(.empty_result(admin2_names))
     }
 
@@ -585,127 +678,98 @@ extract_soilgrids <- function(admin2_sf, cache_dir) {
 
   result <- tryCatch({
 
-    .require_pkg("terra", "raster handling")
-    .require_pkg("exactextractr", "zonal extraction")
-
     soil_dir <- file.path(cache_dir, "soilgrids")
     .ensure_dir(soil_dir)
 
-    # SoilGrids properties at 0-5cm depth
-    # WCS (Web Coverage Service) endpoint for SoilGrids 2.0
-    # https://rest.isric.org/soilgrids/v2.0/properties/query
+    cached_rds <- file.path(soil_dir,
+                            paste0("soilgrids_", digest::digest(sf::st_bbox(admin2_sf)), ".rds"))
+
+    if (file.exists(cached_rds)) {
+      cat("[SoilGrids] Loading from cache\n")
+      return(readRDS(cached_rds))
+    }
+
+    # Download full SoilGrids rasters from the ISRIC file server (VRT/COG).
+    # These are Cloud-Optimized GeoTIFFs that terra can read with windowed access.
+    # Much faster than per-point API queries (7 downloads vs 260×7).
+    # File server: https://files.isric.org/soilgrids/latest/data/
+    .require_pkg("terra", "raster handling")
+    .require_pkg("exactextractr", "zonal extraction")
+
     properties <- list(
-      list(name = "phh2o",  depth = "0-5cm",  col = "soil_ph"),
-      list(name = "soc",    depth = "0-5cm",  col = "soil_organic_carbon"),
-      list(name = "nitrogen", depth = "0-5cm", col = "soil_nitrogen"),
-      list(name = "clay",   depth = "0-5cm",  col = "soil_clay"),
-      list(name = "sand",   depth = "0-5cm",  col = "soil_sand"),
-      list(name = "silt",   depth = "0-5cm",  col = "soil_silt"),
-      list(name = "cec",    depth = "0-5cm",  col = "soil_cec")
+      list(name = "phh2o",    col = "soil_ph"),
+      list(name = "soc",      col = "soil_organic_carbon"),
+      list(name = "nitrogen", col = "soil_nitrogen"),
+      list(name = "clay",     col = "soil_clay"),
+      list(name = "sand",     col = "soil_sand"),
+      list(name = "silt",     col = "soil_silt"),
+      list(name = "cec",      col = "soil_cec")
     )
 
     bbox <- sf::st_bbox(admin2_sf)
-
     df <- data.frame(Admin2 = admin2_names, stringsAsFactors = FALSE)
 
     for (prop in properties) {
-      cached_file <- file.path(soil_dir, paste0(prop$col, "_0_5cm.tif"))
+      cached_tif <- file.path(soil_dir, paste0(prop$col, "_0_5cm.tif"))
 
-      extracted <- tryCatch({
+      if (!file.exists(cached_tif)) {
+        cat(sprintf("[SoilGrids] Downloading %s (0-5cm mean) ...\n", prop$name))
 
-        if (!file.exists(cached_file)) {
-          # Use SoilGrids WCS to download a GeoTIFF tile
-          # ISRIC WCS 2.0 endpoint
-          wcs_url <- sprintf(
-            paste0(
-              "https://maps.isric.org/mapserv?map=/map/%s.map",
-              "&SERVICE=WCS&VERSION=2.0.1&REQUEST=GetCoverage",
-              "&COVERAGEID=%s_%s_mean",
-              "&FORMAT=image/tiff",
-              "&SUBSET=long(%.4f,%.4f)",
-              "&SUBSET=lat(%.4f,%.4f)",
-              "&SUBSETTINGCRS=http://www.opengis.net/def/crs/EPSG/0/4326",
-              "&OUTPUTCRS=http://www.opengis.net/def/crs/EPSG/0/4326"
-            ),
-            prop$name, prop$name, gsub("-", "", prop$depth),
-            bbox["xmin"] - 0.1, bbox["xmax"] + 0.1,
-            bbox["ymin"] - 0.1, bbox["ymax"] + 0.1
+        # The ISRIC file server hosts VRT files that point to COG tiles.
+        # We can read them directly with terra using GDAL's /vsicurl/ driver,
+        # which does windowed reads (only downloads the region we need).
+        vrt_url <- sprintf(
+          "/vsicurl/https://files.isric.org/soilgrids/latest/data/%s/%s_0-5cm_mean.vrt",
+          prop$name, prop$name
+        )
+
+        r <- tryCatch({
+          # Read the VRT — GDAL will only fetch tiles covering our bbox
+          full_r <- terra::rast(vrt_url)
+
+          # SoilGrids uses Homolosine projection (EPSG:152160 / igh).
+          # We must transform our bbox to the raster's CRS before cropping.
+          raster_crs <- terra::crs(full_r)
+          admin2_reproj <- sf::st_transform(admin2_sf, raster_crs)
+          bbox_reproj <- sf::st_bbox(admin2_reproj)
+
+          ext <- terra::ext(
+            bbox_reproj["xmin"] - 50000, bbox_reproj["xmax"] + 50000,
+            bbox_reproj["ymin"] - 50000, bbox_reproj["ymax"] + 50000
           )
+          cropped <- terra::crop(full_r, ext)
 
-          cat(sprintf("[SoilGrids] Downloading %s at %s ...\n", prop$name, prop$depth))
-          dl_ok <- tryCatch({
-            utils::download.file(wcs_url, cached_file, mode = "wb", quiet = TRUE)
-            TRUE
-          }, error = function(e) {
-            warning(sprintf("[SoilGrids] Download failed for %s: %s", prop$name, e$message))
-            FALSE
-          })
+          cat(sprintf("  [SoilGrids] Cropped: %d x %d pixels\n",
+                      terra::nrow(cropped), terra::ncol(cropped)))
 
-          if (!dl_ok) {
-            # Fallback: try the REST API point query for polygon centroids
-            cat(sprintf("[SoilGrids] Trying REST API point query for %s ...\n", prop$name))
-            centroids <- sf::st_coordinates(sf::st_centroid(admin2_sf))
+          # Reproject to WGS84 for consistent extraction
+          cropped_wgs84 <- terra::project(cropped, "EPSG:4326")
 
-            point_vals <- vapply(seq_len(nrow(centroids)), function(i) {
-              api_url <- sprintf(
-                "https://rest.isric.org/soilgrids/v2.0/properties/query?lon=%.4f&lat=%.4f&property=%s&depth=%s&value=mean",
-                centroids[i, 1], centroids[i, 2], prop$name, prop$depth
-              )
-              resp <- tryCatch({
-                json_text <- readLines(api_url, warn = FALSE)
-                json <- jsonlite::fromJSON(paste(json_text, collapse = ""))
-                # Navigate the response structure
-                layers <- json$properties$layers
-                if (length(layers) > 0) {
-                  depths <- layers$depths[[1]]
-                  val <- depths$values$mean[1]
-                  if (!is.null(val)) as.numeric(val) else NA_real_
-                } else {
-                  NA_real_
-                }
-              }, error = function(e) NA_real_)
-              resp
-            }, numeric(1))
+          # Save locally for caching
+          terra::writeRaster(cropped_wgs84, cached_tif, overwrite = TRUE)
+          cat(sprintf("  [SoilGrids] Cached: %s (%d x %d)\n",
+                      basename(cached_tif), terra::nrow(cropped_wgs84), terra::ncol(cropped_wgs84)))
+          cropped_wgs84
+        }, error = function(e) {
+          cat(sprintf("  [SoilGrids] VRT/vsicurl failed for %s: %s\n", prop$name, e$message))
+          NULL
+        })
+      } else {
+        cat(sprintf("[SoilGrids] Cached: %s\n", prop$name))
+        r <- tryCatch(terra::rast(cached_tif), error = function(e) NULL)
+      }
 
-            df[[prop$col]] <- point_vals
-            next
-          }
-        }
-
-        if (file.exists(cached_file)) {
-          r <- tryCatch(terra::rast(cached_file), error = function(e) {
-            cat(sprintf("  [SoilGrids] Cannot read %s as raster: %s\n", cached_file, e$message))
-            # File might be XML error response — check
-            first_bytes <- readLines(cached_file, n = 1, warn = FALSE)
-            if (grepl("xml|html|error", first_bytes, ignore.case = TRUE)) {
-              cat("  [SoilGrids] Downloaded file is XML/HTML error, not a raster. Removing.\n")
-              unlink(cached_file)
-            }
-            NULL
-          })
-          if (!is.null(r)) {
-            .safe_extract(r, admin2_sf, fun = "mean", col_name = prop$col)
-          } else {
-            rep(NA_real_, nrow(admin2_sf))
-          }
-        } else {
-          rep(NA_real_, nrow(admin2_sf))
-        }
-
-      }, error = function(e) {
-        cat(sprintf("  [SoilGrids] Unexpected error for '%s': %s\n", prop$col, e$message))
-        rep(NA_real_, nrow(admin2_sf))
-      })
-
-      # Only assign if not already set by the point-query fallback
-      if (!prop$col %in% colnames(df)) {
-        df[[prop$col]] <- extracted
+      if (!is.null(r)) {
+        df[[prop$col]] <- .safe_extract(r, admin2_sf, fun = "mean", col_name = prop$col)
+      } else {
+        df[[prop$col]] <- NA_real_
       }
     }
 
     n_valid <- sum(vapply(df[-1], function(x) !all(is.na(x)), logical(1)))
     cat(sprintf("[SoilGrids] Extracted %d/%d properties for %d Admin-2 units\n",
                 n_valid, length(properties), nrow(df)))
+    if (n_valid > 0) saveRDS(df, cached_rds)
     df
 
   }, error = function(e) {
@@ -737,22 +801,53 @@ extract_gdl <- function(country_iso3, admin1_names, survey_year) {
 
     .require_pkg("jsonlite", "GDL data parsing")
 
-    # GDL SHDI dataset — try CSV download
-    # The GDL provides a downloadable CSV of the SHDI database
-    gdl_url <- "https://globaldatalab.org/assets/2024/09/SHDI-SGDI-Total%207.0.csv"
+    # GDL SHDI dataset — look for local file first, then try web download
+    cat(sprintf("[GDL] Loading subnational HDI data for %s ...\n", country_iso3))
 
-    cat(sprintf("[GDL] Downloading subnational HDI data for %s ...\n", country_iso3))
-    gdl_data <- tryCatch({
-      tmp <- tempfile(fileext = ".csv")
-      utils::download.file(gdl_url, tmp, mode = "wb", quiet = TRUE)
-      utils::read.csv(tmp, stringsAsFactors = FALSE)
-    }, error = function(e) {
-      # Fallback URL pattern
-      gdl_url2 <- "https://globaldatalab.org/shdi/download_file/shdi/"
-      tmp2 <- tempfile(fileext = ".csv")
-      utils::download.file(gdl_url2, tmp2, mode = "wb", quiet = TRUE)
-      utils::read.csv(tmp2, stringsAsFactors = FALSE)
-    })
+    # Search for local file with common naming patterns
+    cache_dir <- here::here("data", "external_cache")
+    local_candidates <- c(
+      file.path(cache_dir, "GDL-Subnational-HDI-data.csv"),
+      file.path(cache_dir, "gdl_shdi_full.csv"),
+      file.path(cache_dir, "SHDI-SGDI-Total 7.0.csv"),
+      file.path(cache_dir, "SHDI-SGDI-Total 8.0.csv")
+    )
+    # Also search for any CSV with "GDL" or "SHDI" or "HDI" in the name
+    if (dir.exists(cache_dir)) {
+      all_csvs <- list.files(cache_dir, pattern = "\\.csv$", full.names = TRUE, ignore.case = TRUE)
+      gdl_csvs <- all_csvs[grepl("gdl|shdi|hdi", basename(all_csvs), ignore.case = TRUE)]
+      local_candidates <- unique(c(local_candidates, gdl_csvs))
+    }
+
+    local_file <- NULL
+    for (f in local_candidates) {
+      if (file.exists(f)) {
+        local_file <- f
+        cat(sprintf("[GDL] Found local file: %s\n", basename(f)))
+        break
+      }
+    }
+
+    gdl_data <- if (!is.null(local_file)) {
+      tryCatch(
+        utils::read.csv(local_file, stringsAsFactors = FALSE),
+        error = function(e) {
+          cat(sprintf("[GDL] Failed to read local file: %s\n", e$message))
+          NULL
+        }
+      )
+    } else {
+      # Try web download as fallback
+      tryCatch({
+        gdl_url <- "https://globaldatalab.org/assets/2024/09/SHDI-SGDI-Total%207.0.csv"
+        tmp <- tempfile(fileext = ".csv")
+        utils::download.file(gdl_url, tmp, mode = "wb", quiet = TRUE)
+        utils::read.csv(tmp, stringsAsFactors = FALSE)
+      }, error = function(e) {
+        cat(sprintf("[GDL] Web download failed: %s\n", e$message))
+        NULL
+      })
+    }
 
     if (is.null(gdl_data) || nrow(gdl_data) == 0) {
       warning("[GDL] No data downloaded — returning empty result")
