@@ -100,25 +100,29 @@ Even after removing the 26 columns matching explicit leakage patterns (RBP, VAD,
 
 ### Proxy predictor domains
 
-| Domain | Prefix | Source | Spatial resolution | Examples |
-|--------|--------|--------|-------------------|----------|
-| DHS | `dhs2019_` | DHS 2019 API | Admin-1 | Vaccination coverage, ANC attendance, stunting |
-| MICS | `mics_` | MICS 2018 | Admin-1 | Water, sanitation, education indicators |
-| IHME | `ihme_` | IHME GBD | Admin-2 | Under-5 mortality, DALYs, health spending |
-| LSMS | `lsms_` | World Bank | Admin-2 | Poverty, consumption, food expenditure |
-| MAP | `MAP_` | Malaria Atlas | Raster (~5 km) | Pf prevalence, ITN coverage, IRS coverage |
-| WFP | `wfp_` | WFP VAM | Market-level | Commodity prices, market distance |
-| FluNet | `flunet_` | WHO FluNet | National/seasonal | Influenza positivity rates |
-| FSEC | `fsec_` | HFID / Cadre Harmonisé | Admin-2 | Food security indicators, IPC phase classification |
-| GEE | `gee_` | Google Earth Engine | Raster (1--10 km) | NDVI, rainfall, night lights, land cover |
+| Domain | Prefix | Source | Spatial resolution | # Indicators | Examples |
+|--------|--------|--------|-------------------|:---:|----------|
+| DHS (Admin-1) | `dhs{year}_` | DHS STATcompiler API | Admin-1 | ~20 | Vaccination coverage, ANC attendance, stunting |
+| DHS (Admin-2) | `dhs{year}_*_adm2` | DHS microdata via `surveyPrev` + custom aggregation | Admin-2 | ~110 | Same indicators plus wealth, education, dietary diversity, fertility, bed net use |
+| MICS | `mics_` | MICS survey | Admin-1 | Variable | Water, sanitation, education indicators |
+| IHME | `ihme_` | IHME GBD | Admin-2 | Variable | Under-5 mortality, DALYs, health spending |
+| LSMS | `lsms_` | World Bank | Admin-2 | Variable | Poverty, consumption, food expenditure |
+| MAP | `MAP_` | Malaria Atlas | Raster (~5 km) | Variable | Pf prevalence, ITN coverage, IRS coverage |
+| WFP | `wfp_` | WFP VAM | Market-level | Variable | Commodity prices, market distance |
+| FluNet | `flunet_` | WHO FluNet | National/seasonal | Variable | Influenza positivity rates |
+| FSEC | `fsec_` | HFID / Cadre Harmonisé | Admin-2 | Variable | Food security indicators, IPC phase classification |
+| GEE | Various | Google Earth Engine | Raster (1--10 km) | Variable | NDVI, rainfall, night lights, land cover, soil |
 
 **Key merging decisions:**
 
-- **Spatial join:** Survey clusters are assigned to Admin-1 and Admin-2 areas via point-in-polygon intersection with GADM boundaries.
-- **GEE rasters:** Extracted at 10 km and 50 km buffers around each cluster centroid.
+- **Spatial join:** Survey clusters are assigned to Admin-1 and Admin-2 areas via point-in-polygon intersection with GADM v4.1 boundaries.
+- **GEE rasters:** Extracted at 10 km and 50 km buffers around each cluster centroid, then zonal means computed at the Admin-2 level for area-level models.
 - **Food prices:** Each cluster is linked to the nearest WFP-monitored market by Euclidean distance.
-- **DHS indicators:** Aggregated to Admin-1 from the DHS 2019 survey via the `rdhs` API.
-- **IHME matching:** Admin-2 names are fuzzy-matched between GADM and IHME databases.
+- **DHS indicators (Admin-1):** ~20 pre-aggregated indicators from the DHS STATcompiler API via `rdhs::dhs_data()`, covering health, nutrition, and demographic domains. These are publicly available without DHS microdata access.
+- **DHS indicators (Admin-2):** ~110 indicators aggregated from DHS microdata. Two complementary approaches are used:
+  1. **`surveyPrev`-based indicators** (~20): Built-in DHS indicator formulas processed through `surveyPrev::getDHSindicator()`, with both survey-weighted direct estimates and Fay-Herriot BYM2 spatially smoothed estimates (via INLA). The smoothed estimates borrow strength from neighboring admin-2 areas, producing estimates even for areas with few survey clusters.
+  2. **Custom weighted indicators** (~90): Derived directly from DHS recode files (Individual, Children's, Household, Births, Household Member recodes). Survey-weighted cluster means are computed and aggregated to admin-2 using `clusterInfo()` spatial assignments. These cover additional domains including maternal education, wealth indices, dietary diversity, fertility, contraception, bednet usage, housing quality, and child mortality.
+- **IHME matching:** Admin-2 names are fuzzy-matched between GADM and IHME databases using case-insensitive exact matching with edit-distance fallback.
 
 ### Alternatives
 
@@ -165,7 +169,7 @@ The preprocessing is applied identically within each cross-validation fold and b
 
 The SuperLearner is fit at the **individual level** --- each row is one surveyed child or woman. Each individual has:
 
-- **Proxy predictors ($X_i$):** Area-level indicators (DHS/MICS at Admin-1, IHME/MAP at Admin-2, GEE rasters extracted at cluster coordinates, food security indicators). All individuals in a cluster share the same proxy values.
+- **Proxy predictors ($X_i$):** Area-level indicators at multiple spatial resolutions: DHS indicators at both Admin-1 (~20 indicators) and Admin-2 (~110 indicators), MICS at Admin-1, IHME/MAP at Admin-2, GEE rasters extracted at cluster coordinates, food security indicators, and WFP commodity prices. All individuals in a cluster share the same proxy values.
 - **Binary outcome ($Y_i$):** A 0/1 indicator of micronutrient deficiency for that individual.
 
 The SuperLearner learns $\hat{P}(Y_i = 1 \mid X_i)$ for each individual. Subnational prevalence estimates are then computed by averaging these individual predictions within Admin-1 or Admin-2 regions:
@@ -176,27 +180,29 @@ Because the predictors are area-level, all individuals in the same cluster recei
 
 ## 2.2 The ensemble approach
 
-We use the SuperLearner (van der Laan et al., 2007) implemented via the `sl3` R package. The SuperLearner fits multiple "base learners" to the data, then combines their predictions using a non-negative least squares (NNLS) metalearner to minimize cross-validated risk.
+We use the SuperLearner (van der Laan et al., 2007) implemented via the `mlr3superlearner` R package (replacing the earlier `sl3` implementation). The SuperLearner fits multiple "base learners" to the data, then combines their predictions using a non-negative least squares (NNLS) metalearner to minimize cross-validated risk.
 
-**Fast mode stack** (3 learners --- for development, ~5--10 min):
-
-| Learner | Description |
-|---------|-------------|
-| `Lrnr_mean` | Intercept-only (prevalence baseline) |
-| `Lrnr_glmnet` (LASSO, $\alpha=1$) | LASSO penalized regression |
-| `Lrnr_ranger` (`min.node.size=10`) | Random forest with conservative splits |
-
-**Full mode stack** (7 learners --- for publication, ~2--4 hours):
+**Fast mode stack** (5 learners --- for development, ~10--30 min):
 
 | Learner | Description |
 |---------|-------------|
-| `Lrnr_mean` | Intercept-only |
-| `Lrnr_glmnet` (LASSO, $\alpha=1$) | Aggressive variable selection |
-| `Lrnr_glmnet` (elastic net, $\alpha=0.75$) | Moderate regularization |
-| `Lrnr_glmnet` (ridge, $\alpha=0$) | Distributed weak signal across correlated predictors |
-| `Lrnr_ranger` (conservative, `min.node.size=10`) | Shallow random forest |
-| `Lrnr_ranger` (deeper, `min.node.size=5`) | Deeper random forest |
-| `Lrnr_xgboost` (`max_depth=3`, `eta=0.05`, `min_child_weight=20`) | Gradient-boosted trees with conservative regularization |
+| `mean` | Intercept-only (prevalence baseline) |
+| `glmnet` (LASSO, $\alpha=1$) | LASSO penalized regression |
+| `ranger` (`min.node.size=10`) | Random forest with conservative splits |
+| `xgboost` (`max_depth=3`, `eta=0.05`) | Gradient-boosted trees with conservative regularization |
+| `bart` (`ntree=100`) | Bayesian additive regression trees |
+
+**Full mode stack** (16 learners --- for publication, ~2--4 hours):
+
+| Learner | Description |
+|---------|-------------|
+| `mean` | Intercept-only |
+| `glmnet` (LASSO, $\alpha=1$) | Aggressive variable selection |
+| `glmnet` (elastic net, $\alpha=0.5$) | Moderate regularization |
+| `glmnet` (ridge, $\alpha=0$) | Distributed weak signal across correlated predictors |
+| `ranger` (multiple configs) | Random forests with varying depth and splitting rules |
+| `xgboost` (multiple configs) | Gradient-boosted trees with varying regularization |
+| `bart` | Bayesian additive regression trees |
 
 Neither stack uses screener pipelines. All learners receive the full preprocessed predictor set directly and handle high dimensionality natively via their built-in regularization.
 
@@ -354,7 +360,7 @@ Since the primary analysis uses only proxy predictors, the `GW` domain is automa
 
 | Domain removed | What you learn |
 |---------------|----------------|
-| DHS | Value of national survey indicators (vaccination, ANC, stunting) |
+| DHS | Value of DHS survey indicators at Admin-1 (~20) and Admin-2 (~110): vaccination, ANC, stunting, dietary diversity, wealth, education, fertility, WASH, bed net use |
 | GEE | Value of satellite-derived environmental covariates |
 | IHME | Value of modeled health estimates (mortality, DALYs) |
 | MICS | Value of WASH and education indicators |
@@ -374,7 +380,7 @@ In addition to the source-based ablation above, the pipeline also performs **con
 
 ### Interpretation
 
-The domain ablation reveals which **data investments** are most important for prediction quality. If DHS indicators dominate, then maintaining DHS survey frequency is critical for this approach. If GEE dominates, then satellite-based monitoring can serve as a low-cost substitute for some survey data.
+The domain ablation reveals which **data investments** are most important for prediction quality. If DHS indicators dominate (now spanning ~130 indicators at Admin-1 and Admin-2), then maintaining DHS survey frequency is critical for this approach. If GEE dominates, then satellite-based monitoring can serve as a low-cost substitute for some survey data. The Admin-2 DHS indicators are particularly valuable because they provide finer spatial resolution than the Admin-1 indicators, potentially capturing within-region heterogeneity.
 
 
 # Stage 5b: Transportability and Multi-Country Analysis

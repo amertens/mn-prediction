@@ -88,17 +88,26 @@ Some surveys code binary outcomes as 1/2 (factor-like) rather than 0/1. The pipe
 
 ### Predictor identification by domain
 
-Predictor columns are identified by prefix:
+Predictor columns are identified by prefix. The DHS domain is the largest single source, contributing indicators at both Admin-1 and Admin-2 resolution:
 
-| Domain | Prefix | Source |
-|--------|--------|--------|
-| GW | `gw_` | Same survey as the outcome (GMS/DHS/MNS) |
-| IHME | `ihme_` | Institute for Health Metrics and Evaluation rasters |
-| MAP | `MAP_` | Malaria Atlas Project rasters |
-| GEE | `gee_` | Google Earth Engine satellite indices |
-| DHS | `dhs_` | DHS program indicators (other surveys) |
-| MICS | `mics_` | UNICEF MICS indicators |
-| FSEC | `fsec_` | Food security indicators (HFID, Cadre Harmonis&eacute;) |
+| Domain | Prefix | Source | Resolution | ~# Indicators |
+|--------|--------|--------|-----------|:---:|
+| GW | `gw_` | Same survey as the outcome (GMS/DHS/MNS) | Individual | 500+ |
+| DHS (Admin-1) | `dhs{year}_` | DHS STATcompiler API (pre-aggregated) | Admin-1 | ~20 |
+| DHS (Admin-2) | `dhs{year}_*_adm2` | DHS microdata via `surveyPrev` + custom weighted aggregation | Admin-2 | ~110 |
+| IHME | `ihme_` | Institute for Health Metrics and Evaluation rasters | Admin-2 | Variable |
+| MAP | `MAP_` | Malaria Atlas Project rasters | Raster (~5 km) | Variable |
+| GEE | Various (`chirps_`, `worldpop_`, `map2_`, `soil_`, `ntl_`, `gdl_`, `crop_`) | Google Earth Engine satellite indices | Raster (1--10 km) | Variable |
+| MICS | `mics_` | UNICEF MICS indicators | Admin-1 | Variable |
+| FSEC | `fsec_` | Food security indicators (HFID, Cadre Harmonis&eacute;) | Admin-2 | Variable |
+| WFP | `wfp_` | WFP commodity prices | Nearest market | Variable |
+
+The DHS Admin-2 indicators are computed using two complementary approaches:
+
+1. **`surveyPrev`-based** (~20 indicators): Standard DHS indicator formulas with Fay-Herriot BYM2 spatial smoothing via INLA, which borrows strength from neighboring areas to produce estimates even where few survey clusters are available.
+2. **Custom weighted aggregation** (~90 indicators): Survey-weighted cluster means derived directly from DHS recode files (IR, KR, HR, BR, PR), covering maternal education, wealth, dietary diversity, fertility, contraception, bed net use, housing quality, child mortality, and WASH indicators.
+
+Both Admin-1 and Admin-2 DHS columns share the same `dhs{year}_` prefix (e.g., `dhs2019_AN_ANEM_W_ANY` for Admin-1, `dhs2019_AN_ANEM_W_ANY_adm2` for Admin-2), so they are automatically captured by the same domain configuration in `config.R`.
 
 ### Leakage prevention
 
@@ -120,7 +129,7 @@ Fits an ensemble machine learning model (SuperLearner) using cluster-blocked cro
 
 ## Detail
 
-**Function:** `fit_sl_models()` in `R/sl_fitting.R`, calling `DHS_SL_clustered()` in `src/analysis/sl_helpers.R`
+**Function:** `fit_mlr3_models()` in `R/mlr3_fitting.R`, calling `mlr3_SL_clustered()` for each outcome type. (Replaces the earlier `sl3`-based implementation with an `mlr3superlearner` backend while maintaining an identical downstream interface.)
 
 ### Preprocessing pipeline
 
@@ -146,25 +155,27 @@ Cross-validation folds are **blocked by survey cluster** (PSU). All individuals 
 
 ### Learner library
 
-**Fast mode** (3 learners):
+The pipeline uses `mlr3superlearner` with two stack configurations controlled by the `PIPELINE_MODE` environment variable:
+
+**Fast mode** (5 learners, ~10--30 min):
 
 | Learner | Method | Rationale |
 |---------|--------|-----------|
-| `Lrnr_mean` | Intercept-only | Benchmark: always predict the mean |
-| `Lrnr_glmnet` ($\alpha = 1$) | Lasso | Aggressive variable selection for $p \gg n$ |
-| `Lrnr_ranger` | Random forest | Nonlinear interactions; `min.node.size = 10` prevents overfitting on rare outcomes |
+| `mean` | Intercept-only | Benchmark: always predict the mean |
+| `glmnet` ($\alpha = 1$) | Lasso | Aggressive variable selection for $p \gg n$ |
+| `ranger` (`min.node.size = 10`) | Random forest | Nonlinear interactions with conservative splits |
+| `xgboost` (`max_depth = 3`, `eta = 0.05`) | Gradient boosting | Conservative regularization |
+| `bart` (`ntree = 100`) | BART | Bayesian additive regression trees |
 
-**Full mode** (7 learners):
+**Full mode** (16 learners, ~2--4 hours):
 
 | Learner | Method | Rationale |
 |---------|--------|-----------|
-| `Lrnr_mean` | Intercept-only | Benchmark |
-| `Lrnr_glmnet` ($\alpha = 1$) | Lasso | Variable selection |
-| `Lrnr_glmnet` ($\alpha = 0.75$) | Near-lasso elastic net | Stabilizes correlated groups |
-| `Lrnr_glmnet` ($\alpha = 0$) | Ridge | Retains all predictors; captures distributed weak signal |
-| `Lrnr_ranger` (conservative) | Random forest | `min.node.size = 10`; conservative splits |
-| `Lrnr_ranger` (deeper) | Random forest | `min.node.size = 5`; captures finer patterns |
-| `Lrnr_xgboost` | Gradient boosting | `max_depth = 3`, `eta = 0.05`, `colsample_bytree = 0.5`; conservative regularization |
+| `mean` | Intercept-only | Benchmark |
+| `glmnet` ($\alpha = 1, 0.5, 0$) | Lasso / elastic net / ridge | Span the regularization spectrum |
+| `ranger` (multiple configs) | Random forest | Varying depth and splitting rules for diversity |
+| `xgboost` (multiple configs) | Gradient boosting | Varying regularization strength |
+| `bart` | BART | Flexible nonparametric regression |
 
 ### Metalearner
 
