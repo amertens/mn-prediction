@@ -1,16 +1,16 @@
 outcome,country,n_admin2,mae_pp,rmse_pp,pearson_r,mean_bias_pp
-child_vitA,Gambia,30,7.82,10.29,0.606,-0.59
-women_vitA,Gambia,30,3.65,5.05,0.566,-0.69
-child_iron,Gambia,30,13.36,16.21,-0.046,1.79
-women_iron,Gambia,30,9.88,13.55,0.599,-2.42
-child_vitA,Ghana,75,10.57,13.05,0.363,1.59
-women_vitA,Ghana,75,2.61,3.49,0.114,0.66
-child_iron,Ghana,75,8.36,11.27,0.779,0.02
-women_iron,Ghana,75,5.68,7.72,0.579,0.38
-child_vitA,Sierra Leone,14,4.68,5.59,0.752,0.06
-women_vitA,Sierra Leone,14,1.75,2.01,0.657,1.51
-child_iron,Sierra Leone,14,2.85,3.69,0.732,-0.45
-child_vitA,Malawi,87,10,12.86,0.207,-0.51
-women_vitA,Malawi,87,3.67,4.94,0.467,0.48
-child_iron,Malawi,87,8.08,10.56,0.24,-0.09
-women_iron,Malawi,87,9.02,12.6,0.191,0.45
+child_vitA,Gambia,30,7.62,10.47,0.582,0.09
+women_vitA,Gambia,30,3.95,5.43,0.269,-0.32
+child_iron,Gambia,30,13.6,16.47,-0.174,1.99
+women_iron,Gambia,30,11.42,14.78,0.402,-3.36
+child_vitA,Ghana,75,10.72,13.23,0.319,1.29
+women_vitA,Ghana,75,3.64,3.98,0.096,2.02
+child_iron,Ghana,75,8.47,11.41,0.769,0.01
+women_iron,Ghana,75,5.64,7.73,0.575,0.4
+child_vitA,Sierra Leone,14,5.19,6,0.675,-0.23
+women_vitA,Sierra Leone,14,2.38,2.64,0.591,2.2
+child_iron,Sierra Leone,14,3.55,4.14,0.69,0.92
+child_vitA,Malawi,87,10.05,12.85,0.21,-0.41
+women_vitA,Malawi,87,4.11,5.37,0.292,0.84
+child_iron,Malawi,87,8.09,10.42,0.286,-0.02
+women_iron,Malawi,87,9.17,12.31,0.292,0.79

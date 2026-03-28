@@ -19,7 +19,7 @@
 COUNTRY_SURVEY_YEARS <- list(
   Gambia         = 2018L,
   Ghana          = 2017L,
-  SierraLeone    = 2012L,
+  SierraLeone    = 2013L,  # SLMS fieldwork: 11 Nov – 2 Dec 2013
   Malawi         = 2016L
 )
 
@@ -174,8 +174,22 @@ load_ch_country <- function(ch_path, country_key) {
     ch[[prop_name]] <- ifelse(ch$total_classified > 0,
                               ch[[pc]] / ch$total_classified, NA_real_)
   }
-  ch$prop_phase35 <- ifelse(ch$total_classified > 0,
-                            as.numeric(ch$phase35) / ch$total_classified, NA_real_)
+  # Compute combined phase 3+4+5 proportion (food crisis + emergency + famine)
+  # phase35 may not exist as a pre-computed column in all CH data versions
+  if ("phase35" %in% colnames(ch)) {
+    ch$prop_phase35 <- ifelse(ch$total_classified > 0,
+                              as.numeric(ch$phase35) / ch$total_classified, NA_real_)
+  } else {
+    # Sum phases 3-5 manually
+    p345_cols <- intersect(c("phase3", "phase4", "phase5"), colnames(ch))
+    if (length(p345_cols) > 0) {
+      ch$phase35_sum <- rowSums(ch[, p345_cols, drop = FALSE], na.rm = TRUE)
+      ch$prop_phase35 <- ifelse(ch$total_classified > 0,
+                                ch$phase35_sum / ch$total_classified, NA_real_)
+    } else {
+      ch$prop_phase35 <- NA_real_
+    }
+  }
 
   # Component indicators (already present as phase classifications)
   component_cols <- c("phase_class",
@@ -402,14 +416,17 @@ build_name_lookup <- function(target_names, source_names) {
     um_source <- source_names[unmatched]
     um_clean  <- source_clean[unmatched]
 
-    dist_mat <- utils::adist(um_clean, target_clean, ignore.case = TRUE, partial = TRUE)
+    # Use full string matching (not partial) to avoid false positives
+    # like "Bo" matching "Bong County" or "Bole" matching "Bolgatanga".
+    # Tighter threshold (0.3 instead of 0.4) reduces false matches.
+    dist_mat <- utils::adist(um_clean, target_clean, ignore.case = TRUE, partial = FALSE)
     # Normalize by max string length
     len_mat <- outer(nchar(um_clean), nchar(target_clean), pmax)
     norm_dist <- dist_mat / pmax(len_mat, 1)
 
     for (i in seq_along(um_source)) {
       best <- which.min(norm_dist[i, ])
-      if (length(best) == 1 && norm_dist[i, best] < 0.4) {
+      if (length(best) == 1 && norm_dist[i, best] < 0.3) {
         lookup[um_source[i]] <- target_names[best]
       }
     }

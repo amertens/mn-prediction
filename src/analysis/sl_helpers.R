@@ -16,7 +16,12 @@
 DHS_SL_clustered <- function(d, Xvars, outcome = "mod_sev_anemia",
                               population, id = "gw_cnum",
                               folds = 5L, CV = FALSE,
-                              prescreen = TRUE, sl) {
+                              prescreen = TRUE, sl,
+                              seed = NULL) {
+  # Resolve seed: explicit arg > cfg global > default
+  if (is.null(seed)) {
+    seed <- tryCatch(cfg$seed, error = function(e) 12345L)
+  }
 
   # Ensure future globals size limit is large enough for SL learner objects
   options(future.globals.maxSize = 2 * 1024^3)  # 2 GB
@@ -82,7 +87,7 @@ DHS_SL_clustered <- function(d, Xvars, outcome = "mod_sev_anemia",
   dat <- data.table::data.table(Y = Y, id = id_vec, cov)
 
   # Cluster-blocked folds
-  set.seed(cfg$seed)
+  set.seed(seed)
   fold_obj <- origami::make_folds(cluster_ids = id_vec, V = folds)
 
   SL_task <- sl3::make_sl3_Task(
@@ -148,7 +153,12 @@ one_bootstrap <- function(b, d_boot_orig, Xvars_b, outcome_b, population_b,
                           id_col, K, sl_obj,
                           d_predict, cutoff, cutoff_dir,
                           binary_outcome = FALSE,
-                          seed_base = 12345L) {
+                          seed_base = 12345L,
+                          admin1_col = NULL) {
+  # Resolve admin1_col: explicit arg > cfg global > default
+  if (is.null(admin1_col)) {
+    admin1_col <- tryCatch(cfg$admin1, error = function(e) "Admin1")
+  }
 
   set.seed(seed_base + b)
 
@@ -260,7 +270,7 @@ one_bootstrap <- function(b, d_boot_orig, Xvars_b, outcome_b, population_b,
   }
 
   # 5. Aggregate to Admin1 and national
-  admin1_col <- cfg$admin1
+  # admin1_col resolved in function header (explicit arg > cfg > default)
   out_df <- data.frame(Admin1 = d_predict[[admin1_col]],
                        deficient_pred = deficient_pred)
   out_df <- out_df[!is.na(out_df$Admin1), ]

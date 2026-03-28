@@ -457,21 +457,43 @@ summary(df$mics_hc4)
 #-------------------------------------------------------------------------------
 
 #-------------------------------------------------------------------------------
-# DHS Admin 1 indicators
+# DHS Admin-1 indicators (existing, from rdhs API)
 #-------------------------------------------------------------------------------
 
+dhs2019_adm1 <- readRDS(here("data/DHS/clean/Gambia_2019_dhs_aggregation.rds"))
+colnames(dhs2019_adm1) <- paste0("dhs2019_", colnames(dhs2019_adm1))
+df <- left_join(as.data.frame(df), dhs2019_adm1, by = c("Admin1_old" = "dhs2019_DHSREGEN"))
 
-dhs2019 <- readRDS(here("data/DHS/clean/Gambia_2019_dhs_aggregation.rds"))
-colnames(dhs2019) <- paste0("dhs2019_",colnames(dhs2019))
+#-------------------------------------------------------------------------------
+# DHS Admin-2 indicators (from surveyPrev FH BYM2 smoothed estimates)
+# Run src/DHS/DHS_admin2_aggregation.R first to generate the wide file
+#-------------------------------------------------------------------------------
 
-table(dhs2019$dhs2019_DHSREGEN)
-table(df$Admin1)
-table(df$Admin1_old)
+source(here("R", "data_prep.R"))
+dhs2019_adm2 <- load_dhs_admin2(
+  dhs_dir = here("data", "DHS", "clean"),
+  country = "Gambia",
+  year    = 2019
+)
 
-dhs_vars <- c(colnames(dhs2019))
+if (!is.null(dhs2019_adm2)) {
+  # Fuzzy match Admin2 names (surveyPrev GADM names may differ slightly)
+  source(here("R", "food_security.R"))
+  target_a2 <- unique(df$Admin2)
+  source_a2 <- dhs2019_adm2$Admin2
+  name_lookup <- build_name_lookup(target_a2, source_a2)
+  dhs2019_adm2$Admin2 <- name_lookup[dhs2019_adm2$Admin2]
 
-df <- left_join(as.data.frame(df), dhs2019, by = c("Admin1_old" = "dhs2019_DHSREGEN"))
-table(is.na(df$dhs2019_AH_CIGA_M_59C))
+  n_matched <- sum(!is.na(dhs2019_adm2$Admin2))
+  cat(sprintf("  DHS Admin2 name matching: %d/%d matched\n", n_matched, length(source_a2)))
+
+  dhs2019_adm2 <- dhs2019_adm2[!is.na(dhs2019_adm2$Admin2), ]
+  df <- left_join(df, dhs2019_adm2, by = "Admin2")
+  cat(sprintf("  DHS admin-2 merge complete: %d _adm2 columns added\n",
+              sum(grepl("_adm2$", colnames(df)))))
+} else {
+  warning("Admin-2 DHS file not found — run src/DHS/DHS_admin2_aggregation.R first")
+}
 
 #-------------------------------------------------------------------------------
 # FluNet Data
@@ -591,7 +613,10 @@ df <- df %>% select(-all_of(very_high_fact$high_level_variables))
 df = st_drop_geometry(df)
 df <- df[, !sapply(df, function(x) inherits(x, c("POSIXct", "POSIXt")))]
 
-df <- df %>% subset(., select=-c(dhs2019_geometry))
+# Remove geometry column from admin-1 DHS (only present in fallback mode)
+if ("dhs2019_geometry" %in% colnames(df)) {
+  df <- df %>% subset(., select=-c(dhs2019_geometry))
+}
 
 #make unique id
 df$dataid <- paste0("gambia",1:nrow(df))

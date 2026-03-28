@@ -31,6 +31,12 @@ load_merged_data <- function(data_path) {
 
   if (is_malawi) {
     cat("  Malawi MNS data detected — using raw biomarker columns\n")
+    # Strip haven labels even for Malawi
+    for (col in colnames(d)) {
+      if (inherits(d[[col]], "haven_labelled")) {
+        d[[col]] <- as.double(unclass(haven::zap_labels(d[[col]])))
+      }
+    }
     return(d)
   }
 
@@ -73,7 +79,80 @@ load_merged_data <- function(data_path) {
   d <- derive_binary(d, "gw_cRBPAdj", "gw_cVAD", 0.70)
   d <- derive_binary(d, "gw_wRBPAdj", "gw_wVAD", 0.70)
 
+  # ── Strip haven labels from all columns ──────────────────────────────
+  # haven_labelled columns from .dta files cause arithmetic errors downstream
+  # (e.g., <double> * <haven_labelled> is not permitted). Also convert
+  # user-defined NA values (.a, .b etc.) to real NA.
+  n_haven <- 0L
+  for (col in colnames(d)) {
+    if (inherits(d[[col]], "haven_labelled")) {
+      d[[col]] <- as.double(unclass(haven::zap_labels(d[[col]])))
+      n_haven <- n_haven + 1L
+    }
+  }
+  if (n_haven > 0) {
+    cat(sprintf("  Stripped haven labels from %d columns\n", n_haven))
+  }
+
   d
+}
+
+
+#' Load DHS admin-2 estimates for merging into the pipeline dataset
+#'
+#' Loads the pre-built wide .rds file produced by DHS_admin2_aggregation.R.
+#' Column names follow the convention {prefix}{indicator}_adm2, e.g.,
+#' "dhs2019_womananemia_adm2". The Admin2 column matches GADM NAME_2.
+#'
+#' @param dhs_dir Path to data/DHS/clean/ directory
+#' @param country Country name (e.g., "Gambia")
+#' @param year DHS survey year (e.g., 2019)
+#' @param merge_col Name of the Admin2 column in the target dataset (default "Admin2")
+#' @return data.frame with merge_col + indicator columns, or NULL if file missing
+load_dhs_admin2 <- function(dhs_dir, country, year, merge_col = "Admin2") {
+
+  wide_path   <- file.path(dhs_dir, paste0(country, "_", year, "_dhs_admin2_wide.rds"))
+  custom_path <- file.path(dhs_dir, paste0(country, "_", year, "_dhs_custom_admin2_wide.rds"))
+
+  wide <- NULL
+  custom <- NULL
+
+  # Load surveyPrev-based admin-2 estimates
+  if (file.exists(wide_path)) {
+    wide <- readRDS(wide_path)
+    cat(sprintf("[load_dhs_admin2] Loaded surveyPrev: %s (%d areas x %d cols)\n",
+                basename(wide_path), nrow(wide), ncol(wide) - 1L))
+  }
+
+
+  # Load custom indicator admin-2 estimates
+  if (file.exists(custom_path)) {
+    custom <- readRDS(custom_path)
+    cat(sprintf("[load_dhs_admin2] Loaded custom: %s (%d areas x %d cols)\n",
+                basename(custom_path), nrow(custom), ncol(custom) - 1L))
+  }
+
+  # Merge both if available
+  if (!is.null(wide) && !is.null(custom)) {
+    # Remove duplicate indicator columns (custom takes precedence if overlap)
+    overlap_cols <- setdiff(intersect(names(wide), names(custom)), "Admin2")
+    if (length(overlap_cols) > 0) {
+      cat(sprintf("[load_dhs_admin2] %d overlapping columns — keeping custom version\n",
+                  length(overlap_cols)))
+      wide <- wide[, !(names(wide) %in% overlap_cols), drop = FALSE]
+    }
+    combined <- merge(wide, custom, by = "Admin2", all = TRUE)
+    cat(sprintf("[load_dhs_admin2] Combined: %d Admin2 areas x %d indicator columns\n",
+                nrow(combined), ncol(combined) - 1L))
+    return(combined)
+  }
+
+  if (!is.null(wide)) return(wide)
+  if (!is.null(custom)) return(custom)
+
+  warning(sprintf("[load_dhs_admin2] No admin-2 DHS files found for %s %d.\n  Run src/DHS/DHS_admin2_aggregation.R and/or DHS_custom_admin2_indicators.R first.",
+                  country, year))
+  NULL
 }
 
 

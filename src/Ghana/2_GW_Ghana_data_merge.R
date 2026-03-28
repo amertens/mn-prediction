@@ -467,9 +467,8 @@ summary(df$mics_hc4)
 
 
 #-------------------------------------------------------------------------------
-# DHS Admin 1 indicators
+# DHS Admin-1 indicators
 #-------------------------------------------------------------------------------
-
 
 dhs2014 <- readRDS(here("data/DHS/clean/Ghana_2014_dhs_aggregation.rds"))
 dhs2016 <- readRDS(here("data/DHS/clean/Ghana_2016_dhs_aggregation.rds"))
@@ -479,23 +478,44 @@ dhs2014$DHSREGEN[dhs2014$DHSREGEN=="Brong-Ahafo"] <- "Brong Ahafo"
 dhs2016$DHSREGEN[dhs2016$DHSREGEN=="Brong-Ahafo"] <- "Brong Ahafo"
 dhs2017$DHSREGEN[dhs2017$DHSREGEN=="Brong-Ahafo"] <- "Brong Ahafo"
 
-
-
 colnames(dhs2014) <- paste0("dhs2014_",colnames(dhs2014))
 colnames(dhs2016) <- paste0("dhs2016_",colnames(dhs2016))
 colnames(dhs2017) <- paste0("dhs2017_",colnames(dhs2017))
-
-table(dhs2014$dhs2014_DHSREGEN)
-table(dhs2016$dhs2016_DHSREGEN)
-table(dhs2017$dhs2017_DHSREGEN)
-table(df$Admin1)
-table(df$Admin1_old)
 
 dhs_vars <- c(colnames(dhs2014), colnames(dhs2016), colnames(dhs2017))
 
 df <- left_join(as.data.frame(df), dhs2014, by = c("Admin1_old" = "dhs2014_DHSREGEN"))
 df <- left_join(as.data.frame(df), dhs2016, by = c("Admin1_old" = "dhs2016_DHSREGEN"))
 df <- left_join(as.data.frame(df), dhs2017, by = c("Admin1_old" = "dhs2017_DHSREGEN"))
+
+#-------------------------------------------------------------------------------
+# DHS Admin-2 indicators (from surveyPrev FH BYM2 smoothed estimates)
+# Run src/DHS/DHS_admin2_aggregation.R first to generate the wide files
+#-------------------------------------------------------------------------------
+
+source(here("R", "data_prep.R"))
+source(here("R", "food_security.R"))
+
+for (dhs_yr in c(2014, 2017)) {
+  dhs_adm2 <- load_dhs_admin2(
+    dhs_dir = here("data", "DHS", "clean"),
+    country = "Ghana",
+    year    = dhs_yr
+  )
+  if (!is.null(dhs_adm2)) {
+    target_a2 <- unique(df$Admin2)
+    source_a2 <- dhs_adm2$Admin2
+    name_lookup <- build_name_lookup(target_a2, source_a2)
+    dhs_adm2$Admin2 <- name_lookup[dhs_adm2$Admin2]
+    n_matched <- sum(!is.na(dhs_adm2$Admin2))
+    cat(sprintf("  DHS %d Admin2 name matching: %d/%d matched\n", dhs_yr, n_matched, length(source_a2)))
+    dhs_adm2 <- dhs_adm2[!is.na(dhs_adm2$Admin2), ]
+    df <- left_join(df, dhs_adm2, by = "Admin2")
+    cat(sprintf("  DHS %d admin-2 merge complete\n", dhs_yr))
+  } else {
+    warning(sprintf("Admin-2 DHS file not found for Ghana %d", dhs_yr))
+  }
+}
 
 
 #-------------------------------------------------------------------------------

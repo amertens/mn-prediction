@@ -430,23 +430,40 @@ table(is.na(df$ihme_2_to_10_years_2_to_10_both_malaria_prevalence_rate ))
 
 
 #-------------------------------------------------------------------------------
-# DHS Admin 1 indicators
+# DHS Admin-1 indicators
 #-------------------------------------------------------------------------------
 
-
 dhs2013 <- readRDS(here("data/DHS/clean/SL_2013_dhs_aggregation.rds"))
-
-
 colnames(dhs2013) <- paste0("dhs2013_",colnames(dhs2013))
-
-table(dhs2013$dhs2013_DHSREGEN)
-table(df$Admin1)
-table(df$Admin2)
-
 dhs_vars <- c(colnames(dhs2013))
-
 df <- left_join(as.data.frame(df), dhs2013, by = c("Admin1" = "dhs2013_DHSREGEN"))
-table(is.na(df$dhs2013_FE_FRTY_W_PRG))
+
+#-------------------------------------------------------------------------------
+# DHS Admin-2 indicators (from surveyPrev FH BYM2 smoothed estimates)
+# Run src/DHS/DHS_admin2_aggregation.R first to generate the wide file
+#-------------------------------------------------------------------------------
+
+source(here("R", "data_prep.R"))
+source(here("R", "food_security.R"))
+
+dhs2013_adm2 <- load_dhs_admin2(
+  dhs_dir = here("data", "DHS", "clean"),
+  country = "Sierra Leone",
+  year    = 2013
+)
+if (!is.null(dhs2013_adm2)) {
+  target_a2 <- unique(df$Admin2)
+  source_a2 <- dhs2013_adm2$Admin2
+  name_lookup <- build_name_lookup(target_a2, source_a2)
+  dhs2013_adm2$Admin2 <- name_lookup[dhs2013_adm2$Admin2]
+  n_matched <- sum(!is.na(dhs2013_adm2$Admin2))
+  cat(sprintf("  DHS 2013 Admin2 name matching: %d/%d matched\n", n_matched, length(source_a2)))
+  dhs2013_adm2 <- dhs2013_adm2[!is.na(dhs2013_adm2$Admin2), ]
+  df <- left_join(df, dhs2013_adm2, by = "Admin2")
+  cat(sprintf("  DHS 2013 admin-2 merge complete\n"))
+} else {
+  warning("Admin-2 DHS file not found for Sierra Leone 2013")
+}
 
 #-------------------------------------------------------------------------------
 # FluNet Data
@@ -580,7 +597,9 @@ df <- df %>% select(-all_of(very_high_fact$high_level_variables))
 df = st_drop_geometry(df)
 df <- df[, !sapply(df, function(x) inherits(x, c("POSIXct", "POSIXt")))]
 
-df <- df %>% subset(., select=-c(dhs2013_geometry))
+if ("dhs2013_geometry" %in% colnames(df)) {
+  df <- df %>% subset(., select=-c(dhs2013_geometry))
+}
 
 #make unique id
 df$dataid <- paste0("SL",1:nrow(df))

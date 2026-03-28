@@ -7,3 +7,4 @@ data
 
 # targets pipeline cache (large, machine-specific)
 _targets/
+.Renviron
