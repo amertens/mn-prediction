@@ -185,7 +185,8 @@
       "Bash(\"/c/Program Files/R/R-4.4.2/bin/Rscript.exe\" --vanilla -e \"parse\\(''R/transportability.R''\\); cat\\(''OK\\\\n''\\)\")",
       "Bash(\"/c/Program Files/R/R-4.4.2/bin/Rscript.exe\" --vanilla -e \"d <- readRDS\\(''_targets/objects/pooled_women_iron''\\); cat\\(''OK '', ncol\\(d[[''data'']]\\), ''\\\\n''\\)\")",
       "Bash(\"/c/Program Files/R/R-4.4.2/bin/Rscript.exe\" --vanilla -e \"d <- readRDS\\(''_targets/objects/pooled_women_iron''\\); df <- d[[''data'']]; cat\\(sum\\(sapply\\(df, is.list\\)\\), ''list cols\\\\n''\\)\")",
-      "Bash(\"/c/Program Files/R/R-4.4.2/bin/Rscript.exe\" --vanilla -e \"d <- readRDS\\(''_targets/objects/pooled_women_iron''\\); df <- d[[''data'']]; cat\\(sum\\(sapply\\(df, function\\(x\\) inherits\\(x,''haven_labelled''\\)\\)\\), ''haven cols\\\\n''\\); cat\\(''Y range:'', range\\(df[[''Y_binary'']], na.rm=TRUE\\), ''\\\\n''\\)\")"
+      "Bash(\"/c/Program Files/R/R-4.4.2/bin/Rscript.exe\" --vanilla -e \"d <- readRDS\\(''_targets/objects/pooled_women_iron''\\); df <- d[[''data'']]; cat\\(sum\\(sapply\\(df, function\\(x\\) inherits\\(x,''haven_labelled''\\)\\)\\), ''haven cols\\\\n''\\); cat\\(''Y range:'', range\\(df[[''Y_binary'']], na.rm=TRUE\\), ''\\\\n''\\)\")",
+      "Bash(grep -E \"\\\\.R$\")"
     ]
   }
 }
