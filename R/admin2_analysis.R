@@ -2,11 +2,158 @@
 # R/admin2_analysis.R
 #
 # Functions for Admin2-level analysis:
+#   - Extract GEE raster zonal means for Admin-2 polygons
 #   - Aggregate individual SL predictions to Admin2
 #   - Survey-weighted Admin2 prevalence (srvyr)
 #   - Area-level model: GEE rasters -> Admin2 prevalence (for unsurveyed areas)
 #   - Error analysis
 # =============================================================================
+
+
+#' Extract GEE raster zonal means for all Admin-2 polygons in a country
+#'
+#' This is a shared extraction step used by both the individual-level model
+#' (merged into individual records via Admin-2 join) and the area-level model.
+#' Multi-band rasters with >20 temporal/demographic bands (GPW, WAPOR) are
+#' reduced to summary statistics; distinct-variable bands (FLDAS, Soil) are
+#' kept individually.
+#'
+#' @param cc Country config (needs gadm_code, raster_dir)
+#' @return data.frame with Admin1, Admin2, and gee_* columns (one row per Admin-2)
+extract_gee_admin2 <- function(cc) {
+
+  gadm_raw <- tryCatch(
+    geodata::gadm(cc$gadm_code, level = 2, path = here::here("data", "gadm")),
+    error = function(e) {
+      tryCatch(
+        geodata::gadm(cc$gadm_code, level = 2, path = here::here("data", "gadm")),
+        error = function(e2) NULL
+      )
+    }
+  )
+  if (is.null(gadm_raw)) {
+    warning(sprintf("[extract_gee_admin2] GADM download failed for %s", cc$gadm_code))
+    return(NULL)
+  }
+  all_polys <- sf::st_as_sf(gadm_raw)
+  all_polys$Admin2 <- all_polys$NAME_2
+  all_polys$Admin1 <- all_polys$NAME_1
+
+  raster_dir <- cc$raster_dir
+  if (!dir.exists(raster_dir)) {
+    alt <- gsub("_GEE_rasters$", "_GEE rasters", raster_dir)
+    if (dir.exists(alt)) raster_dir <- alt
+  }
+  if (!dir.exists(raster_dir)) {
+    cat(sprintf("[extract_gee_admin2] No raster dir for %s\n", cc$country))
+    return(data.frame(Admin1 = all_polys$Admin1, Admin2 = all_polys$Admin2))
+  }
+
+  tif_files <- sort(list.files(raster_dir, pattern = "\\.tif$", full.names = TRUE))
+  cat(sprintf("[extract_gee_admin2] %s: %d .tif files, %d Admin-2 polygons\n",
+              cc$country, length(tif_files), nrow(all_polys)))
+
+  gee_admin2 <- data.frame(Admin1 = all_polys$Admin1, Admin2 = all_polys$Admin2)
+
+  for (tif in tif_files) {
+    base <- tools::file_path_sans_ext(basename(tif))
+    base_clean <- base
+    for (cname in c("Gambia", "Ghana", "Sierra_Leone", "Sierra Leone",
+                    "Malawi", "Cote_dIvoire", "Cote d'Ivoire")) {
+      base_clean <- gsub(paste0("_?", gsub("[' ]", ".", cname), "_?"), "_", base_clean)
+    }
+    base_varname <- paste0("gee_", tolower(gsub("[^A-Za-z0-9]+", "_", base_clean)))
+    base_varname <- gsub("_+", "_", base_varname)
+    base_varname <- sub("^_|_$", "", base_varname)
+
+    r <- tryCatch(terra::rast(tif), error = function(e) NULL)
+    if (is.null(r)) next
+
+    n_layers <- terra::nlyr(r)
+
+    if (n_layers == 1) {
+      vals <- tryCatch(
+        exactextractr::exact_extract(r, all_polys, fun = "mean"),
+        error = function(e) rep(NA_real_, nrow(all_polys))
+      )
+      gee_admin2[[base_varname]] <- vals
+    } else {
+      layer_names <- tryCatch(names(r), error = function(e) NULL)
+
+      # Detect summary-only rasters (temporal/demographic with >20 bands)
+      is_summary_only <- FALSE
+      if (n_layers > 20) {
+        if (any(grepl("gpw.*demographic|a\\d{3}_\\d{3}", tolower(base), ignore.case = TRUE))) {
+          is_summary_only <- TRUE
+          cat(sprintf("    [summary-only] GPW Demographic (%d bands -> 5 summaries)\n", n_layers))
+        }
+        if (any(grepl("wapor|l1_npp_\\d{4}", tolower(paste(layer_names, collapse = " ")),
+                       ignore.case = TRUE))) {
+          is_summary_only <- TRUE
+          cat(sprintf("    [summary-only] WAPOR NPP (%d bands -> 5 summaries)\n", n_layers))
+        }
+      }
+
+      if (!is_summary_only) {
+        for (lyr_idx in seq_len(n_layers)) {
+          lyr <- r[[lyr_idx]]
+          lyr_name <- if (!is.null(layer_names) && nchar(layer_names[lyr_idx]) > 0) {
+            ln <- tolower(gsub("[^A-Za-z0-9]+", "_", layer_names[lyr_idx]))
+            paste0(base_varname, "_", ln)
+          } else {
+            month_label <- if (n_layers == 12) tolower(month.abb[lyr_idx])
+                           else sprintf("b%02d", lyr_idx)
+            paste0(base_varname, "_", month_label)
+          }
+          lyr_name <- gsub("_+", "_", lyr_name)
+          lyr_name <- sub("_$", "", lyr_name)
+          vals <- tryCatch(
+            exactextractr::exact_extract(lyr, all_polys, fun = "mean"),
+            error = function(e) rep(NA_real_, nrow(all_polys))
+          )
+          gee_admin2[[lyr_name]] <- vals
+        }
+      }
+
+      # Always add summary statistics
+      all_layer_vals <- tryCatch({
+        sapply(seq_len(n_layers), function(i) {
+          exactextractr::exact_extract(r[[i]], all_polys, fun = "mean")
+        })
+      }, error = function(e) NULL)
+
+      if (!is.null(all_layer_vals) && is.matrix(all_layer_vals)) {
+        gee_admin2[[paste0(base_varname, "_annual_mean")]] <- rowMeans(all_layer_vals, na.rm = TRUE)
+        gee_admin2[[paste0(base_varname, "_annual_sd")]]   <- apply(all_layer_vals, 1, sd, na.rm = TRUE)
+        gee_admin2[[paste0(base_varname, "_annual_min")]]  <- apply(all_layer_vals, 1, min, na.rm = TRUE)
+        gee_admin2[[paste0(base_varname, "_annual_max")]]  <- apply(all_layer_vals, 1, max, na.rm = TRUE)
+        gee_admin2[[paste0(base_varname, "_annual_range")]] <- gee_admin2[[paste0(base_varname, "_annual_max")]] -
+                                                                gee_admin2[[paste0(base_varname, "_annual_min")]]
+      }
+    }
+  }
+
+  n_gee <- ncol(gee_admin2) - 2  # minus Admin1, Admin2
+  cat(sprintf("[extract_gee_admin2] %s: %d GEE variables extracted\n", cc$country, n_gee))
+
+  # Deduplicate Admin2 names (e.g., "Lake Malawi" appears multiple times)
+  dup_names <- gee_admin2$Admin2[duplicated(gee_admin2$Admin2)]
+  if (length(dup_names) > 0) {
+    cat(sprintf("[extract_gee_admin2] Deduplicating %d duplicate Admin2 names\n",
+                length(unique(dup_names))))
+    num_cols <- names(gee_admin2)[sapply(gee_admin2, is.numeric)]
+    gee_admin2 <- gee_admin2 |>
+      dplyr::group_by(Admin2) |>
+      dplyr::summarise(
+        Admin1 = dplyr::first(Admin1),
+        dplyr::across(dplyr::all_of(num_cols), ~ mean(.x, na.rm = TRUE)),
+        .groups = "drop"
+      ) |>
+      as.data.frame()
+  }
+
+  gee_admin2
+}
 
 #' Aggregate individual-level SL predictions to Admin2 prevalence
 #'
@@ -272,39 +419,66 @@ fit_area_level_model <- function(svy_admin2, cc, oc, params) {
       )
       gee_admin2[[base_varname]] <- vals
     } else {
-      # Multi-band raster (e.g., monthly climate data): extract ALL layers.
-      # Each layer becomes a separate variable (e.g., gee_fldas_2017_band1, ..._band12).
-      # Also compute summary statistics across layers (mean, sd, min, max).
+      # Multi-band raster: decide whether to extract all bands or just summaries.
+      #
+      # High-band temporal rasters (GPW demographics 77 bands = age/sex bins,
+      # WAPOR 36 bands = dekadal NPP) create too many predictors for the
+      # area-level model (~30-80 training areas). Only summary stats are needed.
+      #
+      # Low-band rasters with meaningfully distinct variables (FLDAS 28 climate
+      # vars, Soil 4 depth layers, ESA 5 crop types) are kept individually.
+      #
+      # Threshold: if n_layers > 12, check if bands are temporal/demographic
+      # replicates (summary only) vs distinct variables (keep all).
+
       layer_names <- tryCatch(names(r), error = function(e) NULL)
 
-      for (lyr_idx in seq_len(n_layers)) {
-        lyr <- r[[lyr_idx]]
-        # Use layer name if informative, otherwise use band index
-        lyr_name <- if (!is.null(layer_names) && nchar(layer_names[lyr_idx]) > 0) {
-          ln <- tolower(gsub("[^A-Za-z0-9]+", "_", layer_names[lyr_idx]))
-          paste0(base_varname, "_", ln)
-        } else {
-          # For monthly data, label as month number
-          month_label <- if (n_layers == 12) {
-            tolower(month.abb[lyr_idx])
-          } else {
-            sprintf("b%02d", lyr_idx)
-          }
-          paste0(base_varname, "_", month_label)
+      # Detect rasters that should be summary-only:
+      # - GPW_Demographic: 77 age/sex population bins
+      # - WAPOR: 36 dekadal (10-day) temporal slices of NPP
+      is_summary_only <- FALSE
+      if (n_layers > 20) {
+        # GPW demographic: band names contain age bin patterns like "a000_004"
+        if (any(grepl("gpw.*demographic|a\\d{3}_\\d{3}", tolower(base), ignore.case = TRUE))) {
+          is_summary_only <- TRUE
+          cat(sprintf("    [summary-only] GPW Demographic (%d bands -> 5 summaries)\n", n_layers))
         }
-        lyr_name <- gsub("_+", "_", lyr_name)
-        lyr_name <- sub("_$", "", lyr_name)
-
-        vals <- tryCatch(
-          exactextractr::exact_extract(lyr, all_polys, fun = "mean"),
-          error = function(e) rep(NA_real_, nrow(all_polys))
-        )
-        gee_admin2[[lyr_name]] <- vals
+        # WAPOR: band names contain dekadal patterns like "L1_NPP_1501"
+        if (any(grepl("wapor|l1_npp_\\d{4}", tolower(paste(layer_names, collapse=" ")),
+                       ignore.case = TRUE))) {
+          is_summary_only <- TRUE
+          cat(sprintf("    [summary-only] WAPOR NPP (%d bands -> 5 summaries)\n", n_layers))
+        }
       }
 
-      # Also add annual summary statistics across all bands
+      if (!is_summary_only) {
+        # Extract each layer individually (FLDAS distinct variables, Soil depths, etc.)
+        for (lyr_idx in seq_len(n_layers)) {
+          lyr <- r[[lyr_idx]]
+          lyr_name <- if (!is.null(layer_names) && nchar(layer_names[lyr_idx]) > 0) {
+            ln <- tolower(gsub("[^A-Za-z0-9]+", "_", layer_names[lyr_idx]))
+            paste0(base_varname, "_", ln)
+          } else {
+            month_label <- if (n_layers == 12) {
+              tolower(month.abb[lyr_idx])
+            } else {
+              sprintf("b%02d", lyr_idx)
+            }
+            paste0(base_varname, "_", month_label)
+          }
+          lyr_name <- gsub("_+", "_", lyr_name)
+          lyr_name <- sub("_$", "", lyr_name)
+
+          vals <- tryCatch(
+            exactextractr::exact_extract(lyr, all_polys, fun = "mean"),
+            error = function(e) rep(NA_real_, nrow(all_polys))
+          )
+          gee_admin2[[lyr_name]] <- vals
+        }
+      }
+
+      # Always add summary statistics across all bands
       all_layer_vals <- tryCatch({
-        # Extract mean for each layer, returns matrix: nrow=polygons, ncol=layers
         sapply(seq_len(n_layers), function(i) {
           exactextractr::exact_extract(r[[i]], all_polys, fun = "mean")
         })

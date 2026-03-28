@@ -275,3 +275,41 @@ map2_funestus,MAP,Infectious Disease,An. funestus,Anopheles funestus distributio
 map2_friction,MAP,Accessibility,Friction surface,Travel friction surface (general),prefix
 map2_accessibility,MAP,Accessibility,Accessibility to cities,Accessibility to cities index,prefix
 map2_am_effective,MAP,Health and Development,Effective treatment,Effective antimalarial treatment (Explorer),prefix
+chirps_,CHIRPS,Climate,Precipitation,CHIRPS rainfall (prefix fallback),prefix
+worldpop_,WorldPop,Demographics,Population density,WorldPop population (prefix fallback),prefix
+ntl_,VIIRS,Infrastructure,Nighttime lights,VIIRS nighttime lights (prefix fallback),prefix
+soil_,SoilGrids,Environment,Soil properties,SoilGrids soil properties (prefix fallback),prefix
+gdl_,GDL,Livelihoods,Human development,Global Data Lab indices (prefix fallback),prefix
+crop_,HarvestStat,Agriculture,Crop data,HarvestChoice crop data (prefix fallback),prefix
+ipc_,IPC,Food Security,Food crisis,IPC food security (prefix fallback),prefix
+acled_,ACLED,Conflict,Conflict events,ACLED conflict data (prefix fallback),prefix
+gee_fldas,GEE,Climate,Land surface climate,FLDAS land surface model variables,prefix
+gee_wapor,GEE,Agriculture,Water productivity,WAPOR net primary productivity,prefix
+gee_gpw_demographic,GEE,Demographics,Population structure,GPW gridded population demographics,prefix
+gee_gpw_grassland,GEE,Environment,Land cover,GPW grassland fraction,prefix
+gee_soilaluminium,GEE,Environment,Soil properties,Soil aluminium content (GEE),prefix
+gee_soilcalcium,GEE,Environment,Soil properties,Soil calcium content (GEE),prefix
+gee_soilcec,GEE,Environment,Soil properties,Soil cation exchange capacity (GEE),prefix
+gee_soiliron,GEE,Environment,Soil properties,Soil iron content (GEE),prefix
+gee_soilmagnesium,GEE,Environment,Soil properties,Soil magnesium content (GEE),prefix
+gee_soilnitrogen,GEE,Environment,Soil properties,Soil nitrogen content (GEE),prefix
+gee_soilphosphorus,GEE,Environment,Soil properties,Soil phosphorus content (GEE),prefix
+gee_soilpotassium,GEE,Environment,Soil properties,Soil potassium content (GEE),prefix
+gee_soilsulfur,GEE,Environment,Soil properties,Soil sulfur content (GEE),prefix
+gee_soiltotalcarbon,GEE,Environment,Soil properties,Soil total carbon (GEE),prefix
+gee_soilzinc,GEE,Environment,Soil properties,Soil zinc content (GEE),prefix
+gee_esa_worldcereal,GEE,Agriculture,Crop classification,ESA WorldCereal crop types,prefix
+gee_ccnl,GEE,Infrastructure,Nighttime lights,CCNL nighttime lights composite,prefix
+gee_ghsl_smod,GEE,Infrastructure,Settlement type,GHSL settlement model,prefix
+gee_globalhumanmodification,GEE,Infrastructure,Human modification,Global human modification index,prefix
+gee_lst_night,GEE,Climate,Temperature,Land surface temperature at night,prefix
+gee_ndvi,GEE,Environment,Vegetation,Normalized Difference Vegetation Index,prefix
+gee_trmm,GEE,Climate,Precipitation,TRMM rainfall estimates,prefix
+gee_temp,GEE,Climate,Temperature,Temperature estimates,prefix
+gee_tpp,GEE,Demographics,Population density,Population density raster,prefix
+gee_fpp,GEE,Agriculture,Food production,Food production proxy,prefix
+gee_built_surface,GEE,Infrastructure,Built-up area,Built surface area fraction,prefix
+gee_smod,GEE,Infrastructure,Settlement type,Settlement model classification,prefix
+gee_ghm,GEE,Infrastructure,Human modification,Global human modification index,prefix
+gee_grassland,GEE,Environment,Land cover,Grassland fraction,prefix
+gee_popdensity,GEE,Demographics,Population density,Population density (GEE raster),prefix

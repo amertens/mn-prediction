@@ -65,6 +65,41 @@ load_merged_data <- function(data_path) {
         d[[col]] <- as.double(unclass(haven::zap_labels(d[[col]])))
       }
     }
+
+    # ── Derive folate deficiency (Malawi) ──────────────────────────────────
+    # Malawi `fol` is serum folate in ng/mL. WHO cutoff: <3 ng/mL (deficiency).
+    # Also create nmol/L version for cross-country consistency (1 ng/mL = 2.266 nmol/L).
+    if ("fol" %in% colnames(d)) {
+      d$fol_nmol <- d$fol * 2.266  # convert ng/mL -> nmol/L
+      if (!"folate_def" %in% colnames(d)) {
+        d$folate_def <- ifelse(d$fol < 3, 1L, 0L)
+        d$folate_def[is.na(d$fol)] <- NA_integer_
+        n_def <- sum(d$folate_def == 1, na.rm = TRUE)
+        n_tot <- sum(!is.na(d$folate_def))
+        cat(sprintf("  Derived folate_def from fol < 3 ng/mL: %d/%d deficient\n", n_def, n_tot))
+      }
+    }
+
+    # ── Derive vitamin B12 deficiency (Malawi) ─────────────────────────────
+    # Malawi `vitb12` is serum B12 in pmol/L. WHO cutoff: <148 pmol/L.
+    if ("vitb12" %in% colnames(d)) {
+      if (!"b12_def" %in% colnames(d)) {
+        d$b12_def <- ifelse(d$vitb12 < 148, 1L, 0L)
+        d$b12_def[is.na(d$vitb12)] <- NA_integer_
+        n_def <- sum(d$b12_def == 1, na.rm = TRUE)
+        n_tot <- sum(!is.na(d$b12_def))
+        cat(sprintf("  Derived b12_def from vitb12 < 148 pmol/L: %d/%d deficient\n", n_def, n_tot))
+      }
+    }
+
+    # ── Zinc: zinc_def already exists in raw data (IZiNCG time-of-day cutoffs)
+    # No derivation needed, but log for completeness
+    if ("zinc_def" %in% colnames(d) && "zn_gdl" %in% colnames(d)) {
+      n_def <- sum(d$zinc_def == 1, na.rm = TRUE)
+      n_tot <- sum(!is.na(d$zinc_def))
+      cat(sprintf("  Zinc: zinc_def present, %d/%d deficient\n", n_def, n_tot))
+    }
+
     return(d)
   }
 
@@ -106,6 +141,24 @@ load_merged_data <- function(data_path) {
 
   d <- derive_binary(d, "gw_cRBPAdj", "gw_cVAD", 0.70)
   d <- derive_binary(d, "gw_wRBPAdj", "gw_wVAD", 0.70)
+
+  # ── Recode Sierra Leone 1/2 → 1/0 for folate and B12 ──────────────────
+  # Sierra Leone codes deficiency as 1=deficient, 2=not deficient.
+  recode_12 <- function(d, col) {
+    if (col %in% colnames(d)) {
+      vals <- d[[col]]
+      if (is.numeric(vals) && all(vals[!is.na(vals)] %in% c(1, 2))) {
+        d[[col]] <- ifelse(vals == 1, 1L, 0L)
+        n_def <- sum(d[[col]] == 1, na.rm = TRUE)
+        n_tot <- sum(!is.na(d[[col]]))
+        cat(sprintf("  Recoded %s from {1,2} to {1,0}: %d/%d deficient\n", col, n_def, n_tot))
+      }
+    }
+    d
+  }
+  d <- recode_12(d, "gw_wFolDef")
+  d <- recode_12(d, "gw_wB12DefWHO")
+  d <- recode_12(d, "gw_wB12DefHerb")
 
   # ── Strip haven labels from all columns ──────────────────────────────
   # haven_labelled columns from .dta files cause arithmetic errors downstream

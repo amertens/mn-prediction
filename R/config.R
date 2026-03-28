@@ -94,8 +94,11 @@ get_country_configs <- function() {
       # Patterns for outcome-leakage removal in gw_ predictors
       gw_exclude_patterns = c(
         "RBP", "rbp", "VAD", "LogFer", "logfer",
-        "IDA", "Brinda", "Thurn"
+        "IDA", "Brinda", "Thurn",
+        "Folate", "folate", "Fol", "B12", "b12", "Zinc", "zinc"
       )
+
+      # ── Future outcomes (Gambia has no folate/B12/zinc biomarker data) ──
     ),
 
     # ── Ghana ─────────────────────────────────────────────────────────────
@@ -164,6 +167,30 @@ get_country_configs <- function() {
           cutoff_dir     = "less",
           cutoff_scale   = "log"
         )
+
+        # ── Future outcomes (uncomment to enable) ──────────────────────────
+        # women_folate = list(
+        #   tag            = "women_folate",
+        #   label          = "Folate deficiency (women)",
+        #   population     = "women",
+        #   child_flag_val = 0L,
+        #   continuous     = "gw_wFolate",      # serum folate, nmol/L
+        #   binary         = "gw_wFolateDef",   # pre-computed, 0/1
+        #   cutoff         = 10,                 # WHO: <10 nmol/L
+        #   cutoff_dir     = "less",
+        #   cutoff_scale   = "original"
+        # ),
+        # women_b12 = list(
+        #   tag            = "women_b12",
+        #   label          = "Vitamin B12 deficiency (women)",
+        #   population     = "women",
+        #   child_flag_val = 0L,
+        #   continuous     = "gw_wB12",          # serum B12, pmol/L
+        #   binary         = "gw_wB12Def",       # pre-computed, 0/1
+        #   cutoff         = 148,                 # WHO: <148 pmol/L
+        #   cutoff_dir     = "less",
+        #   cutoff_scale   = "original"
+        # )
       ),
 
       domains = list(
@@ -183,7 +210,8 @@ get_country_configs <- function() {
 
       gw_exclude_patterns = c(
         "RBP", "rbp", "VAD", "LogFer", "logfer", "LogRBP",
-        "IDA", "Brinda", "Thurn", "Ferr", "ferr"
+        "IDA", "Brinda", "Thurn", "Ferr", "ferr",
+        "Folate", "folate", "Fol", "B12", "b12", "Zinc", "zinc"
       )
     ),
 
@@ -254,6 +282,32 @@ get_country_configs <- function() {
           cutoff_dir     = "less",
           cutoff_scale   = "original"
         )
+
+        # ── Future outcomes (uncomment to enable) ──────────────────────────
+        # Binary columns are coded 1/2 in raw data; recoded to 1/0 in
+        # load_merged_data() automatically.
+        # women_folate = list(
+        #   tag            = "women_folate",
+        #   label          = "Folate deficiency (women)",
+        #   population     = "women",
+        #   child_flag_val = 0L,
+        #   continuous     = "gw_wFolate",      # serum folate, nmol/L
+        #   binary         = "gw_wFolDef",      # recoded from 1/2 to 1/0
+        #   cutoff         = 10,                 # WHO: <10 nmol/L
+        #   cutoff_dir     = "less",
+        #   cutoff_scale   = "original"
+        # ),
+        # women_b12 = list(
+        #   tag            = "women_b12",
+        #   label          = "Vitamin B12 deficiency (women)",
+        #   population     = "women",
+        #   child_flag_val = 0L,
+        #   continuous     = "gw_B12",           # serum B12, pmol/L
+        #   binary         = "gw_wB12DefWHO",   # recoded from 1/2 to 1/0
+        #   cutoff         = 148,                # WHO: <148 pmol/L
+        #   cutoff_dir     = "less",
+        #   cutoff_scale   = "original"
+        # )
       ),
 
       domains = list(
@@ -267,7 +321,8 @@ get_country_configs <- function() {
 
       gw_exclude_patterns = c(
         "RBP", "rbp", "VAD", "Ferr", "ferr", "FeD", "IDA",
-        "Brinda", "Thurn"
+        "Brinda", "Thurn",
+        "Folate", "folate", "Fol", "B12", "b12", "Zinc", "zinc"
       )
     )
 
@@ -335,6 +390,53 @@ get_country_configs <- function() {
           cutoff_dir     = "less",
           cutoff_scale   = "original"
         )
+
+        # ── Future outcomes (uncomment to enable) ──────────────────────────
+        # Binary columns derived in load_merged_data() using WHO cutoffs.
+        # women_folate = list(
+        #   tag            = "women_folate",
+        #   label          = "Folate deficiency (women)",
+        #   population     = "women",
+        #   child_flag_val = "women",
+        #   continuous     = "fol",              # serum folate, ng/mL
+        #   binary         = "folate_def",       # derived: fol < 3 ng/mL
+        #   cutoff         = 3,                  # WHO: <3 ng/mL (= <6.8 nmol/L)
+        #   cutoff_dir     = "less",
+        #   cutoff_scale   = "original"
+        # ),
+        # women_b12 = list(
+        #   tag            = "women_b12",
+        #   label          = "Vitamin B12 deficiency (women)",
+        #   population     = "women",
+        #   child_flag_val = "women",
+        #   continuous     = "vitb12",            # serum B12, pmol/L
+        #   binary         = "b12_def",           # derived: vitb12 < 148 pmol/L
+        #   cutoff         = 148,                 # WHO: <148 pmol/L
+        #   cutoff_dir     = "less",
+        #   cutoff_scale   = "original"
+        # ),
+        # child_zinc = list(
+        #   tag            = "child_zinc",
+        #   label          = "Zinc deficiency (children)",
+        #   population     = "children",
+        #   child_flag_val = "preschool children",
+        #   continuous     = "zn_gdl",            # serum zinc, ug/dL
+        #   binary         = "zinc_def",           # pre-computed with IZiNCG cutoffs
+        #   cutoff         = 65,                   # IZiNCG morning/fasting (conservative)
+        #   cutoff_dir     = "less",
+        #   cutoff_scale   = "original"
+        # ),
+        # women_zinc = list(
+        #   tag            = "women_zinc",
+        #   label          = "Zinc deficiency (women)",
+        #   population     = "women",
+        #   child_flag_val = "women",
+        #   continuous     = "zn_gdl",
+        #   binary         = "zinc_def",
+        #   cutoff         = 66,                   # IZiNCG morning/fasting (conservative)
+        #   cutoff_dir     = "less",
+        #   cutoff_scale   = "original"
+        # )
       ),
 
       domains = list(
@@ -349,7 +451,8 @@ get_country_configs <- function() {
 
       gw_exclude_patterns = c(
         "RBP", "rbp", "VAD", "Ferr", "ferr", "FeD", "IDA",
-        "Brinda", "Thurn"
+        "Brinda", "Thurn",
+        "Folate", "folate", "Fol", "B12", "b12", "Zinc", "zinc"
       )
     )
   )

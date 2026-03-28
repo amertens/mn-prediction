@@ -271,21 +271,7 @@ make_outcome_targets <- function(country_name, outcome_name, cc, oc, params) {
       )
     ),
 
-    # ── 10. Area-level model (GEE -> Admin2, unsurveyed areas) ────────────
-    tar_target_raw(
-      paste0("area_model_", suffix),
-      substitute(
-        fit_area_level_model(svy_admin2, cc_val, oc_val, params_val),
-        list(
-          svy_admin2 = as.symbol(paste0("svy_admin2_", suffix)),
-          cc_val     = cc,
-          oc_val     = oc,
-          params_val = params
-        )
-      )
-    ),
-
-    # ── 11. Plots ─────────────────────────────────────────────────────────
+    # ── 10. Plots (Admin-1 scatter — runs for all combos) ────────────────
     tar_target_raw(
       paste0("plot_admin1_scatter_", suffix),
       substitute(
@@ -294,30 +280,6 @@ make_outcome_targets <- function(country_name, outcome_name, cc, oc, params) {
           admin1_prev = as.symbol(paste0("admin1_prev_", suffix)),
           oc_val      = oc,
           cc_val      = cc
-        )
-      )
-    ),
-
-    tar_target_raw(
-      paste0("plot_admin2_coverage_", suffix),
-      substitute(
-        plot_admin2_coverage(area_model, oc_val, cc_val),
-        list(
-          area_model = as.symbol(paste0("area_model_", suffix)),
-          oc_val     = oc,
-          cc_val     = cc
-        )
-      )
-    ),
-
-    tar_target_raw(
-      paste0("plot_admin2_forest_", suffix),
-      substitute(
-        plot_admin2_forest(area_model, oc_val, cc_val),
-        list(
-          area_model = as.symbol(paste0("area_model_", suffix)),
-          oc_val     = oc,
-          cc_val     = cc
         )
       )
     ),
@@ -411,12 +373,24 @@ for (country_name in names(all_country_configs)) {
     )
   ))
 
-  # Merge external predictors (CHIRPS, WorldPop, MAP, HarvestStat, etc.)
-  # These are Admin-2 level contextual variables joined to individual records.
-  merged_target_name <- paste0("merged_", tolower(country_name))
+  # Extract GEE raster zonal means for Admin-2 polygons (once per country)
+  gee_admin2_target_name <- paste0("gee_admin2_", tolower(country_name))
   country_targets <- c(country_targets, list(
     tar_target_raw(
-      merged_target_name,
+      gee_admin2_target_name,
+      substitute(
+        extract_gee_admin2(cc_val),
+        list(cc_val = cc)
+      )
+    )
+  ))
+
+  # Merge external predictors (CHIRPS, WorldPop, MAP, HarvestStat, etc.)
+  # AND GEE Admin-2 zonal means into individual-level data.
+  merged_ext_target_name <- paste0("merged_ext_", tolower(country_name))
+  country_targets <- c(country_targets, list(
+    tar_target_raw(
+      merged_ext_target_name,
       substitute(
         merge_external_predictors(fsec_data, cc_val, cache_dir_val),
         list(
@@ -428,6 +402,45 @@ for (country_name in names(all_country_configs)) {
     )
   ))
 
+  # Merge GEE Admin-2 raster variables into individual records
+  merged_target_name <- paste0("merged_", tolower(country_name))
+  country_targets <- c(country_targets, list(
+    tar_target_raw(
+      merged_target_name,
+      substitute({
+        d <- ext_data
+        gee <- gee_admin2_data
+        if (!is.null(gee) && is.data.frame(gee) && nrow(gee) > 0) {
+          # Only merge gee_ columns (not Admin1/Admin2 which already exist)
+          gee_cols <- grep("^gee_", colnames(gee), value = TRUE)
+          if (length(gee_cols) > 0) {
+            # Remove any gee_ columns already in the data to avoid .x/.y suffixes
+            existing_gee <- grep("^gee_", colnames(d), value = TRUE)
+            new_gee <- setdiff(gee_cols, existing_gee)
+            if (length(new_gee) > 0) {
+              admin2_col <- cc_val$admin2_col
+              n_before <- nrow(d)
+              d <- merge(d, gee[, c("Admin2", new_gee), drop = FALSE],
+                         by.x = admin2_col, by.y = "Admin2",
+                         all.x = TRUE, sort = FALSE)
+              if (nrow(d) != n_before) {
+                warning(sprintf("[merge_gee] Row count changed: %d -> %d", n_before, nrow(d)))
+              }
+              cat(sprintf("[merge_gee] Added %d GEE Admin-2 raster columns to %s\n",
+                          length(new_gee), cc_val$country))
+            }
+          }
+        }
+        d
+      },
+      list(
+        ext_data        = as.symbol(merged_ext_target_name),
+        gee_admin2_data = as.symbol(gee_admin2_target_name),
+        cc_val          = cc
+      ))
+    )
+  ))
+
   # Per-outcome targets
   for (outcome_name in names(cc$outcomes)) {
     oc <- cc$outcomes[[outcome_name]]
@@ -436,19 +449,90 @@ for (country_name in names(all_country_configs)) {
   }
 }
 
+# ── Area-level model: Ghana × women_iron only ──────────────────────────────
+# Expensive GEE raster extraction + area-level elastic net.
+# Run for a single exemplar outcome to demonstrate the method.
+# To expand, add more country/outcome pairs below.
+{
+  cc_area <- all_country_configs[["Ghana"]]
+  oc_area <- cc_area$outcomes[["women_iron"]]
+  area_suffix <- "ghana_women_iron"
+
+  country_targets <- c(country_targets, list(
+    tar_target_raw(
+      paste0("area_model_", area_suffix),
+      substitute(
+        fit_area_level_model(svy_admin2, cc_val, oc_val, params_val),
+        list(
+          svy_admin2 = as.symbol(paste0("svy_admin2_", area_suffix)),
+          cc_val     = cc_area,
+          oc_val     = oc_area,
+          params_val = params
+        )
+      )
+    ),
+    tar_target_raw(
+      paste0("plot_admin2_coverage_", area_suffix),
+      substitute(
+        plot_admin2_coverage(area_model, oc_val, cc_val),
+        list(
+          area_model = as.symbol(paste0("area_model_", area_suffix)),
+          oc_val     = oc_area,
+          cc_val     = cc_area
+        )
+      )
+    ),
+    tar_target_raw(
+      paste0("plot_admin2_forest_", area_suffix),
+      substitute(
+        plot_admin2_forest(area_model, oc_val, cc_val),
+        list(
+          area_model = as.symbol(paste0("area_model_", area_suffix)),
+          oc_val     = oc_area,
+          cc_val     = cc_area
+        )
+      )
+    )
+  ))
+}
+
+# ── Level-2 conceptual ablation: Ghana × women_iron exemplar only ──────────
+# Finer-grained domain importance at Level-2 (e.g., Vaccinations, Precipitation,
+# Cooking fuel). Single exemplar for the results document.
+{
+  cc_l2 <- all_country_configs[["Ghana"]]
+  oc_l2 <- cc_l2$outcomes[["women_iron"]]
+
+  country_targets <- c(country_targets, list(
+    tar_target_raw(
+      "ablation_l2_ghana_women_iron",
+      substitute(
+        run_conceptual_permutation(sl_fit, outcome_data, oc_val,
+                                    level = "level2", n_perm = 5),
+        list(
+          sl_fit       = as.symbol("sl_fit_ghana_women_iron"),
+          outcome_data = as.symbol("outcome_data_ghana_women_iron"),
+          oc_val       = oc_l2
+        )
+      )
+    )
+  ))
+}
+
+
 # ── Transportability targets (cross-country LOCO CV) ──────────────────────
 # Train on N-1 countries, predict on the held-out country. Uses only proxy
 # predictors shared across ALL countries (IHME, MAP, GEE).
-# These targets depend on all per-country merged_* targets but are independent
-# of the per-country analysis targets.
+# Restricted to women_iron only for speed (most informative outcome for
+# cross-country comparison). To run all outcomes, change the line below.
 
 # Only build transportability targets if we have 2+ countries
 transport_targets <- list()
 if (length(all_country_configs) >= 2) {
 
-  # Get outcome tags from the first country (assumed consistent across countries)
+  # Restrict to women_iron only (change to names(first_cc$outcomes) for all)
   first_cc <- all_country_configs[[1]]
-  outcome_tags <- names(first_cc$outcomes)
+  outcome_tags <- "women_iron"
 
   # Build symbol list for merged data targets (e.g., merged_gambia, merged_ghana, ...)
   country_names_lower <- tolower(names(all_country_configs))
@@ -490,10 +574,9 @@ if (length(all_country_configs) >= 2) {
     ))
   }
 
-  # Combined transportability summary — pass loco results as direct dependencies
+  # Combined transportability summary
   loco_target_names <- paste0("loco_", outcome_tags)
-  loco_syms <- lapply(loco_target_names, as.symbol)
-  names(loco_syms) <- outcome_tags
+  loco_syms <- setNames(lapply(loco_target_names, as.symbol), outcome_tags)
   loco_list_expr <- as.call(c(list(as.symbol("list")), loco_syms))
 
   transport_targets <- c(transport_targets, list(
@@ -537,8 +620,7 @@ if (length(all_country_configs) >= 2) {
 
   # Combined GEE-only transportability summary
   loco_gee_target_names <- paste0("loco_gee_", outcome_tags)
-  loco_gee_syms <- lapply(loco_gee_target_names, as.symbol)
-  names(loco_gee_syms) <- outcome_tags
+  loco_gee_syms <- setNames(lapply(loco_gee_target_names, as.symbol), outcome_tags)
   loco_gee_list_expr <- as.call(c(list(as.symbol("list")), loco_gee_syms))
 
   transport_targets <- c(transport_targets, list(
@@ -595,7 +677,9 @@ if (dir.exists(civ_raster_dir) && length(all_country_configs) >= 2) {
             oos_gadm_code   = "CIV",
             oos_raster_dir  = raster_dir_val,
             oc              = oc,
-            params          = pipeline_params
+            params          = pipeline_params,
+            ext_cache_dir   = here::here("data", "external_cache"),
+            oos_country_name = "Cote d'Ivoire"
           )
         }, list(
           svy_list_val   = svy_list_expr,
