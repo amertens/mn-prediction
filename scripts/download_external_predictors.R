@@ -33,7 +33,23 @@ countries_years <- list(
   Malawi      = 2016L   # MNS 2015-16 (exact dates TBD)
 )
 
+# OOS prediction target countries (no survey data — used for prediction only)
+# Use a representative year for predictor extraction (e.g., most recent DHS year)
+oos_countries_years <- list(
+  CoteDIvoire = 2017L   # No MN survey — use 2017 as reference year (DHS 2011-12 available)
+)
+
 all_configs <- get_country_configs()
+
+# Lightweight configs for OOS countries (only fields needed by extract_all_external)
+oos_configs <- list(
+  CoteDIvoire = list(
+    country    = "Cote d'Ivoire",
+    gadm_code  = "CIV",
+    admin1_col = "Admin1",
+    admin2_col = "Admin2"
+  )
+)
 
 # =============================================================================
 # PART 1: Run full extraction for all 4 countries
@@ -66,6 +82,46 @@ for (cn in names(countries_years)) {
     out_file <- file.path(cache_dir,
                           sprintf("%s_external_predictors.rds",
                                   tolower(gsub(" ", "_", cn))))
+    saveRDS(res, out_file)
+
+    pred_cols <- setdiff(colnames(res), c("Admin1", "Admin2"))
+    n_with_data <- sum(colSums(!is.na(res[, pred_cols, drop = FALSE])) > 0)
+    cat(sprintf("\n[SAVED] %s: %d Admin-2 x %d predictors (%d with data) -> %s\n",
+                cn, nrow(res), length(pred_cols), n_with_data, basename(out_file)))
+    results[[cn]] <- res
+  }
+}
+
+
+# =============================================================================
+# PART 1b: Run extraction for OOS prediction target countries
+# =============================================================================
+
+for (cn in names(oos_countries_years)) {
+  yr <- oos_countries_years[[cn]]
+  cc <- oos_configs[[cn]]
+
+  if (is.null(cc)) {
+    cat(sprintf("\n[SKIP] No OOS config found for '%s'\n", cn))
+    next
+  }
+
+  cat(sprintf("\n\n%s\n", paste(rep("=", 70), collapse = "")))
+  cat(sprintf("  OOS TARGET: %s (%s) — reference year %d\n", cc$country, cc$gadm_code, yr))
+  cat(sprintf("%s\n\n", paste(rep("=", 70), collapse = "")))
+
+  res <- tryCatch(
+    extract_all_external(cc, yr, cache_dir),
+    error = function(e) {
+      cat(sprintf("\n[ERROR] %s extraction failed: %s\n", cn, e$message))
+      NULL
+    }
+  )
+
+  if (!is.null(res)) {
+    out_file <- file.path(cache_dir,
+                          sprintf("%s_external_predictors.rds",
+                                  tolower(gsub("[' ]", "_", gsub("'", "", cc$country)))))
     saveRDS(res, out_file)
 
     pred_cols <- setdiff(colnames(res), c("Admin1", "Admin2"))

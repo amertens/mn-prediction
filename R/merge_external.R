@@ -108,10 +108,39 @@ merge_external_predictors <- function(merged_data, cc,
   ext_merge <- ext_clean
   colnames(ext_merge)[colnames(ext_merge) == "Admin2"] <- ".ext_admin2"
 
-  # Left join
+  # ── Deduplicate: GADM Admin-2 polygons can have duplicate names ──────────
+
+  # (e.g., "Lake Malawi" appears 8 times as separate shoreline polygons).
+  # A many-to-many merge would create a cartesian product, inflating rows.
+  # Strategy: for each duplicate Admin2, average the numeric predictor values.
+  n_ext_before <- nrow(ext_merge)
+  dup_keys <- ext_merge$.ext_admin2[duplicated(ext_merge$.ext_admin2)]
+  if (length(dup_keys) > 0) {
+    cat(sprintf("[merge_ext] WARNING: %d duplicate Admin2 names in external data: %s\n",
+                length(unique(dup_keys)),
+                paste(unique(dup_keys), collapse = ", ")))
+    cat("[merge_ext] Deduplicating by averaging numeric values per Admin2...\n")
+
+    # Split into numeric and non-numeric columns
+    num_cols <- names(ext_merge)[sapply(ext_merge, is.numeric)]
+    ext_merge <- ext_merge |>
+      dplyr::group_by(.ext_admin2) |>
+      dplyr::summarise(dplyr::across(dplyr::all_of(num_cols), ~ mean(.x, na.rm = TRUE)),
+                       .groups = "drop") |>
+      as.data.frame()
+    cat(sprintf("[merge_ext] Deduplicated: %d -> %d unique Admin2 areas\n",
+                n_ext_before, nrow(ext_merge)))
+  }
+
+  # Left join (now guaranteed 1:many at most — one ext row per Admin2)
   n_before <- ncol(merged_data)
+  n_rows_before <- nrow(merged_data)
   merged_data <- merge(merged_data, ext_merge, by = ".ext_admin2",
                        all.x = TRUE, sort = FALSE)
+  if (nrow(merged_data) != n_rows_before) {
+    warning(sprintf("[merge_ext] Row count changed during merge: %d -> %d! Possible many-to-many join.",
+                    n_rows_before, nrow(merged_data)))
+  }
 
   # Clean up merge key
   merged_data$`.ext_admin2` <- NULL
@@ -166,9 +195,28 @@ merge_external_predictors <- function(merged_data, cc,
         dhs_merge <- dhs_admin2
         colnames(dhs_merge)[colnames(dhs_merge) == "Admin2"] <- ".dhs_admin2"
 
+        # Deduplicate DHS admin2 data (same logic as external predictors)
+        dhs_dup_keys <- dhs_merge$.dhs_admin2[duplicated(dhs_merge$.dhs_admin2)]
+        if (length(dhs_dup_keys) > 0) {
+          cat(sprintf("[merge_ext] DHS Admin-2 has %d duplicate names — deduplicating\n",
+                      length(unique(dhs_dup_keys))))
+          dhs_num_cols <- names(dhs_merge)[sapply(dhs_merge, is.numeric)]
+          dhs_merge <- dhs_merge |>
+            dplyr::group_by(.dhs_admin2) |>
+            dplyr::summarise(dplyr::across(dplyr::all_of(dhs_num_cols),
+                                            ~ mean(.x, na.rm = TRUE)),
+                             .groups = "drop") |>
+            as.data.frame()
+        }
+
         n_before_dhs <- ncol(merged_data)
+        n_rows_before_dhs <- nrow(merged_data)
         merged_data <- merge(merged_data, dhs_merge, by = ".dhs_admin2",
                              all.x = TRUE, sort = FALSE)
+        if (nrow(merged_data) != n_rows_before_dhs) {
+          warning(sprintf("[merge_ext] DHS merge changed row count: %d -> %d!",
+                          n_rows_before_dhs, nrow(merged_data)))
+        }
         merged_data$`.dhs_admin2` <- NULL
         n_dhs_new <- ncol(merged_data) - n_before_dhs + 1
         cat(sprintf("[merge_ext] Added %d DHS Admin-2 predictor columns\n", n_dhs_new))
