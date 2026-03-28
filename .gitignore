@@ -8,3 +8,6 @@ data
 # targets pipeline cache (large, machine-specific)
 _targets/
 .Renviron
+# Large model files (exceed GitHub 100MB limit)
+results/sl_exploration/models/sl3_fit_ghana_child_iron.rds
+results/sl_exploration/models/sl3_fit_gambia_child_vitA.rds
