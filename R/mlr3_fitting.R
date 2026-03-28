@@ -270,10 +270,35 @@ mlr3_SL_clustered <- function(d, Xvars, outcome, population,
   })
 
   # ── Build result in DHS_SL_clustered format ──
-  # Create a wrapper object that supports $predict() for new data
+  # Create a wrapper object that supports $predict() for new data.
+  #
+  # The mlr3superlearner object stores R6 Learner objects that may not
+  # survive serialization (targets/future send objects to worker processes
+  # via socket serialization). To ensure predict works after reload, we
+  # also extract the individual trained learner models as plain R objects
+  # and store the SL weights, enabling a manual fallback prediction path.
+
+  # Extract individual learner models for serialization-safe fallback
+  learner_models <- tryCatch({
+    lapply(mlr3_fit$learners, function(lrn) {
+      list(
+        id    = lrn$id,
+        model = lrn$model  # the underlying fitted model (plain R object)
+      )
+    })
+  }, error = function(e) NULL)
+
+  sl_weights <- tryCatch(mlr3_fit$weights, error = function(e) NULL)
+  sl_x       <- tryCatch(mlr3_fit$x, error = function(e) covars)
+  sl_outcome_type <- tryCatch(mlr3_fit$outcome_type, error = function(e) outcome_type)
+
   model_wrapper <- list(
-    mlr3_fit   = mlr3_fit,
-    covars     = covars,
+    mlr3_fit       = mlr3_fit,
+    covars         = covars,
+    learner_models = learner_models,  # plain R model objects (serialization-safe)
+    sl_weights     = sl_weights,
+    sl_x           = sl_x,
+    sl_outcome_type = sl_outcome_type,
     predict    = function(new_task) {
       # Accept either sl3-style task or data.frame/data.table
       if (inherits(new_task, "sl3_Task")) {
@@ -287,7 +312,48 @@ mlr3_SL_clustered <- function(d, Xvars, outcome, population,
       for (col in setdiff(covars, colnames(newdata))) newdata[[col]] <- 0
       newdata <- newdata[, covars, drop = FALSE]
       newdata$Y <- 0  # dummy outcome for predict
-      as.numeric(predict(mlr3_fit, newdata))
+
+      # Try mlr3superlearner predict first
+      pred <- tryCatch(
+        as.numeric(predict(mlr3_fit, newdata)),
+        error = function(e) NULL
+      )
+
+      # Check for degenerate predictions (serialization failure)
+      if (!is.null(pred) && length(unique(round(pred, 6))) > 1) {
+        return(pred)
+      }
+
+      # Fallback: manual prediction from extracted learner models + weights
+      if (!is.null(learner_models) && !is.null(sl_weights)) {
+        nd <- newdata[, sl_x, drop = FALSE]
+        preds_mat <- sapply(seq_along(learner_models), function(i) {
+          lm_obj <- learner_models[[i]]
+          tryCatch({
+            if (grepl("glmnet|lasso|ridge|enet", lm_obj$id)) {
+              as.numeric(predict(lm_obj$model, as.matrix(nd), type = "response",
+                                  s = lm_obj$model$lambda.min %||% lm_obj$model$lambda[1]))
+            } else if (grepl("ranger", lm_obj$id)) {
+              predict(lm_obj$model, data = nd)$predictions[, 2]  # prob of class "1"
+            } else if (grepl("xgboost", lm_obj$id)) {
+              predict(lm_obj$model, as.matrix(nd))
+            } else {
+              # Generic fallback
+              rep(mean(as.numeric(mlr3_fit$fits$preds[[1]]), na.rm = TRUE), nrow(nd))
+            }
+          }, error = function(e) rep(NA_real_, nrow(nd)))
+        })
+        if (is.matrix(preds_mat)) {
+          use <- names(sl_weights[sl_weights != 0])
+          use_idx <- which(sl_weights != 0)
+          result <- as.numeric(preds_mat[, use_idx, drop = FALSE] %*% sl_weights[use_idx])
+          if (length(unique(round(result, 6))) > 1) return(result)
+        }
+      }
+
+      # Last resort: return the R6-based prediction even if degenerate
+      if (!is.null(pred)) return(pred)
+      rep(NA_real_, nrow(newdata))
     }
   )
   class(model_wrapper) <- "mlr3_sl_wrapper"
