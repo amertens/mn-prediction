@@ -76,42 +76,71 @@ setup_sl_learners <- function(params) {
     list(slmod = slmod, slmod2_bin = slmod_bin)
 
   } else {
-    # ── Full stack: 7 learners ─────────────────────────────────────────
-    # Designed for many weak predictors + rare binary outcomes.
-    # Avoids screener pipelines (Lrnr_screener_coefs, Lrnr_screener_importance)
-    # that crash when p >> n and lasso drops all coefficients or importance
-    # values contain NA. Instead, all learners handle high-p natively.
-    cat("[sl_learners] Using FULL stack (7 learners, all high-p robust)\n")
+    # ── Full stack: 6 learners ─────────────────────────────────────────
+    # Evidence-based stack from 52-learner comparison (Ghana child_iron):
+    #   - ranger_500_mn10 dominated (53% NNLS weight)
+    #   - lasso→xgboost was best pipeline (23% weight)
+    #   - lasso provided complementary linear signal (8% weight)
+    #   - Multiple ranger/xgboost configs were redundant (eliminated)
+    #   - enet_075, ridge, raw xgboost got 0% weight (eliminated)
+    #   - GAM/earth/nnet/SVM/BART all underperformed (eliminated)
+    # Screener pipelines avoided for robustness in p >> n settings.
+    cat("[sl_learners] Using FULL stack (6 learners, evidence-based)\n")
 
     lrnr_mean <- sl3::make_learner(sl3::Lrnr_mean)
 
-    # ── Regularized linear models (different alpha) ──
-    lrnr_lasso    <- sl3::Lrnr_glmnet$new(alpha = 1)
-    lrnr_enet_075 <- sl3::Lrnr_glmnet$new(alpha = 0.75)
-    lrnr_ridge    <- sl3::Lrnr_glmnet$new(alpha = 0)
+    # Lasso — best linear model (rank 10, 8% weight). Provides
+    # complementary linear signal to tree-based learners.
+    lrnr_lasso <- sl3::Lrnr_glmnet$new(alpha = 1)
 
-    # ── Random forests with conservative settings ──
-    # min.node.size prevents overfitting on rare outcomes
-    rf_conservative <- sl3::Lrnr_ranger$new(
-      num.trees     = 1000,
+    # Ranger (500 trees, mn10) — dominant learner (rank 2, 53% weight).
+    # Conservative min.node.size prevents overfitting on rare outcomes.
+    rf_main <- sl3::Lrnr_ranger$new(
+      num.trees     = 500,
       min.node.size = 10,
       importance    = "none"
     )
 
-    rf_deeper <- sl3::Lrnr_ranger$new(
-      num.trees     = 1000,
-      min.node.size = 5,
+    # Ranger with low mtry — provides diversity (rank 6, 2% weight).
+    # log2(p) mtry forces each split to consider fewer features,
+    # decorrelating trees from the main RF.
+    rf_low_mtry <- sl3::Lrnr_ranger$new(
+      num.trees     = 500,
+      min.node.size = 10,
+      mtry          = 8,  # ~log2(300) ≈ 8
       importance    = "none"
     )
 
-    # ── XGBoost with conservative regularization ──
+    # Lasso-screened XGBoost — best non-RF learner (rank 19, 23% weight).
+    # Lasso selects features, then XGBoost captures nonlinear interactions.
+    # Raw XGBoost without screening was mediocre (rank 20, 0% weight).
+    lasso_screen <- sl3::Lrnr_screener_coefs$new(
+      learner   = sl3::Lrnr_glmnet$new(alpha = 1),
+      threshold = 0
+    )
+    lasso_xgb <- sl3::make_learner(
+      sl3::Pipeline,
+      lasso_screen,
+      sl3::Lrnr_xgboost$new(
+        max_depth        = 3,
+        eta              = 0.05,
+        nrounds          = 200,
+        min_child_weight = 15,
+        eval_metric      = "logloss"
+      )
+    )
+
+    # XGBoost with deep regularization — backup boosting learner.
+    # Slightly different hyperparams provide ensemble diversity.
     lrnr_xgb <- sl3::Lrnr_xgboost$new(
-      max_depth        = 3,
-      eta              = 0.05,
-      nrounds          = 300,
+      max_depth        = 6,
+      eta              = 0.03,
+      nrounds          = 500,
       min_child_weight = 20,
-      subsample        = 0.8,
-      colsample_bytree = 0.5,
+      subsample        = 0.7,
+      colsample_bytree = 0.4,
+      lambda           = 1,
+      alpha            = 0.5,
       eval_metric      = "logloss"
     )
 
@@ -119,10 +148,9 @@ setup_sl_learners <- function(params) {
       sl3::Stack,
       lrnr_mean,
       lrnr_lasso,
-      lrnr_enet_075,
-      lrnr_ridge,
-      rf_conservative,
-      rf_deeper,
+      rf_main,
+      rf_low_mtry,
+      lasso_xgb,
       lrnr_xgb
     )
 

@@ -421,17 +421,13 @@ table(is.na(df$ihme_2_to_10_years_2_to_10_both_malaria_prevalence_rate ))
 #-------------------------------------------------------------------------------
 
 #-------------------------------------------------------------------------------
-# DHS Admin 1 indicators
+# DHS Admin-1 indicators
 #-------------------------------------------------------------------------------
-
 
 dhs2015 <- readRDS(here("data/DHS/clean/Malawi_2015_dhs_aggregation.rds"))
 colnames(dhs2015) <- paste0("dhs2015_",colnames(dhs2015))
 
-table(dhs2015$dhs2015_DHSREGEN)
-table(df$Admin1)
-
-#make aggregate region
+#make aggregate region (Malawi DHS only reports 3 regions: Northern, Central, Southern)
 df <- df %>%
   dplyr::mutate(
     DHSREGEN = dplyr::case_when(
@@ -455,9 +451,34 @@ df <- df %>%
   )
 
 dhs_vars <- c(colnames(dhs2015))
-
 df <- left_join(as.data.frame(df), dhs2015, by = c("DHSREGEN" = "dhs2015_DHSREGEN"))
-table(is.na(df$dhs2015_AH_CIGA_M_59C))
+
+#-------------------------------------------------------------------------------
+# DHS Admin-2 indicators (from surveyPrev FH BYM2 smoothed estimates)
+# Run src/DHS/DHS_admin2_aggregation.R first to generate the wide file
+#-------------------------------------------------------------------------------
+
+source(here("R", "data_prep.R"))
+source(here("R", "food_security.R"))
+
+dhs2015_adm2 <- load_dhs_admin2(
+  dhs_dir = here("data", "DHS", "clean"),
+  country = "Malawi",
+  year    = 2015
+)
+if (!is.null(dhs2015_adm2)) {
+  target_a2 <- unique(df$Admin2)
+  source_a2 <- dhs2015_adm2$Admin2
+  name_lookup <- build_name_lookup(target_a2, source_a2)
+  dhs2015_adm2$Admin2 <- name_lookup[dhs2015_adm2$Admin2]
+  n_matched <- sum(!is.na(dhs2015_adm2$Admin2))
+  cat(sprintf("  DHS 2015 Admin2 name matching: %d/%d matched\n", n_matched, length(source_a2)))
+  dhs2015_adm2 <- dhs2015_adm2[!is.na(dhs2015_adm2$Admin2), ]
+  df <- left_join(df, dhs2015_adm2, by = "Admin2")
+  cat(sprintf("  DHS 2015 admin-2 merge complete\n"))
+} else {
+  warning("Admin-2 DHS file not found for Malawi 2015")
+}
 
 #-------------------------------------------------------------------------------
 # FluNet Data
@@ -583,7 +604,9 @@ df <- df %>% rename(
 df = st_drop_geometry(df)
 df <- df[, !sapply(df, function(x) inherits(x, c("POSIXct", "POSIXt")))]
 
-df <- df %>% subset(., select=-c(dhs2015_geometry))
+if ("dhs2015_geometry" %in% colnames(df)) {
+  df <- df %>% subset(., select=-c(dhs2015_geometry))
+}
 
 #make unique id
 df$dataid <- paste0("malawi",1:nrow(df))

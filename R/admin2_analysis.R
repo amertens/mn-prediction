@@ -249,18 +249,76 @@ fit_area_level_model <- function(svy_admin2, cc, oc, params) {
   gee_admin2 <- data.frame(Admin2 = all_polys$Admin2)
   for (tif in tif_files) {
     base <- tools::file_path_sans_ext(basename(tif))
-    varname <- paste0("gee_", tolower(gsub("[^A-Za-z0-9]+", "_", base)))
-    varname <- sub("^_|_$", "", varname)
+    # Strip country name from variable name for cross-country consistency
+    base_clean <- base
+    for (cname in c("Gambia", "Ghana", "Sierra_Leone", "Sierra Leone",
+                    "Malawi", "Cote_dIvoire", "Cote d'Ivoire")) {
+      base_clean <- gsub(paste0("_?", gsub("[' ]", ".", cname), "_?"), "_", base_clean)
+    }
+    base_varname <- paste0("gee_", tolower(gsub("[^A-Za-z0-9]+", "_", base_clean)))
+    base_varname <- gsub("_+", "_", base_varname)  # collapse repeated underscores
+    base_varname <- sub("^_|_$", "", base_varname)
 
     r <- tryCatch(terra::rast(tif), error = function(e) NULL)
     if (is.null(r)) next
-    if (terra::nlyr(r) > 1) r <- r[[1]]
 
-    vals <- tryCatch(
-      exactextractr::exact_extract(r, all_polys, fun = "mean"),
-      error = function(e) rep(NA_real_, nrow(all_polys))
-    )
-    gee_admin2[[varname]] <- vals
+    n_layers <- terra::nlyr(r)
+
+    if (n_layers == 1) {
+      # Single-band raster: extract as before
+      vals <- tryCatch(
+        exactextractr::exact_extract(r, all_polys, fun = "mean"),
+        error = function(e) rep(NA_real_, nrow(all_polys))
+      )
+      gee_admin2[[base_varname]] <- vals
+    } else {
+      # Multi-band raster (e.g., monthly climate data): extract ALL layers.
+      # Each layer becomes a separate variable (e.g., gee_fldas_2017_band1, ..._band12).
+      # Also compute summary statistics across layers (mean, sd, min, max).
+      layer_names <- tryCatch(names(r), error = function(e) NULL)
+
+      for (lyr_idx in seq_len(n_layers)) {
+        lyr <- r[[lyr_idx]]
+        # Use layer name if informative, otherwise use band index
+        lyr_name <- if (!is.null(layer_names) && nchar(layer_names[lyr_idx]) > 0) {
+          ln <- tolower(gsub("[^A-Za-z0-9]+", "_", layer_names[lyr_idx]))
+          paste0(base_varname, "_", ln)
+        } else {
+          # For monthly data, label as month number
+          month_label <- if (n_layers == 12) {
+            tolower(month.abb[lyr_idx])
+          } else {
+            sprintf("b%02d", lyr_idx)
+          }
+          paste0(base_varname, "_", month_label)
+        }
+        lyr_name <- gsub("_+", "_", lyr_name)
+        lyr_name <- sub("_$", "", lyr_name)
+
+        vals <- tryCatch(
+          exactextractr::exact_extract(lyr, all_polys, fun = "mean"),
+          error = function(e) rep(NA_real_, nrow(all_polys))
+        )
+        gee_admin2[[lyr_name]] <- vals
+      }
+
+      # Also add annual summary statistics across all bands
+      all_layer_vals <- tryCatch({
+        # Extract mean for each layer, returns matrix: nrow=polygons, ncol=layers
+        sapply(seq_len(n_layers), function(i) {
+          exactextractr::exact_extract(r[[i]], all_polys, fun = "mean")
+        })
+      }, error = function(e) NULL)
+
+      if (!is.null(all_layer_vals) && is.matrix(all_layer_vals)) {
+        gee_admin2[[paste0(base_varname, "_annual_mean")]] <- rowMeans(all_layer_vals, na.rm = TRUE)
+        gee_admin2[[paste0(base_varname, "_annual_sd")]]   <- apply(all_layer_vals, 1, sd, na.rm = TRUE)
+        gee_admin2[[paste0(base_varname, "_annual_min")]]  <- apply(all_layer_vals, 1, min, na.rm = TRUE)
+        gee_admin2[[paste0(base_varname, "_annual_max")]]  <- apply(all_layer_vals, 1, max, na.rm = TRUE)
+        gee_admin2[[paste0(base_varname, "_annual_range")]] <- gee_admin2[[paste0(base_varname, "_annual_max")]] -
+                                                                gee_admin2[[paste0(base_varname, "_annual_min")]]
+      }
+    }
   }
 
   gee_vars <- setdiff(colnames(gee_admin2), "Admin2")

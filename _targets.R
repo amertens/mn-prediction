@@ -9,16 +9,20 @@
 # TWO MODES:
 #
 #   FAST (default) — ~5-10 min (parallel). Minimal SL stack (mean +
-#     glmnet + ranger), 4 bootstrap reps. Good for development, debugging,
+#     lasso + ranger), conformal CIs. Good for development, debugging,
 #     checking relative performance across outcomes.
 #
-#   FULL — ~30-60 min (parallel). Full SL stack with screener pipelines,
-#     200 bootstrap reps. Publication-quality results.
+#   FULL — ~30-60 min (parallel). Evidence-based 6-learner stack
+#     (mean + lasso + 2×ranger + lasso→xgb + xgb), conformal CIs.
+#     Publication-quality results.
+#
+# UNCERTAINTY:
+#   Conformal prediction intervals (not bootstrap) — uses CV residuals
+#   to construct distribution-free intervals. No model refitting needed.
 #
 # PARALLELISM:
-#   The pipeline parallelises at three levels:
+#   The pipeline parallelises at the targets level:
 #   1. Targets-level: independent outcomes run concurrently (4 workers default)
-#   2. Bootstrap: replicates run in parallel via future.apply
 #   3. Domain ablation: domain fits run in parallel via future.apply
 #   Set TARGETS_WORKERS env var to control targets-level workers.
 #   Within-target workers auto-scale based on available cores.
@@ -84,8 +88,9 @@ tar_option_set(
     "here", "dplyr", "tidyr", "readr", "tibble", "rlang",
     "ggplot2", "sf", "geodata", "terra", "exactextractr",
     "srvyr", "survey", "scales", "viridis", "patchwork", "ggrepel",
-    "sl3", "origami", "caret", "data.table", "ck37r", "labelled",
-    "recipes", "future.apply", "glmnet", "hal9001", "pROC", "ROCR", "haven", "readxl"
+    "mlr3", "mlr3learners", "mlr3extralearners", "mlr3superlearner",
+    "origami", "caret", "data.table", "ck37r", "labelled",
+    "recipes", "future.apply", "glmnet", "pROC", "ROCR", "haven", "readxl"
   ),
   # Increase memory limit for SL fitting
   memory = "transient",
@@ -110,9 +115,9 @@ message(sprintf(
   toupper(pipeline_mode),
   n_workers,
   if (pipeline_mode == "fast")
-    "Minimal SL stack, 4 bootstrap reps. ~5-10 min with parallelism."
+    "Minimal SL stack (3 learners), conformal CIs. ~5-10 min with parallelism."
   else
-    "Full SL stack with screeners, 200 bootstrap reps. ~30-60 min with parallelism.",
+    "Evidence-based 6-learner stack, conformal CIs. ~30-60 min with parallelism.",
   if (pipeline_mode == "fast") "full" else "fast",
   n_workers
 ))
@@ -149,7 +154,7 @@ make_outcome_targets <- function(country_name, outcome_name, cc, oc, params) {
     tar_target_raw(
       paste0("sl_fit_", suffix),
       substitute(
-        fit_sl_models(outcome_data, cc_val, oc_val, sl_learners, params_val),
+        fit_mlr3_models(outcome_data, cc_val, oc_val, sl_learners, params_val),
         list(
           outcome_data = as.symbol(paste0("outcome_data_", suffix)),
           cc_val       = cc,
@@ -363,7 +368,7 @@ static_targets <- list(
   tar_target(pipeline_params, get_pipeline_params(pipeline_mode)),
 
   # SL learner stacks (shared across all outcomes)
-  tar_target(sl_learners, setup_sl_learners(pipeline_params))
+  tar_target(sl_learners, setup_mlr3_learners(pipeline_params))
 )
 
 # ── Per-country targets ─────────────────────────────────────────────────────
@@ -389,11 +394,11 @@ for (country_name in names(all_country_configs)) {
   )
   country_targets <- c(country_targets, list(raw_data_target))
 
-  # Merge food security data (HFID + Cadre Harmonisé) → final merged dataset
-  merged_target_name <- paste0("merged_", tolower(country_name))
+  # Merge food security data (HFID + Cadre Harmonisé)
+  fsec_target_name <- paste0("merged_fsec_", tolower(country_name))
   country_targets <- c(country_targets, list(
     tar_target_raw(
-      merged_target_name,
+      fsec_target_name,
       substitute(
         merge_food_security(raw_data, cc_val, hfid_val, ch_val),
         list(
@@ -401,6 +406,23 @@ for (country_name in names(all_country_configs)) {
           cc_val    = cc,
           hfid_val  = hfid_path,
           ch_val    = ch_path
+        )
+      )
+    )
+  ))
+
+  # Merge external predictors (CHIRPS, WorldPop, MAP, HarvestStat, etc.)
+  # These are Admin-2 level contextual variables joined to individual records.
+  merged_target_name <- paste0("merged_", tolower(country_name))
+  country_targets <- c(country_targets, list(
+    tar_target_raw(
+      merged_target_name,
+      substitute(
+        merge_external_predictors(fsec_data, cc_val, cache_dir_val),
+        list(
+          fsec_data     = as.symbol(fsec_target_name),
+          cc_val        = cc,
+          cache_dir_val = here::here("data", "external_cache")
         )
       )
     )
