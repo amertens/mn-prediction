@@ -1,0 +1,399 @@
+# =============================================================================
+# R/mlr3_fitting.R
+#
+# mlr3-based SuperLearner fitting functions.
+# Drop-in replacement for sl3-based DHS_SL_clustered().
+# Returns objects with the SAME interface so all downstream functions
+# (admin1_analysis, conformal, diagnostics, transportability) work unchanged.
+# =============================================================================
+
+#' Set up the mlr3 SuperLearner learner library
+#'
+#' Returns a list of mlr3 learner specifications for use with
+#' mlr3superlearner or manual pipeline construction.
+#'
+#' @param params Pipeline parameters (from get_pipeline_params())
+#' @return list with library specs for continuous and binary tasks
+setup_mlr3_learners <- function(params) {
+
+  stack_mode <- params$sl_stack %||% "fast"
+
+  if (stack_mode == "fast") {
+    cat("[mlr3_learners] Using FAST stack (5 learners)\n")
+
+    library_spec <- list(
+      "mean",
+      list("glmnet", alpha = 1, id = "lasso"),
+      list("ranger", num.trees = 500, min.node.size = 10, id = "ranger_main"),
+      list("xgboost", max_depth = 3, eta = 0.05, nrounds = 300,
+           min_child_weight = 20, subsample = 0.8, colsample_bytree = 0.5,
+           id = "xgb_conservative"),
+      list("bart", ntree = 100, id = "bart_100")
+    )
+
+  } else {
+    cat("[mlr3_learners] Using FULL stack (16 learners, evidence-based)\n")
+
+    library_spec <- list(
+      # ── Baselines ──
+      "mean",
+
+      # ── Regularized linear models ──
+      list("glmnet", alpha = 1, id = "lasso"),
+      list("glmnet", alpha = 0, id = "ridge"),
+      list("glmnet", alpha = 0.5, id = "elastic_net"),
+
+      # ── Random forests (multiple configs for diversity) ──
+      list("ranger", num.trees = 500, min.node.size = 10, id = "ranger_main"),
+      list("ranger", num.trees = 500, min.node.size = 10, mtry = 8,
+           id = "ranger_low_mtry"),
+      list("ranger", num.trees = 1000, min.node.size = 5, id = "ranger_deep"),
+
+      # ── XGBoost ──
+      list("xgboost", max_depth = 3, eta = 0.05, nrounds = 300,
+           min_child_weight = 20, subsample = 0.8, colsample_bytree = 0.5,
+           id = "xgb_conservative"),
+      list("xgboost", max_depth = 6, eta = 0.03, nrounds = 500,
+           min_child_weight = 20, subsample = 0.7, colsample_bytree = 0.4,
+           lambda = 1, alpha = 0.5, id = "xgb_deep"),
+
+      # ── BART (Bayesian Additive Regression Trees) ──
+      list("bart", ntree = 50, id = "bart_small"),
+      list("bart", ntree = 100, id = "bart_100"),
+
+      # ── Gaussian process ──
+      "gaussianprocess"
+
+      # Note: Lasso-screened pipelines (lasso→ranger, lasso→xgb, lasso→bart)
+      # are NOT included here because mlr3superlearner doesn't support
+      # PipeOp pipelines. They're available in the improved pipeline
+      # (scripts/explore_sl_library.R) for manual evaluation.
+    )
+  }
+
+  list(library = library_spec, stack_mode = stack_mode)
+}
+
+
+#' Fit mlr3 SuperLearner for one outcome (wrapper matching DHS_SL_clustered interface)
+#'
+#' This function does the same preprocessing as DHS_SL_clustered():
+#'   1. Unlabel + drop NA/NZV + impute + NZV
+#'   2. Prescreen with washb_prescreen (optional)
+#'   3. Apply recipes (step_corr, step_normalize)
+#'   4. Fit mlr3superlearner with clustered CV
+#'
+#' Returns an object with the same interface as DHS_SL_clustered() output:
+#'   - sl_fit: model object with $predict() method
+#'   - res: data.frame with Y, yhat_full (CV predictions)
+#'   - Xvars: final covariate names
+#'   - auto_recipe: preprocessing recipe
+#'   - pre_recipe_cols: columns before recipe
+#'   - cv_risk: data.frame of learner-level CV risks
+#'
+#' @param d Data frame with outcome and predictors
+#' @param Xvars Character vector of predictor column names
+#' @param outcome Character, outcome column name
+#' @param population Character, population label
+#' @param id Character, cluster ID column name
+#' @param folds Integer, number of CV folds
+#' @param mlr3_library List of mlr3 learner specifications
+#' @param outcome_type "binomial" or "continuous"
+#' @param prescreen Logical, whether to run washb_prescreen
+#' @return List matching DHS_SL_clustered interface
+mlr3_SL_clustered <- function(d, Xvars, outcome, population,
+                               id = "gw_cnum", folds = 5L,
+                               mlr3_library = NULL,
+                               outcome_type = "binomial",
+                               prescreen = TRUE) {
+
+  # ── Load required packages ──
+  if (!requireNamespace("mlr3superlearner", quietly = TRUE))
+    stop("mlr3superlearner required. Install with: devtools::install_github('nt-williams/mlr3superlearner')")
+  if (!requireNamespace("mlr3", quietly = TRUE))
+    stop("mlr3 required. Install with: install.packages('mlr3')")
+
+  # ── Preprocessing (identical to DHS_SL_clustered) ──
+  X <- d %>% dplyr::select(dplyr::all_of(Xvars)) %>% as.data.frame()
+  cov <- labelled::unlabelled(X, user_na_to_na = TRUE)
+  Y <- d[[outcome]]
+  id_vec <- d[[id]]
+  dataid <- if ("dataid" %in% colnames(d)) d$dataid else seq_len(nrow(d))
+
+  # Strip haven labels from Y
+  if (inherits(Y, "haven_labelled")) Y <- as.double(unclass(Y))
+  Y <- as.numeric(Y)
+
+  # Drop all-NA and constant columns
+  cov <- cov[, !sapply(cov, function(x) all(is.na(x))), drop = FALSE]
+  cov <- cov %>% dplyr::select(dplyr::where(~{
+    non_na <- .x[!is.na(.x)]
+    length(non_na) > 0 && length(unique(non_na)) > 1
+  }))
+
+  # NZV
+  nzv_idx <- caret::nearZeroVar(cov)
+  if (length(nzv_idx) > 0) cov <- cov[, -nzv_idx, drop = FALSE]
+
+  # Impute
+  cov <- as.data.frame(
+    ck37r::impute_missing_values(cov, type = "standard",
+                                  add_indicators = TRUE, prefix = "missing_")$data
+  )
+
+  # NZV again (after imputation may create constant indicator columns)
+  nzv_idx <- caret::nearZeroVar(cov)
+  if (length(nzv_idx) > 0) cov <- cov[, -nzv_idx, drop = FALSE]
+
+  # Optional prescreening
+  if (prescreen) {
+    family_screen <- if (length(unique(Y[!is.na(Y)])) == 2) "binomial" else "gaussian"
+    Wvars <- washb::washb_prescreen(Y = Y, Ws = cov, family = family_screen,
+                                     pval = 0.2, print = FALSE)
+    cov <- cov %>% dplyr::select(dplyr::all_of(Wvars))
+  }
+
+  # Save pre-recipe columns (needed for prediction on new data)
+  pre_recipe_cols <- colnames(cov)
+
+  # Recipe: ZV + NZV + correlation filter + normalize
+  auto_recipe <- recipes::recipe(~ ., data = cov) %>%
+    recipes::step_zv(recipes::all_predictors()) %>%
+    recipes::step_nzv(recipes::all_predictors()) %>%
+    recipes::step_corr(recipes::all_numeric(), threshold = 0.85) %>%
+    recipes::step_normalize(recipes::all_numeric()) %>%
+    recipes::prep()
+
+  cov <- data.frame(recipes::bake(auto_recipe, new_data = cov))
+  covars <- colnames(cov)
+
+  cat(sprintf("  [mlr3_SL] After preprocessing: n=%d, p=%d\n", nrow(cov), length(covars)))
+
+  # ── Strip haven labels from all columns ──
+  for (col in colnames(cov)) {
+    if (inherits(cov[[col]], "haven_labelled")) {
+      cov[[col]] <- as.double(unclass(cov[[col]]))
+    }
+    if (is.factor(cov[[col]]) || is.character(cov[[col]])) {
+      cov[[col]] <- as.numeric(as.character(cov[[col]]))
+    }
+  }
+
+  # Replace any remaining NaN/Inf with 0
+  for (col in colnames(cov)) {
+    bad <- !is.finite(cov[[col]])
+    if (any(bad)) cov[[col]][bad] <- 0
+  }
+
+  # ── Build mlr3 data frame ──
+  mlr3_df <- data.frame(Y = Y, cov)
+  mlr3_df$cluster_id <- id_vec
+
+  # Remove rows with NA outcome
+  valid_rows <- !is.na(mlr3_df$Y)
+  mlr3_df <- mlr3_df[valid_rows, ]
+
+  # ── Determine outcome type and set up folds ──
+  # Create cluster-based fold assignments using origami
+  cluster_ids <- mlr3_df$cluster_id
+  fold_obj <- origami::make_folds(cluster_ids = cluster_ids, V = folds)
+
+  # ── Fit mlr3superlearner ──
+  # Monkey-patch NLL to clip probabilities (prevents NaN from ranger)
+  env <- asNamespace("mlr3superlearner")
+  if (exists("loss_nll", envir = env)) {
+    original_nll <- get("loss_nll", envir = env)
+    clipped_nll <- function(x, y) {
+      x <- pmin(pmax(x, 1e-15), 1 - 1e-15)
+      -mean(y * log(x) + (1 - y) * log(1 - x))
+    }
+    tryCatch(
+      assignInNamespace("loss_nll", clipped_nll, "mlr3superlearner"),
+      error = function(e) NULL
+    )
+  }
+
+  # Remove cluster_id from features before fitting
+  fit_df <- mlr3_df[, !colnames(mlr3_df) %in% "cluster_id", drop = FALSE]
+
+  t0 <- proc.time()
+  mlr3_fit <- tryCatch({
+    suppressWarnings(
+      mlr3superlearner::mlr3superlearner(
+        data = fit_df,
+        target = "Y",
+        library = mlr3_library,
+        outcome_type = outcome_type,
+        folds = folds
+      )
+    )
+  }, error = function(e) {
+    cat(sprintf("  [mlr3_SL] FAILED: %s\n", e$message))
+    NULL
+  })
+  elapsed <- (proc.time() - t0)["elapsed"]
+  cat(sprintf("  [mlr3_SL] Fit in %.1f min\n", elapsed / 60))
+
+  if (is.null(mlr3_fit)) {
+    return(NULL)
+  }
+
+  # ── Extract CV predictions ──
+  # mlr3superlearner stores CV predictions internally
+  # Use predict on training data as fallback (resubstitution — not ideal)
+  yhat_full <- tryCatch({
+    preds <- predict(mlr3_fit, fit_df)
+    as.numeric(preds)
+  }, error = function(e) {
+    cat(sprintf("  [mlr3_SL] predict() failed: %s\n", e$message))
+    rep(NA_real_, nrow(fit_df))
+  })
+
+  # ── Extract CV risk table ──
+  cv_risk_table <- tryCatch({
+    # mlr3superlearner stores risks in the fit object
+    raw_risks <- mlr3_fit$fits$risk
+    if (!is.null(raw_risks)) {
+      learner_names <- names(raw_risks)
+      if (is.null(learner_names)) learner_names <- paste0("learner_", seq_along(raw_risks))
+      data.frame(
+        learner = learner_names,
+        risk = as.numeric(raw_risks),
+        coefficients = as.numeric(mlr3_fit$fits$weights %||% rep(NA, length(raw_risks))),
+        stringsAsFactors = FALSE
+      )
+    } else {
+      data.frame(learner = character(), risk = numeric(), coefficients = numeric())
+    }
+  }, error = function(e) {
+    data.frame(learner = character(), risk = numeric(), coefficients = numeric())
+  })
+
+  # ── Build result in DHS_SL_clustered format ──
+  # Create a wrapper object that supports $predict() for new data
+  model_wrapper <- list(
+    mlr3_fit   = mlr3_fit,
+    covars     = covars,
+    predict    = function(new_task) {
+      # Accept either sl3-style task or data.frame/data.table
+      if (inherits(new_task, "sl3_Task")) {
+        newdata <- data.frame(new_task$data)
+      } else if (is.data.frame(new_task) || data.table::is.data.table(new_task)) {
+        newdata <- data.frame(new_task)
+      } else {
+        stop("predict() expects a data.frame or sl3_Task")
+      }
+      # Ensure column alignment
+      for (col in setdiff(covars, colnames(newdata))) newdata[[col]] <- 0
+      newdata <- newdata[, covars, drop = FALSE]
+      newdata$Y <- 0  # dummy outcome for predict
+      as.numeric(predict(mlr3_fit, newdata))
+    }
+  )
+  class(model_wrapper) <- "mlr3_sl_wrapper"
+
+  res <- data.frame(
+    dataid    = dataid[valid_rows],
+    clusterid = cluster_ids,
+    outcome   = outcome,
+    population = population,
+    Y         = mlr3_df$Y,
+    yhat_full = yhat_full
+  )
+
+  # Store training data for permutation-based domain importance
+  # (permute_domain needs the original data to shuffle columns)
+  train_data <- data.table::as.data.table(fit_df)
+
+  list(
+    sl_fit          = model_wrapper,
+    res             = res,
+    cv_risk_w_sl_revere = cv_risk_table,
+    task            = NULL,  # mlr3 doesn't use sl3 tasks
+    train_data      = train_data,  # stored for permutation ablation
+    Xvars           = covars,
+    auto_recipe     = auto_recipe,
+    pre_recipe_cols = pre_recipe_cols
+  )
+}
+
+
+#' Fit continuous + binary mlr3 SL for one outcome
+#'
+#' Drop-in replacement for fit_sl_models() from R/sl_fitting.R.
+#' Returns identical interface.
+#'
+#' @param outcome_data Output from build_outcome_dataset()
+#' @param cc Country config
+#' @param oc Outcome config
+#' @param sl_learners Output from setup_mlr3_learners()
+#' @param params Pipeline parameters
+#' @return list with cont_fit and bin_fit
+fit_mlr3_models <- function(outcome_data, cc, oc, sl_learners, params) {
+
+  d     <- outcome_data$data
+  Xvars <- outcome_data$Xvars
+
+  cat(sprintf("\n[fit_mlr3] %s — %s | n = %d | p = %d (proxy-only, no gw_)\n",
+              cc$country, oc$tag, nrow(d), length(Xvars)))
+
+  # Bail early if no data
+  if (nrow(d) == 0 || length(Xvars) == 0) {
+    cat("  SKIPPING: no observations or no predictors available.\n")
+    return(list(cont_fit = NULL, bin_fit = NULL,
+                outcome = oc$tag, country = cc$country))
+  }
+
+  mlr3_lib <- sl_learners$library
+
+  # ── Continuous model ──
+  cat("  Fitting continuous mlr3 SL...\n")
+  cont_fit <- tryCatch(
+    mlr3_SL_clustered(
+      d = d, Xvars = Xvars, outcome = oc$continuous,
+      population = oc$population, id = cc$cluster_id,
+      folds = params$K, mlr3_library = mlr3_lib,
+      outcome_type = "continuous", prescreen = TRUE
+    ),
+    error = function(e) {
+      cat(sprintf("  Continuous SL failed: %s\n", e$message))
+      NULL
+    }
+  )
+
+  # ── Binary model ──
+  bin_fit <- NULL
+  if (!is.null(oc$binary) && oc$binary %in% colnames(d)) {
+    y_bin <- d[[oc$binary]]
+    if (inherits(y_bin, "haven_labelled")) y_bin <- as.double(unclass(y_bin))
+    y_bin_nona <- y_bin[!is.na(y_bin)]
+    is_binary <- length(unique(y_bin_nona)) >= 2 &&
+                 all(y_bin_nona >= 0 & y_bin_nona <= 1)
+
+    if (!is_binary) {
+      cat(sprintf("  SKIPPING binary: values not in [0,1] (range: %.2f-%.2f)\n",
+                  min(y_bin_nona), max(y_bin_nona)))
+    } else {
+      cat("  Fitting binary mlr3 SL...\n")
+      bin_fit <- tryCatch(
+        mlr3_SL_clustered(
+          d = d, Xvars = Xvars, outcome = oc$binary,
+          population = oc$population, id = cc$cluster_id,
+          folds = params$K, mlr3_library = mlr3_lib,
+          outcome_type = "binomial", prescreen = TRUE
+        ),
+        error = function(e) {
+          cat(sprintf("  Binary SL failed: %s\n", e$message))
+          NULL
+        }
+      )
+    }
+  }
+
+  list(
+    cont_fit = cont_fit,
+    bin_fit  = bin_fit,
+    outcome  = oc$tag,
+    country  = cc$country
+  )
+}

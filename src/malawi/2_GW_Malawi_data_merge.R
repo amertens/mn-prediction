@@ -22,7 +22,7 @@ library(readxl)
 
 
 
-d <- readRDS(here("data", "Malawi", "clean_malawi_mn_data.RDS"))
+d <- readRDS(here("data", "IPD", "Malawi", "clean_malawi_mn_data.RDS"))
 
 
 gw_vars <- colnames(d)
@@ -32,7 +32,7 @@ gw_vars <- colnames(d)
 #-------------------------------------------------------------------------------
 
 
-gee <- read.csv(here("data/gee/malawi2015_buffers_01.08.2026.csv"))
+gee <- read.csv(here("data/GEE/malawi2015_buffers_01.08.2026.csv"))
 colnames(gee) = gsub("\\.x","",colnames(gee))
 colnames(gee) = paste0("gee_",colnames(gee))
 gee <- gee %>% select(gee_cluster, gee_trmm_Jan_10km:gee_grassland_50km)
@@ -421,11 +421,15 @@ table(is.na(df$ihme_2_to_10_years_2_to_10_both_malaria_prevalence_rate ))
 #-------------------------------------------------------------------------------
 
 #-------------------------------------------------------------------------------
-# DHS Admin-1 indicators
+# DHS Admin-1 indicators (from surveyPrev direct estimates, pivoted to wide)
 #-------------------------------------------------------------------------------
 
-dhs2015 <- readRDS(here("data/DHS/clean/Malawi_2015_dhs_aggregation.rds"))
-colnames(dhs2015) <- paste0("dhs2015_",colnames(dhs2015))
+source(here("R", "data_prep.R"))
+dhs2015_adm1 <- load_dhs_admin1(
+  dhs_dir = here("data", "DHS", "clean"),
+  country = "Malawi",
+  year    = 2015
+)
 
 #make aggregate region (Malawi DHS only reports 3 regions: Northern, Central, Southern)
 df <- df %>%
@@ -450,8 +454,15 @@ df <- df %>%
     )
   )
 
-dhs_vars <- c(colnames(dhs2015))
-df <- left_join(as.data.frame(df), dhs2015, by = c("DHSREGEN" = "dhs2015_DHSREGEN"))
+if (!is.null(dhs2015_adm1)) {
+  dhs_vars <- names(dhs2015_adm1)
+  df <- left_join(as.data.frame(df), dhs2015_adm1, by = c("DHSREGEN" = "dhs2015_DHSREGEN"))
+  cat(sprintf("  DHS admin-1 merge complete: %d dhs2015_ columns added\n",
+              sum(grepl("^dhs2015_", colnames(df)))))
+} else {
+  dhs_vars <- c()
+  warning("Admin-1 DHS file not found for Malawi 2015")
+}
 
 #-------------------------------------------------------------------------------
 # DHS Admin-2 indicators (from surveyPrev FH BYM2 smoothed estimates)
@@ -474,6 +485,7 @@ if (!is.null(dhs2015_adm2)) {
   n_matched <- sum(!is.na(dhs2015_adm2$Admin2))
   cat(sprintf("  DHS 2015 Admin2 name matching: %d/%d matched\n", n_matched, length(source_a2)))
   dhs2015_adm2 <- dhs2015_adm2[!is.na(dhs2015_adm2$Admin2), ]
+  dhs2015_adm2 <- dhs2015_adm2[!duplicated(dhs2015_adm2$Admin2), ]
   df <- left_join(df, dhs2015_adm2, by = "Admin2")
   cat(sprintf("  DHS 2015 admin-2 merge complete\n"))
 } else {
@@ -617,7 +629,7 @@ df$dataid <- paste0("malawi",1:nrow(df))
 #-------------------------------------------------------------------------------
 
 
-saveRDS(df, file=here("data", "Malawi", "Malawi_merged_dataset.rds"))
+saveRDS(df, file=here("data", "IPD", "Malawi", "Malawi_merged_dataset.rds"))
 
 #-------------------------------------------------------------------------------
 # Save metadata

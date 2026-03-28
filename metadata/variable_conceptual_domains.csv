@@ -194,3 +194,84 @@ gee_smod,GEE,Infrastructure,Settlement type,Settlement classification,prefix
 gee_ghm,GEE,Infrastructure,Human modification,Global human modification index,prefix
 gee_wapor,GEE,Environment,Water productivity,Water productivity,prefix
 gee_,GEE,Environment,Remote sensing (other),Other GEE satellite variables,prefix
+chirps_precip_jan,CHIRPS,Climate,Precipitation,January rainfall (CHIRPS),exact
+chirps_precip_feb,CHIRPS,Climate,Precipitation,February rainfall (CHIRPS),exact
+chirps_precip_mar,CHIRPS,Climate,Precipitation,March rainfall (CHIRPS),exact
+chirps_precip_apr,CHIRPS,Climate,Precipitation,April rainfall (CHIRPS),exact
+chirps_precip_may,CHIRPS,Climate,Precipitation,May rainfall (CHIRPS),exact
+chirps_precip_jun,CHIRPS,Climate,Precipitation,June rainfall (CHIRPS),exact
+chirps_precip_jul,CHIRPS,Climate,Precipitation,July rainfall (CHIRPS),exact
+chirps_precip_aug,CHIRPS,Climate,Precipitation,August rainfall (CHIRPS),exact
+chirps_precip_sep,CHIRPS,Climate,Precipitation,September rainfall (CHIRPS),exact
+chirps_precip_oct,CHIRPS,Climate,Precipitation,October rainfall (CHIRPS),exact
+chirps_precip_nov,CHIRPS,Climate,Precipitation,November rainfall (CHIRPS),exact
+chirps_precip_dec,CHIRPS,Climate,Precipitation,December rainfall (CHIRPS),exact
+chirps_annual_mean,CHIRPS,Climate,Precipitation,Annual mean rainfall (CHIRPS),exact
+chirps_annual_sd,CHIRPS,Climate,Precipitation,Rainfall variability (CHIRPS),exact
+chirps_annual_total,CHIRPS,Climate,Precipitation,Annual total rainfall (CHIRPS),exact
+chirps_dry_months,CHIRPS,Climate,Precipitation,Number of dry months (CHIRPS),exact
+worldpop_pop_density,WorldPop,Demographics,Population density,WorldPop population density,exact
+worldpop_pop_total,WorldPop,Demographics,Population total,WorldPop total population,exact
+ntl_mean,VIIRS,Infrastructure,Nighttime lights,Mean nighttime radiance (VIIRS),exact
+ntl_median,VIIRS,Infrastructure,Nighttime lights,Median nighttime radiance (VIIRS),exact
+ntl_max,VIIRS,Infrastructure,Nighttime lights,Max nighttime radiance (VIIRS),exact
+ntl_sd,VIIRS,Infrastructure,Nighttime lights,Nighttime radiance variability (VIIRS),exact
+map2_,MAP,Infectious Disease,Malaria Atlas Project,Malaria Atlas raster surfaces,prefix
+soil_ph,SoilGrids,Environment,Soil properties,Soil pH (0-5cm),exact
+soil_organic_carbon,SoilGrids,Environment,Soil properties,Soil organic carbon (0-5cm),exact
+soil_nitrogen,SoilGrids,Environment,Soil properties,Soil nitrogen (0-5cm),exact
+soil_clay,SoilGrids,Environment,Soil properties,Soil clay fraction (0-5cm),exact
+soil_sand,SoilGrids,Environment,Soil properties,Soil sand fraction (0-5cm),exact
+soil_silt,SoilGrids,Environment,Soil properties,Soil silt fraction (0-5cm),exact
+soil_cec,SoilGrids,Environment,Soil properties,Soil cation exchange capacity (0-5cm),exact
+gdl_shdi,GDL,Livelihoods,Human development,Subnational Human Development Index,exact
+gdl_education_idx,GDL,Education,Education index,GDL education index,exact
+gdl_health_idx,GDL,Health and Development,Health index,GDL health index,exact
+gdl_income_idx,GDL,Livelihoods,Income index,GDL income index,exact
+ipc_phase3plus_pct,IPC,Food Security,Food crisis,IPC Phase 3+ percentage,exact
+ipc_phase4plus_pct,IPC,Food Security,Food emergency,IPC Phase 4+ percentage,exact
+ipc_avg_phase,IPC,Food Security,Food security phase,Average IPC/CH phase,exact
+acled_total_events,ACLED,Conflict,Conflict events,Total conflict events (ACLED),exact
+acled_total_fatalities,ACLED,Conflict,Conflict fatalities,Total conflict fatalities (ACLED),exact
+acled_battles,ACLED,Conflict,Battles,Battle events (ACLED),exact
+acled_violence_civilians,ACLED,Conflict,Civilian violence,Violence against civilians (ACLED),exact
+crop_n_crops,HarvestStat,Agriculture,Crop diversity,Number of crops grown,exact
+crop_mean_yield,HarvestStat,Agriculture,Crop yield,Mean crop yield (mt/ha),exact
+crop_total_production,HarvestStat,Agriculture,Crop production,Total crop production (mt),exact
+crop_total_area,HarvestStat,Agriculture,Crop area,Total cultivated area (ha),exact
+crop_staple_yield,HarvestStat,Agriculture,Staple crop yield,Staple crop yield (mt/ha),exact
+crop_staple_n,HarvestStat,Agriculture,Staple crop diversity,Number of staple crops,exact
+wfp_fcs,WFP,Food Security,Food consumption,Food Consumption Score (WFP),exact
+wfp_rcsi,WFP,Food Security,Coping strategies,Reduced Coping Strategy Index (WFP),exact
+wfp_insufficient_food,WFP,Food Security,Food insufficiency,Proportion with insufficient food (WFP),exact
+map2_pf_mortality,MAP,Infectious Disease,Pf malaria mortality,P. falciparum mortality rate/count,prefix
+map2_pf_incidence,MAP,Infectious Disease,Pf malaria incidence,P. falciparum incidence rate/count,prefix
+map2_pf_parasite,MAP,Infectious Disease,Pf parasite rate,P. falciparum parasite prevalence,prefix
+map2_pv_incidence,MAP,Infectious Disease,Pv malaria incidence,P. vivax incidence rate/count,prefix
+map2_pv_parasite,MAP,Infectious Disease,Pv parasite rate,P. vivax parasite prevalence,prefix
+map2_pf_reproductive,MAP,Infectious Disease,Malaria reproduction number,Pf reproductive number,prefix
+map2_antimalarial,MAP,Health and Development,Antimalarial treatment,Effective antimalarial treatment coverage,prefix
+map2_itn,MAP,Health and Development,Insecticide-treated nets,ITN access/use/use rate,prefix
+map2_irs,MAP,Health and Development,Indoor residual spraying,IRS coverage,prefix
+map2_duffy,MAP,Blood Disorders,Duffy negativity,Duffy negativity phenotype frequency,prefix
+map2_g6pd,MAP,Blood Disorders,G6PD deficiency,G6PD deficiency allele frequency,prefix
+map2_hbc,MAP,Blood Disorders,HbC frequency,Hemoglobin C allele frequency,prefix
+map2_sickle,MAP,Blood Disorders,Sickle cell,Sickle hemoglobin (HbS) allele frequency,prefix
+map2_motorized_friction,MAP,Accessibility,Motorized friction,Motorized travel friction surface,prefix
+map2_walking_friction,MAP,Accessibility,Walking friction,Walking-only travel friction surface,prefix
+map2_travel_speed,MAP,Accessibility,Travel speed,Travel speed friction surface,prefix
+map2_travel_time_cities,MAP,Accessibility,Travel time to cities,Travel time to nearest city,prefix
+map2_motorized_healthcare,MAP,Accessibility,Healthcare access (motorized),Motorized travel time to healthcare,prefix
+map2_walking_healthcare,MAP,Accessibility,Healthcare access (walking),Walking travel time to healthcare,prefix
+map2_pf_limits,MAP,Infectious Disease,Pf geographic limits,P. falciparum geographic limits,prefix
+map2_pv_limits,MAP,Infectious Disease,Pv geographic limits,P. vivax geographic limits,prefix
+map2_temp_suitability,MAP,Climate,Malaria temperature suitability,Temperature suitability for malaria transmission,prefix
+map2_fever,MAP,Child Health,Fever prevalence,All-cause and malaria-related fever,prefix
+map2_housing,MAP,Household Characteristics,Housing quality,Housing quality index (MAP),prefix
+map2_act,MAP,Health and Development,ACT coverage,ACT treatment coverage,prefix
+map2_pv_relapse,MAP,Infectious Disease,Pv relapse incidence,P. vivax relapse incidence,prefix
+map2_pv_cases,MAP,Infectious Disease,Pv cases,P. vivax case counts,prefix
+map2_funestus,MAP,Infectious Disease,An. funestus,Anopheles funestus distribution,prefix
+map2_friction,MAP,Accessibility,Friction surface,Travel friction surface (general),prefix
+map2_accessibility,MAP,Accessibility,Accessibility to cities,Accessibility to cities index,prefix
+map2_am_effective,MAP,Health and Development,Effective treatment,Effective antimalarial treatment (Explorer),prefix
