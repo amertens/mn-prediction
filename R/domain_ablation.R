@@ -91,19 +91,15 @@ permute_domain <- function(sl_fit_obj, domain_cols, domain_name,
     }
 
     # Predict on permuted data
-    # Use the underlying mlr3superlearner object directly — the R6 wrapper
-    # predict method is more reliable than the closure-based wrapper after
-    # serialization (R6 objects can lose state when saved/loaded via targets).
     yhat_perm <- tryCatch({
       perm_df <- data.frame(dt_perm)
-      # Try direct mlr3superlearner predict first
-      mlr3_obj <- fit$mlr3_fit
-      if (!is.null(mlr3_obj) && inherits(mlr3_obj, "mlr3superlearner")) {
-        as.numeric(predict(mlr3_obj, perm_df))
-      } else {
-        # Fallback to wrapper predict
-        as.numeric(fit$predict(perm_df))
+      p <- as.numeric(fit$predict(perm_df))
+      # Detect degenerate predictions (all identical = predict failed silently)
+      if (length(unique(round(p, 6))) <= 1) {
+        cat(sprintf("    [permute] WARNING: degenerate predictions for %s rep %d (all %.4f)\n",
+                    domain_name, r, p[1]))
       }
+      p
     }, error = function(e) {
       cat(sprintf("    [permute] Predict failed for %s rep %d: %s\n",
                   domain_name, r, e$message))
@@ -129,11 +125,9 @@ permute_domain <- function(sl_fit_obj, domain_cols, domain_name,
 
 #' Run permutation-based domain importance for one outcome
 #'
-#' For each predictor domain, shuffles that domain's columns and re-evaluates.
-#' Because mlr3 R6 learner objects don't survive RDS serialization (targets
-#' saves/loads objects between steps), we refit a lightweight glmnet model
-#' on the stored training data for permutation predictions. This is fast
-#' (~seconds) and avoids the stale-object bug.
+#' For each predictor domain, shuffles that domain's columns in the
+#' fitted model's task data and measures performance degradation.
+#' Uses the EXISTING fitted model — no refitting.
 #'
 #' @param outcome_data Output from build_outcome_dataset()
 #' @param sl_fit Output from fit_sl_models()
@@ -153,7 +147,7 @@ run_domain_ablation <- function(outcome_data, sl_fit, cc, oc, sl_learners, param
     return(data.frame())
   }
 
-  # Get the model's actual covariates and training data
+  # Get the model's actual covariates (what it was trained on)
   final_covars <- fit_obj$Xvars
   if (is.null(final_covars) || length(final_covars) == 0) {
     final_covars <- tryCatch(fit_obj$task$nodes$covariates,
@@ -165,47 +159,7 @@ run_domain_ablation <- function(outcome_data, sl_fit, cc, oc, sl_learners, param
     return(data.frame())
   }
 
-  train_data <- fit_obj$train_data
-  if (is.null(train_data)) {
-    cat(sprintf("[permutation] %s — %s | No train_data, skipping\n",
-                cc$country, oc$tag))
-    return(data.frame())
-  }
-  train_data <- data.frame(train_data)
-
-  Y <- as.numeric(train_data$Y)
-
-  # ── Refit a lightweight glmnet for permutation predictions ───────────────
-  # mlr3 R6 objects lose trained state after RDS serialization. Instead of
-  # relying on the (potentially stale) SL object, refit a cv.glmnet on the
-  # same training data. This is fast and gives a reasonable proxy for the
-  # full SL's feature usage.
-  X_mat <- as.matrix(train_data[, final_covars, drop = FALSE])
-  # Replace NaN/Inf
-  X_mat[!is.finite(X_mat)] <- 0
-
-  family <- if (use_binary) "binomial" else "gaussian"
-  perm_model <- tryCatch({
-    set.seed(params$seed)
-    glmnet::cv.glmnet(x = X_mat, y = Y, family = family, alpha = 0.5,
-                       nfolds = min(10, max(3, floor(nrow(X_mat) / 20))))
-  }, error = function(e) {
-    cat(sprintf("[permutation] glmnet refit failed: %s\n", e$message))
-    NULL
-  })
-  if (is.null(perm_model)) return(data.frame())
-
-  # Baseline: predict on unpermuted data with the refit model
-  yhat_baseline <- as.numeric(predict(perm_model, X_mat, s = "lambda.min",
-                                       type = "response"))
-  baseline <- compute_perf_metrics(Y, yhat_baseline, use_binary)
-  baseline$domain_removed <- "none"
-  baseline$n_removed      <- 0L
-  baseline$n_perm_valid   <- NA_integer_
-
-  cat(sprintf("[permutation] Baseline AUC (glmnet refit): %.3f\n", baseline$auc))
-
-  # Classify variables into conceptual domains
+  # Classify variables into conceptual domains using the mapping file
   source_classify <- tryCatch(
     classify_variables(final_covars),
     error = function(e) {
@@ -214,6 +168,7 @@ run_domain_ablation <- function(outcome_data, sl_fit, cc, oc, sl_learners, param
     }
   )
 
+  # Build domain_vars list: domain name -> vector of variable names
   domain_vars <- split(names(source_classify), source_classify)
   domain_vars <- domain_vars[names(domain_vars) != "Unknown"]
   domain_vars <- domain_vars[names(domain_vars) != "Missingness Indicators"]
@@ -229,38 +184,19 @@ run_domain_ablation <- function(outcome_data, sl_fit, cc, oc, sl_learners, param
   cat(sprintf("\n[permutation] %s — %s | %d domains, %d permutations each\n",
               cc$country, oc$tag, n_domains, n_perm))
 
-  # Permute each domain using the refit glmnet
+  # Baseline metrics (unpermuted CV predictions)
+  baseline <- compute_perf_metrics(fit_obj$res$Y, fit_obj$res$yhat_full, use_binary)
+  baseline$domain_removed <- "none"
+  baseline$n_removed      <- 0L
+  baseline$n_perm_valid   <- NA_integer_
+
+  # Permute each domain
   perm_list <- lapply(domains, function(dom) {
-    dom_cols <- intersect(domain_vars[[dom]], final_covars)
-    if (length(dom_cols) == 0) return(NULL)
-
-    cat(sprintf("  Permuting %s (%d vars)\n", dom, length(dom_cols)))
-
-    perm_results <- list()
-    for (r in seq_len(n_perm)) {
-      set.seed(params$seed + r)
-      X_perm <- X_mat
-      for (col in dom_cols) {
-        col_idx <- match(col, final_covars)
-        if (!is.na(col_idx)) {
-          X_perm[, col_idx] <- X_perm[sample.int(nrow(X_perm)), col_idx]
-        }
-      }
-      yhat_perm <- tryCatch(
-        as.numeric(predict(perm_model, X_perm, s = "lambda.min", type = "response")),
-        error = function(e) NULL
-      )
-      if (!is.null(yhat_perm) && length(yhat_perm) == length(Y)) {
-        perm_results[[r]] <- compute_perf_metrics(Y, yhat_perm, use_binary)
-      }
-    }
-
-    if (length(perm_results) == 0) return(NULL)
-    avg <- as.data.frame(lapply(dplyr::bind_rows(perm_results), mean, na.rm = TRUE))
-    avg$domain_removed <- dom
-    avg$n_removed      <- length(dom_cols)
-    avg$n_perm_valid   <- length(perm_results)
-    avg
+    dom_cols <- domain_vars[[dom]]
+    cat(sprintf("  Permuting %s (%d vars in model)\n", dom,
+                length(intersect(dom_cols, final_covars))))
+    permute_domain(fit_obj, dom_cols, dom, use_binary,
+                   n_perm = n_perm, seed = params$seed)
   })
 
   all_results <- dplyr::bind_rows(c(list(baseline), Filter(Negate(is.null), perm_list)))
