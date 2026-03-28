@@ -1373,6 +1373,12 @@ Each panel shows one country-outcome combination. The dashed line represents per
 
 # Domain Importance {#sec-domains}
 
+::: {.callout-warning}
+## Known issue: domain ablation AUC
+
+The current domain ablation results show AUC = 0.5 for all permuted domains across all country-outcome combinations. This is a known bug in the glmnet refit approach --- when domain variables are permuted and the model is re-evaluated (rather than refit), the regularised coefficients produce degenerate predictions. A fix using proper glmnet refitting after permutation is being implemented. Treat the ablation rankings below as placeholder values until this is resolved.
+:::
+
 ## Combined ablation table
 
 Variables are grouped into ~22 conceptual domains (e.g., Climate, Child Health, Malaria, Food Security, Socioeconomic). The ablation permutes all variables within each domain and re-evaluates model performance.
@@ -1535,10 +1541,43 @@ if (file.exists(loi_l1_file)) {
 
 The conceptual domain analysis reveals which **thematic areas** (not just data sources) drive prediction. Domains with high marginal importance contribute unique, non-redundant signal. Domains with high standalone AUC carry strong independent predictive value, even if other domains capture similar information.
 
+### Level-2 conceptual domain ablation
+
+A finer-grained Level-2 conceptual domain ablation has been run for **Ghana --- women's iron deficiency** (target: `ablation_l2_ghana_women_iron`). This groups variables into more specific sub-domains (e.g., separating "Climate --- Rainfall" from "Climate --- Temperature") to reveal which thematic sub-categories carry the most predictive signal.
+
+```{r l2-ablation}
+abl_l2 <- load_target("ablation_l2_ghana_women_iron")
+if (!is.null(abl_l2) && is.data.frame(abl_l2) && nrow(abl_l2) > 0) {
+  if (!"delta_auc" %in% colnames(abl_l2) && "auc" %in% colnames(abl_l2)) {
+    base_auc <- abl_l2 |> filter(domain_removed == "none") |> pull(auc)
+    if (length(base_auc) > 0) {
+      abl_l2 <- abl_l2 |> mutate(delta_auc = base_auc[1] - auc)
+    }
+  }
+  show_cols <- intersect(
+    c("domain_removed", "n_removed", "auc", "brier", "delta_auc"),
+    colnames(abl_l2)
+  )
+  kable(abl_l2[, show_cols] |> mutate(across(where(is.numeric), ~ round(., 3))),
+        col.names = c("Domain Removed", "N Vars", "AUC", "Brier", "Delta AUC")[seq_along(show_cols)],
+        caption = "Level-2 conceptual domain ablation --- Ghana, women's iron deficiency") |>
+    kable_styling(bootstrap_options = c("striped", "hover"),
+                  full_width = FALSE, font_size = 10)
+} else {
+  cat("Level-2 conceptual ablation target not yet available.\n")
+}
+```
+
 
 # Transportability --- Leave-One-Country-Out {#sec-loco}
 
 Leave-one-country-out (LOCO) cross-validation trains the model on three countries and predicts the held-out country. This assesses whether proxy-based predictions generalise across national boundaries.
+
+::: {.callout-note}
+## Current scope
+
+The LOCO transportability analysis currently covers **women's iron deficiency only**. Results for the remaining three outcomes (child vitamin A, women's vitamin A, child iron) will be added as they complete.
+:::
 
 ## LOCO performance table
 
