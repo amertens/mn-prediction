@@ -63,9 +63,13 @@ setup_mlr3_learners <- function(params) {
            min_child_weight = 20, subsample = 0.7, colsample_bytree = 0.4,
            lambda = 1, alpha = 0.5, id = "xgb_deep"),
 
-      # ── BART excluded (serialization issue — see fast stack comment) ──
-      # list("bart", ntree = 50, id = "bart_small"),
-      # list("bart", ntree = 100, id = "bart_100"),
+      # ── BART (Bayesian Additive Regression Trees) ──
+      # NOTE: dbarts C++ pointers don't survive serialization. The predict
+      # wrapper handles this by refitting BART from stored training data
+      # when the primary predict path returns degenerate results (~0.5s).
+      # Keep out of fast stack (refit overhead per ablation permutation).
+      list("bart", ntree = 50, id = "bart_small"),
+      list("bart", ntree = 100, id = "bart_100"),
 
       # ── Gaussian process ──
       "gaussianprocess"
@@ -296,19 +300,34 @@ mlr3_SL_clustered <- function(d, Xvars, outcome, population,
   # also extract the individual trained learner models as plain R objects
   # and store the SL weights, enabling a manual fallback prediction path.
 
-  # Extract individual learner models for serialization-safe fallback
+  # Extract individual learner models for serialization-safe fallback.
+  # BART (dbarts) models use C++ external pointers that don't survive
+  # serialization. For BART, we store the training data so we can refit
+  # on the fly when predict is needed (~0.5s overhead).
   learner_models <- tryCatch({
     lapply(mlr3_fit$learners, function(lrn) {
-      list(
+      is_bart <- grepl("bart", lrn$id, ignore.case = TRUE)
+      entry <- list(
         id    = lrn$id,
-        model = lrn$model  # the underlying fitted model (plain R object)
+        model = lrn$model
       )
+      if (is_bart) {
+        # Store training data for refit-on-predict (BART can't serialize)
+        entry$is_bart    <- TRUE
+        entry$bart_ntree <- tryCatch(lrn$param_set$values$ntree %||% 100L,
+                                      error = function(e) 100L)
+        # Training X and Y are stored separately in train_data below
+      }
+      entry
     })
   }, error = function(e) NULL)
 
   sl_weights <- tryCatch(mlr3_fit$weights, error = function(e) NULL)
   sl_x       <- tryCatch(mlr3_fit$x, error = function(e) covars)
   sl_outcome_type <- tryCatch(mlr3_fit$outcome_type, error = function(e) outcome_type)
+
+  # Store training data for BART refit-on-predict
+  train_data_for_bart <- data.table::as.data.table(fit_df)
 
   model_wrapper <- list(
     mlr3_fit       = mlr3_fit,
@@ -317,6 +336,7 @@ mlr3_SL_clustered <- function(d, Xvars, outcome, population,
     sl_weights     = sl_weights,
     sl_x           = sl_x,
     sl_outcome_type = sl_outcome_type,
+    train_data_for_bart = train_data_for_bart,
     predict    = function(new_task) {
       # Accept either sl3-style task or data.frame/data.table
       if (inherits(new_task, "sl3_Task")) {
@@ -342,24 +362,48 @@ mlr3_SL_clustered <- function(d, Xvars, outcome, population,
         return(pred)
       }
 
-      # Fallback: manual prediction from extracted learner models + weights
+      # Fallback: manual prediction from extracted learner models + weights.
+      # For BART: refit from stored training data (C++ pointers don't serialize).
+      # For glmnet/ranger/xgboost: use the stored plain R model objects directly.
       if (!is.null(learner_models) && !is.null(sl_weights)) {
         nd <- newdata[, sl_x, drop = FALSE]
         preds_mat <- sapply(seq_along(learner_models), function(i) {
           lm_obj <- learner_models[[i]]
           tryCatch({
-            if (grepl("glmnet|lasso|ridge|enet", lm_obj$id)) {
+            if (isTRUE(lm_obj$is_bart)) {
+              # BART: refit from training data and predict on new data
+              # train_data is stored alongside this wrapper
+              td <- train_data_for_bart
+              X_train_b <- as.matrix(td[, sl_x, drop = FALSE])
+              Y_train_b <- as.numeric(td$Y)
+              X_test_b  <- as.matrix(nd)
+              bart_refit <- dbarts::bart(
+                x.train = X_train_b, y.train = Y_train_b,
+                x.test = X_test_b,
+                ntree = lm_obj$bart_ntree %||% 100L,
+                verbose = FALSE, keeptrees = FALSE
+              )
+              if (sl_outcome_type == "binomial") {
+                pnorm(colMeans(bart_refit$yhat.test))
+              } else {
+                colMeans(bart_refit$yhat.test)
+              }
+            } else if (grepl("glmnet|lasso|ridge|enet", lm_obj$id)) {
               as.numeric(predict(lm_obj$model, as.matrix(nd), type = "response",
                                   s = lm_obj$model$lambda.min %||% lm_obj$model$lambda[1]))
             } else if (grepl("ranger", lm_obj$id)) {
               predict(lm_obj$model, data = nd)$predictions[, 2]  # prob of class "1"
             } else if (grepl("xgboost", lm_obj$id)) {
               predict(lm_obj$model, as.matrix(nd))
+            } else if (grepl("mean", lm_obj$id)) {
+              rep(mean(Y, na.rm = TRUE), nrow(nd))
             } else {
-              # Generic fallback
-              rep(mean(as.numeric(mlr3_fit$fits$preds[[1]]), na.rm = TRUE), nrow(nd))
+              rep(NA_real_, nrow(nd))
             }
-          }, error = function(e) rep(NA_real_, nrow(nd)))
+          }, error = function(e) {
+            # Silently return NA for failed learners
+            rep(NA_real_, nrow(nd))
+          })
         })
         if (is.matrix(preds_mat)) {
           use <- names(sl_weights[sl_weights != 0])
