@@ -21,14 +21,20 @@ setup_mlr3_learners <- function(params) {
   if (stack_mode == "fast") {
     cat("[mlr3_learners] Using FAST stack (5 learners)\n")
 
+    # NOTE: BART excluded — its R6 model objects use external pointers that
+    # don't survive targets/future serialization, causing predict() to return
+    # degenerate (all-identical) values after save/load. This breaks domain
+    # ablation and any post-hoc prediction from saved models. BART wins the
+    # SL competition frequently but then the model is unusable.
+    # Replaced with elastic net (alpha=0.5) for regularization diversity.
     library_spec <- list(
       "mean",
       list("glmnet", alpha = 1, id = "lasso"),
+      list("glmnet", alpha = 0.5, id = "elastic_net"),
       list("ranger", num.trees = 500, min.node.size = 10, id = "ranger_main"),
       list("xgboost", max_depth = 3, eta = 0.05, nrounds = 300,
            min_child_weight = 20, subsample = 0.8, colsample_bytree = 0.5,
-           id = "xgb_conservative"),
-      list("bart", ntree = 100, id = "bart_100")
+           id = "xgb_conservative")
     )
 
   } else {
@@ -57,9 +63,9 @@ setup_mlr3_learners <- function(params) {
            min_child_weight = 20, subsample = 0.7, colsample_bytree = 0.4,
            lambda = 1, alpha = 0.5, id = "xgb_deep"),
 
-      # ── BART (Bayesian Additive Regression Trees) ──
-      list("bart", ntree = 50, id = "bart_small"),
-      list("bart", ntree = 100, id = "bart_100"),
+      # ── BART excluded (serialization issue — see fast stack comment) ──
+      # list("bart", ntree = 50, id = "bart_small"),
+      # list("bart", ntree = 100, id = "bart_100"),
 
       # ── Gaussian process ──
       "gaussianprocess"
