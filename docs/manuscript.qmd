@@ -38,11 +38,12 @@ library(patchwork)
 theme_set(theme_minimal(base_size = 12))
 
 # ── Results source ────────────────────────────────────────────────────────
-TARGETS_STORE <- here::here("_targets")
+TARGETS_STORE <- here::here("_targets_full")
 
 # ── Configuration ──────────────────────────────────────────────────────────
 countries <- c("gambia", "ghana", "sierraleone", "malawi")
-outcomes  <- c("child_vitA", "women_vitA", "child_iron", "women_iron")
+outcomes  <- c("child_vitA", "women_vitA", "child_iron", "women_iron",
+               "women_folate", "women_b12", "child_zinc", "women_zinc")
 
 country_labels <- c(
   gambia      = "Gambia",
@@ -52,10 +53,14 @@ country_labels <- c(
 )
 
 outcome_labels <- c(
-  child_vitA = "Vitamin A deficiency (children)",
-  women_vitA = "Vitamin A deficiency (women)",
-  child_iron = "Iron deficiency (children)",
-  women_iron = "Iron deficiency (women)"
+  child_vitA   = "Vitamin A deficiency (children)",
+  women_vitA   = "Vitamin A deficiency (women)",
+  child_iron   = "Iron deficiency (children)",
+  women_iron   = "Iron deficiency (women)",
+  women_folate = "Folate deficiency (women)",
+  women_b12    = "Vitamin B12 deficiency (women)",
+  child_zinc   = "Zinc deficiency (children)",
+  women_zinc   = "Zinc deficiency (women)"
 )
 
 # ── Helper: safe target loading ────────────────────────────────────────────

@@ -49,12 +49,13 @@ theme_set(theme_minimal(base_size = 13))
 #   "_targets"      = fast-mode results (default, 3-learner SL stack, conformal CIs)
 #   "_targets_full" = full-mode results (6-learner stack, conformal CIs)
 # Both modes use the same proxy predictors (13+ external sources) and conformal CIs.
-TARGETS_STORE <- here::here("_targets")
-# TARGETS_STORE <- here::here("_targets_full")  # uncomment for full results
+# TARGETS_STORE <- here::here("_targets")        # fast-mode results
+TARGETS_STORE <- here::here("_targets_full")      # full-mode results (16-learner stack with BART)
 
 # ── Configuration ──────────────────────────────────────────────────────────
 countries <- c("gambia", "ghana", "sierraleone", "malawi")
-outcomes  <- c("child_vitA", "women_vitA", "child_iron", "women_iron")
+outcomes  <- c("child_vitA", "women_vitA", "child_iron", "women_iron",
+               "women_folate", "women_b12", "child_zinc", "women_zinc")
 gadm_codes <- c(gambia = "GMB", ghana = "GHA", sierraleone = "SLE", malawi = "MWI")
 
 country_labels <- c(
@@ -65,10 +66,14 @@ country_labels <- c(
 )
 
 outcome_labels <- c(
-  child_vitA = "Vitamin A (children)",
-  women_vitA = "Vitamin A (women)",
-  child_iron = "Iron deficiency (children)",
-  women_iron = "Iron deficiency (women)"
+  child_vitA   = "Vitamin A (children)",
+  women_vitA   = "Vitamin A (women)",
+  child_iron   = "Iron deficiency (children)",
+  women_iron   = "Iron deficiency (women)",
+  women_folate = "Folate deficiency (women)",
+  women_b12    = "Vitamin B12 deficiency (women)",
+  child_zinc   = "Zinc deficiency (children)",
+  women_zinc   = "Zinc deficiency (women)"
 )
 
 # ── Helper: safe target loading ────────────────────────────────────────────
