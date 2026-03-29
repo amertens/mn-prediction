@@ -38,24 +38,31 @@ setup_mlr3_learners <- function(params) {
     )
 
   } else {
-    cat("[mlr3_learners] Using FULL stack (16 learners, evidence-based)\n")
+    cat("[mlr3_learners] Using FULL stack (15 learners, evidence-based)\n")
 
     library_spec <- list(
       # ── Baselines ──
       "mean",
 
       # ── Regularized linear models ──
+      # Three alpha values span the regularization spectrum: pure L1 (lasso
+      # for variable selection), mixed (elastic net), and pure L2 (ridge
+      # for correlated predictors).
       list("glmnet", alpha = 1, id = "lasso"),
       list("glmnet", alpha = 0, id = "ridge"),
       list("glmnet", alpha = 0.5, id = "elastic_net"),
 
-      # ── Random forests (multiple configs for diversity) ──
+      # ── Random forests ──
+      # Multiple configs: standard, low mtry (more randomness, helps when
+      # few strong predictors), and deeper trees (captures more interactions).
       list("ranger", num.trees = 500, min.node.size = 10, id = "ranger_main"),
       list("ranger", num.trees = 500, min.node.size = 10, mtry = 8,
            id = "ranger_low_mtry"),
       list("ranger", num.trees = 1000, min.node.size = 5, id = "ranger_deep"),
 
       # ── XGBoost ──
+      # Conservative (shallow trees, high regularization) and deeper (more
+      # expressive but with L1/L2 penalty to prevent overfitting).
       list("xgboost", max_depth = 3, eta = 0.05, nrounds = 300,
            min_child_weight = 20, subsample = 0.8, colsample_bytree = 0.5,
            id = "xgb_conservative"),
@@ -67,17 +74,20 @@ setup_mlr3_learners <- function(params) {
       # NOTE: dbarts C++ pointers don't survive serialization. The predict
       # wrapper handles this by refitting BART from stored training data
       # when the primary predict path returns degenerate results (~0.5s).
-      # Keep out of fast stack (refit overhead per ablation permutation).
+      # BART excels at rare outcomes where other learners collapse to the mean.
       list("bart", ntree = 50, id = "bart_small"),
       list("bart", ntree = 100, id = "bart_100"),
+      list("bart", ntree = 200, id = "bart_large"),
 
       # ── Gaussian process ──
-      "gaussianprocess"
+      # Effective for smooth spatial relationships. Can capture nonlinear
+      # patterns that tree models miss.
+      "gaussianprocess",
 
-      # Note: Lasso-screened pipelines (lasso→ranger, lasso→xgb, lasso→bart)
-      # are NOT included here because mlr3superlearner doesn't support
-      # PipeOp pipelines. They're available in the improved pipeline
-      # (scripts/explore_sl_library.R) for manual evaluation.
+      # ── Nnet (single hidden layer neural network) ──
+      # Simple neural network — fast, can capture nonlinear interactions
+      # that glmnet misses. Size=10 neurons keeps it from overfitting.
+      list("nnet", size = 10, decay = 0.01, maxit = 200, id = "nnet_small")
     )
   }
 
@@ -170,19 +180,44 @@ mlr3_SL_clustered <- function(d, Xvars, outcome, population,
   # Optional prescreening
   if (prescreen) {
     family_screen <- if (length(unique(Y[!is.na(Y)])) == 2) "binomial" else "gaussian"
-    Wvars <- washb::washb_prescreen(Y = Y, Ws = cov, family = family_screen,
-                                     pval = 0.2, print = FALSE)
+
+    # Use relaxed p-value threshold (0.2) for marginal screening.
+    # For rare outcomes (<10% prevalence), further relax to 0.3 to avoid
+    # discarding predictors that matter in combination.
+    prevalence <- mean(Y == 1, na.rm = TRUE)
+    pval_thresh <- if (family_screen == "binomial" && prevalence < 0.10) 0.3 else 0.2
+
+    Wvars <- tryCatch(
+      washb::washb_prescreen(Y = Y, Ws = cov, family = family_screen,
+                              pval = pval_thresh, print = FALSE),
+      error = function(e) {
+        cat(sprintf("  [mlr3_SL] washb_prescreen failed: %s. Using all vars.\n", e$message))
+        colnames(cov)
+      }
+    )
+
+    if (length(Wvars) == 0) {
+      cat("  [mlr3_SL] Prescreen removed all variables — using all\n")
+      Wvars <- colnames(cov)
+    }
     cov <- cov %>% dplyr::select(dplyr::all_of(Wvars))
+    cat(sprintf("  [mlr3_SL] Prescreen (p<%.2f): %d/%d vars retained\n",
+                pval_thresh, length(Wvars), ncol(cov)))
   }
 
   # Save pre-recipe columns (needed for prediction on new data)
   pre_recipe_cols <- colnames(cov)
 
   # Recipe: ZV + NZV + correlation filter + normalize
+  # For rare outcomes, relax the correlation threshold to keep more
+  # predictors — correlated variables may capture different facets of
+  # the outcome when prevalence is low.
+  cor_threshold <- if (exists("prevalence") && prevalence < 0.10) 0.90 else 0.85
+
   auto_recipe <- recipes::recipe(~ ., data = cov) %>%
     recipes::step_zv(recipes::all_predictors()) %>%
     recipes::step_nzv(recipes::all_predictors()) %>%
-    recipes::step_corr(recipes::all_numeric(), threshold = 0.85) %>%
+    recipes::step_corr(recipes::all_numeric(), threshold = cor_threshold) %>%
     recipes::step_normalize(recipes::all_numeric()) %>%
     recipes::prep()
 
@@ -412,8 +447,12 @@ mlr3_SL_clustered <- function(d, Xvars, outcome, population,
             } else if (grepl("ranger", lm_obj$id)) {
               rpred <- predict(lm_obj$model, data = nd)$predictions
               if (is.matrix(rpred) && ncol(rpred) >= 2) rpred[, 2] else as.numeric(rpred)
-            } else if (grepl("xgboost", lm_obj$id)) {
+            } else if (grepl("xgboost|xgb", lm_obj$id)) {
               predict(lm_obj$model, as.matrix(nd))
+            } else if (grepl("nnet", lm_obj$id)) {
+              as.numeric(predict(lm_obj$model, nd, type = "raw"))
+            } else if (grepl("gaussianprocess|gp|ksvm|svm", lm_obj$id)) {
+              kernlab::predict(lm_obj$model, as.matrix(nd), type = "probabilities")[, 2]
             } else if (grepl("mean", lm_obj$id)) {
               rep(mean(Y, na.rm = TRUE), nrow(nd))
             } else {
