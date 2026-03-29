@@ -131,6 +131,18 @@ mlr3_SL_clustered <- function(d, Xvars, outcome, population,
     length(non_na) > 0 && length(unique(non_na)) > 1
   }))
 
+  # Replace Inf/NaN with NA before imputation (GEE raster extraction can
+  # produce Inf/NaN for polygons that don't overlap the raster extent)
+  n_inf <- 0L
+  for (col in colnames(cov)) {
+    bad <- !is.finite(cov[[col]]) & !is.na(cov[[col]])
+    if (any(bad)) {
+      cov[[col]][bad] <- NA
+      n_inf <- n_inf + sum(bad)
+    }
+  }
+  if (n_inf > 0) cat(sprintf("  [mlr3_SL] Replaced %d Inf/NaN values with NA\n", n_inf))
+
   # NZV
   nzv_idx <- caret::nearZeroVar(cov)
   if (length(nzv_idx) > 0) cov <- cov[, -nzv_idx, drop = FALSE]
