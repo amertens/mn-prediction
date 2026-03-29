@@ -651,9 +651,11 @@ if (dir.exists(civ_raster_dir) && length(all_country_configs) >= 2) {
     )
   ))
 
-  # Build svy_admin2 symbol list for all countries
-  first_cc <- all_country_configs[[1]]
-  outcome_tags_oos <- names(first_cc$outcomes)
+  # Build svy_admin2 symbol list for all countries.
+  # OOS prediction requires svy_admin2 targets from ALL countries, so we
+  # restrict to outcomes that exist in EVERY country config (intersection).
+  all_outcome_sets <- lapply(all_country_configs, function(cc) names(cc$outcomes))
+  outcome_tags_oos <- Reduce(intersect, all_outcome_sets)
 
   for (otag in outcome_tags_oos) {
     # Collect svy_admin2 targets for all countries into a named list
