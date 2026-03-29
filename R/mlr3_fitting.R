@@ -70,14 +70,6 @@ setup_mlr3_learners <- function(params) {
            min_child_weight = 20, subsample = 0.7, colsample_bytree = 0.4,
            lambda = 1, alpha = 0.5, id = "xgb_deep"),
 
-      # ── LightGBM ──
-      # Leaf-wise tree growth (vs xgboost's level-wise). Often faster with
-      # comparable accuracy. Adds algorithmic diversity to the ensemble.
-      list("lightgbm", num_leaves = 31, learning_rate = 0.05,
-           num_iterations = 300, min_data_in_leaf = 20,
-           feature_fraction = 0.7, bagging_fraction = 0.8,
-           bagging_freq = 5, id = "lgbm_main"),
-
       # ── BART (Bayesian Additive Regression Trees) ──
       # NOTE: dbarts C++ pointers don't survive serialization. The predict
       # wrapper handles this by refitting BART from stored training data
@@ -90,12 +82,20 @@ setup_mlr3_learners <- function(params) {
       # ── Gaussian process ──
       # Effective for smooth spatial relationships. Can capture nonlinear
       # patterns that tree models miss.
-      "gaussianprocess",
+      "gaussianprocess"
 
-      # ── Nnet (single hidden layer neural network) ──
-      # Simple neural network — fast, can capture nonlinear interactions
-      # that glmnet misses. Size=10 neurons keeps it from overfitting.
-      list("nnet", size = 10, decay = 0.01, maxit = 200, id = "nnet_small")
+      # ── Disabled learners (caused silent failures in full pipeline) ──
+      # LightGBM and nnet passed individual serialization tests but caused
+      # mlr3superlearner to return NULL for 14/18 country×outcome combos
+      # when included in the full stack. Root cause unclear — likely
+      # interaction between learner initialization and mlr3superlearner's
+      # internal CV machinery on real (non-simulated) data.
+      # TODO: debug with workspace_on_error and re-enable individually.
+      # list("lightgbm", num_leaves = 31, learning_rate = 0.05,
+      #      num_iterations = 300, min_data_in_leaf = 20,
+      #      feature_fraction = 0.7, bagging_fraction = 0.8,
+      #      bagging_freq = 5, id = "lgbm_main"),
+      # list("nnet", size = 10, decay = 0.01, maxit = 200, id = "nnet_small")
     )
   }
 
