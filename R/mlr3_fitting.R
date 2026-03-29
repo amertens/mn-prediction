@@ -38,7 +38,7 @@ setup_mlr3_learners <- function(params) {
     )
 
   } else {
-    cat("[mlr3_learners] Using FULL stack (15 learners, evidence-based)\n")
+    cat("[mlr3_learners] Using FULL stack (16 learners, evidence-based)\n")
 
     library_spec <- list(
       # ── Baselines ──
@@ -69,6 +69,14 @@ setup_mlr3_learners <- function(params) {
       list("xgboost", max_depth = 6, eta = 0.03, nrounds = 500,
            min_child_weight = 20, subsample = 0.7, colsample_bytree = 0.4,
            lambda = 1, alpha = 0.5, id = "xgb_deep"),
+
+      # ── LightGBM ──
+      # Leaf-wise tree growth (vs xgboost's level-wise). Often faster with
+      # comparable accuracy. Adds algorithmic diversity to the ensemble.
+      list("lightgbm", num_leaves = 31, learning_rate = 0.05,
+           num_iterations = 300, min_data_in_leaf = 20,
+           feature_fraction = 0.7, bagging_fraction = 0.8,
+           bagging_freq = 5, id = "lgbm_main"),
 
       # ── BART (Bayesian Additive Regression Trees) ──
       # NOTE: dbarts C++ pointers don't survive serialization. The predict
