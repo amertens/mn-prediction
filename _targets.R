@@ -530,9 +530,9 @@ for (country_name in names(all_country_configs)) {
 transport_targets <- list()
 if (length(all_country_configs) >= 2) {
 
-  # Restrict to women_iron only (change to names(first_cc$outcomes) for all)
+  # Outcomes measured in ALL 4 countries for cross-country LOCO
   first_cc <- all_country_configs[[1]]
-  outcome_tags <- "women_iron"
+  outcome_tags <- c("child_vitA", "women_vitA", "child_iron", "women_iron")
 
   # Build symbol list for merged data targets (e.g., merged_gambia, merged_ghana, ...)
   country_names_lower <- tolower(names(all_country_configs))

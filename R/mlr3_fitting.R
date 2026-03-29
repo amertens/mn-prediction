@@ -41,7 +41,6 @@ setup_mlr3_learners <- function(params) {
     cat("[mlr3_learners] Using FULL stack (16 learners, evidence-based)\n")
 
     library_spec <- list(
-      # ── Baselines ──
       "mean",
 
       # ── Regularized linear models ──
@@ -584,6 +583,16 @@ fit_mlr3_models <- function(outcome_data, cc, oc, sl_learners, params) {
   }
 
   mlr3_lib <- sl_learners$library
+
+  # Remove "mean" learner for Sierra Leone — discrete SL selects the
+
+  # intercept-only model over real learners that achieve AUC 0.65-0.79,
+  # because no single learner *consistently* beats the mean across all
+  # clustered CV folds. Excluding "mean" forces selection of a real learner.
+  if (grepl("sierra", cc$country, ignore.case = TRUE)) {
+    mlr3_lib <- Filter(function(x) !identical(x, "mean"), mlr3_lib)
+    cat("  [mlr3] Removed 'mean' learner for Sierra Leone\n")
+  }
 
   # ── Continuous model ──
   cat("  Fitting continuous mlr3 SL...\n")

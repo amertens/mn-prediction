@@ -69,13 +69,17 @@ classify_variables <- function(xvars, mapping = NULL) {
   if (is.null(mapping)) mapping <- load_conceptual_domains()
   dhs_lk <- load_dhs_lookup()
 
+  # Strip .x/.y suffixes from merge duplicates before classification
+  # (e.g., dhs2014_c_overweight_adm2.y -> dhs2014_c_overweight_adm2)
+  xvars_clean <- sub("\\.[xy]$", "", xvars)
+
   result <- setNames(rep("Unknown", length(xvars)), xvars)
 
-  # Pass 1: DHS exact IndicatorId match
+  # Pass 1: DHS exact IndicatorId match (using cleaned names)
   if (nrow(dhs_lk$exact) > 0) {
     exact_l1 <- setNames(dhs_lk$exact$level1, dhs_lk$exact$indicator_id)
     for (i in seq_along(xvars)) {
-      iid <- extract_dhs_indicator_id(xvars[i])
+      iid <- extract_dhs_indicator_id(xvars_clean[i])
       if (!is.na(iid) && iid %in% names(exact_l1)) {
         result[i] <- exact_l1[[iid]]
       }
@@ -87,7 +91,7 @@ classify_variables <- function(xvars, mapping = NULL) {
     prefix_l1 <- setNames(dhs_lk$prefix$level1, dhs_lk$prefix$prefix)
     for (i in seq_along(xvars)) {
       if (result[i] != "Unknown") next
-      iid <- extract_dhs_indicator_id(xvars[i])
+      iid <- extract_dhs_indicator_id(xvars_clean[i])
       if (is.na(iid)) next
       parts <- strsplit(iid, "_")[[1]]
       if (length(parts) >= 2) {
@@ -100,17 +104,18 @@ classify_variables <- function(xvars, mapping = NULL) {
   }
 
   # Pass 3: General pattern matching (non-DHS variables, or remaining unknowns)
+  # Match against cleaned names (without .x/.y) to catch merge duplicates
   for (i in seq_len(nrow(mapping))) {
     pat    <- mapping$variable_pattern[i]
     domain <- mapping$level1_domain[i]
     mtype  <- mapping$match_type[i]
 
     if (mtype == "exact") {
-      idx <- which(xvars == pat)
+      idx <- which(xvars_clean == pat)
     } else {
       regex_pat <- gsub("####", "\\\\d{4}", pat, fixed = TRUE)
       regex_pat <- paste0("^", regex_pat)
-      idx <- grep(regex_pat, xvars)
+      idx <- grep(regex_pat, xvars_clean)
     }
 
     for (j in idx) {
@@ -133,13 +138,16 @@ classify_variables_l2 <- function(xvars, mapping = NULL) {
   if (is.null(mapping)) mapping <- load_conceptual_domains()
   dhs_lk <- load_dhs_lookup()
 
+  # Strip .x/.y suffixes from merge duplicates
+  xvars_clean <- sub("\\.[xy]$", "", xvars)
+
   result <- setNames(rep("Unknown", length(xvars)), xvars)
 
-  # Pass 1: DHS exact IndicatorId match
+  # Pass 1: DHS exact IndicatorId match (using cleaned names)
   if (nrow(dhs_lk$exact) > 0) {
     exact_l2 <- setNames(dhs_lk$exact$level2, dhs_lk$exact$indicator_id)
     for (i in seq_along(xvars)) {
-      iid <- extract_dhs_indicator_id(xvars[i])
+      iid <- extract_dhs_indicator_id(xvars_clean[i])
       if (!is.na(iid) && iid %in% names(exact_l2)) {
         val <- exact_l2[[iid]]
         if (!is.na(val) && nchar(val) > 0) result[i] <- val
@@ -152,7 +160,7 @@ classify_variables_l2 <- function(xvars, mapping = NULL) {
     prefix_l2 <- setNames(dhs_lk$prefix$level2, dhs_lk$prefix$prefix)
     for (i in seq_along(xvars)) {
       if (result[i] != "Unknown") next
-      iid <- extract_dhs_indicator_id(xvars[i])
+      iid <- extract_dhs_indicator_id(xvars_clean[i])
       if (is.na(iid)) next
       parts <- strsplit(iid, "_")[[1]]
       if (length(parts) >= 2) {
@@ -164,18 +172,18 @@ classify_variables_l2 <- function(xvars, mapping = NULL) {
     }
   }
 
-  # Pass 3: General pattern matching
+  # Pass 3: General pattern matching (using cleaned names)
   for (i in seq_len(nrow(mapping))) {
     pat    <- mapping$variable_pattern[i]
     domain <- mapping$level2_domain[i]
     mtype  <- mapping$match_type[i]
 
     if (mtype == "exact") {
-      idx <- which(xvars == pat)
+      idx <- which(xvars_clean == pat)
     } else {
       regex_pat <- gsub("####", "\\\\d{4}", pat, fixed = TRUE)
       regex_pat <- paste0("^", regex_pat)
-      idx <- grep(regex_pat, xvars)
+      idx <- grep(regex_pat, xvars_clean)
     }
 
     for (j in idx) {

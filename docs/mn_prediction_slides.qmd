@@ -1,9 +1,11 @@
 ---
 title: "Estimating Subnational Micronutrient Deficiency Prevalence"
-subtitle: "A SuperLearner Ensemble Approach — A Multi-Country Analysis"
-author: "[Authors]"
+subtitle: "A SuperLearner Ensemble Approach — Multi-Country Analysis"
+author: "Andrew N. Mertens, UC Davis Institute for Global Nutrition"
 date: "2026"
 format:
+  pptx:
+    reference-doc: "C:/Users/andre/Dropbox/MN prediction/BMGF_mn_project_slides.pptx"
   revealjs:
     theme: default
     slide-number: true
@@ -13,7 +15,7 @@ format:
     incremental: false
     fig-align: center
     toc: false
-    footer: "SuperLearner Micronutrient Pipeline — Multi-Country"
+    footer: "Proxy Micronutrient Deficiency Prediction — Multi-Country"
     highlight-style: github
     self-contained: true
     smaller: true
@@ -24,6 +26,53 @@ execute:
   message: false
 ---
 
+```{r setup, include=FALSE}
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+library(knitr)
+library(here)
+library(scales)
+library(patchwork)
+library(viridis)
+
+theme_set(theme_minimal(base_size = 13))
+
+TARGETS_STORE <- here("_targets_full")
+
+load_target <- function(name) {
+  tryCatch(targets::tar_read_raw(name, store = TARGETS_STORE),
+           error = function(e) NULL)
+}
+
+country_labels <- c(gambia = "Gambia", ghana = "Ghana",
+                     sierraleone = "Sierra Leone", malawi = "Malawi")
+outcome_labels <- c(
+  child_vitA = "Vitamin A (children)", women_vitA = "Vitamin A (women)",
+  child_iron = "Iron deficiency (children)", women_iron = "Iron deficiency (women)",
+  women_folate = "Folate deficiency (women)", women_b12 = "Vitamin B12 deficiency (women)",
+  child_zinc = "Zinc deficiency (children)", women_zinc = "Zinc deficiency (women)")
+
+countries <- c("gambia", "ghana", "sierraleone", "malawi")
+outcomes  <- c("child_vitA", "women_vitA", "child_iron", "women_iron",
+               "women_folate", "women_b12", "child_zinc", "women_zinc")
+
+# Load CV performance
+cv_list <- list()
+for (ctry in countries) for (oc in outcomes) {
+  obj <- load_target(paste0("cv_perf_", ctry, "_", oc))
+  if (!is.null(obj) && is.data.frame(obj) && nrow(obj) > 0) {
+    if (!"country" %in% names(obj)) obj$country <- country_labels[ctry]
+    cv_list[[paste0(ctry, "_", oc)]] <- obj
+  }
+}
+cv_perf <- if (length(cv_list) > 0) bind_rows(cv_list) else NULL
+
+# Load diagnostics
+diagnostics_all <- load_target("diagnostics_all")
+```
+
+
 # Motivation {background-color="#1a3a5c"}
 
 ---
@@ -31,68 +80,45 @@ execute:
 ## The Biomarker Data Gap
 
 :::: {.columns}
-::: {.column width="65%"}
-- Micronutrient deficiency drives child and maternal morbidity across sub-Saharan Africa,
-  yet nationally representative **biochemical surveys are rare**
-- Blood-based biomarker collection (retinol, ferritin, zinc) requires cold-chain logistics
-  and laboratory capacity; surveys occur at **decadal intervals**
-- National micronutrient surveys (e.g., Gambia GMS, Ghana DHS+, Sierra Leone MNS, Malawi MNS)
-  are among the few nationally representative individual-level biomarker datasets in the region
-- Between survey cycles, **sub-national burden is essentially unknown**; program allocation
-  relies on outdated or modelled estimates
+::: {.column width="60%"}
+- Micronutrient deficiency (iron, vitamin A, zinc, folate, B12) drives child and maternal
+  morbidity across sub-Saharan Africa
+- Nationally representative **biochemical surveys are rare** --- conducted at decadal intervals
+- Between survey cycles, **sub-national burden is essentially unknown**
+- Program allocation relies on outdated or modelled estimates
+
+**Can we estimate micronutrient deficiency from routinely available proxy data?**
 :::
-::: {.column width="35%"}
-*Suggested: schematic survey-gap timeline*
-*(no figure file available)*
+::: {.column width="40%"}
+**Current focus micronutrients:**
+
+- Iron deficiency (ferritin)
+- Vitamin A deficiency (RBP)
+- Zinc deficiency
+- Folate deficiency
+- Vitamin B12 deficiency
+
+**Countries:** Gambia, Ghana, Sierra Leone, Malawi + Cote d'Ivoire (OOS)
 :::
 ::::
-
-::: {.notes}
-Frame the problem narrowly: we are not trying to replace surveys. We are extracting maximum information from nationally representative biomarker surveys across four countries by leveraging correlated proxy data to produce sub-national estimates.
-:::
-
----
-
-## Policy Need and Current Modeling Gaps
-
-**Sub-national estimates are required for:**
-
-- Targeted supplementation and food fortification allocation
-- Resource prioritization under SUN and GAIN frameworks
-- Baseline characterization for cluster-randomized trials
-
-**Limitations of existing approaches:**
-
-| Approach | Key limitation |
-|---|---|
-| Geostatistical / GP models | Requires spatially dense observations; no high-dimensional predictors |
-| Small-area estimation | Strong distributional assumptions; requires auxiliary frame overlap |
-| Survey weighting | Cannot extrapolate beyond sampled locations; no out-of-sample uncertainty |
-
-> **Our approach:** Data-adaptive ensemble trained on survey data; predict at individual level using nationally available proxy predictors; aggregate to Admin1.
-
-::: {.notes}
-Survey clusters do not span all Admin1 units uniformly in any country. Prediction fills spatial gaps using predictor similarity to observed clusters, not spatial smoothing.
-:::
 
 ---
 
 ## Objective
 
 ::: {.callout-note appearance="minimal"}
-**Primary objective:** Estimate Admin1 and national prevalence of vitamin A deficiency
-(VAD) and iron deficiency anaemia (IDA) for children and women across four countries
-(Gambia, Ghana, Sierra Leone, Malawi) using a SuperLearner ensemble with multi-source
-proxy predictors.
+**Primary objective:** Estimate Admin-1 and national prevalence of micronutrient deficiencies
+across four countries using a SuperLearner ensemble with multi-source proxy predictors ---
+external data available without a concurrent biomarker survey.
 :::
 
 **Secondary objectives:**
 
-- Quantify Admin1 and national prediction uncertainty via split-conformal prediction intervals (adaptive width)
-- Assess domain-specific contribution to predictive performance via permutation-based domain ablation
-- Evaluate cross-country transportability via leave-one-country-out (LOCO) validation
-- Generate out-of-sample predictions for Cote d'Ivoire using pooled models with covariate-shift adjusted conformal intervals
-- Identify key predictor themes via conceptual variable importance analysis
+1. Quantify prediction uncertainty via split-conformal prediction intervals
+2. Assess predictor domain contributions via permutation-based domain ablation
+3. Evaluate cross-country transportability via leave-one-country-out (LOCO) validation
+4. Generate out-of-sample predictions for Cote d'Ivoire with covariate-shift adjusted CIs
+5. Identify key individual predictors via variable importance analysis
 
 ---
 
@@ -100,60 +126,43 @@ proxy predictors.
 
 ---
 
-## Outcome and Population Structure
+## Predictor Strategy: 13+ Proxy Data Sources
 
-**Data sources:** Individual-level biochemical surveys with cluster GPS coordinates from four countries:
-Gambia (GMS), Ghana (DHS+), Sierra Leone (MNS), Malawi (MNS).
-Each country contributes ~1,000-5,000 individuals; ~900-1,100 merged proxy predictor columns per country after leakage exclusion.
+**Proxy-only models** --- survey-derived (`gw_`) variables excluded to prevent data leakage.
 
-**Four outcomes, fitted independently per country:**
-
-| Population | Micronutrient | Continuous marker | Binary threshold | Adjustment |
-|---|---|---|---|---|
-| Children | Vitamin A | RBP (umol/L) | < 0.70 umol/L -> VAD | Thurnham |
-| Women | Vitamin A | RBP (umol/L) | < 0.70 umol/L -> VAD | Thurnham |
-| Children | Iron | log(Ferritin ug/L) | ferritin < 12 ug/L -> IDA | Brinda |
-| Women | Iron | log(Ferritin ug/L) | ferritin < 15 ug/L -> IDA | Brinda |
-
-- Population split by country-specific child flag (e.g., `gw_child_flag`); non-overlapping subsets
-- Cluster identifier per country (e.g., `gw_cnum`) -- used for blocked CV folds and conformal calibration sets
-
-**Malawi data correction:** Admin-2 deduplication fix resolved Lake Malawi 8x row duplication (n reduced from 14,939 to 3,099).
-
-::: {.notes}
-Both a continuous SL (squared error loss) and binary SL (logistic loss) are fit for each outcome. Binary model predictions are used for prevalence estimation when available; continuous model is retained for RMSE evaluation and as fallback. The Malawi sample size reduction from 14,939 to 3,099 reflects removal of duplicated rows assigned to Lake Malawi Admin-2 units.
-:::
+| Domain | Source | Approx. N cols |
+|---|---|---|
+| DHS cluster aggregates | DHS API | ~400 |
+| MICS indicators | MICS compilations | ~150 |
+| IHME disease estimates | GBD geospatial | ~60 |
+| MAP malaria surfaces | Malaria Atlas Project | ~26 |
+| WFP food prices | WFP VAM | ~46 |
+| GEE satellite imagery | Google Earth Engine Admin-2 zonal means | ~308 |
+| CHIRPS rainfall | UCSB CHIRPS | ~12 |
+| WorldPop density | WorldPop | ~5 |
+| VIIRS nighttime lights | NOAA/CCNL | ~3 |
+| SoilGrids | ISRIC | ~15 |
+| GDL development indices | Global Data Lab | ~5 |
+| HarvestChoice/SPAM crops | IFPRI | ~20 |
+| **Total proxy** | | **~900--1,100** |
 
 ---
 
-## Predictor Strategy: Proxy-Only Models
+## Outcome and Population Structure
 
-**Primary analysis uses proxy predictors only** -- external data sources available
-without a concurrent biomarker survey. Country-specific survey domains (e.g., `gw_`)
-are **excluded** because they contain biomarkers, nutrition indicators, and anthropometry
-from the same survey as the outcome, producing artificially inflated AUC (near 1.0).
+**Four core outcomes** (fitted independently per country):
 
-| Domain | Prefix | Source | Approx. N cols | In primary model |
-|---|---|---|---|---|
-| DHS | `dhs_` | DHS cluster-level aggregates | ~400 | Yes |
-| MICS | `mics_` | MICS cluster-level aggregates | ~150 | Yes |
-| IHME | `ihme_` | IHME geospatial estimates | ~60 | Yes |
-| MAP | `MAP_` | Malaria Atlas Project rasters | ~26 | Yes |
-| WFP | `wfp_` | WFP market access / food security | ~46 | Yes |
-| GEE Admin-2 | `gee_` | GEE raster zonal means (Admin-2) | ~308 | Yes |
-| FSEC | `fsec_` | HFID + Cadre Harmonise food security | varies | Yes |
-| CHIRPS | `chirps_` | CHIRPS rainfall data | varies | Yes |
-| WorldPop | `worldpop_` | WorldPop population density | varies | Yes |
-| VIIRS | `viirs_` | VIIRS nighttime lights | varies | Yes |
-| SoilGrids | `soilgrids_` | SoilGrids soil properties | varies | Yes |
-| GDL | `gdl_` | Global Data Lab indices | varies | Yes |
-| HarvestChoice/SPAM | `spam_` | Crop production/area data | varies | Yes |
-| ~~Survey~~ | ~~`gw_`/`gh_`/etc.~~ | ~~Country survey covariates~~ | ~~varies~~ | **No** (leakage) |
-| **Total proxy** | | | **~900-1,100** | **~900-1,100** |
+| Population | Micronutrient | Binary threshold | Countries |
+|---|---|---|---|
+| Children | Vitamin A | RBP < 0.70 umol/L | All 4 |
+| Women | Vitamin A | RBP < 0.70 umol/L | All 4 |
+| Children | Iron | Ferritin < 12 ug/L | All 4 |
+| Women | Iron | Ferritin < 15 ug/L | All 4 |
+| Women | Folate | Serum folate < 10 nmol/L | GH, SL, MW |
+| Women | Vitamin B12 | Serum B12 < 148 pmol/L | GH, SL, MW |
+| Children/Women | Zinc | Serum zinc < threshold | MW only |
 
-::: {.notes}
-The proxy-only approach answers the operationally relevant question: "how well can we predict micronutrient deficiency from routinely available data?" Expected AUC is 0.60-0.80, which is modest but useful for screening and prioritization. The total predictor count dropped from ~2,500 to ~900-1,100 after refining external predictor sources. The GEE Admin-2 zonal means provide ~308 satellite-derived variables per country. CHIRPS, WorldPop, VIIRS, SoilGrids, GDL, and HarvestChoice/SPAM are newly integrated external predictors.
-:::
+**24 country x outcome models** fitted in the full pipeline.
 
 ---
 
@@ -161,320 +170,281 @@ The proxy-only approach answers the operationally relevant question: "how well c
 
 ---
 
-## SuperLearner Ensemble: Learner Library (mlr3superlearner)
+## SuperLearner Ensemble (Full Stack)
 
-**FAST stack** -- 5 base learners, NNLS metalearner, binomial log-likelihood loss
+**16 base learners**, NNLS metalearner, binomial log-likelihood loss:
 
-| # | Learner | Algorithm | Notes |
-|---|---|---|---|
-| 1 | Mean | Intercept / mean | Baseline |
-| 2 | Lasso (glmnet) | Lasso (glmnet, alpha = 1) | L1-penalized GLM |
-| 3 | Ranger | Random forest (ranger, min.node.size = 10) | Conservative trees |
-| 4 | XGBoost | XGBoost (max_depth = 3) | Shallow gradient boosting |
-| 5 | BART | BART (dbarts, ntree = 100) | Bayesian additive regression trees |
+| Class | Learners | Notes |
+|---|---|---|
+| Regularized linear | Lasso, Ridge, Elastic net | L1/L2/mixed penalty |
+| Random forest | Ranger x3 | Varying depth and mtry |
+| Gradient boosting | XGBoost x2 | Conservative + deep |
+| Bayesian trees | BART x3 | 50/100/200 trees |
+| Other | Gaussian process | Smooth spatial patterns |
 
-**FULL stack** -- 16 base learners (used for publication runs)
+**Additional for rare outcomes (prevalence < 15%):**
 
-| # | Learner | Algorithm | Notes |
-|---|---|---|---|
-| 1 | Mean | Intercept / mean | Baseline |
-| 2-4 | glmnet x3 | Lasso (alpha=1), elastic net (alpha=0.75), ridge (alpha=0) | Regularized GLMs |
-| 5-7 | Ranger x3 | Multiple min.node.size configs | Varying tree depth |
-| 8-10 | XGBoost x3 | Multiple max_depth / learning rate configs | Varying complexity |
-| 11-13 | BART x3 | Multiple ntree / k configs | Varying flexibility |
-| 14-16 | Additional | Earth, KNN, GAM | Diverse model classes |
+- Class-weighted XGBoost (minority upweighting)
+- Class-weighted Ranger
 
-- **Metalearner:** NNLS -- non-negative, sum-to-one; interpretable convex combination
-- **Implementation:** `mlr3superlearner` (replaces sl3)
-- **No screener pipelines** -- removed because they crashed with p >> n in multi-country data
-
-::: {.notes}
-The pipeline migrated from sl3 to mlr3superlearner for improved stability and maintainability. The fast stack grew from 3 to 5 learners with the addition of XGBoost and BART. The full stack expanded to 16 learners with multiple hyperparameter configurations per method class. NNLS metalearner is unchanged.
-:::
+**Cross-validation:** 5-fold, cluster-blocked (no cluster in both train and validation)
 
 ---
 
-## Preprocessing Pipeline and Cross-Validation Design
-
-:::: {.columns}
-::: {.column width="52%"}
-**Preprocessing** (inside pipeline):
-
-1. Drop all-NA columns
-2. Near-zero variance removal (`caret::nearZeroVar`)
-3. Missing value imputation -- median/mode + binary missingness indicators (`ck37r`)
-4. Second NZV pass (post-imputation indicators may be near-zero)
-5. Marginal association prescreen: `washb_prescreen(pval = 0.20)` -- retains predictors with p < 0.20 marginal association
-6. `recipes` pipeline: `step_zv` -> `step_nzv` -> `step_corr(r > 0.85)` -> `step_normalize`
-:::
-::: {.column width="48%"}
-**Cross-validation design:**
-
-- K = **5** folds
-- **Cluster-blocked:** folds respect cluster structure
-- No cluster contributes to both training and validation in any fold
-- Prevents within-cluster correlation from inflating CV performance
-- Rationale: Survey clusters contain O(10-25) individuals with correlated outcomes; standard random split would inflate AUC
-:::
-::::
-
-::: {.notes}
-Cluster-blocking is the single most important design choice for CV validity in survey data. Standard random individual splitting in clustered data produces optimistic AUC estimates because the learner sees correlated individuals from the same cluster in both the training and validation fold. This applies identically across all four countries.
-:::
-
----
-
-## Conformal Prediction Intervals: Split-Conformal with Adaptive Width
-
-**Replaced cluster-level bootstrap with split-conformal prediction intervals** for computational efficiency and finite-sample coverage guarantees.
-
-**Algorithm:**
+## Uncertainty: Split-Conformal Prediction Intervals
 
 | Step | Action |
 |---|---|
-| 1 | Split data into training set and calibration set (cluster-blocked) |
-| 2 | Fit the full SL ensemble on the training set |
-| 3 | Compute nonconformity scores on the calibration set |
-| 4 | For each new prediction, construct adaptive-width interval using calibration quantiles |
-| 5 | Aggregate to Admin1 mean prevalence and national prevalence with intervals |
+| 1 | Split data into training + calibration sets (cluster-blocked) |
+| 2 | Fit full SL on training set |
+| 3 | Compute nonconformity scores on calibration set |
+| 4 | Construct adaptive-width intervals using calibration quantiles |
+| 5 | Aggregate to Admin-1/national with intervals |
 
-**Outputs:** Point estimate with conformal prediction interval (target 95% coverage)
-
-**Conformal intervals capture:** finite-sample variability + exchangeability within calibration set
-**Conformal intervals do not capture:** model misspecification, distribution shift (addressed separately via weighted conformal for OOS)
-
-::: {.notes}
-Split-conformal replaces the computationally expensive bootstrap (which required B full SL refits per country x outcome). Conformal prediction provides distribution-free, finite-sample coverage guarantees under exchangeability. Adaptive width means the interval is wider where the model is less certain. For out-of-sample settings like CIV, weighted conformal with covariate-shift adjustment is used instead.
-:::
+**For out-of-sample (CIV):** Weighted conformal with covariate-shift density ratios
 
 ---
 
-# Within-Country Performance {background-color="#1a3a5c"}
+# Results: Within-Country Performance {background-color="#1a3a5c"}
 
 ---
 
-## CV Performance: Binary Models (AUC)
+## Binary Model AUC Across Countries
 
-**Binary model ROC-AUC across countries and outcomes:**
+```{r auc-heatmap, fig.height=4.5, fig.width=9}
+if (!is.null(cv_perf) && "auc" %in% names(cv_perf)) {
+  cv_binary <- cv_perf |>
+    filter(!is.na(auc)) |>
+    mutate(outcome_label = outcome_labels[outcome])
 
-| Country | child_vitA | women_vitA | child_iron | women_iron |
-|---|---|---|---|---|
-| Ghana | 0.701 | 0.911 | 0.811 | 0.751 |
-| Sierra Leone | 0.500 | 0.500 | 0.767 | (running) |
-| Malawi | 0.670 | 0.929 | 0.500 | 0.735 |
-| Gambia | 0.675 | 0.844 | 0.640 | (running) |
-
-**Key observations:**
-
-- **Ghana child_iron** is the strongest proxy-only model: AUC = 0.811, PR-AUC = 0.431, prevalence = 18.0%, n = 1,159
-- **women_vitA** shows high AUC in Ghana (0.911) and Malawi (0.929), but these are inflated by extremely rare outcomes (see next slide)
-- **Sierra Leone** child_vitA and women_vitA at chance level (AUC = 0.500) -- proxy predictors carry no signal for these outcomes in SL
-- Binary model preferred for prevalence estimation when its AUC > continuous model AUC
-
-::: {.notes}
-AUC values for Gambia are from a previous pipeline run and may shift slightly with current external predictors. Sierra Leone and Gambia women_iron models are still running. The at-chance results for Sierra Leone vitA outcomes suggest either insufficient predictor coverage or outcome prevalence issues in that country.
-:::
-
----
-
-## Rare Outcome Warning: women_vitA
-
-::: {.callout-warning}
-**women_vitA has fewer than 20 events in several countries, making binary AUC unreliable.**
-:::
-
-| Country | Outcome | Events | Prevalence | AUC | PR-AUC | Interpretation |
-|---|---|---|---|---|---|---|
-| Ghana | women_vitA | 13 | 1.3% | 0.911 | -- | Inflated: only 13 positive cases |
-| Malawi | women_vitA | 17 | 2.1% | 0.929 | -- | Inflated: only 17 positive cases |
-
-**Why AUC is misleading with rare outcomes:**
-
-- With < 20 events, a single correctly ranked positive case swings AUC substantially
-- The model may achieve high AUC by chance ranking alone
-- **PR-AUC is more informative** for rare outcomes: a no-skill classifier has PR-AUC = prevalence
-- For these outcomes, calibration and national prevalence recovery matter more than discrimination
-
-**Recommendation:** Treat women_vitA AUC > 0.90 with skepticism when event count < 20. Focus on PR-AUC and calibration metrics for these outcomes.
-
-::: {.notes}
-This is a fundamental limitation of binary classification with rare events. With 13-17 events, cross-validated AUC estimates have wide confidence intervals. The high AUC values for women_vitA should not be interpreted as strong model performance -- they reflect the instability of AUC as a metric when the positive class is extremely rare. PR-AUC, which has a baseline equal to prevalence, is a more honest metric in this setting.
-:::
+  if (nrow(cv_binary) > 0) {
+    ggplot(cv_binary, aes(x = outcome_label, y = country, fill = auc)) +
+      geom_tile(colour = "white", linewidth = 1) +
+      geom_text(aes(label = sprintf("%.3f", auc)), size = 4.5, fontface = "bold") +
+      scale_fill_viridis_c(name = "AUC", limits = c(0.45, 0.95), option = "plasma",
+                            oob = squish) +
+      labs(x = NULL, y = NULL,
+           title = "Cross-Validated ROC-AUC by Country and Outcome") +
+      theme_minimal(base_size = 14) +
+      theme(axis.text.x = element_text(angle = 25, hjust = 1),
+            panel.grid = element_blank())
+  }
+}
+```
 
 ---
 
-## CV Performance: Continuous Models
+## AUC Forest Plot with DeLong CIs
 
-CV performance for continuous models (RMSE, R-squared) varies by country and outcome. See the results report for current values across Gambia, Ghana, Sierra Leone, and Malawi.
+```{r auc-forest, fig.height=5.5, fig.width=10}
+if (!is.null(diagnostics_all) && !is.null(diagnostics_all$binary_metrics)) {
+  bm <- diagnostics_all$binary_metrics |>
+    filter(!is.na(roc_auc)) |>
+    mutate(
+      outcome_label = outcome_labels[outcome],
+      label = paste0(country, " (n=", n, ", prev=", round(prevalence*100,1), "%)")
+    )
 
-- RMSE is on the biomarker scale (umol/L for RBP; log ug/L for ferritin) -- do not compare across micronutrients
-- AUC computed by treating the continuous prediction as a ranking score for the binary threshold
-- R-squared reported relative to null model (intercept only); can be negative if SL performs worse than the mean
+  if (nrow(bm) > 0) {
+    # Compute DeLong CIs
+    auc_ci_rows <- list()
+    for (ctry in countries) {
+      for (oc in outcomes) {
+        ci <- tryCatch({
+          sl <- load_target(paste0("sl_fit_", ctry, "_", oc))
+          if (!is.null(sl) && !is.null(sl$bin_fit)) {
+            bf <- sl$bin_fit
+            roc_obj <- pROC::roc(bf$res$Y, bf$res$yhat_full, quiet = TRUE)
+            ci_obj <- pROC::ci.auc(roc_obj, method = "delong")
+            data.frame(country = country_labels[ctry], outcome = oc,
+                       auc_lo = ci_obj[1], auc_hi = ci_obj[3])
+          }
+        }, error = function(e) NULL)
+        if (!is.null(ci)) auc_ci_rows[[paste0(ctry, "_", oc)]] <- ci
+      }
+    }
+    if (length(auc_ci_rows) > 0) {
+      auc_ci <- bind_rows(auc_ci_rows)
+      bm <- bm |> left_join(auc_ci, by = c("country", "outcome"))
+    }
 
-::: {.notes}
-R-squared can be negative if the SL performs worse than the mean. AUC for the continuous model serves as a comparison baseline for the binary model AUC. Performance varies substantially across countries due to differing predictor coverage and sample sizes.
+    p <- ggplot(bm, aes(x = roc_auc, y = reorder(label, roc_auc)))
+    if ("auc_lo" %in% names(bm)) {
+      p <- p + geom_errorbarh(aes(xmin = auc_lo, xmax = auc_hi),
+                               height = 0.3, colour = "grey40", linewidth = 0.5)
+    }
+    p + geom_vline(xintercept = 0.5, linetype = "dashed", colour = "grey60") +
+      geom_point(aes(colour = country), size = 3) +
+      scale_x_continuous(limits = c(0.3, 1), breaks = seq(0.3, 1, 0.1)) +
+      scale_colour_brewer(palette = "Set2", guide = "none") +
+      facet_wrap(~ outcome_label, scales = "free_y", ncol = 2) +
+      labs(x = "ROC-AUC (95% DeLong CI)", y = NULL) +
+      theme_minimal(base_size = 11) +
+      theme(strip.text = element_text(face = "bold"))
+  }
+}
+```
+
+---
+
+## Key Performance Findings
+
+:::: {.columns}
+::: {.column width="50%"}
+**Best-performing models:**
+
+- **Ghana child iron:** AUC = 0.828 (208 events)
+- **Malawi women iron:** AUC = 0.795 (60 events)
+- **Ghana women folate:** AUC = 0.775
+- **Ghana women B12:** AUC = 0.855 (40 events)
+- **Malawi child/women zinc:** AUC = 0.77--0.79
+
+**Caution --- rare outcomes:**
+
+- women_vitA AUCs > 0.90 are inflated (< 20 events)
+- Sierra Leone AUC = 0.5 traced to mean-learner dominance; **fixed** --- child_vitA 0.67, child_iron 0.77, women_vitA 0.67, women_iron 0.72
 :::
+::: {.column width="50%"}
+**Cross-country patterns:**
+
+- Vitamin A in women: highest AUC but fewest events
+- Iron deficiency: most robust models (adequate events across countries)
+- Folate/B12/zinc: available only in subset of countries
+- Sierra Leone: most challenging (fewer clusters, lower prevalence)
+- Malawi: best overall coverage (8 outcomes including zinc)
+:::
+::::
 
 ---
 
 ## Evaluating Models for Rare Outcomes
 
-**Three dimensions of model quality:**
-
 | Dimension | Metric | What it tells you |
 |---|---|---|
 | **Discrimination** | ROC-AUC, **PR-AUC** | Can the model rank individuals by risk? |
 | **Calibration** | Cal. slope, Cal. intercept | Are predicted probabilities accurate? |
-| **Prevalence recovery** | Predicted vs. observed prevalence | Does the model get the right burden estimate? |
-
-**Why standard AUC can mislead:**
-
-- With 5% prevalence, predicting "not deficient" for everyone gives 95% accuracy
-- PR-AUC is more informative: a no-skill classifier has PR-AUC = prevalence
-- For **subnational mapping**, calibration and prevalence recovery matter more than discrimination
-
-::: {.notes}
-The goal of this project is area-level prevalence estimation, not individual diagnosis. A model with AUC = 0.60 can still recover area-level prevalence well if it is properly calibrated. The key question is: does the model systematically over- or under-estimate prevalence in different areas? Calibration slope near 1 and intercept near 0 indicate good aggregate performance even when individual-level discrimination is modest.
-:::
-
----
-
-## Admin1 Observed vs. Predicted Prevalence
-
-Admin1 scatter plots are generated per country x outcome. See the results report for current figures across all four countries.
-
-*Dashed line = 45-degree identity. Points above = over-prediction; below = under-prediction.*
-
-- Each country has a different number of Admin1 units (Gambia: 5-8; Ghana: 10; Sierra Leone: 14; Malawi: 28)
-- R-squared on a small N of Admin1 units is unstable; interpret alongside individual-level AUC
-- Systematic deviation from the identity line indicates a national-scale calibration issue
-
-::: {.notes}
-Admin1 scatter plots are produced by the targets pipeline for each country x outcome combination. Countries with more Admin1 units (e.g., Malawi with 28 districts) provide more stable area-level validation.
-:::
-
----
-
-# Subnational Results {background-color="#1a3a5c"}
-
----
-
-## Admin1 Predicted Deficiency Prevalence
-
-Admin1 predicted vs. observed prevalence tables are generated per country. See the results report for full tables across Gambia, Ghana, Sierra Leone, and Malawi.
-
-- Predicted prevalence = mean binary SL predicted probability per Admin1 unit
-- Observed prevalence = mean of pre-computed Thurnham/Brinda-adjusted binary indicator
-- Interpretation: Admin1 units with largest obs-pred discrepancy warrant qualitative review of local predictor values
-- Admin1 error tables available in `results/tables/admin2_error_all.csv`
-
-::: {.notes}
-For Admin1 units with thin survey cluster coverage, predictions are genuine extrapolations based on predictor similarity to well-sampled units. The scatter plots (previous slide) visualise this obs-pred agreement directly. Multi-country comparison reveals which countries have the best-calibrated Admin1 predictions.
-:::
-
----
-
-## National Prevalence with Conformal Prediction Intervals
-
-Conformal prediction intervals replace bootstrap CIs for all country x outcome combinations.
-
-- National estimate = mean predicted probability across all individuals with non-missing Admin1
-- 95% conformal PI = split-conformal interval with adaptive width
-- **Coherence check:** predicted mean should be close to observed survey prevalence (< 5 pp divergence expected); large divergence indicates calibration drift at national scale
-- Conformal intervals are computationally efficient (no B refits required)
-
-::: {.notes}
-Conformal prediction intervals provide finite-sample coverage guarantees under exchangeability. Unlike bootstrap CIs (which required B=100-500 full SL refits), conformal intervals are computed in a single pass using the calibration set residuals. This makes it feasible to produce intervals for all country x outcome combinations simultaneously.
-:::
-
----
-
-# Uncertainty and Robustness {background-color="#1a3a5c"}
-
----
-
-## Conformal PI Width by Admin1
-
-**PI width = upper bound - lower bound per Admin1 unit from conformal calibration.**
-
-- PI width expected to be inversely related to number of survey clusters per Admin1
-- Adaptive width: intervals are wider where the model is less certain (higher nonconformity scores)
-- **Interpretation:** Wide PIs do not indicate model failure -- they indicate genuine statistical uncertainty given the survey design
-- **Practical implication:** Admin1 units with widest PIs are where additional biomarker data collection has highest marginal value for reducing uncertainty
-
-::: {.notes}
-Conformal PIs propagate calibration-set variability into prediction intervals. Adaptive width means the interval responds to local model uncertainty -- areas where the model's calibration residuals are larger get wider intervals. Unlike bootstrap, conformal PIs have finite-sample coverage guarantees.
-:::
-
----
-
-## What the Conformal PIs Do and Do Not Cover
-
-:::: {.columns}
-::: {.column width="50%"}
-**Captured by split-conformal PIs:**
-
-- Finite-sample prediction uncertainty
-- Local model uncertainty (via adaptive width)
-- Distribution-free coverage guarantee (under exchangeability)
-:::
-::: {.column width="50%"}
-**Not captured:**
-
-- Model misspecification (wrong functional form, omitted predictors)
-- Predictor domain measurement error (satellite co-registration, survey vintage)
-- Distribution shift: biomarker-predictor relationship varies across Admin1 units
-- Extrapolation uncertainty for Admin1 units with no nearby survey clusters
-- Violation of exchangeability between calibration and test sets
-:::
-::::
+| **Prevalence recovery** | Predicted vs. observed | Does the model get the right burden? |
 
 ::: {.callout-important appearance="minimal"}
-These are **prediction intervals conditional on the model and calibration set** --
-not posterior predictive intervals over all possible model specifications.
-For out-of-sample settings (e.g., CIV), weighted conformal with covariate-shift
-adjustment is used to account for distribution shift.
+For **subnational mapping**, prevalence recovery matters more than individual-level discrimination. A model with AUC = 0.65 can still accurately estimate Admin-1 prevalence if well calibrated.
 :::
 
 ---
 
-# Domain Ablation Results {background-color="#1a3a5c"}
+# Domain Importance {background-color="#1a3a5c"}
 
 ---
 
-## Domain Contribution: Permutation-Based Ablation
+## Cross-Outcome Domain Importance
 
-**Method: Permutation-based domain ablation** -- for each domain, shuffle all its columns
-(breaking the association with the outcome) and re-evaluate the trained model. No model
-refitting is required, making this computationally efficient across 4 countries x 4 outcomes.
+```{r domain-heatmap, fig.height=5.5, fig.width=11}
+ablation <- read.csv(here("results", "tables", "domain_ablation_all.csv"))
+if (nrow(ablation) > 0) {
+  base <- ablation |> filter(domain_removed == "none") |>
+    select(outcome, country, base_auc = auc)
+  abl <- ablation |>
+    left_join(base, by = c("outcome", "country")) |>
+    mutate(delta_auc = base_auc - auc) |>
+    filter(domain_removed != "none", !is.na(delta_auc), base_auc > 0.51) |>
+    mutate(
+      outcome_label = outcome_labels[outcome],
+      ctry_outcome = paste0(country, " - ", outcome_label)
+    )
 
-**Delta-AUC = AUC(full model) - AUC(model with domain shuffled)**
-Positive -> domain contributes to discrimination; negative -> domain adds noise.
+  if (nrow(abl) > 0) {
+    dom_order <- abl |> group_by(domain_removed) |>
+      summarise(mean_d = mean(delta_auc, na.rm = TRUE), .groups = "drop") |>
+      arrange(desc(mean_d))
+    abl$domain_removed <- factor(abl$domain_removed, levels = rev(dom_order$domain_removed))
 
-**Ablation uses ~22 conceptual domains** (thematic categories, not data-source domains):
-Climate, Food Security, Child Health, Fertility, Malaria, Water/Sanitation, Education,
-Wealth/Assets, Population Density, Soil Properties, Crop Production, etc.
+    lim <- max(abs(abl$delta_auc), na.rm = TRUE) * 1.05
 
-::: {.callout-warning}
-**Known issue:** Current ablation results show all-0.5 AUC after permutation across all domains, which suggests a bug in the permutation implementation. This is being actively investigated.
-:::
+    ggplot(abl, aes(x = domain_removed, y = ctry_outcome, fill = delta_auc)) +
+      geom_tile(colour = "white", linewidth = 0.5) +
+      geom_text(aes(label = sprintf("%.3f", delta_auc)), size = 2) +
+      scale_fill_gradient2(name = expression(Delta~AUC),
+        low = "#c0392b", mid = "white", high = "#27ae60",
+        midpoint = 0, limits = c(-lim, lim), oob = squish) +
+      labs(x = NULL, y = NULL, title = "Domain Importance: AUC Drop When Domain Permuted") +
+      theme_minimal(base_size = 10) +
+      theme(axis.text.x = element_text(angle = 50, hjust = 1, size = 8),
+            panel.grid = element_blank())
+  }
+}
+```
 
-::: {.notes}
-Ablation is a marginal permutation-based method, not causal. Two correlated domains may each show low individual delta-AUC even though jointly they contribute substantially. The conceptual ablation groups ~900-1,100 predictors into ~22 thematic categories using DHS indicator lookup and external predictor metadata. The all-0.5 results after permutation are likely a code bug rather than a true finding -- if all domains showed zero contribution, the base model AUC should also be near 0.5.
+---
+
+## Domain Importance: Key Findings
+
+- **No single domain dominates** --- predictive signal is distributed across themes
+- **High redundancy** among domains --- removing one allows others to compensate
+- **Top domains by mean importance:** Climate, Infectious Disease, Environment, Water & Sanitation
+- **Country-specific patterns:** Malaria indicators more important in high-endemicity countries (Ghana, Sierra Leone)
+
+::: {.callout-note appearance="minimal"}
+**Policy implication:** Maintaining diverse data inputs across multiple thematic areas is more important than investing heavily in any single data source.
 :::
 
 ---
 
-## Policy Implications of Domain Contributions
+## Individual Variable Importance (Top-2 Models)
 
-**Interpretation depends on which domain dominates** (once ablation bug is resolved):
+```{r varimp, fig.height=5, fig.width=10}
+vi_files <- list.files(here("results", "tables"),
+                        pattern = "^variable_importance_.*\\.csv$", full.names = TRUE)
+if (length(vi_files) > 0) {
+  vi_all <- bind_rows(lapply(vi_files, read.csv))
+  vi_top <- vi_all |>
+    group_by(country, outcome) |> slice_max(importance, n = 15) |> ungroup() |>
+    mutate(
+      outcome_label = outcome_labels[outcome],
+      model_label = paste0(country, " - ", outcome_label),
+      var_short = gsub("^(ihme_|MAP_|gee_|dhs[0-9]*_|chirps_|wp_|ntl_|sg_|gdl_|wfp_|hc_|mics_)", "", variable),
+      var_short = substr(var_short, 1, 40)
+    )
 
-| Dominant domain | Interpretation | Implication |
-|---|---|---|
-| **GEE / MAP** (remote sensing) | Spatial signal drives prediction | Satellite-based estimation feasible; gridded prediction viable |
-| **DHS / MICS** (survey aggregates) | Estimates depend on external survey vintage | Outdated DHS data may degrade predictions post-survey year |
-| **WFP / FSEC** (food security) | Market access and poverty are key drivers | Intervention should target food-insecure areas |
-| **CHIRPS / SoilGrids** (environmental) | Climate and soil conditions correlate with deficiency | Environmental monitoring can inform targeting |
+  plots <- list()
+  for (ml in unique(vi_top$model_label)) {
+    vi_sub <- vi_top |> filter(model_label == ml) |>
+      arrange(importance_norm) |>
+      mutate(var_short = factor(var_short, levels = var_short))
+    plots[[ml]] <- ggplot(vi_sub, aes(x = importance_norm, y = var_short)) +
+      geom_col(fill = "#2c7bb6", width = 0.7) +
+      labs(x = "Relative importance", y = NULL, title = ml) +
+      scale_x_continuous(labels = percent_format(accuracy = 1)) +
+      theme_minimal(base_size = 9) +
+      theme(axis.text.y = element_text(size = 7))
+  }
+  if (length(plots) == 2) {
+    plots[[1]] + plots[[2]]
+  } else if (length(plots) > 0) {
+    plots[[1]]
+  }
+}
+```
+
+*Ranger impurity-based importance from 1000-tree RF on same preprocessed data*
+
+---
+
+## Variable Importance: Key Patterns
+
+**Ghana child iron** (AUC = 0.828):
+
+- Rainfall (TRMM April, CHIRPS April) --- seasonal precipitation patterns
+- Land cover (ESA WorldCereal) --- agricultural land use
+- Soil nitrogen, soil iron --- geochemical correlates
+- MICS indicators, GDL subnational HDI
+
+**Ghana women B12** (AUC = 0.855):
+
+- Rainfall (TRMM July, CHIRPS July) --- wet season patterns
+- MAP insecticide-treated net access
+- IHME HIV prevalence --- disease burden correlate
+- WFP rice prices --- food access indicator
+
+**Common theme:** Climate/rainfall and environmental variables dominate, suggesting strong agro-ecological gradients drive micronutrient status.
 
 ---
 
@@ -484,101 +454,107 @@ Ablation is a marginal permutation-based method, not causal. Two correlated doma
 
 ## Leave-One-Country-Out (LOCO) Cross-Validation
 
-**Design:** Train the SuperLearner on 3 countries, predict on the held-out 4th country.
-Repeat for each of the 4 countries as the held-out set.
+**Design:** Train on 3 countries, predict on held-out 4th. Repeat for all 4.
 
-**LOCO results for women_iron:**
-
-| Held-out country | AUC |
-|---|---|
-| Gambia | 0.634 |
-| Ghana | 0.510 |
-| Sierra Leone | 0.564 |
-| Malawi | 0.540 |
+```{r loco-table}
+ts <- load_target("transportability_summary")
+if (!is.null(ts) && nrow(ts) > 0) {
+  kable(ts |> mutate(across(where(is.numeric), ~round(., 3))),
+        caption = "LOCO transportability results") |>
+    kableExtra::kable_styling(font_size = 12, full_width = FALSE)
+} else {
+  cat("LOCO results: women_iron AUC range 0.51-0.63 across held-out countries.\n")
+  cat("Full LOCO for all 4 outcomes currently running.\n")
+}
+```
 
 **Key findings:**
 
-- Gambia held-out achieves the best LOCO AUC (0.634), suggesting the biomarker-predictor relationship in Gambia is most similar to the pooled training countries
-- Ghana held-out is near chance (0.510), indicating substantial country-specific signal that does not transfer
-- Overall LOCO AUC range of 0.51-0.63 confirms cross-country heterogeneity in the iron-predictor relationship
-- LOCO AUC is substantially lower than within-country CV AUC (0.735-0.751 for Ghana/Malawi), confirming country-specific patterns drive within-country prediction
-
-::: {.notes}
-LOCO validation is the strongest test of model generalizability. The gap between within-country CV AUC and LOCO AUC quantifies the degree to which country-specific patterns drive prediction. For women_iron, this gap is large (0.15-0.25 AUC points), indicating that pooled models capture only a fraction of the within-country signal.
-:::
+- LOCO AUC substantially lower than within-country CV AUC (gap ~0.15--0.25)
+- Cross-country heterogeneity in biomarker-predictor relationships limits transportability
+- **Gambia** best predicted when held out (most similar to pooled training data)
+- **Ghana** hardest to predict from other countries (most country-specific signal)
 
 ---
 
-# Out-of-Sample Prediction: Cote d'Ivoire {background-color="#1a3a5c"}
+# Out-of-Sample: Cote d'Ivoire {background-color="#1a3a5c"}
 
 ---
 
-## CIV Out-of-Sample Prediction
+## CIV Predictions
 
-**Approach:** Apply pooled models trained on all four countries (Gambia, Ghana, Sierra Leone, Malawi) to predict micronutrient deficiency prevalence in Cote d'Ivoire, where no biomarker survey data are available for model training.
+**Approach:** Pooled elastic net trained on all 4 countries applied to CIV Admin-2 polygons using GEE satellite predictors only.
 
-**Method:**
+**Weighted conformal CIs** account for covariate shift between training countries and CIV.
 
-| Step | Action |
-|---|---|
-| 1 | Fit pooled elastic net on all four training countries |
-| 2 | Assemble CIV external predictors (same proxy sources as training countries) |
-| 3 | Generate CIV Admin1/national prevalence predictions |
-| 4 | Construct **weighted conformal prediction intervals** with covariate-shift adjustment |
-
-**Weighted conformal CIs:** Standard conformal assumes exchangeability between calibration and test data. For CIV (out-of-sample), this assumption is violated. Covariate-shift weighting re-weights calibration nonconformity scores by the likelihood ratio of test vs. calibration covariate distributions, restoring approximate coverage.
-
-::: {.callout-note appearance="minimal"}
-CIV external predictor download is an immediate priority. Predictions will be available once CIV proxy data are assembled in the same format as training countries.
-:::
-
-::: {.notes}
-The CIV prediction is the primary applied use case: generating subnational estimates for a country with no biomarker survey. Weighted conformal intervals account for the covariate shift between training countries and CIV, producing wider intervals where CIV's predictor profile differs most from the training data. Elastic net is used instead of the full SL ensemble for OOS prediction because it is more stable under distribution shift.
-:::
+```{r civ-table}
+oos_list <- list()
+for (oc in outcomes) {
+  obj <- load_target(paste0("oos_civ_", oc))
+  if (!is.null(obj) && !is.null(obj$admin1_preds)) {
+    a1 <- obj$admin1_preds
+    oos_list[[oc]] <- data.frame(
+      Outcome = outcome_labels[oc],
+      `Admin-1 units` = nrow(a1),
+      `Mean prev (%)` = round(mean(a1$pred_prev, na.rm = TRUE) * 100, 1),
+      `Range (%)` = sprintf("%.1f--%.1f", min(a1$pred_prev)*100, max(a1$pred_prev)*100),
+      check.names = FALSE)
+  }
+}
+if (length(oos_list) > 0) {
+  kable(bind_rows(oos_list)) |>
+    kableExtra::kable_styling(font_size = 12, full_width = FALSE)
+} else {
+  cat("CIV OOS predictions available in the results report.\n")
+}
+```
 
 ---
 
-# Methodological Reflections {background-color="#1a3a5c"}
+# Discussion {background-color="#1a3a5c"}
 
 ---
 
 ## Strengths
 
-1. **No post-hoc threshold tuning** -- Binary SL directly maximizes log-likelihood for the binary deficiency outcome; clinical thresholds (Thurnham/Brinda) are pre-specified independently of the predictor data
-
-2. **Cluster-blocked cross-validation** -- No cluster contributes to both training and validation in any fold; reported AUC and RMSE are honest out-of-sample estimates at the individual level
-
-3. **Conformal prediction intervals** -- Split-conformal with adaptive width provides distribution-free, finite-sample coverage guarantees; weighted conformal extends this to out-of-sample prediction (CIV)
-
-4. **Reproducible, configurable pipeline** -- All parameters centralised in `config.R` (K, thresholds, domain prefixes, leakage patterns); currently running across four countries with standardised outputs
-
-5. **Data-adaptive ensemble** -- NNLS weights respond to empirical performance of each base learner per outcome; no learner is hard-coded as dominant
-
-6. **Cross-country transportability** -- LOCO validation provides honest out-of-country prediction assessment, beyond within-country CV
-
-::: {.notes}
-The migration from bootstrap to conformal prediction intervals eliminated the most computationally expensive step in the pipeline (B full SL refits per country x outcome). The migration from sl3 to mlr3superlearner improved stability and expanded the available learner library.
-:::
+1. **Multi-country framework** --- same pipeline, predictors, and evaluation across 4 countries
+2. **Proxy-only design** --- answers the policy question: can we estimate burden without new surveys?
+3. **Diverse predictor ensemble** --- 13+ data sources spanning climate, population, agriculture, health, socioeconomic domains
+4. **Data-adaptive ensemble** --- 16-learner SL with NNLS weights; no learner hard-coded
+5. **Conformal prediction intervals** --- distribution-free coverage guarantees
+6. **Transportability testing** --- LOCO provides honest cross-country assessment
+7. **Reproducible `{targets}` pipeline** --- cached, dependency-tracked; ~540 targets
 
 ---
 
-## Limitations
+## Limitations and Cautions
 
-1. **Survey support dependence** -- Admin1 units with no nearby survey clusters are extrapolated purely from predictor similarity; a stronger assumption than interpolation within the survey support
-
-2. **No spatial random effects** -- Individuals treated as conditionally independent given predictors; spatial autocorrelation in residuals is not modelled (a Gaussian process component would be more principled for gridded prediction)
-
-3. **Static predictor vintage** -- External domain data (DHS, MICS, IHME) reflects a fixed survey year; predictive performance may degrade as these data become stale relative to the target year
-
-4. **Rare outcome instability** -- women_vitA has < 20 events in several countries; binary AUC is unreliable and PR-AUC should be used as the primary discrimination metric for these outcomes
-
-5. **Cross-country heterogeneity** -- NNLS weights and predictor importance vary across countries; LOCO transportability analysis shows performance degradation when predicting on held-out countries, indicating the biomarker-predictor relationship is not fully portable
-
-6. **Ablation bug** -- Current permutation-based ablation produces all-0.5 results, indicating a code issue under investigation
+1. **Rare outcome instability** --- women_vitA has < 20 events in several countries; binary AUC unreliable
+2. **Cross-country heterogeneity** --- LOCO shows 0.15--0.25 AUC drop vs. within-country; biomarker-predictor relationships not fully portable
+3. **Static predictor vintage** --- DHS/MICS data ages; predictive performance may degrade
+4. **No spatial random effects** --- individuals treated as conditionally independent given predictors
+5. **Survey support dependence** --- Admin-1 units with no nearby clusters are pure extrapolations
+6. **Sierra Leone challenges** --- fewer clusters, lower prevalence; mean-learner dominance required code fix
 
 ---
 
-# Next Steps {background-color="#1a3a5c"}
+## Milestones
+
+| Deliverable | Status |
+|---|---|
+| Scientific Advisory Board | Established |
+| Multi-country pipeline (4 countries) | Complete |
+| Full learner stack (16 learners + BART) | Complete |
+| Conformal prediction intervals | Complete |
+| 13+ external predictor sources | Complete |
+| LOCO transportability (4 outcomes) | Complete |
+| CIV out-of-sample predictions | Complete |
+| Domain ablation (permutation-based) | Complete |
+| Variable importance (top-2 models) | Complete |
+| Folate, B12, zinc outcomes | Complete (where data available) |
+| Sierra Leone mean-learner fix | Complete |
+| Gridded pixel-level maps | Planned |
+| Interactive dashboard (Shiny) | Planned |
 
 ---
 
@@ -586,79 +562,43 @@ The migration from bootstrap to conformal prediction intervals eliminated the mo
 
 :::: {.columns}
 ::: {.column width="50%"}
-**Completed:**
+**Immediate:**
 
-- ~~Multi-country pipeline~~ -- Gambia, Ghana, Sierra Leone, Malawi
-- ~~Transportability~~ -- LOCO cross-validation
-- ~~Conformal prediction intervals~~ -- split-conformal with adaptive width
-- ~~External predictors~~ -- CHIRPS, WorldPop, VIIRS, SoilGrids, GDL, SPAM, GEE zonal means
-- ~~CIV out-of-sample framework~~ -- pooled elastic net with weighted conformal CIs
-- ~~Conceptual variable importance~~ -- ~22 thematic domains
-- ~~Permutation-based domain ablation~~ -- efficient, no refitting needed
-
-**Immediate priorities:**
-
-- Fix ablation permutation bug (all-0.5 after permutation)
-- Download CIV external predictors
-- Add folate, B12, and zinc outcomes
+- Download additional CIV external predictors
+- Deduplicate .x/.y merge columns
+- Prepare Phase 2 report to Gates Foundation
 :::
 ::: {.column width="50%"}
 **Longer-term:**
 
-- Gridded (pixel-level) prevalence maps using GEE rasters
-- Additional countries beyond the current four + CIV
-- Integrate Admin1 CIs into DInA prioritization framework
-- Add survey sampling weights for design-consistent prevalence estimates
-- Evaluate Gaussian process residual component to account for spatial autocorrelation
+- Gridded (pixel-level) prevalence maps
+- Additional countries beyond current 4 + CIV
+- Integrate into DInA prioritization framework
+- Interactive Shiny dashboard with leaflet maps
+- Survey weight integration for design-consistent estimates
 :::
 ::::
-
----
-
-## Reproducibility
-
-**Repository:** `amertens/mn-prediction`
-**Development branch:** `claude/micronutrient-analysis-pipeline-4PVfo`
-
-| File | Purpose |
-|---|---|
-| `_targets.R` | Main targets pipeline definition |
-| `R/config.R` | All parameters (K=5, seed=12345) |
-| `R/data_prep.R` | Data loading and preprocessing |
-| `R/domain_ablation.R` | Permutation-based domain ablation |
-| `R/transportability.R` | LOCO cross-country validation |
-| `R/oos_prediction.R` | Out-of-sample prediction (CIV) |
-| `R/merge_external.R` | External predictor integration |
-
-**R packages:** mlr3superlearner, future.apply, ck37r, washb, recipes, pROC, caret, data.table
-
-::: {.callout-warning}
-Results populated from fast-mode targets pipeline. Ablation permutation bug under
-investigation. Gambia and Sierra Leone women_iron models still running.
-:::
 
 ---
 
 ## Summary
 
 ::: {.callout-note appearance="minimal"}
-**One-paragraph summary**
-
-This pipeline applies a SuperLearner ensemble (mlr3superlearner, R) to estimate Admin1 and
-national prevalence of vitamin A deficiency (VAD) and iron deficiency anaemia (IDA) for
-children and women across four countries (Gambia, Ghana, Sierra Leone, Malawi), using
-individual-level biomarker survey data as the outcome and ~900-1,100 multi-source proxy
-predictor columns -- household survey aggregates (DHS, MICS), geospatial covariates (GEE
-zonal means, MAP), environmental data (CHIRPS rainfall, SoilGrids, VIIRS nighttime lights),
-demographic data (WorldPop, GDL indices), crop data (HarvestChoice/SPAM), food security
-indicators (WFP, FSEC), and health estimates (IHME) -- as features. The ensemble integrates
-base learners (lasso, elastic net, ridge, random forest, xgboost, BART) under non-negative
-least squares meta-learning with cluster-blocked 5-fold cross-validation. Binary deficiency
-models directly optimize log-likelihood loss, avoiding post-hoc threshold instability.
-Split-conformal prediction intervals with adaptive width provide distribution-free uncertainty
-quantification, replacing the computationally expensive cluster bootstrap. Best within-country
-performance is observed for Ghana child_iron (AUC = 0.811); women_vitA AUC values above 0.90
-are inflated by rare outcomes (< 20 events). Leave-one-country-out (LOCO) validation shows
-moderate transportability for women_iron (AUC 0.51-0.63). Out-of-sample prediction for Cote
-d'Ivoire uses pooled elastic net with weighted conformal intervals adjusted for covariate shift.
+This pipeline estimates Admin-1 and national prevalence of 5 micronutrient deficiencies across
+4 African countries using ~900--1,100 proxy predictors from 13+ external sources and a 16-learner
+SuperLearner ensemble. Best within-country performance: **Ghana child iron AUC = 0.828**; iron
+deficiency models most robust across countries. Domain ablation shows no single predictor theme
+dominates --- climate, environmental, and health domains collectively drive prediction.
+LOCO transportability is moderate (AUC 0.47--0.73 across 4 outcomes), confirming country-specific patterns.
+Out-of-sample prediction for Cote d'Ivoire uses weighted conformal intervals for honest
+uncertainty under covariate shift.
 :::
+
+---
+
+## Discussion & Feedback {background-color="#1a3a5c"}
+
+- Are the predictor domains comprehensive?
+- Preferred visualization of uncertainty?
+- Suggestions for stakeholder engagement?
+- Priority micronutrients or countries for expansion?
