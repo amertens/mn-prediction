@@ -242,6 +242,30 @@ mlr3_SL_clustered <- function(d, Xvars, outcome, population,
     if (any(bad)) cov[[col]][bad] <- 0
   }
 
+  # ── Add class-weighted learner variants for rare binary outcomes ──────
+  # When prevalence < 15%, add xgboost and ranger configs with class
+  # weights that upweight the minority class. This prevents the SL from
+  # collapsing to "predict everyone as non-deficient".
+  if (outcome_type == "binomial" || outcome_type == "binary") {
+    prev_rate <- mean(Y == 1, na.rm = TRUE)
+    if (prev_rate > 0 && prev_rate < 0.15) {
+      pos_weight <- (1 - prev_rate) / prev_rate  # e.g., 75 for 1.3% prevalence
+      # Cap at 50 to avoid extreme instability
+      pos_weight <- min(pos_weight, 50)
+      cat(sprintf("  [mlr3_SL] Rare outcome (prev=%.1f%%) — adding class-weighted learners (weight=%.1f)\n",
+                  prev_rate * 100, pos_weight))
+
+      mlr3_library <- c(mlr3_library, list(
+        list("xgboost", max_depth = 4, eta = 0.05, nrounds = 300,
+             min_child_weight = 10, subsample = 0.8, colsample_bytree = 0.5,
+             scale_pos_weight = pos_weight, id = "xgb_weighted"),
+        list("ranger", num.trees = 500, min.node.size = 5,
+             class.weights = c("0" = 1, "1" = pos_weight),
+             id = "ranger_weighted")
+      ))
+    }
+  }
+
   # ── Build mlr3 data frame ──
   mlr3_df <- data.frame(Y = Y, cov)
   mlr3_df$cluster_id <- id_vec
@@ -447,7 +471,7 @@ mlr3_SL_clustered <- function(d, Xvars, outcome, population,
             } else if (grepl("ranger", lm_obj$id)) {
               rpred <- predict(lm_obj$model, data = nd)$predictions
               if (is.matrix(rpred) && ncol(rpred) >= 2) rpred[, 2] else as.numeric(rpred)
-            } else if (grepl("xgboost|xgb", lm_obj$id)) {
+            } else if (grepl("xgboost|xgb|lgbm", lm_obj$id)) {
               predict(lm_obj$model, as.matrix(nd))
             } else if (grepl("nnet", lm_obj$id)) {
               as.numeric(predict(lm_obj$model, nd, type = "raw"))
