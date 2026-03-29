@@ -305,22 +305,34 @@ mlr3_SL_clustered <- function(d, Xvars, outcome, population,
   # serialization. For BART, we store the training data so we can refit
   # on the fly when predict is needed (~0.5s overhead).
   learner_models <- tryCatch({
-    lapply(mlr3_fit$learners, function(lrn) {
+    # mlr3superlearner may store learners in different locations depending
+    # on discrete vs ensemble mode. Try multiple paths.
+    lrn_list <- mlr3_fit$learners
+    # Also check $fits$learners which may have the full set
+    if (length(lrn_list) == 1 && !is.null(mlr3_fit$fits) &&
+        !is.null(mlr3_fit$fits$learners) &&
+        length(mlr3_fit$fits$learners) > length(lrn_list)) {
+      lrn_list <- mlr3_fit$fits$learners
+    }
+    cat(sprintf("  [mlr3_SL] Extracting %d learner models for fallback predict\n",
+                length(lrn_list)))
+    lapply(lrn_list, function(lrn) {
       is_bart <- grepl("bart", lrn$id, ignore.case = TRUE)
       entry <- list(
         id    = lrn$id,
         model = lrn$model
       )
       if (is_bart) {
-        # Store training data for refit-on-predict (BART can't serialize)
         entry$is_bart    <- TRUE
         entry$bart_ntree <- tryCatch(lrn$param_set$values$ntree %||% 100L,
                                       error = function(e) 100L)
-        # Training X and Y are stored separately in train_data below
       }
       entry
     })
-  }, error = function(e) NULL)
+  }, error = function(e) {
+    cat(sprintf("  [mlr3_SL] learner_models extraction failed: %s\n", e$message))
+    NULL
+  })
 
   sl_weights <- tryCatch(mlr3_fit$weights, error = function(e) NULL)
   sl_x       <- tryCatch(mlr3_fit$x, error = function(e) covars)
@@ -367,32 +379,39 @@ mlr3_SL_clustered <- function(d, Xvars, outcome, population,
       # For glmnet/ranger/xgboost: use the stored plain R model objects directly.
       if (!is.null(learner_models) && !is.null(sl_weights)) {
         nd <- newdata[, sl_x, drop = FALSE]
+        # Debug: uncomment to trace fallback
+        # cat(sprintf("  [predict fallback] %d learner_models, %d weights\n",
+        #             length(learner_models), length(sl_weights)))
         preds_mat <- sapply(seq_along(learner_models), function(i) {
           lm_obj <- learner_models[[i]]
           tryCatch({
             if (isTRUE(lm_obj$is_bart)) {
-              # BART: refit from training data and predict on new data
-              # train_data is stored alongside this wrapper
-              td <- train_data_for_bart
+              # BART: refit from training data and predict on new data.
+              td <- as.data.frame(train_data_for_bart)
               X_train_b <- as.matrix(td[, sl_x, drop = FALSE])
               Y_train_b <- as.numeric(td$Y)
               X_test_b  <- as.matrix(nd)
+              # BART refit: ~0.5s per call
               bart_refit <- dbarts::bart(
                 x.train = X_train_b, y.train = Y_train_b,
                 x.test = X_test_b,
                 ntree = lm_obj$bart_ntree %||% 100L,
                 verbose = FALSE, keeptrees = FALSE
               )
+              # yhat.test: (n_draws x n_test)
               if (sl_outcome_type == "binomial") {
-                pnorm(colMeans(bart_refit$yhat.test))
+                preds_b <- pnorm(colMeans(bart_refit$yhat.test))
               } else {
-                colMeans(bart_refit$yhat.test)
+                preds_b <- colMeans(bart_refit$yhat.test)
               }
+              # Refit complete
+              preds_b
             } else if (grepl("glmnet|lasso|ridge|enet", lm_obj$id)) {
               as.numeric(predict(lm_obj$model, as.matrix(nd), type = "response",
                                   s = lm_obj$model$lambda.min %||% lm_obj$model$lambda[1]))
             } else if (grepl("ranger", lm_obj$id)) {
-              predict(lm_obj$model, data = nd)$predictions[, 2]  # prob of class "1"
+              rpred <- predict(lm_obj$model, data = nd)$predictions
+              if (is.matrix(rpred) && ncol(rpred) >= 2) rpred[, 2] else as.numeric(rpred)
             } else if (grepl("xgboost", lm_obj$id)) {
               predict(lm_obj$model, as.matrix(nd))
             } else if (grepl("mean", lm_obj$id)) {
@@ -401,15 +420,36 @@ mlr3_SL_clustered <- function(d, Xvars, outcome, population,
               rep(NA_real_, nrow(nd))
             }
           }, error = function(e) {
-            # Silently return NA for failed learners
             rep(NA_real_, nrow(nd))
           })
         })
         if (is.matrix(preds_mat)) {
-          use <- names(sl_weights[sl_weights != 0])
-          use_idx <- which(sl_weights != 0)
-          result <- as.numeric(preds_mat[, use_idx, drop = FALSE] %*% sl_weights[use_idx])
-          if (length(unique(round(result, 6))) > 1) return(result)
+          n_cols <- ncol(preds_mat)
+          if (n_cols == 1) {
+            # Only 1 learner model extracted (mlr3superlearner stores only
+            # the winning learner). Use it directly — no weighting needed.
+            result <- as.numeric(preds_mat[, 1])
+            if (length(unique(round(result, 6))) > 1) return(result)
+          } else {
+            # Multiple learner models — align weights and combine
+            n_wts <- length(sl_weights)
+            wts_use <- if (n_wts == n_cols) {
+              sl_weights
+            } else if (n_wts > n_cols) {
+              sl_weights[seq_len(n_cols)]
+            } else {
+              c(sl_weights, rep(0, n_cols - n_wts))
+            }
+            if (sum(wts_use) > 0) wts_use <- wts_use / sum(wts_use)
+            use_idx <- which(wts_use > 0.001)
+            if (length(use_idx) > 0) {
+              for (j in use_idx) {
+                if (all(is.na(preds_mat[, j]))) preds_mat[, j] <- mean(Y, na.rm = TRUE)
+              }
+              result <- as.numeric(preds_mat[, use_idx, drop = FALSE] %*% wts_use[use_idx])
+              if (length(unique(round(result, 6))) > 1) return(result)
+            }
+          }
         }
       }
 
