@@ -175,45 +175,55 @@ auc,brier,domain_removed,n_removed,n_perm_valid,outcome,country,rmse,mae,r2
 0.8595150115473441,0.06497289059127975,Survey Characteristics,7,5,women_b12,Ghana,NA,NA,NA
 0.8557043879907621,0.06488437991600893,Survey Indicators,7,5,women_b12,Ghana,NA,NA,NA
 0.8631986143187067,0.0658468749120967,Water and Sanitation,35,5,women_b12,Ghana,NA,NA,NA
-0.5,0.14959186438381683,none,0,NA,child_vitA,Sierra Leone,NA,NA,NA
-0.5,0.14959186438381683,Agriculture,2,5,child_vitA,Sierra Leone,NA,NA,NA
-0.5,0.14959186438381683,Climate,4,5,child_vitA,Sierra Leone,NA,NA,NA
-0.5,0.14959186438381683,Environment,12,5,child_vitA,Sierra Leone,NA,NA,NA
-0.5,0.14959186438381683,Family Planning,1,5,child_vitA,Sierra Leone,NA,NA,NA
-0.5,0.14959186438381683,Health and Development,7,5,child_vitA,Sierra Leone,NA,NA,NA
-0.5,0.14959186438381683,Infectious Disease,1,5,child_vitA,Sierra Leone,NA,NA,NA
-0.5,0.14959186438381683,Reproductive Health,1,5,child_vitA,Sierra Leone,NA,NA,NA
-0.5,0.022714981070849107,none,0,NA,women_vitA,Sierra Leone,NA,NA,NA
-0.5,0.022714981070849107,Agriculture,3,5,women_vitA,Sierra Leone,NA,NA,NA
-0.5,0.022714981070849107,Climate,7,5,women_vitA,Sierra Leone,NA,NA,NA
-0.5,0.022714981070849107,Environment,5,5,women_vitA,Sierra Leone,NA,NA,NA
-0.5,0.022714981070849107,Food Security,3,5,women_vitA,Sierra Leone,NA,NA,NA
-0.5,0.022714981070849107,Health and Development,7,5,women_vitA,Sierra Leone,NA,NA,NA
-0.5,0.022714981070849107,Infrastructure,1,5,women_vitA,Sierra Leone,NA,NA,NA
-0.5,0.054293891513827505,none,0,NA,child_iron,Sierra Leone,NA,NA,NA
-0.5,0.054293891513827505,Agriculture,2,5,child_iron,Sierra Leone,NA,NA,NA
-0.5,0.054293891513827505,Child Health,1,5,child_iron,Sierra Leone,NA,NA,NA
-0.5,0.054293891513827505,Child Nutrition,2,5,child_iron,Sierra Leone,NA,NA,NA
-0.5,0.054293891513827505,Climate,17,5,child_iron,Sierra Leone,NA,NA,NA
-0.5,0.054293891513827505,Environment,28,5,child_iron,Sierra Leone,NA,NA,NA
-0.5,0.054293891513827505,Food Security,2,5,child_iron,Sierra Leone,NA,NA,NA
-0.5,0.054293891513827505,Health and Development,8,5,child_iron,Sierra Leone,NA,NA,NA
-0.5,0.054293891513827505,Infectious Disease,2,5,child_iron,Sierra Leone,NA,NA,NA
-0.5,0.054293891513827505,Infrastructure,2,5,child_iron,Sierra Leone,NA,NA,NA
-0.5,0.054293891513827505,Malaria,1,5,child_iron,Sierra Leone,NA,NA,NA
-0.5,0.054293891513827505,Reproductive Health,2,5,child_iron,Sierra Leone,NA,NA,NA
-0.7402564956695536,0.14398980946760737,none,0,NA,women_folate,Sierra Leone,NA,NA,NA
-0.7346695952698201,0.1449613965224369,Agriculture,1,5,women_folate,Sierra Leone,NA,NA,NA
-0.738192246835443,0.14398963319154517,Child Health,2,5,women_folate,Sierra Leone,NA,NA,NA
-0.7369805546302465,0.1439880784945984,Child Nutrition,1,5,women_folate,Sierra Leone,NA,NA,NA
-0.7051465689540306,0.1504200112029417,Climate,17,5,women_folate,Sierra Leone,NA,NA,NA
-0.7300403897401733,0.14690697231251446,Environment,19,5,women_folate,Sierra Leone,NA,NA,NA
-0.7347632828114591,0.14437568259371042,Food Security,2,5,women_folate,Sierra Leone,NA,NA,NA
-0.7350807794803464,0.14463385441486856,Health and Development,10,5,women_folate,Sierra Leone,NA,NA,NA
-0.7351453197868087,0.14479523244274528,Infectious Disease,4,5,women_folate,Sierra Leone,NA,NA,NA
-0.7348444786808794,0.1443731378154231,Infrastructure,2,5,women_folate,Sierra Leone,NA,NA,NA
-0.7377987591605596,0.14389255644135845,Malaria,2,5,women_folate,Sierra Leone,NA,NA,NA
-0.7388397318454364,0.14391667173967235,Reproductive Health,2,5,women_folate,Sierra Leone,NA,NA,NA
+0.666671383692299,0.14206727443754943,none,0,NA,child_vitA,Sierra Leone,NA,NA,NA
+0.664837404126454,0.14221133215902498,Agriculture,2,5,child_vitA,Sierra Leone,NA,NA,NA
+0.648611779356409,0.14403603196851986,Climate,4,5,child_vitA,Sierra Leone,NA,NA,NA
+0.6442475872413891,0.14447004802833463,Environment,12,5,child_vitA,Sierra Leone,NA,NA,NA
+0.6697053745790055,0.1422138092616551,Family Planning,1,5,child_vitA,Sierra Leone,NA,NA,NA
+0.6561316616194492,0.14311582144826618,Health and Development,7,5,child_vitA,Sierra Leone,NA,NA,NA
+0.6513627487051764,0.14355430938044586,Infectious Disease,1,5,child_vitA,Sierra Leone,NA,NA,NA
+0.6672119548297626,0.14205831859849186,Reproductive Health,1,5,child_vitA,Sierra Leone,NA,NA,NA
+0.6732804232804233,0.022685962871686356,none,0,NA,women_vitA,Sierra Leone,NA,NA,NA
+0.6732804232804233,0.022685962871686356,Agriculture,3,5,women_vitA,Sierra Leone,NA,NA,NA
+0.6732804232804233,0.022685962871686356,Climate,7,5,women_vitA,Sierra Leone,NA,NA,NA
+0.6732804232804233,0.022685962871686356,Environment,5,5,women_vitA,Sierra Leone,NA,NA,NA
+0.6712375073486184,0.022686356244391588,Food Security,3,5,women_vitA,Sierra Leone,NA,NA,NA
+0.6732804232804233,0.022685962871686356,Health and Development,7,5,women_vitA,Sierra Leone,NA,NA,NA
+0.6732804232804233,0.022685962871686356,Infrastructure,1,5,women_vitA,Sierra Leone,NA,NA,NA
+0.7669603867747973,0.05123375740841643,none,0,NA,child_iron,Sierra Leone,NA,NA,NA
+0.7676855895196506,0.05153896241433298,Agriculture,2,5,child_iron,Sierra Leone,NA,NA,NA
+0.7669603867747973,0.05123375740841643,Child Health,1,5,child_iron,Sierra Leone,NA,NA,NA
+0.7669603867747973,0.05123375740841643,Child Nutrition,2,5,child_iron,Sierra Leone,NA,NA,NA
+0.7202744853399875,0.05171155094742224,Climate,17,5,child_iron,Sierra Leone,NA,NA,NA
+0.7216391141609482,0.05173755957957172,Environment,28,5,child_iron,Sierra Leone,NA,NA,NA
+0.7669603867747973,0.05123375740841643,Food Security,2,5,child_iron,Sierra Leone,NA,NA,NA
+0.7669603867747973,0.05123375740841643,Health and Development,8,5,child_iron,Sierra Leone,NA,NA,NA
+0.7669603867747973,0.05123375740841643,Infectious Disease,2,5,child_iron,Sierra Leone,NA,NA,NA
+0.7515127885215221,0.05159414202279367,Infrastructure,2,5,child_iron,Sierra Leone,NA,NA,NA
+0.7669603867747973,0.05123375740841643,Malaria,1,5,child_iron,Sierra Leone,NA,NA,NA
+0.7669603867747973,0.05123375740841643,Reproductive Health,2,5,child_iron,Sierra Leone,NA,NA,NA
+0.719979285951576,0.07973287577116434,none,0,NA,women_iron,Sierra Leone,NA,NA,NA
+0.7203877044535204,0.07972370133626991,Child Health,2,5,women_iron,Sierra Leone,NA,NA,NA
+0.7213960486975554,0.07970929942869463,Child Nutrition,2,5,women_iron,Sierra Leone,NA,NA,NA
+0.6750923338479276,0.08223171983033126,Climate,22,5,women_iron,Sierra Leone,NA,NA,NA
+0.7026869638285814,0.08140852824192858,Environment,30,5,women_iron,Sierra Leone,NA,NA,NA
+0.719979285951576,0.07973287577116434,Food Security,1,5,women_iron,Sierra Leone,NA,NA,NA
+0.7193832685205088,0.07979947208580974,Health and Development,15,5,women_iron,Sierra Leone,NA,NA,NA
+0.7035292048541223,0.08090273530893621,Infectious Disease,2,5,women_iron,Sierra Leone,NA,NA,NA
+0.720628065581459,0.07982368971733314,Malaria,1,5,women_iron,Sierra Leone,NA,NA,NA
+0.719979285951576,0.07973287577116434,Reproductive Health,1,5,women_iron,Sierra Leone,NA,NA,NA
+0.7109687291805463,0.14858624327898884,none,0,NA,women_folate,Sierra Leone,NA,NA,NA
+0.6549362924716855,0.1554734064280176,Agriculture,1,5,women_folate,Sierra Leone,NA,NA,NA
+0.7109687291805463,0.14858624327898884,Child Health,2,5,women_folate,Sierra Leone,NA,NA,NA
+0.7109687291805463,0.14858624327898884,Child Nutrition,1,5,women_folate,Sierra Leone,NA,NA,NA
+0.6726827948034644,0.1550071202890734,Climate,17,5,women_folate,Sierra Leone,NA,NA,NA
+0.7107324283810793,0.14860835332471484,Environment,19,5,women_folate,Sierra Leone,NA,NA,NA
+0.7011606845436376,0.1498303556052397,Food Security,2,5,women_folate,Sierra Leone,NA,NA,NA
+0.7109687291805463,0.14858624327898884,Health and Development,10,5,women_folate,Sierra Leone,NA,NA,NA
+0.7072305962691539,0.14946180906530854,Infectious Disease,4,5,women_folate,Sierra Leone,NA,NA,NA
+0.7001540639573618,0.1499981770401125,Infrastructure,2,5,women_folate,Sierra Leone,NA,NA,NA
+0.7109687291805463,0.14858624327898884,Malaria,2,5,women_folate,Sierra Leone,NA,NA,NA
+0.7109687291805463,0.14858624327898884,Reproductive Health,2,5,women_folate,Sierra Leone,NA,NA,NA
 0.5,0.005181206597222223,none,0,NA,women_b12,Sierra Leone,NA,NA,NA
 0.5,0.005181206597222223,Agriculture,1,5,women_b12,Sierra Leone,NA,NA,NA
 0.5,0.005181206597222223,Climate,6,5,women_b12,Sierra Leone,NA,NA,NA

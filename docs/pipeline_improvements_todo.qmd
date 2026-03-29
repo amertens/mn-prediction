@@ -465,3 +465,4 @@ Create a Docker container with all R packages, GADM cache, and external predicto
 | P3 | Learners | Spatial SuperLearner | 16+ hours |
 | P3 | CIs | Spatial conformal prediction | 8 hours |
 | P3 | OOS | Temporal extrapolation | 16+ hours |
+| P1 | Data Quality | Deduplicate `.x`/`.y` columns from merge joins in `R/merge_external.R` — DHS Admin-2 indicators appear twice (e.g., `dhs2014_c_overweight_adm2.x` and `.y`), inflating predictor count and creating "Unknown" domain in conceptual ablation. Investigate which merge produces duplicates and keep only one copy. | 2 hours |

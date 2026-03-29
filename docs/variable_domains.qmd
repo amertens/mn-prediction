@@ -1,6 +1,6 @@
 ---
 title: "Predictor Variable Conceptual Domains"
-subtitle: "Classification of ~2,500 predictors into thematic categories"
+subtitle: "Classification of ~900--1,100 proxy predictors into thematic categories"
 format:
   html:
     toc: true
@@ -24,8 +24,8 @@ library(here)
 
 # ── Results source toggle ──────────────────────────────────────────────────
 # Switch between fast and full results:
-TARGETS_STORE <- here("_targets")
-# TARGETS_STORE <- here("_targets_full")  # uncomment for full results
+# TARGETS_STORE <- here("_targets")        # fast-mode results
+TARGETS_STORE <- here("_targets_full")      # full-mode results
 
 source(here("R", "conceptual_ablation.R"))
 mapping <- load_conceptual_domains()
@@ -33,7 +33,7 @@ mapping <- load_conceptual_domains()
 
 ## Overview
 
-The micronutrient prediction models draw on **10 data sources** containing over **2,500 candidate predictor variables**. These variables span diverse domains — from satellite-derived soil chemistry to household survey responses about breastfeeding practices. Understanding *what* the model uses, and *which thematic areas contribute most*, is critical for interpretability and policy relevance.
+The micronutrient prediction models draw on **13+ data sources** containing **~900--1,100 proxy predictor variables** (after excluding same-survey variables to prevent leakage). These variables span diverse domains — from satellite-derived soil chemistry to household survey responses about breastfeeding practices. Understanding *what* the model uses, and *which thematic areas contribute most*, is critical for interpretability and policy relevance.
 
 This document classifies every predictor variable into a **two-level conceptual hierarchy**:
 
@@ -123,8 +123,8 @@ The following shows the actual variable classification applied to the Ghana chil
 # Try to load the Ghana child_iron model Xvars
 sl_fit <- tryCatch(tar_read(sl_fit_ghana_child_iron, store = TARGETS_STORE), error = function(e) NULL)
 
-if (!is.null(sl_fit) && !is.null(sl_fit$cont_fit)) {
-  xvars <- sl_fit$cont_fit$Xvars
+if (!is.null(sl_fit) && (!is.null(sl_fit$bin_fit) || !is.null(sl_fit$cont_fit))) {
+  xvars <- if (!is.null(sl_fit$bin_fit)) sl_fit$bin_fit$Xvars else sl_fit$cont_fit$Xvars
 
   l1_class <- classify_variables(xvars, mapping)
   l2_class <- classify_variables_l2(xvars, mapping)
@@ -172,8 +172,14 @@ if (!is.null(l1_class)) {
     if (grepl("^gee_", v))       return("GEE")
     if (grepl("^fsec_", v))      return("FSEC")
     if (grepl("^wfp_|^nearest_market", v)) return("WFP")
-    if (grepl("^flunet_", v))    return("FLUNET")
-    if (grepl("^lsms_", v))      return("LSMS")
+    if (grepl("^chirps_", v))    return("CHIRPS")
+    if (grepl("^worldpop_|^wp_", v)) return("WorldPop")
+    if (grepl("^ntl_|^viirs_", v)) return("VIIRS")
+    if (grepl("^soil_|^sg_", v)) return("SoilGrids")
+    if (grepl("^gdl_", v))       return("GDL")
+    if (grepl("^spam_|^hc_|^crop_", v)) return("HarvestChoice")
+    if (grepl("^acled_", v))     return("ACLED")
+    if (grepl("^ipc_", v))       return("IPC")
     if (grepl("^missing_", v))   return("DERIVED")
     return("Other")
   }
