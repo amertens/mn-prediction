@@ -1,105 +1,110 @@
 auc,brier,domain_removed,n_removed,n_perm_valid,outcome,country
-0.7005945945945946,0.15068675764256242,none,0,NA,child_vitA,Ghana
-0.5,0.25,Adult Nutrition,2,5,child_vitA,Ghana
-0.5,0.25,Child Health,7,5,child_vitA,Ghana
-0.5,0.25,Child Nutrition,10,5,child_vitA,Ghana
-0.5,0.25,Climate,18,5,child_vitA,Ghana
-0.5,0.25,Demographics,1,5,child_vitA,Ghana
-0.5,0.25,Environment,44,5,child_vitA,Ghana
-0.5,0.25,Family Planning,3,5,child_vitA,Ghana
-0.5,0.25,Food Security,11,5,child_vitA,Ghana
-0.5,0.25,Health and Development,5,5,child_vitA,Ghana
-0.5,0.25,HIV/AIDS,1,5,child_vitA,Ghana
-0.5,0.25,Household Characteristics,69,5,child_vitA,Ghana
-0.5,0.25,Infant and Child Mortality,1,5,child_vitA,Ghana
-0.5,0.25,Infectious Disease,11,5,child_vitA,Ghana
-0.5,0.25,Infrastructure,3,5,child_vitA,Ghana
-0.5,0.25,Livelihoods,1,5,child_vitA,Ghana
-0.5,0.25,Malaria,4,5,child_vitA,Ghana
-0.5,0.25,Reproductive Health,1,5,child_vitA,Ghana
-0.5,0.25,Survey Characteristics,2,5,child_vitA,Ghana
-0.5,0.25,Survey Indicators,2,5,child_vitA,Ghana
-0.5,0.25,Water and Sanitation,20,5,child_vitA,Ghana
-0.9110552368979336,0.012274857552223671,none,0,NA,women_vitA,Ghana
-0.5,0.25,Child Health,5,5,women_vitA,Ghana
-0.5,0.25,Child Nutrition,4,5,women_vitA,Ghana
-0.5,0.25,Climate,9,5,women_vitA,Ghana
-0.5,0.25,Environment,18,5,women_vitA,Ghana
-0.5,0.25,Family Planning,1,5,women_vitA,Ghana
-0.5,0.25,Food Security,7,5,women_vitA,Ghana
-0.5,0.25,Health and Development,8,5,women_vitA,Ghana
-0.5,0.25,Household Characteristics,33,5,women_vitA,Ghana
-0.5,0.25,Infant and Child Mortality,1,5,women_vitA,Ghana
-0.5,0.25,Infectious Disease,4,5,women_vitA,Ghana
-0.5,0.25,Infrastructure,1,5,women_vitA,Ghana
-0.5,0.25,Livelihoods,1,5,women_vitA,Ghana
-0.5,0.25,Malaria,1,5,women_vitA,Ghana
-0.5,0.25,Survey Characteristics,1,5,women_vitA,Ghana
-0.5,0.25,Survey Indicators,3,5,women_vitA,Ghana
-0.5,0.25,Water and Sanitation,12,5,women_vitA,Ghana
-0.8110920690770849,0.11685170564692471,none,0,NA,child_iron,Ghana
-0.8110920690770849,0.11685170564692471,Adult Nutrition,3,5,child_iron,Ghana
-0.8094328844131683,0.11802251418447364,Child Health,7,5,child_iron,Ghana
-0.8110920690770849,0.11685170564692471,Child Nutrition,9,5,child_iron,Ghana
-0.8110920690770849,0.11685170564692471,Climate,19,5,child_iron,Ghana
-0.8110920690770849,0.11685170564692471,Demographics,1,5,child_iron,Ghana
-0.8110920690770849,0.11685170564692471,Education,1,5,child_iron,Ghana
-0.7775550028310281,0.12357065550116726,Environment,50,5,child_iron,Ghana
-0.8110920690770849,0.11685170564692471,Family Planning,3,5,child_iron,Ghana
-0.8096891935614333,0.11743255620018131,Food Security,19,5,child_iron,Ghana
-0.8110920690770849,0.11685170564692471,Health and Development,11,5,child_iron,Ghana
-0.8110920690770849,0.11685170564692471,HIV/AIDS,1,5,child_iron,Ghana
-0.8110971244843485,0.11699190886200418,Household Characteristics,82,5,child_iron,Ghana
-0.8110920690770849,0.11685170564692471,Infant and Child Mortality,1,5,child_iron,Ghana
-0.8085931812666829,0.1174554566823816,Infectious Disease,15,5,child_iron,Ghana
-0.8110920690770849,0.11685170564692471,Infrastructure,3,5,child_iron,Ghana
-0.8080006875353879,0.11945046111384354,Livelihoods,1,5,child_iron,Ghana
-0.8110920690770849,0.11685170564692471,Malaria,4,5,child_iron,Ghana
-0.8110920690770849,0.11685170564692471,Reproductive Health,2,5,child_iron,Ghana
-0.810721002183936,0.11791860457799412,Survey Characteristics,3,5,child_iron,Ghana
-0.8110920690770849,0.11685170564692471,Survey Indicators,4,5,child_iron,Ghana
-0.8110920690770849,0.11685170564692471,Water and Sanitation,24,5,child_iron,Ghana
-0.7505702095687874,0.07226644072245536,none,0,NA,women_iron,Ghana
-0.5,0.25,Adult Nutrition,1,5,women_iron,Ghana
-0.5,0.25,Child Health,7,5,women_iron,Ghana
-0.5,0.25,Child Nutrition,5,5,women_iron,Ghana
-0.5,0.25,Climate,15,5,women_iron,Ghana
-0.5,0.25,Environment,35,5,women_iron,Ghana
-0.5,0.25,Family Planning,1,5,women_iron,Ghana
-0.5,0.25,Food Security,8,5,women_iron,Ghana
-0.5,0.25,Health and Development,4,5,women_iron,Ghana
-0.5,0.25,HIV/AIDS,1,5,women_iron,Ghana
-0.5,0.25,Household Characteristics,51,5,women_iron,Ghana
-0.5,0.25,Infant and Child Mortality,1,5,women_iron,Ghana
-0.5,0.25,Infectious Disease,10,5,women_iron,Ghana
-0.5,0.25,Infrastructure,4,5,women_iron,Ghana
-0.5,0.25,Livelihoods,1,5,women_iron,Ghana
-0.5,0.25,Malaria,2,5,women_iron,Ghana
-0.5,0.25,Survey Characteristics,1,5,women_iron,Ghana
-0.5,0.25,Survey Indicators,2,5,women_iron,Ghana
-0.5,0.25,Water and Sanitation,9,5,women_iron,Ghana
+0.6756172593286931,0.17866281372965534,none,0,NA,child_vitA,Gambia
+0.6764543985959593,0.17885777904602018,Child Health,1,5,child_vitA,Gambia
+0.6756172593286931,0.17866281372965534,Child Nutrition,2,5,child_vitA,Gambia
+0.6666709878143635,0.18065260765708968,Climate,14,5,child_vitA,Gambia
+0.6756172593286931,0.17866281372965534,Demographics,1,5,child_vitA,Gambia
+0.6731138190303344,0.179369904421428,Environment,29,5,child_vitA,Gambia
+0.6756172593286931,0.17866281372965534,Family Planning,1,5,child_vitA,Gambia
+0.6756172593286931,0.17866281372965534,Food Security,11,5,child_vitA,Gambia
+0.6756172593286931,0.17866281372965534,Household Characteristics,6,5,child_vitA,Gambia
+0.6648820326678766,0.1809074076954184,Infectious Disease,14,5,child_vitA,Gambia
+0.6736014439281227,0.17953796854524282,Infrastructure,1,5,child_vitA,Gambia
+0.6756172593286931,0.17866281372965534,Malaria,1,5,child_vitA,Gambia
+0.6756172593286931,0.17866281372965534,Survey Characteristics,4,5,child_vitA,Gambia
+0.6603682615025628,0.18111365709732408,Water and Sanitation,12,5,child_vitA,Gambia
+0.8117380431384807,0.0273756999452691,none,0,NA,women_vitA,Gambia
+0.8117380431384807,0.0273756999452691,Child Health,4,5,women_vitA,Gambia
+0.8117380431384807,0.0273756999452691,Child Nutrition,2,5,women_vitA,Gambia
+0.8071480671043034,0.02738969958526083,Climate,13,5,women_vitA,Gambia
+0.8117380431384807,0.0273756999452691,Demographics,1,5,women_vitA,Gambia
+0.8113229828765933,0.02737818825419718,Environment,29,5,women_vitA,Gambia
+0.8117380431384807,0.0273756999452691,Food Security,4,5,women_vitA,Gambia
+0.8117380431384807,0.0273756999452691,Household Characteristics,7,5,women_vitA,Gambia
+0.7853686916050154,0.027742601335191314,Infectious Disease,17,5,women_vitA,Gambia
+0.8081414330867285,0.02740547090908983,Infrastructure,1,5,women_vitA,Gambia
+0.8117380431384807,0.0273756999452691,Survey Characteristics,2,5,women_vitA,Gambia
+0.8117380431384807,0.0273756999452691,Water and Sanitation,11,5,women_vitA,Gambia
+0.647360944377751,0.22840174186290305,none,0,NA,child_iron,Gambia
+0.647360944377751,0.22840174186290305,Adult Nutrition,1,5,child_iron,Gambia
+0.6411644657863146,0.2295345557386489,Child Health,3,5,child_iron,Gambia
+0.647360944377751,0.22840174186290305,Child Nutrition,3,5,child_iron,Gambia
+0.6275582232893158,0.23213116686074547,Climate,12,5,child_iron,Gambia
+0.6431916766706682,0.22902308812543046,Environment,26,5,child_iron,Gambia
+0.6404653861544618,0.22961765560634811,Food Security,6,5,child_iron,Gambia
+0.6457294917967187,0.22870674699260055,Household Characteristics,4,5,child_iron,Gambia
+0.618921168467387,0.23321265189630047,Infectious Disease,14,5,child_iron,Gambia
+0.647360944377751,0.22840174186290305,Infrastructure,1,5,child_iron,Gambia
+0.647360944377751,0.22840174186290305,Malaria,1,5,child_iron,Gambia
+0.647360944377751,0.22840174186290305,Survey Characteristics,3,5,child_iron,Gambia
+0.6472933173269307,0.2284833703861946,Water and Sanitation,10,5,child_iron,Gambia
+0.6629409184145315,0.19936522946546462,none,0,NA,women_iron,Gambia
+0.6629409184145315,0.19936522946546462,Child Health,3,5,women_iron,Gambia
+0.6629409184145315,0.19936522946546462,Child Nutrition,2,5,women_iron,Gambia
+0.6568501677713093,0.2006447720668111,Climate,12,5,women_iron,Gambia
+0.6629409184145315,0.19936522946546462,Demographics,1,5,women_iron,Gambia
+0.6618351691348218,0.19952145912500416,Environment,29,5,women_iron,Gambia
+0.6578126889650348,0.20031631076975212,Food Security,15,5,women_iron,Gambia
+0.6553135485706832,0.20032603942949626,Household Characteristics,7,5,women_iron,Gambia
+0.6610116076404121,0.19947419080225062,Infectious Disease,16,5,women_iron,Gambia
+0.6629409184145315,0.19936522946546462,Infrastructure,1,5,women_iron,Gambia
+0.6629409184145315,0.19936522946546462,Malaria,1,5,women_iron,Gambia
+0.6629409184145315,0.19936522946546462,Survey Characteristics,3,5,women_iron,Gambia
+0.6577968010813247,0.19978021419648503,Water and Sanitation,11,5,women_iron,Gambia
+0.6723355855855856,0.1536911671485819,none,0,NA,child_vitA,Ghana
+0.6723355855855856,0.1536911671485819,Adult Nutrition,2,5,child_vitA,Ghana
+0.6723355855855856,0.1536911671485819,Child Health,7,5,child_vitA,Ghana
+0.6716644144144144,0.15380574608968983,Child Nutrition,10,5,child_vitA,Ghana
+0.6597594594594595,0.15499333357121045,Climate,18,5,child_vitA,Ghana
+0.6723355855855856,0.1536911671485819,Demographics,1,5,child_vitA,Ghana
+0.6571144144144144,0.15528676959145687,Environment,44,5,child_vitA,Ghana
+0.6723355855855856,0.1536911671485819,Family Planning,3,5,child_vitA,Ghana
+0.6723139639639639,0.15371552184749274,Food Security,11,5,child_vitA,Ghana
+0.6659063063063063,0.15436032720378837,Health and Development,5,5,child_vitA,Ghana
+0.6723355855855856,0.1536911671485819,HIV/AIDS,1,5,child_vitA,Ghana
+0.6665027027027027,0.1543110531842629,Household Characteristics,69,5,child_vitA,Ghana
+0.6723355855855856,0.1536911671485819,Infant and Child Mortality,1,5,child_vitA,Ghana
+0.6723355855855856,0.1536911671485819,Infectious Disease,11,5,child_vitA,Ghana
+0.6723355855855856,0.1536911671485819,Infrastructure,3,5,child_vitA,Ghana
+0.6723355855855856,0.1536911671485819,Livelihoods,1,5,child_vitA,Ghana
+0.6723355855855856,0.1536911671485819,Malaria,4,5,child_vitA,Ghana
+0.6723355855855856,0.1536911671485819,Reproductive Health,1,5,child_vitA,Ghana
+0.6723355855855856,0.1536911671485819,Survey Characteristics,2,5,child_vitA,Ghana
+0.6723355855855856,0.1536911671485819,Survey Indicators,2,5,child_vitA,Ghana
+0.6724103603603604,0.1537149736056511,Water and Sanitation,20,5,child_vitA,Ghana
+0.5,0.01293310191207076,none,0,NA,women_vitA,Ghana
+0.8243524023295317,0.11505137570443362,none,0,NA,child_iron,Ghana
+0.8238337175442854,0.11506450031221098,Adult Nutrition,3,5,child_iron,Ghana
+0.8206164563617245,0.11615301571795819,Child Health,7,5,child_iron,Ghana
+0.8233408153360835,0.11519760074434754,Child Nutrition,9,5,child_iron,Ghana
+0.8236436342311737,0.1152078289667816,Climate,19,5,child_iron,Ghana
+0.8243524023295317,0.11505137570443362,Demographics,1,5,child_iron,Ghana
+0.8243524023295317,0.11505137570443362,Education,1,5,child_iron,Ghana
+0.7833222114373534,0.1231768639335933,Environment,50,5,child_iron,Ghana
+0.8243524023295317,0.11505137570443362,Family Planning,3,5,child_iron,Ghana
+0.816618134756936,0.11661420138037835,Food Security,19,5,child_iron,Ghana
+0.8243524023295317,0.11505137570443362,Health and Development,11,5,child_iron,Ghana
+0.8243524023295317,0.11505137570443362,HIV/AIDS,1,5,child_iron,Ghana
+0.8242270282293941,0.11542321419190398,Household Characteristics,82,5,child_iron,Ghana
+0.8243524023295317,0.11505137570443362,Infant and Child Mortality,1,5,child_iron,Ghana
+0.817401217342069,0.1162109766784191,Infectious Disease,15,5,child_iron,Ghana
+0.8243524023295317,0.11505137570443362,Infrastructure,3,5,child_iron,Ghana
+0.8237361481840978,0.11551404180490189,Livelihoods,1,5,child_iron,Ghana
+0.8243524023295317,0.11505137570443362,Malaria,4,5,child_iron,Ghana
+0.8243524023295317,0.11505137570443362,Reproductive Health,2,5,child_iron,Ghana
+0.8248463156191863,0.11518515379541659,Survey Characteristics,3,5,child_iron,Ghana
+0.8243524023295317,0.11505137570443362,Survey Indicators,4,5,child_iron,Ghana
+0.824065760737685,0.11520182029989501,Water and Sanitation,24,5,child_iron,Ghana
+0.5,0.07744910693596269,none,0,NA,women_iron,Ghana
 0.5,0.14959186438381683,none,0,NA,child_vitA,Sierra Leone
-0.5,0.14959186438381683,Agriculture,2,5,child_vitA,Sierra Leone
-0.5,0.14959186438381683,Climate,4,5,child_vitA,Sierra Leone
-0.5,0.14959186438381683,Environment,12,5,child_vitA,Sierra Leone
-0.5,0.14959186438381683,Family Planning,1,5,child_vitA,Sierra Leone
-0.5,0.14959186438381683,Health and Development,7,5,child_vitA,Sierra Leone
-0.5,0.14959186438381683,Infectious Disease,1,5,child_vitA,Sierra Leone
-0.5,0.14959186438381683,Reproductive Health,1,5,child_vitA,Sierra Leone
 0.5,0.022714981070849107,none,0,NA,women_vitA,Sierra Leone
-0.5,0.022714981070849107,Agriculture,2,5,women_vitA,Sierra Leone
-0.5,0.022714981070849107,Climate,2,5,women_vitA,Sierra Leone
-0.5,0.022714981070849107,Environment,1,5,women_vitA,Sierra Leone
-0.5,0.022714981070849107,Food Security,2,5,women_vitA,Sierra Leone
-0.5,0.022714981070849107,Health and Development,2,5,women_vitA,Sierra Leone
-0.5,0.022714981070849107,Infrastructure,1,5,women_vitA,Sierra Leone
 0.7669603867747973,0.05123375740841643,none,0,NA,child_iron,Sierra Leone
 0.7649719276356831,0.05154500439703203,Agriculture,1,5,child_iron,Sierra Leone
 0.7669603867747973,0.05123375740841643,Child Health,1,5,child_iron,Sierra Leone
 0.7669603867747973,0.05123375740841643,Child Nutrition,1,5,child_iron,Sierra Leone
 0.7215689332501559,0.051843896772713484,Climate,11,5,child_iron,Sierra Leone
 0.7216391141609482,0.05173755957957171,Environment,14,5,child_iron,Sierra Leone
-0.7669603867747973,0.05123375740841643,Health and Development,7,5,child_iron,Sierra Leone
+0.7669603867747973,0.05123375740841643,Health and Development,6,5,child_iron,Sierra Leone
 0.7669603867747973,0.05123375740841643,Infectious Disease,1,5,child_iron,Sierra Leone
 0.7515127885215221,0.05159414202279367,Infrastructure,3,5,child_iron,Sierra Leone
 0.7669603867747973,0.05123375740841643,Reproductive Health,2,5,child_iron,Sierra Leone
@@ -117,47 +122,47 @@ auc,brier,domain_removed,n_removed,n_perm_valid,outcome,country
 0.6703641074171178,0.14958843424742135,Infrastructure,2,5,child_vitA,Malawi
 0.6703641074171178,0.14958843424742135,Livelihoods,1,5,child_vitA,Malawi
 0.6703641074171178,0.14958843424742135,Malaria,1,5,child_vitA,Malawi
-0.9290394638868206,0.01919303922719351,none,0,NA,women_vitA,Malawi
-0.5,0.25,Agriculture,2,5,women_vitA,Malawi
-0.5,0.25,Child Health,1,5,women_vitA,Malawi
-0.5,0.25,Child Nutrition,1,5,women_vitA,Malawi
-0.5,0.25,Climate,15,5,women_vitA,Malawi
-0.5,0.25,Demographics,1,5,women_vitA,Malawi
-0.5,0.25,Environment,31,5,women_vitA,Malawi
-0.5,0.25,Food Security,2,5,women_vitA,Malawi
-0.5,0.25,Health and Development,11,5,women_vitA,Malawi
-0.5,0.25,HIV/AIDS,1,5,women_vitA,Malawi
-0.5,0.25,Infant and Child Mortality,1,5,women_vitA,Malawi
-0.5,0.25,Infectious Disease,9,5,women_vitA,Malawi
-0.5,0.25,Infrastructure,3,5,women_vitA,Malawi
-0.5,0.25,Malaria,1,5,women_vitA,Malawi
-0.5,0.25,Reproductive Health,1,5,women_vitA,Malawi
-0.5,0.25,Water and Sanitation,1,5,women_vitA,Malawi
-0.5,0.08766851887839631,none,0,NA,child_iron,Malawi
-0.5,0.08766851887839631,Adult Nutrition,1,5,child_iron,Malawi
-0.5,0.08766851887839631,Child Nutrition,1,5,child_iron,Malawi
-0.5,0.08766851887839631,Climate,5,5,child_iron,Malawi
-0.5,0.08766851887839631,Demographics,1,5,child_iron,Malawi
-0.5,0.08766851887839631,Environment,23,5,child_iron,Malawi
-0.5,0.08766851887839631,Food Security,2,5,child_iron,Malawi
-0.5,0.08766851887839631,Health and Development,9,5,child_iron,Malawi
-0.5,0.08766851887839631,Infectious Disease,11,5,child_iron,Malawi
-0.5,0.08766851887839631,Infrastructure,1,5,child_iron,Malawi
-0.5,0.08766851887839631,Livelihoods,1,5,child_iron,Malawi
-0.5,0.08766851887839631,Reproductive Health,2,5,child_iron,Malawi
-0.5,0.08766851887839631,Water and Sanitation,2,5,child_iron,Malawi
-0.7351411145658934,0.08171283325027703,none,0,NA,women_iron,Malawi
-0.7324164872837439,0.08179798760943607,Adult Nutrition,2,5,women_iron,Malawi
-0.7351411145658934,0.08171283325027703,Agriculture,1,5,women_iron,Malawi
-0.7351411145658934,0.08171283325027703,Child Health,1,5,women_iron,Malawi
-0.7351411145658934,0.08171283325027703,Child Nutrition,1,5,women_iron,Malawi
-0.7322052140636212,0.08184432711034015,Climate,12,5,women_iron,Malawi
-0.7313023200191342,0.08192672569188983,Environment,25,5,women_iron,Malawi
-0.7351411145658934,0.08171283325027703,Family Planning,1,5,women_iron,Malawi
-0.7351411145658934,0.08171283325027703,Food Security,2,5,women_iron,Malawi
-0.710782906800606,0.0831435652106344,Health and Development,13,5,women_iron,Malawi
-0.7351411145658934,0.08171283325027703,HIV/AIDS,1,5,women_iron,Malawi
-0.7313501554651997,0.0821605407014772,Infectious Disease,15,5,women_iron,Malawi
-0.7351411145658934,0.08171283325027703,Livelihoods,1,5,women_iron,Malawi
-0.7312803954396875,0.08183332252033482,Malaria,1,5,women_iron,Malawi
-0.7315674081160807,0.08186683062334323,Water and Sanitation,1,5,women_iron,Malawi
+0.8916604616530156,0.01948373608183158,none,0,NA,women_vitA,Malawi
+0.8916604616530156,0.01948373608183158,Agriculture,2,5,women_vitA,Malawi
+0.8916604616530156,0.01948373608183158,Child Health,1,5,women_vitA,Malawi
+0.8916604616530156,0.01948373608183158,Child Nutrition,1,5,women_vitA,Malawi
+0.891734921816828,0.019495854335011636,Climate,15,5,women_vitA,Malawi
+0.8889203276247207,0.019637727208464174,Demographics,1,5,women_vitA,Malawi
+0.8627997021593448,0.02012151758239072,Environment,31,5,women_vitA,Malawi
+0.8858823529411765,0.019579960330588456,Food Security,2,5,women_vitA,Malawi
+0.8916604616530156,0.01948373608183158,Health and Development,10,5,women_vitA,Malawi
+0.8916604616530156,0.01948373608183158,HIV/AIDS,1,5,women_vitA,Malawi
+0.8916604616530156,0.01948373608183158,Infant and Child Mortality,1,5,women_vitA,Malawi
+0.8916604616530156,0.01948373608183158,Infectious Disease,9,5,women_vitA,Malawi
+0.8916604616530156,0.01948373608183158,Infrastructure,3,5,women_vitA,Malawi
+0.8916604616530156,0.01948373608183158,Malaria,1,5,women_vitA,Malawi
+0.8916604616530156,0.01948373608183158,Reproductive Health,1,5,women_vitA,Malawi
+0.8916604616530156,0.01948373608183158,Water and Sanitation,1,5,women_vitA,Malawi
+0.7037430141361011,0.0834536899648447,none,0,NA,child_iron,Malawi
+0.7037430141361011,0.0834536899648447,Adult Nutrition,1,5,child_iron,Malawi
+0.7037430141361011,0.0834536899648447,Child Nutrition,1,5,child_iron,Malawi
+0.7037430141361011,0.0834536899648447,Climate,5,5,child_iron,Malawi
+0.7037430141361011,0.0834536899648447,Demographics,1,5,child_iron,Malawi
+0.6402498473676794,0.08514481405704306,Environment,23,5,child_iron,Malawi
+0.7037430141361011,0.0834536899648447,Food Security,2,5,child_iron,Malawi
+0.6959207251209317,0.08405946249715299,Health and Development,8,5,child_iron,Malawi
+0.6863307190156389,0.08433130766131956,Infectious Disease,11,5,child_iron,Malawi
+0.7037430141361011,0.0834536899648447,Infrastructure,1,5,child_iron,Malawi
+0.7037430141361011,0.0834536899648447,Livelihoods,1,5,child_iron,Malawi
+0.7037430141361011,0.0834536899648447,Reproductive Health,2,5,child_iron,Malawi
+0.7037430141361011,0.0834536899648447,Water and Sanitation,2,5,child_iron,Malawi
+0.8004962927529299,0.07720661324831414,none,0,NA,women_iron,Malawi
+0.8002969783943236,0.07719588009696945,Adult Nutrition,2,5,women_iron,Malawi
+0.799998006856414,0.07722890847414794,Agriculture,1,5,women_iron,Malawi
+0.7999222674001435,0.07723463042658255,Child Health,1,5,women_iron,Malawi
+0.8005241967631348,0.07720239476575379,Child Nutrition,1,5,women_iron,Malawi
+0.7933130032687555,0.07837023289039247,Climate,12,5,women_iron,Malawi
+0.7781431874352228,0.07880861149623103,Environment,25,5,women_iron,Malawi
+0.8010165032288926,0.07718613161958825,Family Planning,1,5,women_iron,Malawi
+0.8004962927529299,0.07720661324831414,Food Security,2,5,women_iron,Malawi
+0.8007593877062904,0.07725461191112694,Health and Development,13,5,women_iron,Malawi
+0.8008949214701427,0.07727609500205203,HIV/AIDS,1,5,women_iron,Malawi
+0.778617555608706,0.08010610878937123,Infectious Disease,15,5,women_iron,Malawi
+0.8004962927529299,0.07720661324831414,Livelihoods,1,5,women_iron,Malawi
+0.8001953280714342,0.07728393089042318,Malaria,1,5,women_iron,Malawi
+0.800996571793032,0.07722789720007571,Water and Sanitation,1,5,women_iron,Malawi
