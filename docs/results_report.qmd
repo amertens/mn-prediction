@@ -41,6 +41,9 @@ library(patchwork)
 
 theme_set(theme_minimal(base_size = 13))
 
+# Global figure collector — stores all named plots for saving at end
+.figures <- list()
+
 # ── Results source ────────────────────────────────────────────────────────
 # Toggle which targets store to load results from:
 #   "_targets"      = fast-mode results (default, 3-learner SL stack, conformal CIs)
@@ -454,8 +457,40 @@ if (!is.null(cv_perf) && nrow(cv_perf) > 0) {
 
 ## Forest plots: Key metrics by outcome and country
 
+```{r compute-auc-cis}
+# Compute DeLong 95% CIs for ROC-AUC from CV predictions
+# This uses the stored Y and yhat_full from each SL fit
+auc_ci_rows <- list()
+for (ctry in countries) {
+  for (oc in outcomes) {
+    tname <- paste0("sl_fit_", ctry, "_", oc)
+    sl_obj <- load_target(tname)
+    if (is.null(sl_obj) || is.null(sl_obj$bin_fit)) next
+    bf <- sl_obj$bin_fit
+    Y <- as.numeric(bf$res$Y)
+    yhat <- as.numeric(bf$res$yhat_full)
+    if (length(unique(Y)) < 2 || all(is.na(yhat))) next
+
+    ci <- tryCatch({
+      roc_obj <- pROC::roc(Y, yhat, quiet = TRUE)
+      ci_obj <- pROC::ci.auc(roc_obj, method = "delong")
+      data.frame(
+        country  = country_labels[ctry],
+        outcome  = oc,
+        auc      = as.numeric(ci_obj)[2],
+        auc_lo   = as.numeric(ci_obj)[1],
+        auc_hi   = as.numeric(ci_obj)[3],
+        stringsAsFactors = FALSE
+      )
+    }, error = function(e) NULL)
+    if (!is.null(ci)) auc_ci_rows[[paste0(ctry, "_", oc)]] <- ci
+  }
+}
+auc_ci <- if (length(auc_ci_rows) > 0) dplyr::bind_rows(auc_ci_rows) else NULL
+```
+
 ```{r forest-auc, fig.height=7, fig.width=10}
-#| fig-cap: "ROC-AUC by outcome and country (binary models)"
+#| fig-cap: "ROC-AUC with 95% DeLong CIs by outcome and country (binary models)"
 
 if (!is.null(diagnostics_all) && !is.null(diagnostics_all$binary_metrics) &&
     nrow(diagnostics_all$binary_metrics) > 0) {
@@ -467,24 +502,41 @@ if (!is.null(diagnostics_all) && !is.null(diagnostics_all$binary_metrics) &&
       label = paste0(country, " (n=", n, ", prev=", round(prevalence*100, 1), "%)")
     )
 
+  # Merge DeLong CIs if available
+  if (!is.null(auc_ci)) {
+    bm <- bm |>
+      left_join(auc_ci |> select(country, outcome, auc_lo, auc_hi),
+                by = c("country", "outcome"))
+  }
+
   if (nrow(bm) > 0) {
-    ggplot(bm, aes(x = roc_auc, y = reorder(label, roc_auc))) +
+    p <- ggplot(bm, aes(x = roc_auc, y = reorder(label, roc_auc)))
+
+    if ("auc_lo" %in% colnames(bm) && any(!is.na(bm$auc_lo))) {
+      p <- p + geom_errorbarh(aes(xmin = auc_lo, xmax = auc_hi),
+                               height = 0.3, colour = "grey40", linewidth = 0.5)
+    }
+
+    p <- p +
       geom_vline(xintercept = 0.5, linetype = "dashed", colour = "grey60") +
       geom_point(aes(colour = country), size = 3) +
-      scale_x_continuous(limits = c(0.4, 1), breaks = seq(0.4, 1, 0.1)) +
+      scale_x_continuous(limits = c(0.3, 1), breaks = seq(0.3, 1, 0.1)) +
       scale_colour_brewer(palette = "Set2", guide = "none") +
       facet_wrap(~ outcome_label, scales = "free_y", ncol = 2) +
-      labs(x = "ROC-AUC", y = NULL,
+      labs(x = "ROC-AUC (95% DeLong CI)", y = NULL,
            title = "ROC-AUC by Country and Outcome",
-           subtitle = "Dashed line = chance level (0.5)") +
+           subtitle = "Error bars = 95% DeLong confidence intervals | Dashed line = chance (0.5)") +
       theme_minimal(base_size = 11) +
       theme(strip.text = element_text(face = "bold"))
+
+    .figures$forest_auc <<- p
+    print(p)
   }
 }
 ```
 
 ```{r forest-prauc, fig.height=7, fig.width=10}
-#| fig-cap: "PR-AUC by outcome and country (binary models). Dashed line = prevalence (no-skill baseline)."
+#| fig-cap: "PR-AUC by outcome and country (binary models). Cross = prevalence (no-skill baseline)."
 
 if (!is.null(diagnostics_all) && !is.null(diagnostics_all$binary_metrics) &&
     nrow(diagnostics_all$binary_metrics) > 0) {
@@ -497,7 +549,7 @@ if (!is.null(diagnostics_all) && !is.null(diagnostics_all$binary_metrics) &&
     )
 
   if (nrow(bm) > 0) {
-    ggplot(bm, aes(x = pr_auc, y = reorder(label, pr_auc))) +
+    p <- ggplot(bm, aes(x = pr_auc, y = reorder(label, pr_auc))) +
       geom_point(aes(colour = country, shape = "PR-AUC"), size = 3) +
       geom_point(aes(x = prevalence, shape = "Prevalence"), size = 2, colour = "grey50") +
       geom_segment(aes(x = prevalence, xend = pr_auc,
@@ -513,6 +565,9 @@ if (!is.null(diagnostics_all) && !is.null(diagnostics_all$binary_metrics) &&
       theme_minimal(base_size = 11) +
       theme(strip.text = element_text(face = "bold"),
             legend.position = "bottom")
+
+    .figures$forest_prauc <<- p
+    print(p)
   }
 }
 ```
@@ -531,7 +586,7 @@ if (!is.null(diagnostics_all) && !is.null(diagnostics_all$binary_metrics) &&
     )
 
   if (nrow(bm) > 0) {
-    ggplot(bm, aes(x = brier, y = reorder(label, -brier))) +
+    p <- ggplot(bm, aes(x = brier, y = reorder(label, -brier))) +
       geom_point(aes(colour = country), size = 3) +
       scale_colour_brewer(palette = "Set2", guide = "none") +
       scale_x_continuous(limits = c(0, NA)) +
@@ -541,6 +596,9 @@ if (!is.null(diagnostics_all) && !is.null(diagnostics_all$binary_metrics) &&
            subtitle = "Binary classification calibration. Lower indicates better-calibrated predictions.") +
       theme_minimal(base_size = 11) +
       theme(strip.text = element_text(face = "bold"))
+
+    .figures$forest_brier <<- p
+    print(p)
   }
 }
 ```
@@ -559,7 +617,7 @@ if (!is.null(diagnostics_all) && !is.null(diagnostics_all$continuous_metrics) &&
     )
 
   if (nrow(cm) > 0) {
-    ggplot(cm, aes(x = r2, y = reorder(label, r2))) +
+    p <- ggplot(cm, aes(x = r2, y = reorder(label, r2))) +
       geom_vline(xintercept = 0, linetype = "dashed", colour = "grey60") +
       geom_point(aes(colour = country), size = 3) +
       scale_colour_brewer(palette = "Set2", guide = "none") +
@@ -569,6 +627,9 @@ if (!is.null(diagnostics_all) && !is.null(diagnostics_all$continuous_metrics) &&
            subtitle = "Cross-validated. Higher = more individual-level variance explained.") +
       theme_minimal(base_size = 11) +
       theme(strip.text = element_text(face = "bold"))
+
+    .figures$forest_r2 <<- p
+    print(p)
   }
 }
 ```
@@ -2226,3 +2287,56 @@ The Cote d'Ivoire predictions represent **exploratory estimates** based on area-
 4. **Diverse predictor ensemble.** Combining 13+ external data sources --- DHS, MICS, GEE, IHME, MAP, WFP, FSEC, CHIRPS, WorldPop, VIIRS NTL, SoilGrids, GDL, and HarvestChoice --- creates a robust, multi-domain predictor set covering climate, population, agriculture, health, and socioeconomic dimensions.
 
 5. **Reproducible pipeline.** All results are generated from a `{targets}` pipeline with cached, dependency-tracked execution. Any result can be reproduced or updated by rerunning the relevant targets.
+
+
+```{r save-figures, include=FALSE}
+# Save all collected figures to an RDS file for use in presentations
+# Figures are stored as a named list of ggplot objects
+fig_dir <- here("results", "figures")
+dir.create(fig_dir, showWarnings = FALSE, recursive = TRUE)
+
+# Add national prevalence CI forest plot if available
+if (length(nat_list) > 0) {
+  nat_plot <- bind_rows(nat_list) |>
+    mutate(outcome_label = outcome_labels[outcome], ctry_label = country)
+
+  if (nrow(nat_plot) > 0 && all(c("ci_lo", "ci_hi", "boot_mean") %in% colnames(nat_plot))) {
+    .figures$national_ci_forest <- ggplot(nat_plot,
+        aes(y = ctry_label, x = boot_mean, xmin = ci_lo, xmax = ci_hi,
+            colour = ctry_label)) +
+      geom_pointrange(size = 0.8, linewidth = 0.6) +
+      scale_x_continuous(labels = percent_format(accuracy = 1)) +
+      scale_colour_brewer(palette = "Set2", guide = "none") +
+      facet_wrap(~ outcome_label, scales = "free_x", ncol = 2) +
+      labs(x = "Prevalence", y = NULL,
+           title = "National Prevalence with Conformal 95% Prediction Intervals") +
+      theme_minimal(base_size = 13) +
+      theme(strip.text = element_text(face = "bold"))
+  }
+}
+
+# Add AUC heatmap if available
+if (!is.null(cv_perf) && nrow(cv_perf) > 0 && "auc" %in% colnames(cv_perf)) {
+  cv_binary <- cv_perf |> filter(!is.na(auc)) |>
+    mutate(outcome_label = outcome_labels[outcome])
+  if (nrow(cv_binary) > 0) {
+    .figures$auc_heatmap <- ggplot(cv_binary,
+        aes(x = outcome_label, y = country, fill = auc)) +
+      geom_tile(colour = "white", linewidth = 1) +
+      geom_text(aes(label = sprintf("%.3f", auc)), size = 4, fontface = "bold") +
+      scale_fill_viridis_c(name = "AUC", limits = c(0.45, 0.95),
+                            option = "plasma", oob = scales::squish) +
+      labs(x = NULL, y = NULL, title = "Binary Classification AUC") +
+      theme_minimal(base_size = 13) +
+      theme(axis.text.x = element_text(angle = 25, hjust = 1),
+            panel.grid = element_blank())
+  }
+}
+
+# Save all figures
+if (length(.figures) > 0) {
+  saveRDS(.figures, file.path(fig_dir, "report_figures.rds"))
+  cat(sprintf("Saved %d figures to results/figures/report_figures.rds\n",
+              length(.figures)))
+}
+```
