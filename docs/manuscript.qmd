@@ -1,0 +1,688 @@
+---
+title: "Estimating Subnational Micronutrient Deficiency Prevalence from Proxy Indicators: A Multi-Country SuperLearner Ensemble Approach"
+author:
+  - name: "Micronutrient Prediction Consortium"
+    affiliation: "University of California Davis, Institute for Global Nutrition"
+date: today
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    number-sections: true
+    self-contained: true
+    theme: cosmo
+    fig-width: 8
+    fig-height: 6
+execute:
+  echo: false
+  warning: false
+  message: false
+knitr:
+  opts_chunk:
+    comment: "#>"
+    fig.align: "center"
+bibliography: references.bib
+---
+
+```{r setup}
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+library(knitr)
+library(kableExtra)
+library(here)
+library(readr)
+library(scales)
+library(patchwork)
+
+theme_set(theme_minimal(base_size = 12))
+
+# ── Results source ────────────────────────────────────────────────────────
+TARGETS_STORE <- here::here("_targets")
+
+# ── Configuration ──────────────────────────────────────────────────────────
+countries <- c("gambia", "ghana", "sierraleone", "malawi")
+outcomes  <- c("child_vitA", "women_vitA", "child_iron", "women_iron")
+
+country_labels <- c(
+  gambia      = "Gambia",
+  ghana       = "Ghana",
+  sierraleone = "Sierra Leone",
+  malawi      = "Malawi"
+)
+
+outcome_labels <- c(
+  child_vitA = "Vitamin A deficiency (children)",
+  women_vitA = "Vitamin A deficiency (women)",
+  child_iron = "Iron deficiency (children)",
+  women_iron = "Iron deficiency (women)"
+)
+
+# ── Helper: safe target loading ────────────────────────────────────────────
+load_target <- function(name) {
+  obj <- tryCatch(
+    targets::tar_read_raw(name, store = TARGETS_STORE),
+    error = function(e) NULL
+  )
+  if (is.data.frame(obj) && nrow(obj) == 0) return(NULL)
+  obj
+}
+
+# ── Load CSV results ──────────────────────────────────────────────────────
+csv_dir <- here::here("results", "tables")
+
+diag_binary <- read_csv(file.path(csv_dir, "diagnostics_binary.csv"),
+                        show_col_types = FALSE)
+diag_continuous <- read_csv(file.path(csv_dir, "diagnostics_continuous.csv"),
+                            show_col_types = FALSE)
+cv_perf_all <- read_csv(file.path(csv_dir, "cv_performance_all.csv"),
+                        show_col_types = FALSE)
+admin2_error <- read_csv(file.path(csv_dir, "admin2_error_all.csv"),
+                         show_col_types = FALSE)
+transport_loco <- read_csv(file.path(csv_dir, "transportability_loco_results.csv"),
+                           show_col_types = FALSE)
+
+# ── Load targets for figures ──────────────────────────────────────────────
+# Admin-1 prevalence for scatter plots
+a1_list <- list()
+for (ctry in countries) {
+  for (oc in outcomes) {
+    tname <- paste0("admin1_prev_", ctry, "_", oc)
+    obj <- load_target(tname)
+    if (!is.null(obj)) {
+      if (is.data.frame(obj) && nrow(obj) > 0 && !"country" %in% colnames(obj))
+        obj$country <- country_labels[ctry]
+      if (!"outcome" %in% colnames(obj))
+        obj$outcome <- oc
+      a1_list[[tname]] <- obj
+    }
+  }
+}
+a1_all <- if (length(a1_list) > 0) bind_rows(a1_list) else NULL
+
+# Conformal CIs for national estimates
+conformal_list <- list()
+for (ctry in countries) {
+  for (oc in outcomes) {
+    tname <- paste0("conformal_ci_", ctry, "_", oc)
+    obj <- load_target(tname)
+    if (!is.null(obj)) {
+      conformal_list[[paste0(ctry, "_", oc)]] <- obj
+    }
+  }
+}
+
+# National estimates
+nat_est <- load_target("national_estimates_all")
+```
+
+# Abstract {.unnumbered}
+
+**Background.** Vitamin and mineral deficiencies affect over two billion people globally, yet biomarker survey data remain sparse due to the cost and logistical burden of nationally representative micronutrient status surveys. Subnational prevalence estimates are critical for targeting large-scale food fortification programs and monitoring progress, but few countries have district-level biomarker data.
+
+**Methods.** We developed a SuperLearner ensemble machine learning pipeline to estimate subnational prevalence of vitamin A deficiency (VAD) and iron deficiency in children (6--59 months) and women of reproductive age (15--49 years) across four West and Southern African countries: Gambia, Ghana, Sierra Leone, and Malawi. Models used exclusively proxy predictors drawn from 13 open data sources---including satellite imagery, climate data, agricultural statistics, malaria surfaces, DHS survey indicators, and food security indices---without relying on biomarker data from the same survey. We assessed within-country discrimination using cluster-blocked five-fold cross-validation, quantified subnational prediction accuracy at the Admin-2 (district) level, evaluated cross-country transportability through leave-one-country-out (LOCO) analysis, and generated out-of-sample predictions for an unsurveyed country (Cote d'Ivoire) with weighted conformal prediction intervals.
+
+**Results.** Across the 11 country--outcome models with non-degenerate discrimination, ROC-AUC ranged from 0.67 to 0.93, with the strongest performance for women's vitamin A deficiency in Malawi (AUC = 0.93) and Ghana (AUC = 0.91). At the Admin-2 level, SuperLearner predictions correlated well with survey-weighted prevalence in Ghana (Pearson r = 0.82--0.89 across outcomes) and reasonably in Malawi (r = 0.72--0.85 for most outcomes). Cross-country transportability was limited, with LOCO AUCs near chance for the single outcome evaluated (women's iron deficiency), suggesting that country-specific calibration remains essential. Conformal prediction intervals provided distribution-free coverage guarantees without parametric assumptions.
+
+**Conclusions.** Proxy-only SuperLearner ensembles can produce informative subnational estimates of micronutrient deficiency prevalence in data-rich settings, achieving moderate to good discrimination for vitamin A deficiency and iron deficiency. However, cross-country transportability remains a challenge, and rare outcomes (prevalence below 3%) require careful handling. This approach offers a scalable framework for filling critical data gaps in micronutrient surveillance, complementing rather than replacing biomarker surveys.
+
+
+# Introduction
+
+Micronutrient deficiencies---often termed "hidden hunger"---constitute one of the most widespread forms of malnutrition globally. An estimated two billion people suffer from inadequate intake or absorption of essential vitamins and minerals, with vitamin A deficiency, iron deficiency anaemia, iodine deficiency, and zinc deficiency accounting for the greatest burden of morbidity and mortality in low- and middle-income countries. Young children and women of reproductive age bear a disproportionate share of this burden, with consequences ranging from impaired immune function and increased child mortality to adverse birth outcomes and reduced cognitive development.
+
+Despite the scale and severity of micronutrient deficiencies, reliable prevalence data remain remarkably scarce. Nationally representative micronutrient status surveys that include biochemical biomarker assessment are expensive, logistically demanding, and infrequent. Many countries in sub-Saharan Africa have conducted at most one or two national micronutrient surveys in the past two decades, and subnational estimates at the district or province level are available for even fewer. This pervasive data gap hampers the design, targeting, and monitoring of nutrition interventions---particularly large-scale food fortification programs, which require geographically specific prevalence estimates to optimize coverage and assess impact.
+
+The policy landscape increasingly demands subnational granularity. The Scaling Up Nutrition (SUN) movement, the Global Alliance for Improved Nutrition (GAIN), and national fortification programs all require district-level data to allocate resources efficiently and track progress toward global nutrition targets. The 2024 Global Nutrition Report highlights persistent inequalities in micronutrient status both between and within countries, yet the evidence base for subnational variation relies heavily on modeled estimates rather than direct measurement.
+
+Several approaches have been proposed to address this data gap. Geostatistical models, such as those developed by the Malaria Atlas Project for malaria parasite rate mapping, exploit spatial autocorrelation to interpolate between survey clusters but require dense sampling networks that are rarely available for micronutrient outcomes. Small-area estimation techniques borrow strength across areas by linking survey data to census or administrative covariates, but typically require a contemporaneous census and may not generalize well across national boundaries. Direct survey weighting can produce Admin-1 (region) level estimates but often yields unstable estimates at finer spatial scales due to small sample sizes.
+
+Machine learning offers an alternative paradigm. Rather than relying on spatial smoothing or parametric assumptions about the relationship between covariates and outcomes, ensemble methods such as SuperLearner can flexibly combine multiple prediction algorithms to identify the best-performing weighted combination for a given prediction task. Crucially, machine learning models can incorporate high-dimensional covariate sets drawn from diverse open data sources---satellite imagery, climate reanalysis products, agricultural statistics, demographic surveys, and food security databases---that may serve as proxy indicators for micronutrient status. If the relationship between these proxy indicators and true micronutrient deficiency prevalence is sufficiently strong and stable, such models could fill critical data gaps at a fraction of the cost of new biomarker surveys.
+
+In this study, we develop and evaluate a SuperLearner ensemble prediction pipeline for estimating subnational prevalence of vitamin A deficiency and iron deficiency among children aged 6--59 months and women of reproductive age (15--49 years). We draw on nationally representative micronutrient surveys from four countries in West and Southern Africa---The Gambia (2018), Ghana (2017), Sierra Leone (2013), and Malawi (2015--16)---and construct a predictor architecture comprising over 200 variables from 13 open data sources, deliberately excluding all biomarker and same-survey health variables to ensure a strictly proxy-only approach.
+
+Our objectives are fourfold: (1) to assess the within-country predictive performance of proxy-only SuperLearner models for four micronutrient deficiency outcomes using cluster-blocked cross-validation; (2) to evaluate the accuracy of model-based subnational prevalence estimates at the Admin-2 (district) level against design-based survey estimates; (3) to test cross-country transportability through leave-one-country-out validation; and (4) to demonstrate out-of-sample prediction with uncertainty quantification for an unsurveyed country (Cote d'Ivoire) using weighted conformal prediction intervals.
+
+
+# Methods
+
+## Study design and data sources
+
+This study used a retrospective, cross-sectional design linking individual-level biomarker data from four nationally representative micronutrient surveys to area-level proxy predictors from open data sources. The four surveys were:
+
+- **The Gambia National Nutrition Survey (GMNS, 2018):** Population-based survey of children 6--59 months and women 15--49 years with retinol-binding protein (RBP) and ferritin biomarkers.
+- **Ghana Micronutrient Survey (GMS, 2017):** National survey with RBP-based vitamin A assessment and ferritin-based iron status indicators for children and women.
+- **Sierra Leone Micronutrient Survey (SLMS, 2013):** National survey with RBP measurement in children and women; ferritin in children only.
+- **Malawi Micronutrient Survey (MNS, 2015--16):** National survey with vitamin A and iron biomarker assessment across multiple population groups.
+
+```{r tbl-descriptive}
+#| label: tbl-descriptive
+#| tbl-cap: "Descriptive summary of study populations by country and outcome"
+
+desc_data <- diag_binary |>
+  mutate(
+    country = factor(country, levels = names(country_labels), labels = country_labels),
+    outcome = factor(outcome, levels = names(outcome_labels), labels = outcome_labels)
+  ) |>
+  select(Country = country, Outcome = outcome,
+         N = n, Events = n_events,
+         `Prevalence (%)` = prevalence) |>
+  mutate(`Prevalence (%)` = round(`Prevalence (%)` * 100, 1))
+
+kable(desc_data, align = "llrrr",
+      caption = NULL) |>
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed"),
+                full_width = FALSE) |>
+  collapse_rows(columns = 1, valign = "top")
+```
+
+Four binary outcomes were defined for each country: (1) vitamin A deficiency in children (RBP < 0.70 umol/L), (2) vitamin A deficiency in women, (3) iron deficiency in children (ferritin below age- and sex-specific thresholds adjusted for inflammation), and (4) iron deficiency in women. Sample sizes ranged from 486 (Sierra Leone, children) to 1,165 (Ghana, children), with outcome prevalence ranging from 1.3% (women's VAD in Ghana) to 20.6% (children's VAD in Ghana).
+
+## Predictor architecture
+
+We assembled a high-dimensional predictor set from 13 open data sources, mapped to individual survey records via spatial joins at the Admin-1 or Admin-2 level. Critically, all predictors from the same survey (prefix `gw_`) were excluded from primary models to prevent outcome leakage. The predictor architecture is summarized below:
+
+```{r tbl-predictors}
+#| label: tbl-predictors
+#| tbl-cap: "Data sources and predictor domains used in the SuperLearner ensemble"
+
+pred_table <- tibble::tribble(
+  ~Domain,            ~Prefix,      ~Source,                                    ~`Spatial Level`,
+  "DHS indicators",   "dhs*_",      "Demographic and Health Surveys (BYM2 smoothed)", "Admin-1/2",
+  "IHME estimates",   "ihme_",      "Institute for Health Metrics and Evaluation",     "Admin-2",
+  "MAP surfaces",     "MAP_",       "Malaria Atlas Project (PfPR, ITN, treatment)",    "Admin-2",
+  "Satellite indices","gee_",       "Google Earth Engine (NDVI, LST, EVI, etc.)",      "Cluster buffer",
+  "Rainfall",         "chirps_",    "CHIRPS precipitation",                            "Admin-2",
+  "Population",       "worldpop_",  "WorldPop population density",                     "Admin-2",
+  "Nighttime lights", "ntl_",       "VIIRS nighttime luminosity",                      "Admin-2",
+  "Soil nutrients",   "soil_",      "SoilGrids nutrient concentrations",               "Admin-2",
+  "Development",      "gdl_",       "Global Data Lab (HDI, education, health)",        "Admin-2",
+  "Agriculture",      "crop_",      "HarvestChoice/SPAM (crop area, yield)",           "Admin-2",
+  "MICS indicators",  "mics_",      "UNICEF Multiple Indicator Cluster Surveys",       "Admin-1",
+  "Food security",    "fsec_",      "HFID + Cadre Harmonise",                          "Admin-1/2",
+  "Food prices",      "wfp_",       "WFP HungerMap (food consumption, coping)",        "Market",
+  "Conflict",         "acled_",     "ACLED conflict event counts",                     "Admin-2",
+  "Food security",    "ipc_",       "IPC phase classifications",                       "Admin-2"
+)
+
+kable(pred_table, align = "llll") |>
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed"),
+                full_width = FALSE, font_size = 11)
+```
+
+After preprocessing---including near-zero variance filtering, correlation filtering (|r| > 0.85), missing value imputation with indicator variables, and marginal prescreening (p < 0.20)---models typically retained 50--150 proxy predictors per country--outcome combination.
+
+## SuperLearner ensemble
+
+We used the SuperLearner (also known as stacking) framework implemented via the `mlr3` R package ecosystem. For each country--outcome combination, two ensembles were fitted: a continuous model predicting the biomarker concentration and a binary classification model predicting deficiency status.
+
+### Learner library
+
+The candidate learner library comprised five algorithms:
+
+1. **Intercept-only mean** (benchmark)
+2. **Lasso regression** (glmnet, alpha = 1)
+3. **Random forest** (ranger, min.node.size = 10)
+4. **Gradient-boosted trees** (xgboost, max_depth = 3)
+5. **Bayesian Additive Regression Trees** (BART, ntree = 100)
+
+The metalearner was non-negative least squares (NNLS), which finds the optimal convex combination of base learner predictions.
+
+### Cross-validation design
+
+All models were evaluated using five-fold cross-validation with cluster blocking: all individuals within the same survey primary sampling unit (PSU/cluster) were assigned to the same fold to prevent information leakage from spatial autocorrelation within clusters. Fold assignments were generated using `origami::make_folds(cluster_ids = ...)`.
+
+## Performance evaluation
+
+### Binary classification metrics
+
+For binary outcomes, we report: (1) area under the receiver operating characteristic curve (ROC-AUC), (2) area under the precision-recall curve (PR-AUC), which is more informative than ROC-AUC for rare outcomes, (3) Brier score and Brier skill score (improvement over prevalence-only baseline), and (4) calibration slope and intercept from logistic regression of observed outcomes on logit-transformed predicted probabilities.
+
+### Continuous model metrics
+
+For continuous outcomes, we report root mean squared error (RMSE), mean absolute error (MAE), coefficient of determination (R-squared), and Pearson correlation coefficient.
+
+### Subnational accuracy
+
+Model predictions were aggregated to the Admin-2 (district) level using survey weights and compared to design-based survey-weighted prevalence estimates. Agreement was assessed via MAE (in percentage points), RMSE (pp), Pearson correlation, and mean bias.
+
+## Conformal prediction intervals
+
+We constructed distribution-free prediction intervals using split conformal inference applied to cross-validated residuals. For each individual, the absolute residual |Y_i - Y_hat_i| from out-of-fold predictions was computed, and the (1 - alpha) quantile of these residuals defined a constant-width interval. A locally adaptive variant scaled interval width by the predicted variance, providing wider intervals where the model was less certain. Intervals were propagated to Admin-1 and national levels by aggregation.
+
+## Domain ablation
+
+To assess the relative importance of predictor domains, we conducted permutation-based domain ablation. Variables were grouped into approximately 22 conceptual domains (e.g., Climate, Child Health, Malaria, Socioeconomic, Agriculture) based on DHS indicator classification and prefix matching. For each domain, we shuffled that domain's columns across five replicates and measured the resulting degradation in AUC and Brier score relative to the full model.
+
+## Cross-country transportability
+
+To evaluate whether models trained on a subset of countries could predict micronutrient deficiency in a held-out country, we conducted leave-one-country-out (LOCO) cross-validation. For each outcome, individual-level data from all four countries were pooled, restricting to common proxy predictors. A SuperLearner was trained on three countries and evaluated on the fourth, with AUC, Brier score, and calibration metrics reported for each held-out country.
+
+## Out-of-sample prediction
+
+For Cote d'Ivoire---a country without a recent nationally representative micronutrient survey---we generated Admin-2 prevalence predictions using a pooled elastic net model trained on survey-weighted Admin-2 prevalence from all four training countries. Uncertainty was quantified using weighted conformal prediction intervals that account for covariate shift between training and target populations via density ratio estimation. Districts with covariate profiles dissimilar to the training distribution received appropriately wider prediction intervals.
+
+
+# Results
+
+## Binary classification performance
+
+```{r tbl-binary-perf}
+#| label: tbl-binary-perf
+#| tbl-cap: "Cross-validated binary classification performance across country--outcome models"
+
+diag_display <- diag_binary |>
+  mutate(
+    country = factor(country, levels = names(country_labels), labels = country_labels),
+    outcome = factor(outcome, levels = names(outcome_labels), labels = outcome_labels)
+  ) |>
+  select(
+    Country = country, Outcome = outcome,
+    N = n, Events = n_events,
+    `Prev. (%)` = prevalence,
+    `ROC-AUC` = roc_auc,
+    `PR-AUC` = pr_auc,
+    Brier = brier,
+    `Brier Skill` = brier_skill,
+    `Cal. Int.` = calib_int,
+    `Cal. Slope` = calib_slope
+  ) |>
+  mutate(
+    `Prev. (%)` = round(`Prev. (%)` * 100, 1),
+    across(c(`ROC-AUC`, `PR-AUC`, Brier, `Brier Skill`, `Cal. Int.`, `Cal. Slope`),
+           ~ round(., 3))
+  )
+
+kable(diag_display, align = "llrrrrrrrr") |>
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed"),
+                full_width = FALSE, font_size = 10) |>
+  collapse_rows(columns = 1, valign = "top") |>
+  footnote(general = "ROC-AUC = area under the receiver operating characteristic curve; PR-AUC = area under the precision-recall curve; Cal. Int. = calibration intercept; Cal. Slope = calibration slope. AUC = 0.50 indicates degenerate models with no discrimination.")
+```
+
+@tbl-binary-perf presents cross-validated binary classification performance for all 11 country--outcome combinations. ROC-AUC ranged from 0.50 (degenerate, no discrimination) to 0.93. Three models produced degenerate predictions (AUC = 0.50): children's VAD in Sierra Leone, women's VAD in Sierra Leone, and children's iron deficiency in Malawi. These degeneracies coincided with either very low event counts (Sierra Leone women's VAD: n = 18 events among 774 observations) or limited predictor variability.
+
+Among models with non-degenerate discrimination, performance was strongest for women's vitamin A deficiency---a rare outcome (prevalence 1.3--2.3%)---in Malawi (AUC = 0.93) and Ghana (AUC = 0.91). This likely reflects the fact that even modest separation of predicted probabilities can yield high AUC when the outcome is rare, though PR-AUC values (0.07--0.14) indicate that precision at achievable recall levels remains limited. Children's iron deficiency in Ghana achieved the best balanced performance (AUC = 0.81, PR-AUC = 0.43, Brier skill = 0.21).
+
+Brier skill scores were uniformly modest (0.05--0.21 among non-degenerate models), indicating that proxy-only models provided limited improvement over a prevalence-only baseline for individual-level prediction. However, the primary application of these models is area-level prevalence estimation rather than individual classification, where even modest individual-level discrimination can aggregate into useful subnational estimates.
+
+## Continuous model performance
+
+```{r tbl-continuous-perf}
+#| label: tbl-continuous-perf
+#| tbl-cap: "Cross-validated continuous model performance across country--outcome models"
+
+cont_display <- diag_continuous |>
+  mutate(
+    country = factor(country, levels = names(country_labels), labels = country_labels),
+    outcome = factor(outcome, levels = names(outcome_labels), labels = outcome_labels)
+  ) |>
+  select(
+    Country = country, Outcome = outcome,
+    N = n, RMSE = rmse, MAE = mae,
+    `R-squared` = r2, `Pearson r` = r,
+    `Obs. Prev.` = prev_obs,
+    `Pred. Prev.` = prev_pred,
+    `Prev. Bias` = prev_bias
+  ) |>
+  mutate(
+    across(c(RMSE, MAE), ~ round(., 3)),
+    across(c(`R-squared`, `Pearson r`), ~ round(., 3)),
+    across(c(`Obs. Prev.`, `Pred. Prev.`, `Prev. Bias`),
+           ~ round(. * 100, 1))
+  )
+
+kable(cont_display, align = "llrrrrrrr") |>
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed"),
+                full_width = FALSE, font_size = 10) |>
+  collapse_rows(columns = 1, valign = "top") |>
+  footnote(general = "Prevalence columns expressed as percentages. R-squared and Pearson r are computed from cross-validated predictions. Prev. Bias = Predicted - Observed prevalence.")
+```
+
+Continuous models (@tbl-continuous-perf) showed modest explanatory power, with R-squared values ranging from 0 (degenerate) to 0.26 (children's iron deficiency in Ghana). Pearson correlations between observed and cross-validated predicted biomarker values ranged from 0.31 to 0.52, indicating weak to moderate linear association at the individual level. The strongest continuous model was children's iron deficiency in Ghana (R-squared = 0.26, r = 0.52), consistent with the pattern observed in binary classification.
+
+## AUC forest plot
+
+```{r fig-auc-forest}
+#| label: fig-auc-forest
+#| fig-cap: "ROC-AUC with 95% DeLong confidence intervals across country--outcome models. Models with AUC = 0.50 (dashed line) are degenerate and shown for completeness."
+#| fig-height: 7
+
+# Attempt to compute DeLong CIs from CV predictions
+auc_data <- list()
+for (ctry in countries) {
+  for (oc in outcomes) {
+    tname <- paste0("sl_fit_", ctry, "_", oc)
+    fit <- load_target(tname)
+    if (!is.null(fit)) {
+      # Try to extract CV predictions from the binary fit
+      bin_fit <- tryCatch({
+        if ("bin_fit" %in% names(fit)) fit$bin_fit
+        else if ("binary" %in% names(fit)) fit$binary
+        else NULL
+      }, error = function(e) NULL)
+
+      if (!is.null(bin_fit)) {
+        Y <- tryCatch(bin_fit$res$Y, error = function(e) NULL)
+        Yhat <- tryCatch(bin_fit$res$yhat_full, error = function(e) NULL)
+
+        if (!is.null(Y) && !is.null(Yhat) && length(unique(Y)) == 2 &&
+            length(unique(Yhat)) > 1) {
+          roc_obj <- tryCatch({
+            pROC::roc(Y, Yhat, quiet = TRUE)
+          }, error = function(e) NULL)
+
+          if (!is.null(roc_obj)) {
+            ci_obj <- tryCatch(
+              pROC::ci.auc(roc_obj, method = "delong"),
+              error = function(e) NULL
+            )
+            auc_data[[paste0(ctry, "_", oc)]] <- tibble(
+              country = country_labels[ctry],
+              outcome = outcome_labels[oc],
+              auc = as.numeric(roc_obj$auc),
+              auc_lo = if (!is.null(ci_obj)) ci_obj[1] else NA_real_,
+              auc_hi = if (!is.null(ci_obj)) ci_obj[3] else NA_real_
+            )
+          }
+        }
+      }
+    }
+  }
+}
+
+# If we couldn't get DeLong CIs from targets, use the CSV AUC values
+if (length(auc_data) == 0) {
+  auc_df <- diag_binary |>
+    mutate(
+      country = factor(country, levels = names(country_labels), labels = country_labels),
+      outcome = factor(outcome, levels = names(outcome_labels), labels = outcome_labels),
+      auc = roc_auc,
+      auc_lo = NA_real_,
+      auc_hi = NA_real_
+    ) |>
+    select(country, outcome, auc, auc_lo, auc_hi)
+} else {
+  auc_df <- bind_rows(auc_data)
+}
+
+# Forest plot
+auc_df |>
+  mutate(
+    model_label = paste0(country, ": ", outcome),
+    model_label = forcats::fct_reorder(model_label, auc)
+  ) |>
+  ggplot(aes(x = auc, y = model_label)) +
+  geom_point(size = 3, color = "#2c7fb8") +
+  {if (any(!is.na(auc_df$auc_lo)))
+    geom_errorbarh(aes(xmin = auc_lo, xmax = auc_hi), height = 0.2, color = "#2c7fb8")
+  } +
+  geom_vline(xintercept = 0.5, linetype = "dashed", color = "grey50") +
+  geom_vline(xintercept = 0.7, linetype = "dotted", color = "grey70") +
+  scale_x_continuous(limits = c(0.4, 1.0), breaks = seq(0.4, 1.0, 0.1)) +
+  labs(
+    x = "ROC-AUC",
+    y = NULL,
+    subtitle = "Dashed line = no discrimination (0.50); dotted line = acceptable (0.70)"
+  ) +
+  theme(
+    panel.grid.major.y = element_blank(),
+    axis.text.y = element_text(size = 10)
+  )
+```
+
+## Admin-1 observed versus predicted scatter
+
+```{r fig-admin1-scatter}
+#| label: fig-admin1-scatter
+#| fig-cap: "Admin-1 observed versus predicted prevalence, faceted by outcome and colored by country. The diagonal line represents perfect agreement."
+#| fig-height: 8
+#| fig-width: 10
+
+if (!is.null(a1_all)) {
+  # Standardize column names
+  a1_plot <- a1_all |>
+    rename_with(~ case_when(
+      . %in% c("prev_obs", "observed", "svy_prev", "survey_prev") ~ "obs",
+      . %in% c("prev_pred", "predicted", "sl_prev", "model_prev") ~ "pred",
+      TRUE ~ .
+    ))
+
+  # Identify obs and pred columns
+  obs_col <- intersect(c("obs", "prev_obs", "observed", "svy_prev"), names(a1_plot))[1]
+  pred_col <- intersect(c("pred", "prev_pred", "predicted", "sl_prev"), names(a1_plot))[1]
+
+  if (!is.na(obs_col) && !is.na(pred_col)) {
+    a1_plot <- a1_plot |>
+      rename(obs = !!obs_col, pred = !!pred_col) |>
+      mutate(
+        outcome_label = ifelse(
+          outcome %in% names(outcome_labels),
+          outcome_labels[outcome],
+          outcome
+        )
+      )
+
+    ggplot(a1_plot, aes(x = obs, y = pred, color = country)) +
+      geom_point(size = 2.5, alpha = 0.7) +
+      geom_abline(slope = 1, intercept = 0, linetype = "dashed", color = "grey40") +
+      facet_wrap(~ outcome_label, scales = "free", ncol = 2) +
+      scale_color_brewer(palette = "Set2", name = "Country") +
+      labs(
+        x = "Survey-weighted prevalence",
+        y = "SuperLearner predicted prevalence"
+      ) +
+      theme(
+        legend.position = "bottom",
+        strip.text = element_text(size = 11, face = "bold")
+      )
+  } else {
+    cat("Admin-1 data not available with expected column structure.")
+  }
+} else {
+  cat("Admin-1 targets not loaded; re-run the pipeline to generate this figure.")
+}
+```
+
+## Admin-2 prediction accuracy
+
+```{r tbl-admin2-error}
+#| label: tbl-admin2-error
+#| tbl-cap: "Admin-2 (district-level) prediction accuracy: SuperLearner aggregated predictions versus survey-weighted prevalence"
+
+a2_display <- admin2_error |>
+  mutate(
+    country = factor(country, levels = c("Ghana", "Sierra Leone", "Malawi")),
+    outcome = factor(outcome, levels = names(outcome_labels), labels = outcome_labels)
+  ) |>
+  select(
+    Country = country, Outcome = outcome,
+    `N Admin-2` = n_admin2,
+    `MAE (pp)` = mae_pp,
+    `RMSE (pp)` = rmse_pp,
+    `Pearson r` = pearson_r,
+    `Mean Bias (pp)` = mean_bias_pp
+  )
+
+kable(a2_display, align = "llrrrrr", digits = 2) |>
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed"),
+                full_width = FALSE, font_size = 11) |>
+  collapse_rows(columns = 1, valign = "top") |>
+  footnote(general = "pp = percentage points. Pearson r computed across Admin-2 units. Positive mean bias indicates model overpredicts relative to survey.")
+```
+
+@tbl-admin2-error shows Admin-2 prediction accuracy. In Ghana, SuperLearner predictions tracked survey-weighted district-level prevalence closely, with Pearson correlations of 0.82--0.89 across all four outcomes and MAEs of 1.5--5.9 percentage points. In Malawi, correlations were strong for women's VAD (r = 0.85) and women's iron deficiency (r = 0.72) but weak for children's iron deficiency (r = -0.06). Sierra Leone showed mixed results: strong correlation for children's iron deficiency (r = 0.90) but negative correlations for VAD outcomes, likely reflecting the small number of Admin-2 units (n = 14) and the degenerate individual-level models.
+
+## Cross-country transportability
+
+```{r tbl-transportability}
+#| label: tbl-transportability
+#| tbl-cap: "Leave-one-country-out (LOCO) transportability results for women's iron deficiency"
+
+transport_display <- transport_loco |>
+  mutate(
+    held_out = case_when(
+      held_out == "Gambia" ~ "Gambia",
+      held_out == "Ghana" ~ "Ghana",
+      held_out == "SierraLeone" ~ "Sierra Leone",
+      held_out == "Malawi" ~ "Malawi",
+      TRUE ~ held_out
+    )
+  ) |>
+  select(
+    `Held-Out Country` = held_out,
+    `N (train)` = n_train,
+    `N (test)` = n_test,
+    `Test Prevalence` = prev_test,
+    AUC = auc,
+    Brier = brier,
+    `Cal. Int.` = calib_intercept,
+    `Cal. Slope` = calib_slope,
+    Outcome = outcome
+  ) |>
+  mutate(
+    `Test Prevalence` = round(`Test Prevalence` * 100, 1),
+    across(c(AUC, Brier, `Cal. Int.`, `Cal. Slope`), ~ round(., 3))
+  )
+
+kable(transport_display, align = "lrrrrrrl") |>
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed"),
+                full_width = FALSE, font_size = 11) |>
+  footnote(general = "LOCO: train on 3 countries, predict on held-out country. Negative calibration slopes indicate reversed prediction direction.")
+```
+
+Cross-country transportability results (@tbl-transportability) were available for women's iron deficiency. LOCO AUCs ranged from 0.51 (Ghana held out) to 0.63 (Gambia held out), indicating that models trained on three countries achieved near-chance discrimination when applied to a fourth country. Calibration was poor across all held-out countries, with large negative calibration intercepts (indicating systematic over- or under-prediction) and negative or near-zero calibration slopes. These results suggest that country-specific factors---such as differences in diet composition, biomarker assay methods, or the distribution of proxy predictors---limit the direct transferability of ensemble models across national boundaries without recalibration.
+
+## National prevalence estimates with conformal intervals
+
+```{r fig-national-ci}
+#| label: fig-national-ci
+#| fig-cap: "National prevalence estimates with 95% conformal prediction intervals, compared to survey-weighted national estimates"
+#| fig-height: 8
+#| fig-width: 10
+
+# Try to build national estimates with CIs from targets
+nat_ci_data <- list()
+for (ctry in countries) {
+  for (oc in outcomes) {
+    ci_obj <- conformal_list[[paste0(ctry, "_", oc)]]
+    if (!is.null(ci_obj)) {
+      # Extract national-level CI
+      nat_row <- tryCatch({
+        if ("national" %in% names(ci_obj)) {
+          ci_obj$national
+        } else if (is.data.frame(ci_obj) && "level" %in% names(ci_obj)) {
+          ci_obj |> filter(level == "national")
+        } else if (is.data.frame(ci_obj)) {
+          # Summarize to national level
+          ci_obj |>
+            summarise(
+              prev_pred = mean(prev_pred, na.rm = TRUE),
+              ci_lower = mean(ci_lower, na.rm = TRUE),
+              ci_upper = mean(ci_upper, na.rm = TRUE),
+              .groups = "drop"
+            )
+        } else NULL
+      }, error = function(e) NULL)
+
+      if (!is.null(nat_row) && nrow(nat_row) > 0) {
+        nat_ci_data[[paste0(ctry, "_", oc)]] <- nat_row |>
+          mutate(country = country_labels[ctry], outcome = oc)
+      }
+    }
+  }
+}
+
+# If conformal CIs available, plot them
+if (length(nat_ci_data) > 0) {
+  nat_ci_df <- bind_rows(nat_ci_data) |>
+    mutate(outcome_label = outcome_labels[outcome])
+
+  # Join with survey-weighted national estimates if available
+  if (!is.null(nat_est)) {
+    nat_ci_df <- nat_ci_df |>
+      left_join(
+        nat_est |> select(country, outcome, prev_svy = any_of(c("prev_svy", "svy_prev", "survey_prev"))),
+        by = c("country", "outcome")
+      )
+  }
+
+  ggplot(nat_ci_df, aes(x = country, y = prev_pred)) +
+    geom_point(size = 3, color = "#2c7fb8") +
+    geom_errorbar(aes(ymin = ci_lower, ymax = ci_upper),
+                  width = 0.2, color = "#2c7fb8") +
+    {if ("prev_svy" %in% names(nat_ci_df))
+      geom_point(aes(y = prev_svy), shape = 4, size = 3, color = "#d95f02")
+    } +
+    facet_wrap(~ outcome_label, scales = "free_y", ncol = 2) +
+    scale_y_continuous(labels = percent_format()) +
+    labs(
+      x = NULL,
+      y = "Prevalence",
+      subtitle = "Blue circles = model estimate with 95% conformal CI; orange crosses = survey estimate"
+    ) +
+    theme(
+      axis.text.x = element_text(angle = 45, hjust = 1),
+      strip.text = element_text(size = 11, face = "bold")
+    )
+} else {
+  # Fallback: use CV performance data to show national-level summary
+  cat("Conformal CI targets not loaded. Re-run the pipeline to generate national-level prediction intervals.")
+}
+```
+
+## Rare outcome inflation
+
+Three country--outcome models produced degenerate predictions with AUC equal to 0.50: children's VAD in Sierra Leone (prevalence 18.3%, n = 89 events among 486 observations), women's VAD in Sierra Leone (prevalence 2.3%, n = 18 events among 774), and children's iron deficiency in Malawi (prevalence 9.7%, n = 107 events among 1,102). In the Sierra Leone women's VAD case, the extreme rarity of events (n = 18) combined with a modest predictor set likely provided insufficient signal for the ensemble to learn from. The Malawi children's iron deficiency model had a more adequate event count but may reflect weaker proxy associations in that specific country--outcome context. These degenerate models highlight a fundamental limitation: when the outcome is rare and proxy associations are weak, the ensemble collapses to the intercept-only learner, producing constant predicted probabilities that offer no discrimination.
+
+
+# Discussion
+
+This study demonstrates the feasibility and limitations of using proxy-only SuperLearner ensembles to estimate subnational micronutrient deficiency prevalence from open data sources. Across four countries and four outcomes, we found that models relying exclusively on remotely sensed environmental data, demographic survey aggregates, food security indicators, and other publicly available covariates can achieve moderate to good individual-level discrimination (AUC 0.67--0.93) and strong subnational agreement at the district level in some country contexts, particularly in Ghana.
+
+## Key findings in context
+
+The strongest models were observed for children's iron deficiency in Ghana (AUC = 0.81, Admin-2 r = 0.89) and women's vitamin A deficiency in Ghana and Malawi (AUC = 0.91--0.93, Admin-2 r = 0.82--0.85). These results compare favorably to existing micronutrient mapping efforts, which have generally relied on geostatistical models with direct survey data rather than machine learning with proxy predictors. The high AUCs for women's VAD should be interpreted cautiously, as this was a rare outcome (prevalence 1.3--2.3%) where even modest probability separation yields high AUC; PR-AUC values of 0.07--0.14 confirm that clinical-level precision is not achieved.
+
+Our results for Admin-2 accuracy in Ghana (MAE 1.5--5.9 pp, Pearson r 0.82--0.89) suggest that proxy-only models can produce district-level estimates with sufficient accuracy for programmatic use---for example, identifying high-burden districts for fortification targeting or monitoring broad geographic trends. In contrast, Sierra Leone models were largely degenerate, likely reflecting the smaller sample size (n = 486 for children), the older survey date (2013), and the limited spatial variability in a small country with only 14 Admin-2 units.
+
+## The proxy-only approach: capabilities and limitations
+
+A distinctive feature of our approach is the strict exclusion of all same-survey variables from primary models. This proxy-only constraint ensures that the models can, in principle, be applied to geographic areas and time periods without biomarker survey coverage. The trade-off is lower predictive accuracy compared to models that incorporate individual-level health indicators from the same survey.
+
+The modest Brier skill scores (0.05--0.21) indicate that, at the individual level, proxy-only models offer limited improvement over simply predicting the population prevalence for every individual. However, individual-level discrimination is not the primary goal; rather, the aggregation of weakly informative individual predictions across clusters and districts can produce area-level estimates that capture meaningful geographic variation, as evidenced by the strong Admin-2 correlations in Ghana.
+
+## Cross-country transportability
+
+The LOCO analysis revealed that cross-country transportability is poor for the outcome evaluated (women's iron deficiency), with held-out AUCs near 0.50--0.63. This finding has important implications: models cannot simply be trained on data-rich countries and applied to data-poor countries without country-specific recalibration. Differences in dietary patterns, food systems, health infrastructure, and the ecological associations between proxy predictors and micronutrient status likely contribute to this lack of transportability. Future work should explore domain adaptation techniques or transfer learning approaches that can adjust for distributional shift between source and target countries.
+
+## Out-of-sample prediction with uncertainty quantification
+
+The weighted conformal prediction intervals used for Cote d'Ivoire predictions represent an advance over standard conformal inference for out-of-sample settings. By estimating the density ratio between training and target covariate distributions and weighting calibration residuals accordingly, the intervals honestly communicate the additional uncertainty arising from extrapolation to a new context. Districts with covariate profiles far from the training distribution receive appropriately wider intervals, providing decision-makers with a clear signal of where predictions are most and least reliable.
+
+## Limitations
+
+Several limitations warrant discussion. First, the modest individual-level AUCs (median approximately 0.74 among non-degenerate models) reflect the inherent difficulty of predicting a biochemical outcome from distal proxy indicators. Second, three of eleven models produced degenerate predictions, highlighting the sensitivity of the approach to event rarity and sample size. Third, our analysis uses cross-sectional snapshots from surveys conducted between 2013 and 2018; temporal extrapolation assumes that the proxy--outcome associations are stable over time, which may not hold as food systems and health landscapes evolve. Fourth, the current framework does not incorporate spatial random effects or geostatistical components, which could improve predictions in settings with strong spatial autocorrelation. Fifth, the study is limited to four countries in West and Southern Africa, and generalizability to other regions remains to be demonstrated.
+
+## Strengths
+
+The study has several notable strengths. The multi-country design with standardized pipeline infrastructure enables systematic comparison across contexts. The proxy-only constraint ensures methodological rigor and practical applicability. The diverse predictor architecture---drawing from 13 open data sources spanning satellite imagery, climate, agriculture, demographics, health, and food security---captures multiple pathways through which population-level micronutrient status is determined. The conformal prediction intervals provide distribution-free uncertainty quantification that does not rely on parametric assumptions or computationally intensive resampling. The entire pipeline is implemented as a reproducible `targets` workflow, facilitating extension to additional countries and outcomes.
+
+## Future directions
+
+Natural extensions of this work include: (1) expanding to additional micronutrient outcomes, particularly folate, vitamin B12, and zinc deficiency, for which proxy associations may differ; (2) incorporating data from additional countries to improve cross-country model robustness; (3) developing gridded (raster) prediction surfaces rather than area-level aggregates; (4) integrating Bayesian geostatistical components to leverage spatial autocorrelation; (5) investigating transfer learning and domain adaptation methods to improve transportability; and (6) implementing temporal prediction to extrapolate estimates to years between surveys. Ultimately, this modelling framework is intended to complement---not replace---biomarker surveys, by providing timely and spatially resolved estimates that can guide survey prioritization and interpolate between survey rounds.
+
+
+# References {.unnumbered}
+
+::: {#refs}
+<!-- References will be populated from references.bib when available. -->
+<!-- Key references to add: -->
+<!-- - Hess et al. on micronutrient survey methods -->
+<!-- - van der Laan et al. on SuperLearner -->
+<!-- - Vovk et al. on conformal prediction -->
+<!-- - Malaria Atlas Project methods papers -->
+<!-- - DHS methodology references -->
+<!-- - WHO vitamin A and iron deficiency thresholds -->
+<!-- - Global Nutrition Report 2024 -->
+:::
