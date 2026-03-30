@@ -149,26 +149,33 @@ map_panel <- function(poly, data, fill_col, title, limits, join_col = "Admin1") 
 }
 
 
-# ── Shared legend as a standalone grob ───────────────────────────────────
-make_legend_bar <- function(limits, title = "Prevalence") {
-  # Create a dummy plot just to extract the legend
-  dummy_df <- data.frame(x = 1:2, y = 1:2, fill = limits)
-  p <- ggplot(dummy_df, aes(x, y, fill = fill)) +
-    geom_point() +
+# ── Shared legend as a standalone ggplot ──────────────────────────────────
+make_legend_plot <- function(limits, title = "Prevalence", palette = "plasma", direction = 1) {
+  dummy_df <- data.frame(x = seq(limits[1], limits[2], length.out = 100))
+  ggplot(dummy_df, aes(x = x, y = 1, fill = x)) +
+    geom_tile() +
     scale_fill_viridis_c(
       name = title,
       labels = percent_format(accuracy = 1),
       limits = limits,
-      option = "plasma"
+      option = palette,
+      direction = direction,
+      guide = guide_colorbar(
+        barwidth = 20, barheight = 0.6,
+        title.position = "top", title.hjust = 0.5
+      )
+    ) +
+    theme_void(base_size = 10) +
+    theme(
+      legend.position = "bottom",
+      legend.title = element_text(size = 10, face = "bold"),
+      legend.text = element_text(size = 8),
+      plot.margin = margin(0, 0, 0, 0)
     ) +
     guides(fill = guide_colorbar(
-      barwidth = 15, barheight = 0.8,
+      barwidth = 20, barheight = 0.6,
       title.position = "top", title.hjust = 0.5
-    )) +
-    theme(legend.position = "bottom",
-          legend.title = element_text(size = 10),
-          legend.text = element_text(size = 8))
-  cowplot::get_legend(p)
+    ))
 }
 
 
@@ -217,11 +224,11 @@ for (oc in outcomes) {
     )
 
   # Add shared legend
-  legend <- make_legend_bar(lims)
-  final <- cowplot::plot_grid(combined, legend, ncol = 1, rel_heights = c(1, 0.06))
+  legend_p <- make_legend_plot(lims)
+  final <- combined / legend_p + plot_layout(heights = c(1, 0.08))
 
   outfile <- file.path(fig_dir, paste0("admin1_maps_", oc, ".png"))
-  ggsave(outfile, final, width = min(n_panels * 2.5, 20), height = 5,
+  ggsave(outfile, final, width = min(n_panels * 2.5, 20), height = 5.5,
          dpi = 200, bg = "white")
   cat(sprintf("  Saved %s (%d panels)\n", basename(outfile), n_panels))
 }
@@ -267,11 +274,11 @@ for (oc in outcomes) {
       theme = theme(plot.title = element_text(size = 14, face = "bold", hjust = 0.5))
     )
 
-  legend <- make_legend_bar(lims)
-  final <- cowplot::plot_grid(combined, legend, ncol = 1, rel_heights = c(1, 0.06))
+  legend_p <- make_legend_plot(lims)
+  final <- combined / legend_p + plot_layout(heights = c(1, 0.08))
 
   outfile <- file.path(fig_dir, paste0("admin2_maps_", oc, ".png"))
-  ggsave(outfile, final, width = min(n_panels * 2.5, 20), height = 5,
+  ggsave(outfile, final, width = min(n_panels * 2.5, 20), height = 5.5,
          dpi = 200, bg = "white")
   cat(sprintf("  Saved %s (%d panels)\n", basename(outfile), n_panels))
 }
@@ -336,17 +343,8 @@ for (oc in outcomes) {
       theme = theme(plot.title = element_text(size = 14, face = "bold", hjust = 0.5))
     )
 
-  # Legend for CI width
-  dummy_df <- data.frame(x = 1:2, y = 1:2, fill = ci_lims)
-  p_leg <- ggplot(dummy_df, aes(x, y, fill = fill)) + geom_point() +
-    scale_fill_viridis_c(name = "CI Width", labels = percent_format(accuracy = 1),
-                          limits = ci_lims, option = "inferno", direction = -1) +
-    guides(fill = guide_colorbar(barwidth = 15, barheight = 0.8,
-                                  title.position = "top", title.hjust = 0.5)) +
-    theme(legend.position = "bottom", legend.title = element_text(size = 10))
-  legend <- cowplot::get_legend(p_leg)
-
-  final <- cowplot::plot_grid(combined, legend, ncol = 1, rel_heights = c(1, 0.08))
+  legend_p <- make_legend_plot(ci_lims, title = "CI Width", palette = "inferno", direction = -1)
+  final <- combined / legend_p + plot_layout(heights = c(1, 0.08))
 
   outfile <- file.path(fig_dir, paste0("admin1_ci_width_", oc, ".png"))
   ggsave(outfile, final, width = length(panels) * 3.5, height = 4.5,
