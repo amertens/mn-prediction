@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Micronutrient Prediction Project">
-<meta name="dcterms.date" content="2026-03-26">
+<meta name="dcterms.date" content="2026-03-30">
 
 <title>Methods Explanation: Micronutrient Deficiency Prediction Pipeline</title>
 <style>
@@ -3197,154 +3197,79 @@ window.Quarto = {
   <ul>
   <li><a href="#overview" id="toc-overview" class="nav-link active" data-scroll-target="#overview"><span class="header-section-number">1</span> Overview</a>
   <ul class="collapse">
-  <li><a href="#high-level-summary" id="toc-high-level-summary" class="nav-link" data-scroll-target="#high-level-summary"><span class="header-section-number">1.1</span> High-level summary</a></li>
-  <li><a href="#data-flow" id="toc-data-flow" class="nav-link" data-scroll-target="#data-flow"><span class="header-section-number">1.2</span> Data flow</a></li>
+  <li><a href="#countries-and-outcomes" id="toc-countries-and-outcomes" class="nav-link" data-scroll-target="#countries-and-outcomes"><span class="header-section-number">1.1</span> Countries and outcomes</a></li>
+  <li><a href="#pipeline-modes" id="toc-pipeline-modes" class="nav-link" data-scroll-target="#pipeline-modes"><span class="header-section-number">1.2</span> Pipeline modes</a></li>
+  <li><a href="#data-flow-diagram" id="toc-data-flow-diagram" class="nav-link" data-scroll-target="#data-flow-diagram"><span class="header-section-number">1.3</span> Data flow diagram</a></li>
   </ul></li>
-  <li><a href="#sec-outcome-data" id="toc-sec-outcome-data" class="nav-link" data-scroll-target="#sec-outcome-data"><span class="header-section-number">2</span> Step 1: Outcome Dataset Construction</a>
+  <li><a href="#sec-phase1" id="toc-sec-phase1" class="nav-link" data-scroll-target="#sec-phase1"><span class="header-section-number">2</span> Phase 1: Data Loading and Merging</a>
   <ul class="collapse">
-  <li><a href="#what-it-does" id="toc-what-it-does" class="nav-link" data-scroll-target="#what-it-does"><span class="header-section-number">2.1</span> What it does</a></li>
-  <li><a href="#detail" id="toc-detail" class="nav-link" data-scroll-target="#detail"><span class="header-section-number">2.2</span> Detail</a>
+  <li><a href="#step-1-load-raw-survey-data-merged_raw_country" id="toc-step-1-load-raw-survey-data-merged_raw_country" class="nav-link" data-scroll-target="#step-1-load-raw-survey-data-merged_raw_country"><span class="header-section-number">2.1</span> Step 1: Load raw survey data (<code>merged_raw_{country}</code>)</a></li>
+  <li><a href="#step-2-merge-food-security-data-merged_fsec_country" id="toc-step-2-merge-food-security-data-merged_fsec_country" class="nav-link" data-scroll-target="#step-2-merge-food-security-data-merged_fsec_country"><span class="header-section-number">2.2</span> Step 2: Merge food security data (<code>merged_fsec_{country}</code>)</a></li>
+  <li><a href="#step-3-merge-external-predictors-merged_country" id="toc-step-3-merge-external-predictors-merged_country" class="nav-link" data-scroll-target="#step-3-merge-external-predictors-merged_country"><span class="header-section-number">2.3</span> Step 3: Merge external predictors (<code>merged_{country}</code>)</a></li>
+  </ul></li>
+  <li><a href="#sec-phase2" id="toc-sec-phase2" class="nav-link" data-scroll-target="#sec-phase2"><span class="header-section-number">3</span> Phase 2: Dataset Construction</a>
   <ul class="collapse">
-  <li><a href="#population-filtering" id="toc-population-filtering" class="nav-link" data-scroll-target="#population-filtering"><span class="header-section-number">2.2.1</span> Population filtering</a></li>
-  <li><a href="#binary-outcome-recoding" id="toc-binary-outcome-recoding" class="nav-link" data-scroll-target="#binary-outcome-recoding"><span class="header-section-number">2.2.2</span> Binary outcome recoding</a></li>
-  <li><a href="#predictor-identification-by-domain" id="toc-predictor-identification-by-domain" class="nav-link" data-scroll-target="#predictor-identification-by-domain"><span class="header-section-number">2.2.3</span> Predictor identification by domain</a></li>
-  <li><a href="#leakage-prevention" id="toc-leakage-prevention" class="nav-link" data-scroll-target="#leakage-prevention"><span class="header-section-number">2.2.4</span> Leakage prevention</a></li>
-  <li><a href="#output" id="toc-output" class="nav-link" data-scroll-target="#output"><span class="header-section-number">2.2.5</span> Output</a></li>
-  </ul></li>
-  </ul></li>
-  <li><a href="#sec-sl-fit" id="toc-sec-sl-fit" class="nav-link" data-scroll-target="#sec-sl-fit"><span class="header-section-number">3</span> Step 2: SuperLearner Model Fitting</a>
+  <li><a href="#step-4-build-outcome-dataset-outcome_data_country_outcome" id="toc-step-4-build-outcome-dataset-outcome_data_country_outcome" class="nav-link" data-scroll-target="#step-4-build-outcome-dataset-outcome_data_country_outcome"><span class="header-section-number">3.1</span> Step 4: Build outcome dataset (<code>outcome_data_{country}_{outcome}</code>)</a>
   <ul class="collapse">
-  <li><a href="#what-it-does-1" id="toc-what-it-does-1" class="nav-link" data-scroll-target="#what-it-does-1"><span class="header-section-number">3.1</span> What it does</a></li>
-  <li><a href="#detail-1" id="toc-detail-1" class="nav-link" data-scroll-target="#detail-1"><span class="header-section-number">3.2</span> Detail</a>
+  <li><a href="#population-filtering" id="toc-population-filtering" class="nav-link" data-scroll-target="#population-filtering"><span class="header-section-number">3.1.1</span> Population filtering</a></li>
+  <li><a href="#predictor-identification-by-domain-prefix" id="toc-predictor-identification-by-domain-prefix" class="nav-link" data-scroll-target="#predictor-identification-by-domain-prefix"><span class="header-section-number">3.1.2</span> Predictor identification by domain prefix</a></li>
+  <li><a href="#leakage-prevention" id="toc-leakage-prevention" class="nav-link" data-scroll-target="#leakage-prevention"><span class="header-section-number">3.1.3</span> Leakage prevention</a></li>
+  <li><a href="#output" id="toc-output" class="nav-link" data-scroll-target="#output"><span class="header-section-number">3.1.4</span> Output</a></li>
+  </ul></li>
+  </ul></li>
+  <li><a href="#sec-phase3" id="toc-sec-phase3" class="nav-link" data-scroll-target="#sec-phase3"><span class="header-section-number">4</span> Phase 3: Model Fitting</a>
   <ul class="collapse">
-  <li><a href="#preprocessing-pipeline" id="toc-preprocessing-pipeline" class="nav-link" data-scroll-target="#preprocessing-pipeline"><span class="header-section-number">3.2.1</span> Preprocessing pipeline</a></li>
-  <li><a href="#cross-validation-design" id="toc-cross-validation-design" class="nav-link" data-scroll-target="#cross-validation-design"><span class="header-section-number">3.2.2</span> Cross-validation design</a></li>
-  <li><a href="#learner-library" id="toc-learner-library" class="nav-link" data-scroll-target="#learner-library"><span class="header-section-number">3.2.3</span> Learner library</a></li>
-  <li><a href="#metalearner" id="toc-metalearner" class="nav-link" data-scroll-target="#metalearner"><span class="header-section-number">3.2.4</span> Metalearner</a></li>
-  <li><a href="#loss-functions" id="toc-loss-functions" class="nav-link" data-scroll-target="#loss-functions"><span class="header-section-number">3.2.5</span> Loss functions</a></li>
-  <li><a href="#output-1" id="toc-output-1" class="nav-link" data-scroll-target="#output-1"><span class="header-section-number">3.2.6</span> Output</a></li>
-  </ul></li>
-  </ul></li>
-  <li><a href="#sec-cv-perf" id="toc-sec-cv-perf" class="nav-link" data-scroll-target="#sec-cv-perf"><span class="header-section-number">4</span> Step 3: Cross-Validated Performance Metrics</a>
+  <li><a href="#step-5-fit-superlearner-sl_fit_country_outcome" id="toc-step-5-fit-superlearner-sl_fit_country_outcome" class="nav-link" data-scroll-target="#step-5-fit-superlearner-sl_fit_country_outcome"><span class="header-section-number">4.1</span> Step 5: Fit SuperLearner (<code>sl_fit_{country}_{outcome}</code>)</a>
   <ul class="collapse">
-  <li><a href="#what-it-does-2" id="toc-what-it-does-2" class="nav-link" data-scroll-target="#what-it-does-2"><span class="header-section-number">4.1</span> What it does</a></li>
-  <li><a href="#detail-2" id="toc-detail-2" class="nav-link" data-scroll-target="#detail-2"><span class="header-section-number">4.2</span> Detail</a>
+  <li><a href="#preprocessing-pipeline" id="toc-preprocessing-pipeline" class="nav-link" data-scroll-target="#preprocessing-pipeline"><span class="header-section-number">4.1.1</span> Preprocessing pipeline</a></li>
+  <li><a href="#cross-validation-design" id="toc-cross-validation-design" class="nav-link" data-scroll-target="#cross-validation-design"><span class="header-section-number">4.1.2</span> Cross-validation design</a></li>
+  <li><a href="#learner-library" id="toc-learner-library" class="nav-link" data-scroll-target="#learner-library"><span class="header-section-number">4.1.3</span> Learner library</a></li>
+  <li><a href="#metalearner" id="toc-metalearner" class="nav-link" data-scroll-target="#metalearner"><span class="header-section-number">4.1.4</span> Metalearner</a></li>
+  <li><a href="#output-1" id="toc-output-1" class="nav-link" data-scroll-target="#output-1"><span class="header-section-number">4.1.5</span> Output</a></li>
+  </ul></li>
+  </ul></li>
+  <li><a href="#sec-phase4" id="toc-sec-phase4" class="nav-link" data-scroll-target="#sec-phase4"><span class="header-section-number">5</span> Phase 4: Performance Evaluation</a>
   <ul class="collapse">
-  <li><a href="#continuous-model-metrics" id="toc-continuous-model-metrics" class="nav-link" data-scroll-target="#continuous-model-metrics"><span class="header-section-number">4.2.1</span> Continuous model metrics</a></li>
-  <li><a href="#binary-model-metrics" id="toc-binary-model-metrics" class="nav-link" data-scroll-target="#binary-model-metrics"><span class="header-section-number">4.2.2</span> Binary model metrics</a></li>
+  <li><a href="#step-6-cv-performance-metrics-cv_perf_country_outcome" id="toc-step-6-cv-performance-metrics-cv_perf_country_outcome" class="nav-link" data-scroll-target="#step-6-cv-performance-metrics-cv_perf_country_outcome"><span class="header-section-number">5.1</span> Step 6: CV performance metrics (<code>cv_perf_{country}_{outcome}</code>)</a></li>
+  <li><a href="#step-7-extended-diagnostics-diagnostics_country_outcome" id="toc-step-7-extended-diagnostics-diagnostics_country_outcome" class="nav-link" data-scroll-target="#step-7-extended-diagnostics-diagnostics_country_outcome"><span class="header-section-number">5.2</span> Step 7: Extended diagnostics (<code>diagnostics_{country}_{outcome}</code>)</a></li>
+  <li><a href="#step-8-national-estimates-national_est_country_outcome" id="toc-step-8-national-estimates-national_est_country_outcome" class="nav-link" data-scroll-target="#step-8-national-estimates-national_est_country_outcome"><span class="header-section-number">5.3</span> Step 8: National estimates (<code>national_est_{country}_{outcome}</code>)</a></li>
   </ul></li>
-  </ul></li>
-  <li><a href="#sec-admin1" id="toc-sec-admin1" class="nav-link" data-scroll-target="#sec-admin1"><span class="header-section-number">5</span> Step 4: Admin-1 Prevalence Aggregation</a>
+  <li><a href="#sec-phase5" id="toc-sec-phase5" class="nav-link" data-scroll-target="#sec-phase5"><span class="header-section-number">6</span> Phase 5: Spatial Predictions</a>
   <ul class="collapse">
-  <li><a href="#what-it-does-3" id="toc-what-it-does-3" class="nav-link" data-scroll-target="#what-it-does-3"><span class="header-section-number">5.1</span> What it does</a></li>
-  <li><a href="#detail-3" id="toc-detail-3" class="nav-link" data-scroll-target="#detail-3"><span class="header-section-number">5.2</span> Detail</a>
+  <li><a href="#step-9-admin-1-aggregation-admin1_prev_country_outcome" id="toc-step-9-admin-1-aggregation-admin1_prev_country_outcome" class="nav-link" data-scroll-target="#step-9-admin-1-aggregation-admin1_prev_country_outcome"><span class="header-section-number">6.1</span> Step 9: Admin-1 aggregation (<code>admin1_prev_{country}_{outcome}</code>)</a></li>
+  <li><a href="#step-10-admin-2-sl-aggregation-admin2_sl_country_outcome" id="toc-step-10-admin-2-sl-aggregation-admin2_sl_country_outcome" class="nav-link" data-scroll-target="#step-10-admin-2-sl-aggregation-admin2_sl_country_outcome"><span class="header-section-number">6.2</span> Step 10: Admin-2 SL aggregation (<code>admin2_sl_{country}_{outcome}</code>)</a></li>
+  <li><a href="#step-11-survey-admin-2-prevalence-svy_admin2_country_outcome" id="toc-step-11-survey-admin-2-prevalence-svy_admin2_country_outcome" class="nav-link" data-scroll-target="#step-11-survey-admin-2-prevalence-svy_admin2_country_outcome"><span class="header-section-number">6.3</span> Step 11: Survey Admin-2 prevalence (<code>svy_admin2_{country}_{outcome}</code>)</a></li>
+  <li><a href="#step-12-admin-2-error-evaluation-admin2_error_country_outcome" id="toc-step-12-admin-2-error-evaluation-admin2_error_country_outcome" class="nav-link" data-scroll-target="#step-12-admin-2-error-evaluation-admin2_error_country_outcome"><span class="header-section-number">6.4</span> Step 12: Admin-2 error evaluation (<code>admin2_error_{country}_{outcome}</code>)</a></li>
+  <li><a href="#step-13-area-level-model-area_model_country_outcome" id="toc-step-13-area-level-model-area_model_country_outcome" class="nav-link" data-scroll-target="#step-13-area-level-model-area_model_country_outcome"><span class="header-section-number">6.5</span> Step 13: Area-level model (<code>area_model_{country}_{outcome}</code>)</a></li>
+  </ul></li>
+  <li><a href="#sec-phase6" id="toc-sec-phase6" class="nav-link" data-scroll-target="#sec-phase6"><span class="header-section-number">7</span> Phase 6: Uncertainty Quantification</a>
   <ul class="collapse">
-  <li><a href="#method" id="toc-method" class="nav-link" data-scroll-target="#method"><span class="header-section-number">5.2.1</span> Method</a></li>
-  <li><a href="#assumptions" id="toc-assumptions" class="nav-link" data-scroll-target="#assumptions"><span class="header-section-number">5.2.2</span> Assumptions</a></li>
-  <li><a href="#observed-prevalence" id="toc-observed-prevalence" class="nav-link" data-scroll-target="#observed-prevalence"><span class="header-section-number">5.2.3</span> Observed prevalence</a></li>
+  <li><a href="#step-14-conformal-prediction-intervals-conformal_ci_country_outcome" id="toc-step-14-conformal-prediction-intervals-conformal_ci_country_outcome" class="nav-link" data-scroll-target="#step-14-conformal-prediction-intervals-conformal_ci_country_outcome"><span class="header-section-number">7.1</span> Step 14: Conformal prediction intervals (<code>conformal_ci_{country}_{outcome}</code>)</a></li>
   </ul></li>
-  </ul></li>
-  <li><a href="#sec-bootstrap" id="toc-sec-bootstrap" class="nav-link" data-scroll-target="#sec-bootstrap"><span class="header-section-number">6</span> Step 5: Bootstrap Confidence Intervals</a>
+  <li><a href="#sec-phase7" id="toc-sec-phase7" class="nav-link" data-scroll-target="#sec-phase7"><span class="header-section-number">8</span> Phase 7: Domain Ablation</a>
   <ul class="collapse">
-  <li><a href="#what-it-does-4" id="toc-what-it-does-4" class="nav-link" data-scroll-target="#what-it-does-4"><span class="header-section-number">6.1</span> What it does</a></li>
-  <li><a href="#detail-4" id="toc-detail-4" class="nav-link" data-scroll-target="#detail-4"><span class="header-section-number">6.2</span> Detail</a>
+  <li><a href="#step-15-permutation-domain-importance-ablation_country_outcome" id="toc-step-15-permutation-domain-importance-ablation_country_outcome" class="nav-link" data-scroll-target="#step-15-permutation-domain-importance-ablation_country_outcome"><span class="header-section-number">8.1</span> Step 15: Permutation domain importance (<code>ablation_{country}_{outcome}</code>)</a></li>
+  </ul></li>
+  <li><a href="#sec-phase8" id="toc-sec-phase8" class="nav-link" data-scroll-target="#sec-phase8"><span class="header-section-number">9</span> Phase 8: Cross-Country Transportability</a>
   <ul class="collapse">
-  <li><a href="#algorithm" id="toc-algorithm" class="nav-link" data-scroll-target="#algorithm"><span class="header-section-number">6.2.1</span> Algorithm</a></li>
-  <li><a href="#confidence-intervals" id="toc-confidence-intervals" class="nav-link" data-scroll-target="#confidence-intervals"><span class="header-section-number">6.2.2</span> Confidence intervals</a></li>
-  <li><a href="#parameters" id="toc-parameters" class="nav-link" data-scroll-target="#parameters"><span class="header-section-number">6.2.3</span> Parameters</a></li>
-  <li><a href="#why-cluster-level-resampling" id="toc-why-cluster-level-resampling" class="nav-link" data-scroll-target="#why-cluster-level-resampling"><span class="header-section-number">6.2.4</span> Why cluster-level resampling?</a></li>
-  <li><a href="#computational-cost" id="toc-computational-cost" class="nav-link" data-scroll-target="#computational-cost"><span class="header-section-number">6.2.5</span> Computational cost</a></li>
+  <li><a href="#step-16-pooled-datasets-pooled_outcome-pooled_gee_outcome" id="toc-step-16-pooled-datasets-pooled_outcome-pooled_gee_outcome" class="nav-link" data-scroll-target="#step-16-pooled-datasets-pooled_outcome-pooled_gee_outcome"><span class="header-section-number">9.1</span> Step 16: Pooled datasets (<code>pooled_{outcome}</code>, <code>pooled_gee_{outcome}</code>)</a></li>
+  <li><a href="#step-17-loco-cross-validation-loco_outcome-loco_gee_outcome" id="toc-step-17-loco-cross-validation-loco_outcome-loco_gee_outcome" class="nav-link" data-scroll-target="#step-17-loco-cross-validation-loco_outcome-loco_gee_outcome"><span class="header-section-number">9.2</span> Step 17: LOCO cross-validation (<code>loco_{outcome}</code>, <code>loco_gee_{outcome}</code>)</a></li>
+  <li><a href="#step-18-summaries-transportability_summary-transportability_gee_summary" id="toc-step-18-summaries-transportability_summary-transportability_gee_summary" class="nav-link" data-scroll-target="#step-18-summaries-transportability_summary-transportability_gee_summary"><span class="header-section-number">9.3</span> Step 18: Summaries (<code>transportability_summary</code>, <code>transportability_gee_summary</code>)</a></li>
   </ul></li>
-  </ul></li>
-  <li><a href="#sec-ablation" id="toc-sec-ablation" class="nav-link" data-scroll-target="#sec-ablation"><span class="header-section-number">7</span> Step 6: Domain Importance (Permutation-Based)</a>
+  <li><a href="#sec-phase9" id="toc-sec-phase9" class="nav-link" data-scroll-target="#sec-phase9"><span class="header-section-number">10</span> Phase 9: Out-of-Sample Prediction</a>
   <ul class="collapse">
-  <li><a href="#what-it-does-5" id="toc-what-it-does-5" class="nav-link" data-scroll-target="#what-it-does-5"><span class="header-section-number">7.1</span> What it does</a></li>
-  <li><a href="#detail-5" id="toc-detail-5" class="nav-link" data-scroll-target="#detail-5"><span class="header-section-number">7.2</span> Detail</a>
+  <li><a href="#step-19-oos-predictions-oos_civ_outcome" id="toc-step-19-oos-predictions-oos_civ_outcome" class="nav-link" data-scroll-target="#step-19-oos-predictions-oos_civ_outcome"><span class="header-section-number">10.1</span> Step 19: OOS predictions (<code>oos_civ_{outcome}</code>)</a>
   <ul class="collapse">
-  <li><a href="#algorithm-1" id="toc-algorithm-1" class="nav-link" data-scroll-target="#algorithm-1"><span class="header-section-number">7.2.1</span> Algorithm</a></li>
-  <li><a href="#why-permutation-rather-than-refitting" id="toc-why-permutation-rather-than-refitting" class="nav-link" data-scroll-target="#why-permutation-rather-than-refitting"><span class="header-section-number">7.2.2</span> Why permutation rather than refitting?</a></li>
-  <li><a href="#interpretation" id="toc-interpretation" class="nav-link" data-scroll-target="#interpretation"><span class="header-section-number">7.2.3</span> Interpretation</a></li>
-  <li><a href="#parameters-1" id="toc-parameters-1" class="nav-link" data-scroll-target="#parameters-1"><span class="header-section-number">7.2.4</span> Parameters</a></li>
-  <li><a href="#limitations" id="toc-limitations" class="nav-link" data-scroll-target="#limitations"><span class="header-section-number">7.2.5</span> Limitations</a></li>
-  <li><a href="#archived-alternative" id="toc-archived-alternative" class="nav-link" data-scroll-target="#archived-alternative"><span class="header-section-number">7.2.6</span> Archived alternative</a></li>
+  <li><a href="#weighted-conformal-cis-covariate-shift-adjustment" id="toc-weighted-conformal-cis-covariate-shift-adjustment" class="nav-link" data-scroll-target="#weighted-conformal-cis-covariate-shift-adjustment"><span class="header-section-number">10.1.1</span> Weighted conformal CIs (covariate-shift adjustment)</a></li>
   </ul></li>
-  <li><a href="#sec-conceptual-ablation" id="toc-sec-conceptual-ablation" class="nav-link" data-scroll-target="#sec-conceptual-ablation"><span class="header-section-number">7.3</span> Step 6b: Conceptual Domain Importance</a>
+  </ul></li>
+  <li><a href="#sec-phase10" id="toc-sec-phase10" class="nav-link" data-scroll-target="#sec-phase10"><span class="header-section-number">11</span> Phase 10: Summary and Reporting</a>
   <ul class="collapse">
-  <li><a href="#what-it-does-6" id="toc-what-it-does-6" class="nav-link" data-scroll-target="#what-it-does-6"><span class="header-section-number">7.3.1</span> What it does</a></li>
-  <li><a href="#classification" id="toc-classification" class="nav-link" data-scroll-target="#classification"><span class="header-section-number">7.3.2</span> Classification</a></li>
-  <li><a href="#two-complementary-analyses" id="toc-two-complementary-analyses" class="nav-link" data-scroll-target="#two-complementary-analyses"><span class="header-section-number">7.3.3</span> Two complementary analyses</a></li>
-  <li><a href="#parameters-2" id="toc-parameters-2" class="nav-link" data-scroll-target="#parameters-2"><span class="header-section-number">7.3.4</span> Parameters</a></li>
-  <li><a href="#output-2" id="toc-output-2" class="nav-link" data-scroll-target="#output-2"><span class="header-section-number">7.3.5</span> Output</a></li>
+  <li><a href="#step-20-aggregate-targets" id="toc-step-20-aggregate-targets" class="nav-link" data-scroll-target="#step-20-aggregate-targets"><span class="header-section-number">11.1</span> Step 20: Aggregate targets</a></li>
+  <li><a href="#step-21-save-tables-save_tables" id="toc-step-21-save-tables-save_tables" class="nav-link" data-scroll-target="#step-21-save-tables-save_tables"><span class="header-section-number">11.2</span> Step 21: Save tables (<code>save_tables</code>)</a></li>
+  <li><a href="#plot-targets-per-country-x-outcome-48-total" id="toc-plot-targets-per-country-x-outcome-48-total" class="nav-link" data-scroll-target="#plot-targets-per-country-x-outcome-48-total"><span class="header-section-number">11.3</span> Plot targets (per-country x outcome, 48 total)</a></li>
   </ul></li>
-  </ul></li>
-  <li><a href="#sec-admin2-sl" id="toc-sec-admin2-sl" class="nav-link" data-scroll-target="#sec-admin2-sl"><span class="header-section-number">8</span> Step 7: Admin-2 SL Aggregation</a>
-  <ul class="collapse">
-  <li><a href="#what-it-does-7" id="toc-what-it-does-7" class="nav-link" data-scroll-target="#what-it-does-7"><span class="header-section-number">8.1</span> What it does</a></li>
-  <li><a href="#detail-6" id="toc-detail-6" class="nav-link" data-scroll-target="#detail-6"><span class="header-section-number">8.2</span> Detail</a></li>
-  </ul></li>
-  <li><a href="#sec-svy-admin2" id="toc-sec-svy-admin2" class="nav-link" data-scroll-target="#sec-svy-admin2"><span class="header-section-number">9</span> Step 8: Survey-Weighted Admin-2 Prevalence</a>
-  <ul class="collapse">
-  <li><a href="#what-it-does-8" id="toc-what-it-does-8" class="nav-link" data-scroll-target="#what-it-does-8"><span class="header-section-number">9.1</span> What it does</a></li>
-  <li><a href="#detail-7" id="toc-detail-7" class="nav-link" data-scroll-target="#detail-7"><span class="header-section-number">9.2</span> Detail</a>
-  <ul class="collapse">
-  <li><a href="#method-1" id="toc-method-1" class="nav-link" data-scroll-target="#method-1"><span class="header-section-number">9.2.1</span> Method</a></li>
-  <li><a href="#survey-design-handling" id="toc-survey-design-handling" class="nav-link" data-scroll-target="#survey-design-handling"><span class="header-section-number">9.2.2</span> Survey design handling</a></li>
-  <li><a href="#output-includes" id="toc-output-includes" class="nav-link" data-scroll-target="#output-includes"><span class="header-section-number">9.2.3</span> Output includes</a></li>
-  </ul></li>
-  </ul></li>
-  <li><a href="#sec-admin2-error" id="toc-sec-admin2-error" class="nav-link" data-scroll-target="#sec-admin2-error"><span class="header-section-number">10</span> Step 9: Admin-2 Error Evaluation</a>
-  <ul class="collapse">
-  <li><a href="#what-it-does-9" id="toc-what-it-does-9" class="nav-link" data-scroll-target="#what-it-does-9"><span class="header-section-number">10.1</span> What it does</a></li>
-  <li><a href="#detail-8" id="toc-detail-8" class="nav-link" data-scroll-target="#detail-8"><span class="header-section-number">10.2</span> Detail</a>
-  <ul class="collapse">
-  <li><a href="#metrics-in-percentage-points" id="toc-metrics-in-percentage-points" class="nav-link" data-scroll-target="#metrics-in-percentage-points"><span class="header-section-number">10.2.1</span> Metrics (in percentage points)</a></li>
-  </ul></li>
-  </ul></li>
-  <li><a href="#sec-area-model" id="toc-sec-area-model" class="nav-link" data-scroll-target="#sec-area-model"><span class="header-section-number">11</span> Step 10: Area-Level Model</a>
-  <ul class="collapse">
-  <li><a href="#what-it-does-10" id="toc-what-it-does-10" class="nav-link" data-scroll-target="#what-it-does-10"><span class="header-section-number">11.1</span> What it does</a></li>
-  <li><a href="#detail-9" id="toc-detail-9" class="nav-link" data-scroll-target="#detail-9"><span class="header-section-number">11.2</span> Detail</a>
-  <ul class="collapse">
-  <li><a href="#motivation" id="toc-motivation" class="nav-link" data-scroll-target="#motivation"><span class="header-section-number">11.2.1</span> Motivation</a></li>
-  <li><a href="#algorithm-2" id="toc-algorithm-2" class="nav-link" data-scroll-target="#algorithm-2"><span class="header-section-number">11.2.2</span> Algorithm</a></li>
-  <li><a href="#gee-covariates" id="toc-gee-covariates" class="nav-link" data-scroll-target="#gee-covariates"><span class="header-section-number">11.2.3</span> GEE covariates</a></li>
-  <li><a href="#parameters-3" id="toc-parameters-3" class="nav-link" data-scroll-target="#parameters-3"><span class="header-section-number">11.2.4</span> Parameters</a></li>
-  <li><a href="#assumptions-1" id="toc-assumptions-1" class="nav-link" data-scroll-target="#assumptions-1"><span class="header-section-number">11.2.5</span> Assumptions</a></li>
-  </ul></li>
-  </ul></li>
-  <li><a href="#sec-plots" id="toc-sec-plots" class="nav-link" data-scroll-target="#sec-plots"><span class="header-section-number">12</span> Steps 11–13: Visualization</a>
-  <ul class="collapse">
-  <li><a href="#admin-1-scatter-plot-step-11" id="toc-admin-1-scatter-plot-step-11" class="nav-link" data-scroll-target="#admin-1-scatter-plot-step-11"><span class="header-section-number">12.1</span> Admin-1 scatter plot (Step 11)</a></li>
-  <li><a href="#admin-2-coverage-map-step-12" id="toc-admin-2-coverage-map-step-12" class="nav-link" data-scroll-target="#admin-2-coverage-map-step-12"><span class="header-section-number">12.2</span> Admin-2 coverage map (Step 12)</a></li>
-  <li><a href="#admin-2-forest-plot-step-13" id="toc-admin-2-forest-plot-step-13" class="nav-link" data-scroll-target="#admin-2-forest-plot-step-13"><span class="header-section-number">12.3</span> Admin-2 forest plot (Step 13)</a></li>
-  </ul></li>
-  <li><a href="#sec-diagnostics" id="toc-sec-diagnostics" class="nav-link" data-scroll-target="#sec-diagnostics"><span class="header-section-number">13</span> Step 14: Post-Hoc Diagnostics</a>
-  <ul class="collapse">
-  <li><a href="#what-it-does-11" id="toc-what-it-does-11" class="nav-link" data-scroll-target="#what-it-does-11"><span class="header-section-number">13.1</span> What it does</a></li>
-  <li><a href="#detail-10" id="toc-detail-10" class="nav-link" data-scroll-target="#detail-10"><span class="header-section-number">13.2</span> Detail</a>
-  <ul class="collapse">
-  <li><a href="#binary-model-diagnostics" id="toc-binary-model-diagnostics" class="nav-link" data-scroll-target="#binary-model-diagnostics"><span class="header-section-number">13.2.1</span> Binary model diagnostics</a></li>
-  <li><a href="#why-these-metrics-matter-for-rare-outcomes" id="toc-why-these-metrics-matter-for-rare-outcomes" class="nav-link" data-scroll-target="#why-these-metrics-matter-for-rare-outcomes"><span class="header-section-number">13.2.2</span> Why these metrics matter for rare outcomes</a></li>
-  <li><a href="#continuous-model-diagnostics" id="toc-continuous-model-diagnostics" class="nav-link" data-scroll-target="#continuous-model-diagnostics"><span class="header-section-number">13.2.3</span> Continuous model diagnostics</a></li>
-  </ul></li>
-  </ul></li>
-  <li><a href="#sec-transportability" id="toc-sec-transportability" class="nav-link" data-scroll-target="#sec-transportability"><span class="header-section-number">14</span> Cross-Country Transportability</a>
-  <ul class="collapse">
-  <li><a href="#what-it-does-12" id="toc-what-it-does-12" class="nav-link" data-scroll-target="#what-it-does-12"><span class="header-section-number">14.1</span> What it does</a></li>
-  <li><a href="#detail-11" id="toc-detail-11" class="nav-link" data-scroll-target="#detail-11"><span class="header-section-number">14.2</span> Detail</a>
-  <ul class="collapse">
-  <li><a href="#pooled-dataset-construction" id="toc-pooled-dataset-construction" class="nav-link" data-scroll-target="#pooled-dataset-construction"><span class="header-section-number">14.2.1</span> Pooled dataset construction</a></li>
-  <li><a href="#loco-cross-validation" id="toc-loco-cross-validation" class="nav-link" data-scroll-target="#loco-cross-validation"><span class="header-section-number">14.2.2</span> LOCO cross-validation</a></li>
-  <li><a href="#interpretation-1" id="toc-interpretation-1" class="nav-link" data-scroll-target="#interpretation-1"><span class="header-section-number">14.2.3</span> Interpretation</a></li>
-  </ul></li>
-  </ul></li>
-  <li><a href="#sec-config" id="toc-sec-config" class="nav-link" data-scroll-target="#sec-config"><span class="header-section-number">15</span> Configuration and Reproducibility</a>
-  <ul class="collapse">
-  <li><a href="#outcome-definitions" id="toc-outcome-definitions" class="nav-link" data-scroll-target="#outcome-definitions"><span class="header-section-number">15.1</span> Outcome definitions</a></li>
-  <li><a href="#pipeline-modes" id="toc-pipeline-modes" class="nav-link" data-scroll-target="#pipeline-modes"><span class="header-section-number">15.2</span> Pipeline modes</a></li>
-  <li><a href="#parallelization" id="toc-parallelization" class="nav-link" data-scroll-target="#parallelization"><span class="header-section-number">15.3</span> Parallelization</a></li>
-  <li><a href="#random-seed" id="toc-random-seed" class="nav-link" data-scroll-target="#random-seed"><span class="header-section-number">15.4</span> Random seed</a></li>
-  </ul></li>
+  <li><a href="#target-count-summary" id="toc-target-count-summary" class="nav-link" data-scroll-target="#target-count-summary"><span class="header-section-number">12</span> Target Count Summary</a></li>
   </ul>
 </nav>
 </div>
@@ -3370,7 +3295,7 @@ window.Quarto = {
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">March 26, 2026</p>
+      <p class="date">March 30, 2026</p>
     </div>
   </div>
   
@@ -3384,1056 +3309,35 @@ window.Quarto = {
 
 <section id="overview" class="level1" data-number="1">
 <h1 data-number="1"><span class="header-section-number">1</span> Overview</h1>
-<p>This document explains the analysis pipeline for predicting subnational micronutrient deficiency prevalence from proxy indicators. The pipeline is implemented as a <code>{targets}</code> directed acyclic graph (DAG) with <strong>~250 total targets</strong> across 4 countries (Gambia, Ghana, Sierra Leone, Malawi) and 4 outcomes, plus cross-country transportability targets.</p>
-<section id="high-level-summary" class="level2" data-number="1.1">
-<h2 data-number="1.1" class="anchored" data-anchor-id="high-level-summary"><span class="header-section-number">1.1</span> High-level summary</h2>
-<p>For each country <span class="math inline">\(\times\)</span> outcome combination (e.g., Gambia <span class="math inline">\(\times\)</span> child vitamin A deficiency), the pipeline executes 13 steps:</p>
-<table class="caption-top table">
-<colgroup>
-<col style="width: 18%">
-<col style="width: 25%">
-<col style="width: 28%">
-<col style="width: 28%">
-</colgroup>
-<thead>
-<tr class="header">
-<th>Step</th>
-<th>Target</th>
-<th>Purpose</th>
-<th>Expense</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td>1</td>
-<td><code>outcome_data</code></td>
-<td>Prepare analysis dataset</td>
-<td>Seconds</td>
-</tr>
-<tr class="even">
-<td>2</td>
-<td><code>sl_fit</code></td>
-<td>Fit SuperLearner ensemble</td>
-<td><strong>Minutes</strong></td>
-</tr>
-<tr class="odd">
-<td>3</td>
-<td><code>cv_perf</code></td>
-<td>Extract CV performance metrics</td>
-<td>Seconds</td>
-</tr>
-<tr class="even">
-<td>4</td>
-<td><code>admin1_prev</code></td>
-<td>Aggregate predictions to Admin-1</td>
-<td>Seconds</td>
-</tr>
-<tr class="odd">
-<td>5</td>
-<td><code>bootstrap_ci</code></td>
-<td>Bootstrap confidence intervals</td>
-<td><strong>Minutes–hours</strong></td>
-</tr>
-<tr class="even">
-<td>6</td>
-<td><code>ablation</code></td>
-<td>Domain importance via leave-one-out</td>
-<td><strong>Minutes</strong></td>
-</tr>
-<tr class="odd">
-<td>7</td>
-<td><code>admin2_sl</code></td>
-<td>Aggregate predictions to Admin-2</td>
-<td>Seconds</td>
-</tr>
-<tr class="even">
-<td>8</td>
-<td><code>svy_admin2</code></td>
-<td>Survey-weighted Admin-2 prevalence</td>
-<td>Seconds</td>
-</tr>
-<tr class="odd">
-<td>9</td>
-<td><code>admin2_error</code></td>
-<td>Compare SL vs survey at Admin-2</td>
-<td>Seconds</td>
-</tr>
-<tr class="even">
-<td>10</td>
-<td><code>area_model</code></td>
-<td>GEE-based area-level predictions</td>
-<td>Minutes</td>
-</tr>
-<tr class="odd">
-<td>11–13</td>
-<td><code>plot_*</code></td>
-<td>Scatter, coverage map, forest plot</td>
-<td>Seconds</td>
-</tr>
-<tr class="even">
-<td>14</td>
-<td><code>diagnostics</code></td>
-<td>Post-hoc PR-AUC, calibration, etc.</td>
-<td>Seconds</td>
-</tr>
-</tbody>
-</table>
-<p>Steps 2, 5, and 6 are computationally expensive (SuperLearner refitting). All other steps derive from cached model outputs.</p>
-</section>
-<section id="data-flow" class="level2" data-number="1.2">
-<h2 data-number="1.2" class="anchored" data-anchor-id="data-flow"><span class="header-section-number">1.2</span> Data flow</h2>
-<pre><code>merged_country_data
-  └─ build_outcome_dataset() ─── outcome_data
-       ├─ fit_sl_models() ─────── sl_fit
-       │    ├─ extract_cv_performance() ── cv_perf
-       │    ├─ aggregate_admin1() ──────── admin1_prev ── plot_admin1_scatter
-       │    ├─ run_bootstrap_ci() ──────── bootstrap_ci
-       │    ├─ run_domain_ablation() ───── ablation
-       │    ├─ aggregate_admin2_sl() ───── admin2_sl ── admin2_error
-       │    └─ run_diagnostics() ───────── diagnostics
-       ├─ compute_svy_admin2() ─── svy_admin2
-       │    ├─ admin2_error (joins with admin2_sl)
-       │    └─ fit_area_level_model() ── area_model
-       │         ├─ plot_admin2_coverage
-       │         └─ plot_admin2_forest</code></pre>
-</section>
-</section>
-<section id="sec-outcome-data" class="level1" data-number="2">
-<h1 data-number="2"><span class="header-section-number">2</span> Step 1: Outcome Dataset Construction</h1>
-<section id="what-it-does" class="level2" data-number="2.1">
-<h2 data-number="2.1" class="anchored" data-anchor-id="what-it-does"><span class="header-section-number">2.1</span> What it does</h2>
-<p>Filters the merged country dataset to a specific population and outcome, identifies predictor variables by data-source domain, and removes outcome-leakage columns.</p>
-</section>
-<section id="detail" class="level2" data-number="2.2">
-<h2 data-number="2.2" class="anchored" data-anchor-id="detail"><span class="header-section-number">2.2</span> Detail</h2>
-<p><strong>Function:</strong> <code>build_outcome_dataset(merged_data, cc, oc)</code> in <code>R/data_prep.R</code></p>
-<section id="population-filtering" class="level3" data-number="2.2.1">
-<h3 data-number="2.2.1" class="anchored" data-anchor-id="population-filtering"><span class="header-section-number">2.2.1</span> Population filtering</h3>
-<p>Each outcome targets a specific population. The <code>child_flag</code> column in the data distinguishes children from women of reproductive age:</p>
+<p>This document explains the analysis pipeline for predicting subnational micronutrient deficiency prevalence from proxy indicators. The pipeline is implemented as a <code>{targets}</code> directed acyclic graph (DAG) with <strong>~542 total targets</strong> across 4 countries (Gambia, Ghana, Sierra Leone, Malawi) and up to 8 outcomes per country (vitamin A, iron, folate, B12, zinc), plus cross-country transportability (LOCO for 4 shared outcomes) and out-of-sample prediction targets (Cote d’Ivoire).</p>
+<section id="countries-and-outcomes" class="level2" data-number="1.1">
+<h2 data-number="1.1" class="anchored" data-anchor-id="countries-and-outcomes"><span class="header-section-number">1.1</span> Countries and outcomes</h2>
 <ul>
-<li><strong>Children</strong> (6–59 months): <code>child_flag_val = 1</code></li>
-<li><strong>Women</strong> (15–49 years): <code>child_flag_val = 0</code></li>
+<li><strong>Countries:</strong> Gambia (GMNS 2018), Ghana (GMS 2017), Sierra Leone (SLMS 2013), Malawi (MNS 2015–16)</li>
+<li><strong>Outcomes:</strong> child_vitA, women_vitA, child_iron, women_iron (4 per country = 16 combinations)</li>
+<li><strong>OOS target:</strong> Cote d’Ivoire (no biomarker survey — prediction only)</li>
 </ul>
-<p>Rows with missing outcome values (continuous or binary) are dropped.</p>
 </section>
-<section id="binary-outcome-recoding" class="level3" data-number="2.2.2">
-<h3 data-number="2.2.2" class="anchored" data-anchor-id="binary-outcome-recoding"><span class="header-section-number">2.2.2</span> Binary outcome recoding</h3>
-<p>Some surveys code binary outcomes as 1/2 (factor-like) rather than 0/1. The pipeline detects columns with exactly values <span class="math inline">\(\{1, 2\}\)</span> and recodes them to <span class="math inline">\(\{1, 0\}\)</span> where <span class="math inline">\(1 = \text{deficient}\)</span> and <span class="math inline">\(0 = \text{not deficient}\)</span>.</p>
-</section>
-<section id="predictor-identification-by-domain" class="level3" data-number="2.2.3">
-<h3 data-number="2.2.3" class="anchored" data-anchor-id="predictor-identification-by-domain"><span class="header-section-number">2.2.3</span> Predictor identification by domain</h3>
-<p>Predictor columns are identified by prefix:</p>
+<section id="pipeline-modes" class="level2" data-number="1.2">
+<h2 data-number="1.2" class="anchored" data-anchor-id="pipeline-modes"><span class="header-section-number">1.2</span> Pipeline modes</h2>
 <table class="caption-top table">
 <colgroup>
 <col style="width: 33%">
 <col style="width: 33%">
 <col style="width: 33%">
 </colgroup>
-<thead>
-<tr class="header">
-<th>Domain</th>
-<th>Prefix</th>
-<th>Source</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td>GW</td>
-<td><code>gw_</code></td>
-<td>Same survey as the outcome (GMS/DHS/MNS)</td>
-</tr>
-<tr class="even">
-<td>IHME</td>
-<td><code>ihme_</code></td>
-<td>Institute for Health Metrics and Evaluation rasters</td>
-</tr>
-<tr class="odd">
-<td>MAP</td>
-<td><code>MAP_</code></td>
-<td>Malaria Atlas Project rasters</td>
-</tr>
-<tr class="even">
-<td>GEE</td>
-<td><code>gee_</code></td>
-<td>Google Earth Engine satellite indices</td>
-</tr>
-<tr class="odd">
-<td>DHS</td>
-<td><code>dhs_</code></td>
-<td>DHS program indicators (other surveys)</td>
-</tr>
-<tr class="even">
-<td>MICS</td>
-<td><code>mics_</code></td>
-<td>UNICEF MICS indicators</td>
-</tr>
-<tr class="odd">
-<td>FSEC</td>
-<td><code>fsec_</code></td>
-<td>Food security indicators (HFID, Cadre Harmonisé)</td>
-</tr>
-</tbody>
-</table>
-</section>
-<section id="leakage-prevention" class="level3" data-number="2.2.4">
-<h3 data-number="2.2.4" class="anchored" data-anchor-id="leakage-prevention"><span class="header-section-number">2.2.4</span> Leakage prevention</h3>
-<p>GW-domain variables come from the <strong>same survey</strong> as the outcome. Using them as predictors would be circular (predicting survey results from survey results). The primary predictor set (<code>Xvars</code>) <strong>excludes all GW variables</strong>. Additionally, within the GW domain, columns matching outcome-related patterns (e.g., <code>RBP</code>, <code>VAD</code>, <code>IDA</code>, <code>LogFer</code>) are removed to prevent direct leakage.</p>
-</section>
-<section id="output" class="level3" data-number="2.2.5">
-<h3 data-number="2.2.5" class="anchored" data-anchor-id="output"><span class="header-section-number">2.2.5</span> Output</h3>
-<ul>
-<li><code>data</code>: Filtered data frame</li>
-<li><code>Xvars</code>: Proxy-only predictors (no GW) — used for all primary modelling</li>
-<li><code>Xvars_full</code>: All predictors including GW (used only in ablation baseline)</li>
-<li><code>domain_vars</code>: Named list mapping each domain to its column names</li>
-</ul>
-</section>
-</section>
-</section>
-<section id="sec-sl-fit" class="level1" data-number="3">
-<h1 data-number="3"><span class="header-section-number">3</span> Step 2: SuperLearner Model Fitting</h1>
-<section id="what-it-does-1" class="level2" data-number="3.1">
-<h2 data-number="3.1" class="anchored" data-anchor-id="what-it-does-1"><span class="header-section-number">3.1</span> What it does</h2>
-<p>Fits an ensemble machine learning model (SuperLearner) using cluster-blocked cross-validation. Produces individual-level cross-validated predictions for both a continuous model and a binary classification model.</p>
-</section>
-<section id="detail-1" class="level2" data-number="3.2">
-<h2 data-number="3.2" class="anchored" data-anchor-id="detail-1"><span class="header-section-number">3.2</span> Detail</h2>
-<p><strong>Function:</strong> <code>fit_sl_models()</code> in <code>R/sl_fitting.R</code>, calling <code>DHS_SL_clustered()</code> in <code>src/analysis/sl_helpers.R</code></p>
-<section id="preprocessing-pipeline" class="level3" data-number="3.2.1">
-<h3 data-number="3.2.1" class="anchored" data-anchor-id="preprocessing-pipeline"><span class="header-section-number">3.2.1</span> Preprocessing pipeline</h3>
-<p>Before model fitting, the predictor matrix undergoes:</p>
-<ol type="1">
-<li><strong>Unlabelling</strong>: Remove Stata/SPSS labels (<code>labelled::unlabelled</code>)</li>
-<li><strong>Drop all-NA columns</strong>: Remove columns with no non-missing values</li>
-<li><strong>Near-zero variance filter</strong> (1st pass): <code>caret::nearZeroVar()</code> removes columns with near-constant values</li>
-<li><strong>Missing value imputation</strong>: <code>ck37r::impute_missing_values()</code> with median/mode imputation and <code>missing_*</code> indicator columns</li>
-<li><strong>Near-zero variance filter</strong> (2nd pass): Post-imputation removal</li>
-<li><strong>Marginal prescreening</strong>: <code>washb::washb_prescreen()</code> with <span class="math inline">\(p &lt; 0.20\)</span> retains predictors with marginal association to the outcome</li>
-<li><strong>Correlation filter</strong>: <code>recipes::step_corr()</code> removes one of each pair of predictors with <span class="math inline">\(|r| &gt; 0.85\)</span></li>
-<li><strong>Normalization</strong>: <code>recipes::step_normalize()</code> centres and scales all predictors</li>
-</ol>
-<p>The preprocessing recipe is saved and reused for all subsequent prediction steps (bootstrap, LOCO, area model) to ensure column alignment.</p>
-</section>
-<section id="cross-validation-design" class="level3" data-number="3.2.2">
-<h3 data-number="3.2.2" class="anchored" data-anchor-id="cross-validation-design"><span class="header-section-number">3.2.2</span> Cross-validation design</h3>
-<p>Cross-validation folds are <strong>blocked by survey cluster</strong> (PSU). All individuals within the same cluster are assigned to the same fold. This prevents information leakage from spatially correlated observations.</p>
-<ul>
-<li><span class="math inline">\(K = 5\)</span> folds (both fast and full modes)</li>
-<li>Fold assignment via <code>origami::make_folds(cluster_ids = ...)</code></li>
-</ul>
-</section>
-<section id="learner-library" class="level3" data-number="3.2.3">
-<h3 data-number="3.2.3" class="anchored" data-anchor-id="learner-library"><span class="header-section-number">3.2.3</span> Learner library</h3>
-<p><strong>Fast mode</strong> (3 learners):</p>
-<table class="caption-top table">
-<colgroup>
-<col style="width: 32%">
-<col style="width: 28%">
-<col style="width: 39%">
-</colgroup>
-<thead>
-<tr class="header">
-<th>Learner</th>
-<th>Method</th>
-<th>Rationale</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td><code>Lrnr_mean</code></td>
-<td>Intercept-only</td>
-<td>Benchmark: always predict the mean</td>
-</tr>
-<tr class="even">
-<td><code>Lrnr_glmnet</code> (<span class="math inline">\(\alpha = 1\)</span>)</td>
-<td>Lasso</td>
-<td>Aggressive variable selection for <span class="math inline">\(p \gg n\)</span></td>
-</tr>
-<tr class="odd">
-<td><code>Lrnr_ranger</code></td>
-<td>Random forest</td>
-<td>Nonlinear interactions; <code>min.node.size = 10</code> prevents overfitting on rare outcomes</td>
-</tr>
-</tbody>
-</table>
-<p><strong>Full mode</strong> (7 learners):</p>
-<table class="caption-top table">
-<colgroup>
-<col style="width: 32%">
-<col style="width: 28%">
-<col style="width: 39%">
-</colgroup>
-<thead>
-<tr class="header">
-<th>Learner</th>
-<th>Method</th>
-<th>Rationale</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td><code>Lrnr_mean</code></td>
-<td>Intercept-only</td>
-<td>Benchmark</td>
-</tr>
-<tr class="even">
-<td><code>Lrnr_glmnet</code> (<span class="math inline">\(\alpha = 1\)</span>)</td>
-<td>Lasso</td>
-<td>Variable selection</td>
-</tr>
-<tr class="odd">
-<td><code>Lrnr_glmnet</code> (<span class="math inline">\(\alpha = 0.75\)</span>)</td>
-<td>Near-lasso elastic net</td>
-<td>Stabilizes correlated groups</td>
-</tr>
-<tr class="even">
-<td><code>Lrnr_glmnet</code> (<span class="math inline">\(\alpha = 0\)</span>)</td>
-<td>Ridge</td>
-<td>Retains all predictors; captures distributed weak signal</td>
-</tr>
-<tr class="odd">
-<td><code>Lrnr_ranger</code> (conservative)</td>
-<td>Random forest</td>
-<td><code>min.node.size = 10</code>; conservative splits</td>
-</tr>
-<tr class="even">
-<td><code>Lrnr_ranger</code> (deeper)</td>
-<td>Random forest</td>
-<td><code>min.node.size = 5</code>; captures finer patterns</td>
-</tr>
-<tr class="odd">
-<td><code>Lrnr_xgboost</code></td>
-<td>Gradient boosting</td>
-<td><code>max_depth = 3</code>, <code>eta = 0.05</code>, <code>colsample_bytree = 0.5</code>; conservative regularization</td>
-</tr>
-</tbody>
-</table>
-</section>
-<section id="metalearner" class="level3" data-number="3.2.4">
-<h3 data-number="3.2.4" class="anchored" data-anchor-id="metalearner"><span class="header-section-number">3.2.4</span> Metalearner</h3>
-<p>The SuperLearner ensemble weights are estimated by <strong>non-negative least squares</strong> (NNLS), which finds the convex combination of learner predictions minimizing squared error (continuous) or negative log-likelihood (binary).</p>
-</section>
-<section id="loss-functions" class="level3" data-number="3.2.5">
-<h3 data-number="3.2.5" class="anchored" data-anchor-id="loss-functions"><span class="header-section-number">3.2.5</span> Loss functions</h3>
-<ul>
-<li><strong>Continuous model</strong>: Squared error loss</li>
-<li><strong>Binary model</strong>: Binomial log-likelihood loss</li>
-</ul>
-</section>
-<section id="output-1" class="level3" data-number="3.2.6">
-<h3 data-number="3.2.6" class="anchored" data-anchor-id="output-1"><span class="header-section-number">3.2.6</span> Output</h3>
-<p>For each model type (continuous/binary), the output includes:</p>
-<ul>
-<li><code>res$Y</code>: Observed outcome values</li>
-<li><code>res$yhat_full</code>: <strong>Cross-validated predictions</strong> (validation-fold predictions, never trained on)</li>
-<li><code>sl_fit</code>: The trained ensemble object</li>
-<li><code>auto_recipe</code>: The saved preprocessing recipe</li>
-<li><code>pre_recipe_cols</code>: Column names after imputation but before the recipe</li>
-</ul>
-</section>
-</section>
-</section>
-<section id="sec-cv-perf" class="level1" data-number="4">
-<h1 data-number="4"><span class="header-section-number">4</span> Step 3: Cross-Validated Performance Metrics</h1>
-<section id="what-it-does-2" class="level2" data-number="4.1">
-<h2 data-number="4.1" class="anchored" data-anchor-id="what-it-does-2"><span class="header-section-number">4.1</span> What it does</h2>
-<p>Extracts standard performance metrics from the cross-validated predictions produced in Step 2. No additional model fitting.</p>
-</section>
-<section id="detail-2" class="level2" data-number="4.2">
-<h2 data-number="4.2" class="anchored" data-anchor-id="detail-2"><span class="header-section-number">4.2</span> Detail</h2>
-<p><strong>Function:</strong> <code>extract_cv_performance()</code> in <code>R/admin1_analysis.R</code></p>
-<section id="continuous-model-metrics" class="level3" data-number="4.2.1">
-<h3 data-number="4.2.1" class="anchored" data-anchor-id="continuous-model-metrics"><span class="header-section-number">4.2.1</span> Continuous model metrics</h3>
-<table class="caption-top table">
-<colgroup>
-<col style="width: 24%">
-<col style="width: 27%">
-<col style="width: 48%">
-</colgroup>
-<thead>
-<tr class="header">
-<th>Metric</th>
-<th>Formula</th>
-<th>Interpretation</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td>RMSE</td>
-<td><span class="math inline">\(\sqrt{\frac{1}{n}\sum(Y_i - \hat{Y}_i)^2}\)</span></td>
-<td>Average prediction error (outcome units)</td>
-</tr>
-<tr class="even">
-<td>MAE</td>
-<td><span class="math inline">\(\frac{1}{n}\sum|Y_i - \hat{Y}_i|\)</span></td>
-<td>Robust average error</td>
-</tr>
-<tr class="odd">
-<td><span class="math inline">\(R^2\)</span></td>
-<td><span class="math inline">\(1 - \frac{SS_{res}}{SS_{tot}}\)</span></td>
-<td>Fraction of variance explained (often near 0 for weak proxy signal)</td>
-</tr>
-<tr class="even">
-<td>Pearson <span class="math inline">\(r\)</span></td>
-<td><span class="math inline">\(\text{cor}(Y, \hat{Y})\)</span></td>
-<td>Linear association between predicted and observed</td>
-</tr>
-<tr class="odd">
-<td>Prevalence recovery</td>
-<td>Compare <span class="math inline">\(\hat{\text{prev}}\)</span> vs <span class="math inline">\(\text{prev}_{obs}\)</span> at threshold</td>
-<td>Does the model get the right population-level burden?</td>
-</tr>
-</tbody>
-</table>
-</section>
-<section id="binary-model-metrics" class="level3" data-number="4.2.2">
-<h3 data-number="4.2.2" class="anchored" data-anchor-id="binary-model-metrics"><span class="header-section-number">4.2.2</span> Binary model metrics</h3>
-<table class="caption-top table">
-<colgroup>
-<col style="width: 24%">
-<col style="width: 27%">
-<col style="width: 48%">
-</colgroup>
-<thead>
-<tr class="header">
-<th>Metric</th>
-<th>Formula</th>
-<th>Interpretation</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td>ROC-AUC</td>
-<td>Area under ROC curve</td>
-<td>Discrimination: can the model rank individuals by risk?</td>
-</tr>
-<tr class="even">
-<td>Brier score</td>
-<td><span class="math inline">\(\frac{1}{n}\sum(Y_i - \hat{p}_i)^2\)</span></td>
-<td>Combined measure of discrimination and calibration</td>
-</tr>
-</tbody>
-</table>
-</section>
-</section>
-</section>
-<section id="sec-admin1" class="level1" data-number="5">
-<h1 data-number="5"><span class="header-section-number">5</span> Step 4: Admin-1 Prevalence Aggregation</h1>
-<section id="what-it-does-3" class="level2" data-number="5.1">
-<h2 data-number="5.1" class="anchored" data-anchor-id="what-it-does-3"><span class="header-section-number">5.1</span> What it does</h2>
-<p>Aggregates individual-level SL predictions to Admin-1 (region/state) level prevalence estimates.</p>
-</section>
-<section id="detail-3" class="level2" data-number="5.2">
-<h2 data-number="5.2" class="anchored" data-anchor-id="detail-3"><span class="header-section-number">5.2</span> Detail</h2>
-<p><strong>Function:</strong> <code>aggregate_admin1()</code> in <code>R/admin1_analysis.R</code></p>
-<section id="method" class="level3" data-number="5.2.1">
-<h3 data-number="5.2.1" class="anchored" data-anchor-id="method"><span class="header-section-number">5.2.1</span> Method</h3>
-<p>For each Admin-1 region <span class="math inline">\(r\)</span>:</p>
-<p><span class="math display">\[\hat{\text{prev}}_r = \frac{1}{n_r} \sum_{i \in r} \hat{p}_i\]</span></p>
-<p>where <span class="math inline">\(\hat{p}_i\)</span> is either:</p>
-<ul>
-<li>The binary model’s predicted probability (if binary SL fit succeeded), or</li>
-<li>A thresholded continuous prediction: <span class="math inline">\(\hat{p}_i = \mathbb{1}[\hat{Y}_i &lt; c]\)</span> where <span class="math inline">\(c\)</span> is the deficiency cutoff</li>
-</ul>
-</section>
-<section id="assumptions" class="level3" data-number="5.2.2">
-<h3 data-number="5.2.2" class="anchored" data-anchor-id="assumptions"><span class="header-section-number">5.2.2</span> Assumptions</h3>
-<ul>
-<li><strong>Unweighted means</strong>: Survey weights are not applied at this stage. The SL was trained on the full sample, and predictions are averaged directly. This is appropriate when the goal is to estimate the <em>model’s</em> prevalence prediction rather than the design-based survey estimate.</li>
-<li><strong>Missing Admin-1 labels excluded</strong>: Individuals without Admin-1 assignment are dropped.</li>
-</ul>
-</section>
-<section id="observed-prevalence" class="level3" data-number="5.2.3">
-<h3 data-number="5.2.3" class="anchored" data-anchor-id="observed-prevalence"><span class="header-section-number">5.2.3</span> Observed prevalence</h3>
-<p>Where the binary outcome exists, observed Admin-1 prevalence is also computed as a validation target:</p>
-<p><span class="math display">\[\text{prev}_{r,\text{obs}} = \frac{1}{n_r} \sum_{i \in r} Y_i\]</span></p>
-</section>
-</section>
-</section>
-<section id="sec-bootstrap" class="level1" data-number="6">
-<h1 data-number="6"><span class="header-section-number">6</span> Step 5: Bootstrap Confidence Intervals</h1>
-<section id="what-it-does-4" class="level2" data-number="6.1">
-<h2 data-number="6.1" class="anchored" data-anchor-id="what-it-does-4"><span class="header-section-number">6.1</span> What it does</h2>
-<p>Estimates uncertainty in Admin-1 and national prevalence estimates via cluster-level bootstrap resampling. This is the most computationally expensive step.</p>
-</section>
-<section id="detail-4" class="level2" data-number="6.2">
-<h2 data-number="6.2" class="anchored" data-anchor-id="detail-4"><span class="header-section-number">6.2</span> Detail</h2>
-<p><strong>Function:</strong> <code>run_bootstrap_ci()</code> in <code>R/bootstrap.R</code></p>
-<section id="algorithm" class="level3" data-number="6.2.1">
-<h3 data-number="6.2.1" class="anchored" data-anchor-id="algorithm"><span class="header-section-number">6.2.1</span> Algorithm</h3>
-<p>For <span class="math inline">\(b = 1, \ldots, B\)</span>:</p>
-<ol type="1">
-<li><strong>Resample clusters</strong> with replacement from the original cluster set</li>
-<li><strong>Reconstruct the dataset</strong> by including all individuals from each resampled cluster (duplicated clusters contribute duplicate observations)</li>
-<li><strong>Refit the full SuperLearner</strong> on the bootstrap sample (same preprocessing pipeline, same learner library, same <span class="math inline">\(K\)</span>-fold CV)</li>
-<li><strong>Predict on the original data</strong> using the bootstrap model and its saved preprocessing recipe</li>
-<li><strong>Aggregate to Admin-1</strong> and national level</li>
-</ol>
-</section>
-<section id="confidence-intervals" class="level3" data-number="6.2.2">
-<h3 data-number="6.2.2" class="anchored" data-anchor-id="confidence-intervals"><span class="header-section-number">6.2.2</span> Confidence intervals</h3>
-<p>For each Admin-1 region <span class="math inline">\(r\)</span>:</p>
-<p><span class="math display">\[\text{CI}_{95\%} = \left[ Q_{0.025}\left(\hat{\text{prev}}_r^{(1)}, \ldots, \hat{\text{prev}}_r^{(B)}\right),\; Q_{0.975}\left(\hat{\text{prev}}_r^{(1)}, \ldots, \hat{\text{prev}}_r^{(B)}\right) \right]\]</span></p>
-<p>where <span class="math inline">\(Q_\alpha\)</span> denotes the <span class="math inline">\(\alpha\)</span>-quantile across bootstrap replicates.</p>
-</section>
-<section id="parameters" class="level3" data-number="6.2.3">
-<h3 data-number="6.2.3" class="anchored" data-anchor-id="parameters"><span class="header-section-number">6.2.3</span> Parameters</h3>
-<table class="caption-top table">
 <thead>
 <tr class="header">
 <th>Parameter</th>
 <th>Fast mode</th>
 <th>Full mode</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td><span class="math inline">\(B\)</span> (bootstrap replicates)</td>
-<td>4</td>
-<td>200</td>
-</tr>
-</tbody>
-</table>
-</section>
-<section id="why-cluster-level-resampling" class="level3" data-number="6.2.4">
-<h3 data-number="6.2.4" class="anchored" data-anchor-id="why-cluster-level-resampling"><span class="header-section-number">6.2.4</span> Why cluster-level resampling?</h3>
-<p>Survey data has a hierarchical structure: individuals are nested within clusters (PSUs), which are the primary sampling units. Resampling at the cluster level preserves within-cluster correlation and produces valid confidence intervals that account for the survey design effect.</p>
-</section>
-<section id="computational-cost" class="level3" data-number="6.2.5">
-<h3 data-number="6.2.5" class="anchored" data-anchor-id="computational-cost"><span class="header-section-number">6.2.5</span> Computational cost</h3>
-<p>Each bootstrap replicate requires a full SuperLearner refit. With <span class="math inline">\(B = 200\)</span> in full mode, this means 200 separate SL training runs per outcome. Parallelization via <code>future.apply::future_lapply()</code> distributes replicates across available workers.</p>
-</section>
-</section>
-</section>
-<section id="sec-ablation" class="level1" data-number="7">
-<h1 data-number="7"><span class="header-section-number">7</span> Step 6: Domain Importance (Permutation-Based)</h1>
-<section id="what-it-does-5" class="level2" data-number="7.1">
-<h2 data-number="7.1" class="anchored" data-anchor-id="what-it-does-5"><span class="header-section-number">7.1</span> What it does</h2>
-<p>Measures the contribution of each predictor domain (IHME, MAP, GEE, DHS, MICS, FSEC) by permuting (shuffling) that domain’s columns and measuring performance degradation — using the <strong>already-fitted model</strong> without any refitting.</p>
-</section>
-<section id="detail-5" class="level2" data-number="7.2">
-<h2 data-number="7.2" class="anchored" data-anchor-id="detail-5"><span class="header-section-number">7.2</span> Detail</h2>
-<p><strong>Function:</strong> <code>run_domain_ablation()</code> in <code>R/domain_ablation.R</code></p>
-<section id="algorithm-1" class="level3" data-number="7.2.1">
-<h3 data-number="7.2.1" class="anchored" data-anchor-id="algorithm-1"><span class="header-section-number">7.2.1</span> Algorithm</h3>
-<p>For each domain <span class="math inline">\(d\)</span> and each permutation replicate <span class="math inline">\(r = 1, \ldots, R\)</span>:</p>
-<ol type="1">
-<li>Take the fitted model’s task data (the preprocessed predictor matrix used during training)</li>
-<li><strong>Shuffle</strong> all columns belonging to domain <span class="math inline">\(d\)</span> independently (each column’s values are randomly reordered across rows)</li>
-<li><strong>Predict</strong> using the existing fitted SL ensemble on the permuted data</li>
-<li>Compute performance metrics (AUC, Brier, RMSE, etc.)</li>
-<li>Average metrics across <span class="math inline">\(R\)</span> replicates</li>
-</ol>
-<p>The <strong>baseline</strong> uses the original (unpermuted) cross-validated predictions. The drop in performance when permuting domain <span class="math inline">\(d\)</span> indicates that domain’s contribution.</p>
-</section>
-<section id="why-permutation-rather-than-refitting" class="level3" data-number="7.2.2">
-<h3 data-number="7.2.2" class="anchored" data-anchor-id="why-permutation-rather-than-refitting"><span class="header-section-number">7.2.2</span> Why permutation rather than refitting?</h3>
-<p>The previous version removed each domain and <strong>refitted</strong> the entire SuperLearner, which required one full SL training run per domain ($$5–15 minutes each). With 6 domains <span class="math inline">\(\times\)</span> 16 country-outcome combinations, this was prohibitively expensive for scaling to additional subgroups.</p>
-<p>Permutation importance uses the already-fitted model:</p>
-<ul>
-<li><strong>Cost</strong>: Seconds per domain (just prediction, no training)</li>
-<li><strong>Total</strong>: ~1 minute per outcome vs. ~30–90 minutes for refit-based ablation</li>
-</ul>
-</section>
-<section id="interpretation" class="level3" data-number="7.2.3">
-<h3 data-number="7.2.3" class="anchored" data-anchor-id="interpretation"><span class="header-section-number">7.2.3</span> Interpretation</h3>
-<p><span class="math display">\[\Delta\text{AUC}_d = \text{AUC}_{\text{baseline}} - \text{AUC}_{\text{permuted } d}\]</span></p>
-<ul>
-<li><span class="math inline">\(\Delta\text{AUC}_d &gt; 0\)</span>: Domain <span class="math inline">\(d\)</span> contributes positively; shuffling it hurts performance</li>
-<li><span class="math inline">\(\Delta\text{AUC}_d \approx 0\)</span>: Domain <span class="math inline">\(d\)</span> is redundant or not used by the model</li>
-<li><span class="math inline">\(\Delta\text{AUC}_d &lt; 0\)</span>: Shuffling improves performance (suggests the domain adds noise)</li>
-</ul>
-</section>
-<section id="parameters-1" class="level3" data-number="7.2.4">
-<h3 data-number="7.2.4" class="anchored" data-anchor-id="parameters-1"><span class="header-section-number">7.2.4</span> Parameters</h3>
-<table class="caption-top table">
-<thead>
-<tr class="header">
-<th>Parameter</th>
-<th>Default</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td><code>n_perm</code></td>
-<td>5</td>
-<td>Number of permutation replicates per domain</td>
-</tr>
-</tbody>
-</table>
-</section>
-<section id="limitations" class="level3" data-number="7.2.5">
-<h3 data-number="7.2.5" class="anchored" data-anchor-id="limitations"><span class="header-section-number">7.2.5</span> Limitations</h3>
-<ul>
-<li>Permutation importance can <strong>underestimate</strong> the contribution of correlated domains: if IHME and MAP share signal, shuffling one doesn’t fully break the predictive relationship because the other still provides similar information</li>
-<li>Permutation is applied to the <strong>preprocessed</strong> columns in the SL task, not the raw columns — so the importance reflects the post-recipe variable set</li>
-<li>The baseline uses cross-validated predictions; permuted predictions now also use <code>predict_fold(&quot;validation&quot;)</code> for consistency</li>
-</ul>
-</section>
-<section id="archived-alternative" class="level3" data-number="7.2.6">
-<h3 data-number="7.2.6" class="anchored" data-anchor-id="archived-alternative"><span class="header-section-number">7.2.6</span> Archived alternative</h3>
-<p>A refit-based version (leave-one-domain-out, fully refitting SL per domain) is preserved in <code>R/domain_ablation_refit.R.bak</code> for use cases where the additional compute cost is acceptable.</p>
-</section>
-</section>
-<section id="sec-conceptual-ablation" class="level2" data-number="7.3">
-<h2 data-number="7.3" class="anchored" data-anchor-id="sec-conceptual-ablation"><span class="header-section-number">7.3</span> Step 6b: Conceptual Domain Importance</h2>
-<section id="what-it-does-6" class="level3" data-number="7.3.1">
-<h3 data-number="7.3.1" class="anchored" data-anchor-id="what-it-does-6"><span class="header-section-number">7.3.1</span> What it does</h3>
-<p>The data-source ablation (Step 6) groups variables by their origin (DHS, IHME, MAP, etc.). Conceptual domain importance instead groups variables by <strong>thematic topic</strong> — e.g., “Climate”, “Food Security”, “Child Health”, “Malaria” — cutting across data sources. This answers the question: <em>which aspects of human wellbeing and environment are most predictive of micronutrient deficiency?</em></p>
-</section>
-<section id="classification" class="level3" data-number="7.3.2">
-<h3 data-number="7.3.2" class="anchored" data-anchor-id="classification"><span class="header-section-number">7.3.2</span> Classification</h3>
-<p>Variables are classified using a multi-pass strategy:</p>
-<ol type="1">
-<li><strong>DHS indicator lookup</strong>: Each DHS variable (e.g., <code>dhs2014_CH_VACC_C_OP2</code>) is matched to its official DHS <code>IndicatorId</code> and assigned the corresponding <code>Level1</code> and <code>Level2</code> categories from the DHS indicator database (4,413 indicators)</li>
-<li><strong>Prefix fallback</strong>: Unmatched DHS variables are matched by their 2-part prefix (e.g., <code>CH_VACC</code> → “Child Health / Vaccinations”)</li>
-<li><strong>Pattern matching</strong>: Non-DHS variables (IHME, MAP, GEE, FSEC, MICS, WFP) are classified using regex patterns defined in <code>metadata/variable_conceptual_domains.csv</code></li>
-</ol>
-<p>The classification is hierarchical:</p>
-<ul>
-<li><strong>Level 1</strong> (~25 categories): Child Health, Climate, Education, Family Planning, Fertility, Food Security, HIV/AIDS, Household Characteristics, Infectious Disease, Malaria, Reproductive Health, Water and Sanitation, etc.</li>
-<li><strong>Level 2</strong> (~100+ categories): Vaccinations, Precipitation, Cooking fuel, Breastfeeding, etc.</li>
-</ul>
-</section>
-<section id="two-complementary-analyses" class="level3" data-number="7.3.3">
-<h3 data-number="7.3.3" class="anchored" data-anchor-id="two-complementary-analyses"><span class="header-section-number">7.3.3</span> Two complementary analyses</h3>
-<p><strong>Function:</strong> <code>run_conceptual_permutation()</code> and <code>run_leave_one_in()</code> in <code>R/conceptual_ablation.R</code></p>
-<p><strong>Permute-one</strong> (marginal importance): For each conceptual domain, shuffle its columns and measure AUC drop. This measures the domain’s contribution <em>on top of all other domains</em>. Redundant domains show small drops.</p>
-<p><strong>Leave-one-in</strong> (standalone contribution): For each domain, shuffle <em>all other</em> domains and keep only that one intact. The resulting AUC measures how well that domain predicts <em>alone</em>. Recovery is defined as:</p>
-<p><span class="math display">\[\text{Recovery}_d = \frac{\text{AUC}_{d,\text{solo}} - 0.5}{\text{AUC}_{\text{baseline}} - 0.5}\]</span></p>
-<p>Together, these bracket a domain’s importance: permute-one captures unique marginal signal, while leave-one-in captures total standalone signal (including shared/redundant signal).</p>
-</section>
-<section id="parameters-2" class="level3" data-number="7.3.4">
-<h3 data-number="7.3.4" class="anchored" data-anchor-id="parameters-2"><span class="header-section-number">7.3.4</span> Parameters</h3>
-<table class="caption-top table">
-<thead>
-<tr class="header">
-<th>Parameter</th>
-<th>Default</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td><code>n_perm</code></td>
-<td>50</td>
-<td>Number of permutation replicates per domain</td>
-</tr>
-<tr class="even">
-<td><code>level</code></td>
-<td>“level1”</td>
-<td>“level1” or “level2” granularity</td>
-</tr>
-</tbody>
-</table>
-</section>
-<section id="output-2" class="level3" data-number="7.3.5">
-<h3 data-number="7.3.5" class="anchored" data-anchor-id="output-2"><span class="header-section-number">7.3.5</span> Output</h3>
-<p>Results are saved to <code>results/conceptual_ablation/</code> as CSV tables and PNG forest plots. The <code>docs/variable_domains.qmd</code> report visualizes the full classification and importance results.</p>
-</section>
-</section>
-</section>
-<section id="sec-admin2-sl" class="level1" data-number="8">
-<h1 data-number="8"><span class="header-section-number">8</span> Step 7: Admin-2 SL Aggregation</h1>
-<section id="what-it-does-7" class="level2" data-number="8.1">
-<h2 data-number="8.1" class="anchored" data-anchor-id="what-it-does-7"><span class="header-section-number">8.1</span> What it does</h2>
-<p>Aggregates individual-level SL predictions to Admin-2 (district) level. This is the <strong>model-based</strong> prevalence estimate.</p>
-</section>
-<section id="detail-6" class="level2" data-number="8.2">
-<h2 data-number="8.2" class="anchored" data-anchor-id="detail-6"><span class="header-section-number">8.2</span> Detail</h2>
-<p><strong>Function:</strong> <code>aggregate_admin2_sl()</code> in <code>R/admin2_analysis.R</code></p>
-<p>The method is identical to Admin-1 aggregation (Step 4) but at the finer Admin-2 geographic level:</p>
-<p><span class="math display">\[\hat{\text{prev}}_{d} = \frac{1}{n_d} \sum_{i \in d} \hat{p}_i\]</span></p>
-<p>where <span class="math inline">\(d\)</span> indexes Admin-2 districts.</p>
-</section>
-</section>
-<section id="sec-svy-admin2" class="level1" data-number="9">
-<h1 data-number="9"><span class="header-section-number">9</span> Step 8: Survey-Weighted Admin-2 Prevalence</h1>
-<section id="what-it-does-8" class="level2" data-number="9.1">
-<h2 data-number="9.1" class="anchored" data-anchor-id="what-it-does-8"><span class="header-section-number">9.1</span> What it does</h2>
-<p>Computes design-based survey-weighted prevalence at Admin-2 level. This serves as the <strong>ground truth</strong> for comparing against model predictions.</p>
-</section>
-<section id="detail-7" class="level2" data-number="9.2">
-<h2 data-number="9.2" class="anchored" data-anchor-id="detail-7"><span class="header-section-number">9.2</span> Detail</h2>
-<p><strong>Function:</strong> <code>compute_svy_admin2()</code> in <code>R/admin2_analysis.R</code></p>
-<section id="method-1" class="level3" data-number="9.2.1">
-<h3 data-number="9.2.1" class="anchored" data-anchor-id="method-1"><span class="header-section-number">9.2.1</span> Method</h3>
-<p>Uses the <code>{srvyr}</code> package (a <code>{dplyr}</code>-compatible wrapper around <code>{survey}</code>):</p>
-<ol type="1">
-<li>Construct a survey design object with PSUs, strata, and weights</li>
-<li>Group by Admin-2</li>
-<li>Compute <code>survey_mean()</code> with standard errors and 95% confidence intervals</li>
-</ol>
-<p><span class="math display">\[\hat{\text{prev}}_{d,\text{svy}} = \frac{\sum_{i \in d} w_i \cdot Y_i}{\sum_{i \in d} w_i}\]</span></p>
-</section>
-<section id="survey-design-handling" class="level3" data-number="9.2.2">
-<h3 data-number="9.2.2" class="anchored" data-anchor-id="survey-design-handling"><span class="header-section-number">9.2.2</span> Survey design handling</h3>
-<ul>
-<li><strong>Lonely PSUs</strong>: <code>options(survey.lonely.psu = &quot;adjust&quot;)</code> applies a conservative variance adjustment when an Admin-2 area has only one PSU</li>
-<li><strong>Fallback strategy</strong>: If the grouped survey computation fails (common with small Admin-2 areas), the function falls back to per-area computation, then to unweighted means as a last resort</li>
-</ul>
-</section>
-<section id="output-includes" class="level3" data-number="9.2.3">
-<h3 data-number="9.2.3" class="anchored" data-anchor-id="output-includes"><span class="header-section-number">9.2.3</span> Output includes</h3>
-<ul>
-<li>Standard error, 95% CI, coefficient of variation (SE/mean)</li>
-<li>These are used in subsequent steps for comparison and uncertainty assessment</li>
-</ul>
-</section>
-</section>
-</section>
-<section id="sec-admin2-error" class="level1" data-number="10">
-<h1 data-number="10"><span class="header-section-number">10</span> Step 9: Admin-2 Error Evaluation</h1>
-<section id="what-it-does-9" class="level2" data-number="10.1">
-<h2 data-number="10.1" class="anchored" data-anchor-id="what-it-does-9"><span class="header-section-number">10.1</span> What it does</h2>
-<p>Compares the model-based Admin-2 prevalence (Step 7) against survey-weighted prevalence (Step 8) to quantify prediction accuracy.</p>
-</section>
-<section id="detail-8" class="level2" data-number="10.2">
-<h2 data-number="10.2" class="anchored" data-anchor-id="detail-8"><span class="header-section-number">10.2</span> Detail</h2>
-<p><strong>Function:</strong> <code>compute_admin2_error()</code> in <code>R/admin2_analysis.R</code></p>
-<section id="metrics-in-percentage-points" class="level3" data-number="10.2.1">
-<h3 data-number="10.2.1" class="anchored" data-anchor-id="metrics-in-percentage-points"><span class="header-section-number">10.2.1</span> Metrics (in percentage points)</h3>
-<table class="caption-top table">
-<colgroup>
-<col style="width: 24%">
-<col style="width: 27%">
-<col style="width: 48%">
-</colgroup>
-<thead>
-<tr class="header">
-<th>Metric</th>
-<th>Formula</th>
-<th>Interpretation</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td>MAE</td>
-<td><span class="math inline">\(\frac{100}{n_d}\sum|\hat{p}_d^{SL} - \hat{p}_d^{svy}|\)</span></td>
-<td>Average absolute error</td>
-</tr>
-<tr class="even">
-<td>RMSE</td>
-<td><span class="math inline">\(100\sqrt{\frac{1}{n_d}\sum(\hat{p}_d^{SL} - \hat{p}_d^{svy})^2}\)</span></td>
-<td>Penalizes large errors</td>
-</tr>
-<tr class="odd">
-<td>Pearson <span class="math inline">\(r\)</span></td>
-<td><span class="math inline">\(\text{cor}(\hat{p}^{SL}, \hat{p}^{svy})\)</span></td>
-<td>Can the model rank districts?</td>
-</tr>
-<tr class="even">
-<td>Mean bias</td>
-<td><span class="math inline">\(\frac{100}{n_d}\sum(\hat{p}_d^{SL} - \hat{p}_d^{svy})\)</span></td>
-<td>Systematic over/under-prediction</td>
-</tr>
-</tbody>
-</table>
-<p>Only Admin-2 areas with both SL and survey estimates are included (inner join).</p>
-</section>
-</section>
-</section>
-<section id="sec-area-model" class="level1" data-number="11">
-<h1 data-number="11"><span class="header-section-number">11</span> Step 10: Area-Level Model</h1>
-<section id="what-it-does-10" class="level2" data-number="11.1">
-<h2 data-number="11.1" class="anchored" data-anchor-id="what-it-does-10"><span class="header-section-number">11.1</span> What it does</h2>
-<p>Fits an area-level model using GEE raster covariates to predict Admin-2 prevalence, including for <strong>unsurveyed areas</strong> where no individual-level data exists.</p>
-</section>
-<section id="detail-9" class="level2" data-number="11.2">
-<h2 data-number="11.2" class="anchored" data-anchor-id="detail-9"><span class="header-section-number">11.2</span> Detail</h2>
-<p><strong>Function:</strong> <code>fit_area_level_model()</code> in <code>R/admin2_analysis.R</code></p>
-<section id="motivation" class="level3" data-number="11.2.1">
-<h3 data-number="11.2.1" class="anchored" data-anchor-id="motivation"><span class="header-section-number">11.2.1</span> Motivation</h3>
-<p>The individual-level SL (Steps 2–7) can only produce predictions where individual survey data exists. For policy mapping, we need prevalence estimates for <em>every</em> Admin-2 area, including those never surveyed. The area-level model bridges this gap using satellite-derived covariates available everywhere.</p>
-</section>
-<section id="algorithm-2" class="level3" data-number="11.2.2">
-<h3 data-number="11.2.2" class="anchored" data-anchor-id="algorithm-2"><span class="header-section-number">11.2.2</span> Algorithm</h3>
-<ol type="1">
-<li><strong>Download Admin-2 boundaries</strong> from GADM</li>
-<li><strong>Extract zonal means</strong> from GEE rasters (satellite imagery derivatives) for each Admin-2 polygon using <code>exactextractr::exact_extract()</code></li>
-<li><strong>Training set</strong>: Surveyed Admin-2 areas with both survey prevalence and GEE covariates</li>
-<li><strong>Model</strong>: Elastic net regression (<code>glmnet</code>, <span class="math inline">\(\alpha = 0.5\)</span>)</li>
-</ol>
-<p><span class="math display">\[\text{logit}(\hat{p}_d) = \beta_0 + \sum_j \beta_j \cdot \text{GEE}_{dj}\]</span></p>
-<ol start="5" type="1">
-<li><strong>LOO cross-validation</strong>: Leave-one-out to assess in-sample predictive accuracy</li>
-<li><strong>Prediction</strong>: Apply to all Admin-2 areas (surveyed and unsurveyed)</li>
-<li><strong>Bootstrap CIs</strong>: Resample training areas <span class="math inline">\(B\)</span> times, refit, predict</li>
-</ol>
-</section>
-<section id="gee-covariates" class="level3" data-number="11.2.3">
-<h3 data-number="11.2.3" class="anchored" data-anchor-id="gee-covariates"><span class="header-section-number">11.2.3</span> GEE covariates</h3>
-<p>These are zonal means of satellite-derived rasters covering topics like:</p>
-<ul>
-<li>Vegetation indices (NDVI, EVI)</li>
-<li>Land surface temperature</li>
-<li>Nighttime lights (proxy for urbanization/wealth)</li>
-<li>Rainfall and climate variables</li>
-<li>Population density</li>
-<li>Land cover fractions</li>
-</ul>
-</section>
-<section id="parameters-3" class="level3" data-number="11.2.4">
-<h3 data-number="11.2.4" class="anchored" data-anchor-id="parameters-3"><span class="header-section-number">11.2.4</span> Parameters</h3>
-<table class="caption-top table">
-<thead>
-<tr class="header">
-<th>Parameter</th>
-<th>Fast mode</th>
-<th>Full mode</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td>Elastic net <span class="math inline">\(\alpha\)</span></td>
-<td>0.5</td>
-<td>0.5</td>
-</tr>
-<tr class="even">
-<td>LOO-CV folds</td>
-<td>min(<span class="math inline">\(n\)</span>, 10)</td>
-<td>min(<span class="math inline">\(n\)</span>, 10)</td>
-</tr>
-<tr class="odd">
-<td>Bootstrap <span class="math inline">\(B\)</span></td>
-<td>10</td>
-<td>500</td>
-</tr>
-</tbody>
-</table>
-</section>
-<section id="assumptions-1" class="level3" data-number="11.2.5">
-<h3 data-number="11.2.5" class="anchored" data-anchor-id="assumptions-1"><span class="header-section-number">11.2.5</span> Assumptions</h3>
-<ul>
-<li>GEE raster zonal means are representative of Admin-2 conditions</li>
-<li>Linear (logistic) relationship between GEE covariates and prevalence at the area level</li>
-<li>Surveyed areas are representative of unsurveyed areas (no systematic selection bias in where surveys were conducted)</li>
-</ul>
-</section>
-</section>
-</section>
-<section id="sec-plots" class="level1" data-number="12">
-<h1 data-number="12"><span class="header-section-number">12</span> Steps 11–13: Visualization</h1>
-<section id="admin-1-scatter-plot-step-11" class="level2" data-number="12.1">
-<h2 data-number="12.1" class="anchored" data-anchor-id="admin-1-scatter-plot-step-11"><span class="header-section-number">12.1</span> Admin-1 scatter plot (Step 11)</h2>
-<p><strong>Function:</strong> <code>plot_admin1_scatter()</code> in <code>R/plotting.R</code></p>
-<p>Scatter plot of predicted vs. observed Admin-1 prevalence:</p>
-<ul>
-<li>Points sized by number of individuals in each region</li>
-<li>45<span class="math inline">\(^\circ\)</span> identity line (perfect prediction)</li>
-<li>Region labels via <code>ggrepel</code></li>
-<li>Annotated with MAE and Pearson <span class="math inline">\(r\)</span></li>
-</ul>
-</section>
-<section id="admin-2-coverage-map-step-12" class="level2" data-number="12.2">
-<h2 data-number="12.2" class="anchored" data-anchor-id="admin-2-coverage-map-step-12"><span class="header-section-number">12.2</span> Admin-2 coverage map (Step 12)</h2>
-<p><strong>Function:</strong> <code>plot_admin2_coverage()</code> in <code>R/plotting.R</code></p>
-<p>Choropleth map of Admin-2 predicted prevalence:</p>
-<ul>
-<li>Colour scale: viridis plasma (low = yellow, high = purple)</li>
-<li><strong>Red borders</strong> highlight unsurveyed areas (predictions from area-level model only)</li>
-<li>Based on GADM Admin-2 boundaries</li>
-</ul>
-</section>
-<section id="admin-2-forest-plot-step-13" class="level2" data-number="12.3">
-<h2 data-number="12.3" class="anchored" data-anchor-id="admin-2-forest-plot-step-13"><span class="header-section-number">12.3</span> Admin-2 forest plot (Step 13)</h2>
-<p><strong>Function:</strong> <code>plot_admin2_forest()</code> in <code>R/plotting.R</code></p>
-<p>Forest plot of all Admin-2 areas sorted by estimated prevalence:</p>
-<ul>
-<li>Horizontal error bars: Bootstrap 95% CIs</li>
-<li>Point: Bootstrap mean prevalence</li>
-<li><span class="math inline">\(\times\)</span> marker: Survey-weighted prevalence (where available)</li>
-<li>Colour: Blue = surveyed, Red = unsurveyed</li>
-<li>Districts with duplicate names (e.g., Malawi TAs) are deduplicated</li>
-</ul>
-</section>
-</section>
-<section id="sec-diagnostics" class="level1" data-number="13">
-<h1 data-number="13"><span class="header-section-number">13</span> Step 14: Post-Hoc Diagnostics</h1>
-<section id="what-it-does-11" class="level2" data-number="13.1">
-<h2 data-number="13.1" class="anchored" data-anchor-id="what-it-does-11"><span class="header-section-number">13.1</span> What it does</h2>
-<p>Computes extended diagnostics from existing cross-validated predictions. No model refitting required.</p>
-</section>
-<section id="detail-10" class="level2" data-number="13.2">
-<h2 data-number="13.2" class="anchored" data-anchor-id="detail-10"><span class="header-section-number">13.2</span> Detail</h2>
-<p><strong>Function:</strong> <code>run_diagnostics()</code> in <code>R/diagnostics.R</code></p>
-<section id="binary-model-diagnostics" class="level3" data-number="13.2.1">
-<h3 data-number="13.2.1" class="anchored" data-anchor-id="binary-model-diagnostics"><span class="header-section-number">13.2.1</span> Binary model diagnostics</h3>
-<table class="caption-top table">
-<colgroup>
-<col style="width: 25%">
-<col style="width: 25%">
-<col style="width: 50%">
-</colgroup>
-<thead>
-<tr class="header">
-<th>Metric</th>
-<th>Method</th>
-<th>Interpretation</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td><strong>PR-AUC</strong></td>
-<td>Precision-recall curve (ROCR)</td>
-<td>More informative than ROC-AUC for rare outcomes</td>
-</tr>
-<tr class="even">
-<td><strong>Brier skill score</strong></td>
-<td><span class="math inline">\(1 - \frac{\text{Brier}}{\text{Brier}_{\text{null}}}\)</span></td>
-<td><span class="math inline">\(&gt; 0\)</span> = model beats prevalence-only baseline</td>
-</tr>
-<tr class="odd">
-<td><strong>Calibration slope</strong></td>
-<td>Logistic regression of <span class="math inline">\(Y \sim \text{logit}(\hat{p})\)</span></td>
-<td>Ideal = 1; <span class="math inline">\(&lt; 1\)</span> = overconfident; <span class="math inline">\(&gt; 1\)</span> = underconfident</td>
-</tr>
-<tr class="even">
-<td><strong>Calibration intercept</strong></td>
-<td>Same regression, intercept term</td>
-<td>Ideal = 0; <span class="math inline">\(\neq 0\)</span> = systematic bias</td>
-</tr>
-<tr class="odd">
-<td><strong>Binned calibration</strong></td>
-<td>Decile bins of <span class="math inline">\(\hat{p}\)</span>: compare mean predicted vs. observed</td>
-<td>Visual check of calibration across the risk spectrum</td>
-</tr>
-</tbody>
-</table>
-</section>
-<section id="why-these-metrics-matter-for-rare-outcomes" class="level3" data-number="13.2.2">
-<h3 data-number="13.2.2" class="anchored" data-anchor-id="why-these-metrics-matter-for-rare-outcomes"><span class="header-section-number">13.2.2</span> Why these metrics matter for rare outcomes</h3>
-<p>With prevalence of 3–5% (e.g., women’s vitamin A deficiency), standard metrics can mislead:</p>
-<ul>
-<li><strong>ROC-AUC</strong> is insensitive to the class imbalance — a model can achieve AUC = 0.70 while never predicting anyone as deficient</li>
-<li><strong>PR-AUC</strong> directly measures performance on the minority class; a no-skill classifier has PR-AUC <span class="math inline">\(\approx\)</span> prevalence</li>
-<li><strong>Brier skill score</strong> quantifies improvement over always predicting the base rate</li>
-<li><strong>Calibration</strong> matters most for subnational mapping: even modest discrimination can produce useful area-level estimates if predicted probabilities are well-calibrated</li>
-</ul>
-</section>
-<section id="continuous-model-diagnostics" class="level3" data-number="13.2.3">
-<h3 data-number="13.2.3" class="anchored" data-anchor-id="continuous-model-diagnostics"><span class="header-section-number">13.2.3</span> Continuous model diagnostics</h3>
-<p>Standard regression metrics (RMSE, MAE, <span class="math inline">\(R^2\)</span>) plus:</p>
-<ul>
-<li><strong>Prevalence recovery</strong>: Apply the deficiency cutoff to both observed and predicted continuous values, then compare binary prevalence. A well-calibrated model should recover the correct population prevalence even if individual-level <span class="math inline">\(R^2\)</span> is low.</li>
-</ul>
-</section>
-</section>
-</section>
-<section id="sec-transportability" class="level1" data-number="14">
-<h1 data-number="14"><span class="header-section-number">14</span> Cross-Country Transportability</h1>
-<section id="what-it-does-12" class="level2" data-number="14.1">
-<h2 data-number="14.1" class="anchored" data-anchor-id="what-it-does-12"><span class="header-section-number">14.1</span> What it does</h2>
-<p>Tests whether proxy-based models generalize across national boundaries using leave-one-country-out (LOCO) cross-validation.</p>
-</section>
-<section id="detail-11" class="level2" data-number="14.2">
-<h2 data-number="14.2" class="anchored" data-anchor-id="detail-11"><span class="header-section-number">14.2</span> Detail</h2>
-<section id="pooled-dataset-construction" class="level3" data-number="14.2.1">
-<h3 data-number="14.2.1" class="anchored" data-anchor-id="pooled-dataset-construction"><span class="header-section-number">14.2.1</span> Pooled dataset construction</h3>
-<p><strong>Function:</strong> <code>build_pooled_dataset()</code> in <code>R/transportability.R</code></p>
-<ol type="1">
-<li>Stack data from all countries for a given outcome</li>
-<li>Restrict to <strong>common proxy predictors</strong> present in every country (intersection of IHME, MAP, GEE, FSEC prefixes)</li>
-<li>Harmonize binary outcomes to 0/1</li>
-<li>Make cluster IDs globally unique (prefix with country name)</li>
-</ol>
-</section>
-<section id="loco-cross-validation" class="level3" data-number="14.2.2">
-<h3 data-number="14.2.2" class="anchored" data-anchor-id="loco-cross-validation"><span class="header-section-number">14.2.2</span> LOCO cross-validation</h3>
-<p><strong>Function:</strong> <code>run_loco_cv()</code> in <code>R/transportability.R</code></p>
-<p>For each country <span class="math inline">\(c\)</span>:</p>
-<ol type="1">
-<li><strong>Train</strong> a SuperLearner on all other countries using common predictors</li>
-<li><strong>Predict</strong> on the held-out country using the saved preprocessing recipe</li>
-<li><strong>Evaluate</strong>: AUC, Brier score, calibration slope/intercept</li>
-<li><strong>Admin-1 aggregation</strong>: Predicted vs. observed prevalence by region in the held-out country</li>
-</ol>
-</section>
-<section id="interpretation-1" class="level3" data-number="14.2.3">
-<h3 data-number="14.2.3" class="anchored" data-anchor-id="interpretation-1"><span class="header-section-number">14.2.3</span> Interpretation</h3>
-<ul>
-<li>High LOCO AUC = proxy signal generalizes across countries</li>
-<li>Low LOCO AUC = country-specific factors dominate; proxy models are not transportable for this outcome</li>
-<li>Calibration slope <span class="math inline">\(\neq\)</span> 1 in LOCO = the absolute prevalence level differs across countries (even if ranking is preserved)</li>
-</ul>
-</section>
-</section>
-</section>
-<section id="sec-config" class="level1" data-number="15">
-<h1 data-number="15"><span class="header-section-number">15</span> Configuration and Reproducibility</h1>
-<section id="outcome-definitions" class="level2" data-number="15.1">
-<h2 data-number="15.1" class="anchored" data-anchor-id="outcome-definitions"><span class="header-section-number">15.1</span> Outcome definitions</h2>
-<table class="caption-top table">
-<colgroup>
-<col style="width: 12%">
-<col style="width: 16%">
-<col style="width: 25%">
-<col style="width: 20%">
-<col style="width: 10%">
-<col style="width: 14%">
-</colgroup>
-<thead>
-<tr class="header">
-<th>Outcome</th>
-<th>Population</th>
-<th>Continuous column</th>
-<th>Binary column</th>
-<th>Cutoff</th>
-<th>Direction</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td>child_vitA</td>
-<td>Children 6–59m</td>
-<td>Adjusted RBP (<span class="math inline">\(\mu\)</span>mol/L)</td>
-<td>VAD indicator</td>
-<td>0.70</td>
-<td><span class="math inline">\(&lt;\)</span></td>
-</tr>
-<tr class="even">
-<td>women_vitA</td>
-<td>Women 15–49y</td>
-<td>Adjusted RBP (<span class="math inline">\(\mu\)</span>mol/L)</td>
-<td>VAD indicator</td>
-<td>0.70</td>
-<td><span class="math inline">\(&lt;\)</span></td>
-</tr>
-<tr class="odd">
-<td>child_iron</td>
-<td>Children 6–59m</td>
-<td>Log(ferritin) or ferritin</td>
-<td>IDA indicator</td>
-<td>varies</td>
-<td><span class="math inline">\(&lt;\)</span></td>
-</tr>
-<tr class="even">
-<td>women_iron</td>
-<td>Women 15–49y</td>
-<td>Log(ferritin) or ferritin</td>
-<td>IDA indicator</td>
-<td>varies</td>
-<td><span class="math inline">\(&lt;\)</span></td>
-</tr>
-</tbody>
-</table>
-</section>
-<section id="pipeline-modes" class="level2" data-number="15.2">
-<h2 data-number="15.2" class="anchored" data-anchor-id="pipeline-modes"><span class="header-section-number">15.2</span> Pipeline modes</h2>
-<table class="caption-top table">
-<thead>
-<tr class="header">
-<th>Parameter</th>
-<th>Fast</th>
-<th>Full</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
 <td>SL learners</td>
-<td>3</td>
-<td>7</td>
+<td>5 (mean, lasso, elastic net, ranger, xgboost)</td>
+<td>13 (lasso, ridge, elastic net, ranger x3, xgboost x2, BART x3, GP) + class-weighted variants</td>
 </tr>
 <tr class="even">
 <td>CV folds (<span class="math inline">\(K\)</span>)</td>
@@ -4441,35 +3345,693 @@ window.Quarto = {
 <td>5</td>
 </tr>
 <tr class="odd">
-<td>Bootstrap <span class="math inline">\(B\)</span></td>
-<td>4</td>
-<td>200</td>
+<td>Uncertainty</td>
+<td>Conformal CIs (from CV residuals)</td>
+<td>Conformal CIs (from CV residuals)</td>
 </tr>
 <tr class="even">
-<td>Area bootstrap <span class="math inline">\(B\)</span></td>
-<td>10</td>
-<td>500</td>
-</tr>
-<tr class="odd">
-<td>Approximate runtime (1 outcome)</td>
-<td>5–10 min</td>
-<td>30–60 min</td>
+<td>Approx runtime (all ~24 models)</td>
+<td>~30–60 min</td>
+<td>~2–4 hours</td>
 </tr>
 </tbody>
 </table>
 </section>
-<section id="parallelization" class="level2" data-number="15.3">
-<h2 data-number="15.3" class="anchored" data-anchor-id="parallelization"><span class="header-section-number">15.3</span> Parallelization</h2>
+<section id="data-flow-diagram" class="level2" data-number="1.3">
+<h2 data-number="1.3" class="anchored" data-anchor-id="data-flow-diagram"><span class="header-section-number">1.3</span> Data flow diagram</h2>
+<pre><code>Phase 1: Data Loading (per-country)
+  merged_raw_{country}
+    └─ merged_fsec_{country}        (+ food security data)
+         └─ merged_{country}        (+ external predictors + DHS Admin-2)
+
+Phase 2: Dataset Construction (per-country × outcome)
+  merged_{country}
+    └─ outcome_data_{country}_{outcome}   (filter population, select predictors)
+
+Phase 3: Model Fitting (per-country × outcome)
+  outcome_data + sl_learners + pipeline_params
+    └─ sl_fit_{country}_{outcome}         (mlr3 SuperLearner, continuous + binary)
+
+Phase 4: Evaluation (per-country × outcome, uses existing CV predictions)
+  sl_fit
+    ├─ cv_perf_{country}_{outcome}        (AUC, RMSE, Brier)
+    ├─ diagnostics_{country}_{outcome}    (PR-AUC, calibration, Brier skill)
+    └─ national_est_{country}_{outcome}   (survey vs model national prevalence)
+
+Phase 5: Spatial Predictions (per-country × outcome)
+  sl_fit + outcome_data
+    ├─ admin1_prev_{country}_{outcome}    (aggregate SL preds to Admin-1)
+    ├─ admin2_sl_{country}_{outcome}      (aggregate SL preds to Admin-2)
+    └─ svy_admin2_{country}_{outcome}     (survey-weighted Admin-2 prevalence)
+         ├─ admin2_error_{country}_{outcome}  (SL vs survey comparison)
+         └─ area_model_{country}_{outcome}    (GEE-based area-level predictions)
+
+Phase 6: Uncertainty (per-country × outcome)
+  outcome_data + sl_fit
+    └─ conformal_ci_{country}_{outcome}   (conformal prediction intervals)
+
+Phase 7: Domain Ablation (per-country × outcome)
+  outcome_data + sl_fit + sl_learners
+    └─ ablation_{country}_{outcome}       (permutation importance by domain)
+
+Phase 8: Transportability (per-outcome, cross-country)
+  all merged_{country}
+    ├─ pooled_{outcome}                   (stack all countries)
+    │    └─ loco_{outcome}                (leave-one-country-out CV)
+    ├─ pooled_gee_{outcome}               (GEE-only version)
+    │    └─ loco_gee_{outcome}
+    ├─ transportability_summary           (combined table)
+    └─ transportability_gee_summary
+
+Phase 9: OOS Prediction (per-outcome, Cote d&#39;Ivoire)
+  all svy_admin2 + pipeline_params
+    └─ oos_civ_{outcome}                  (pooled elastic net + weighted conformal CIs)
+
+Phase 10: Summary (global)
+  cv_perf, admin2_error_all, ablation_all, diagnostics_all, national_estimates_all
+    └─ save_tables                        (CSV output to results/tables/)</code></pre>
+</section>
+</section>
+<section id="sec-phase1" class="level1" data-number="2">
+<h1 data-number="2"><span class="header-section-number">2</span> Phase 1: Data Loading and Merging</h1>
+<p><strong>Scope:</strong> Per-country (4 targets per step)</p>
+<section id="step-1-load-raw-survey-data-merged_raw_country" class="level2" data-number="2.1">
+<h2 data-number="2.1" class="anchored" data-anchor-id="step-1-load-raw-survey-data-merged_raw_country"><span class="header-section-number">2.1</span> Step 1: Load raw survey data (<code>merged_raw_{country}</code>)</h2>
+<p><strong>Function:</strong> <code>load_merged_data()</code> in <code>R/data_prep.R</code></p>
+<p>Loads the pre-merged micronutrient survey dataset from RDS files. Performs country-specific harmonization:</p>
 <ul>
-<li><strong>Targets level</strong>: <code>tar_make_future(workers = 4)</code> runs independent outcomes concurrently</li>
-<li><strong>Within-target</strong>: Bootstrap and ablation use <code>future.apply::future_lapply()</code> with auto-scaled workers</li>
-<li><strong>Windows constraint</strong>: Uses <code>future::multisession</code> (socket-based, not fork-based)</li>
+<li><strong>Ghana:</strong> Derives <code>gw_child_flag</code> from presence of child biomarker columns</li>
+<li><strong>Sierra Leone:</strong> Derives binary VAD columns from continuous RBP using WHO threshold (&lt; 0.70 umol/L)</li>
+<li><strong>Malawi:</strong> Uses raw biomarker column names (<code>rbp</code>, <code>fer</code>, <code>vitA_def</code>) and text <code>population</code> column</li>
+<li><strong>All:</strong> Strips haven labels to prevent arithmetic errors downstream</li>
 </ul>
 </section>
-<section id="random-seed" class="level2" data-number="15.4">
-<h2 data-number="15.4" class="anchored" data-anchor-id="random-seed"><span class="header-section-number">15.4</span> Random seed</h2>
-<p>All randomization (CV folds, bootstrap resampling) uses a fixed seed (<code>params$seed</code>) for reproducibility. Bootstrap replicates use deterministic per-replicate seeds: <code>seed_base + b</code>.</p>
+<section id="step-2-merge-food-security-data-merged_fsec_country" class="level2" data-number="2.2">
+<h2 data-number="2.2" class="anchored" data-anchor-id="step-2-merge-food-security-data-merged_fsec_country"><span class="header-section-number">2.2</span> Step 2: Merge food security data (<code>merged_fsec_{country}</code>)</h2>
+<p><strong>Function:</strong> <code>merge_food_security()</code> in <code>R/food_security.R</code></p>
+<p>Left-joins food security indicators to individual records via Admin-1/Admin-2 fuzzy name matching:</p>
+<ul>
+<li><strong>HFID</strong> (Hunger-Free Index Database): <code>fsec_hfid_*</code> columns</li>
+<li><strong>Cadre Harmonise:</strong> <code>fsec_ch_*</code> columns (IPC phase classifications)</li>
+</ul>
 </section>
+<section id="step-3-merge-external-predictors-merged_country" class="level2" data-number="2.3">
+<h2 data-number="2.3" class="anchored" data-anchor-id="step-3-merge-external-predictors-merged_country"><span class="header-section-number">2.3</span> Step 3: Merge external predictors (<code>merged_{country}</code>)</h2>
+<p><strong>Function:</strong> <code>merge_external_predictors()</code> in <code>R/merge_external.R</code></p>
+<p>Left-joins two sets of Admin-2 level contextual variables to individual records:</p>
+<p><strong>A. Cached external predictors</strong> (from <code>data/external_cache/{country}_external_predictors.rds</code>):</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 29%">
+<col style="width: 29%">
+<col style="width: 40%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Source</th>
+<th>Prefix</th>
+<th>Variables</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>CHIRPS rainfall</td>
+<td><code>chirps_</code></td>
+<td>Monthly + annual stats</td>
+</tr>
+<tr class="even">
+<td>WorldPop density</td>
+<td><code>worldpop_</code></td>
+<td>Population density</td>
+</tr>
+<tr class="odd">
+<td>VIIRS nighttime lights</td>
+<td><code>ntl_</code></td>
+<td>Luminosity (proxy for urbanisation)</td>
+</tr>
+<tr class="even">
+<td>MAP malaria surfaces</td>
+<td><code>map2_</code></td>
+<td>PfPR, treatment-seeking, ITN use</td>
+</tr>
+<tr class="odd">
+<td>SoilGrids</td>
+<td><code>soil_</code></td>
+<td>Nutrient concentrations by depth</td>
+</tr>
+<tr class="even">
+<td>Global Data Lab</td>
+<td><code>gdl_</code></td>
+<td>Subnational HDI, education, health indices</td>
+</tr>
+<tr class="odd">
+<td>WFP HungerMap</td>
+<td><code>wfp_</code></td>
+<td>Food consumption, livelihood coping</td>
+</tr>
+<tr class="even">
+<td>IPC food security</td>
+<td><code>ipc_</code></td>
+<td>Phase classifications</td>
+</tr>
+<tr class="odd">
+<td>ACLED conflict</td>
+<td><code>acled_</code></td>
+<td>Conflict event counts</td>
+</tr>
+<tr class="even">
+<td>HarvestChoice/SPAM</td>
+<td><code>crop_</code></td>
+<td>Crop area, yield, production</td>
+</tr>
+</tbody>
+</table>
+<p><strong>B. DHS Admin-2 survey indicators</strong> (from <code>data/DHS/clean/</code>):</p>
+<ul>
+<li>~110 indicators from <code>surveyPrev</code> BYM2 smoothing + custom weighted aggregation</li>
+<li>Prefix: <code>dhs{year}_*_adm2</code> (e.g., <code>dhs2019_AN_ANEM_W_ANY_adm2</code>)</li>
+</ul>
+<p><strong>Deduplication:</strong> GADM Admin-2 polygons can have duplicate names (e.g., “Lake Malawi” appears 8 times). The merge deduplicates by averaging numeric values per Admin-2 name before joining to prevent row multiplication.</p>
+</section>
+</section>
+<section id="sec-phase2" class="level1" data-number="3">
+<h1 data-number="3"><span class="header-section-number">3</span> Phase 2: Dataset Construction</h1>
+<p><strong>Scope:</strong> Per-country x outcome (~24 targets)</p>
+<section id="step-4-build-outcome-dataset-outcome_data_country_outcome" class="level2" data-number="3.1">
+<h2 data-number="3.1" class="anchored" data-anchor-id="step-4-build-outcome-dataset-outcome_data_country_outcome"><span class="header-section-number">3.1</span> Step 4: Build outcome dataset (<code>outcome_data_{country}_{outcome}</code>)</h2>
+<p><strong>Function:</strong> <code>build_outcome_dataset()</code> in <code>R/data_prep.R</code></p>
+<section id="population-filtering" class="level3" data-number="3.1.1">
+<h3 data-number="3.1.1" class="anchored" data-anchor-id="population-filtering"><span class="header-section-number">3.1.1</span> Population filtering</h3>
+<p>Filters to the target population using the <code>child_flag</code> column:</p>
+<ul>
+<li><strong>Children</strong> (6–59 months): <code>child_flag_val = 1</code> (or <code>&quot;preschool children&quot;</code> for Malawi)</li>
+<li><strong>Women</strong> (15–49 years): <code>child_flag_val = 0</code> (or <code>&quot;women&quot;</code> for Malawi)</li>
+</ul>
+</section>
+<section id="predictor-identification-by-domain-prefix" class="level3" data-number="3.1.2">
+<h3 data-number="3.1.2" class="anchored" data-anchor-id="predictor-identification-by-domain-prefix"><span class="header-section-number">3.1.2</span> Predictor identification by domain prefix</h3>
+<p>Columns are assigned to domains by prefix matching. The primary predictor set (<code>Xvars</code>) <strong>excludes all GW variables</strong> to prevent outcome leakage:</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 22%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Domain</th>
+<th>Prefix</th>
+<th>Source</th>
+<th>Level</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>GW</td>
+<td><code>gw_</code></td>
+<td>Same survey (excluded from primary models)</td>
+<td>Individual</td>
+</tr>
+<tr class="even">
+<td>DHS</td>
+<td><code>dhs{year}_</code></td>
+<td>DHS aggregate indicators</td>
+<td>Admin-1 + Admin-2</td>
+</tr>
+<tr class="odd">
+<td>IHME</td>
+<td><code>ihme_</code></td>
+<td>Disease burden estimates</td>
+<td>Admin-2</td>
+</tr>
+<tr class="even">
+<td>MAP</td>
+<td><code>MAP_</code></td>
+<td>Malaria surfaces</td>
+<td>Admin-2</td>
+</tr>
+<tr class="odd">
+<td>GEE</td>
+<td><code>gee_</code></td>
+<td>Satellite indices (pre-baked at cluster-buffer level)</td>
+<td>Cluster buffer</td>
+</tr>
+<tr class="even">
+<td>CHIRPS</td>
+<td><code>chirps_</code></td>
+<td>Rainfall</td>
+<td>Admin-2</td>
+</tr>
+<tr class="odd">
+<td>WorldPop</td>
+<td><code>worldpop_</code></td>
+<td>Population density</td>
+<td>Admin-2</td>
+</tr>
+<tr class="even">
+<td>Nightlights</td>
+<td><code>ntl_</code></td>
+<td>VIIRS luminosity</td>
+<td>Admin-2</td>
+</tr>
+<tr class="odd">
+<td>Soil</td>
+<td><code>soil_</code></td>
+<td>SoilGrids nutrients</td>
+<td>Admin-2</td>
+</tr>
+<tr class="even">
+<td>GDL</td>
+<td><code>gdl_</code></td>
+<td>Development indices</td>
+<td>Admin-2</td>
+</tr>
+<tr class="odd">
+<td>Crop</td>
+<td><code>crop_</code></td>
+<td>HarvestChoice data</td>
+<td>Admin-2</td>
+</tr>
+<tr class="even">
+<td>MICS</td>
+<td><code>mics_</code></td>
+<td>UNICEF indicators</td>
+<td>Admin-1</td>
+</tr>
+<tr class="odd">
+<td>FSEC</td>
+<td><code>fsec_</code></td>
+<td>Food security (HFID + CH)</td>
+<td>Admin-1/2</td>
+</tr>
+<tr class="even">
+<td>WFP</td>
+<td><code>wfp_</code></td>
+<td>Food prices</td>
+<td>Market</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="leakage-prevention" class="level3" data-number="3.1.3">
+<h3 data-number="3.1.3" class="anchored" data-anchor-id="leakage-prevention"><span class="header-section-number">3.1.3</span> Leakage prevention</h3>
+<p>Within the GW domain, biomarker-related patterns (<code>RBP</code>, <code>VAD</code>, <code>Ferr</code>, <code>IDA</code>, etc.) are additionally removed. The outcome columns themselves are excluded from predictors.</p>
+</section>
+<section id="output" class="level3" data-number="3.1.4">
+<h3 data-number="3.1.4" class="anchored" data-anchor-id="output"><span class="header-section-number">3.1.4</span> Output</h3>
+<ul>
+<li><code>data</code>: Filtered data frame</li>
+<li><code>Xvars</code>: <strong>Proxy-only</strong> predictors (no GW) — used for all primary modelling</li>
+<li><code>Xvars_full</code>: All predictors including GW (for ablation baseline only)</li>
+<li><code>domain_vars</code>: Named list mapping each domain to its column names</li>
+</ul>
+</section>
+</section>
+</section>
+<section id="sec-phase3" class="level1" data-number="4">
+<h1 data-number="4"><span class="header-section-number">4</span> Phase 3: Model Fitting</h1>
+<p><strong>Scope:</strong> Per-country x outcome (~24 targets) — <strong>computationally expensive</strong></p>
+<section id="step-5-fit-superlearner-sl_fit_country_outcome" class="level2" data-number="4.1">
+<h2 data-number="4.1" class="anchored" data-anchor-id="step-5-fit-superlearner-sl_fit_country_outcome"><span class="header-section-number">4.1</span> Step 5: Fit SuperLearner (<code>sl_fit_{country}_{outcome}</code>)</h2>
+<p><strong>Function:</strong> <code>fit_mlr3_models()</code> in <code>R/mlr3_fitting.R</code></p>
+<p>Fits two mlr3 SuperLearner ensembles per outcome: one continuous and one binary classification model.</p>
+<section id="preprocessing-pipeline" class="level3" data-number="4.1.1">
+<h3 data-number="4.1.1" class="anchored" data-anchor-id="preprocessing-pipeline"><span class="header-section-number">4.1.1</span> Preprocessing pipeline</h3>
+<ol type="1">
+<li>Strip haven labels</li>
+<li>Drop all-NA and constant columns</li>
+<li>Near-zero variance filter (<code>caret::nearZeroVar()</code>)</li>
+<li>Missing value imputation (<code>ck37r::impute_missing_values()</code> with <code>missing_*</code> indicators)</li>
+<li>Near-zero variance filter (2nd pass, post-imputation)</li>
+<li>Marginal prescreening (<code>washb::washb_prescreen()</code>, <span class="math inline">\(p &lt; 0.20\)</span>)</li>
+<li>Correlation filter (<code>recipes::step_corr()</code>, <span class="math inline">\(|r| &gt; 0.85\)</span>)</li>
+<li>Normalization (<code>recipes::step_normalize()</code>)</li>
+</ol>
+</section>
+<section id="cross-validation-design" class="level3" data-number="4.1.2">
+<h3 data-number="4.1.2" class="anchored" data-anchor-id="cross-validation-design"><span class="header-section-number">4.1.2</span> Cross-validation design</h3>
+<ul>
+<li><strong>5-fold CV</strong>, blocked by survey cluster (PSU) via <code>origami::make_folds(cluster_ids = ...)</code></li>
+<li>All individuals within the same cluster assigned to the same fold</li>
+</ul>
+</section>
+<section id="learner-library" class="level3" data-number="4.1.3">
+<h3 data-number="4.1.3" class="anchored" data-anchor-id="learner-library"><span class="header-section-number">4.1.3</span> Learner library</h3>
+<section id="fast-mode-5-learners" class="level4" data-number="4.1.3.1">
+<h4 data-number="4.1.3.1" class="anchored" data-anchor-id="fast-mode-5-learners"><span class="header-section-number">4.1.3.1</span> Fast mode (5 learners)</h4>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Learner</th>
+<th>Method</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>mean</code></td>
+<td>Intercept-only benchmark</td>
+</tr>
+<tr class="even">
+<td><code>glmnet</code> (<span class="math inline">\(\alpha = 1\)</span>)</td>
+<td>Lasso</td>
+</tr>
+<tr class="odd">
+<td><code>glmnet</code> (<span class="math inline">\(\alpha = 0.5\)</span>)</td>
+<td>Elastic net</td>
+</tr>
+<tr class="even">
+<td><code>ranger</code> (<code>min.node.size = 10</code>)</td>
+<td>Random forest</td>
+</tr>
+<tr class="odd">
+<td><code>xgboost</code> (<code>max_depth = 3</code>)</td>
+<td>Gradient boosting</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="full-mode-13-base-learners-dynamic-additions" class="level4" data-number="4.1.3.2">
+<h4 data-number="4.1.3.2" class="anchored" data-anchor-id="full-mode-13-base-learners-dynamic-additions"><span class="header-section-number">4.1.3.2</span> Full mode (13 base learners + dynamic additions)</h4>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 22%">
+<col style="width: 32%">
+<col style="width: 45%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Class</th>
+<th>Learners</th>
+<th>Configuration</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Mean</td>
+<td><code>mean</code></td>
+<td>Intercept-only benchmark (excluded for Sierra Leone — see below)</td>
+</tr>
+<tr class="even">
+<td>Regularized linear</td>
+<td><code>glmnet</code> x3</td>
+<td>Lasso (<span class="math inline">\(\alpha = 1\)</span>), Ridge (<span class="math inline">\(\alpha = 0\)</span>), Elastic net (<span class="math inline">\(\alpha = 0.5\)</span>)</td>
+</tr>
+<tr class="odd">
+<td>Random forest</td>
+<td><code>ranger</code> x3</td>
+<td>Standard (<code>min.node.size = 10</code>), low mtry (<code>mtry = 8</code>), deep (<code>min.node.size = 5</code>, 1000 trees)</td>
+</tr>
+<tr class="even">
+<td>Gradient boosting</td>
+<td><code>xgboost</code> x2</td>
+<td>Conservative (<code>max_depth = 3</code>, <code>eta = 0.05</code>), deep (<code>max_depth = 6</code>, <code>eta = 0.03</code>)</td>
+</tr>
+<tr class="odd">
+<td>BART</td>
+<td><code>bart</code> x3</td>
+<td>50, 100, 200 trees (dbarts with refit-on-predict fallback for serialization)</td>
+</tr>
+<tr class="even">
+<td>Gaussian process</td>
+<td><code>gaussianprocess</code></td>
+<td>RBF kernel (kernlab); captures smooth nonlinear patterns in predictor space</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Dynamic additions for rare outcomes</strong> (prevalence &lt; 15%):</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 39%">
+<col style="width: 60%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Learner</th>
+<th>Configuration</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>xgb_weighted</code></td>
+<td>XGBoost with <code>scale_pos_weight</code> = min((1 - prev) / prev, 50)</td>
+</tr>
+<tr class="even">
+<td><code>ranger_weighted</code></td>
+<td>Ranger with <code>class.weights</code> upweighting the minority class</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Sierra Leone mean-learner exclusion:</strong> The <code>mean</code> learner is removed for Sierra Leone because discrete SuperLearner selection consistently chose the intercept-only model over real learners that achieved AUC 0.67–0.77, due to no single learner <em>consistently</em> beating the mean across all clustered CV folds with Sierra Leone’s ~60 clusters.</p>
+</section>
+</section>
+<section id="metalearner" class="level3" data-number="4.1.4">
+<h3 data-number="4.1.4" class="anchored" data-anchor-id="metalearner"><span class="header-section-number">4.1.4</span> Metalearner</h3>
+<p>Non-negative least squares (NNLS) — finds the optimal convex combination of learner predictions.</p>
+<p><strong>Note:</strong> <code>lightgbm</code> and <code>nnet</code> were tested but disabled — both caused <code>mlr3superlearner</code> to silently return NULL on real data with 200–350 predictors, despite passing isolated serialization tests.</p>
+</section>
+<section id="output-1" class="level3" data-number="4.1.5">
+<h3 data-number="4.1.5" class="anchored" data-anchor-id="output-1"><span class="header-section-number">4.1.5</span> Output</h3>
+<ul>
+<li><code>cont_fit$res$Y</code> / <code>cont_fit$res$yhat_full</code>: Observed and CV-predicted continuous values</li>
+<li><code>bin_fit$res$Y</code> / <code>bin_fit$res$yhat_full</code>: Observed and CV-predicted binary probabilities</li>
+<li><code>sl_fit</code>: Trained ensemble, <code>auto_recipe</code>: Saved preprocessing recipe</li>
+</ul>
+</section>
+</section>
+</section>
+<section id="sec-phase4" class="level1" data-number="5">
+<h1 data-number="5"><span class="header-section-number">5</span> Phase 4: Performance Evaluation</h1>
+<p><strong>Scope:</strong> Per-country x outcome (~24 targets each) — all use existing CV predictions, no refitting</p>
+<section id="step-6-cv-performance-metrics-cv_perf_country_outcome" class="level2" data-number="5.1">
+<h2 data-number="5.1" class="anchored" data-anchor-id="step-6-cv-performance-metrics-cv_perf_country_outcome"><span class="header-section-number">5.1</span> Step 6: CV performance metrics (<code>cv_perf_{country}_{outcome}</code>)</h2>
+<p><strong>Function:</strong> <code>extract_cv_performance()</code> in <code>R/admin1_analysis.R</code></p>
+<ul>
+<li><strong>Continuous:</strong> RMSE, MAE, <span class="math inline">\(R^2\)</span>, Pearson <span class="math inline">\(r\)</span>, prevalence recovery via threshold</li>
+<li><strong>Binary:</strong> ROC-AUC, Brier score</li>
+</ul>
+</section>
+<section id="step-7-extended-diagnostics-diagnostics_country_outcome" class="level2" data-number="5.2">
+<h2 data-number="5.2" class="anchored" data-anchor-id="step-7-extended-diagnostics-diagnostics_country_outcome"><span class="header-section-number">5.2</span> Step 7: Extended diagnostics (<code>diagnostics_{country}_{outcome}</code>)</h2>
+<p><strong>Function:</strong> <code>run_diagnostics()</code> in <code>R/diagnostics.R</code></p>
+<ul>
+<li><strong>PR-AUC</strong> (precision-recall, more informative than ROC-AUC for rare outcomes)</li>
+<li><strong>Brier skill score</strong> (improvement over prevalence-only baseline)</li>
+<li><strong>Calibration slope/intercept</strong> (logistic regression of <span class="math inline">\(Y\)</span> on <span class="math inline">\(\text{logit}(\hat{p})\)</span>)</li>
+<li><strong>Binned calibration table</strong> and PR/ROC curve data</li>
+</ul>
+</section>
+<section id="step-8-national-estimates-national_est_country_outcome" class="level2" data-number="5.3">
+<h2 data-number="5.3" class="anchored" data-anchor-id="step-8-national-estimates-national_est_country_outcome"><span class="header-section-number">5.3</span> Step 8: National estimates (<code>national_est_{country}_{outcome}</code>)</h2>
+<p><strong>Function:</strong> <code>compute_national_estimates()</code> in <code>R/national_estimates.R</code></p>
+<p>Survey-weighted national prevalence vs. model-predicted national prevalence with absolute and percentage differences.</p>
+</section>
+</section>
+<section id="sec-phase5" class="level1" data-number="6">
+<h1 data-number="6"><span class="header-section-number">6</span> Phase 5: Spatial Predictions</h1>
+<p><strong>Scope:</strong> Per-country x outcome (~24 targets each)</p>
+<section id="step-9-admin-1-aggregation-admin1_prev_country_outcome" class="level2" data-number="6.1">
+<h2 data-number="6.1" class="anchored" data-anchor-id="step-9-admin-1-aggregation-admin1_prev_country_outcome"><span class="header-section-number">6.1</span> Step 9: Admin-1 aggregation (<code>admin1_prev_{country}_{outcome}</code>)</h2>
+<p><strong>Function:</strong> <code>aggregate_admin1()</code> in <code>R/admin1_analysis.R</code></p>
+<p>Aggregates individual-level SL predictions to Admin-1 (region) level using <strong>survey weights</strong>. Computes observed prevalence for comparison and absolute/percent error.</p>
+</section>
+<section id="step-10-admin-2-sl-aggregation-admin2_sl_country_outcome" class="level2" data-number="6.2">
+<h2 data-number="6.2" class="anchored" data-anchor-id="step-10-admin-2-sl-aggregation-admin2_sl_country_outcome"><span class="header-section-number">6.2</span> Step 10: Admin-2 SL aggregation (<code>admin2_sl_{country}_{outcome}</code>)</h2>
+<p><strong>Function:</strong> <code>aggregate_admin2_sl()</code> in <code>R/admin2_analysis.R</code></p>
+<p>Same as Admin-1 but at the finer Admin-2 (district) level.</p>
+</section>
+<section id="step-11-survey-admin-2-prevalence-svy_admin2_country_outcome" class="level2" data-number="6.3">
+<h2 data-number="6.3" class="anchored" data-anchor-id="step-11-survey-admin-2-prevalence-svy_admin2_country_outcome"><span class="header-section-number">6.3</span> Step 11: Survey Admin-2 prevalence (<code>svy_admin2_{country}_{outcome}</code>)</h2>
+<p><strong>Function:</strong> <code>compute_svy_admin2()</code> in <code>R/admin2_analysis.R</code></p>
+<p>Design-based survey-weighted prevalence at Admin-2 level using <code>{srvyr}</code>. Handles lonely PSUs with conservative variance adjustment. Falls back to per-area or unweighted computation for small areas.</p>
+</section>
+<section id="step-12-admin-2-error-evaluation-admin2_error_country_outcome" class="level2" data-number="6.4">
+<h2 data-number="6.4" class="anchored" data-anchor-id="step-12-admin-2-error-evaluation-admin2_error_country_outcome"><span class="header-section-number">6.4</span> Step 12: Admin-2 error evaluation (<code>admin2_error_{country}_{outcome}</code>)</h2>
+<p><strong>Function:</strong> <code>compute_admin2_error()</code> in <code>R/admin2_analysis.R</code></p>
+<p>Joins SL-predicted and survey-weighted Admin-2 prevalences. Computes MAE (pp), RMSE (pp), Pearson <span class="math inline">\(r\)</span>, mean bias.</p>
+</section>
+<section id="step-13-area-level-model-area_model_country_outcome" class="level2" data-number="6.5">
+<h2 data-number="6.5" class="anchored" data-anchor-id="step-13-area-level-model-area_model_country_outcome"><span class="header-section-number">6.5</span> Step 13: Area-level model (<code>area_model_{country}_{outcome}</code>)</h2>
+<p><strong>Function:</strong> <code>fit_area_level_model()</code> in <code>R/admin2_analysis.R</code></p>
+<p>Fits an area-level elastic net using GEE raster zonal means to predict Admin-2 prevalence for <strong>all</strong> polygons (including unsurveyed). Extracts zonal means from <code>.tif</code> rasters, with intelligent handling of multi-band rasters:</p>
+<ul>
+<li><strong>GPW Demographic (77 bands):</strong> Summary statistics only (total pop density)</li>
+<li><strong>WAPOR NPP (36 bands):</strong> Summary statistics only (annual mean/sd)</li>
+<li><strong>FLDAS climate (28 bands):</strong> All bands retained (28 distinct climate variables)</li>
+<li><strong>Soil (4 bands each):</strong> All depth layers retained (meaningful variation)</li>
+<li><strong>Small rasters (&lt; 6 bands):</strong> All bands retained</li>
+</ul>
+<p>Runs LOO-CV on training areas to assess in-sample performance.</p>
+</section>
+</section>
+<section id="sec-phase6" class="level1" data-number="7">
+<h1 data-number="7"><span class="header-section-number">7</span> Phase 6: Uncertainty Quantification</h1>
+<p><strong>Scope:</strong> Per-country x outcome (~24 targets) — fast, uses existing CV residuals</p>
+<section id="step-14-conformal-prediction-intervals-conformal_ci_country_outcome" class="level2" data-number="7.1">
+<h2 data-number="7.1" class="anchored" data-anchor-id="step-14-conformal-prediction-intervals-conformal_ci_country_outcome"><span class="header-section-number">7.1</span> Step 14: Conformal prediction intervals (<code>conformal_ci_{country}_{outcome}</code>)</h2>
+<p><strong>Function:</strong> <code>compute_conformal_ci()</code> in <code>R/conformal.R</code></p>
+<p>Distribution-free conformal prediction intervals derived from cross-validated residuals. Two approaches:</p>
+<ol type="1">
+<li><strong>Constant-width:</strong> Quantile of <span class="math inline">\(|Y_i - \hat{Y}_i|\)</span> across all CV predictions</li>
+<li><strong>Locally-adaptive:</strong> Width varies with predicted variance (wider where model is less certain)</li>
+</ol>
+<p>Propagated to Admin-1 and national levels. Provides finite-sample marginal coverage guarantees (nominally 95%) without parametric assumptions.</p>
+</section>
+</section>
+<section id="sec-phase7" class="level1" data-number="8">
+<h1 data-number="8"><span class="header-section-number">8</span> Phase 7: Domain Ablation</h1>
+<p><strong>Scope:</strong> Per-country x outcome (~24 targets)</p>
+<section id="step-15-permutation-domain-importance-ablation_country_outcome" class="level2" data-number="8.1">
+<h2 data-number="8.1" class="anchored" data-anchor-id="step-15-permutation-domain-importance-ablation_country_outcome"><span class="header-section-number">8.1</span> Step 15: Permutation domain importance (<code>ablation_{country}_{outcome}</code>)</h2>
+<p><strong>Function:</strong> <code>run_domain_ablation()</code> in <code>R/domain_ablation.R</code></p>
+<p>Variables are grouped into <strong>~22 conceptual domains</strong> (e.g., Climate, Child Health, Malaria, Socioeconomic, Agriculture) using DHS indicator classification and pattern matching. For each domain:</p>
+<ol type="1">
+<li>Shuffle that domain’s columns in the fitted model’s data (5 replicates)</li>
+<li>Predict using the existing SL ensemble (no refitting)</li>
+<li>Measure AUC/Brier degradation</li>
+</ol>
+<p><span class="math inline">\(\Delta\text{AUC}_d &gt; 0\)</span> means domain <span class="math inline">\(d\)</span> contributes; <span class="math inline">\(\approx 0\)</span> means redundant.</p>
+</section>
+</section>
+<section id="sec-phase8" class="level1" data-number="9">
+<h1 data-number="9"><span class="header-section-number">9</span> Phase 8: Cross-Country Transportability</h1>
+<p><strong>Scope:</strong> Per-outcome (4 targets) + 2 global summaries — <strong>computationally expensive</strong></p>
+<section id="step-16-pooled-datasets-pooled_outcome-pooled_gee_outcome" class="level2" data-number="9.1">
+<h2 data-number="9.1" class="anchored" data-anchor-id="step-16-pooled-datasets-pooled_outcome-pooled_gee_outcome"><span class="header-section-number">9.1</span> Step 16: Pooled datasets (<code>pooled_{outcome}</code>, <code>pooled_gee_{outcome}</code>)</h2>
+<p><strong>Function:</strong> <code>build_pooled_dataset()</code> in <code>R/transportability.R</code></p>
+<p>Stacks individual-level data from all 4 countries for one outcome. Restricts to <strong>common proxy predictors</strong> present in every country (intersection of IHME, MAP, GEE, FSEC prefixes). Makes cluster IDs globally unique.</p>
+<p>A GEE-only variant (<code>pooled_gee_{outcome}</code>) tests satellite-only transportability.</p>
+</section>
+<section id="step-17-loco-cross-validation-loco_outcome-loco_gee_outcome" class="level2" data-number="9.2">
+<h2 data-number="9.2" class="anchored" data-anchor-id="step-17-loco-cross-validation-loco_outcome-loco_gee_outcome"><span class="header-section-number">9.2</span> Step 17: LOCO cross-validation (<code>loco_{outcome}</code>, <code>loco_gee_{outcome}</code>)</h2>
+<p><strong>Function:</strong> <code>run_loco_cv()</code> in <code>R/transportability.R</code></p>
+<p>For each held-out country: train SL on the other 3, predict on held-out. Reports AUC, Brier, calibration slope/intercept.</p>
+</section>
+<section id="step-18-summaries-transportability_summary-transportability_gee_summary" class="level2" data-number="9.3">
+<h2 data-number="9.3" class="anchored" data-anchor-id="step-18-summaries-transportability_summary-transportability_gee_summary"><span class="header-section-number">9.3</span> Step 18: Summaries (<code>transportability_summary</code>, <code>transportability_gee_summary</code>)</h2>
+<p>Combines all LOCO results across outcomes into single tables.</p>
+</section>
+</section>
+<section id="sec-phase9" class="level1" data-number="10">
+<h1 data-number="10"><span class="header-section-number">10</span> Phase 9: Out-of-Sample Prediction</h1>
+<p><strong>Scope:</strong> Per-outcome (4 targets) for Cote d’Ivoire — only built if CIV raster directory exists</p>
+<section id="step-19-oos-predictions-oos_civ_outcome" class="level2" data-number="10.1">
+<h2 data-number="10.1" class="anchored" data-anchor-id="step-19-oos-predictions-oos_civ_outcome"><span class="header-section-number">10.1</span> Step 19: OOS predictions (<code>oos_civ_{outcome}</code>)</h2>
+<p><strong>Function:</strong> <code>predict_oos_pooled()</code> in <code>R/oos_prediction.R</code></p>
+<ol type="1">
+<li><strong>Pool</strong> all 4 countries’ survey Admin-2 prevalences</li>
+<li><strong>Extract</strong> common GEE covariates + cached external predictors for training countries</li>
+<li><strong>Train</strong> pooled elastic net (<span class="math inline">\(\alpha = 0.5\)</span>) on area-level data</li>
+<li><strong>LOO residuals</strong> for conformal calibration</li>
+<li><strong>Extract</strong> GEE + external predictors for Cote d’Ivoire</li>
+<li><strong>Predict</strong> Admin-2 prevalence with <strong>weighted conformal prediction intervals</strong></li>
+</ol>
+<section id="weighted-conformal-cis-covariate-shift-adjustment" class="level3" data-number="10.1.1">
+<h3 data-number="10.1.1" class="anchored" data-anchor-id="weighted-conformal-cis-covariate-shift-adjustment"><span class="header-section-number">10.1.1</span> Weighted conformal CIs (covariate-shift adjustment)</h3>
+<p>Standard conformal assumes exchangeability between calibration and target data, which is violated when predicting to a new country. The pipeline uses covariate-shift weighted conformal:</p>
+<ol type="1">
+<li>Fit logistic regression to distinguish training vs. target covariates (density ratio estimation)</li>
+<li>Weight calibration residuals by <span class="math inline">\(w_i = \hat{p}(x_i) / (1 - \hat{p}(x_i))\)</span></li>
+<li>Compute per-district weighted quantile for CI width</li>
+</ol>
+<p>Districts with unusual covariate profiles (far from training distribution) get <strong>wider intervals</strong>, honestly reflecting extrapolation uncertainty.</p>
+</section>
+</section>
+</section>
+<section id="sec-phase10" class="level1" data-number="11">
+<h1 data-number="11"><span class="header-section-number">11</span> Phase 10: Summary and Reporting</h1>
+<p><strong>Scope:</strong> Global (6 targets)</p>
+<section id="step-20-aggregate-targets" class="level2" data-number="11.1">
+<h2 data-number="11.1" class="anchored" data-anchor-id="step-20-aggregate-targets"><span class="header-section-number">11.1</span> Step 20: Aggregate targets</h2>
+<ul>
+<li><code>cv_perf</code>: Row-binds all ~24 CV performance tables</li>
+<li><code>admin2_error_all</code>: Row-binds all ~24 Admin-2 error tables</li>
+<li><code>ablation_all</code>: Row-binds all ~24 domain ablation results</li>
+<li><code>diagnostics_all</code>: Combines all diagnostics into structured list (binary_metrics, continuous_metrics, calibration_tables, PR/ROC curves)</li>
+<li><code>national_estimates_all</code>: Row-binds all ~24 national estimate comparisons</li>
+</ul>
+</section>
+<section id="step-21-save-tables-save_tables" class="level2" data-number="11.2">
+<h2 data-number="11.2" class="anchored" data-anchor-id="step-21-save-tables-save_tables"><span class="header-section-number">11.2</span> Step 21: Save tables (<code>save_tables</code>)</h2>
+<p>Writes combined CSV files to <code>results/tables/</code>.</p>
+</section>
+<section id="plot-targets-per-country-x-outcome-48-total" class="level2" data-number="11.3">
+<h2 data-number="11.3" class="anchored" data-anchor-id="plot-targets-per-country-x-outcome-48-total"><span class="header-section-number">11.3</span> Plot targets (per-country x outcome, 48 total)</h2>
+<ul>
+<li><code>plot_admin1_scatter_*</code>: Observed vs predicted Admin-1 scatter</li>
+<li><code>plot_admin2_coverage_*</code>: Choropleth map of area-level predictions</li>
+<li><code>plot_admin2_forest_*</code>: Forest plot with CIs, surveyed vs unsurveyed</li>
+</ul>
+</section>
+</section>
+<section id="target-count-summary" class="level1" data-number="12">
+<h1 data-number="12"><span class="header-section-number">12</span> Target Count Summary</h1>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Scope</th>
+<th>Targets per instance</th>
+<th>Instances</th>
+<th>Total</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Global static (<code>pipeline_params</code>, <code>sl_learners</code>)</td>
+<td>2</td>
+<td>1</td>
+<td>2</td>
+</tr>
+<tr class="even">
+<td>Per-country data loading (Steps 1–3)</td>
+<td>3</td>
+<td>4</td>
+<td>12</td>
+</tr>
+<tr class="odd">
+<td>Per-country x outcome (Steps 4–15, plots)</td>
+<td>14</td>
+<td>~24</td>
+<td>~336</td>
+</tr>
+<tr class="even">
+<td>Per-outcome transportability (Steps 16–17)</td>
+<td>4</td>
+<td>4</td>
+<td>16</td>
+</tr>
+<tr class="odd">
+<td>Per-outcome GEE-only transportability</td>
+<td>4</td>
+<td>4</td>
+<td>16</td>
+</tr>
+<tr class="even">
+<td>Global transportability summaries (Step 18)</td>
+<td>2</td>
+<td>1</td>
+<td>2</td>
+</tr>
+<tr class="odd">
+<td>OOS per-outcome (Step 19)</td>
+<td>1</td>
+<td>4</td>
+<td>4</td>
+</tr>
+<tr class="even">
+<td>Global summaries + save (Steps 20–21)</td>
+<td>6</td>
+<td>1</td>
+<td>6</td>
+</tr>
+<tr class="odd">
+<td><strong>Total</strong></td>
+<td></td>
+<td></td>
+<td><strong>~542</strong></td>
+</tr>
+</tbody>
+</table>
 </section>
 
 </main>

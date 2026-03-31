@@ -1039,7 +1039,7 @@ if (!is.null(a1_all) && nrow(a1_all) > 0 &&
   a1_plot <- a1_all |> filter(!is.na(Admin1), !is.na(obs_prevalence))
 
   if (nrow(a1_plot) > 0) {
-    ggplot(a1_plot, aes(x = obs_prevalence, y = pred_prevalence)) +
+    p <- ggplot(a1_plot, aes(x = obs_prevalence, y = pred_prevalence)) +
       geom_abline(slope = 1, intercept = 0, linetype = "dashed", colour = "grey50") +
       geom_point(aes(size = n, colour = country), alpha = 0.7) +
       ggrepel::geom_text_repel(aes(label = Admin1), size = 2,
@@ -1055,6 +1055,8 @@ if (!is.null(a1_all) && nrow(a1_all) > 0 &&
         subtitle = "All countries | Dashed line = perfect agreement"
       ) +
       theme(legend.position = "bottom")
+    save_fig("admin1_obs_vs_pred", p)
+    print(p)
   }
 }
 ```
@@ -1178,6 +1180,31 @@ if (length(a2_pngs) > 0) {
 ```
 
 Admin-2 districts with very few survey respondents (< 15) may have unreliable observed prevalences. SL predictions smooth over sampling noise by aggregating individual-level model predictions.
+
+
+## Malawi Admin-2: Extrapolation to Unsurveyed Districts {#sec-malawi-oos}
+
+Not all Malawi Admin-2 districts have sufficient survey respondents for direct prevalence estimation. For unsurveyed districts, we fit an area-level elastic net model on surveyed districts (survey prevalence ~ GEE raster covariates) and extrapolate to all districts. Uncertainty is quantified via LOO conformal prediction intervals.
+
+Maps are pre-rendered by `scripts/malawi_admin2_oos.R`. Each 4-panel figure shows: (1) observed survey prevalence (unsurveyed = grey), (2) SL-predicted prevalence (surveyed only), (3) extrapolated predictions for all districts (unsurveyed outlined in red dashes), (4) conformal prediction interval width.
+
+```{r malawi-oos-maps, results='asis'}
+#| column: page
+
+mw_pngs <- list.files(here("results", "figures"),
+                       pattern = "^malawi_oos_admin2_.*\\.png$", full.names = TRUE)
+if (length(mw_pngs) > 0) {
+  for (f in sort(mw_pngs)) {
+    oc_tag <- sub("malawi_oos_admin2_(.*)\\.png", "\\1", basename(f))
+    oc_label <- outcome_labels[oc_tag]
+    if (is.na(oc_label)) oc_label <- oc_tag
+    cat(sprintf("\n\n### %s\n\n", oc_label))
+    cat(sprintf("![Malawi OOS: %s](%s){width=100%%}\n\n", oc_label, f))
+  }
+} else {
+  cat("Malawi OOS maps not found. Run `Rscript scripts/malawi_admin2_oos.R`.\n")
+}
+```
 
 
 # Continuous Outcome: Observed vs. Predicted Scatter {#sec-continuous-scatter}
@@ -1599,6 +1626,72 @@ if (!is.null(vi_all) && nrow(vi_all) > 0) {
 }
 ```
 
+## Variable Importance by Data Source {#sec-varimp-source}
+
+To understand which **data sources** contribute the most important predictors, we classify each variable by its source prefix and aggregate importance within each source.
+
+```{r varimp-source-heatmap, fig.height=6, fig.width=10}
+#| fig-cap: "Mean variable importance by data source for the top-performing models. Darker = higher mean importance within that source."
+
+if (!is.null(vi_all) && nrow(vi_all) > 0) {
+  # Classify variables by data source
+  get_source <- function(v) {
+    if (grepl("^dhs\\d{4}_", v)) return("DHS")
+    if (grepl("^mics_", v))      return("MICS")
+    if (grepl("^ihme_", v))      return("IHME")
+    if (grepl("^MAP_", v))       return("MAP")
+    if (grepl("^gee_", v))       return("GEE")
+    if (grepl("^fsec_", v))      return("FSEC")
+    if (grepl("^wfp_", v))       return("WFP")
+    if (grepl("^chirps_", v))    return("CHIRPS")
+    if (grepl("^worldpop_|^wp_", v)) return("WorldPop")
+    if (grepl("^ntl_|^viirs_", v)) return("VIIRS")
+    if (grepl("^soil_|^sg_", v)) return("SoilGrids")
+    if (grepl("^gdl_", v))       return("GDL")
+    if (grepl("^spam_|^hc_|^crop_", v)) return("HarvestChoice")
+    if (grepl("^missing_", v))   return("Missingness")
+    return("Other")
+  }
+
+  vi_src <- vi_all |>
+    mutate(
+      source = sapply(variable, get_source),
+      model_label = paste0(country, " — ", outcome_labels[outcome])
+    ) |>
+    group_by(model_label, source) |>
+    summarise(
+      mean_importance = mean(importance_norm, na.rm = TRUE),
+      max_importance = max(importance_norm, na.rm = TRUE),
+      n_vars = n(),
+      .groups = "drop"
+    )
+
+  # Order sources by overall mean importance
+  src_order <- vi_src |>
+    group_by(source) |>
+    summarise(overall = mean(mean_importance), .groups = "drop") |>
+    arrange(desc(overall))
+  vi_src$source <- factor(vi_src$source, levels = rev(src_order$source))
+
+  p <- ggplot(vi_src, aes(x = model_label, y = source, fill = mean_importance)) +
+    geom_tile(colour = "white", linewidth = 0.8) +
+    geom_text(aes(label = sprintf("%.0f%%\n(n=%d)", mean_importance * 100, n_vars)),
+              size = 3, lineheight = 0.8) +
+    scale_fill_viridis_c(name = "Mean Relative\nImportance",
+                          labels = percent_format(accuracy = 1),
+                          option = "mako", direction = -1) +
+    labs(x = NULL, y = NULL,
+         title = "Variable Importance by Data Source",
+         subtitle = "Mean normalized importance | n = number of variables from that source") +
+    theme_minimal(base_size = 12) +
+    theme(axis.text.x = element_text(angle = 15, hjust = 1),
+          panel.grid = element_blank())
+
+  save_fig("varimp_source_heatmap", p)
+  print(p)
+}
+```
+
 
 # Transportability --- Leave-One-Country-Out {#sec-loco}
 
@@ -1786,7 +1879,10 @@ nat_obs_df <- if (length(nat_obs) > 0) bind_rows(nat_obs) else NULL
 
 if (length(nat_list) > 0) {
   nat_forest <- bind_rows(nat_list) |>
-    filter(boot_mean >= 0 & boot_mean <= 1) |>
+    # Keep only binary prevalence models (boot_mean in 0-1 range)
+    # and exclude Malawi folate which is continuous-only (1 event)
+    filter(boot_mean >= 0, boot_mean <= 1, ci_lo >= -0.5, ci_hi <= 1.5) |>
+    filter(!(country == "Malawi" & outcome == "women_folate")) |>
     mutate(
       outcome_label = outcome_labels[outcome],
       label = paste0(country, " — ", outcome_label)
@@ -1794,8 +1890,10 @@ if (length(nat_list) > 0) {
 
   # Merge observed prevalence
   if (!is.null(nat_obs_df)) {
+    # Also filter obs_prev to valid prevalences
+    nat_obs_valid <- nat_obs_df |> filter(obs_prev >= 0, obs_prev <= 1)
     nat_forest <- nat_forest |>
-      left_join(nat_obs_df, by = c("country", "outcome"))
+      left_join(nat_obs_valid, by = c("country", "outcome"))
   }
 
   if (nrow(nat_forest) > 0 && all(c("ci_lo", "ci_hi", "boot_mean") %in% colnames(nat_forest))) {
@@ -1808,14 +1906,14 @@ if (length(nat_list) > 0) {
       labs(x = "National prevalence (95% conformal PI)",
            y = NULL,
            title = "National Prevalence: Predicted vs. Observed",
-           subtitle = "Blue = predicted (with 95% conformal PI) | Red = observed survey prevalence") +
+           subtitle = "Circle = predicted (with 95% conformal PI) | X = observed survey prevalence") +
       theme_minimal(base_size = 11) +
       theme(legend.position = "bottom")
 
-    # Add observed prevalence points if available
+    # Add observed prevalence as X markers
     if ("obs_prev" %in% colnames(nat_forest) && any(!is.na(nat_forest$obs_prev))) {
       p <- p + geom_point(aes(x = obs_prev, colour = "Observed (survey)"),
-                           size = 3, shape = 17)
+                           size = 4, shape = 4, stroke = 1.5)
     }
 
     p <- p + scale_colour_manual(name = NULL,
@@ -1856,8 +1954,9 @@ for (ctry in countries) {
 
 if (length(nat_list) > 0) {
   nat_ci <- bind_rows(nat_list) |>
-    # Filter out continuous outcomes (raw scale, not prevalence)
-    filter(boot_mean <= 1 & boot_mean >= 0) |>
+    # Filter out continuous outcomes and Malawi folate (1 event, continuous-only)
+    filter(boot_mean >= 0, boot_mean <= 1, ci_lo >= -0.5, ci_hi <= 1.5) |>
+    filter(!(country == "Malawi" & outcome == "women_folate")) |>
     mutate(
       mean_pct = round(boot_mean * 100, 1),
       lo_pct   = round(ci_lo * 100, 1),
@@ -1884,27 +1983,40 @@ if (length(nat_list) > 0) {
 ```{r national-ci-forest, fig.height=8, fig.width=9}
 if (length(nat_list) > 0) {
   nat_plot <- bind_rows(nat_list) |>
+    filter(boot_mean >= 0, boot_mean <= 1, ci_lo >= -0.5, ci_hi <= 1.5) |>
+    filter(!(country == "Malawi" & outcome == "women_folate")) |>
     mutate(
       outcome_label = outcome_labels[outcome],
       ctry_label = country
     )
 
-  # Exclude continuous-only outcomes (boot_mean > 1 indicates raw scale, not prevalence)
-  if ("boot_mean" %in% colnames(nat_plot)) {
-    nat_plot <- nat_plot |> filter(boot_mean <= 1 & boot_mean >= 0)
+  # Merge observed prevalence for X markers
+  if (!is.null(nat_obs_df)) {
+    nat_plot <- nat_plot |>
+      left_join(nat_obs_df |> filter(obs_prev >= 0, obs_prev <= 1),
+                by = c("country", "outcome"))
   }
 
   if (nrow(nat_plot) > 0 && all(c("ci_lo", "ci_hi", "boot_mean") %in% colnames(nat_plot))) {
-    ggplot(nat_plot, aes(y = ctry_label, x = boot_mean,
-                          xmin = ci_lo, xmax = ci_hi, colour = ctry_label)) +
-      geom_pointrange(size = 0.8, linewidth = 0.6) +
+    p <- ggplot(nat_plot, aes(y = ctry_label)) +
+      geom_errorbarh(aes(xmin = pmax(ci_lo, 0), xmax = pmin(ci_hi, 1)),
+                      height = 0.3, colour = "grey40", linewidth = 0.5) +
+      geom_point(aes(x = boot_mean, colour = ctry_label), size = 3) +
       scale_x_continuous(labels = percent_format(accuracy = 1)) +
       scale_colour_brewer(palette = "Set2", guide = "none") +
       facet_wrap(~ outcome_label, scales = "free_x", ncol = 2) +
       labs(x = "Prevalence", y = NULL,
-           title = "National Prevalence Estimates with Conformal 95% Prediction Intervals",
-           subtitle = "All countries and outcomes") +
+           title = "National Prevalence with Conformal 95% Prediction Intervals",
+           subtitle = "Circles = predicted | X = observed survey prevalence") +
       theme(strip.text = element_text(face = "bold"))
+
+    # Add observed prevalence as X markers
+    if ("obs_prev" %in% colnames(nat_plot) && any(!is.na(nat_plot$obs_prev))) {
+      p <- p + geom_point(aes(x = obs_prev), shape = 4, size = 3,
+                           stroke = 1.5, colour = "black")
+    }
+
+    print(p)
   }
 }
 ```
@@ -2511,20 +2623,37 @@ dir.create(fig_dir, showWarnings = FALSE, recursive = TRUE)
 # Add national prevalence CI forest plot if available
 if (length(nat_list) > 0) {
   nat_plot <- bind_rows(nat_list) |>
+    filter(boot_mean >= 0, boot_mean <= 1, ci_lo >= -0.5, ci_hi <= 1.5) |>
+    filter(!(country == "Malawi" & outcome == "women_folate")) |>
     mutate(outcome_label = outcome_labels[outcome], ctry_label = country)
 
+  # Merge observed prevalence for X markers
+  if (!is.null(nat_obs_df)) {
+    nat_plot <- nat_plot |>
+      left_join(nat_obs_df |> filter(obs_prev >= 0, obs_prev <= 1),
+                by = c("country", "outcome"))
+  }
+
   if (nrow(nat_plot) > 0 && all(c("ci_lo", "ci_hi", "boot_mean") %in% colnames(nat_plot))) {
-    p_nat <- ggplot(nat_plot,
-        aes(y = ctry_label, x = boot_mean, xmin = ci_lo, xmax = ci_hi,
-            colour = ctry_label)) +
-      geom_pointrange(size = 0.8, linewidth = 0.6) +
+    p_nat <- ggplot(nat_plot, aes(y = ctry_label)) +
+      geom_errorbarh(aes(xmin = pmax(ci_lo, 0), xmax = pmin(ci_hi, 1)),
+                      height = 0.3, colour = "grey40", linewidth = 0.5) +
+      geom_point(aes(x = boot_mean, colour = ctry_label), size = 3) +
       scale_x_continuous(labels = percent_format(accuracy = 1)) +
       scale_colour_brewer(palette = "Set2", guide = "none") +
       facet_wrap(~ outcome_label, scales = "free_x", ncol = 2) +
       labs(x = "Prevalence", y = NULL,
-           title = "National Prevalence with Conformal 95% Prediction Intervals") +
+           title = "National Prevalence with Conformal 95% Prediction Intervals",
+           subtitle = "Circles = predicted | X = observed survey prevalence") +
       theme_minimal(base_size = 13) +
       theme(strip.text = element_text(face = "bold"))
+
+    # Add observed prevalence as X markers
+    if ("obs_prev" %in% colnames(nat_plot) && any(!is.na(nat_plot$obs_prev))) {
+      p_nat <- p_nat + geom_point(aes(x = obs_prev), shape = 4, size = 3,
+                                    stroke = 1.5, colour = "black")
+    }
+
     save_fig("national_ci_forest", p_nat)
   }
 }

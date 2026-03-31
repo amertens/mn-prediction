@@ -4,6 +4,7 @@
 # Pre-render all Admin-1 and Admin-2 maps as publication-quality PNG files.
 # Maps use a SINGLE shared legend per outcome across all countries.
 # Output: results/figures/admin1_maps_*.png, results/figures/admin2_maps_*.png
+#         results/figures/map_figures.rds (ggplot objects for interactive use)
 # =============================================================================
 
 library(targets)
@@ -38,6 +39,9 @@ load_target <- function(name) {
 
 fig_dir <- here("results", "figures")
 dir.create(fig_dir, showWarnings = FALSE, recursive = TRUE)
+
+# Collector for ggplot objects (saved as RDS at the end)
+.map_figs <- list()
 
 
 # ── Load and simplify GADM polygons ──────────────────────────────────────
@@ -227,6 +231,7 @@ for (oc in outcomes) {
   legend_p <- make_legend_plot(lims)
   final <- combined / legend_p + plot_layout(heights = c(1, 0.08))
 
+  .map_figs[[paste0("admin1_maps_", oc)]] <- final
   outfile <- file.path(fig_dir, paste0("admin1_maps_", oc, ".png"))
   ggsave(outfile, final, width = min(n_panels * 2.5, 20), height = 5.5,
          dpi = 200, bg = "white")
@@ -277,6 +282,7 @@ for (oc in outcomes) {
   legend_p <- make_legend_plot(lims)
   final <- combined / legend_p + plot_layout(heights = c(1, 0.08))
 
+  .map_figs[[paste0("admin2_maps_", oc)]] <- final
   outfile <- file.path(fig_dir, paste0("admin2_maps_", oc, ".png"))
   ggsave(outfile, final, width = min(n_panels * 2.5, 20), height = 5.5,
          dpi = 200, bg = "white")
@@ -346,10 +352,16 @@ for (oc in outcomes) {
   legend_p <- make_legend_plot(ci_lims, title = "CI Width", palette = "inferno", direction = -1)
   final <- combined / legend_p + plot_layout(heights = c(1, 0.08))
 
+  .map_figs[[paste0("admin1_ci_width_", oc)]] <- final
   outfile <- file.path(fig_dir, paste0("admin1_ci_width_", oc, ".png"))
   ggsave(outfile, final, width = length(panels) * 3.5, height = 4.5,
          dpi = 200, bg = "white")
   cat(sprintf("  Saved %s (%d panels)\n", basename(outfile), length(panels)))
 }
 
-cat("\nDone. All maps saved to results/figures/\n")
+# Save all map ggplot objects as RDS for interactive use
+saveRDS(.map_figs, file.path(fig_dir, "map_figures.rds"))
+cat(sprintf("\nSaved %d map ggplot objects to results/figures/map_figures.rds\n",
+            length(.map_figs)))
+
+cat("Done. All maps saved to results/figures/\n")

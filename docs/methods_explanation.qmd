@@ -20,7 +20,7 @@ execute:
 
 # Overview
 
-This document explains the analysis pipeline for predicting subnational micronutrient deficiency prevalence from proxy indicators. The pipeline is implemented as a `{targets}` directed acyclic graph (DAG) with **~263 total targets** across 4 countries (Gambia, Ghana, Sierra Leone, Malawi) and 4 outcomes per country, plus cross-country transportability and out-of-sample prediction targets.
+This document explains the analysis pipeline for predicting subnational micronutrient deficiency prevalence from proxy indicators. The pipeline is implemented as a `{targets}` directed acyclic graph (DAG) with **~542 total targets** across 4 countries (Gambia, Ghana, Sierra Leone, Malawi) and up to 8 outcomes per country (vitamin A, iron, folate, B12, zinc), plus cross-country transportability (LOCO for 4 shared outcomes) and out-of-sample prediction targets (Cote d'Ivoire).
 
 ## Countries and outcomes
 
@@ -32,10 +32,10 @@ This document explains the analysis pipeline for predicting subnational micronut
 
 | Parameter | Fast mode | Full mode |
 |-----------|-----------|-----------|
-| SL learners | 5 (mean, lasso, ranger, xgboost, BART) | 16 (multiple configs per method) |
+| SL learners | 5 (mean, lasso, elastic net, ranger, xgboost) | 13 (lasso, ridge, elastic net, ranger x3, xgboost x2, BART x3, GP) + class-weighted variants |
 | CV folds ($K$) | 5 | 5 |
 | Uncertainty | Conformal CIs (from CV residuals) | Conformal CIs (from CV residuals) |
-| Approx runtime (all 16 combos) | ~30--60 min | ~2--4 hours |
+| Approx runtime (all ~24 models) | ~30--60 min | ~2--4 hours |
 
 ## Data flow diagram
 
@@ -149,7 +149,7 @@ Left-joins two sets of Admin-2 level contextual variables to individual records:
 
 # Phase 2: Dataset Construction {#sec-phase2}
 
-**Scope:** Per-country x outcome (16 targets)
+**Scope:** Per-country x outcome (~24 targets)
 
 ## Step 4: Build outcome dataset (`outcome_data_{country}_{outcome}`)
 
@@ -197,7 +197,7 @@ Within the GW domain, biomarker-related patterns (`RBP`, `VAD`, `Ferr`, `IDA`, e
 
 # Phase 3: Model Fitting {#sec-phase3}
 
-**Scope:** Per-country x outcome (16 targets) --- **computationally expensive**
+**Scope:** Per-country x outcome (~24 targets) --- **computationally expensive**
 
 ## Step 5: Fit SuperLearner (`sl_fit_{country}_{outcome}`)
 
@@ -221,19 +221,43 @@ Fits two mlr3 SuperLearner ensembles per outcome: one continuous and one binary 
 - **5-fold CV**, blocked by survey cluster (PSU) via `origami::make_folds(cluster_ids = ...)`
 - All individuals within the same cluster assigned to the same fold
 
-### Learner library (fast mode)
+### Learner library
+
+#### Fast mode (5 learners)
 
 | Learner | Method |
 |---------|--------|
 | `mean` | Intercept-only benchmark |
 | `glmnet` ($\alpha = 1$) | Lasso |
+| `glmnet` ($\alpha = 0.5$) | Elastic net |
 | `ranger` (`min.node.size = 10`) | Random forest |
 | `xgboost` (`max_depth = 3`) | Gradient boosting |
-| `bart` (`ntree = 100`) | BART |
+
+#### Full mode (13 base learners + dynamic additions)
+
+| Class | Learners | Configuration |
+|-------|----------|--------------|
+| Mean | `mean` | Intercept-only benchmark (excluded for Sierra Leone --- see below) |
+| Regularized linear | `glmnet` x3 | Lasso ($\alpha = 1$), Ridge ($\alpha = 0$), Elastic net ($\alpha = 0.5$) |
+| Random forest | `ranger` x3 | Standard (`min.node.size = 10`), low mtry (`mtry = 8`), deep (`min.node.size = 5`, 1000 trees) |
+| Gradient boosting | `xgboost` x2 | Conservative (`max_depth = 3`, `eta = 0.05`), deep (`max_depth = 6`, `eta = 0.03`) |
+| BART | `bart` x3 | 50, 100, 200 trees (dbarts with refit-on-predict fallback for serialization) |
+| Gaussian process | `gaussianprocess` | RBF kernel (kernlab); captures smooth nonlinear patterns in predictor space |
+
+**Dynamic additions for rare outcomes** (prevalence < 15%):
+
+| Learner | Configuration |
+|---------|--------------|
+| `xgb_weighted` | XGBoost with `scale_pos_weight` = min((1 - prev) / prev, 50) |
+| `ranger_weighted` | Ranger with `class.weights` upweighting the minority class |
+
+**Sierra Leone mean-learner exclusion:** The `mean` learner is removed for Sierra Leone because discrete SuperLearner selection consistently chose the intercept-only model over real learners that achieved AUC 0.67--0.77, due to no single learner *consistently* beating the mean across all clustered CV folds with Sierra Leone's ~60 clusters.
 
 ### Metalearner
 
 Non-negative least squares (NNLS) --- finds the optimal convex combination of learner predictions.
+
+**Note:** `lightgbm` and `nnet` were tested but disabled --- both caused `mlr3superlearner` to silently return NULL on real data with 200--350 predictors, despite passing isolated serialization tests.
 
 ### Output
 
@@ -244,7 +268,7 @@ Non-negative least squares (NNLS) --- finds the optimal convex combination of le
 
 # Phase 4: Performance Evaluation {#sec-phase4}
 
-**Scope:** Per-country x outcome (16 targets each) --- all use existing CV predictions, no refitting
+**Scope:** Per-country x outcome (~24 targets each) --- all use existing CV predictions, no refitting
 
 ## Step 6: CV performance metrics (`cv_perf_{country}_{outcome}`)
 
@@ -271,7 +295,7 @@ Survey-weighted national prevalence vs. model-predicted national prevalence with
 
 # Phase 5: Spatial Predictions {#sec-phase5}
 
-**Scope:** Per-country x outcome (16 targets each)
+**Scope:** Per-country x outcome (~24 targets each)
 
 ## Step 9: Admin-1 aggregation (`admin1_prev_{country}_{outcome}`)
 
@@ -314,7 +338,7 @@ Runs LOO-CV on training areas to assess in-sample performance.
 
 # Phase 6: Uncertainty Quantification {#sec-phase6}
 
-**Scope:** Per-country x outcome (16 targets) --- fast, uses existing CV residuals
+**Scope:** Per-country x outcome (~24 targets) --- fast, uses existing CV residuals
 
 ## Step 14: Conformal prediction intervals (`conformal_ci_{country}_{outcome}`)
 
@@ -330,7 +354,7 @@ Propagated to Admin-1 and national levels. Provides finite-sample marginal cover
 
 # Phase 7: Domain Ablation {#sec-phase7}
 
-**Scope:** Per-country x outcome (16 targets)
+**Scope:** Per-country x outcome (~24 targets)
 
 ## Step 15: Permutation domain importance (`ablation_{country}_{outcome}`)
 
@@ -400,11 +424,11 @@ Districts with unusual covariate profiles (far from training distribution) get *
 
 ## Step 20: Aggregate targets
 
-- `cv_perf`: Row-binds all 16 CV performance tables
-- `admin2_error_all`: Row-binds all 16 Admin-2 error tables
-- `ablation_all`: Row-binds all 16 domain ablation results
+- `cv_perf`: Row-binds all ~24 CV performance tables
+- `admin2_error_all`: Row-binds all ~24 Admin-2 error tables
+- `ablation_all`: Row-binds all ~24 domain ablation results
 - `diagnostics_all`: Combines all diagnostics into structured list (binary_metrics, continuous_metrics, calibration_tables, PR/ROC curves)
-- `national_estimates_all`: Row-binds all 16 national estimate comparisons
+- `national_estimates_all`: Row-binds all ~24 national estimate comparisons
 
 ## Step 21: Save tables (`save_tables`)
 
@@ -423,9 +447,10 @@ Writes combined CSV files to `results/tables/`.
 |---|---|---|---|
 | Global static (`pipeline_params`, `sl_learners`) | 2 | 1 | 2 |
 | Per-country data loading (Steps 1--3) | 3 | 4 | 12 |
-| Per-country x outcome (Steps 4--15, plots) | 14 | 16 | 224 |
+| Per-country x outcome (Steps 4--15, plots) | 14 | ~24 | ~336 |
 | Per-outcome transportability (Steps 16--17) | 4 | 4 | 16 |
+| Per-outcome GEE-only transportability | 4 | 4 | 16 |
 | Global transportability summaries (Step 18) | 2 | 1 | 2 |
 | OOS per-outcome (Step 19) | 1 | 4 | 4 |
 | Global summaries + save (Steps 20--21) | 6 | 1 | 6 |
-| **Total** | | | **~266** |
+| **Total** | | | **~542** |

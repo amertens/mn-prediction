@@ -320,6 +320,7 @@ run_loco_cv <- function(pooled, sl_learners, params) {
       n_train         = nrow(train_data),
       n_test          = nrow(test_data),
       prev_test       = mean(Y_test, na.rm = TRUE),
+      pred_prev       = mean(preds, na.rm = TRUE),
       auc             = auc_val,
       brier           = brier_val,
       null_brier      = mean(Y_test) * (1 - mean(Y_test)),
