@@ -1207,6 +1207,109 @@ if (length(mw_pngs) > 0) {
 ```
 
 
+# Comparative Analysis: Individual-Level vs. Area-Level Prediction {#sec-area-comparison}
+
+This section compares three approaches to predicting Admin-2 prevalence:
+
+- **Individual SL**: SuperLearner trained on individual biomarker data, predictions aggregated to Admin-2
+- **Area SL (MSE)**: SuperLearner trained directly on Admin-2 survey prevalence using MSE/continuous loss
+- **Area SL (NLL)**: SuperLearner trained on Admin-2 prevalence using negative log-likelihood (binomial loss, inspired by beta regression theory) --- naturally handles bounded [0,1] data
+
+## Within-Country Comparison
+
+```{r area-comparison-heatmap, fig.height=8, fig.width=10}
+area_comp <- load_target("area_comparison_all")
+if (!is.null(area_comp) && nrow(area_comp) > 0) {
+  comp_plot <- area_comp |>
+    mutate(
+      outcome_label = outcome_labels[outcome],
+      ctry_outcome = paste0(country, " — ", outcome_label)
+    )
+
+  ggplot(comp_plot, aes(x = approach, y = ctry_outcome, fill = mae_pp)) +
+    geom_tile(colour = "white", linewidth = 0.8) +
+    geom_text(aes(label = sprintf("%.1f", mae_pp)), size = 3.5, fontface = "bold") +
+    scale_fill_viridis_c(name = "MAE (pp)", option = "mako", direction = -1) +
+    labs(x = NULL, y = NULL,
+         title = "Admin-2 Prediction Accuracy: MAE (percentage points)",
+         subtitle = "Lower = better | Three approaches compared") +
+    theme_minimal(base_size = 11) +
+    theme(axis.text.x = element_text(angle = 25, hjust = 1),
+          panel.grid = element_blank())
+} else {
+  cat("Area comparison targets not yet available. Run the pipeline.\n")
+}
+```
+
+```{r area-comparison-table}
+if (!is.null(area_comp) && nrow(area_comp) > 0) {
+  comp_display <- area_comp |>
+    mutate(outcome_label = outcome_labels[outcome]) |>
+    select(Country = country, Outcome = outcome_label, Approach = approach,
+           `N Admin-2` = n_admin2, `MAE (pp)` = mae_pp, `RMSE (pp)` = rmse_pp,
+           `Pearson r` = pearson_r, `Bias (pp)` = mean_bias_pp)
+
+  kable(comp_display,
+        caption = "Within-country Admin-2 prediction accuracy: three approaches") |>
+    kable_styling(bootstrap_options = c("striped", "hover"),
+                  full_width = FALSE, font_size = 10) |>
+    collapse_rows(columns = 1:2, valign = "top")
+}
+```
+
+## Area-Level LOCO: Cross-Country Transportability
+
+```{r area-loco-table}
+area_loco <- load_target("area_loco_comparison")
+if (!is.null(area_loco) && nrow(area_loco) > 0) {
+  loco_display <- area_loco |>
+    mutate(
+      outcome_label = outcome_labels[outcome],
+      loss = ifelse(model_type == "continuous", "MSE", "NLL")
+    ) |>
+    select(`Held out` = held_out, Outcome = outcome_label, Loss = loss,
+           `N train` = n_train, `N test` = n_test,
+           `Obs (%)` = obs_prev, `Pred (%)` = pred_prev,
+           `MAE (pp)` = mae_pp, `r` = pearson_r) |>
+    mutate(
+      `Obs (%)` = round(`Obs (%)` * 100, 1),
+      `Pred (%)` = round(`Pred (%)` * 100, 1)
+    )
+
+  kable(loco_display,
+        caption = "Area-level LOCO: trained on 3 countries' Admin-2 data, tested on held-out") |>
+    kable_styling(bootstrap_options = c("striped", "hover"),
+                  full_width = FALSE, font_size = 10) |>
+    collapse_rows(columns = 1:2, valign = "top")
+} else {
+  cat("Area-level LOCO targets not yet available.\n")
+}
+```
+
+```{r area-loco-heatmap, fig.height=6, fig.width=10}
+if (!is.null(area_loco) && nrow(area_loco) > 0) {
+  loco_plot <- area_loco |>
+    mutate(
+      outcome_label = outcome_labels[outcome],
+      loss_label = ifelse(model_type == "continuous", "MSE", "NLL"),
+      panel = paste0(outcome_label, " (", loss_label, ")")
+    )
+
+  ggplot(loco_plot, aes(x = outcome_label, y = held_out, fill = mae_pp)) +
+    geom_tile(colour = "white", linewidth = 0.8) +
+    geom_text(aes(label = sprintf("%.1f", mae_pp)), size = 3.5, fontface = "bold") +
+    scale_fill_viridis_c(name = "MAE (pp)", option = "mako", direction = -1) +
+    facet_wrap(~ loss_label) +
+    labs(x = NULL, y = "Held-out country",
+         title = "Area-Level LOCO: Admin-2 MAE by Held-Out Country",
+         subtitle = "MSE vs NLL (binomial) loss | Trained on 3 countries, tested on held-out") +
+    theme_minimal(base_size = 11) +
+    theme(axis.text.x = element_text(angle = 25, hjust = 1),
+          panel.grid = element_blank())
+}
+```
+
+
 # Continuous Outcome: Observed vs. Predicted Scatter {#sec-continuous-scatter}
 
 This section plots individual-level observed biomarker values (Y) against cross-validated predicted values (yhat_full) from the continuous SuperLearner fit, with a 45-degree reference line and Pearson correlation annotation.

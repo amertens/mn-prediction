@@ -520,6 +520,123 @@ for (country_name in names(all_country_configs)) {
 }
 
 
+# ── Area-level comparison targets ──────────────────────────────────────────
+# Compare individual-level SL (aggregated to Admin-2) vs area-level SL
+# (directly predicting Admin-2 prevalence from GEE covariates) using
+# both MSE and NLL (beta-inspired) loss functions.
+
+area_comparison_targets <- list()
+for (cc_name in names(all_country_configs)) {
+  cc_local <- all_country_configs[[cc_name]]
+  ctry_lower <- tolower(cc_name)
+
+  for (oc_name in names(cc_local$outcomes)) {
+    oc_local <- cc_local$outcomes[[oc_name]]
+    suffix <- paste0(ctry_lower, "_", oc_name)
+
+    area_comparison_targets <- c(area_comparison_targets, list(
+      tar_target_raw(
+        paste0("area_comparison_", suffix),
+        substitute(
+          run_area_comparison(svy_admin2_val, sl_admin2_val, gee_admin2_val,
+                              cc_val, oc_val),
+          list(
+            svy_admin2_val = as.symbol(paste0("svy_admin2_", suffix)),
+            sl_admin2_val  = as.symbol(paste0("admin2_sl_", suffix)),
+            gee_admin2_val = as.symbol(paste0("gee_admin2_", ctry_lower)),
+            cc_val = cc_local,
+            oc_val = oc_local
+          )
+        )
+      )
+    ))
+  }
+}
+
+# Combined area comparison summary
+area_comp_names <- paste0("area_comparison_",
+  unlist(lapply(names(all_country_configs), function(cc_name) {
+    paste0(tolower(cc_name), "_", names(all_country_configs[[cc_name]]$outcomes))
+  })))
+area_comp_syms <- lapply(area_comp_names, as.symbol)
+area_comp_list_expr <- as.call(c(list(as.symbol("list")), setNames(area_comp_syms, area_comp_names)))
+
+area_comparison_targets <- c(area_comparison_targets, list(
+  tar_target_raw(
+    "area_comparison_all",
+    substitute({
+      comps <- all_comps_val
+      rows <- lapply(comps, function(x) x$comparison)
+      rows <- Filter(Negate(is.null), rows)
+      result <- dplyr::bind_rows(rows)
+      write.csv(result, here::here("results", "tables", "area_comparison_all.csv"),
+                row.names = FALSE)
+      result
+    }, list(all_comps_val = area_comp_list_expr))
+  )
+))
+
+# ── Area-level LOCO targets ──────────────────────────────────────────────
+# Area-level LOCO for the 4 shared outcomes
+area_loco_targets <- list()
+if (length(all_country_configs) >= 2) {
+  shared_outcomes <- c("child_vitA", "women_vitA", "child_iron", "women_iron")
+
+  for (otag in shared_outcomes) {
+    # Build area LOCO dataset: pool svy_admin2 and gee_admin2 across countries
+    loco_svy_syms <- lapply(names(all_country_configs), function(cc_name) {
+      as.symbol(paste0("svy_admin2_", tolower(cc_name), "_", otag))
+    })
+    names(loco_svy_syms) <- names(all_country_configs)
+    loco_svy_expr <- as.call(c(list(as.symbol("list")), loco_svy_syms))
+
+    loco_gee_syms <- lapply(names(all_country_configs), function(cc_name) {
+      as.symbol(paste0("gee_admin2_", tolower(cc_name)))
+    })
+    names(loco_gee_syms) <- names(all_country_configs)
+    loco_gee_expr <- as.call(c(list(as.symbol("list")), loco_gee_syms))
+
+    area_loco_targets <- c(area_loco_targets, list(
+      tar_target_raw(
+        paste0("area_loco_", otag),
+        substitute({
+          pooled <- build_area_loco_dataset(svy_list_val, gee_list_val)
+          run_area_loco(pooled)
+        }, list(
+          svy_list_val = loco_svy_expr,
+          gee_list_val = loco_gee_expr
+        ))
+      )
+    ))
+  }
+
+  # Combined area LOCO summary
+  area_loco_names <- paste0("area_loco_", shared_outcomes)
+  area_loco_syms <- setNames(lapply(area_loco_names, as.symbol), shared_outcomes)
+  area_loco_list_expr <- as.call(c(list(as.symbol("list")), area_loco_syms))
+
+  area_loco_targets <- c(area_loco_targets, list(
+    tar_target_raw(
+      "area_loco_comparison",
+      substitute({
+        all_loco <- loco_list_val
+        rows <- list()
+        for (oc in names(all_loco)) {
+          if (is.data.frame(all_loco[[oc]]) && nrow(all_loco[[oc]]) > 0) {
+            all_loco[[oc]]$outcome <- oc
+            rows[[oc]] <- all_loco[[oc]]
+          }
+        }
+        result <- dplyr::bind_rows(rows)
+        write.csv(result, here::here("results", "tables", "area_loco_comparison.csv"),
+                  row.names = FALSE)
+        result
+      }, list(loco_list_val = area_loco_list_expr))
+    )
+  ))
+}
+
+
 # ── Transportability targets (cross-country LOCO CV) ──────────────────────
 # Train on N-1 countries, predict on the held-out country. Uses only proxy
 # predictors shared across ALL countries (IHME, MAP, GEE).
@@ -818,4 +935,5 @@ summary_targets <- list(
 )
 
 # ── Combine everything ──────────────────────────────────────────────────────
-c(static_targets, country_targets, transport_targets, oos_targets, summary_targets)
+c(static_targets, country_targets, area_comparison_targets, area_loco_targets,
+  transport_targets, oos_targets, summary_targets)

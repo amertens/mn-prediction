@@ -1,0 +1,240 @@
+---
+title: "Admin-2 Prevalence Predictions: Dataset Description and Comparative Analysis"
+subtitle: "Individual-Level vs. Area-Level SuperLearner Predictions"
+author: "Micronutrient Prediction Project"
+date: today
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    number-sections: true
+    code-fold: true
+    theme: cosmo
+    self-contained: true
+execute:
+  warning: false
+  message: false
+---
+
+```{r setup, include=FALSE}
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+library(knitr)
+library(kableExtra)
+library(here)
+library(scales)
+
+theme_set(theme_minimal(base_size = 12))
+
+TARGETS_STORE <- here("_targets_full")
+
+load_target <- function(name) {
+  tryCatch(targets::tar_read_raw(name, store = TARGETS_STORE),
+           error = function(e) NULL)
+}
+
+countries <- c("gambia", "ghana", "sierraleone", "malawi")
+outcomes  <- c("child_vitA", "women_vitA", "child_iron", "women_iron",
+               "women_folate", "women_b12", "child_zinc", "women_zinc")
+
+country_labels <- c(gambia = "Gambia", ghana = "Ghana",
+                     sierraleone = "Sierra Leone", malawi = "Malawi")
+outcome_labels <- c(
+  child_vitA = "Vitamin A (children)", women_vitA = "Vitamin A (women)",
+  child_iron = "Iron (children)", women_iron = "Iron (women)",
+  women_folate = "Folate (women)", women_b12 = "B12 (women)",
+  child_zinc = "Zinc (children)", women_zinc = "Zinc (women)")
+```
+
+# Overview
+
+This document describes the Admin-2 (district-level) micronutrient deficiency prevalence prediction datasets produced by the proxy-only SuperLearner pipeline. These datasets are intended for external sharing and programmatic use.
+
+**Two prediction approaches are compared:**
+
+1. **Individual-level SL**: A SuperLearner ensemble trained on individual biomarker data with ~900-1,100 proxy predictors, then aggregated to Admin-2 by taking the survey-weighted mean of individual predictions.
+
+2. **Area-level SL**: A SuperLearner trained directly on Admin-2 survey-weighted prevalence as the outcome, using GEE satellite raster zonal means as predictors. Two loss functions are tested:
+   - **MSE (continuous)**: Standard squared-error loss with post-hoc clamping to [0,1]
+   - **NLL (binomial)**: Negative log-likelihood / cross-entropy, which naturally handles bounded [0,1] prevalence (inspired by beta regression theory)
+
+
+# Data Sources
+
+## Survey data
+
+| Country | Survey | Year | Children (n) | Women (n) | Clusters | Admin-2 units |
+|---------|--------|------|-------------|----------|---------|--------------|
+| Gambia | GMS | 2018 | ~1,020 | ~1,413 | ~100 | ~40 |
+| Ghana | DHS+ | 2017 | ~1,165 | ~1,005 | ~400 | ~216 |
+| Sierra Leone | MNS | 2013 | ~486 | ~774 | ~60 | ~14 |
+| Malawi | MNS | 2015-16 | ~1,100 | ~800 | ~87 | ~87 |
+
+## Predictor data (area-level models)
+
+Area-level models use **GEE satellite raster zonal means** extracted for each Admin-2 polygon:
+
+- NDVI, EVI (vegetation indices)
+- Land surface temperature (day/night)
+- FLDAS climate variables (soil moisture, temperature, precipitation)
+- TRMM/GPM precipitation
+- ESA WorldCereal crop classification
+- SoilGrids soil properties (pH, carbon, nitrogen, iron, zinc, etc.)
+- GHSL settlement classification
+- CCNL nighttime lights
+- GPW population demographics
+
+Total: ~150-308 GEE variables per country after extraction.
+
+
+# Admin-2 Coverage
+
+```{r coverage-table}
+coverage_rows <- list()
+for (ctry in countries) {
+  for (oc in outcomes) {
+    svy <- load_target(paste0("svy_admin2_", ctry, "_", oc))
+    if (is.null(svy) || nrow(svy) == 0) next
+    coverage_rows[[paste0(ctry, "_", oc)]] <- data.frame(
+      Country = country_labels[ctry],
+      Outcome = outcome_labels[oc],
+      `Surveyed Admin-2` = nrow(svy),
+      `Mean n per Admin-2` = round(mean(svy$n_svy, na.rm = TRUE), 0),
+      `Min n` = min(svy$n_svy, na.rm = TRUE),
+      `Max n` = max(svy$n_svy, na.rm = TRUE),
+      `Mean prev (%)` = round(mean(svy$svy_prev, na.rm = TRUE) * 100, 1),
+      check.names = FALSE, stringsAsFactors = FALSE
+    )
+  }
+}
+if (length(coverage_rows) > 0) {
+  cov_df <- bind_rows(coverage_rows)
+  kable(cov_df, caption = "Admin-2 survey coverage by country and outcome") |>
+    kable_styling(bootstrap_options = c("striped", "hover"),
+                  full_width = FALSE, font_size = 11) |>
+    collapse_rows(columns = 1, valign = "top")
+}
+```
+
+
+# Comparative Analysis: Individual-Level vs. Area-Level SL
+
+```{r load-comparison}
+area_comp <- load_target("area_comparison_all")
+area_loco <- load_target("area_loco_comparison")
+```
+
+## Within-Country Comparison
+
+```{r within-country-table}
+if (!is.null(area_comp) && nrow(area_comp) > 0) {
+  comp_display <- area_comp |>
+    mutate(outcome_label = outcome_labels[outcome]) |>
+    select(Country = country, Outcome = outcome_label, Approach = approach,
+           `N Admin-2` = n_admin2, `MAE (pp)` = mae_pp, `RMSE (pp)` = rmse_pp,
+           `Pearson r` = pearson_r, `Bias (pp)` = mean_bias_pp)
+
+  kable(comp_display, caption = "Within-country Admin-2 prediction accuracy: three approaches compared") |>
+    kable_styling(bootstrap_options = c("striped", "hover"),
+                  full_width = FALSE, font_size = 10) |>
+    collapse_rows(columns = 1:2, valign = "top")
+} else {
+  cat("Area comparison targets not yet available. Run the pipeline first.\n")
+}
+```
+
+```{r within-country-heatmap, fig.height=8, fig.width=10}
+if (!is.null(area_comp) && nrow(area_comp) > 0) {
+  comp_plot <- area_comp |>
+    mutate(
+      outcome_label = outcome_labels[outcome],
+      ctry_outcome = paste0(country, " - ", outcome_label)
+    )
+
+  ggplot(comp_plot, aes(x = approach, y = ctry_outcome, fill = mae_pp)) +
+    geom_tile(colour = "white", linewidth = 0.8) +
+    geom_text(aes(label = sprintf("%.1f", mae_pp)), size = 3.5, fontface = "bold") +
+    scale_fill_viridis_c(name = "MAE (pp)", option = "mako", direction = -1) +
+    labs(x = NULL, y = NULL,
+         title = "Admin-2 Prediction Accuracy: MAE (percentage points)",
+         subtitle = "Lower = better | Three approaches compared") +
+    theme_minimal(base_size = 11) +
+    theme(axis.text.x = element_text(angle = 25, hjust = 1),
+          panel.grid = element_blank())
+}
+```
+
+## Cross-Country (LOCO) Area-Level Comparison
+
+```{r loco-area-table}
+if (!is.null(area_loco) && nrow(area_loco) > 0) {
+  loco_display <- area_loco |>
+    mutate(
+      outcome_label = outcome_labels[outcome],
+      loss = ifelse(model_type == "continuous", "MSE", "NLL")
+    ) |>
+    select(`Held out` = held_out, Outcome = outcome_label, Loss = loss,
+           `N train` = n_train, `N test` = n_test,
+           `Obs prev (%)` = obs_prev, `Pred prev (%)` = pred_prev,
+           `MAE (pp)` = mae_pp, `Pearson r` = pearson_r) |>
+    mutate(
+      `Obs prev (%)` = round(`Obs prev (%)` * 100, 1),
+      `Pred prev (%)` = round(`Pred prev (%)` * 100, 1)
+    )
+
+  kable(loco_display,
+        caption = "Area-level LOCO: trained on 3 countries, tested on held-out country") |>
+    kable_styling(bootstrap_options = c("striped", "hover"),
+                  full_width = FALSE, font_size = 10) |>
+    collapse_rows(columns = 1:2, valign = "top")
+} else {
+  cat("Area-level LOCO targets not yet available.\n")
+}
+```
+
+
+# Data Dictionary
+
+The shared Admin-2 prediction CSV files contain the following columns:
+
+| Column | Type | Description |
+|--------|------|-------------|
+| `Admin1` | character | Admin-1 (region/province) name |
+| `Admin2` | character | Admin-2 (district) name |
+| `country` | character | Country name |
+| `outcome` | character | Outcome tag (e.g., child_vitA, women_iron) |
+| `svy_prev` | numeric | Survey-weighted prevalence (0-1 scale) |
+| `svy_prev_se` | numeric | Standard error of survey prevalence |
+| `n_svy` | integer | Number of survey respondents in this Admin-2 |
+| `sl_prev` | numeric | Individual-level SL predicted prevalence (aggregated) |
+| `area_mse_prev` | numeric | Area-level SL predicted prevalence (MSE loss) |
+| `area_nll_prev` | numeric | Area-level SL predicted prevalence (NLL/binomial loss) |
+| `has_survey` | logical | Whether this Admin-2 has direct survey data |
+
+**Note:** For Admin-2 units without survey data (`has_survey = FALSE`), `svy_prev` and `sl_prev` are `NA`. Area-level predictions (`area_mse_prev`, `area_nll_prev`) are available for all Admin-2 units with GEE raster coverage.
+
+
+# Quality Flags and Limitations
+
+**Reliable predictions** (higher confidence):
+
+- Admin-2 units with `n_svy >= 30` and `svy_prev_se < 0.05`
+- Individual-level SL predictions for outcomes with within-country AUC > 0.70
+- Area-level predictions where LOO MAE < 5 percentage points
+
+**Uncertain predictions** (use with caution):
+
+- Admin-2 units with `n_svy < 15` --- survey estimates are unstable
+- Predictions for outcomes with AUC near 0.50 (no individual-level discrimination)
+- Area-level extrapolations to unsurveyed Admin-2 units (no direct validation possible)
+- Sierra Leone predictions (fewer clusters, older survey)
+- Malawi women_folate (continuous model only, 1 binary event)
+
+**Caveats for external users:**
+
+1. Predictions are cross-validated but not externally validated against independent surveys
+2. Temporal extrapolation: surveys are from 2013-2018; predictions assume stable proxy-outcome relationships
+3. Admin-2 boundaries follow GADM v4.1; name matching may differ from national definitions
+4. Survey-weighted prevalences use design-based inference; SL predictions are model-based
+5. The pipeline uses proxy-only predictors --- no biomarker data from the same survey
