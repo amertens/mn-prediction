@@ -71,6 +71,27 @@ table(df$Admin2)
 Admin1=unique(poly.adm$Admin1)
 Admin2=unique(poly.adm$Admin2)
 
+
+#-------------------------------------------------------------------------------
+# GEE Admin-2 zonal-mean predictors
+# Built by scripts/build_gee_admin2.R from country & global GEE rasters.
+# Provides one column per raster band (prefix gee_a2_), joined on Admin2.
+#-------------------------------------------------------------------------------
+
+gee_a2_path <- here("data/GEE/SierraLeone_2013_admin2_gee.csv")
+if (file.exists(gee_a2_path)) {
+  gee_a2 <- read.csv(gee_a2_path, check.names = FALSE)
+  gee_a2$Admin2 <- trimws(gee_a2$Admin2)
+  gee_a2_vars <- setdiff(colnames(gee_a2), "Admin2")
+  df <- df %>% dplyr::left_join(gee_a2, by = "Admin2")
+  gee_vars <- unique(c(gee_vars, gee_a2_vars))
+  cat(sprintf("  GEE admin2 merge: %d gee_a2_ columns added\n",
+              length(gee_a2_vars)))
+} else {
+  warning("Admin2 GEE CSV not found — run scripts/build_gee_admin2.R SierraLeone")
+}
+
+
 #-------------------------------------------------------------------------------
 # Food price
 #-------------------------------------------------------------------------------
