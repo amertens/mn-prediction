@@ -233,6 +233,37 @@ table(is.na(df$wfp_cassava ))
 
 #Note! Need to check the different datasets and make sure I'm getting the right year
 
+# Blood-disorder rasters confound iron biomarker interpretation:
+#   HbS/HbC: chronic hemolysis raises some Brinda inflammation markers
+#   G6PDd:   hemolytic anemia confounder
+#   Duffy:   Plasmodium vivax susceptibility (sanity covariate)
+# Auto-download any missing files via the malariaAtlas package (idempotent).
+ensure_map_blood_disorders <- function(map_dir, iso) {
+  ids <- c(
+    "Blood_Disorders__201201_Global_Sickle_Haemoglobin_HbS_Allele_Frequency",
+    "Blood_Disorders__201201_Africa_HbC_Allele_Frequency",
+    "Blood_Disorders__201201_Global_G6PDd_Allele_Frequency",
+    "Blood_Disorders__201201_Global_Duffy_Negativity_Phenotype_Frequency"
+  )
+  files <- paste0(ids, ".tif")
+  missing <- files[!file.exists(file.path(map_dir, files))]
+  if (length(missing) == 0) return(invisible(files))
+  if (!requireNamespace("malariaAtlas", quietly = TRUE))
+    stop("Install malariaAtlas: install.packages('malariaAtlas')")
+  dir.create(map_dir, showWarnings = FALSE, recursive = TRUE)
+  shp <- malariaAtlas::getShp(ISO = iso, admin_level = "admin0")
+  for (mf in missing) {
+    id <- sub("\\.tif$", "", mf)
+    r  <- malariaAtlas::getRaster(dataset_id = id, shp = shp)
+    if (!inherits(r, "SpatRaster")) r <- terra::rast(r)
+    terra::writeRaster(r, file.path(map_dir, mf), overwrite = TRUE)
+  }
+  invisible(files)
+}
+blood_disorder_files <- ensure_map_blood_disorders(
+  here("data/Malaria Atlas/Ghana"), iso = "GHA"
+)
+
 rasters <- c("Malaria__202206_Global_Pf_Incidence_Count.tif",
              "Malaria__202206_Global_Pf_Incidence_Rate.tif",
              "Malaria__202206_Global_Pf_Mortality_Count.tif",
@@ -258,7 +289,8 @@ rasters <- c("Malaria__202206_Global_Pf_Incidence_Count.tif",
              "Interventions__202406_Africa_Insecticide_Treated_Net_Use.tif",
              "Interventions__202406_Africa_Insecticide_Treated_Net_Use_Rate.tif",
              "Interventions__202406_Global_Antimalarial_Effective_Treatment.tif",
-             "Malaria__202202_Global_Pf_Reproductive_Number.tif")
+             "Malaria__202202_Global_Pf_Reproductive_Number.tif",
+             blood_disorder_files)
 
 
 pts = data.frame(lon=df$lon, lat=df$lat)
@@ -271,6 +303,7 @@ for(i in rasters){
   col_name <- gsub(".tif", "", i)
   col_name <- gsub("Malaria__", "MAP_", col_name)
   col_name <- gsub("Interventions__", "MAP_", col_name)
+  col_name <- gsub("Blood_Disorders__", "MAP_", col_name)
   col_name <- gsub("Global_", "", col_name)
   col_name <- gsub("Africa_", "", col_name)
   # col_name <- gsub("202106_", "", col_name)
