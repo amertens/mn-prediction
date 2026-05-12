@@ -1,0 +1,142 @@
+---
+title: "National Micronutrient Prevalence Prediction"
+subtitle: "BRINDA & VMNIS SuperLearner Analysis"
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    code-fold: true
+    theme: cosmo
+    self-contained: true
+execute:
+  echo: false
+  warning: false
+  message: false
+---
+
+```{r setup}
+library(targets)
+library(dplyr)
+library(ggplot2)
+library(knitr)
+library(patchwork)
+
+TARGETS_STORE <- here::here("national_prediction", "_targets")
+```
+
+## Overview
+
+This report summarizes national-level micronutrient deficiency prevalence
+predictions using SuperLearner ensemble models fitted to two data sources:
+
+- **BRINDA**: Biomarkers Reflecting Inflammation and Nutritional Determinants
+  of Anemia — prevalence of iron, vitamin A (RBP), and zinc deficiency.
+- **VMNIS**: WHO Vitamin and Mineral Nutrition Information System — mean levels
+  and prevalence of deficiency for zinc, vitamin B12, retinol, vitamin D,
+  folate, and haemoglobin.
+
+National-level proxy predictors (DHS, IHME, and other indicators) are used as
+covariates. Models are fitted using `sl3` SuperLearner with leave-country-out
+cross-validation (2 folds).
+
+## Data Availability
+
+### VMNIS coverage across LMICs
+
+```{r vmnis-heatmap, fig.width=10, fig.height=8}
+tar_read(fig_heatmap_pw, store = TARGETS_STORE)
+```
+
+```{r vmnis-heatmap-alt, fig.width=10, fig.height=8}
+tar_read(fig_heatmap_pw_alt, store = TARGETS_STORE)
+```
+
+### All populations
+
+```{r vmnis-heatmap-all, fig.width=14, fig.height=10}
+tar_read(fig_heatmap_all, store = TARGETS_STORE)
+```
+
+## Model Performance
+
+### Summary table
+
+```{r perf-table}
+all_perf <- tar_read(all_perf, store = TARGETS_STORE)
+
+all_perf %>%
+  select(source, outcome, R2_vs_mean, correlation, rmse, mae, mean_bias) %>%
+  mutate(across(where(is.numeric), ~round(.x, 3))) %>%
+  kable(
+    col.names = c("Source", "Outcome", "R² (vs. mean)", "Correlation",
+                  "RMSE", "MAE", "Bias"),
+    caption = "Cross-validated SuperLearner performance across all outcomes"
+  )
+```
+
+### Performance comparison
+
+```{r perf-plot, fig.width=12, fig.height=8}
+tar_read(fig_performance, store = TARGETS_STORE)
+```
+
+### Notes on learner stack
+
+Outcomes using the **simple** stack (mean + LASSO only) due to fitting issues
+with the full stack:
+
+- Vitamin B12 (mean and prevalence)
+- Vitamin D (mean and prevalence)
+
+All other outcomes use the **full** stack (mean, LASSO, ridge, ranger, XGBoost,
+plus screened pipelines with HAL, GAM, Bayesian GLM, and polspline).
+
+## Observed vs. Predicted
+
+### BRINDA outcomes
+
+```{r obs-pred-brinda, fig.width=10, fig.height=8}
+tar_read(fig_obs_vs_pred_brinda, store = TARGETS_STORE)
+```
+
+### VMNIS outcomes
+
+```{r obs-pred-vmnis, fig.width=12, fig.height=8}
+tar_read(fig_obs_vs_pred_vmnis, store = TARGETS_STORE)
+```
+
+## Variable Importance
+
+### BRINDA — Iron (Ferritin)
+
+```{r varimp-brinda-ferr, fig.width=8, fig.height=6}
+fig <- tar_read(fig_varimp_brinda_ferr, store = TARGETS_STORE)
+if (!is.null(fig)) fig else cat("Variable importance not available")
+```
+
+### BRINDA — Zinc
+
+```{r varimp-brinda-zinc, fig.width=8, fig.height=6}
+fig <- tar_read(fig_varimp_brinda_zinc, store = TARGETS_STORE)
+if (!is.null(fig)) fig else cat("Variable importance not available")
+```
+
+### VMNIS — Zinc
+
+```{r varimp-vmnis-zinc, fig.width=8, fig.height=6}
+fig <- tar_read(fig_varimp_vmnis_zinc, store = TARGETS_STORE)
+if (!is.null(fig)) fig else cat("Variable importance not available")
+```
+
+### VMNIS — Retinol
+
+```{r varimp-vmnis-retinol, fig.width=8, fig.height=6}
+fig <- tar_read(fig_varimp_vmnis_retinol, store = TARGETS_STORE)
+if (!is.null(fig)) fig else cat("Variable importance not available")
+```
+
+## Session Info
+
+```{r session-info}
+sessionInfo()
+```
