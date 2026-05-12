@@ -1,0 +1,2 @@
+"country","outcome","n","n_predictors","bandwidth","kernel","adaptive","aic_global","aic_gwr","aic_delta","r2_global","r2_gwr","f_statistic","f_p_value","predictors"
+"Ghana","women_vitA",55,6,46,"gaussian",TRUE,-212.504233061148,-223.121768066793,10.617535005645,0.301520017412773,0.337161201183349,NA,NA,"dhs2014_CH_VACC_C_NON_adm2;wfp_plantains_apentu;wfp_onions;dhs2014_ML_NETP_H_IT2_adm2;dhs2014_c_bcg_adm2;lsms_hh_se.fd_p_cer"

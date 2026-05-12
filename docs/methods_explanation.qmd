@@ -1,0 +1,456 @@
+---
+title: "Methods Explanation: Micronutrient Deficiency Prediction Pipeline"
+subtitle: "Step-by-step walkthrough of the analysis pipeline"
+author: "Micronutrient Prediction Project"
+date: today
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    toc-title: "Pipeline Steps"
+    number-sections: true
+    code-fold: true
+    code-summary: "Show code"
+    theme: cosmo
+    self-contained: true
+    smooth-scroll: true
+execute:
+  eval: false
+---
+
+# Overview
+
+This document explains the analysis pipeline for predicting subnational micronutrient deficiency prevalence from proxy indicators. The pipeline is implemented as a `{targets}` directed acyclic graph (DAG) with **~542 total targets** across 4 countries (Gambia, Ghana, Sierra Leone, Malawi) and up to 8 outcomes per country (vitamin A, iron, folate, B12, zinc), plus cross-country transportability (LOCO for 4 shared outcomes) and out-of-sample prediction targets (Cote d'Ivoire).
+
+## Countries and outcomes
+
+- **Countries:** Gambia (GMNS 2018), Ghana (GMS 2017), Sierra Leone (SLMS 2013), Malawi (MNS 2015--16)
+- **Outcomes:** child_vitA, women_vitA, child_iron, women_iron (4 per country = 16 combinations)
+- **OOS target:** Cote d'Ivoire (no biomarker survey --- prediction only)
+
+## Pipeline modes
+
+| Parameter | Fast mode | Full mode |
+|-----------|-----------|-----------|
+| SL learners | 5 (mean, lasso, elastic net, ranger, xgboost) | 13 (lasso, ridge, elastic net, ranger x3, xgboost x2, BART x3, GP) + class-weighted variants |
+| CV folds ($K$) | 5 | 5 |
+| Uncertainty | Conformal CIs (from CV residuals) | Conformal CIs (from CV residuals) |
+| Approx runtime (all ~24 models) | ~30--60 min | ~2--4 hours |
+
+## Data flow diagram
+
+```
+Phase 1: Data Loading (per-country)
+  merged_raw_{country}
+    └─ merged_fsec_{country}        (+ food security data)
+         └─ merged_{country}        (+ external predictors + DHS Admin-2)
+
+Phase 2: Dataset Construction (per-country × outcome)
+  merged_{country}
+    └─ outcome_data_{country}_{outcome}   (filter population, select predictors)
+
+Phase 3: Model Fitting (per-country × outcome)
+  outcome_data + sl_learners + pipeline_params
+    └─ sl_fit_{country}_{outcome}         (mlr3 SuperLearner, continuous + binary)
+
+Phase 4: Evaluation (per-country × outcome, uses existing CV predictions)
+  sl_fit
+    ├─ cv_perf_{country}_{outcome}        (AUC, RMSE, Brier)
+    ├─ diagnostics_{country}_{outcome}    (PR-AUC, calibration, Brier skill)
+    └─ national_est_{country}_{outcome}   (survey vs model national prevalence)
+
+Phase 5: Spatial Predictions (per-country × outcome)
+  sl_fit + outcome_data
+    ├─ admin1_prev_{country}_{outcome}    (aggregate SL preds to Admin-1)
+    ├─ admin2_sl_{country}_{outcome}      (aggregate SL preds to Admin-2)
+    └─ svy_admin2_{country}_{outcome}     (survey-weighted Admin-2 prevalence)
+         ├─ admin2_error_{country}_{outcome}  (SL vs survey comparison)
+         └─ area_model_{country}_{outcome}    (GEE-based area-level predictions)
+
+Phase 6: Uncertainty (per-country × outcome)
+  outcome_data + sl_fit
+    └─ conformal_ci_{country}_{outcome}   (conformal prediction intervals)
+
+Phase 7: Domain Ablation (per-country × outcome)
+  outcome_data + sl_fit + sl_learners
+    └─ ablation_{country}_{outcome}       (permutation importance by domain)
+
+Phase 8: Transportability (per-outcome, cross-country)
+  all merged_{country}
+    ├─ pooled_{outcome}                   (stack all countries)
+    │    └─ loco_{outcome}                (leave-one-country-out CV)
+    ├─ pooled_gee_{outcome}               (GEE-only version)
+    │    └─ loco_gee_{outcome}
+    ├─ transportability_summary           (combined table)
+    └─ transportability_gee_summary
+
+Phase 9: OOS Prediction (per-outcome, Cote d'Ivoire)
+  all svy_admin2 + pipeline_params
+    └─ oos_civ_{outcome}                  (pooled elastic net + weighted conformal CIs)
+
+Phase 10: Summary (global)
+  cv_perf, admin2_error_all, ablation_all, diagnostics_all, national_estimates_all
+    └─ save_tables                        (CSV output to results/tables/)
+```
+
+
+# Phase 1: Data Loading and Merging {#sec-phase1}
+
+**Scope:** Per-country (4 targets per step)
+
+## Step 1: Load raw survey data (`merged_raw_{country}`)
+
+**Function:** `load_merged_data()` in `R/data_prep.R`
+
+Loads the pre-merged micronutrient survey dataset from RDS files. Performs country-specific harmonization:
+
+- **Ghana:** Derives `gw_child_flag` from presence of child biomarker columns
+- **Sierra Leone:** Derives binary VAD columns from continuous RBP using WHO threshold (< 0.70 umol/L)
+- **Malawi:** Uses raw biomarker column names (`rbp`, `fer`, `vitA_def`) and text `population` column
+- **All:** Strips haven labels to prevent arithmetic errors downstream
+
+## Step 2: Merge food security data (`merged_fsec_{country}`)
+
+**Function:** `merge_food_security()` in `R/food_security.R`
+
+Left-joins food security indicators to individual records via Admin-1/Admin-2 fuzzy name matching:
+
+- **HFID** (Hunger-Free Index Database): `fsec_hfid_*` columns
+- **Cadre Harmonise:** `fsec_ch_*` columns (IPC phase classifications)
+
+## Step 3: Merge external predictors (`merged_{country}`)
+
+**Function:** `merge_external_predictors()` in `R/merge_external.R`
+
+Left-joins two sets of Admin-2 level contextual variables to individual records:
+
+**A. Cached external predictors** (from `data/external_cache/{country}_external_predictors.rds`):
+
+| Source | Prefix | Variables |
+|--------|--------|-----------|
+| CHIRPS rainfall | `chirps_` | Monthly + annual stats |
+| WorldPop density | `worldpop_` | Population density |
+| VIIRS nighttime lights | `ntl_` | Luminosity (proxy for urbanisation) |
+| MAP malaria surfaces | `map2_` | PfPR, treatment-seeking, ITN use |
+| SoilGrids | `soil_` | Nutrient concentrations by depth |
+| Global Data Lab | `gdl_` | Subnational HDI, education, health indices |
+| WFP HungerMap | `wfp_` | Food consumption, livelihood coping |
+| IPC food security | `ipc_` | Phase classifications |
+| ACLED conflict | `acled_` | Conflict event counts |
+| HarvestChoice/SPAM | `crop_` | Crop area, yield, production |
+
+**B. DHS Admin-2 survey indicators** (from `data/DHS/clean/`):
+
+- ~110 indicators from `surveyPrev` BYM2 smoothing + custom weighted aggregation
+- Prefix: `dhs{year}_*_adm2` (e.g., `dhs2019_AN_ANEM_W_ANY_adm2`)
+
+**Deduplication:** GADM Admin-2 polygons can have duplicate names (e.g., "Lake Malawi" appears 8 times). The merge deduplicates by averaging numeric values per Admin-2 name before joining to prevent row multiplication.
+
+
+# Phase 2: Dataset Construction {#sec-phase2}
+
+**Scope:** Per-country x outcome (~24 targets)
+
+## Step 4: Build outcome dataset (`outcome_data_{country}_{outcome}`)
+
+**Function:** `build_outcome_dataset()` in `R/data_prep.R`
+
+### Population filtering
+
+Filters to the target population using the `child_flag` column:
+
+- **Children** (6--59 months): `child_flag_val = 1` (or `"preschool children"` for Malawi)
+- **Women** (15--49 years): `child_flag_val = 0` (or `"women"` for Malawi)
+
+### Predictor identification by domain prefix
+
+Columns are assigned to domains by prefix matching. The primary predictor set (`Xvars`) **excludes all GW variables** to prevent outcome leakage:
+
+| Domain | Prefix | Source | Level |
+|--------|--------|--------|-------|
+| GW | `gw_` | Same survey (excluded from primary models) | Individual |
+| DHS | `dhs{year}_` | DHS aggregate indicators | Admin-1 + Admin-2 |
+| IHME | `ihme_` | Disease burden estimates | Admin-2 |
+| MAP | `MAP_` | Malaria surfaces | Admin-2 |
+| GEE | `gee_` | Satellite indices (pre-baked at cluster-buffer level) | Cluster buffer |
+| CHIRPS | `chirps_` | Rainfall | Admin-2 |
+| WorldPop | `worldpop_` | Population density | Admin-2 |
+| Nightlights | `ntl_` | VIIRS luminosity | Admin-2 |
+| Soil | `soil_` | SoilGrids nutrients | Admin-2 |
+| GDL | `gdl_` | Development indices | Admin-2 |
+| Crop | `crop_` | HarvestChoice data | Admin-2 |
+| MICS | `mics_` | UNICEF indicators | Admin-1 |
+| FSEC | `fsec_` | Food security (HFID + CH) | Admin-1/2 |
+| WFP | `wfp_` | Food prices | Market |
+
+### Leakage prevention
+
+Within the GW domain, biomarker-related patterns (`RBP`, `VAD`, `Ferr`, `IDA`, etc.) are additionally removed. The outcome columns themselves are excluded from predictors.
+
+### Output
+
+- `data`: Filtered data frame
+- `Xvars`: **Proxy-only** predictors (no GW) --- used for all primary modelling
+- `Xvars_full`: All predictors including GW (for ablation baseline only)
+- `domain_vars`: Named list mapping each domain to its column names
+
+
+# Phase 3: Model Fitting {#sec-phase3}
+
+**Scope:** Per-country x outcome (~24 targets) --- **computationally expensive**
+
+## Step 5: Fit SuperLearner (`sl_fit_{country}_{outcome}`)
+
+**Function:** `fit_mlr3_models()` in `R/mlr3_fitting.R`
+
+Fits two mlr3 SuperLearner ensembles per outcome: one continuous and one binary classification model.
+
+### Preprocessing pipeline
+
+1. Strip haven labels
+2. Drop all-NA and constant columns
+3. Near-zero variance filter (`caret::nearZeroVar()`)
+4. Missing value imputation (`ck37r::impute_missing_values()` with `missing_*` indicators)
+5. Near-zero variance filter (2nd pass, post-imputation)
+6. Marginal prescreening (`washb::washb_prescreen()`, $p < 0.20$)
+7. Correlation filter (`recipes::step_corr()`, $|r| > 0.85$)
+8. Normalization (`recipes::step_normalize()`)
+
+### Cross-validation design
+
+- **5-fold CV**, blocked by survey cluster (PSU) via `origami::make_folds(cluster_ids = ...)`
+- All individuals within the same cluster assigned to the same fold
+
+### Learner library
+
+#### Fast mode (5 learners)
+
+| Learner | Method |
+|---------|--------|
+| `mean` | Intercept-only benchmark |
+| `glmnet` ($\alpha = 1$) | Lasso |
+| `glmnet` ($\alpha = 0.5$) | Elastic net |
+| `ranger` (`min.node.size = 10`) | Random forest |
+| `xgboost` (`max_depth = 3`) | Gradient boosting |
+
+#### Full mode (13 base learners + dynamic additions)
+
+| Class | Learners | Configuration |
+|-------|----------|--------------|
+| Mean | `mean` | Intercept-only benchmark (excluded for Sierra Leone --- see below) |
+| Regularized linear | `glmnet` x3 | Lasso ($\alpha = 1$), Ridge ($\alpha = 0$), Elastic net ($\alpha = 0.5$) |
+| Random forest | `ranger` x3 | Standard (`min.node.size = 10`), low mtry (`mtry = 8`), deep (`min.node.size = 5`, 1000 trees) |
+| Gradient boosting | `xgboost` x2 | Conservative (`max_depth = 3`, `eta = 0.05`), deep (`max_depth = 6`, `eta = 0.03`) |
+| BART | `bart` x3 | 50, 100, 200 trees (dbarts with refit-on-predict fallback for serialization) |
+| Gaussian process | `gaussianprocess` | RBF kernel (kernlab); captures smooth nonlinear patterns in predictor space |
+
+**Dynamic additions for rare outcomes** (prevalence < 15%):
+
+| Learner | Configuration |
+|---------|--------------|
+| `xgb_weighted` | XGBoost with `scale_pos_weight` = min((1 - prev) / prev, 50) |
+| `ranger_weighted` | Ranger with `class.weights` upweighting the minority class |
+
+**Sierra Leone mean-learner exclusion:** The `mean` learner is removed for Sierra Leone because discrete SuperLearner selection consistently chose the intercept-only model over real learners that achieved AUC 0.67--0.77, due to no single learner *consistently* beating the mean across all clustered CV folds with Sierra Leone's ~60 clusters.
+
+### Metalearner
+
+Non-negative least squares (NNLS) --- finds the optimal convex combination of learner predictions.
+
+**Note:** `lightgbm` and `nnet` were tested but disabled --- both caused `mlr3superlearner` to silently return NULL on real data with 200--350 predictors, despite passing isolated serialization tests.
+
+### Output
+
+- `cont_fit$res$Y` / `cont_fit$res$yhat_full`: Observed and CV-predicted continuous values
+- `bin_fit$res$Y` / `bin_fit$res$yhat_full`: Observed and CV-predicted binary probabilities
+- `sl_fit`: Trained ensemble, `auto_recipe`: Saved preprocessing recipe
+
+
+# Phase 4: Performance Evaluation {#sec-phase4}
+
+**Scope:** Per-country x outcome (~24 targets each) --- all use existing CV predictions, no refitting
+
+## Step 6: CV performance metrics (`cv_perf_{country}_{outcome}`)
+
+**Function:** `extract_cv_performance()` in `R/admin1_analysis.R`
+
+- **Continuous:** RMSE, MAE, $R^2$, Pearson $r$, prevalence recovery via threshold
+- **Binary:** ROC-AUC, Brier score
+
+## Step 7: Extended diagnostics (`diagnostics_{country}_{outcome}`)
+
+**Function:** `run_diagnostics()` in `R/diagnostics.R`
+
+- **PR-AUC** (precision-recall, more informative than ROC-AUC for rare outcomes)
+- **Brier skill score** (improvement over prevalence-only baseline)
+- **Calibration slope/intercept** (logistic regression of $Y$ on $\text{logit}(\hat{p})$)
+- **Binned calibration table** and PR/ROC curve data
+
+## Step 8: National estimates (`national_est_{country}_{outcome}`)
+
+**Function:** `compute_national_estimates()` in `R/national_estimates.R`
+
+Survey-weighted national prevalence vs. model-predicted national prevalence with absolute and percentage differences.
+
+
+# Phase 5: Spatial Predictions {#sec-phase5}
+
+**Scope:** Per-country x outcome (~24 targets each)
+
+## Step 9: Admin-1 aggregation (`admin1_prev_{country}_{outcome}`)
+
+**Function:** `aggregate_admin1()` in `R/admin1_analysis.R`
+
+Aggregates individual-level SL predictions to Admin-1 (region) level using **survey weights**. Computes observed prevalence for comparison and absolute/percent error.
+
+## Step 10: Admin-2 SL aggregation (`admin2_sl_{country}_{outcome}`)
+
+**Function:** `aggregate_admin2_sl()` in `R/admin2_analysis.R`
+
+Same as Admin-1 but at the finer Admin-2 (district) level.
+
+## Step 11: Survey Admin-2 prevalence (`svy_admin2_{country}_{outcome}`)
+
+**Function:** `compute_svy_admin2()` in `R/admin2_analysis.R`
+
+Design-based survey-weighted prevalence at Admin-2 level using `{srvyr}`. Handles lonely PSUs with conservative variance adjustment. Falls back to per-area or unweighted computation for small areas.
+
+## Step 12: Admin-2 error evaluation (`admin2_error_{country}_{outcome}`)
+
+**Function:** `compute_admin2_error()` in `R/admin2_analysis.R`
+
+Joins SL-predicted and survey-weighted Admin-2 prevalences. Computes MAE (pp), RMSE (pp), Pearson $r$, mean bias.
+
+## Step 13: Area-level model (`area_model_{country}_{outcome}`)
+
+**Function:** `fit_area_level_model()` in `R/admin2_analysis.R`
+
+Fits an area-level elastic net using GEE raster zonal means to predict Admin-2 prevalence for **all** polygons (including unsurveyed). Extracts zonal means from `.tif` rasters, with intelligent handling of multi-band rasters:
+
+- **GPW Demographic (77 bands):** Summary statistics only (total pop density)
+- **WAPOR NPP (36 bands):** Summary statistics only (annual mean/sd)
+- **FLDAS climate (28 bands):** All bands retained (28 distinct climate variables)
+- **Soil (4 bands each):** All depth layers retained (meaningful variation)
+- **Small rasters (< 6 bands):** All bands retained
+
+Runs LOO-CV on training areas to assess in-sample performance.
+
+
+# Phase 6: Uncertainty Quantification {#sec-phase6}
+
+**Scope:** Per-country x outcome (~24 targets) --- fast, uses existing CV residuals
+
+## Step 14: Conformal prediction intervals (`conformal_ci_{country}_{outcome}`)
+
+**Function:** `compute_conformal_ci()` in `R/conformal.R`
+
+Distribution-free conformal prediction intervals derived from cross-validated residuals. Two approaches:
+
+1. **Constant-width:** Quantile of $|Y_i - \hat{Y}_i|$ across all CV predictions
+2. **Locally-adaptive:** Width varies with predicted variance (wider where model is less certain)
+
+Propagated to Admin-1 and national levels. Provides finite-sample marginal coverage guarantees (nominally 95%) without parametric assumptions.
+
+
+# Phase 7: Domain Ablation {#sec-phase7}
+
+**Scope:** Per-country x outcome (~24 targets)
+
+## Step 15: Permutation domain importance (`ablation_{country}_{outcome}`)
+
+**Function:** `run_domain_ablation()` in `R/domain_ablation.R`
+
+Variables are grouped into **~22 conceptual domains** (e.g., Climate, Child Health, Malaria, Socioeconomic, Agriculture) using DHS indicator classification and pattern matching. For each domain:
+
+1. Shuffle that domain's columns in the fitted model's data (5 replicates)
+2. Predict using the existing SL ensemble (no refitting)
+3. Measure AUC/Brier degradation
+
+$\Delta\text{AUC}_d > 0$ means domain $d$ contributes; $\approx 0$ means redundant.
+
+
+# Phase 8: Cross-Country Transportability {#sec-phase8}
+
+**Scope:** Per-outcome (4 targets) + 2 global summaries --- **computationally expensive**
+
+## Step 16: Pooled datasets (`pooled_{outcome}`, `pooled_gee_{outcome}`)
+
+**Function:** `build_pooled_dataset()` in `R/transportability.R`
+
+Stacks individual-level data from all 4 countries for one outcome. Restricts to **common proxy predictors** present in every country (intersection of IHME, MAP, GEE, FSEC prefixes). Makes cluster IDs globally unique.
+
+A GEE-only variant (`pooled_gee_{outcome}`) tests satellite-only transportability.
+
+## Step 17: LOCO cross-validation (`loco_{outcome}`, `loco_gee_{outcome}`)
+
+**Function:** `run_loco_cv()` in `R/transportability.R`
+
+For each held-out country: train SL on the other 3, predict on held-out. Reports AUC, Brier, calibration slope/intercept.
+
+## Step 18: Summaries (`transportability_summary`, `transportability_gee_summary`)
+
+Combines all LOCO results across outcomes into single tables.
+
+
+# Phase 9: Out-of-Sample Prediction {#sec-phase9}
+
+**Scope:** Per-outcome (4 targets) for Cote d'Ivoire --- only built if CIV raster directory exists
+
+## Step 19: OOS predictions (`oos_civ_{outcome}`)
+
+**Function:** `predict_oos_pooled()` in `R/oos_prediction.R`
+
+1. **Pool** all 4 countries' survey Admin-2 prevalences
+2. **Extract** common GEE covariates + cached external predictors for training countries
+3. **Train** pooled elastic net ($\alpha = 0.5$) on area-level data
+4. **LOO residuals** for conformal calibration
+5. **Extract** GEE + external predictors for Cote d'Ivoire
+6. **Predict** Admin-2 prevalence with **weighted conformal prediction intervals**
+
+### Weighted conformal CIs (covariate-shift adjustment)
+
+Standard conformal assumes exchangeability between calibration and target data, which is violated when predicting to a new country. The pipeline uses covariate-shift weighted conformal:
+
+1. Fit logistic regression to distinguish training vs. target covariates (density ratio estimation)
+2. Weight calibration residuals by $w_i = \hat{p}(x_i) / (1 - \hat{p}(x_i))$
+3. Compute per-district weighted quantile for CI width
+
+Districts with unusual covariate profiles (far from training distribution) get **wider intervals**, honestly reflecting extrapolation uncertainty.
+
+
+# Phase 10: Summary and Reporting {#sec-phase10}
+
+**Scope:** Global (6 targets)
+
+## Step 20: Aggregate targets
+
+- `cv_perf`: Row-binds all ~24 CV performance tables
+- `admin2_error_all`: Row-binds all ~24 Admin-2 error tables
+- `ablation_all`: Row-binds all ~24 domain ablation results
+- `diagnostics_all`: Combines all diagnostics into structured list (binary_metrics, continuous_metrics, calibration_tables, PR/ROC curves)
+- `national_estimates_all`: Row-binds all ~24 national estimate comparisons
+
+## Step 21: Save tables (`save_tables`)
+
+Writes combined CSV files to `results/tables/`.
+
+## Plot targets (per-country x outcome, 48 total)
+
+- `plot_admin1_scatter_*`: Observed vs predicted Admin-1 scatter
+- `plot_admin2_coverage_*`: Choropleth map of area-level predictions
+- `plot_admin2_forest_*`: Forest plot with CIs, surveyed vs unsurveyed
+
+
+# Target Count Summary
+
+| Scope | Targets per instance | Instances | Total |
+|---|---|---|---|
+| Global static (`pipeline_params`, `sl_learners`) | 2 | 1 | 2 |
+| Per-country data loading (Steps 1--3) | 3 | 4 | 12 |
+| Per-country x outcome (Steps 4--15, plots) | 14 | ~24 | ~336 |
+| Per-outcome transportability (Steps 16--17) | 4 | 4 | 16 |
+| Per-outcome GEE-only transportability | 4 | 4 | 16 |
+| Global transportability summaries (Step 18) | 2 | 1 | 2 |
+| OOS per-outcome (Step 19) | 1 | 4 | 4 |
+| Global summaries + save (Steps 20--21) | 6 | 1 | 6 |
+| **Total** | | | **~542** |

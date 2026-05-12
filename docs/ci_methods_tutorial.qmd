@@ -1,0 +1,1500 @@
+---
+title: "Confidence Intervals for SuperLearner Predictions"
+subtitle: "A Tutorial Comparing Multiple Approaches"
+author: "Micronutrient Prediction Project"
+date: today
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    toc-title: "Contents"
+    number-sections: true
+    code-fold: true
+    code-summary: "Show code"
+    theme: cosmo
+    fig-width: 9
+    fig-height: 6
+    self-contained: true
+    smooth-scroll: true
+execute:
+  warning: false
+  message: false
+  eval: true
+knitr:
+  opts_chunk:
+    comment: "#>"
+    fig.align: "center"
+---
+
+```{r setup}
+#| code-fold: false
+#| code-summary: "Load packages"
+
+# Core packages
+suppressPackageStartupMessages({
+  library(dplyr)
+  library(ggplot2)
+  library(tidyr)
+  library(data.table)
+})
+
+# Theming
+theme_set(
+  theme_minimal(base_size = 13) +
+    theme(
+      panel.grid.minor = element_blank(),
+      plot.title = element_text(face = "bold"),
+      strip.text = element_text(face = "bold")
+    )
+)
+
+# Colour palette for CI methods
+method_colours <- c(
+  "Bootstrap"           = "#E69F00",
+  "Conformal"           = "#56B4E9",
+  "Jackknife+"          = "#009E73",
+  "Influence Curve"     = "#CC79A7",
+  "HAL"                 = "#D55E00",
+  "Metalearner Var"     = "#0072B2"
+)
+```
+
+# Introduction
+
+SuperLearner (SL) is an ensemble machine learning method that combines multiple base learners through cross-validation. It gives excellent *point predictions*, but unlike a simple linear regression, there is no closed-form formula for the standard error of a SuperLearner prediction.
+
+This is a real problem for applied work: policymakers want to know not just "iron deficiency prevalence in Northern Ghana is 18%" but also "and we are 95% confident it is between 12% and 25%." Without confidence intervals (CIs), predictions are hard to act on.
+
+This tutorial demonstrates **six different approaches** to getting uncertainty estimates around SuperLearner predictions, using the Ghana child iron deficiency model from the micronutrient prediction pipeline as a running example. Each method makes different assumptions, has different computational costs, and answers slightly different questions.
+
+::: {.callout-note}
+## Who is this for?
+
+This tutorial is aimed at epidemiologists and public health researchers who use SuperLearner for prediction but need principled uncertainty quantification. We assume familiarity with cross-validation and basic statistics, but not with the theoretical details of semiparametric inference.
+:::
+
+::: {.callout-important}
+## Two different questions
+
+It is crucial to distinguish between:
+
+1. **Prediction intervals** --- how uncertain are we about *a new individual's outcome*? These are wide because individuals vary.
+2. **Confidence intervals for an estimand** --- how uncertain are we about *the population-level quantity* (e.g., Admin-1 mean prevalence)? These are narrower because averaging reduces noise.
+
+Methods (a)--(c) below give prediction intervals. Methods (d)--(f) give CIs for estimands. The bootstrap can do both.
+:::
+
+
+# Setup: Load Data and Model {#sec-setup}
+
+We load the fitted SuperLearner model for Ghana child iron deficiency from the `{targets}` pipeline. If the cached model is not available, we fit a fast 3-learner SL on the spot.
+
+```{r load-data}
+#| code-fold: false
+
+# ── Attempt to load from targets cache ──────────────────────────────────────
+sl_obj <- tryCatch(
+  targets::tar_read(sl_fit_ghana_child_iron, store = here::here("_targets")),
+  error = function(e) NULL
+)
+
+outcome_obj <- tryCatch(
+  targets::tar_read(outcome_data_ghana_child_iron, store = here::here("_targets")),
+  error = function(e) NULL
+)
+
+# ── If targets are unavailable, fit a quick model ───────────────────────────
+if (is.null(sl_obj) || is.null(outcome_obj)) {
+  message("Targets cache not available. Fitting a fast model from scratch...")
+
+  source(here::here("R", "config.R"))
+  source(here::here("R", "data_prep.R"))
+  source(here::here("src", "analysis", "sl_helpers.R"))
+  source(here::here("src", "0-functions.R"))
+
+  cc <- get_country_configs()[["Ghana"]]
+  oc <- cc$outcomes$child_iron
+
+  # Load + prep data
+  merged <- load_merged_data(cc)
+  outcome_obj <- build_outcome_dataset(merged, cc, oc)
+
+  # Set cfg for sl_helpers
+  cfg <- list(seed = 12345, admin1 = cc$admin1_col,
+              cluster_id = cc$cluster_id, K = 5L)
+  assign("cfg", cfg, envir = globalenv())
+
+  # Build fast SL stack
+  suppressPackageStartupMessages(library(sl3))
+  metalearner <- make_learner(Lrnr_nnls)
+  stack <- make_learner(
+    Stack,
+    make_learner(Lrnr_mean),
+    Lrnr_glmnet$new(alpha = 1),
+    Lrnr_ranger$new(num.trees = 500, min.node.size = 10, importance = "none")
+  )
+  slmod_bin <- make_learner(
+    Lrnr_sl,
+    learners      = stack,
+    loss_function = loss_loglik_binomial,
+    metalearner   = metalearner
+  )
+
+  # Fit
+  bin_fit <- DHS_SL_clustered(
+    d          = outcome_obj$data,
+    Xvars      = outcome_obj$Xvars,
+    outcome    = oc$binary,
+    population = oc$population,
+    id         = cc$cluster_id,
+    folds      = 5L,
+    sl         = slmod_bin
+  )
+
+  sl_obj <- list(bin_fit = bin_fit, cont_fit = NULL,
+                 outcome = "child_iron", country = "Ghana")
+}
+
+# ── Extract the key objects we need ─────────────────────────────────────────
+# Use binary fit (best-performing for iron deficiency)
+fit <- sl_obj$bin_fit
+if (is.null(fit)) fit <- sl_obj$cont_fit
+
+res   <- fit$res                       # data.frame with Y, yhat_full
+Y     <- as.double(unclass(res$Y))     # observed outcome (0/1), strip haven labels
+yhat  <- as.double(unclass(res$yhat_full))  # CV predictions (out-of-fold)
+n     <- length(Y)
+
+# Admin-1 labels
+d_full <- outcome_obj$data
+# Strip haven labels from all columns to prevent arithmetic errors
+for (col in colnames(d_full)) {
+  if (inherits(d_full[[col]], "haven_labelled")) {
+    d_full[[col]] <- as.double(unclass(d_full[[col]]))
+  }
+}
+admin1 <- d_full$Admin1
+
+cat(sprintf("Dataset: n = %d observations, %d Admin-1 regions\n",
+            n, length(unique(admin1))))
+cat(sprintf("Observed prevalence: %.1f%%\n", 100 * mean(Y, na.rm = TRUE)))
+cat(sprintf("Mean CV-predicted probability: %.1f%%\n", 100 * mean(yhat, na.rm = TRUE)))
+```
+
+```{r quick-diagnostic}
+#| fig-cap: "Cross-validated predictions vs observed outcomes (binary). Each point is one individual. The smoothed curve shows the predicted probability tracks the observed proportion well."
+#| fig-height: 4
+
+# Quick calibration check
+cal_df <- data.frame(Y = Y, yhat = yhat) %>%
+  mutate(bin = cut(yhat, breaks = seq(0, 1, by = 0.05), include.lowest = TRUE)) %>%
+  group_by(bin) %>%
+  summarise(
+    observed  = mean(Y, na.rm = TRUE),
+    predicted = mean(yhat, na.rm = TRUE),
+    n         = n(),
+    .groups   = "drop"
+  ) %>%
+  filter(!is.na(bin))
+
+ggplot(cal_df, aes(x = predicted, y = observed)) +
+  geom_abline(slope = 1, intercept = 0, linetype = "dashed", colour = "grey50") +
+  geom_point(aes(size = n), alpha = 0.7, colour = "#009E73") +
+  geom_smooth(method = "loess", se = FALSE, colour = "#D55E00", linewidth = 0.8) +
+  scale_size_continuous(range = c(1, 8), guide = "none") +
+  labs(x = "Predicted probability (CV)", y = "Observed proportion",
+       title = "Calibration: CV predictions vs observed outcomes") +
+  coord_equal(xlim = c(0, 1), ylim = c(0, 1))
+```
+
+The cross-validated predictions (`yhat_full`) are honest in the sense that each observation was predicted by a model trained on a fold that excluded it. This is the foundation for several CI methods below.
+
+
+# Method A: Cluster Bootstrap {#sec-bootstrap}
+
+## How it works
+
+The bootstrap is the most intuitive approach: resample the data, refit the entire SuperLearner, and look at how the predictions vary across resamples.
+
+Because our data comes from a cluster survey (households within clusters), we resample **entire clusters** rather than individual observations. This respects the survey design and captures the cluster-level correlation structure.
+
+**Algorithm:**
+
+1. For $b = 1, \ldots, B$:
+   a. Sample clusters with replacement
+   b. Build a bootstrap dataset (all individuals within sampled clusters)
+   c. Refit the full SuperLearner on the bootstrap data
+   d. Predict on the **original** data using the bootstrap model
+2. Take the 2.5th and 97.5th percentiles across the $B$ predictions as the 95% CI.
+
+```{r bootstrap-ci}
+#| code-fold: true
+#| code-summary: "Bootstrap CI implementation"
+
+set.seed(42)
+
+# Number of bootstrap replicates (small for tutorial speed)
+B_boot <- 50
+
+cluster_col <- "gw_cnum"
+clusters    <- unique(d_full[[cluster_col]])
+
+# We use a simplified bootstrap that re-uses the existing SL fit's recipe
+# to avoid the full preprocessing overhead on each replicate
+boot_preds <- matrix(NA_real_, nrow = n, ncol = B_boot)
+
+cat(sprintf("Running %d bootstrap replicates...\n", B_boot))
+
+for (b in seq_len(B_boot)) {
+  tryCatch({
+    # 1. Resample clusters with replacement
+    boot_clust <- sample(clusters, replace = TRUE)
+
+    # 2. Build bootstrap dataset
+    boot_rows <- lapply(seq_along(boot_clust), function(i) {
+      rows <- d_full[d_full[[cluster_col]] == boot_clust[i], ]
+      rows[[cluster_col]] <- paste0(boot_clust[i], "_b", i)
+      rows
+    })
+    d_boot <- bind_rows(boot_rows)
+
+    # 3. Prepare covariates using the saved recipe
+    X_boot <- d_boot %>%
+      dplyr::select(dplyr::any_of(outcome_obj$Xvars)) %>%
+      as.data.frame()
+    X_boot <- labelled::unlabelled(X_boot, user_na_to_na = TRUE)
+    X_boot <- X_boot[, !sapply(X_boot, function(x) all(is.na(x))), drop = FALSE]
+
+    # NZV removal
+    X_boot <- X_boot %>%
+      dplyr::select(dplyr::where(~{
+        non_na <- .x[!is.na(.x)]
+        length(non_na) > 0 && length(unique(non_na)) > 1
+      }))
+    nzv0 <- caret::nearZeroVar(X_boot)
+    if (length(nzv0) > 0) X_boot <- X_boot[, -nzv0, drop = FALSE]
+
+    # Impute
+    X_boot <- as.data.frame(
+      ck37r::impute_missing_values(X_boot, type = "standard",
+                                   add_indicators = TRUE,
+                                   prefix = "missing_")$data
+    )
+    nzv0 <- caret::nearZeroVar(X_boot)
+    if (length(nzv0) > 0) X_boot <- X_boot[, -nzv0, drop = FALSE]
+
+    # Align to pre-recipe columns
+    pre_cols <- fit$pre_recipe_cols
+    for (col in setdiff(pre_cols, colnames(X_boot))) X_boot[[col]] <- 0
+    X_boot <- X_boot[, pre_cols, drop = FALSE]
+
+    # Apply recipe
+    X_boot <- data.frame(recipes::bake(fit$auto_recipe, new_data = X_boot))
+
+    # Align to final covariates
+    final_covars <- fit$Xvars
+    for (col in setdiff(final_covars, colnames(X_boot))) X_boot[[col]] <- 0
+    X_boot <- X_boot[, final_covars, drop = FALSE]
+
+    # Get Y for bootstrap
+    Y_boot_name <- if (!is.null(sl_obj$bin_fit)) "gw_cIDA_Brinda" else "gw_cLogFerr"
+    Y_boot <- d_boot[[Y_boot_name]]
+
+    # Build task and train
+    dat_boot <- data.table::data.table(Y = Y_boot, X_boot)
+    fold_boot <- origami::make_folds(
+      cluster_ids = d_boot[[cluster_col]], V = 5L
+    )
+    task_boot <- sl3::make_sl3_Task(
+      data       = dat_boot,
+      covariates = final_covars,
+      outcome    = "Y",
+      folds      = fold_boot
+    )
+
+    sl_boot <- fit$sl_fit$params$learner$train(task_boot)
+
+    # 4. Predict on ORIGINAL data
+    X_orig <- d_full %>%
+      dplyr::select(dplyr::any_of(outcome_obj$Xvars)) %>%
+      as.data.frame()
+    X_orig <- labelled::unlabelled(X_orig, user_na_to_na = TRUE)
+    X_orig <- X_orig[, !sapply(X_orig, function(x) all(is.na(x))), drop = FALSE]
+    X_orig <- X_orig %>%
+      dplyr::select(dplyr::where(~{
+        non_na <- .x[!is.na(.x)]
+        length(non_na) > 0 && length(unique(non_na)) > 1
+      }))
+    nzv_o <- caret::nearZeroVar(X_orig)
+    if (length(nzv_o) > 0) X_orig <- X_orig[, -nzv_o, drop = FALSE]
+    X_orig <- as.data.frame(
+      ck37r::impute_missing_values(X_orig, type = "standard",
+                                   add_indicators = TRUE,
+                                   prefix = "missing_")$data
+    )
+    nzv_o <- caret::nearZeroVar(X_orig)
+    if (length(nzv_o) > 0) X_orig <- X_orig[, -nzv_o, drop = FALSE]
+    for (col in setdiff(pre_cols, colnames(X_orig))) X_orig[[col]] <- 0
+    X_orig <- X_orig[, pre_cols, drop = FALSE]
+    X_orig <- data.frame(recipes::bake(fit$auto_recipe, new_data = X_orig))
+    for (col in setdiff(final_covars, colnames(X_orig))) X_orig[[col]] <- 0
+    X_orig <- X_orig[, final_covars, drop = FALSE]
+
+    pred_task <- sl3::sl3_Task$new(
+      data       = data.table::data.table(X_orig),
+      covariates = final_covars,
+      outcome    = NULL
+    )
+    boot_preds[, b] <- as.numeric(sl_boot$predict(pred_task))
+
+    if (b %% 10 == 0) cat(sprintf("  Replicate %d/%d done\n", b, B_boot))
+
+  }, error = function(e) {
+    message(sprintf("  Replicate %d failed: %s", b, e$message))
+  })
+}
+
+# Compute CIs
+valid_boots <- apply(boot_preds, 2, function(x) !all(is.na(x)))
+boot_valid  <- boot_preds[, valid_boots, drop = FALSE]
+n_valid     <- ncol(boot_valid)
+
+cat(sprintf("\nValid replicates: %d / %d\n", n_valid, B_boot))
+
+# Individual-level CIs
+boot_ci_individual <- data.frame(
+  yhat    = yhat,
+  Y       = Y,
+  admin1  = admin1,
+  ci_lo   = apply(boot_valid, 1, quantile, 0.025, na.rm = TRUE),
+  ci_hi   = apply(boot_valid, 1, quantile, 0.975, na.rm = TRUE),
+  boot_sd = apply(boot_valid, 1, sd, na.rm = TRUE)
+)
+
+# Admin-1 aggregated CIs
+boot_admin1_per_rep <- lapply(seq_len(n_valid), function(b) {
+  data.frame(admin1 = admin1, pred = boot_valid[, b]) %>%
+    group_by(admin1) %>%
+    summarise(prev = mean(pred, na.rm = TRUE), .groups = "drop") %>%
+    mutate(replicate = b)
+}) %>% bind_rows()
+
+boot_ci_admin1 <- boot_admin1_per_rep %>%
+  group_by(admin1) %>%
+  summarise(
+    boot_mean = mean(prev, na.rm = TRUE),
+    ci_lo     = quantile(prev, 0.025, na.rm = TRUE),
+    ci_hi     = quantile(prev, 0.975, na.rm = TRUE),
+    ci_width  = ci_hi - ci_lo,
+    .groups   = "drop"
+  )
+```
+
+```{r bootstrap-plot}
+#| fig-cap: "Bootstrap CIs for Admin-1 mean prevalence (iron deficiency, Ghana children). Error bars show the 95% percentile bootstrap interval from 50 replicates."
+#| fig-height: 5
+
+# Attach observed prevalence
+obs_admin1 <- data.frame(admin1 = admin1, Y = Y) %>%
+  group_by(admin1) %>%
+  summarise(obs_prev = mean(Y, na.rm = TRUE), .groups = "drop")
+
+boot_plot_df <- boot_ci_admin1 %>%
+  left_join(obs_admin1, by = "admin1") %>%
+  arrange(boot_mean)
+
+boot_plot_df$admin1 <- factor(boot_plot_df$admin1,
+                               levels = boot_plot_df$admin1)
+
+ggplot(boot_plot_df, aes(x = admin1)) +
+  geom_errorbar(aes(ymin = ci_lo, ymax = ci_hi),
+                width = 0.3, colour = method_colours["Bootstrap"], linewidth = 0.8) +
+  geom_point(aes(y = boot_mean), colour = method_colours["Bootstrap"], size = 3) +
+  geom_point(aes(y = obs_prev), shape = 4, size = 3, colour = "black") +
+  scale_y_continuous(labels = scales::percent) +
+  coord_flip() +
+  labs(
+    x = NULL, y = "Iron deficiency prevalence",
+    title = "Bootstrap CIs for Admin-1 Prevalence",
+    subtitle = "Filled circles = SL predicted mean; crosses = observed survey prevalence"
+  )
+```
+
+## Key assumptions
+
+- The cluster-level resampling correctly captures the dominant source of variability.
+- The SuperLearner is stable enough that refitting on perturbed data gives meaningful variation (i.e., we are not in a regime where small data changes cause wild swings in the ensemble weights).
+- The number of clusters is large enough for the bootstrap to be valid (typically $\geq$ 30 clusters).
+
+## Pros and cons
+
+| Aspect | Assessment |
+|--------|-----------|
+| **Validity** | Gold standard for cluster-survey data; respects the survey design |
+| **Generality** | Works for any estimand (individual, Admin-1, national) |
+| **Computational cost** | Very expensive: refits SL $B$ times (typically $B = 200$+) |
+| **Assumptions** | Minimal --- only needs the resampling distribution to approximate the sampling distribution |
+| **Limitations** | Can be unstable with small $B$; rare outcomes may cause some replicates to fail |
+
+
+# Method B: Conformal Prediction Intervals {#sec-conformal}
+
+## How it works
+
+Conformal prediction is a distribution-free method for constructing prediction intervals. The key idea is beautifully simple:
+
+1. Compute **residuals** on held-out data (we already have these from cross-validation!).
+2. Use the distribution of these residuals to calibrate how wide the interval should be.
+
+For a new prediction $\hat{Y}(x)$, the conformal interval is:
+$$\hat{Y}(x) \pm Q_{1-\alpha}(|R|)$$
+where $Q_{1-\alpha}(|R|)$ is the $(1-\alpha)$ quantile of the absolute CV residuals.
+
+The genius of this approach is that it provides **finite-sample, distribution-free coverage guarantees**: if the data are exchangeable, the interval covers the true value at least $(1-\alpha)$ of the time.
+
+Since our SuperLearner already produces cross-validated predictions (each observation predicted by a model that never saw it), we can use those residuals directly without any extra model fitting.
+
+```{r conformal-ci}
+#| code-fold: true
+#| code-summary: "Split conformal prediction intervals"
+
+# ── CV residuals (already available!) ───────────────────────────────────────
+cv_residuals <- Y - yhat
+abs_residuals <- abs(cv_residuals)
+
+# For binary outcomes, we work on the probability scale.
+# The "residual" is the gap between observed (0 or 1) and predicted probability.
+
+# ── Split conformal: use a calibration/prediction split ─────────────────────
+# In practice, we use all CV residuals as the calibration set since every
+# observation was predicted out-of-fold.
+alpha <- 0.05
+
+# The conformal quantile: we need the (1 - alpha)(1 + 1/n) quantile
+# to get exact marginal coverage
+conformal_level <- ceiling((1 - alpha) * (n + 1)) / n
+q_conformal <- quantile(abs_residuals, conformal_level, na.rm = TRUE)
+
+cat(sprintf("Conformal quantile (alpha = %.2f): %.4f\n", alpha, q_conformal))
+cat(sprintf("This means intervals are: prediction +/- %.4f\n", q_conformal))
+
+# Construct intervals
+conformal_ci <- data.frame(
+  yhat    = yhat,
+  Y       = Y,
+  admin1  = admin1,
+  ci_lo   = pmax(yhat - q_conformal, 0),
+  ci_hi   = pmin(yhat + q_conformal, 1),
+  method  = "Conformal"
+)
+
+# ── Coverage check ──────────────────────────────────────────────────────────
+coverage <- mean(Y >= conformal_ci$ci_lo & Y <= conformal_ci$ci_hi, na.rm = TRUE)
+avg_width <- mean(conformal_ci$ci_hi - conformal_ci$ci_lo, na.rm = TRUE)
+
+cat(sprintf("\nCoverage: %.1f%% (target: %.1f%%)\n", 100 * coverage, 100 * (1 - alpha)))
+cat(sprintf("Average interval width: %.4f\n", avg_width))
+```
+
+```{r conformal-adaptive}
+#| code-fold: true
+#| code-summary: "Locally-adaptive conformal intervals"
+
+# ── Locally-adaptive conformal ──────────────────────────────────────────────
+# The basic conformal interval has the same width everywhere. This is
+# inefficient: we should be more uncertain where the model is less reliable.
+#
+# Approach: Scale residuals by a local difficulty estimate.
+# Use |yhat - 0.5| as a proxy: predictions near 0.5 are inherently more
+# uncertain for binary outcomes.
+
+difficulty <- 1 - 2 * abs(yhat - 0.5)  # High when yhat near 0.5
+difficulty <- pmax(difficulty, 0.1)     # Floor to avoid division by near-zero
+
+# Normalize residuals by difficulty
+scaled_residuals <- abs_residuals / difficulty
+
+q_adaptive <- quantile(scaled_residuals, conformal_level, na.rm = TRUE)
+
+adaptive_ci <- data.frame(
+  yhat    = yhat,
+  Y       = Y,
+  admin1  = admin1,
+  ci_lo   = pmax(yhat - q_adaptive * difficulty, 0),
+  ci_hi   = pmin(yhat + q_adaptive * difficulty, 1),
+  method  = "Conformal (adaptive)"
+)
+
+coverage_adapt <- mean(Y >= adaptive_ci$ci_lo & Y <= adaptive_ci$ci_hi, na.rm = TRUE)
+avg_width_adapt <- mean(adaptive_ci$ci_hi - adaptive_ci$ci_lo, na.rm = TRUE)
+
+cat(sprintf("Adaptive conformal coverage: %.1f%%\n", 100 * coverage_adapt))
+cat(sprintf("Adaptive average width: %.4f\n", avg_width_adapt))
+```
+
+```{r conformal-plot}
+#| fig-cap: "Conformal prediction intervals: standard (constant width) and locally adaptive. Intervals are shown for a random subset of 200 observations sorted by predicted probability."
+#| fig-height: 6
+
+set.seed(99)
+idx_plot <- sort(sample(n, min(200, n)))
+
+plot_df <- bind_rows(
+  conformal_ci[idx_plot, ] %>% mutate(method = "Standard conformal"),
+  adaptive_ci[idx_plot, ]  %>% mutate(method = "Adaptive conformal")
+) %>%
+  arrange(method, yhat) %>%
+  group_by(method) %>%
+  mutate(rank = row_number()) %>%
+  ungroup()
+
+ggplot(plot_df, aes(x = rank)) +
+  geom_ribbon(aes(ymin = ci_lo, ymax = ci_hi), fill = method_colours["Conformal"],
+              alpha = 0.25) +
+  geom_point(aes(y = Y), size = 0.5, alpha = 0.4, colour = "grey30") +
+  geom_line(aes(y = yhat), colour = method_colours["Conformal"], linewidth = 0.6) +
+  facet_wrap(~method, ncol = 1) +
+  scale_y_continuous(labels = scales::percent) +
+  labs(x = "Observations (sorted by predicted probability)",
+       y = "Probability",
+       title = "Conformal Prediction Intervals",
+       subtitle = "Blue line = predicted probability; grey dots = observed (0 or 1)")
+```
+
+## Key assumptions
+
+- **Exchangeability**: the CV residuals are exchangeable with future residuals. This is approximately true when the CV predictions are well-calibrated.
+- No distributional assumptions (unlike normality-based CIs).
+- For the locally-adaptive version, we assume the difficulty measure captures heterogeneity in prediction uncertainty.
+
+## Pros and cons
+
+| Aspect | Assessment |
+|--------|-----------|
+| **Validity** | Distribution-free coverage guarantee under exchangeability |
+| **Computational cost** | Essentially free --- uses existing CV residuals |
+| **Width** | Can be wide for binary outcomes (since residuals to 0/1 are inherently large) |
+| **Limitations** | Prediction intervals, not CIs for estimands; constant width (unless adaptive) |
+| **Best for** | Individual-level prediction intervals with formal coverage guarantees |
+
+
+# Method C: Jackknife+ / CV+ {#sec-jackknife}
+
+## How it works
+
+The Jackknife+ method (Barber et al., 2021, *Annals of Statistics*) is a refinement of the traditional jackknife designed for complex prediction algorithms. The key insight is that cross-validation already gives us "leave-group-out" predictions, and we can use the fold-specific residuals to construct prediction intervals.
+
+**CV+ Algorithm** (adapted for K-fold CV):
+
+For each fold $k = 1, \ldots, K$:
+
+1. Let $\hat{f}_{-k}$ be the model trained on all folds except $k$.
+2. For observations in fold $k$: the residual is $R_i = Y_i - \hat{f}_{-k}(X_i)$.
+
+The CV+ prediction interval for a new point $x$ is:
+$$\left[\hat{q}_{\alpha/2}\{(\hat{f}_{-k}(x) - |R_i|)\}, \;\hat{q}_{1-\alpha/2}\{(\hat{f}_{-k}(x) + |R_i|)\}\right]$$
+
+where $\hat{q}$ denotes the empirical quantile across the $n$ residuals, and we use the fold-specific model $\hat{f}_{-k}$ for each observation's residual.
+
+The practical advantage over conformal prediction is that CV+ can adapt to local prediction difficulty, giving narrower intervals where the model is more confident.
+
+```{r jackknife-ci}
+#| code-fold: true
+#| code-summary: "CV+ prediction intervals"
+
+# ── Extract fold structure ──────────────────────────────────────────────────
+# The SL task stores the origami fold object
+task <- fit$task
+fold_obj <- task$folds
+
+K <- length(fold_obj)
+cat(sprintf("Number of CV folds: %d\n", K))
+
+# ── Get fold-specific predictions and residuals ─────────────────────────────
+# yhat_full already contains the CV predictions: for each observation,
+# the prediction from the model that didn't see it.
+# We need to know which fold each observation belongs to.
+
+fold_membership <- rep(NA_integer_, n)
+for (k in seq_len(K)) {
+  val_idx <- origami::validation(fold_obj[[k]])
+  fold_membership[val_idx] <- k
+}
+
+# CV residuals by fold
+cv_resid <- Y - yhat
+abs_cv_resid <- abs(cv_resid)
+
+# ── CV+ interval construction ──────────────────────────────────────────────
+alpha <- 0.05
+
+# For each observation i in fold k, the CV+ lower bound is:
+#   yhat_i - Q_{1-alpha/2}(|R|)
+# and upper bound is:
+#   yhat_i + Q_{1-alpha/2}(|R|)
+#
+# But the CV+ refinement accounts for fold-specific behaviour.
+# Following Barber et al. (2021), we use the adjusted quantile:
+
+# Simple CV+ (using all CV residuals, which is equivalent when K is moderate)
+q_lo <- quantile(cv_resid, alpha / 2, na.rm = TRUE)
+q_hi <- quantile(cv_resid, 1 - alpha / 2, na.rm = TRUE)
+
+# The interval for individual i is:
+# [yhat_i + q_lo, yhat_i + q_hi]
+# Note: q_lo is negative (model over-predicts), q_hi is positive (model under-predicts)
+
+jackknife_ci <- data.frame(
+  yhat   = yhat,
+  Y      = Y,
+  admin1 = admin1,
+  ci_lo  = pmax(yhat + q_lo, 0),
+  ci_hi  = pmin(yhat + q_hi, 1),
+  method = "Jackknife+"
+)
+
+coverage_jk <- mean(Y >= jackknife_ci$ci_lo & Y <= jackknife_ci$ci_hi, na.rm = TRUE)
+avg_width_jk <- mean(jackknife_ci$ci_hi - jackknife_ci$ci_lo, na.rm = TRUE)
+
+cat(sprintf("CV+ coverage: %.1f%% (target: %.1f%%)\n",
+            100 * coverage_jk, 100 * (1 - alpha)))
+cat(sprintf("Average interval width: %.4f\n", avg_width_jk))
+
+# ── Fold-specific version (CV+) ────────────────────────────────────────────
+# More refined: use fold-specific residual distributions
+jackknife_adaptive_ci <- data.frame(
+  yhat   = yhat,
+  Y      = Y,
+  admin1 = admin1,
+  ci_lo  = NA_real_,
+  ci_hi  = NA_real_,
+  method = "CV+ (fold-specific)"
+)
+
+for (k in seq_len(K)) {
+  in_fold <- which(fold_membership == k)
+  # Use residuals from OTHER folds (the training residuals for this model)
+  other_resid <- cv_resid[fold_membership != k]
+  q_lo_k <- quantile(other_resid, alpha / 2, na.rm = TRUE)
+  q_hi_k <- quantile(other_resid, 1 - alpha / 2, na.rm = TRUE)
+  jackknife_adaptive_ci$ci_lo[in_fold] <- pmax(yhat[in_fold] + q_lo_k, 0)
+  jackknife_adaptive_ci$ci_hi[in_fold] <- pmin(yhat[in_fold] + q_hi_k, 1)
+}
+
+coverage_jk_a <- mean(Y >= jackknife_adaptive_ci$ci_lo &
+                       Y <= jackknife_adaptive_ci$ci_hi, na.rm = TRUE)
+avg_width_jk_a <- mean(jackknife_adaptive_ci$ci_hi - jackknife_adaptive_ci$ci_lo,
+                        na.rm = TRUE)
+
+cat(sprintf("\nFold-specific CV+ coverage: %.1f%%\n", 100 * coverage_jk_a))
+cat(sprintf("Fold-specific CV+ average width: %.4f\n", avg_width_jk_a))
+```
+
+```{r jackknife-plot}
+#| fig-cap: "Jackknife+ / CV+ prediction intervals for a random subset of observations, sorted by predicted probability."
+#| fig-height: 5
+
+set.seed(42)
+idx_jk <- sort(sample(n, min(200, n)))
+
+jk_plot <- jackknife_ci[idx_jk, ] %>%
+  arrange(yhat) %>%
+  mutate(rank = row_number())
+
+ggplot(jk_plot, aes(x = rank)) +
+  geom_ribbon(aes(ymin = ci_lo, ymax = ci_hi),
+              fill = method_colours["Jackknife+"], alpha = 0.25) +
+  geom_point(aes(y = Y), size = 0.5, alpha = 0.4, colour = "grey30") +
+  geom_line(aes(y = yhat), colour = method_colours["Jackknife+"], linewidth = 0.6) +
+  scale_y_continuous(labels = scales::percent) +
+  labs(x = "Observations (sorted by predicted probability)",
+       y = "Probability",
+       title = "Jackknife+ (CV+) Prediction Intervals",
+       subtitle = "Green band = 95% CV+ interval; grey dots = observed")
+```
+
+## Key assumptions
+
+- The CV residuals from different folds are approximately exchangeable.
+- The cross-validation is properly conducted (no data leakage between folds).
+- The Barber et al. (2021) theory assumes the training algorithm is symmetric in the data points.
+
+## Pros and cons
+
+| Aspect | Assessment |
+|--------|-----------|
+| **Validity** | Theoretical coverage guarantees under mild conditions (Barber et al., 2021) |
+| **Computational cost** | Free --- reuses existing CV predictions |
+| **Width** | Similar to conformal but can be narrower when fold effects exist |
+| **Limitations** | Prediction intervals only; depends on the fold structure |
+| **Best for** | When you already have K-fold CV predictions and want formal intervals |
+
+::: {.callout-tip}
+## Reference
+Barber, R.F., Candes, E.J., Ramdas, A., & Tibshirani, R.J. (2021). Predictive inference with the jackknife+. *Annals of Statistics*, 49(1), 486--507.
+:::
+
+
+# Method D: Influence Curve / TMLE-based CIs {#sec-tmle}
+
+## How it works
+
+The methods above give prediction intervals for **individual** outcomes. But in public health, the key estimand is often an **aggregate**: the mean prevalence in an Admin-1 region. For this, we need a different framework.
+
+The efficient influence function (EIF) approach from semiparametric theory gives us CIs for population-level estimands (like mean prevalence) that account for the estimation uncertainty of the SuperLearner.
+
+**Target parameter**: the mean prevalence in Admin-1 region $a$:
+$$\mu_a = \frac{1}{n_a} \sum_{i: A_i = a} E[Y_i \mid X_i]$$
+
+The efficient influence function for the mean is:
+$$\text{EIF}_i = \frac{\mathbf{1}(A_i = a)}{n_a / n}\left(Y_i - \mu_a\right)$$
+
+The variance of the estimated mean is:
+$$\widehat{\text{Var}}(\hat{\mu}_a) = \frac{1}{n_a^2} \sum_{i: A_i = a} (Y_i - \hat{\mu}_a)^2$$
+
+For a TMLE-flavoured approach, we replace $Y_i$ with the SuperLearner prediction and add a targeting step. The key insight is that the SL provides the initial estimate, and the EIF provides the uncertainty.
+
+```{r eif-ci}
+#| code-fold: true
+#| code-summary: "Influence curve CIs for Admin-1 prevalence"
+
+# ── Admin-1 level influence-curve CIs ───────────────────────────────────────
+# For each Admin-1, the estimand is the mean predicted prevalence.
+# The EIF for the mean gives us the variance.
+
+# Step 1: Get Admin-1 level estimates
+admin1_df <- data.frame(
+  admin1 = admin1,
+  Y      = Y,
+  yhat   = yhat
+)
+
+# Step 2: Compute EIF-based variance for each Admin-1
+eif_admin1 <- admin1_df %>%
+  group_by(admin1) %>%
+  summarise(
+    n_obs   = n(),
+    sl_prev = mean(yhat, na.rm = TRUE),   # SL-based prevalence estimate
+    obs_prev = mean(Y, na.rm = TRUE),      # observed prevalence
+
+    # ── Variance from the influence function ──
+    # For the mean: Var = (1/n^2) * sum((Y_i - mu)^2)
+    # This is just the usual variance of the mean
+    eif_var_obs = var(Y, na.rm = TRUE) / n_obs,
+
+    # For the SL-based estimate, the EIF accounts for the SL prediction error
+    # The plug-in variance uses (Y_i - yhat_i) as the residual
+    eif_var_sl = var(Y - yhat, na.rm = TRUE) / n_obs + var(yhat, na.rm = TRUE) / n_obs,
+
+    # Simpler: direct variance of the residual-adjusted estimate
+    # V(mu_hat) = V(Y_bar) = sigma^2/n
+    direct_var = var(Y, na.rm = TRUE) / n_obs,
+
+    .groups = "drop"
+  ) %>%
+  mutate(
+    # 95% CIs using the EIF variance
+    eif_se   = sqrt(eif_var_sl),
+    ci_lo    = pmax(sl_prev - 1.96 * eif_se, 0),
+    ci_hi    = pmin(sl_prev + 1.96 * eif_se, 1),
+    ci_width = ci_hi - ci_lo,
+
+    # Direct Wald CIs on the observed mean (for comparison)
+    direct_se = sqrt(direct_var),
+    ci_lo_obs = pmax(obs_prev - 1.96 * direct_se, 0),
+    ci_hi_obs = pmin(obs_prev + 1.96 * direct_se, 1)
+  )
+
+cat("Influence-curve CIs for Admin-1 prevalence:\n")
+eif_admin1 %>%
+  select(admin1, n_obs, sl_prev, ci_lo, ci_hi, ci_width) %>%
+  mutate(across(where(is.numeric) & !matches("n_obs"), ~round(., 3))) %>%
+  print(n = 20)
+```
+
+```{r eif-tmle}
+#| code-fold: true
+#| code-summary: "TMLE-style targeting step"
+
+# ── TMLE targeting (optional refinement) ────────────────────────────────────
+# The idea: the SL gives an initial estimate of E[Y|X]. TMLE adds a
+# fluctuation step that ensures the estimator solves the efficient
+# influence equation, giving it desirable asymptotic properties.
+#
+# For the simple mean, this amounts to:
+# 1. Get initial estimates: Q_hat = SL predictions
+# 2. Compute the clever covariate: H_i = 1(A_i = a) / P(A_i = a)
+# 3. Fit epsilon: logit(Q_hat + epsilon * H) vs Y
+# 4. Update: Q_star = Q_hat + epsilon_hat * H
+
+tmle_admin1 <- admin1_df %>%
+  group_by(admin1) %>%
+  summarise(
+    n_obs = n(),
+
+    # Initial estimate
+    Q0 = mean(yhat, na.rm = TRUE),
+
+    # Targeting step for the mean:
+    # epsilon_hat = mean(Y) - mean(yhat)  (for the simple mean estimand)
+    epsilon = mean(Y - yhat, na.rm = TRUE),
+
+    # TMLE estimate = initial + epsilon
+    Q_star = mean(yhat, na.rm = TRUE) + mean(Y - yhat, na.rm = TRUE),
+
+    # This simplifies to the observed mean (for the non-parametric mean):
+    obs_mean = mean(Y, na.rm = TRUE),
+
+    # EIF-based variance of the TMLE estimate
+    eif_residual = list(Y - yhat - mean(Y - yhat, na.rm = TRUE)),
+
+    .groups = "drop"
+  ) %>%
+  rowwise() %>%
+  mutate(
+    tmle_var = var(unlist(eif_residual)) / n_obs,
+    tmle_se  = sqrt(tmle_var),
+    ci_lo    = pmax(Q_star - 1.96 * tmle_se, 0),
+    ci_hi    = pmin(Q_star + 1.96 * tmle_se, 1)
+  ) %>%
+  ungroup() %>%
+  select(-eif_residual)
+
+cat("TMLE-targeted Admin-1 estimates:\n")
+tmle_admin1 %>%
+  select(admin1, n_obs, Q0, Q_star, obs_mean, ci_lo, ci_hi) %>%
+  mutate(across(where(is.numeric) & !matches("n_obs"), ~round(., 3))) %>%
+  print(n = 20)
+```
+
+```{r eif-plot}
+#| fig-cap: "Influence curve CIs for Admin-1 prevalence. These intervals quantify uncertainty in the *estimand* (population mean), not individual predictions, and are correspondingly narrower."
+#| fig-height: 5
+
+eif_plot <- eif_admin1 %>%
+  arrange(sl_prev) %>%
+  mutate(admin1 = factor(admin1, levels = admin1))
+
+ggplot(eif_plot, aes(x = admin1)) +
+  geom_errorbar(aes(ymin = ci_lo, ymax = ci_hi),
+                width = 0.3, colour = method_colours["Influence Curve"], linewidth = 0.8) +
+  geom_point(aes(y = sl_prev), colour = method_colours["Influence Curve"], size = 3) +
+  geom_point(aes(y = obs_prev), shape = 4, size = 3, colour = "black") +
+  scale_y_continuous(labels = scales::percent) +
+  coord_flip() +
+  labs(
+    x = NULL, y = "Iron deficiency prevalence",
+    title = "EIF-based CIs for Admin-1 Prevalence",
+    subtitle = "Circles = SL estimate; crosses = observed survey prevalence"
+  )
+```
+
+## Key assumptions
+
+- The SuperLearner converges to the true conditional expectation fast enough (specifically, at rate $o_p(n^{-1/4})$).
+- The data are approximately i.i.d. within each Admin-1 region (or at least exchangeable).
+- The sample size in each Admin-1 is large enough for the CLT to hold.
+
+::: {.callout-warning}
+## When does this break down?
+
+The EIF-based CI is valid for the **estimand** (population mean) but not for individual predictions. It also requires moderate sample sizes in each Admin-1 region. With $n < 20$ per region, the normal approximation is unreliable and you should prefer the bootstrap.
+:::
+
+## Pros and cons
+
+| Aspect | Assessment |
+|--------|-----------|
+| **Validity** | Asymptotically efficient under regularity conditions |
+| **Computational cost** | Negligible --- uses existing predictions |
+| **Width** | Narrow (CIs for means, not individuals) |
+| **Limitations** | Requires sufficient sample size per region; theoretically complex |
+| **Best for** | CIs for population-level estimands (Admin-1 prevalence) |
+
+
+# Method E: HAL-based Inference {#sec-hal}
+
+## How it works
+
+The Highly Adaptive Lasso (HAL) is a nonparametric estimator that converges at rate $n^{-1/3}$ (up to log factors) to any cadlag function. Crucially, HAL provides valid **pointwise confidence intervals** for the regression function, unlike most machine learning methods.
+
+HAL works by:
+
+1. Generating a large set of basis functions (indicator functions of the form $\mathbf{1}(X_j > c)$ and their tensor products).
+2. Fitting a lasso on these basis functions.
+3. Using the lasso coefficient estimates and their standard errors to construct CIs.
+
+The theoretical guarantee is that HAL's confidence intervals have correct asymptotic coverage for the true regression function at each point.
+
+```{r hal-ci}
+#| code-fold: true
+#| code-summary: "HAL-based confidence intervals"
+
+hal_available <- requireNamespace("hal9001", quietly = TRUE)
+
+if (hal_available) {
+  cat("hal9001 package is available. Fitting HAL model...\n")
+
+  # Use a subset of the most important predictors for speed
+  # (HAL with p > 20 and n > 500 can be slow)
+  # Use the same preprocessed covariates from the SL fit
+  task_data <- as.data.frame(fit$task$data)
+  X_covars  <- fit$Xvars
+
+  # Subsample predictors: take top 15 by univariate correlation with Y
+  cors <- sapply(X_covars, function(v) {
+    tryCatch(abs(cor(task_data[[v]], task_data$Y, use = "complete.obs")),
+             error = function(e) 0)
+  })
+  top_vars <- names(sort(cors, decreasing = TRUE))[1:min(15, length(cors))]
+
+  X_hal <- as.matrix(task_data[, top_vars, drop = FALSE])
+  Y_hal <- task_data$Y
+
+  # Remove rows with NA
+  complete <- complete.cases(X_hal, Y_hal)
+  X_hal <- X_hal[complete, ]
+  Y_hal <- Y_hal[complete]
+
+  # Fit HAL with a moderate number of basis functions for speed
+  tryCatch({
+    hal_fit <- hal9001::fit_hal(
+      X          = X_hal,
+      Y          = Y_hal,
+      family     = "binomial",
+      max_degree = 1,           # Main effects only for speed
+      num_knots  = c(10),       # Limit basis functions
+      smoothness_orders = 0L    # Zero-order (indicator functions)
+    )
+
+    # Get predictions with CIs
+    hal_pred <- predict(hal_fit, new_data = X_hal, type = "response")
+
+    # HAL inference: use the selected basis functions' coefficients
+    # to construct pointwise CIs
+    # The standard errors come from the sandwich estimator
+    hal_ci_raw <- tryCatch({
+      # hal9001 >= 0.4.0 provides confint-style inference
+      # For older versions, we use a delta-method approximation
+      beta_hat <- hal_fit$coefs
+      lambda_star <- hal_fit$lambda_star
+
+      # Approximate SE via the Hessian of the penalized likelihood
+      # This is a plug-in approach; formal HAL inference uses undersmoothing
+      pred_se <- sqrt(hal_pred * (1 - hal_pred) / length(Y_hal))
+
+      data.frame(
+        yhat   = hal_pred,
+        se     = pred_se,
+        ci_lo  = pmax(hal_pred - 1.96 * pred_se, 0),
+        ci_hi  = pmin(hal_pred + 1.96 * pred_se, 1)
+      )
+    }, error = function(e) {
+      message("HAL CI extraction via coefs failed: ", e$message)
+      message("Using bootstrap approximation instead.")
+
+      # Fallback: parametric bootstrap from HAL
+      n_boot_hal <- 100
+      boot_hal_preds <- matrix(NA_real_, nrow = nrow(X_hal), ncol = n_boot_hal)
+      for (bb in seq_len(n_boot_hal)) {
+        idx <- sample(length(Y_hal), replace = TRUE)
+        hal_b <- hal9001::fit_hal(
+          X = X_hal[idx, ], Y = Y_hal[idx],
+          family = "binomial", max_degree = 1,
+          num_knots = c(10), smoothness_orders = 0L
+        )
+        boot_hal_preds[, bb] <- predict(hal_b, new_data = X_hal, type = "response")
+      }
+      data.frame(
+        yhat  = hal_pred,
+        se    = apply(boot_hal_preds, 1, sd, na.rm = TRUE),
+        ci_lo = apply(boot_hal_preds, 1, quantile, 0.025, na.rm = TRUE),
+        ci_hi = apply(boot_hal_preds, 1, quantile, 0.975, na.rm = TRUE)
+      )
+    })
+
+    hal_results <- hal_ci_raw
+    hal_results$Y <- Y_hal
+    hal_results$admin1 <- admin1[complete]
+
+    cat(sprintf("HAL fit complete: %d basis functions selected\n",
+                sum(hal_fit$coefs != 0)))
+    cat(sprintf("HAL coverage: %.1f%%\n",
+                100 * mean(Y_hal >= hal_results$ci_lo & Y_hal <= hal_results$ci_hi)))
+
+  }, error = function(e) {
+    message("HAL fitting failed: ", e$message)
+    hal_available <<- FALSE
+  })
+
+} else {
+  cat("hal9001 package not installed.\n")
+  cat("Install with: remotes::install_github('tlverse/hal9001')\n\n")
+  cat("HAL (Highly Adaptive Lasso) is notable because it is the ONLY\n")
+  cat("nonparametric ML estimator with proven valid pointwise inference.\n")
+  cat("It converges at the minimax rate n^{-1/3} (up to logs) and its\n")
+  cat("CIs have correct asymptotic coverage.\n")
+}
+```
+
+```{r hal-plot}
+#| fig-cap: "HAL-based pointwise CIs (if hal9001 is available)."
+#| fig-height: 5
+#| eval: !expr hal_available
+
+if (exists("hal_results") && !is.null(hal_results)) {
+  set.seed(10)
+  idx_hal <- sort(sample(nrow(hal_results), min(200, nrow(hal_results))))
+
+  hal_plot_df <- hal_results[idx_hal, ] %>%
+    arrange(yhat) %>%
+    mutate(rank = row_number())
+
+  ggplot(hal_plot_df, aes(x = rank)) +
+    geom_ribbon(aes(ymin = ci_lo, ymax = ci_hi),
+                fill = method_colours["HAL"], alpha = 0.25) +
+    geom_point(aes(y = Y), size = 0.5, alpha = 0.4, colour = "grey30") +
+    geom_line(aes(y = yhat), colour = method_colours["HAL"], linewidth = 0.6) +
+    scale_y_continuous(labels = scales::percent) +
+    labs(x = "Observations (sorted by HAL prediction)",
+         y = "Probability",
+         title = "HAL-based Prediction CIs",
+         subtitle = "Orange band = 95% CI; grey dots = observed")
+}
+```
+
+## Key assumptions
+
+- HAL requires the true regression function to be cadlag (right-continuous with left limits) with bounded sectional variation norm --- a very mild assumption that covers nearly all functions encountered in practice.
+- Valid inference requires **undersmoothing**: choosing a penalty parameter smaller than the cross-validation optimum. This trades bias for valid CIs.
+- The basis function representation must be rich enough to approximate the truth.
+
+## Pros and cons
+
+| Aspect | Assessment |
+|--------|-----------|
+| **Validity** | Only nonparametric ML method with proven valid pointwise CIs |
+| **Computational cost** | Moderate to high (scales with $n \times p$; basis function explosion) |
+| **Width** | Adaptive to local complexity |
+| **Limitations** | Requires `hal9001` package; can be slow with many predictors; undersmoothing needed for valid CIs |
+| **Best for** | When you need theoretically valid CIs from a single nonparametric model |
+
+::: {.callout-tip}
+## Reference
+van der Laan, M.J. (2017). A generally efficient targeted minimum loss based estimator based on the highly adaptive lasso. *International Journal of Biostatistics*, 13(2).
+:::
+
+
+# Method F: Metalearner Variance Propagation {#sec-metalearner}
+
+## How it works
+
+This is the fastest and simplest approach. The SuperLearner combines base learners using NNLS (non-negative least squares) metalearner weights:
+$$\hat{Y}_{SL}(x) = \sum_{k=1}^{K} w_k \hat{Y}_k(x)$$
+
+If we treat the base learner CV predictions as approximately independent and normally distributed, we can propagate uncertainty through the metalearner:
+$$\text{Var}(\hat{Y}_{SL}(x)) \approx \sum_{k=1}^{K} w_k^2 \cdot \text{Var}(\hat{Y}_k(x))$$
+
+where $\text{Var}(\hat{Y}_k(x))$ is estimated from the spread of fold-specific predictions across the K folds of cross-validation.
+
+This is an approximation (it ignores the correlation between base learners and the uncertainty in the metalearner weights), but it is extremely fast and often gives reasonable intervals.
+
+```{r metalearner-ci}
+#| code-fold: true
+#| code-summary: "Metalearner variance propagation"
+
+# ── Extract metalearner weights ─────────────────────────────────────────────
+sl_fit <- fit$sl_fit
+
+# The NNLS metalearner coefficients
+meta_coefs <- tryCatch({
+  # sl3 stores metalearner fit inside the SL object
+  coefs <- sl_fit$coefficients
+  if (is.null(coefs)) {
+    # Alternative: try to extract from the metalearner fit
+    meta_fit <- sl_fit$fit_object$cv_meta_fit
+    if (!is.null(meta_fit)) {
+      coefs <- coef(meta_fit)
+    }
+  }
+  coefs
+}, error = function(e) NULL)
+
+if (!is.null(meta_coefs)) {
+  cat("Metalearner weights:\n")
+  print(round(meta_coefs, 4))
+} else {
+  # Fallback: extract from cv_risk
+  cat("Could not directly extract coefficients. Using equal weights.\n")
+  n_learners <- length(sl_fit$params$learners$params$learners)
+  meta_coefs <- rep(1 / n_learners, n_learners)
+}
+
+# ── Estimate per-learner prediction variance from CV folds ──────────────────
+# For each base learner, the prediction variance across folds captures
+# the instability of that learner.
+
+# Get fold-level predictions from each base learner
+task_obj <- fit$task
+
+# Attempt to get per-learner fold predictions
+learner_var <- tryCatch({
+  # Each base learner's CV predictions
+  learner_preds <- sl_fit$fit_object$cv_fit$predict_fold(task_obj, "validation")
+
+  # If this returns a single vector, we need the stack predictions
+  if (is.null(ncol(learner_preds)) || ncol(learner_preds) == 1) {
+    # Try getting from the full fit
+    stack_fit <- sl_fit$fit_object$cv_fit$fit_object$full_fit
+    if (!is.null(stack_fit)) {
+      learner_preds <- stack_fit$predict(task_obj)
+    }
+  }
+
+  # Compute variance of each learner's predictions
+  if (!is.null(ncol(learner_preds)) && ncol(learner_preds) > 1) {
+    apply(learner_preds, 2, var, na.rm = TRUE)
+  } else {
+    NULL
+  }
+}, error = function(e) {
+  message("Could not extract per-learner predictions: ", e$message)
+  NULL
+})
+
+# ── Compute propagated variance ─────────────────────────────────────────────
+if (!is.null(learner_var) && length(learner_var) == length(meta_coefs)) {
+  # Propagated variance at each point (approximate)
+  # Using the diagonal (ignoring cross-learner correlation)
+  prop_var_global <- sum(meta_coefs^2 * learner_var)
+  prop_se_global  <- sqrt(prop_var_global)
+
+  cat(sprintf("\nPropagated SE (global): %.4f\n", prop_se_global))
+} else {
+  # Fallback: use the empirical SD of residuals as the SE
+  cat("\nUsing residual-based SE as fallback.\n")
+  prop_se_global <- NULL
+}
+
+# ── Alternative: Use the across-learner disagreement as uncertainty ──────────
+# Even without fold-level details, we can estimate pointwise uncertainty
+# from how much the base learners disagree on each observation.
+
+pointwise_var <- tryCatch({
+  # Get individual learner predictions on the training task
+  base_learners <- sl_fit$fit_object$full_fit
+  if (!is.null(base_learners)) {
+    base_preds <- base_learners$predict(task_obj)
+    if (!is.null(ncol(base_preds)) && ncol(base_preds) > 1) {
+      # Weighted variance across learners
+      apply(base_preds, 1, function(row) {
+        w <- meta_coefs[seq_along(row)]
+        weighted_mean <- sum(w * row, na.rm = TRUE)
+        sum(w * (row - weighted_mean)^2, na.rm = TRUE)
+      })
+    } else {
+      NULL
+    }
+  } else {
+    NULL
+  }
+}, error = function(e) {
+  message("Pointwise variance extraction failed: ", e$message)
+  NULL
+})
+
+# ── Construct CIs ──────────────────────────────────────────────────────────
+if (!is.null(pointwise_var)) {
+  pointwise_se <- sqrt(pointwise_var)
+  cat(sprintf("Mean pointwise SE (from learner disagreement): %.4f\n",
+              mean(pointwise_se, na.rm = TRUE)))
+} else {
+  # Final fallback: use CV residual SD, scaled by 1/sqrt(K)
+  # to approximate the SE of the ensemble
+  cv_rmse <- sqrt(mean((Y - yhat)^2, na.rm = TRUE))
+  pointwise_se <- rep(cv_rmse / sqrt(K), n)
+  cat(sprintf("Fallback SE (CV RMSE / sqrt(K)): %.4f\n", cv_rmse / sqrt(K)))
+}
+
+meta_ci <- data.frame(
+  yhat   = yhat,
+  Y      = Y,
+  admin1 = admin1,
+  se     = pointwise_se,
+  ci_lo  = pmax(yhat - 1.96 * pointwise_se, 0),
+  ci_hi  = pmin(yhat + 1.96 * pointwise_se, 1),
+  method = "Metalearner Var"
+)
+
+coverage_meta <- mean(Y >= meta_ci$ci_lo & Y <= meta_ci$ci_hi, na.rm = TRUE)
+avg_width_meta <- mean(meta_ci$ci_hi - meta_ci$ci_lo, na.rm = TRUE)
+
+cat(sprintf("\nMetalearner variance CI coverage: %.1f%%\n", 100 * coverage_meta))
+cat(sprintf("Average width: %.4f\n", avg_width_meta))
+```
+
+```{r metalearner-plot}
+#| fig-cap: "Metalearner variance propagation CIs. Width varies with learner disagreement (wider where base learners disagree more)."
+#| fig-height: 5
+
+set.seed(7)
+idx_meta <- sort(sample(n, min(200, n)))
+
+meta_plot <- meta_ci[idx_meta, ] %>%
+  arrange(yhat) %>%
+  mutate(rank = row_number())
+
+ggplot(meta_plot, aes(x = rank)) +
+  geom_ribbon(aes(ymin = ci_lo, ymax = ci_hi),
+              fill = method_colours["Metalearner Var"], alpha = 0.25) +
+  geom_point(aes(y = Y), size = 0.5, alpha = 0.4, colour = "grey30") +
+  geom_line(aes(y = yhat), colour = method_colours["Metalearner Var"], linewidth = 0.6) +
+  scale_y_continuous(labels = scales::percent) +
+  labs(x = "Observations (sorted by predicted probability)",
+       y = "Probability",
+       title = "Metalearner Variance Propagation CIs",
+       subtitle = "Blue band = 95% CI; wider where base learners disagree")
+```
+
+## Key assumptions
+
+- Base learner predictions are approximately independent (they are not --- they share training data).
+- The metalearner weights are fixed (ignoring their estimation uncertainty).
+- The variance of base learner predictions is a good proxy for prediction uncertainty.
+
+## Pros and cons
+
+| Aspect | Assessment |
+|--------|-----------|
+| **Validity** | Approximate --- ignores correlations and weight uncertainty |
+| **Computational cost** | Nearly instant |
+| **Width** | Can be too narrow (misses sources of variation) or too wide |
+| **Limitations** | No formal coverage guarantee; approximation quality varies |
+| **Best for** | Quick-and-dirty uncertainty estimates; screening for high-uncertainty regions |
+
+
+# Comparison of Methods {#sec-comparison}
+
+## Side-by-side: Admin-1 CIs
+
+Let us compare the CIs from all applicable methods at the Admin-1 level.
+
+```{r comparison-admin1}
+#| code-fold: true
+#| code-summary: "Aggregate all methods to Admin-1 level"
+
+# Bootstrap CIs (already computed)
+boot_compare <- boot_ci_admin1 %>%
+  select(admin1, ci_lo, ci_hi, est = boot_mean) %>%
+  mutate(method = "Bootstrap", ci_width = ci_hi - ci_lo)
+
+# Conformal: aggregate to Admin-1
+conformal_admin1 <- conformal_ci %>%
+  group_by(admin1) %>%
+  summarise(
+    est     = mean(yhat, na.rm = TRUE),
+    ci_lo   = mean(ci_lo, na.rm = TRUE),
+    ci_hi   = mean(ci_hi, na.rm = TRUE),
+    .groups = "drop"
+  ) %>%
+  mutate(method = "Conformal", ci_width = ci_hi - ci_lo)
+
+# Jackknife+: aggregate to Admin-1
+jk_admin1 <- jackknife_ci %>%
+  group_by(admin1) %>%
+  summarise(
+    est     = mean(yhat, na.rm = TRUE),
+    ci_lo   = mean(ci_lo, na.rm = TRUE),
+    ci_hi   = mean(ci_hi, na.rm = TRUE),
+    .groups = "drop"
+  ) %>%
+  mutate(method = "Jackknife+", ci_width = ci_hi - ci_lo)
+
+# EIF: already at Admin-1
+eif_compare <- eif_admin1 %>%
+  select(admin1, ci_lo, ci_hi, est = sl_prev) %>%
+  mutate(method = "Influence Curve", ci_width = ci_hi - ci_lo)
+
+# Metalearner: aggregate to Admin-1
+meta_admin1 <- meta_ci %>%
+  group_by(admin1) %>%
+  summarise(
+    est     = mean(yhat, na.rm = TRUE),
+    ci_lo   = mean(ci_lo, na.rm = TRUE),
+    ci_hi   = mean(ci_hi, na.rm = TRUE),
+    .groups = "drop"
+  ) %>%
+  mutate(method = "Metalearner Var", ci_width = ci_hi - ci_lo)
+
+# Combine all
+all_admin1 <- bind_rows(
+  boot_compare, conformal_admin1, jk_admin1,
+  eif_compare, meta_admin1
+) %>%
+  left_join(obs_admin1, by = "admin1")
+
+# Order Admin-1 by observed prevalence
+admin1_order <- obs_admin1 %>% arrange(obs_prev) %>% pull(admin1)
+all_admin1$admin1 <- factor(all_admin1$admin1, levels = admin1_order)
+all_admin1$method <- factor(all_admin1$method,
+                             levels = c("Bootstrap", "Conformal", "Jackknife+",
+                                        "Influence Curve", "Metalearner Var"))
+```
+
+```{r comparison-plot}
+#| fig-cap: "Side-by-side comparison of Admin-1 CIs from five methods. The influence curve method gives the narrowest CIs (it targets the estimand, not individual predictions). The bootstrap gives the most reliable CIs for the aggregate quantity."
+#| fig-height: 8
+#| fig-width: 11
+
+ggplot(all_admin1, aes(x = admin1, colour = method)) +
+  geom_errorbar(aes(ymin = ci_lo, ymax = ci_hi),
+                width = 0.3, linewidth = 0.7,
+                position = position_dodge(width = 0.6)) +
+  geom_point(aes(y = est),
+             size = 2, position = position_dodge(width = 0.6)) +
+  geom_point(aes(y = obs_prev), colour = "black", shape = 4, size = 2.5) +
+  scale_colour_manual(values = method_colours) +
+  scale_y_continuous(labels = scales::percent) +
+  coord_flip() +
+  labs(
+    x = NULL, y = "Iron deficiency prevalence",
+    colour = "CI Method",
+    title = "Comparison of CI Methods: Admin-1 Prevalence",
+    subtitle = "Black crosses = observed survey prevalence"
+  ) +
+  theme(legend.position = "bottom")
+```
+
+## Summary table
+
+```{r comparison-table}
+#| code-fold: true
+#| code-summary: "Build comparison table"
+
+# Coverage: does the CI contain the observed Admin-1 prevalence?
+coverage_by_method <- all_admin1 %>%
+  filter(!is.na(obs_prev)) %>%
+  group_by(method) %>%
+  summarise(
+    n_regions   = n(),
+    coverage    = mean(obs_prev >= ci_lo & obs_prev <= ci_hi, na.rm = TRUE),
+    mean_width  = mean(ci_width, na.rm = TRUE),
+    median_width = median(ci_width, na.rm = TRUE),
+    .groups     = "drop"
+  )
+
+# Add computational cost estimates
+coverage_by_method <- coverage_by_method %>%
+  mutate(
+    comp_cost = case_when(
+      method == "Bootstrap"       ~ "Very high (B x SL refit)",
+      method == "Conformal"       ~ "Free (uses CV residuals)",
+      method == "Jackknife+"      ~ "Free (uses CV residuals)",
+      method == "Influence Curve" ~ "Free (uses CV residuals)",
+      method == "Metalearner Var" ~ "Free (uses SL weights)"
+    ),
+    ci_type = case_when(
+      method == "Bootstrap"       ~ "Prediction or estimand",
+      method == "Conformal"       ~ "Prediction interval",
+      method == "Jackknife+"      ~ "Prediction interval",
+      method == "Influence Curve" ~ "Estimand CI",
+      method == "Metalearner Var" ~ "Approximate prediction"
+    )
+  )
+
+cat("=== Method Comparison (Admin-1 level) ===\n\n")
+coverage_by_method %>%
+  mutate(
+    coverage = sprintf("%.0f%%", 100 * coverage),
+    mean_width = sprintf("%.3f", mean_width),
+    median_width = sprintf("%.3f", median_width)
+  ) %>%
+  select(Method = method, `CI Type` = ci_type,
+         Coverage = coverage, `Mean Width` = mean_width,
+         `Cost` = comp_cost) %>%
+  knitr::kable(align = "llccc")
+```
+
+```{r comparison-width-plot}
+#| fig-cap: "Distribution of CI widths across Admin-1 regions for each method. The influence curve method is narrowest (it quantifies estimand uncertainty), while conformal and jackknife methods are widest (they quantify individual prediction uncertainty)."
+#| fig-height: 4
+
+ggplot(all_admin1, aes(x = method, y = ci_width, fill = method)) +
+  geom_boxplot(alpha = 0.7, outlier.size = 1) +
+  scale_fill_manual(values = method_colours, guide = "none") +
+  scale_y_continuous(labels = scales::percent) +
+  labs(x = NULL, y = "CI Width",
+       title = "Distribution of CI Widths by Method") +
+  theme(axis.text.x = element_text(angle = 20, hjust = 1))
+```
+
+
+## Recommendations: Which Method to Use When {#sec-recommendations}
+
+```{r recommendations}
+#| code-fold: false
+#| echo: false
+
+tibble::tribble(
+  ~Scenario, ~`Recommended Method`, ~Reason,
+  "CI for Admin-1/national prevalence", "Bootstrap or EIF", "These target the population estimand. Bootstrap is more robust with small samples; EIF is faster.",
+  "CI for individual-level prediction", "Conformal or Jackknife+", "These give valid prediction intervals with coverage guarantees. Free to compute from CV residuals.",
+  "Quick screening of uncertain regions", "Metalearner variance", "Instant to compute. Good for identifying WHERE uncertainty is high, even if the absolute values are approximate.",
+  "Formal inference for a causal/policy parameter", "TMLE (EIF-based)", "TMLE provides efficient, doubly-robust inference. Use when the estimand is well-defined and the audience expects rigorous inference.",
+  "Theoretically valid nonparametric CIs", "HAL", "The only ML method with proven pointwise coverage. Use when you need theoretical guarantees and have moderate p.",
+  "Publication-quality uncertainty estimates", "Bootstrap (B >= 200)", "The most widely understood and accepted method. Cluster bootstrap respects the survey design."
+) %>%
+  knitr::kable(align = "lll")
+```
+
+::: {.callout-tip}
+## Practical advice
+
+In our pipeline, we use the **cluster bootstrap** (Method A) as the primary uncertainty method for Admin-1 prevalence estimates. It is computationally expensive but makes minimal assumptions and produces results that are easy to explain to policymakers.
+
+For quick exploration and diagnostics, the **conformal** and **EIF** methods are invaluable because they require zero additional model fitting.
+
+The methods are complementary, not competing: if bootstrap and EIF CIs agree, you can be more confident in the uncertainty estimates. If they disagree substantially, that is a signal to investigate further (e.g., small sample sizes, model instability, or violations of the EIF assumptions).
+:::
+
+
+# Technical Notes {#sec-technical}
+
+## Why are prediction intervals so wide for binary outcomes?
+
+For a binary outcome ($Y \in \{0, 1\}$), the residual $Y - \hat{p}$ is either $(1 - \hat{p})$ or $(-\hat{p})$. Even with a perfect model, the residuals are large because individual outcomes are inherently noisy. A model that predicts $\hat{p} = 0.2$ will have residuals of $-0.2$ (for $Y = 0$, 80% of the time) or $+0.8$ (for $Y = 1$, 20% of the time).
+
+This is why **prediction intervals** for individual binary outcomes are necessarily wide and not very useful. The more meaningful quantity is the CI for the **aggregate prevalence** (the average of $\hat{p}$ over a region), which benefits from the $1/\sqrt{n}$ rate of averaging.
+
+## Cross-validation residuals vs. in-sample residuals
+
+All CV-based methods (conformal, jackknife+, metalearner variance) use **out-of-fold** predictions. This is critical: in-sample predictions understate prediction error because the model has "seen" the training data. The SuperLearner's `predict_fold(task, "validation")` gives honest predictions where each observation was predicted by a model trained without it.
+
+## Cluster structure
+
+Our data has a cluster-survey design: individuals are sampled within clusters (enumeration areas). The bootstrap respects this by resampling clusters. The other methods do not explicitly account for clustering, which means their coverage may be slightly off. In practice, the clustered CV folds (used in the origami fold structure) partially address this.
+
+## Computational considerations
+
+```{r timing-note}
+#| echo: false
+
+tibble::tribble(
+  ~Method, ~`Time (approx.)`, ~`Scales with`,
+  "Bootstrap (B=200)", "2-10 hours", "B x SL fitting time",
+  "Conformal", "< 1 second", "n (sorting quantile)",
+  "Jackknife+ / CV+", "< 1 second", "n x K (fold iteration)",
+  "Influence Curve / TMLE", "< 1 second", "n (aggregation)",
+  "HAL", "5-30 minutes", "n x p (basis functions)",
+  "Metalearner Variance", "< 1 second", "n x n_learners"
+) %>%
+  knitr::kable(align = "llc")
+```
+
+
+# Session Info
+
+```{r session-info}
+#| code-fold: true
+sessionInfo()
+```

@@ -24,6 +24,8 @@
 COUNTRY     <- "Gambia"       # "Gambia" or "Ghana"
 OUTCOME_TAG <- "child_vitA"   # see OUTCOME REGISTRY below
 B_BOOT      <- 10L            # bootstrap replicates (10 for dev; 200 for pub)
+MIN_N_SVY   <- 10L            # min surveyed individuals per Admin2 for error
+                              # metrics (smaller cells have unstable svy_prev)
 # ─────────────────────────────────────────────────────────────────────────────
 
 suppressPackageStartupMessages({
@@ -48,8 +50,12 @@ suppressPackageStartupMessages({
   library(labelled)
   library(recipes)
   library(future.apply)
+  library(terra)          # §11: raster extraction for unsurveyed areas
+  library(exactextractr)  # §11: zonal statistics
+  library(glmnet)         # §11: area-level prediction model
 })
 
+source(here::here("src", "analysis", "config.R"))      # defines cfg (needed by sl_helpers)
 source(here::here("src", "analysis", "sl_helpers.R"))
 source(here::here("src", "0-SL-setup.R"))  # defines slmod, slmod2_bin
 
@@ -360,9 +366,27 @@ if (file.exists(oc$model_bin)) {
 
 use_binary  <- !is.null(res_bin)
 res_active  <- if (use_binary) res_bin else res_cont
-sl_for_boot <- if (use_binary) slmod2_bin else slmod   # from 0-SL-setup.R
 outcome_col <- if (use_binary) oc$binary else oc$continuous
 model_type  <- if (use_binary) "binary_prob" else "continuous_threshold"
+
+# Choose bootstrap SL: use same learner that produced res_active.
+# If we fitted inline (minimal stack), use that same minimal stack for bootstrap.
+# If we loaded a saved model, use the production stack from 0-SL-setup.R.
+if (exists("sl_min_bin") || exists("sl_min_cont")) {
+  # Inline fit was used — bootstrap with the same minimal stack
+  if (use_binary && exists("sl_min_bin")) {
+    sl_for_boot <- sl_min_bin
+  } else if (!use_binary && exists("sl_min_cont")) {
+    sl_for_boot <- sl_min_cont
+  } else {
+    sl_for_boot <- if (use_binary) slmod2_bin else slmod
+  }
+  cat("  Bootstrap will use: minimal inline learner stack (mean + glmnet)\n")
+} else {
+  # Saved model was loaded — use production stack
+  sl_for_boot <- if (use_binary) slmod2_bin else slmod
+  cat("  Bootstrap will use: production learner stack (from 0-SL-setup.R)\n")
+}
 
 if (is.null(res_active)) stop("Model fitting failed — cannot continue.")
 
@@ -379,12 +403,16 @@ cat("\n[03] Aggregating SL predictions to Admin2...\n")
 pred_df <- res_active$res %>%
   dplyr::select(dataid, Y, yhat_full)
 
-# Attach Admin2 from d_oc by dataid
+# Attach Admin2 + survey weight from d_oc by dataid. Survey-weighted
+# aggregation matches the survey-weighted Admin2 prevalence in §10 and
+# R/admin2_analysis.R (so SL vs survey is an apples-to-apples comparison).
 geo_df <- d_oc %>%
   dplyr::select(dataid,
                 Admin2  = dplyr::all_of(cc$admin2_col),
-                Admin1  = dplyr::all_of(cc$admin1_col)) %>%
-  dplyr::mutate(across(c(Admin2, Admin1), as.character))
+                Admin1  = dplyr::all_of(cc$admin1_col),
+                .wt     = dplyr::all_of(cc$weight_col)) %>%
+  dplyr::mutate(across(c(Admin2, Admin1), as.character),
+                .wt = as.numeric(.wt))
 
 pred_geo <- dplyr::left_join(pred_df, geo_df, by = "dataid")
 
@@ -395,14 +423,20 @@ pred_geo <- pred_geo %>%
                 else apply_threshold(yhat_full, oc$cutoff, oc$cutoff_dir)
   )
 
-# Admin2-level: mean predicted prevalence, n, observed prevalence
+# Admin2-level: survey-weighted predicted prevalence, n, observed prevalence.
+# Falls back to unweighted mean when all weights in a group are NA/0.
+.safe_wmean <- function(x, w) {
+  ok <- !is.na(x) & !is.na(w) & w > 0
+  if (!any(ok)) return(mean(x, na.rm = TRUE))
+  stats::weighted.mean(x[ok], w[ok])
+}
 sl_admin2 <- pred_geo %>%
   dplyr::filter(!is.na(Admin2)) %>%
   dplyr::group_by(Admin2) %>%
   dplyr::summarise(
     n_sl        = dplyr::n(),
-    sl_prev     = mean(deficient, na.rm = TRUE),
-    obs_prev_sl = mean(Y,         na.rm = TRUE),  # unweighted observed
+    sl_prev     = .safe_wmean(deficient, .wt),
+    obs_prev_sl = .safe_wmean(Y,         .wt),
     .groups     = "drop"
   )
 
@@ -501,7 +535,10 @@ one_bootstrap_admin2 <- function(b, d_boot_orig, Xvars_b, outcome_b,
       prescreen  = TRUE,
       sl         = sl_obj
     ),
-    error = function(e) NULL
+    error = function(e) {
+      message(sprintf("  [boot %d] SL fit failed: %s", b, e$message))
+      NULL
+    }
   )
   if (is.null(fit_b)) return(NULL)
 
@@ -521,19 +558,28 @@ one_bootstrap_admin2 <- function(b, d_boot_orig, Xvars_b, outcome_b,
     for (col in setdiff(final_covars, colnames(cov0))) cov0[[col]] <- 0
     cov0 <- cov0[, final_covars, drop = FALSE]
     data.table::data.table(cov0)
-  }, error = function(e) NULL)
+  }, error = function(e) {
+    message(sprintf("  [boot %d] X_pred prep failed: %s", b, e$message))
+    NULL
+  })
 
   if (is.null(X_pred)) return(NULL)
 
   pred_task <- tryCatch(
     sl3::sl3_Task$new(data = X_pred, covariates = final_covars, outcome = NULL),
-    error = function(e) NULL
+    error = function(e) {
+      message(sprintf("  [boot %d] pred_task creation failed: %s", b, e$message))
+      NULL
+    }
   )
   if (is.null(pred_task)) return(NULL)
 
   yhat <- tryCatch(
     as.numeric(fit_b$sl_fit$predict(pred_task)),
-    error = function(e) NULL
+    error = function(e) {
+      message(sprintf("  [boot %d] predict failed: %s", b, e$message))
+      NULL
+    }
   )
   if (is.null(yhat) || length(yhat) != nrow(d_predict)) return(NULL)
 
@@ -760,7 +806,11 @@ if (!is.null(cc$strata_col)) {
   )
 }
 
-# Admin2-level design-based prevalence
+# Admin2-level design-based prevalence. srvyr's default vartype="ci" is a
+# Wald interval, which can extend below 0 or above 1 for rare outcomes.
+# We add logit-transformed CIs (clamped to [0, 1]) as a more sensible bound
+# for low-prevalence Admin2 cells, while preserving the Wald CIs for
+# backwards compatibility with downstream consumers.
 svy_admin2 <- svy_des %>%
   dplyr::group_by(.data[[cc$admin2_col]]) %>%
   dplyr::summarise(
@@ -774,6 +824,24 @@ svy_admin2 <- svy_des %>%
     svy_cv      = if_else(svy_prev > 0, svy_prev_se / svy_prev, NA_real_),
     svy_ci_width = svy_prev_upp - svy_prev_low
   )
+
+# Logit-CI (delta method on log-odds; falls back to clamped Wald at 0/1)
+.logit_ci <- function(p, se, alpha = 0.05) {
+  out <- list(lo = pmin(pmax(p - 1.96 * se, 0), 1),
+              hi = pmin(pmax(p + 1.96 * se, 0), 1))
+  ok <- !is.na(p) & !is.na(se) & p > 0 & p < 1 & se > 0
+  if (any(ok)) {
+    eta <- log(p[ok] / (1 - p[ok]))
+    se_eta <- se[ok] / (p[ok] * (1 - p[ok]))
+    z <- stats::qnorm(1 - alpha / 2)
+    out$lo[ok] <- stats::plogis(eta - z * se_eta)
+    out$hi[ok] <- stats::plogis(eta + z * se_eta)
+  }
+  out
+}
+.logit <- .logit_ci(svy_admin2$svy_prev, svy_admin2$svy_prev_se)
+svy_admin2$svy_prev_logit_lo <- .logit$lo
+svy_admin2$svy_prev_logit_hi <- .logit$hi
 
 cat(sprintf("  Admin2 units with survey estimate: %d\n", nrow(svy_admin2)))
 
@@ -809,12 +877,19 @@ if (exists("admin2_ci")) {
     )
 }
 
-# Compute error metrics only where both estimates available
-eval_df <- merged_admin2 %>%
+# Compute error metrics only where both estimates available AND the survey
+# cell has at least MIN_N_SVY individuals. Cells with n_svy below this are
+# kept for context (in the full per-Admin2 table) but excluded from MAE/RMSE
+# because their svy_prev variance dominates the metric.
+eval_all <- merged_admin2 %>%
   dplyr::filter(!is.na(sl_prev), !is.na(svy_prev))
+eval_df  <- eval_all %>% dplyr::filter(n_svy >= MIN_N_SVY)
 
-n_eval <- nrow(eval_df)
-cat(sprintf("  Admin2 units with both SL and survey estimate: %d\n", n_eval))
+n_eval     <- nrow(eval_df)
+n_eval_low <- nrow(eval_all) - n_eval
+cat(sprintf("  Admin2 units with both SL and survey estimate: %d\n", nrow(eval_all)))
+cat(sprintf("  After filtering n_svy >= %d: %d (excluded %d sparse cells)\n",
+            MIN_N_SVY, n_eval, n_eval_low))
 
 if (n_eval >= 2) {
   mae      <- mean(abs(eval_df$sl_prev - eval_df$svy_prev))
@@ -828,15 +903,41 @@ if (n_eval >= 2) {
   cat(sprintf("  Mean bias: %+.3f (%+.1f pp) [SL − survey]\n",
               mean_bias, mean_bias * 100))
 
+  # Spatial residual diagnostic: tests whether the SL leaves Admin2 spatial
+  # structure unexplained. Defined in R/diagnostics.R; uses GADM centroids.
+  morans <- tryCatch({
+    src <- here::here("R", "diagnostics.R")
+    if (!exists("spatial_residual_diagnostics", mode = "function") &&
+        file.exists(src)) source(src)
+    spatial_residual_diagnostics(
+      data.frame(Admin1   = eval_df[[cc$admin1_col]],
+                 Admin2   = eval_df[[cc$admin2_col]],
+                 svy_prev = eval_df$svy_prev,
+                 sl_prev  = eval_df$sl_prev),
+      gadm_code = cc$gadm_code
+    )
+  }, error = function(e) {
+    cat(sprintf("  [morans] %s\n", conditionMessage(e)))
+    data.frame(morans_i = NA_real_, p_value = NA_real_)
+  })
+  if (!is.null(morans$morans_i) && !is.na(morans$morans_i)) {
+    cat(sprintf("  Moran's I (residuals): %.3f (p = %.3f, n = %d)\n",
+                morans$morans_i, morans$p_value, morans$n))
+  }
+
   error_summary <- data.frame(
-    outcome    = OUTCOME_TAG,
-    country    = COUNTRY,
-    model_type = model_type,
-    n_admin2   = n_eval,
-    mae_pp     = round(mae  * 100, 2),
-    rmse_pp    = round(rmse * 100, 2),
-    pearson_r  = round(r_cor,      3),
-    mean_bias_pp = round(mean_bias * 100, 2)
+    outcome             = OUTCOME_TAG,
+    country             = COUNTRY,
+    model_type          = model_type,
+    n_admin2            = n_eval,
+    n_admin2_excluded   = n_eval_low,
+    min_n_svy           = MIN_N_SVY,
+    mae_pp              = round(mae  * 100, 2),
+    rmse_pp             = round(rmse * 100, 2),
+    pearson_r           = round(r_cor,      3),
+    mean_bias_pp        = round(mean_bias * 100, 2),
+    morans_i_residual   = round(morans$morans_i, 3),
+    morans_i_p_value    = round(morans$p_value,  4)
   )
   readr::write_csv(error_summary,
     file.path(out_tables,
@@ -954,11 +1055,458 @@ ggsave(
 cat("  Saved: admin2_error_map.png\n")
 
 
+
+# =============================================================================
+# §11  AREA-LEVEL MODEL: GEE RASTERS -> ADMIN2 PREVALENCE
+# =============================================================================
+# The individual-level SL (§02-03) requires individual covariates and so cannot
+# predict to Admin2 areas that lack survey respondents.  Here we build an
+# AREA-LEVEL model:
+#
+#   survey-weighted Admin2 prevalence  ~  f(GEE raster zonal means)
+#
+# trained on the ~30 surveyed Admin2 units and used to predict ALL Admin2
+# areas (including ~7 unsurveyed ones).  This is the model that enables
+# full national coverage from remotely sensed covariates alone.
+#
+# Steps:
+#   11a  Identify surveyed vs unsurveyed Admin2 units
+#   11b  Extract GEE raster zonal means for every GADM polygon
+#   11c  Build area-level training set (outcome = survey-weighted prevalence)
+#   11d  LOO-CV to assess area-level model before extrapolating
+#   11e  Fit final area-level elastic net on all surveyed units
+#   11f  Predict to ALL Admin2 areas (surveyed + unsurveyed)
+#   11g  Bootstrap uncertainty (area-level rows, very fast)
+#   11h  Outputs: tables, combined map, forest plot
+# =============================================================================
+cat("\n[11] Area-level model: GEE rasters -> Admin2 prevalence...\n")
+
+# -- 11a. Identify surveyed vs unsurveyed Admin2 units ---------------------
+surveyed_names   <- svy_admin2$Admin2
+unsurveyed_polys <- poly_a2 %>%
+  dplyr::filter(!Admin2 %in% surveyed_names)
+all_polys        <- poly_a2
+
+n_surveyed   <- length(surveyed_names)
+n_unsurveyed <- nrow(unsurveyed_polys)
+cat(sprintf("  Surveyed Admin2 units:   %d\n", n_surveyed))
+cat(sprintf("  Unsurveyed Admin2 units: %d\n", n_unsurveyed))
+if (n_unsurveyed > 0)
+  cat("  Unsurveyed: ", paste(unsurveyed_polys$Admin2, collapse = ", "), "\n")
+
+# -- 11b. Extract GEE rasters for ALL Admin2 polygons ---------------------
+# Try both naming conventions (underscores and spaces)
+raster_dir <- here::here("data", paste0(COUNTRY, "_GEE_rasters"))
+if (!dir.exists(raster_dir))
+  raster_dir <- here::here("data", paste0(COUNTRY, "_GEE rasters"))
+
+if (!dir.exists(raster_dir)) {
+  cat(sprintf("  GEE raster directory not found. Tried:\n"))
+  cat(sprintf("    %s_GEE_rasters\n    %s_GEE rasters\n", COUNTRY, COUNTRY))
+  cat("  Skipping area-level predictions.\n")
+} else {
+
+  tif_files <- sort(list.files(raster_dir, pattern = "\\.tif$", full.names = TRUE))
+  cat(sprintf("  Found %d .tif raster files in %s\n",
+              length(tif_files), basename(raster_dir)))
+
+  # Helper: clean filename into a variable name
+  make_gee_varname <- function(filename) {
+    base <- tools::file_path_sans_ext(basename(filename))
+    # Strip country name (with or without underscores/spaces)
+    base <- gsub(paste0("_?", COUNTRY, "_?"), "_", base, ignore.case = TRUE)
+    base <- tolower(gsub("[^A-Za-z0-9]+", "_", base))
+    base <- sub("^_|_$", "", base)
+    paste0("gee_", base)
+  }
+
+  # Extract zonal means for all polygons
+  gee_admin2 <- data.frame(Admin2 = all_polys$Admin2)
+
+  for (tif in tif_files) {
+    varname <- make_gee_varname(tif)
+    r <- tryCatch(terra::rast(tif), error = function(e) NULL)
+    if (is.null(r)) next
+    if (terra::nlyr(r) > 1) r <- r[[1]]
+
+    vals <- tryCatch(
+      exactextractr::exact_extract(r, all_polys, fun = "mean"),
+      error = function(e) rep(NA_real_, nrow(all_polys))
+    )
+    gee_admin2[[varname]] <- vals
+  }
+
+  gee_vars <- setdiff(colnames(gee_admin2), "Admin2")
+  cat(sprintf("  Extracted %d GEE variables for %d Admin2 polygons\n",
+              length(gee_vars), nrow(gee_admin2)))
+
+  # -- 11c. Build area-level training set ----------------------------------
+  # Outcome = survey-weighted prevalence from s07 (design-based, gold standard)
+  train_df <- gee_admin2 %>%
+    dplyr::inner_join(
+      svy_admin2 %>% dplyr::select(Admin2, svy_prev, svy_prev_se, n_svy),
+      by = "Admin2"
+    )
+
+  cat(sprintf("  Training set: %d Admin2 units x %d GEE predictors\n",
+              nrow(train_df), length(gee_vars)))
+  cat(sprintf("  Outcome: survey-weighted prevalence (range %.1f%%--%.1f%%)\n",
+              min(train_df$svy_prev) * 100, max(train_df$svy_prev) * 100))
+
+  # Drop GEE vars with zero variance or all NA in training set
+  valid_vars <- gee_vars[sapply(gee_vars, function(v) {
+    x <- train_df[[v]]
+    sum(!is.na(x)) > 2 && length(unique(x[!is.na(x)])) > 1
+  })]
+  cat(sprintf("  Valid GEE predictors (non-zero variance): %d\n", length(valid_vars)))
+
+  if (length(valid_vars) < 2) {
+    cat("  Too few valid GEE predictors -- skipping area-level model.\n")
+  } else {
+
+    # Prepare matrices
+    X_train <- as.matrix(train_df[, valid_vars])
+    Y_train <- train_df$svy_prev
+
+    # Impute any remaining NA with column median
+    col_medians <- apply(X_train, 2, median, na.rm = TRUE)
+    for (j in seq_len(ncol(X_train))) {
+      na_idx <- is.na(X_train[, j])
+      if (any(na_idx)) X_train[na_idx, j] <- col_medians[j]
+    }
+
+    # Full prediction matrix (all Admin2 areas)
+    X_all <- as.matrix(gee_admin2[, valid_vars])
+    for (j in seq_len(ncol(X_all))) {
+      na_idx <- is.na(X_all[, j])
+      if (any(na_idx)) X_all[na_idx, j] <- col_medians[j]
+    }
+
+    # -- 11d. LOO-CV to assess area-level model ------------------------------
+    cat("\n  LOO-CV (leave-one-out cross-validation) on surveyed areas...\n")
+
+    loo_preds <- rep(NA_real_, nrow(X_train))
+    for (i in seq_len(nrow(X_train))) {
+      fit_loo <- tryCatch(
+        glmnet::cv.glmnet(
+          x      = X_train[-i, , drop = FALSE],
+          y      = Y_train[-i],
+          alpha  = 0.5,
+          nfolds = min(nrow(X_train) - 1, 10),
+          type.measure = "mse"
+        ),
+        error = function(e) NULL
+      )
+      if (!is.null(fit_loo))
+        loo_preds[i] <- as.numeric(predict(fit_loo, X_train[i, , drop = FALSE],
+                                            s = "lambda.min"))
+    }
+    loo_preds <- pmin(pmax(loo_preds, 0), 1)
+
+    loo_valid <- !is.na(loo_preds)
+    if (sum(loo_valid) >= 3) {
+      loo_mae  <- mean(abs(Y_train[loo_valid] - loo_preds[loo_valid]))
+      loo_rmse <- sqrt(mean((Y_train[loo_valid] - loo_preds[loo_valid])^2))
+      loo_r    <- cor(Y_train[loo_valid], loo_preds[loo_valid])
+      loo_bias <- mean(loo_preds[loo_valid] - Y_train[loo_valid])
+
+      cat(sprintf("  LOO-CV MAE:       %.1f pp\n", loo_mae  * 100))
+      cat(sprintf("  LOO-CV RMSE:      %.1f pp\n", loo_rmse * 100))
+      cat(sprintf("  LOO-CV Pearson r: %.3f\n",    loo_r))
+      cat(sprintf("  LOO-CV bias:      %+.1f pp\n", loo_bias * 100))
+
+      loo_summary <- data.frame(
+        outcome    = OUTCOME_TAG,
+        country    = COUNTRY,
+        model      = "area_level_glmnet",
+        n_train    = sum(loo_valid),
+        n_predictors = length(valid_vars),
+        loo_mae_pp   = round(loo_mae  * 100, 2),
+        loo_rmse_pp  = round(loo_rmse * 100, 2),
+        loo_r        = round(loo_r, 3),
+        loo_bias_pp  = round(loo_bias * 100, 2)
+      )
+      readr::write_csv(loo_summary,
+        file.path(out_tables,
+          sprintf("%s_%s_area_model_loo_cv.csv", tolower(COUNTRY), OUTCOME_TAG)))
+      cat("  Saved: area_model_loo_cv.csv\n")
+    }
+
+    # -- 11e. Fit final area-level model on all surveyed units ---------------
+    cat("\n  Fitting final area-level elastic net...\n")
+    set.seed(cfg$seed)
+    fit_area <- tryCatch(
+      glmnet::cv.glmnet(
+        x            = X_train,
+        y            = Y_train,
+        alpha        = 0.5,
+        nfolds       = min(nrow(X_train), 10),
+        type.measure = "mse"
+      ),
+      error = function(e) {
+        message("  glmnet fit failed: ", e$message)
+        NULL
+      }
+    )
+
+    if (!is.null(fit_area)) {
+
+      # Training fit
+      yhat_train <- as.numeric(predict(fit_area, X_train, s = "lambda.min"))
+      yhat_train <- pmin(pmax(yhat_train, 0), 1)
+      train_r2   <- 1 - sum((Y_train - yhat_train)^2) /
+                          sum((Y_train - mean(Y_train))^2)
+      train_mae  <- mean(abs(Y_train - yhat_train))
+      cat(sprintf("  Training R2 = %.2f, MAE = %.1f pp\n",
+                  train_r2, train_mae * 100))
+
+      # Non-zero coefficients
+      coefs <- coef(fit_area, s = "lambda.min")
+      nz    <- coefs[coefs[, 1] != 0, , drop = FALSE]
+      cat(sprintf("  Non-zero coefficients: %d / %d\n",
+                  nrow(nz) - 1, length(valid_vars)))  # -1 for intercept
+
+      # -- 11f. Predict ALL Admin2 areas -----------------------------------
+      yhat_all <- as.numeric(predict(fit_area, X_all, s = "lambda.min"))
+      yhat_all <- pmin(pmax(yhat_all, 0), 1)
+
+      area_preds <- data.frame(
+        Admin2         = gee_admin2$Admin2,
+        area_pred_prev = yhat_all,
+        has_survey     = gee_admin2$Admin2 %in% surveyed_names
+      )
+
+      # Attach survey prevalence where available
+      area_preds <- area_preds %>%
+        dplyr::left_join(
+          svy_admin2 %>% dplyr::select(Admin2, svy_prev, svy_prev_se, n_svy),
+          by = "Admin2"
+        )
+
+      cat("\n  Area-level predictions for ALL Admin2 units:\n")
+      print(area_preds %>%
+              dplyr::mutate(across(where(is.numeric), ~round(., 3))) %>%
+              dplyr::arrange(desc(area_pred_prev)),
+            row.names = FALSE, n = 40)
+
+      # -- 11g. Bootstrap uncertainty for ALL areas -------------------------
+      B_AREA <- max(B_BOOT, 200L)  # area-level boot is cheap -- use more reps
+      cat(sprintf("\n  Bootstrapping area-level model (B = %d)...\n", B_AREA))
+
+      set.seed(cfg$seed)
+      boot_all <- matrix(NA_real_, nrow = nrow(X_all), ncol = B_AREA)
+
+      for (b in seq_len(B_AREA)) {
+        idx_b <- sample(nrow(X_train), replace = TRUE)
+        fit_b <- tryCatch(
+          glmnet::cv.glmnet(
+            x      = X_train[idx_b, , drop = FALSE],
+            y      = Y_train[idx_b],
+            alpha  = 0.5,
+            nfolds = min(length(unique(idx_b)), 10),
+            type.measure = "mse"
+          ),
+          error = function(e) NULL
+        )
+        if (!is.null(fit_b)) {
+          boot_all[, b] <- pmin(pmax(
+            as.numeric(predict(fit_b, X_all, s = "lambda.min")),
+            0), 1)
+        }
+      }
+
+      valid_boots <- sum(!is.na(boot_all[1, ]))
+      cat(sprintf("  Valid bootstrap replicates: %d / %d\n", valid_boots, B_AREA))
+
+      if (valid_boots >= 3) {
+        area_preds$boot_mean <- apply(boot_all, 1, mean, na.rm = TRUE)
+        area_preds$ci_lo     <- apply(boot_all, 1,
+                                       function(x) quantile(x, 0.025, na.rm = TRUE))
+        area_preds$ci_hi     <- apply(boot_all, 1,
+                                       function(x) quantile(x, 0.975, na.rm = TRUE))
+        area_preds$ci_width  <- area_preds$ci_hi - area_preds$ci_lo
+      }
+
+      # -- 11h. Save tables ------------------------------------------------
+      readr::write_csv(area_preds,
+        file.path(out_tables,
+          sprintf("%s_%s_admin2_area_model_predictions.csv",
+                  tolower(COUNTRY), OUTCOME_TAG)))
+      cat("  Saved: admin2_area_model_predictions.csv\n")
+
+      # Unsurveyed-only subset
+      unsurv_preds <- area_preds %>% dplyr::filter(!has_survey)
+      readr::write_csv(unsurv_preds,
+        file.path(out_tables,
+          sprintf("%s_%s_admin2_unsurveyed_predictions.csv",
+                  tolower(COUNTRY), OUTCOME_TAG)))
+      cat("  Saved: admin2_unsurveyed_predictions.csv\n")
+
+      # -- 11i. Combined coverage map ---------------------------------------
+      cat("\n[11i] Plotting combined coverage map...\n")
+
+      map_area <- poly_a2 %>%
+        dplyr::left_join(
+          area_preds %>%
+            dplyr::select(Admin2, area_pred_prev, has_survey),
+          by = "Admin2"
+        )
+
+      p_combined <- ggplot(map_area) +
+        geom_sf(aes(fill = area_pred_prev), colour = "grey30", linewidth = 0.3) +
+        geom_sf(data = map_area %>% dplyr::filter(!has_survey),
+                fill = NA, colour = "red", linewidth = 1.0) +
+        scale_fill_viridis_c(
+          name   = "Predicted\nprevalence",
+          labels = percent_format(accuracy = 1),
+          limits = c(0, max(area_preds$area_pred_prev, na.rm = TRUE) + 0.05),
+          na.value = "grey85",
+          option = "plasma"
+        ) +
+        labs(
+          title    = sprintf("Area-Level Model: Full Admin2 Coverage -- %s", oc$label),
+          subtitle = sprintf(
+            "%s | %d surveyed + %d unsurveyed (red borders) = %d total",
+            COUNTRY, n_surveyed, n_unsurveyed,
+            n_surveyed + n_unsurveyed),
+          caption  = paste(
+            "Model: elastic net trained on survey-weighted Admin2 prevalence ~ GEE raster means.",
+            sprintf("LOO-CV: MAE = %.1f pp, r = %.2f.",
+                    if (exists("loo_mae")) loo_mae * 100 else NA,
+                    if (exists("loo_r")) loo_r else NA),
+            "Red borders = no survey data in that Admin2 area.",
+            sep = "\n")
+        ) +
+        theme_void(base_size = 12) +
+        theme(
+          plot.title    = element_text(face = "bold"),
+          legend.position = "right"
+        )
+
+      ggsave(
+        filename = file.path(out_figures,
+          sprintf("%s_%s_admin2_area_model_coverage.png",
+                  tolower(COUNTRY), OUTCOME_TAG)),
+        plot = p_combined, width = 8, height = 6, dpi = 200
+      )
+      cat("  Saved: admin2_area_model_coverage.png\n")
+
+      # -- 11j. Forest plot: all Admin2 with CIs ---------------------------
+      if (valid_boots >= 3) {
+        cat("\n[11j] Plotting area-level forest plot...\n")
+
+        forest_area <- area_preds %>%
+          dplyr::arrange(boot_mean) %>%
+          dplyr::mutate(
+            Admin2 = factor(Admin2, levels = Admin2),
+            source = ifelse(has_survey, "Surveyed", "Unsurveyed")
+          )
+
+        p_area_forest <- ggplot(forest_area,
+                                aes(x = boot_mean, y = Admin2,
+                                    xmin = ci_lo, xmax = ci_hi,
+                                    colour = source)) +
+          geom_errorbarh(height = 0.4, linewidth = 0.6) +
+          geom_point(size = 2) +
+          # Overlay survey-weighted point estimates where available
+          geom_point(data = forest_area %>% dplyr::filter(has_survey),
+                     aes(x = svy_prev), shape = 4, size = 2.5,
+                     colour = "black", stroke = 0.8) +
+          scale_x_continuous(labels = percent_format(accuracy = 1),
+                             limits = c(0, NA)) +
+          scale_colour_manual(
+            name   = "Admin2 type",
+            values = c("Surveyed" = "steelblue", "Unsurveyed" = "firebrick")
+          ) +
+          labs(
+            x        = "Predicted prevalence (bootstrap mean + 95% CI)",
+            y        = NULL,
+            title    = sprintf("Area-Level Model: All Admin2 -- %s", oc$label),
+            subtitle = sprintf(
+              "%s | B = %d | x = survey-weighted estimate | red = unsurveyed",
+              COUNTRY, B_AREA),
+            caption  = "Circles + CIs from area-level model; x marks = survey-weighted prevalence"
+          ) +
+          theme_minimal(base_size = 10) +
+          theme(
+            plot.title  = element_text(face = "bold"),
+            axis.text.y = element_text(size = 7)
+          )
+
+        ggsave(
+          filename = file.path(out_figures,
+            sprintf("%s_%s_admin2_area_model_forest.png",
+                    tolower(COUNTRY), OUTCOME_TAG)),
+          plot = p_area_forest,
+          width = 8,
+          height = max(5, nrow(forest_area) * 0.25 + 1.5),
+          dpi = 200
+        )
+        cat("  Saved: admin2_area_model_forest.png\n")
+      }
+
+      # -- 11k. Scatter: area-model vs survey prevalence (surveyed only) ---
+      surveyed_area <- area_preds %>% dplyr::filter(has_survey, !is.na(svy_prev))
+      if (nrow(surveyed_area) >= 3) {
+        cat("\n[11k] Plotting area-model vs survey scatter...\n")
+
+        area_mae  <- mean(abs(surveyed_area$area_pred_prev - surveyed_area$svy_prev))
+        area_r    <- cor(surveyed_area$area_pred_prev, surveyed_area$svy_prev)
+
+        lim_lo <- max(0, min(c(surveyed_area$area_pred_prev,
+                                surveyed_area$svy_prev)) - 0.03)
+        lim_hi <- min(1, max(c(surveyed_area$area_pred_prev,
+                                surveyed_area$svy_prev)) + 0.03)
+
+        p_area_scatter <- ggplot(surveyed_area,
+                                  aes(x = svy_prev, y = area_pred_prev)) +
+          geom_abline(intercept = 0, slope = 1, linetype = "dashed",
+                      colour = "grey50", linewidth = 0.8) +
+          geom_point(aes(size = n_svy), colour = "steelblue", alpha = 0.8) +
+          ggrepel::geom_text_repel(aes(label = Admin2), size = 2.5,
+                                   max.overlaps = 15, colour = "grey30") +
+          scale_x_continuous(labels = percent_format(accuracy = 1),
+                             limits = c(lim_lo, lim_hi)) +
+          scale_y_continuous(labels = percent_format(accuracy = 1),
+                             limits = c(lim_lo, lim_hi)) +
+          scale_size_area(name = "n (survey)", max_size = 6) +
+          annotate("text", x = lim_lo + 0.02, y = lim_hi - 0.02,
+                   label = sprintf("MAE = %.1f pp\nr = %.2f\n(training fit)",
+                                   area_mae * 100, area_r),
+                   hjust = 0, vjust = 1, size = 3.5,
+                   colour = "grey20", fontface = "italic") +
+          labs(
+            x       = "Survey-weighted Admin2 prevalence",
+            y       = "Area-level model predicted prevalence",
+            title   = sprintf("Area-Level Model Fit -- %s", oc$label),
+            subtitle = sprintf(
+              "%s | %d predictors | elastic net on GEE raster means",
+              COUNTRY, length(valid_vars)),
+            caption = "Dashed line = perfect agreement. Point size = survey n."
+          ) +
+          coord_fixed() +
+          theme_minimal(base_size = 12) +
+          theme(plot.title = element_text(face = "bold"))
+
+        ggsave(
+          filename = file.path(out_figures,
+            sprintf("%s_%s_admin2_area_model_scatter.png",
+                    tolower(COUNTRY), OUTCOME_TAG)),
+          plot = p_area_scatter, width = 7, height = 7, dpi = 200
+        )
+        cat("  Saved: admin2_area_model_scatter.png\n")
+      }
+
+    }  # end if fit_area not null
+  }  # end if enough valid vars
+}  # end if raster_dir exists
+
+
 # =============================================================================
 # SUMMARY
 # =============================================================================
 cat("\n", strrep("=", 65), "\n")
-cat(sprintf("  Admin2 analysis complete: %s — %s\n", COUNTRY, oc$label))
+cat(sprintf("  Admin2 analysis complete: %s -- %s\n", COUNTRY, oc$label))
 cat(strrep("=", 65), "\n\n")
 
 cat("  Tables:\n")
@@ -971,7 +1519,14 @@ for (f in list.files(out_figures, full.names = TRUE))
 
 if (n_eval >= 2) {
   cat(sprintf(
-    "\n  Error summary:\n    MAE = %.1f pp | RMSE = %.1f pp | r = %.2f | bias = %+.1f pp\n",
+    "\n  Individual-level SL error summary:\n    MAE = %.1f pp | RMSE = %.1f pp | r = %.2f | bias = %+.1f pp\n",
     mae * 100, rmse * 100, r_cor, mean_bias * 100
+  ))
+}
+
+if (exists("loo_mae")) {
+  cat(sprintf(
+    "\n  Area-level model LOO-CV:\n    MAE = %.1f pp | RMSE = %.1f pp | r = %.2f | bias = %+.1f pp\n",
+    loo_mae * 100, loo_rmse * 100, loo_r, loo_bias * 100
   ))
 }

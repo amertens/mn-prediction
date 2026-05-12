@@ -1,0 +1,468 @@
+---
+title: "Pipeline Improvement Roadmap"
+subtitle: "Prioritized recommendations for the micronutrient deficiency prediction pipeline"
+author: "Micronutrient Prediction Project"
+date: today
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    toc-title: "Improvement Areas"
+    number-sections: true
+    theme: cosmo
+    self-contained: true
+execute:
+  eval: false
+---
+
+# Overview
+
+This document catalogs concrete improvements to the micronutrient deficiency prediction pipeline, organized by component and prioritized by expected impact and implementation effort. Each item includes the rationale, what to change, and which files are affected.
+
+**Priority legend:**
+
+- **P1** --- High impact, implement before publication
+- **P2** --- Medium impact, implement if time permits
+- **P3** --- Lower priority or exploratory
+
+**Status legend:**
+
+- Implemented --- already in codebase
+- Ready --- code written, needs testing/activation
+- Planned --- design clear, needs implementation
+- Exploratory --- needs investigation first
+
+
+# Predictors and Data Sources {#sec-predictors}
+
+## P1: Download external predictors for Cote d'Ivoire {.unnumbered}
+
+**Status:** Ready (script written, not yet run)
+
+The OOS predictions for CIV currently use only ~5 GEE raster variables (the intersection across countries). Running the external predictor download would add CHIRPS, WorldPop, NTL, SoilGrids, GDL, HarvestChoice --- likely improving spatial discrimination substantially.
+
+**Action:**
+
+```r
+source("scripts/download_external_predictors.R")
+```
+
+**Files:** `scripts/download_external_predictors.R` (CIV config already added)
+
+## P1: Enable folate, B12, zinc outcomes {.unnumbered}
+
+**Status:** Ready (data cleaning done, configs commented out)
+
+Binary outcomes derived in `load_merged_data()`:
+
+- Malawi: `folate_def` (fol < 3 ng/mL), `b12_def` (vitb12 < 148 pmol/L), `zinc_def` (pre-existing)
+- Sierra Leone: `gw_wFolDef`, `gw_wB12DefWHO` recoded from {1,2} to {1,0}
+- Ghana: `gw_wFolateDef`, `gw_wB12Def` already 0/1
+
+**Action:** Uncomment outcome blocks in `R/config.R` for each country.
+
+**Files:** `R/config.R`, `R/data_prep.R` (cleaning already done)
+
+## P2: Add DHS indicators from more recent survey rounds {.unnumbered}
+
+**Status:** Planned
+
+Several countries have newer DHS rounds than what we currently use (e.g., Ghana 2022 DHS is available, we use 2014). More recent DHS indicators may better reflect current conditions and improve temporal alignment with the biomarker surveys.
+
+**Action:** Update `dhs_years` in `R/merge_external.R` and re-run `src/DHS/DHS_admin2_aggregation.R` for newer survey years.
+
+**Files:** `R/merge_external.R`, `src/DHS/DHS_admin2_aggregation.R`
+
+## P2: Add LSMS household consumption data {.unnumbered}
+
+**Status:** Planned
+
+LSMS-ISA surveys (Nigeria, Malawi, others) provide household-level food consumption and expenditure data. Currently listed in the domain config but no data is available (`lsms_` prefix yields 0 columns). Household consumption diversity is a strong predictor of micronutrient adequacy.
+
+**Action:** Download and process LSMS microdata, aggregate to Admin-2, add to external predictor cache.
+
+**Files:** New script needed in `scripts/`, update `R/external_data.R`
+
+## P2: Add HCES (Household Consumption and Expenditure Survey) data {.unnumbered}
+
+**Status:** Planned
+
+Referenced in the BMGF project slides as a planned data source. HCES provides food consumption patterns at national and subnational level.
+
+**Action:** Identify available HCES datasets for the 4 countries, extract relevant indicators.
+
+## P3: Temporal predictor alignment {.unnumbered}
+
+**Status:** Exploratory
+
+Currently, external predictors use a single reference year (the biomarker survey year). For predictors that change over time (CHIRPS rainfall, NTL, NDVI), using multi-year averages or trends could improve robustness.
+
+**Action:** Modify `R/external_data.R` extraction functions to compute 3-year rolling averages centered on the survey year.
+
+## P3: Gridded (pixel-level) prediction surface {.unnumbered}
+
+**Status:** Exploratory
+
+Currently predictions are at Admin-2 polygon level. For finer-grained policy targeting, predictions could be made at ~5km grid cells using the GEE raster values directly (no polygon aggregation).
+
+**Action:** Would require a new prediction pathway using raster stacks rather than data.frame inputs. Major engineering effort.
+
+
+# Data Merging and Feature Engineering {#sec-feature-eng}
+
+## P1: Fix Sierra Leone women_iron data availability {.unnumbered}
+
+**Status:** Planned
+
+`sl_fit_sierraleone_women_iron` produces an empty model (136 bytes). The ferritin variable (`gw_wFerrAdj`) may not exist for women in the Sierra Leone dataset, or the binary indicator (`gw_wIDA`) may be all NA.
+
+**Action:** Check if ferritin was measured in SL women; if not, remove women_iron from SL config to avoid confusing empty results.
+
+**Files:** `R/config.R` (Sierra Leone section)
+
+## P1: Harmonize continuous outcome scales across countries {.unnumbered}
+
+**Status:** Planned
+
+Iron deficiency continuous outcomes use different scales:
+
+- Gambia/Ghana: log(ferritin) --- cutoffs are `log(12)` and `log(15)`
+- Sierra Leone/Malawi: raw ferritin (ug/L or ug/dL) --- cutoffs are 12 and 15
+- Malawi folate: ng/mL (other countries: nmol/L)
+
+This prevents direct comparison of continuous model RMSE across countries and makes pooled transportability models questionable.
+
+**Action:** Standardize to a single scale (log-ferritin for iron, nmol/L for folate) in `load_merged_data()`.
+
+**Files:** `R/data_prep.R`, `R/config.R`
+
+## P2: Interaction features {.unnumbered}
+
+**Status:** Planned
+
+The current pipeline uses only main effects. Key interactions that may improve prediction:
+
+- Malaria prevalence x iron status (malaria drives inflammation-adjusted ferritin)
+- Urbanization x dietary diversity (urban areas have different food systems)
+- Rainfall x crop yield (affects food availability)
+
+**Action:** Add a `recipes::step_interact()` step for theoretically motivated interactions, or add interaction terms to the glmnet models explicitly.
+
+**Files:** `R/mlr3_fitting.R` (preprocessing pipeline)
+
+## P2: Better imputation for external predictors {.unnumbered}
+
+**Status:** Planned
+
+Currently using median imputation (`ck37r::impute_missing_values(type = "standard")`). For external predictors with spatial structure, spatial interpolation or random forest imputation (`missRanger`) would be more appropriate.
+
+**Action:** Replace median imputation with `missRanger::missRanger()` for numeric predictors. Falls back to median if missRanger fails.
+
+**Files:** `R/mlr3_fitting.R`
+
+## P3: Feature engineering from GEE rasters {.unnumbered}
+
+**Status:** Exploratory
+
+Currently extracting zonal means only. Additional spatial features that could add signal:
+
+- Zonal standard deviation (within-district heterogeneity)
+- Zonal min/max (extreme values within district)
+- Distance to nearest city/market (from MAP accessibility surfaces)
+- Land cover diversity index (from ESA WorldCereal)
+
+**Action:** Extend `extract_gee_admin2()` to compute additional zonal statistics.
+
+**Files:** `R/admin2_analysis.R`
+
+## P3: Principal component pre-reduction {.unnumbered}
+
+**Status:** Exploratory
+
+With ~300 predictors after prescreening, there is substantial redundancy. Adding `recipes::step_pca()` to create 20-50 principal components before the SL could reduce noise and speed up fitting.
+
+**Risk:** PCA destroys interpretability for domain ablation. Would need to run ablation on original (non-PCA) features.
+
+
+# Learner Library {#sec-learners}
+
+## P1: Install and add lightgbm {.unnumbered}
+
+**Status:** Planned (package not installed)
+
+LightGBM uses leaf-wise tree growth (vs. xgboost's level-wise), often achieving comparable or better accuracy with faster training. Adds diversity to the ensemble.
+
+**Action:**
+
+```r
+install.packages("lightgbm")
+```
+
+Then add to `setup_mlr3_learners()`:
+
+```r
+list("lightgbm", num_leaves = 31, learning_rate = 0.05,
+     num_iterations = 300, min_data_in_leaf = 20,
+     feature_fraction = 0.7, bagging_fraction = 0.8,
+     id = "lgbm_main")
+```
+
+**Files:** `R/mlr3_fitting.R`
+
+## P1: Class-weighted learners for rare outcomes {.unnumbered}
+
+**Status:** Implemented
+
+Dynamically adds `xgb_weighted` (scale_pos_weight) and `ranger_weighted` (class.weights) when binary outcome prevalence < 15%. Weight = neg/pos ratio, capped at 50.
+
+**Files:** `R/mlr3_fitting.R` (already in codebase)
+
+## P2: Lasso-screened pipelines {.unnumbered}
+
+**Status:** Planned (mlr3superlearner limitation)
+
+The most effective way to handle p>>n for tree-based learners: use lasso to select top 20-50 features, then fit ranger/xgboost on the reduced set. This reduces noise and focuses trees on signal.
+
+**Challenge:** `mlr3superlearner` doesn't support `mlr3pipelines` PipeOp objects. Would need either:
+
+1. Custom wrapper that runs lasso screening + learner fitting as a single learner
+2. Pre-screening as a preprocessing step (but then all learners see the same reduced set)
+3. Switch to raw `mlr3` with `GraphLearner` (major refactor)
+
+**Recommendation:** Option 2 as a pragmatic solution --- add a lasso-screened variant of the predictor set alongside the full set.
+
+## P2: Stratified CV folds for rare outcomes {.unnumbered}
+
+**Status:** Planned
+
+Currently CV folds are cluster-blocked but not stratified by outcome. With 13 events (Ghana women_vitA), some folds may have 0 events, causing learner failures.
+
+**Action:** Modify `origami::make_folds()` call to stratify by outcome within cluster blocks. May need custom fold creation.
+
+**Files:** `R/mlr3_fitting.R`
+
+## P3: Spatial SuperLearner {.unnumbered}
+
+**Status:** Exploratory
+
+Referenced in the BMGF slides. The Spatial SuperLearner (Davies and van der Laan) accounts for spatial autocorrelation in the ensemble. Would require integrating `spatialSL` or implementing custom spatial CV.
+
+## P3: TMLE for causal domain importance {.unnumbered}
+
+**Status:** Exploratory
+
+Rather than permutation-based variable importance, use Targeted Minimum Loss-Based Estimation (TMLE) to estimate the causal effect of each domain on the outcome. Would provide confidence intervals on domain importance.
+
+
+# Variable Importance Analysis {#sec-varimp}
+
+## P1: Fix ablation for models at chance (AUC=0.5) {.unnumbered}
+
+**Status:** Known issue
+
+Models with AUC=0.5 (SL collapses to mean learner) produce meaningless ablation results. Should be flagged or skipped in the report.
+
+**Action:** Add a guard in `run_domain_ablation()`: if baseline AUC < 0.55, return a flagged result rather than running permutations.
+
+**Files:** `R/domain_ablation.R`
+
+## P1: Aggregate single-variable permutation for domain importance {.unnumbered}
+
+**Status:** Planned
+
+Currently permutes all variables in a domain simultaneously. For large domains (69 Household Characteristics variables), this destroys too much signal. Better approach: permute each variable individually, compute per-variable AUC drop, then aggregate (mean or max) within each domain.
+
+**Action:** Add `permute_single_vars = TRUE` option to `run_domain_ablation()`.
+
+**Files:** `R/domain_ablation.R`
+
+## P2: SHAP values for individual-level explanations {.unnumbered}
+
+**Status:** Planned
+
+SHAP (SHapley Additive exPlanations) values provide per-observation feature attributions, enabling:
+
+- Understanding why a specific district is predicted high-risk
+- Identifying which predictors drive geographic variation
+- Validating that the model uses ecologically plausible features
+
+**Action:** Use `shapviz` or `treeshap` packages on the xgboost/ranger models.
+
+**Files:** New analysis script
+
+## P2: Extend Level-2 conceptual ablation to all outcomes {.unnumbered}
+
+**Status:** Ready (currently Ghana women_iron only)
+
+The Level-2 ablation provides finer-grained thematic importance (e.g., "Vaccinations" vs. "Breastfeeding" within "Child Health"). Currently only run for one exemplar.
+
+**Action:** Add Level-2 targets for all country x outcome combinations, or at least all outcomes for one country.
+
+**Files:** `_targets.R`
+
+## P3: Conditional variable importance {.unnumbered}
+
+**Status:** Exploratory
+
+Standard permutation importance can underestimate correlated variables. Conditional importance (permute within strata of correlated variables) provides more accurate attribution. The `permimp` package implements this for random forests.
+
+
+# Prediction Confidence Intervals {#sec-ci}
+
+## P1: Validate conformal CI coverage empirically {.unnumbered}
+
+**Status:** Planned
+
+The conformal prediction intervals claim 95% marginal coverage, but this hasn't been verified empirically. Need to:
+
+1. Check whether the CI width varies appropriately across Admin-1 areas
+2. Verify actual coverage rate on held-out data (e.g., one-fold-out)
+3. Compare conformal CI width to bootstrap CI width
+
+**Action:** Add a coverage simulation to `R/conformal.R`.
+
+**Files:** `R/conformal.R`, new analysis script
+
+## P2: Spatial conformal prediction {.unnumbered}
+
+**Status:** Exploratory
+
+Standard conformal assumes exchangeability, which is violated for spatially clustered data. Spatial conformal methods (e.g., conformal prediction with spatial LOO) would provide locally valid coverage.
+
+**Reference:** Lei and Rinaldo (2015), "Distribution-Free Predictive Inference For Regression"
+
+## P2: Improve OOS conformal CIs with better density ratio estimation {.unnumbered}
+
+**Status:** Implemented (basic version)
+
+Current weighted conformal uses logistic glmnet for density ratio estimation. Could improve with:
+
+- Kernel density ratio estimation (more flexible)
+- Calibration of the density ratio (isotonic regression)
+- Trimming extreme weights (already capped at 0.01-0.99)
+
+**Files:** `R/oos_prediction.R`
+
+## P3: Bootstrap + conformal hybrid {.unnumbered}
+
+**Status:** Exploratory
+
+Combine bootstrap (for model uncertainty) with conformal (for residual uncertainty) to get intervals that capture both sources. The bootstrap handles uncertainty in the ensemble weights, while conformal handles prediction-level uncertainty.
+
+
+# Out-of-Sample Predictions {#sec-oos}
+
+## P1: Expand OOS to use full predictor set {.unnumbered}
+
+**Status:** Ready (code written, CIV predictors not yet downloaded)
+
+The OOS predictions currently use only GEE raster variables. After downloading external predictors for CIV, the model will use all 13+ data sources, dramatically increasing predictor overlap with training countries.
+
+**Action:** Run `source("scripts/download_external_predictors.R")`, then re-run pipeline.
+
+## P1: Use individual-level SL for transportability instead of area-level glmnet {.unnumbered}
+
+**Status:** Planned
+
+The OOS predictions use a simple area-level elastic net trained on ~100-200 Admin-2 survey prevalences. The within-country models use the full individual-level SL trained on ~1000-5000 individuals. Using the individual-level approach for OOS would be more powerful.
+
+**Challenge:** Need individual-level data for the training countries at prediction time, matched to the target country's covariate structure. The LOCO infrastructure already does this --- could be adapted.
+
+**Files:** `R/oos_prediction.R`, `R/transportability.R`
+
+## P2: Multi-country pooled SL for prediction {.unnumbered}
+
+**Status:** Planned
+
+Instead of training country-specific models, train a single SL on pooled data from all countries with country-level random effects or fixed effects. This would leverage more data and produce predictions that account for cross-country heterogeneity.
+
+**Action:** Extend `build_pooled_dataset()` to include country indicators, then fit the SL on the pooled data.
+
+**Files:** `R/transportability.R`
+
+## P2: Prediction for additional countries {.unnumbered}
+
+**Status:** Planned
+
+The pipeline is designed to predict for any country with GADM boundaries and GEE raster coverage. High-priority targets:
+
+- Nigeria (largest population, DHS available)
+- Senegal (LSMS + DHS available)
+- Burkina Faso (recent MN survey)
+- Tanzania, Ethiopia (DHS + external data rich)
+
+**Action:** Add country configs to `scripts/download_external_predictors.R`, download rasters and external predictors.
+
+## P3: Temporal prediction (extrapolating to future years) {.unnumbered}
+
+**Status:** Exploratory
+
+Current models are trained on a single survey wave. To predict prevalence for future years, would need:
+
+- Time-varying external predictors (CHIRPS, NTL trend)
+- Temporal extrapolation assumption (stable biomarker-predictor relationship)
+- Validation against repeated surveys (where available)
+
+**Risk:** The biomarker-predictor relationship may change over time due to interventions, climate shifts, etc.
+
+
+# Pipeline Architecture {#sec-architecture}
+
+## P1: Add targets for Gambia/Sierra Leone women_iron diagnostics {.unnumbered}
+
+**Status:** Planned
+
+Gambia and Sierra Leone women_iron results were among the last to complete. Need to verify these targets are producing valid results and are included in summary tables.
+
+## P2: Separate GEE raster extraction from area_model {.unnumbered}
+
+**Status:** Implemented
+
+The GEE Admin-2 raster extraction was previously embedded in `fit_area_level_model()`, running redundantly for each outcome. Now extracted as a shared `gee_admin2_{country}` target.
+
+## P2: Cache mlr3superlearner cross-validated predictions separately {.unnumbered}
+
+**Status:** Planned
+
+The CV predictions (`res$Y`, `res$yhat_full`) are stored inside the large `sl_fit` object (~10-25 MB per outcome). Extracting them as a separate lightweight target would allow the diagnostics, conformal CIs, and ablation to run without loading the full model.
+
+**Action:** Add a `cv_preds_{country}_{outcome}` target that extracts just the Y/yhat/fold columns.
+
+**Files:** `_targets.R`, `R/mlr3_fitting.R`
+
+## P3: Containerize the pipeline {.unnumbered}
+
+**Status:** Exploratory
+
+Create a Docker container with all R packages, GADM cache, and external predictor downloads pre-installed. Would enable reproducible runs on any machine and simplify onboarding for collaborators.
+
+
+# Summary Priority Matrix
+
+| Priority | Category | Item | Est. Effort |
+|:--------:|----------|------|:-----------:|
+| P1 | Predictors | Download CIV external predictors | 30 min |
+| P1 | Predictors | Enable folate/B12/zinc outcomes | 10 min |
+| P1 | Learners | Install lightgbm | 5 min |
+| P1 | Learners | Class-weighted learners | Done |
+| P1 | Var. Importance | Skip ablation for AUC<0.55 | 15 min |
+| P1 | Var. Importance | Single-variable aggregated permutation | 2 hours |
+| P1 | CIs | Validate conformal coverage | 2 hours |
+| P1 | OOS | Expand CIV predictor set | 30 min |
+| P1 | Data | Fix SL women_iron / harmonize scales | 1 hour |
+| P2 | Predictors | Newer DHS rounds | 4 hours |
+| P2 | Feature Eng. | Interaction features | 2 hours |
+| P2 | Feature Eng. | Better imputation (missRanger) | 1 hour |
+| P2 | Learners | Lasso-screened pipelines | 4 hours |
+| P2 | Learners | Stratified CV for rare outcomes | 2 hours |
+| P2 | Var. Importance | SHAP values | 4 hours |
+| P2 | Var. Importance | Extend Level-2 ablation | 1 hour |
+| P2 | OOS | Individual-level SL for OOS | 8 hours |
+| P2 | OOS | Prediction for additional countries | 4 hours/country |
+| P3 | Predictors | Temporal predictor alignment | 4 hours |
+| P3 | Predictors | Gridded prediction surface | 16+ hours |
+| P3 | Feature Eng. | PCA pre-reduction | 2 hours |
+| P3 | Learners | Spatial SuperLearner | 16+ hours |
+| P3 | CIs | Spatial conformal prediction | 8 hours |
+| P3 | OOS | Temporal extrapolation | 16+ hours |
+| P1 | Data Quality | Deduplicate `.x`/`.y` columns from merge joins in `R/merge_external.R` — DHS Admin-2 indicators appear twice (e.g., `dhs2014_c_overweight_adm2.x` and `.y`), inflating predictor count and creating "Unknown" domain in conceptual ablation. Investigate which merge produces duplicates and keep only one copy. | 2 hours |

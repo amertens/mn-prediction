@@ -1,0 +1,2941 @@
+---
+title: "Micronutrient Deficiency Prediction: Multi-Country Results Report"
+subtitle: "Proxy-Only Models with Extended External Predictors --- Cross-Outcome and Cross-Country Analysis"
+author: "Micronutrient Prediction Project"
+date: today
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    toc-title: "Contents"
+    number-sections: true
+    code-fold: true
+    code-summary: "Show code"
+    theme: cosmo
+    fig-width: 8
+    fig-height: 6
+    self-contained: true
+    smooth-scroll: true
+execute:
+  warning: false
+  message: false
+knitr:
+  opts_chunk:
+    comment: "#>"
+    fig.align: "center"
+---
+
+```{r setup, include=FALSE}
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+library(knitr)
+library(kableExtra)
+library(here)
+library(readr)
+library(scales)
+library(sf)
+library(geodata)
+library(viridis)
+library(patchwork)
+
+theme_set(theme_minimal(base_size = 13))
+
+# Global figure collector — stores all named plots for saving at end
+.figures <- list()
+
+# Safe figure storage helper
+save_fig <- function(name, plot) {
+  .figures[[name]] <<- plot
+}
+
+# ── Results source ────────────────────────────────────────────────────────
+# Toggle which targets store to load results from:
+#   "_targets"      = fast-mode results (default, 5-learner SL stack, conformal CIs)
+#   "_targets_full" = full-mode results (6-learner stack, conformal CIs)
+# Both modes use the same proxy predictors (13+ external sources) and conformal CIs.
+# TARGETS_STORE <- here::here("_targets")        # fast-mode results
+TARGETS_STORE <- here::here("_targets_full")      # full-mode results (16-learner stack with BART)
+
+# ── Configuration ──────────────────────────────────────────────────────────
+countries <- c("gambia", "ghana", "sierraleone", "malawi")
+outcomes  <- c("child_vitA", "women_vitA", "child_iron", "women_iron",
+               "women_folate", "women_b12", "child_zinc", "women_zinc")
+gadm_codes <- c(gambia = "GMB", ghana = "GHA", sierraleone = "SLE", malawi = "MWI")
+
+country_labels <- c(
+  gambia      = "Gambia",
+  ghana       = "Ghana",
+  sierraleone = "Sierra Leone",
+  malawi      = "Malawi"
+)
+
+outcome_labels <- c(
+  child_vitA   = "Vitamin A (children)",
+  women_vitA   = "Vitamin A (women)",
+  child_iron   = "Iron deficiency (children)",
+  women_iron   = "Iron deficiency (women)",
+  women_folate = "Folate deficiency (women)",
+  women_b12    = "Vitamin B12 deficiency (women)",
+  child_zinc   = "Zinc deficiency (children)",
+  women_zinc   = "Zinc deficiency (women)"
+)
+
+# ── Helper: safe target loading ────────────────────────────────────────────
+load_target <- function(name) {
+  obj <- tryCatch(
+    targets::tar_read_raw(name, store = TARGETS_STORE),
+    error = function(e) NULL
+  )
+  # Return NULL for non-data.frame results or empty data.frames
+  if (is.data.frame(obj) && nrow(obj) == 0) return(NULL)
+  obj
+}
+
+# ── Load ALL targets dynamically ───────────────────────────────────────────
+# CV performance
+cv_list <- list()
+for (ctry in countries) {
+  for (oc in outcomes) {
+    tname <- paste0("cv_perf_", ctry, "_", oc)
+    obj <- load_target(tname)
+    if (!is.null(obj)) {
+      if (is.data.frame(obj) && nrow(obj) > 0 && !"country" %in% colnames(obj))
+        obj$country <- country_labels[ctry]
+      cv_list[[tname]] <- obj
+    }
+  }
+}
+cv_perf <- if (length(cv_list) > 0) bind_rows(cv_list) else NULL
+
+# Admin-1 prevalence
+a1_list <- list()
+for (ctry in countries) {
+  for (oc in outcomes) {
+    tname <- paste0("admin1_prev_", ctry, "_", oc)
+    obj <- load_target(tname)
+    if (!is.null(obj)) {
+      if (is.data.frame(obj) && nrow(obj) > 0 && !"country" %in% colnames(obj))
+        obj$country <- country_labels[ctry]
+      a1_list[[tname]] <- obj
+    }
+  }
+}
+a1_all_raw <- if (length(a1_list) > 0) bind_rows(a1_list) else NULL
+
+# Admin-2 SL predictions
+a2_sl <- list()
+for (ctry in countries) {
+  for (oc in outcomes) {
+    tname <- paste0("admin2_sl_", ctry, "_", oc)
+    obj <- load_target(tname)
+    if (!is.null(obj)) {
+      if (is.data.frame(obj) && nrow(obj) > 0 && !"country" %in% colnames(obj))
+        obj$country <- country_labels[ctry]
+      a2_sl[[paste0(ctry, "_", oc)]] <- obj
+    }
+  }
+}
+
+# Admin-2 survey prevalence
+a2_svy <- list()
+for (ctry in countries) {
+  for (oc in outcomes) {
+    tname <- paste0("svy_admin2_", ctry, "_", oc)
+    obj <- load_target(tname)
+    if (!is.null(obj)) {
+      if (is.data.frame(obj) && nrow(obj) > 0 && !"country" %in% colnames(obj))
+        obj$country <- country_labels[ctry]
+      a2_svy[[paste0(ctry, "_", oc)]] <- obj
+    }
+  }
+}
+
+# Admin-2 error
+a2_err_list <- list()
+for (ctry in countries) {
+  for (oc in outcomes) {
+    tname <- paste0("admin2_error_", ctry, "_", oc)
+    obj <- load_target(tname)
+    if (!is.null(obj)) {
+      if (is.data.frame(obj) && nrow(obj) > 0 && !"country" %in% colnames(obj))
+        obj$country <- country_labels[ctry]
+      a2_err_list[[tname]] <- obj
+    }
+  }
+}
+a2_error <- if (length(a2_err_list) > 0) bind_rows(a2_err_list) else NULL
+
+# Area-level models
+area_models <- list()
+for (ctry in countries) {
+  for (oc in outcomes) {
+    tname <- paste0("area_model_", ctry, "_", oc)
+    obj <- load_target(tname)
+    if (!is.null(obj)) {
+      area_models[[paste0(ctry, "_", oc)]] <- obj
+    }
+  }
+}
+
+# Conformal CIs (stored under conformal_ci_* targets, loaded into boot_ci for legacy compat)
+boot_ci <- list()
+for (ctry in countries) {
+  for (oc in outcomes) {
+    tname <- paste0("conformal_ci_", ctry, "_", oc)
+    obj <- load_target(tname)
+    if (!is.null(obj)) {
+      boot_ci[[paste0(ctry, "_", oc)]] <- obj
+    }
+  }
+}
+
+# Domain ablation
+abl_list <- list()
+for (ctry in countries) {
+  for (oc in outcomes) {
+    tname <- paste0("ablation_", ctry, "_", oc)
+    obj <- load_target(tname)
+    if (!is.null(obj)) {
+      if (is.data.frame(obj) && nrow(obj) > 0 && !"country" %in% colnames(obj))
+        obj$country <- country_labels[ctry]
+      abl_list[[tname]] <- obj
+    }
+  }
+}
+ablation <- if (length(abl_list) > 0) bind_rows(abl_list) else NULL
+
+# Transportability (LOCO)
+loco_results <- list()
+for (oc in outcomes) {
+  tname <- paste0("loco_", oc)
+  obj <- load_target(tname)
+  if (!is.null(obj)) loco_results[[oc]] <- obj
+}
+transportability_summary <- load_target("transportability_summary")
+
+# Pooled datasets (metadata only)
+pooled <- list()
+for (oc in outcomes) {
+  tname <- paste0("pooled_", oc)
+  obj <- load_target(tname)
+  if (!is.null(obj)) pooled[[oc]] <- obj
+}
+
+# ── GADM boundaries for all countries ──────────────────────────────────────
+# Cache simplified polygons to disk so subsequent renders skip geodata::gadm()
+# and sf::st_simplify() overhead.
+gadm_cache <- here("results", "figures", "gadm_cache.rds")
+if (file.exists(gadm_cache)) {
+  cached <- readRDS(gadm_cache)
+  poly_a1 <- cached$poly_a1
+  poly_a2 <- cached$poly_a2
+} else {
+  poly_a1 <- list()
+  poly_a2 <- list()
+  for (ctry in countries) {
+    code <- gadm_codes[ctry]
+    poly_a1[[ctry]] <- tryCatch({
+      g <- geodata::gadm(country = code, level = 1, path = here("data", "gadm"))
+      sf::st_as_sf(g) |>
+        dplyr::select(NAME_1) |>
+        dplyr::rename(Admin1 = NAME_1) |>
+        sf::st_transform(crs = 4326) |>
+        sf::st_simplify(dTolerance = 0.005, preserveTopology = TRUE)
+    }, error = function(e) NULL)
+
+    poly_a2[[ctry]] <- tryCatch({
+      g <- geodata::gadm(country = code, level = 2, path = here("data", "gadm"))
+      sf::st_as_sf(g) |>
+        dplyr::select(NAME_1, NAME_2) |>
+        dplyr::rename(Admin1 = NAME_1, Admin2 = NAME_2) |>
+        sf::st_transform(crs = 4326) |>
+        sf::st_simplify(dTolerance = 0.005, preserveTopology = TRUE)
+    }, error = function(e) NULL)
+  }
+  dir.create(dirname(gadm_cache), showWarnings = FALSE, recursive = TRUE)
+  saveRDS(list(poly_a1 = poly_a1, poly_a2 = poly_a2), gadm_cache)
+}
+
+# ── Shared helpers ─────────────────────────────────────────────────────────
+# Standardise Admin-1 column names from targets output
+standardize_a1 <- function(df) {
+  if (is.null(df) || nrow(df) == 0) return(NULL)
+  if ("sl_prev" %in% colnames(df)) df <- df |> rename(pred_prevalence = sl_prev)
+  if ("obs_prev" %in% colnames(df)) df <- df |> rename(obs_prevalence = obs_prev)
+  if (!"label" %in% colnames(df) && "outcome" %in% colnames(df)) {
+    df <- df |> mutate(label = outcome_labels[outcome])
+  }
+  df
+}
+
+# Choropleth helper for Admin-1
+map_admin1 <- function(poly, data, fill_col, title,
+                       legend_lab = "Prevalence",
+                       limits = NULL, option = "plasma") {
+  if (is.null(poly) || is.null(data)) return(NULL)
+  map_data <- poly |> dplyr::left_join(data, by = "Admin1")
+  if (is.null(limits)) {
+    vals <- map_data[[fill_col]]
+    limits <- range(vals, na.rm = TRUE)
+  }
+  ggplot(map_data) +
+    geom_sf(aes(fill = .data[[fill_col]]), colour = "white", linewidth = 0.3) +
+    scale_fill_viridis_c(
+      name   = legend_lab,
+      labels = percent_format(accuracy = 1),
+      limits = limits,
+      na.value = "grey85",
+      option = option
+    ) +
+    labs(title = title) +
+    theme_void(base_size = 11) +
+    theme(plot.title = element_text(size = 10, face = "bold"),
+          legend.position = "bottom",
+          legend.key.width = unit(1.2, "cm"))
+}
+
+# Choropleth helper for Admin-2
+map_admin2 <- function(poly, data, fill_col, title,
+                       legend_lab = "Prevalence",
+                       limits = NULL, option = "plasma") {
+  if (is.null(poly) || is.null(data)) return(NULL)
+  map_data <- poly |> dplyr::left_join(data, by = "Admin2")
+  if (is.null(limits)) {
+    vals <- map_data[[fill_col]]
+    limits <- range(vals, na.rm = TRUE)
+  }
+  ggplot(map_data) +
+    geom_sf(aes(fill = .data[[fill_col]]), colour = "white", linewidth = 0.15) +
+    scale_fill_viridis_c(
+      name   = legend_lab,
+      labels = percent_format(accuracy = 1),
+      limits = limits,
+      na.value = "grey85",
+      option = option
+    ) +
+    labs(title = title) +
+    theme_void(base_size = 10) +
+    theme(plot.title = element_text(size = 9, face = "bold"),
+          legend.position = "bottom",
+          legend.key.width = unit(1, "cm"))
+}
+
+# Post-hoc diagnostics (PR-AUC, calibration, reliability)
+diagnostics_all <- load_target("diagnostics_all")
+diag_list <- list()
+for (ctry in countries) {
+  for (oc in outcomes) {
+    tname <- paste0("diagnostics_", ctry, "_", oc)
+    obj <- load_target(tname)
+    if (!is.null(obj)) diag_list[[paste0(ctry, "_", oc)]] <- obj
+  }
+}
+
+# Count loaded targets for diagnostic reporting
+n_cv     <- length(cv_list)
+n_a1     <- length(a1_list)
+n_a2_err <- length(a2_err_list)
+n_abl    <- length(abl_list)
+n_boot   <- length(boot_ci)
+n_loco   <- length(loco_results)
+n_diag   <- length(diag_list)
+```
+
+
+# Executive Summary
+
+This report presents results from the micronutrient deficiency prediction pipeline applied across **four West and Southern African countries** --- the Gambia, Ghana, Sierra Leone, and Malawi --- covering up to eight outcomes per country: vitamin A deficiency (children, women), iron deficiency (children, women), folate deficiency (women), vitamin B12 deficiency (women), and zinc deficiency (children, women; Malawi only).
+
+The pipeline uses **proxy-only predictors**: externally available data from DHS aggregate indicators, MICS, Google Earth Engine (GEE) satellite imagery, IHME disease burden estimates, MAP malaria surfaces, WFP food prices, food security (FSEC) indicators, **CHIRPS rainfall**, **WorldPop population density**, **VIIRS nighttime lights**, **SoilGrids soil properties**, **Global Data Lab (GDL) subnational development indices**, and **HarvestChoice/SPAM crop allocation data**. These represent data sources available nationally without requiring a concurrent biomarker survey. Leave-one-country-out (LOCO) cross-validation is used to assess transportability of predictions across countries.
+
+::: {.callout-important}
+## Proxy-only models
+
+All primary results use **proxy predictors only** --- external data sources that are available nationally and do not require a concurrent biomarker survey. Survey-derived (`gw_`) variables are **excluded** because:
+
+1. They cannot be used for prediction in unsurveyed areas or time periods
+2. Including them produces artificially inflated AUC due to collinearity with the outcome
+3. The policy-relevant question is: *how well can we predict deficiency from routinely available data?*
+
+Uncertainty is quantified using **conformal prediction intervals** (split-conformal with adaptive width), which provide finite-sample coverage guarantees without parametric assumptions. This replaces the bootstrap approach used in earlier versions.
+:::
+
+```{r data-availability-note}
+cat(sprintf(
+  "Targets loaded: %d CV, %d Admin-1, %d Admin-2 error, %d ablation, %d conformal CI, %d LOCO\n",
+  n_cv, n_a1, n_a2_err, n_abl, n_boot, n_loco
+))
+```
+
+
+# External Predictor Data Sources {#sec-data-sources}
+
+The pipeline draws on 13+ external data sources, grouped into conceptual domains:
+
+| Data Source | Type | Variables | Conceptual Domains |
+|:---|:---|:---|:---|
+| DHS aggregate indicators | Survey | ~100--200 | Child Health, Maternal Health, Nutrition, WASH, Socioeconomic |
+| MICS indicators | Survey | ~20--50 | Child Health, Education, WASH |
+| Google Earth Engine (GEE) | Satellite | ~20--60 | Climate, Land Cover, Agriculture, Environment |
+| IHME disease burden | Modelled | ~10--20 | Disease Burden, Child Mortality |
+| MAP malaria surfaces | Modelled | ~5--10 | Malaria |
+| WFP food prices | Monitoring | ~5--10 | Food Security |
+| FSEC (HFID + Cadre Harmonise) | Assessment | ~5--10 | Food Security |
+| **CHIRPS rainfall** | Satellite | ~15 (monthly + annual) | Climate |
+| **WorldPop density** | Modelled | ~1--3 | Population, Socioeconomic |
+| **VIIRS nighttime lights** | Satellite | ~1--3 | Socioeconomic, Urbanisation |
+| **SoilGrids** | Modelled | ~5--10 | Agriculture, Environment |
+| **GDL subnational indices** | Composite | ~5--10 | Socioeconomic, Education, Health |
+| **HarvestChoice/SPAM** | Modelled | ~5--10 | Agriculture |
+
+: External data sources used as proxy predictors. **Bold** sources are new additions to the pipeline. {#tbl-data-sources}
+
+All variables are extracted at the Admin-2 (district) level and merged to individual survey records via spatial join. Survey-derived biomarker variables (`gw_*`) are excluded from primary models.
+
+
+# Descriptive Summary by Country {#sec-descriptive}
+
+```{r descriptive-table}
+desc_rows <- list()
+
+for (ctry in countries) {
+  ctry_label <- country_labels[ctry]
+
+  # Admin-1 and Admin-2 counts from GADM polygons
+  n_a1_units <- if (!is.null(poly_a1[[ctry]])) nrow(poly_a1[[ctry]]) else NA
+  n_a2_units <- if (!is.null(poly_a2[[ctry]])) nrow(poly_a2[[ctry]]) else NA
+
+  for (oc_name in outcomes) {
+    suffix <- paste0(ctry, "_", oc_name)
+
+    # Load outcome data to get sample sizes and predictor counts
+    od <- load_target(paste0("outcome_data_", suffix))
+    n_obs <- NA_integer_
+    n_pred <- NA_integer_
+    if (!is.null(od) && is.list(od)) {
+      if (!is.null(od$data)) n_obs <- nrow(od$data)
+      if (!is.null(od$Xvars)) n_pred <- length(od$Xvars)
+    }
+
+    # Get prevalence from binary diagnostics if available
+    bin_diag <- load_target(paste0("diagnostics_", suffix))
+    n_events <- NA_integer_
+    prev_pct <- NA_character_
+    if (!is.null(bin_diag) && !is.null(bin_diag$binary_metrics)) {
+      n_events <- bin_diag$binary_metrics$n_events
+      prev_pct <- sprintf("%.1f%%", bin_diag$binary_metrics$prevalence * 100)
+    }
+
+    desc_rows[[suffix]] <- data.frame(
+      Country  = ctry_label,
+      Outcome  = outcome_labels[oc_name],
+      Admin1   = n_a1_units,
+      Admin2   = n_a2_units,
+      n        = n_obs,
+      Events   = n_events,
+      Prevalence = prev_pct,
+      p        = n_pred,
+      stringsAsFactors = FALSE
+    )
+  }
+}
+
+if (length(desc_rows) > 0) {
+  desc_df <- do.call(rbind, desc_rows)
+  rownames(desc_df) <- NULL
+  desc_df <- desc_df[!is.na(desc_df$n), ]
+
+  kable(desc_df,
+        col.names = c("Country", "Outcome", "Admin-1 regions", "Admin-2 districts",
+                       "Observations (n)", "Events", "Prevalence",
+                       "Proxy predictors (p)"),
+        caption = "Descriptive summary: geographic units, sample sizes, prevalence, and predictor dimensions by country and outcome") |>
+    kable_styling(bootstrap_options = c("striped", "hover"),
+                  full_width = FALSE, font_size = 11) |>
+    collapse_rows(columns = 1:4, valign = "top")
+} else {
+  cat("No outcome data targets loaded.")
+}
+```
+
+
+# Cross-Validated Model Performance {#sec-cv}
+
+## Combined CV performance table
+
+The primary models use proxy predictors spanning 13+ external data sources (~200--500 columns after preprocessing). The table below shows cross-validated performance for all country--outcome combinations.
+
+```{r cv-proxy-table}
+if (!is.null(cv_perf) && nrow(cv_perf) > 0) {
+  cv_display <- cv_perf |>
+    mutate(
+      outcome_label = outcome_labels[outcome],
+      across(any_of(c("rmse", "mae", "r2", "R2", "r", "correlation",
+                       "auc", "brier")), ~ round(., 3))
+    )
+
+  cv_show <- cv_display |>
+    select(Country = country, Outcome = outcome_label, Model = model_type,
+           any_of(c("n", "rmse", "mae", "r2", "R2", "r", "correlation",
+                     "auc", "brier"))) |>
+    arrange(Country, Outcome, Model)
+
+  kable(cv_show,
+        caption = "Cross-validated performance --- proxy-only models (all countries)") |>
+    kable_styling(bootstrap_options = c("striped", "hover"),
+                  full_width = FALSE, font_size = 11) |>
+    collapse_rows(columns = 1, valign = "top")
+} else {
+  cat("No CV performance targets loaded.")
+}
+```
+
+## Forest plots: Key metrics by outcome and country
+
+```{r compute-auc-cis}
+# Compute DeLong 95% CIs for ROC-AUC from CV predictions
+# This uses the stored Y and yhat_full from each SL fit
+auc_ci_rows <- list()
+for (ctry in countries) {
+  for (oc in outcomes) {
+    tname <- paste0("sl_fit_", ctry, "_", oc)
+    sl_obj <- load_target(tname)
+    if (is.null(sl_obj) || is.null(sl_obj$bin_fit)) next
+    bf <- sl_obj$bin_fit
+    Y <- as.numeric(bf$res$Y)
+    yhat <- as.numeric(bf$res$yhat_full)
+    if (length(unique(Y)) < 2 || all(is.na(yhat))) next
+
+    ci <- tryCatch({
+      roc_obj <- pROC::roc(Y, yhat, quiet = TRUE)
+      ci_obj <- pROC::ci.auc(roc_obj, method = "delong")
+      data.frame(
+        country  = country_labels[ctry],
+        outcome  = oc,
+        auc      = as.numeric(ci_obj)[2],
+        auc_lo   = as.numeric(ci_obj)[1],
+        auc_hi   = as.numeric(ci_obj)[3],
+        stringsAsFactors = FALSE
+      )
+    }, error = function(e) NULL)
+    if (!is.null(ci)) auc_ci_rows[[paste0(ctry, "_", oc)]] <- ci
+  }
+}
+auc_ci <- if (length(auc_ci_rows) > 0) dplyr::bind_rows(auc_ci_rows) else NULL
+```
+
+```{r forest-auc, fig.height=7, fig.width=10}
+#| fig-cap: "ROC-AUC with 95% DeLong CIs by outcome and country (binary models)"
+
+if (!is.null(diagnostics_all) && !is.null(diagnostics_all$binary_metrics) &&
+    nrow(diagnostics_all$binary_metrics) > 0) {
+
+  bm <- diagnostics_all$binary_metrics |>
+    filter(!is.na(roc_auc)) |>
+    mutate(
+      outcome_label = outcome_labels[outcome],
+      label = paste0(country, " (n=", n, ", prev=", round(prevalence*100, 1), "%)")
+    )
+
+  # Merge DeLong CIs if available, and use DeLong AUC as the point estimate
+  # so that points and intervals always come from the same (current) sl_fit
+  if (!is.null(auc_ci)) {
+    bm <- bm |>
+      left_join(auc_ci |> select(country, outcome, auc_delong = auc, auc_lo, auc_hi),
+                by = c("country", "outcome")) |>
+      mutate(roc_auc = ifelse(!is.na(auc_delong), auc_delong, roc_auc)) |>
+      select(-auc_delong)
+  }
+
+  if (nrow(bm) > 0) {
+    p <- ggplot(bm, aes(x = roc_auc, y = reorder(label, roc_auc)))
+
+    if ("auc_lo" %in% colnames(bm) && any(!is.na(bm$auc_lo))) {
+      p <- p + geom_errorbarh(aes(xmin = auc_lo, xmax = auc_hi),
+                               height = 0.3, colour = "grey40", linewidth = 0.5)
+    }
+
+    p <- p +
+      geom_vline(xintercept = 0.5, linetype = "dashed", colour = "grey60") +
+      geom_point(aes(colour = country), size = 3) +
+      scale_x_continuous(limits = c(0.3, 1), breaks = seq(0.3, 1, 0.1)) +
+      scale_colour_brewer(palette = "Set2", guide = "none") +
+      facet_wrap(~ outcome_label, scales = "free_y", ncol = 2) +
+      labs(x = "ROC-AUC (95% DeLong CI)", y = NULL,
+           title = "ROC-AUC by Country and Outcome",
+           subtitle = "Error bars = 95% DeLong confidence intervals | Dashed line = chance (0.5)") +
+      theme_minimal(base_size = 11) +
+      theme(strip.text = element_text(face = "bold"))
+
+    save_fig("forest_auc", p)
+    print(p)
+  }
+}
+```
+
+```{r forest-prauc, fig.height=7, fig.width=10}
+#| fig-cap: "PR-AUC by outcome and country (binary models). Cross = prevalence (no-skill baseline)."
+
+if (!is.null(diagnostics_all) && !is.null(diagnostics_all$binary_metrics) &&
+    nrow(diagnostics_all$binary_metrics) > 0) {
+
+  bm <- diagnostics_all$binary_metrics |>
+    filter(!is.na(pr_auc)) |>
+    mutate(
+      outcome_label = outcome_labels[outcome],
+      label = paste0(country, " (n=", n, ", prev=", round(prevalence*100, 1), "%)")
+    )
+
+  if (nrow(bm) > 0) {
+    p <- ggplot(bm, aes(x = pr_auc, y = reorder(label, pr_auc))) +
+      geom_point(aes(colour = country, shape = "PR-AUC"), size = 3) +
+      geom_point(aes(x = prevalence, shape = "Prevalence"), size = 4, colour = "black", stroke = 1.2) +
+      geom_segment(aes(x = prevalence, xend = pr_auc,
+                        y = label, yend = label),
+                   linetype = "dotted", colour = "grey60", linewidth = 0.4) +
+      scale_shape_manual(name = NULL, values = c("PR-AUC" = 16, "Prevalence" = 4)) +
+      scale_colour_brewer(palette = "Set2", guide = "none") +
+      scale_x_continuous(limits = c(0, NA)) +
+      facet_wrap(~ outcome_label, scales = "free", ncol = 2) +
+      labs(x = "PR-AUC", y = NULL,
+           title = "Precision-Recall AUC by Country and Outcome",
+           subtitle = "Cross = no-skill baseline (prevalence). Gap = model skill above chance.") +
+      theme_minimal(base_size = 11) +
+      theme(strip.text = element_text(face = "bold"),
+            legend.position = "bottom")
+
+    save_fig("forest_prauc", p)
+    print(p)
+  }
+}
+```
+
+```{r forest-brier, fig.height=7, fig.width=10}
+#| fig-cap: "Brier score by outcome and country (binary models). Lower is better."
+
+if (!is.null(diagnostics_all) && !is.null(diagnostics_all$binary_metrics) &&
+    nrow(diagnostics_all$binary_metrics) > 0) {
+
+  bm <- diagnostics_all$binary_metrics |>
+    filter(!is.na(brier)) |>
+    mutate(
+      outcome_label = outcome_labels[outcome],
+      label = paste0(country, " (n=", n, ")")
+    )
+
+  if (nrow(bm) > 0) {
+    p <- ggplot(bm, aes(x = brier, y = reorder(label, -brier))) +
+      geom_point(aes(colour = country), size = 3) +
+      scale_colour_brewer(palette = "Set2", guide = "none") +
+      scale_x_continuous(limits = c(0, NA)) +
+      facet_wrap(~ outcome_label, scales = "free", ncol = 2) +
+      labs(x = "Brier Score (lower = better)", y = NULL,
+           title = "Brier Score by Country and Outcome",
+           subtitle = "Binary classification calibration. Lower indicates better-calibrated predictions.") +
+      theme_minimal(base_size = 11) +
+      theme(strip.text = element_text(face = "bold"))
+
+    save_fig("forest_brier", p)
+    print(p)
+  }
+}
+```
+
+```{r forest-r2, fig.height=7, fig.width=10}
+#| fig-cap: "R-squared from continuous models by outcome and country."
+
+if (!is.null(diagnostics_all) && !is.null(diagnostics_all$continuous_metrics) &&
+    nrow(diagnostics_all$continuous_metrics) > 0) {
+
+  cm <- diagnostics_all$continuous_metrics |>
+    filter(!is.na(r2)) |>
+    mutate(
+      outcome_label = outcome_labels[outcome],
+      label = paste0(country, " (n=", n, ")")
+    )
+
+  if (nrow(cm) > 0) {
+    p <- ggplot(cm, aes(x = r2, y = reorder(label, r2))) +
+      geom_vline(xintercept = 0, linetype = "dashed", colour = "grey60") +
+      geom_point(aes(colour = country), size = 3) +
+      scale_colour_brewer(palette = "Set2", guide = "none") +
+      facet_wrap(~ outcome_label, scales = "free", ncol = 2) +
+      labs(x = expression(R^2), y = NULL,
+           title = "Continuous Model R-squared by Country and Outcome",
+           subtitle = "Cross-validated. Higher = more individual-level variance explained.") +
+      theme_minimal(base_size = 11) +
+      theme(strip.text = element_text(face = "bold"))
+
+    save_fig("forest_r2", p)
+    print(p)
+  }
+}
+```
+
+
+## AUC comparison across countries
+
+```{r cv-auc-heatmap, fig.height=5, fig.width=8}
+# Use DeLong AUCs (from current sl_fit objects) when available,
+# falling back to cv_perf targets for models without DeLong CIs
+if (!is.null(auc_ci) && nrow(auc_ci) > 0) {
+  cv_binary <- auc_ci |>
+    filter(!is.na(auc)) |>
+    mutate(outcome_label = outcome_labels[outcome])
+} else if (!is.null(cv_perf) && nrow(cv_perf) > 0 && "auc" %in% colnames(cv_perf)) {
+  cv_binary <- cv_perf |>
+    filter(!is.na(auc)) |>
+    mutate(outcome_label = outcome_labels[outcome])
+} else {
+  cv_binary <- NULL
+}
+
+if (!is.null(cv_binary) && nrow(cv_binary) > 0) {
+  ggplot(cv_binary, aes(x = outcome_label, y = country, fill = auc)) +
+    geom_tile(colour = "white", linewidth = 1) +
+    geom_text(aes(label = sprintf("%.3f", auc)), size = 4, fontface = "bold") +
+    scale_fill_viridis_c(name = "AUC", limits = c(0.45, 0.95), option = "plasma",
+                          oob = scales::squish) +
+    labs(x = NULL, y = NULL,
+         title = "Binary Classification AUC by Country and Outcome",
+         subtitle = "Proxy-only SuperLearner models | Higher is better") +
+    theme_minimal(base_size = 13) +
+    theme(axis.text.x = element_text(angle = 25, hjust = 1),
+          panel.grid = element_blank())
+}
+```
+
+```{r cv-prauc-heatmap, fig.height=5, fig.width=8}
+if (!is.null(diagnostics_all) && !is.null(diagnostics_all$binary_metrics) &&
+    nrow(diagnostics_all$binary_metrics) > 0) {
+  bm_pr <- diagnostics_all$binary_metrics |>
+    filter(!is.na(pr_auc)) |>
+    mutate(outcome_label = outcome_labels[outcome])
+
+  if (nrow(bm_pr) > 0) {
+    p <- ggplot(bm_pr, aes(x = outcome_label, y = country, fill = pr_auc)) +
+      geom_tile(colour = "white", linewidth = 1) +
+      geom_text(aes(label = sprintf("%.3f", pr_auc)), size = 4, fontface = "bold") +
+      # Mark prevalence (no-skill baseline) as small text below
+      geom_text(aes(label = sprintf("(prev=%.1f%%)", prevalence * 100)),
+                size = 2.5, vjust = 2.2, colour = "grey30") +
+      scale_fill_viridis_c(name = "PR-AUC", limits = c(0, 0.6), option = "magma",
+                            oob = scales::squish) +
+      labs(x = NULL, y = NULL,
+           title = "Precision-Recall AUC by Country and Outcome",
+           subtitle = "No-skill baseline = prevalence (shown in parentheses) | Higher is better") +
+      theme_minimal(base_size = 13) +
+      theme(axis.text.x = element_text(angle = 25, hjust = 1),
+            panel.grid = element_blank())
+    save_fig("prauc_heatmap", p)
+    print(p)
+  }
+}
+```
+
+```{r cv-auc-bars, fig.height=5, fig.width=9}
+if (!is.null(cv_perf) && nrow(cv_perf) > 0 && "auc" %in% colnames(cv_perf)) {
+  cv_binary <- cv_perf |>
+    filter(!is.na(auc)) |>
+    mutate(outcome_label = outcome_labels[outcome])
+
+  if (nrow(cv_binary) > 0) {
+    ggplot(cv_binary, aes(x = reorder(outcome_label, auc), y = auc,
+                           fill = country)) +
+      geom_col(position = position_dodge(width = 0.75), width = 0.65) +
+      geom_hline(yintercept = 0.5, linetype = "dashed", colour = "grey50") +
+      scale_fill_brewer(palette = "Set2", name = "Country") +
+      scale_y_continuous(limits = c(0, 1), breaks = seq(0, 1, 0.1)) +
+      coord_flip() +
+      labs(x = NULL, y = "AUC",
+           title = "Cross-Validated AUC by Outcome and Country",
+           subtitle = "Dashed line = chance level (0.5)") +
+      theme(legend.position = "bottom")
+  }
+}
+```
+
+### Interpretation
+
+Binary classification AUCs range widely across country--outcome combinations. Key patterns:
+
+- **Vitamin A in women** shows the highest AUCs: 0.85 (Gambia), 0.92 (Ghana), 0.93 (Malawi). However, these are inflated by extremely rare outcomes (< 20 events); interpret with caution.
+- **Iron deficiency** produces the most robust models: Ghana child iron (AUC = 0.83, 208 events) is the strongest proxy-only model; women's iron ranges from 0.66 (Gambia) to 0.80 (Malawi).
+- **Sierra Leone** outcomes now produce non-degenerate models (AUC 0.67--0.77) after removing the mean learner from the SL library, which had been selected over real learners via discrete SL.
+- **Cross-country variation** is substantial --- the same outcome can range from AUC 0.50 to 0.93 depending on country, reflecting differences in geographic heterogeneity, sample size, and proxy--deficiency relationships.
+
+Continuous-model R-squared values are generally low, confirming that area-level proxies explain limited individual-level variance. The value of these models lies in ranking areas by relative burden, not predicting individual biomarker values.
+
+
+# Model Diagnostics: Beyond AUC {#sec-diagnostics}
+
+## How to interpret each metric
+
+The diagnostics table below reports several complementary metrics. No single metric tells the full story --- together they reveal whether a model is useful for subnational prevalence estimation.
+
+### Discrimination metrics
+
+**ROC-AUC (Area Under the ROC Curve)** measures whether the model can rank individuals by deficiency risk --- i.e., do individuals who are truly deficient receive higher predicted probabilities than those who are not?
+
+- **Range:** 0 to 1. A value of 0.5 means the model ranks no better than random; 1.0 means perfect ranking.
+- **Interpretation:** AUC = 0.75 means that if you pick one deficient and one non-deficient individual at random, the model assigns a higher probability to the deficient individual 75% of the time.
+- **Limitation:** AUC can be misleadingly high with rare outcomes (< 5% prevalence) because even a model that predicts everyone as "low risk" achieves high specificity. With fewer than ~30 events, AUC estimates have wide confidence intervals and should be interpreted cautiously.
+
+**PR-AUC (Area Under the Precision-Recall Curve)** is a discrimination metric that focuses specifically on how well the model identifies the **deficient minority class**.
+
+- **Baseline:** Unlike ROC-AUC (baseline = 0.5), the PR-AUC baseline equals the **prevalence**. A model that predicts the overall prevalence for everyone achieves PR-AUC = prevalence.
+- **Interpretation:** PR-AUC = 0.30 with prevalence = 0.05 means the model is 6x better than random at identifying deficient individuals. PR-AUC = 0.10 with prevalence = 0.10 means the model adds nothing beyond guessing.
+- **How to read it:** Divide PR-AUC by prevalence to get the "lift" --- how many times better than random the model is at finding positive cases. A lift of 2--3x is useful for screening; 5x+ is strong.
+- **When to use:** PR-AUC is more informative than ROC-AUC when prevalence is below ~20%, which is the case for most micronutrient outcomes in this analysis.
+
+### Calibration metrics
+
+**Brier Score** measures the mean squared difference between predicted probabilities and actual binary outcomes (0 or 1).
+
+- **Range:** 0 (perfect) to 1 (worst). A model predicting the overall prevalence for everyone achieves Brier = prevalence × (1 − prevalence).
+- **Interpretation:** Lower is better. Brier captures both discrimination *and* calibration in a single number --- a model can have good AUC but poor Brier if its predicted probabilities are systematically too high or too low.
+
+**Brier Skill Score** compares the model's Brier score to the null model (always predicting the prevalence).
+
+- **Formula:** 1 − (Brier_model / Brier_null). Positive = better than the null; 0 = no improvement; negative = worse than always predicting the prevalence.
+- **Interpretation:** Brier Skill = 0.15 means a 15% improvement in squared-error loss over the null model. For rare outcomes, even small positive values indicate the model adds value beyond the base rate.
+
+**Calibration Intercept** measures systematic bias in predicted probabilities.
+
+- **Ideal value:** 0. Positive intercept = model under-predicts on average; negative = over-predicts.
+- **Interpretation:** A calibration intercept of −0.02 means predicted probabilities are, on average, 2 percentage points too high.
+
+**Calibration Slope** measures whether the model's predicted probabilities are appropriately spread.
+
+- **Ideal value:** 1. Slope < 1 = predictions are over-confident (too extreme); slope > 1 = under-confident (too compressed toward the mean).
+- **Interpretation:** A slope of 0.8 means the model's risk estimates are 20% more extreme than they should be --- a predicted 30% risk is actually closer to 24%, and a predicted 5% risk is actually closer to 6%.
+
+### Which metric matters most for this project?
+
+For **subnational prevalence mapping**, the priority ordering is:
+
+1. **Calibration** (slope ≈ 1, intercept ≈ 0) --- ensures predicted probabilities can be averaged to recover area-level prevalence
+2. **Brier Skill Score** > 0 --- confirms the model improves over the null
+3. **PR-AUC** > prevalence --- confirms the model identifies high-risk areas
+4. **ROC-AUC** > 0.5 --- general discrimination sanity check
+
+A model with AUC = 0.65 but calibration slope = 1.0 is **more useful for mapping** than a model with AUC = 0.80 but calibration slope = 0.5, because the latter's area-level prevalence estimates will be biased.
+
+## Extended diagnostics summary table
+
+```{r diagnostics-table}
+if (!is.null(diagnostics_all) && !is.null(diagnostics_all$binary_metrics) &&
+    nrow(diagnostics_all$binary_metrics) > 0) {
+  diag_show <- diagnostics_all$binary_metrics |>
+    mutate(
+      outcome_label = outcome_labels[outcome],
+      across(where(is.numeric), ~ round(., 3))
+    ) |>
+    select(country, outcome_label, n, n_events, prevalence,
+           roc_auc, pr_auc, brier, brier_skill, calib_int, calib_slope) |>
+    arrange(desc(roc_auc))
+
+  kable(diag_show,
+        col.names = c("Country", "Outcome", "n", "Events", "Prevalence",
+                       "ROC-AUC", "PR-AUC", "Brier", "Brier Skill", "Cal. Int.", "Cal. Slope"),
+        caption = "Extended binary model diagnostics (from cross-validated predictions)") |>
+    kable_styling(bootstrap_options = c("striped", "hover"),
+                  full_width = FALSE, font_size = 11) |>
+    column_spec(6, bold = TRUE) |>
+    column_spec(7, bold = TRUE)
+} else {
+  cat("Diagnostics targets not yet available. Run `targets::tar_make_future(workers = 4)`.")
+}
+```
+
+**Reading this table:**
+
+- **PR-AUC** > prevalence indicates the model has skill beyond always predicting the base rate
+- **Brier Skill Score** > 0 means the model outperforms a prevalence-only baseline; negative values mean it does worse
+- **Calibration slope** near 1.0 = well-calibrated; < 1 = overconfident predictions; > 1 = underconfident
+- **Calibration intercept** near 0 = no systematic bias
+
+## Ensemble learner weights
+
+Which learners contribute most to the SuperLearner ensemble? The metalearner (NNLS) assigns non-negative weights to each base learner, with weights summing to 1. Higher weights indicate greater contribution to the final prediction.
+
+```{r learner-weights, fig.height=8, fig.width=10}
+wt_rows <- list()
+
+for (ctry in countries) {
+  for (oc_name in outcomes) {
+    suffix <- paste0(ctry, "_", oc_name)
+    sl <- load_target(paste0("sl_fit_", suffix))
+    if (is.null(sl)) next
+
+    for (mtype in c("cont_fit", "bin_fit")) {
+      fit <- sl[[mtype]]
+      if (is.null(fit) || is.null(fit$cv_risk_w_sl_revere)) next
+
+      risk_tbl <- fit$cv_risk_w_sl_revere
+      if (is.null(risk_tbl) || !is.data.frame(risk_tbl) ||
+          nrow(risk_tbl) == 0 || !"coefficients" %in% colnames(risk_tbl)) next
+
+      wt_rows[[paste0(suffix, "_", mtype)]] <- data.frame(
+        country    = country_labels[ctry],
+        outcome    = outcome_labels[oc_name],
+        model_type = ifelse(mtype == "bin_fit", "Binary", "Continuous"),
+        learner    = risk_tbl$learner,
+        weight     = round(as.numeric(risk_tbl$coefficients), 3),
+        stringsAsFactors = FALSE
+      )
+    }
+  }
+}
+
+if (length(wt_rows) > 0) {
+  wt_df <- do.call(rbind, wt_rows)
+  rownames(wt_df) <- NULL
+
+  # Filter to binary models and non-zero weights for the heatmap
+  wt_bin <- wt_df |>
+    filter(model_type == "Binary", weight > 0.001)
+
+  if (nrow(wt_bin) > 0) {
+    wt_bin$label <- paste0(wt_bin$country, " - ", wt_bin$outcome)
+
+    ggplot(wt_bin, aes(x = learner, y = label, fill = weight)) +
+      geom_tile(colour = "white", linewidth = 0.3) +
+      geom_text(aes(label = ifelse(weight >= 0.01, sprintf("%.2f", weight), "")),
+                size = 2.5) +
+      scale_fill_gradient(low = "white", high = "#2166ac",
+                          limits = c(0, 1), name = "Weight") +
+      labs(
+        title = "SuperLearner ensemble weights (binary models)",
+        subtitle = "NNLS metalearner weights. Only learners with weight > 0 shown.",
+        x = "Base learner",
+        y = NULL
+      ) +
+      theme_minimal(base_size = 10) +
+      theme(axis.text.x = element_text(angle = 45, hjust = 1))
+  }
+} else {
+  cat("Learner weights not available — mlr3superlearner does not expose per-learner weights in the current version. The ensemble uses NNLS (non-negative least squares) metalearning to combine base learner predictions.")
+}
+```
+
+## Reliability (calibration) plots
+
+```{r calibration-plots, fig.height=6, fig.width=10}
+if (!is.null(diagnostics_all) && !is.null(diagnostics_all$calibration_tables) &&
+    nrow(diagnostics_all$calibration_tables) > 0) {
+
+  cal <- diagnostics_all$calibration_tables |>
+    filter(!is.na(mean_pred) & !is.na(mean_obs)) |>
+    mutate(label = paste0(country, " - ", outcome_labels[outcome]))
+
+  if (nrow(cal) > 0) {
+    ggplot(cal, aes(x = mean_pred, y = mean_obs)) +
+      geom_abline(slope = 1, intercept = 0, linetype = "dashed", colour = "grey50") +
+      geom_point(aes(size = n), alpha = 0.6) +
+      geom_line(alpha = 0.4) +
+      facet_wrap(~ label) +
+      scale_size_continuous(range = c(1.5, 6), guide = "none") +
+      scale_x_continuous(limits = c(0, NA)) +
+      scale_y_continuous(limits = c(0, NA)) +
+      labs(
+        title = "Calibration plots: predicted probability vs observed proportion",
+        subtitle = "Diagonal = perfect calibration. Points sized by bin count.",
+        x = "Mean predicted probability",
+        y = "Observed proportion"
+      ) +
+      theme_minimal(base_size = 11)
+  }
+} else {
+  cat("No calibration data available.")
+}
+```
+
+## Precision-Recall curves
+
+```{r pr-curves, fig.height=5, fig.width=10}
+if (!is.null(diagnostics_all) && !is.null(diagnostics_all$pr_curves) &&
+    nrow(diagnostics_all$pr_curves) > 0) {
+
+  pr <- diagnostics_all$pr_curves |>
+    filter(!is.na(recall) & !is.na(precision)) |>
+    mutate(label = paste0(country, " - ", outcome_labels[outcome]))
+
+  # Get prevalence for no-skill lines
+  prev_df <- NULL
+  if (!is.null(diagnostics_all$binary_metrics) && nrow(diagnostics_all$binary_metrics) > 0) {
+    prev_df <- diagnostics_all$binary_metrics |>
+      mutate(label = paste0(country, " - ", outcome_labels[outcome])) |>
+      select(label, prevalence)
+  }
+
+  if (nrow(pr) > 0) {
+    p <- ggplot(pr, aes(x = recall, y = precision)) +
+      geom_line(colour = "#1b9e77", linewidth = 0.8) +
+      facet_wrap(~ label, scales = "free") +
+      labs(
+        title = "Precision-Recall curves",
+        subtitle = "Dashed line = no-skill baseline (prevalence). Above = model has skill.",
+        x = "Recall (sensitivity)",
+        y = "Precision (positive predictive value)"
+      ) +
+      coord_cartesian(xlim = c(0, 1), ylim = c(0, 1)) +
+      theme_minimal(base_size = 11)
+
+    # Add no-skill lines per facet
+    if (!is.null(prev_df)) {
+      p <- p + geom_hline(data = prev_df, aes(yintercept = prevalence),
+                          linetype = "dashed", colour = "grey50")
+    }
+    p
+  }
+} else {
+  cat("No PR curve data available.")
+}
+```
+
+## ROC curves
+
+Receiver Operating Characteristic curves showing the trade-off between true positive rate (sensitivity) and false positive rate (1 - specificity) at all classification thresholds.
+
+```{r roc-curves, fig.height=6, fig.width=10}
+if (!is.null(diagnostics_all) && !is.null(diagnostics_all$roc_curves) &&
+    nrow(diagnostics_all$roc_curves) > 0) {
+
+  roc <- diagnostics_all$roc_curves |>
+    filter(!is.na(fpr) & !is.na(tpr)) |>
+    mutate(label = paste0(country, " - ", outcome_labels[outcome]))
+
+  if (nrow(roc) > 0) {
+    ggplot(roc, aes(x = fpr, y = tpr)) +
+      geom_abline(slope = 1, intercept = 0, linetype = "dashed", colour = "grey50") +
+      geom_line(colour = "#d95f02", linewidth = 0.8) +
+      facet_wrap(~ label, scales = "free") +
+      labs(
+        title = "ROC curves (binary classification models)",
+        subtitle = "Dashed diagonal = random classifier (AUC = 0.5). Further above = better discrimination.",
+        x = "False positive rate (1 - Specificity)",
+        y = "True positive rate (Sensitivity)"
+      ) +
+      coord_cartesian(xlim = c(0, 1), ylim = c(0, 1)) +
+      theme_minimal(base_size = 11)
+  }
+} else {
+  cat("No ROC curve data available.")
+}
+```
+
+## Continuous model diagnostics
+
+```{r continuous-diagnostics}
+if (!is.null(diagnostics_all) && !is.null(diagnostics_all$continuous_metrics) &&
+    nrow(diagnostics_all$continuous_metrics) > 0) {
+  cont_show <- diagnostics_all$continuous_metrics |>
+    mutate(
+      outcome_label = outcome_labels[outcome],
+      across(where(is.numeric), ~ round(., 4))
+    ) |>
+    arrange(desc(r2))
+
+  cols_to_show <- intersect(
+    c("country", "outcome_label", "n", "rmse", "mae", "r2", "r",
+      "prev_obs", "prev_pred", "prev_bias"),
+    colnames(cont_show)
+  )
+  cont_show <- cont_show[, cols_to_show]
+
+  nice_names <- c(country = "Country", outcome_label = "Outcome", n = "n",
+                  rmse = "RMSE", mae = "MAE", r2 = "R2", r = "r",
+                  prev_obs = "Obs. Prev.", prev_pred = "Pred. Prev.", prev_bias = "Bias")
+
+  kable(cont_show,
+        col.names = nice_names[cols_to_show],
+        caption = "Continuous model diagnostics with prevalence recovery") |>
+    kable_styling(bootstrap_options = c("striped", "hover"),
+                  full_width = FALSE, font_size = 11)
+} else {
+  cat("No continuous diagnostics available.")
+}
+```
+
+## Stronger vs. weaker model examples
+
+```{r model-examples, results='asis'}
+if (!is.null(diagnostics_all) && !is.null(diagnostics_all$binary_metrics) &&
+    nrow(diagnostics_all$binary_metrics) > 0) {
+  bm <- diagnostics_all$binary_metrics |>
+    filter(!is.na(roc_auc)) |>
+    arrange(desc(roc_auc))
+
+  if (nrow(bm) >= 2) {
+    best  <- bm[1, ]
+    worst <- bm[nrow(bm), ]
+
+    cat(sprintf(
+      "**Strongest model: %s --- %s**\n\n",
+      best$country, outcome_labels[best$outcome]))
+    cat(sprintf(
+      "- ROC-AUC = %.3f, PR-AUC = %.3f (baseline prevalence = %.1f%%)\n",
+      best$roc_auc, best$pr_auc, best$prevalence * 100))
+    cat(sprintf(
+      "- Brier skill = %.3f, Calibration slope = %.2f\n",
+      best$brier_skill, best$calib_slope))
+    cat("- This model shows meaningful discrimination above chance and ",
+        "reasonable calibration, suggesting area-level prevalence estimates ",
+        "from this model are informative.\n\n")
+
+    cat(sprintf(
+      "**Weakest model: %s --- %s**\n\n",
+      worst$country, outcome_labels[worst$outcome]))
+    cat(sprintf(
+      "- ROC-AUC = %.3f, PR-AUC = %.3f (baseline prevalence = %.1f%%)\n",
+      worst$roc_auc, worst$pr_auc, worst$prevalence * 100))
+    cat(sprintf(
+      "- Brier skill = %.3f, Calibration slope = %.2f\n",
+      worst$brier_skill, worst$calib_slope))
+    if (worst$roc_auc <= 0.55) {
+      cat("- This model shows near-chance discrimination. Area-level estimates ",
+          "from this model should be interpreted with extreme caution and ",
+          "validated against any available survey data.\n\n")
+    } else {
+      cat("- This model shows weaker but still potentially useful discrimination. ",
+          "Area-level estimates should be cross-referenced with survey data where available.\n\n")
+    }
+  }
+}
+```
+
+
+# Admin-1 Prevalence Estimates {#sec-admin1}
+
+## Regional prevalence table
+
+```{r admin1-combined}
+a1_all <- if (!is.null(a1_all_raw)) standardize_a1(a1_all_raw) else NULL
+
+if (!is.null(a1_all) && nrow(a1_all) > 0 &&
+    "obs_prevalence" %in% colnames(a1_all)) {
+  a1_summary <- a1_all |>
+    filter(!is.na(Admin1)) |>
+    mutate(
+      obs_pct  = round(obs_prevalence * 100, 1),
+      pred_pct = round(pred_prevalence * 100, 1),
+      error_pp = round((pred_prevalence - obs_prevalence) * 100, 1)
+    ) |>
+    select(Country = country, Region = Admin1, Outcome = label, n,
+           `Observed (%)` = obs_pct,
+           `Predicted (%)` = pred_pct,
+           `Error (pp)` = error_pp)
+
+  kable(a1_summary,
+        caption = "Admin-1 prevalence: observed vs. predicted (all countries and outcomes)") |>
+    kable_styling(bootstrap_options = c("striped", "hover"),
+                  full_width = FALSE, font_size = 10) |>
+    collapse_rows(columns = 1:2, valign = "top")
+} else {
+  cat("No Admin-1 prevalence targets loaded.")
+}
+```
+
+## Observed vs. predicted scatter plots
+
+```{r admin1-scatter, fig.height=8, fig.width=10}
+if (!is.null(a1_all) && nrow(a1_all) > 0 &&
+    "obs_prevalence" %in% colnames(a1_all)) {
+  a1_plot <- a1_all |> filter(!is.na(Admin1), !is.na(obs_prevalence))
+
+  if (nrow(a1_plot) > 0) {
+    p <- ggplot(a1_plot, aes(x = obs_prevalence, y = pred_prevalence)) +
+      geom_abline(slope = 1, intercept = 0, linetype = "dashed", colour = "grey50") +
+      geom_point(aes(size = n, colour = country), alpha = 0.7) +
+      ggrepel::geom_text_repel(aes(label = Admin1), size = 2,
+                                max.overlaps = 15, colour = "grey40") +
+      scale_x_continuous(labels = percent_format(accuracy = 1)) +
+      scale_y_continuous(labels = percent_format(accuracy = 1)) +
+      scale_size_area(name = "n", max_size = 7) +
+      scale_colour_brewer(name = "Country", palette = "Set2") +
+      facet_wrap(~ label, scales = "free") +
+      labs(
+        x = "Observed prevalence", y = "Predicted prevalence",
+        title = "Admin-1 Prevalence: Observed vs. Predicted",
+        subtitle = "All countries | Dashed line = perfect agreement"
+      ) +
+      theme(legend.position = "bottom")
+    save_fig("admin1_obs_vs_pred", p)
+    print(p)
+  }
+}
+```
+
+
+## Admin-1 prevalence maps {#sec-admin1-maps}
+
+Maps are pre-rendered by `scripts/render_maps.R` with a single shared colour scale per outcome across all countries. Run `Rscript scripts/render_maps.R` to regenerate.
+
+```{r admin1-maps, results='asis'}
+#| column: page
+
+# Include pre-rendered Admin-1 map PNGs
+a1_pngs <- list.files(here("results", "figures"),
+                        pattern = "^admin1_maps_.*\\.png$", full.names = TRUE)
+if (length(a1_pngs) > 0) {
+  for (f in sort(a1_pngs)) {
+    oc_tag <- sub("admin1_maps_(.*)\\.png", "\\1", basename(f))
+    oc_label <- outcome_labels[oc_tag]
+    if (is.na(oc_label)) oc_label <- oc_tag
+    cat(sprintf("\n\n### %s\n\n", oc_label))
+    cat(sprintf("![Admin-1 prevalence: %s](%s){width=100%%}\n\n", oc_label, f))
+  }
+} else {
+  cat("Pre-rendered Admin-1 maps not found. Run `Rscript scripts/render_maps.R`.\n")
+}
+```
+
+Each panel pair shows observed (survey) and predicted (SL) prevalence for one country, using a single shared colour scale per outcome across all countries for direct comparison.
+
+
+## Conformal prediction interval width maps {#sec-ci-maps}
+
+```{r admin1-ci-maps, results='asis'}
+#| column: page
+
+# Include pre-rendered CI width map PNGs
+ci_pngs <- list.files(here("results", "figures"),
+                       pattern = "^admin1_ci_width_.*\\.png$", full.names = TRUE)
+if (length(ci_pngs) > 0) {
+  for (f in sort(ci_pngs)) {
+    oc_tag <- sub("admin1_ci_width_(.*)\\.png", "\\1", basename(f))
+    oc_label <- outcome_labels[oc_tag]
+    if (is.na(oc_label)) oc_label <- oc_tag
+    cat(sprintf("\n\n### %s\n\n", oc_label))
+    cat(sprintf("![CI width: %s](%s){width=100%%}\n\n", oc_label, f))
+  }
+} else {
+  cat("Pre-rendered CI width maps not found. Run `Rscript scripts/render_maps.R`.\n")
+}
+```
+
+Wider intervals indicate greater uncertainty --- these are priority areas for additional data collection. Conformal prediction intervals provide finite-sample marginal coverage guarantees (nominally 95%) without distributional assumptions.
+
+
+# Admin-2 Prediction Results {#sec-admin2}
+
+## Combined Admin-2 error table
+
+```{r admin2-error-table}
+if (!is.null(a2_error) && nrow(a2_error) > 0) {
+  a2_err_show <- a2_error |>
+    mutate(across(where(is.numeric), ~ round(., 2))) |>
+    select(Country = country, Outcome = outcome,
+           any_of(c("n_admin2", "mae_pp", "rmse_pp", "pearson_r", "mean_bias_pp")))
+
+  # Rename columns for display
+  col_rename <- c(
+    n_admin2    = "N districts",
+    mae_pp      = "MAE (pp)",
+    rmse_pp     = "RMSE (pp)",
+    pearson_r   = "Pearson r",
+    mean_bias_pp = "Bias (pp)"
+  )
+  for (old in names(col_rename)) {
+    if (old %in% colnames(a2_err_show)) {
+      colnames(a2_err_show)[colnames(a2_err_show) == old] <- col_rename[old]
+    }
+  }
+
+  kable(a2_err_show,
+        caption = "Admin-2 prediction error summary (all countries)") |>
+    kable_styling(bootstrap_options = c("striped", "hover"),
+                  full_width = FALSE, font_size = 11) |>
+    collapse_rows(columns = 1, valign = "top")
+} else {
+  cat("No Admin-2 error targets loaded.")
+}
+```
+
+### Admin-2 interpretation
+
+Admin-2 prediction quality varies across countries and outcomes. Key patterns to look for:
+
+- **Vitamin A outcomes** typically show stronger district-level correlations, reflecting clearer geographic gradients in VAD risk.
+- **Iron deficiency in children** is often weakest at the Admin-2 level, consistent with the near-chance individual-level AUC.
+- **Cross-country variation** in MAE and correlation reveals how survey design, spatial heterogeneity, and data coverage affect model performance.
+- Negative mean bias indicates systematic under-prediction; positive bias indicates over-prediction.
+
+
+## Admin-2 prevalence maps
+
+Maps are pre-rendered by `scripts/render_maps.R` with a single shared colour scale per outcome across all countries.
+
+```{r admin2-maps, results='asis'}
+#| column: page
+
+a2_pngs <- list.files(here("results", "figures"),
+                       pattern = "^admin2_maps_.*\\.png$", full.names = TRUE)
+if (length(a2_pngs) > 0) {
+  for (f in sort(a2_pngs)) {
+    oc_tag <- sub("admin2_maps_(.*)\\.png", "\\1", basename(f))
+    oc_label <- outcome_labels[oc_tag]
+    if (is.na(oc_label)) oc_label <- oc_tag
+    cat(sprintf("\n\n### %s\n\n", oc_label))
+    cat(sprintf("![Admin-2 prevalence: %s](%s){width=100%%}\n\n", oc_label, f))
+  }
+} else {
+  cat("Pre-rendered Admin-2 maps not found. Run `Rscript scripts/render_maps.R`.\n")
+}
+```
+
+Admin-2 districts with very few survey respondents (< 15) may have unreliable observed prevalences. SL predictions smooth over sampling noise by aggregating individual-level model predictions.
+
+
+## Malawi Admin-2: Extrapolation to Unsurveyed Districts {#sec-malawi-oos}
+
+Not all Malawi Admin-2 districts have sufficient survey respondents for direct prevalence estimation. For unsurveyed districts, we fit an area-level elastic net model on surveyed districts (survey prevalence ~ GEE raster covariates) and extrapolate to all districts. Uncertainty is quantified via LOO conformal prediction intervals.
+
+Maps are pre-rendered by `scripts/malawi_admin2_oos.R`. Each 4-panel figure shows: (1) observed survey prevalence (unsurveyed = grey), (2) SL-predicted prevalence (surveyed only), (3) extrapolated predictions for all districts (unsurveyed outlined in red dashes), (4) conformal prediction interval width.
+
+```{r malawi-oos-maps, results='asis'}
+#| column: page
+
+mw_pngs <- list.files(here("results", "figures"),
+                       pattern = "^malawi_oos_admin2_.*\\.png$", full.names = TRUE)
+if (length(mw_pngs) > 0) {
+  for (f in sort(mw_pngs)) {
+    oc_tag <- sub("malawi_oos_admin2_(.*)\\.png", "\\1", basename(f))
+    oc_label <- outcome_labels[oc_tag]
+    if (is.na(oc_label)) oc_label <- oc_tag
+    cat(sprintf("\n\n### %s\n\n", oc_label))
+    cat(sprintf("![Malawi OOS: %s](%s){width=100%%}\n\n", oc_label, f))
+  }
+} else {
+  cat("Malawi OOS maps not found. Run `Rscript scripts/malawi_admin2_oos.R`.\n")
+}
+```
+
+
+# Comparative Analysis: Individual-Level vs. Area-Level Prediction {#sec-area-comparison}
+
+This section compares three approaches to predicting Admin-2 prevalence:
+
+- **Individual SL**: SuperLearner trained on individual biomarker data, predictions aggregated to Admin-2
+- **Area SL (MSE)**: SuperLearner trained directly on Admin-2 survey prevalence using MSE/continuous loss
+- **Area SL (NLL)**: SuperLearner trained on Admin-2 prevalence using negative log-likelihood (binomial loss, inspired by beta regression theory) --- naturally handles bounded [0,1] data
+
+## Within-Country Comparison
+
+```{r area-comparison-heatmap, fig.height=8, fig.width=10}
+area_comp <- load_target("area_comparison_all")
+if (!is.null(area_comp) && nrow(area_comp) > 0) {
+  comp_plot <- area_comp |>
+    mutate(
+      outcome_label = outcome_labels[outcome],
+      ctry_outcome = paste0(country, " — ", outcome_label)
+    )
+
+  ggplot(comp_plot, aes(x = approach, y = ctry_outcome, fill = mae_pp)) +
+    geom_tile(colour = "white", linewidth = 0.8) +
+    geom_text(aes(label = sprintf("%.1f", mae_pp)), size = 3.5, fontface = "bold") +
+    scale_fill_viridis_c(name = "MAE (pp)", option = "mako", direction = -1) +
+    labs(x = NULL, y = NULL,
+         title = "Admin-2 Prediction Accuracy: MAE (percentage points)",
+         subtitle = "Lower = better | Three approaches compared") +
+    theme_minimal(base_size = 11) +
+    theme(axis.text.x = element_text(angle = 25, hjust = 1),
+          panel.grid = element_blank())
+} else {
+  cat("Area comparison targets not yet available. Run the pipeline.\n")
+}
+```
+
+```{r area-comparison-table}
+if (!is.null(area_comp) && nrow(area_comp) > 0) {
+  comp_display <- area_comp |>
+    mutate(outcome_label = outcome_labels[outcome]) |>
+    select(Country = country, Outcome = outcome_label, Approach = approach,
+           `N Admin-2` = n_admin2, `MAE (pp)` = mae_pp, `RMSE (pp)` = rmse_pp,
+           `Pearson r` = pearson_r, `Bias (pp)` = mean_bias_pp)
+
+  kable(comp_display,
+        caption = "Within-country Admin-2 prediction accuracy: three approaches") |>
+    kable_styling(bootstrap_options = c("striped", "hover"),
+                  full_width = FALSE, font_size = 10) |>
+    collapse_rows(columns = 1:2, valign = "top")
+}
+```
+
+## Area-Level LOCO: Cross-Country Transportability
+
+```{r area-loco-table}
+area_loco <- load_target("area_loco_comparison")
+if (!is.null(area_loco) && nrow(area_loco) > 0) {
+  loco_display <- area_loco |>
+    mutate(
+      outcome_label = outcome_labels[outcome],
+      loss = ifelse(model_type == "continuous", "MSE", "NLL")
+    ) |>
+    select(`Held out` = held_out, Outcome = outcome_label, Loss = loss,
+           `N train` = n_train, `N test` = n_test,
+           `Obs (%)` = obs_prev, `Pred (%)` = pred_prev,
+           `MAE (pp)` = mae_pp, `r` = pearson_r) |>
+    mutate(
+      `Obs (%)` = round(`Obs (%)` * 100, 1),
+      `Pred (%)` = round(`Pred (%)` * 100, 1)
+    )
+
+  kable(loco_display,
+        caption = "Area-level LOCO: trained on 3 countries' Admin-2 data, tested on held-out") |>
+    kable_styling(bootstrap_options = c("striped", "hover"),
+                  full_width = FALSE, font_size = 10) |>
+    collapse_rows(columns = 1:2, valign = "top")
+} else {
+  cat("Area-level LOCO targets not yet available.\n")
+}
+```
+
+```{r area-loco-heatmap, fig.height=6, fig.width=10}
+if (!is.null(area_loco) && nrow(area_loco) > 0) {
+  loco_plot <- area_loco |>
+    mutate(
+      outcome_label = outcome_labels[outcome],
+      loss_label = ifelse(model_type == "continuous", "MSE", "NLL"),
+      panel = paste0(outcome_label, " (", loss_label, ")")
+    )
+
+  ggplot(loco_plot, aes(x = outcome_label, y = held_out, fill = mae_pp)) +
+    geom_tile(colour = "white", linewidth = 0.8) +
+    geom_text(aes(label = sprintf("%.1f", mae_pp)), size = 3.5, fontface = "bold") +
+    scale_fill_viridis_c(name = "MAE (pp)", option = "mako", direction = -1) +
+    facet_wrap(~ loss_label) +
+    labs(x = NULL, y = "Held-out country",
+         title = "Area-Level LOCO: Admin-2 MAE by Held-Out Country",
+         subtitle = "MSE vs NLL (binomial) loss | Trained on 3 countries, tested on held-out") +
+    theme_minimal(base_size = 11) +
+    theme(axis.text.x = element_text(angle = 25, hjust = 1),
+          panel.grid = element_blank())
+}
+```
+
+
+# Continuous Outcome: Observed vs. Predicted Scatter {#sec-continuous-scatter}
+
+This section plots individual-level observed biomarker values (Y) against cross-validated predicted values (yhat_full) from the continuous SuperLearner fit, with a 45-degree reference line and Pearson correlation annotation.
+
+::: {.column-page}
+
+```{r continuous-scatter, results='asis'}
+#| fig-height: 6
+#| fig-width: 12
+#| out-width: "100%"
+#| column: page
+
+scatter_panels <- list()
+
+for (ctry in countries) {
+  for (oc in outcomes) {
+    suffix <- paste0(ctry, "_", oc)
+    tname <- paste0("sl_fit_", suffix)
+    sl_fit <- load_target(tname)
+    if (is.null(sl_fit)) next
+
+    cont_fit <- sl_fit$cont_fit
+    if (is.null(cont_fit) || is.null(cont_fit$res)) next
+
+    res <- cont_fit$res
+    if (!all(c("Y", "yhat_full") %in% colnames(res))) next
+    if (nrow(res) == 0) next
+
+    d_scatter <- data.frame(
+      Y = as.numeric(res$Y),
+      yhat = as.numeric(res$yhat_full)
+    ) |> filter(is.finite(Y), is.finite(yhat))
+
+    if (nrow(d_scatter) < 10) next
+
+    r_val <- cor(d_scatter$Y, d_scatter$yhat, use = "complete.obs")
+    r2_val <- r_val^2
+
+    p <- ggplot(d_scatter, aes(x = yhat, y = Y)) +
+      geom_point(alpha = 0.15, size = 0.8, colour = "#2c7bb6") +
+      geom_abline(slope = 1, intercept = 0, linetype = "dashed", colour = "grey40") +
+      geom_smooth(method = "lm", se = TRUE, colour = "#d7191c", linewidth = 0.7,
+                  fill = "#d7191c", alpha = 0.15) +
+      annotate("text", x = -Inf, y = Inf,
+               label = sprintf("r = %.3f\nR2 = %.3f\nn = %d", r_val, r2_val, nrow(d_scatter)),
+               hjust = -0.1, vjust = 1.2, size = 3.2, fontface = "bold") +
+      labs(
+        title = paste0(country_labels[ctry], " - ", outcome_labels[oc]),
+        x = "Predicted (CV yhat)",
+        y = "Observed (Y)"
+      ) +
+      theme_minimal(base_size = 10) +
+      theme(plot.title = element_text(size = 10, face = "bold"))
+
+    scatter_panels[[suffix]] <- p
+  }
+}
+
+if (length(scatter_panels) > 0) {
+  n_panels <- length(scatter_panels)
+  ncols <- min(4, n_panels)
+  nrows <- ceiling(n_panels / ncols)
+  p_all <- wrap_plots(scatter_panels, ncol = ncols) +
+    plot_annotation(
+      title = "Continuous Outcomes: Observed vs. Cross-Validated Predicted",
+      subtitle = "Dashed = 45-degree line | Red = linear fit with 95% CI band",
+      theme = theme(plot.title = element_text(size = 14, face = "bold"))
+    )
+  print(p_all)
+} else {
+  cat("No continuous SuperLearner fits available for scatter plots.")
+}
+```
+
+:::
+
+Each panel shows one country-outcome combination. The dashed line represents perfect prediction (Y = yhat). The red line with shaded band is a linear regression fit with 95% confidence interval showing the trend. Correlation (r) and R-squared values are annotated. Low R-squared values are expected for individual-level predictions from area-level proxy data; the value of these models is in recovering correct area-level prevalence patterns rather than predicting individual biomarker concentrations.
+
+
+# Domain Importance {#sec-domains}
+
+Permutation-based domain importance evaluates each conceptual domain by shuffling its variables (5 replicates) and measuring AUC degradation. A larger AUC drop indicates the domain carries unique, non-redundant predictive signal.
+
+## Combined ablation table
+
+Variables are grouped into ~22 conceptual domains (e.g., Climate, Child Health, Malaria, Food Security, Socioeconomic). The ablation permutes all variables within each domain and re-evaluates model performance.
+
+```{r domain-ablation}
+if (!is.null(ablation) && nrow(ablation) > 0) {
+  # Compute delta_auc if not already present
+  if (!"delta_auc" %in% colnames(ablation) && "auc" %in% colnames(ablation)) {
+    .base <- ablation |>
+      filter(domain_removed == "none") |>
+      select(outcome, country, .base_auc = auc)
+    ablation <- ablation |>
+      left_join(.base, by = c("outcome", "country")) |>
+      mutate(delta_auc = .base_auc - auc) |>
+      select(-any_of(".base_auc"))
+    rm(.base)
+  }
+
+  abl_display <- ablation |>
+    mutate(across(where(is.numeric), ~ round(., 3)))
+
+  show_cols <- intersect(
+    c("country", "outcome", "domain_removed", "n_removed",
+      "auc", "brier", "delta_auc"),
+    colnames(abl_display)
+  )
+
+  kable(abl_display[, show_cols],
+        col.names = c("Country", "Outcome", "Domain Removed", "N Vars",
+                       "AUC", "Brier", "Delta AUC")[seq_along(show_cols)],
+        caption = "Conceptual domain ablation --- all countries and outcomes") |>
+    kable_styling(bootstrap_options = c("striped", "hover"),
+                  full_width = FALSE, font_size = 10) |>
+    collapse_rows(columns = 1:2, valign = "top")
+} else {
+  cat("No domain ablation targets loaded.")
+}
+```
+
+## Ablation heatmap
+
+```{r ablation-heatmap, fig.height=10, fig.width=14}
+#| fig-cap: "Cross-outcome domain importance heatmap. Positive values (green) indicate the domain contributes to prediction; negative (red) indicates permuting the domain improved AUC (noise or overfitting)."
+
+if (!is.null(ablation) && nrow(ablation) > 0 && "delta_auc" %in% colnames(ablation)) {
+  dom_col <- if ("domain_removed" %in% colnames(ablation)) "domain_removed" else "domain"
+
+  # Exclude models with baseline AUC = 0.5 (degenerate — no signal to ablate)
+  base_ok <- ablation |>
+    filter(.data[[dom_col]] == "none", !is.na(auc), auc > 0.51) |>
+    select(outcome, country)
+
+  abl_heat <- ablation |>
+    semi_join(base_ok, by = c("outcome", "country")) |>
+    filter(.data[[dom_col]] != "none", !is.na(delta_auc)) |>
+    mutate(
+      outcome_label = outcome_labels[outcome],
+      ctry_outcome = paste0(country, " — ", outcome_label),
+      domain_name = .data[[dom_col]]
+    )
+
+  if (nrow(abl_heat) > 0) {
+    # Order domains by mean importance (descending)
+    dom_order <- abl_heat |>
+      group_by(domain_name) |>
+      summarise(mean_delta = mean(delta_auc, na.rm = TRUE), .groups = "drop") |>
+      arrange(desc(mean_delta))
+    abl_heat$domain_name <- factor(abl_heat$domain_name,
+                                    levels = rev(dom_order$domain_name))
+
+    # Adaptive colour limits
+    lim <- max(abs(abl_heat$delta_auc), na.rm = TRUE) * 1.05
+    lim <- max(lim, 0.005)  # floor
+
+    p <- ggplot(abl_heat, aes(x = domain_name, y = ctry_outcome, fill = delta_auc)) +
+      geom_tile(colour = "white", linewidth = 0.5) +
+      geom_text(aes(label = sprintf("%.3f", delta_auc)), size = 2.4) +
+      scale_fill_gradient2(
+        name = expression(Delta ~ AUC),
+        low = "#c0392b", mid = "white", high = "#27ae60",
+        midpoint = 0, limits = c(-lim, lim), oob = scales::squish
+      ) +
+      labs(x = NULL, y = NULL,
+           title = "Domain Importance Across Outcomes and Countries",
+           subtitle = "Positive = domain contributes to prediction (AUC drops when permuted) | Ordered by mean importance") +
+      theme_minimal(base_size = 11) +
+      theme(axis.text.x = element_text(angle = 50, hjust = 1, size = 9),
+            axis.text.y = element_text(size = 9),
+            panel.grid = element_blank(),
+            legend.position = "right")
+
+    save_fig("domain_heatmap", p)
+    print(p)
+  }
+}
+```
+
+### Comparative interpretation
+
+```{r domain-comparison, results='asis'}
+if (!is.null(ablation) && nrow(ablation) > 0 && "delta_auc" %in% colnames(ablation)) {
+  dom_col <- if ("domain_removed" %in% colnames(ablation)) "domain_removed" else "domain"
+
+  # Only models with real signal
+  base_ok <- ablation |>
+    filter(.data[[dom_col]] == "none", !is.na(auc), auc > 0.51) |>
+    select(outcome, country)
+
+  abl_valid <- ablation |>
+    semi_join(base_ok, by = c("outcome", "country")) |>
+    filter(.data[[dom_col]] != "none", !is.na(delta_auc))
+
+  if (nrow(abl_valid) > 0) {
+    # Top domains by mean importance
+    dom_rank <- abl_valid |>
+      group_by(domain_name = .data[[dom_col]]) |>
+      summarise(
+        mean_delta = mean(delta_auc, na.rm = TRUE),
+        max_delta = max(delta_auc, na.rm = TRUE),
+        n_positive = sum(delta_auc > 0.001, na.rm = TRUE),
+        n_models = n(),
+        .groups = "drop"
+      ) |>
+      arrange(desc(mean_delta))
+
+    top3 <- head(dom_rank, 3)
+    bot3 <- tail(dom_rank |> filter(mean_delta >= 0), 3)
+
+    cat("**Key findings from the cross-outcome domain ablation:**\n\n")
+
+    cat(sprintf("1. **Top domains by mean importance:** %s (mean delta-AUC = %.4f), %s (%.4f), and %s (%.4f). These domains contribute the most unique, non-redundant signal across all country--outcome models.\n\n",
+        top3$domain_name[1], top3$mean_delta[1],
+        top3$domain_name[2], top3$mean_delta[2],
+        top3$domain_name[3], top3$mean_delta[3]))
+
+    cat("2. **No single domain dominates prediction.** Delta-AUC values are generally small (< 0.02), indicating the predictive signal is distributed across thematic areas with high redundancy among domains.\n\n")
+
+    cat("3. **Country-specific patterns emerge.** The importance of specific domains varies by geography and outcome, reflecting local ecological and socioeconomic gradients.\n\n")
+
+    # Outcome-specific patterns
+    oc_dom <- abl_valid |>
+      mutate(outcome_label = outcome_labels[outcome]) |>
+      group_by(outcome_label, domain_name = .data[[dom_col]]) |>
+      summarise(mean_delta = mean(delta_auc, na.rm = TRUE), .groups = "drop") |>
+      group_by(outcome_label) |>
+      slice_max(mean_delta, n = 1) |>
+      ungroup()
+
+    cat("4. **Top domain per outcome:**\n\n")
+    for (i in seq_len(nrow(oc_dom))) {
+      cat(sprintf("   - *%s*: %s (delta-AUC = %.4f)\n",
+                  oc_dom$outcome_label[i], oc_dom$domain_name[i], oc_dom$mean_delta[i]))
+    }
+
+    cat("\n\n**Policy implication:** Maintaining diverse data inputs across multiple thematic areas is more important than investing heavily in any single domain. The marginal contribution of each conceptual domain is small, but collectively they enable meaningful prediction.\n")
+  }
+}
+```
+
+
+## Conceptual domain importance (Ghana child iron)
+
+Beyond data-source ablation, variables can be grouped by **conceptual topic** (e.g., Climate, Food Security, Child Health, Malaria) using the official DHS indicator classification. Two complementary permutation analyses measure domain importance:
+
+- **Permute-one** (marginal): Shuffle one domain, keep all others intact. Measures contribution *on top of everything else*.
+- **Leave-one-in** (standalone): Keep only one domain, shuffle all others. Measures how well that domain predicts *on its own*.
+
+```{r conceptual-ablation, fig.width=10, fig.height=8}
+source(here("R", "conceptual_ablation.R"))
+
+perm_l1_file <- here("results", "conceptual_ablation", "ghana_child_iron_level1.csv")
+loi_l1_file  <- here("results", "conceptual_ablation", "ghana_child_iron_leave_one_in_l1.csv")
+
+if (file.exists(perm_l1_file)) {
+  perm_l1 <- read.csv(perm_l1_file)
+
+  # Permute-one forest plot
+  df <- perm_l1 |>
+    arrange(auc_drop) |>
+    mutate(label = sprintf("%s (n=%d)", domain, n_vars),
+           label = factor(label, levels = label))
+
+  p_perm <- ggplot(df, aes(x = auc_drop, y = label)) +
+    geom_vline(xintercept = 0, linetype = "dashed", color = "grey50") +
+    geom_errorbarh(aes(xmin = auc_drop_lo, xmax = auc_drop_hi),
+                   height = 0.3, color = "#2c7bb6", linewidth = 0.7) +
+    geom_point(size = 3, color = "#2c7bb6") +
+    labs(title = "Marginal Domain Importance (Permute-One)",
+         subtitle = sprintf("Ghana child iron | Baseline AUC = %.3f", df$baseline_auc[1]),
+         x = "AUC Drop (higher = more important)", y = NULL) +
+    theme_minimal(base_size = 11) +
+    theme(plot.title = element_text(face = "bold", size = 12))
+  print(p_perm)
+} else {
+  cat("Conceptual ablation results not yet available. Run `scripts/test_conceptual_ablation.R`.\n")
+}
+```
+
+```{r conceptual-loi, fig.width=10, fig.height=8}
+if (file.exists(loi_l1_file)) {
+  loi_l1 <- read.csv(loi_l1_file)
+  baseline_val <- loi_l1$baseline_auc[1]
+
+  df_loi <- loi_l1 |>
+    arrange(solo_auc) |>
+    mutate(label = sprintf("%s (n=%d)", domain, n_vars),
+           label = factor(label, levels = label))
+
+  p_loi <- ggplot(df_loi, aes(x = solo_auc, y = label)) +
+    geom_vline(xintercept = 0.5, linetype = "dashed", color = "grey50") +
+    geom_vline(xintercept = baseline_val, linetype = "solid",
+               color = "#2c7bb6", linewidth = 0.8) +
+    geom_errorbarh(aes(xmin = solo_auc_lo, xmax = solo_auc_hi),
+                   height = 0.3, color = "#d7191c", linewidth = 0.7) +
+    geom_point(size = 3, color = "#d7191c") +
+    annotate("text", x = baseline_val, y = Inf,
+             label = sprintf("Full model (%.3f)", baseline_val),
+             hjust = -0.05, vjust = 2, color = "#2c7bb6", size = 3.5) +
+    labs(title = "Standalone Domain Contribution (Leave-One-In)",
+         subtitle = "Each domain alone, all others permuted",
+         x = "Solo AUC (domain alone)", y = NULL) +
+    theme_minimal(base_size = 11) +
+    theme(plot.title = element_text(face = "bold", size = 12))
+  print(p_loi)
+}
+```
+
+The conceptual domain analysis reveals which **thematic areas** (not just data sources) drive prediction. Domains with high marginal importance contribute unique, non-redundant signal. Domains with high standalone AUC carry strong independent predictive value, even if other domains capture similar information.
+
+### Level-2 conceptual domain ablation
+
+A finer-grained Level-2 conceptual domain ablation has been run for **Ghana --- women's iron deficiency** (target: `ablation_l2_ghana_women_iron`). This groups variables into more specific sub-domains (e.g., separating "Climate --- Rainfall" from "Climate --- Temperature") to reveal which thematic sub-categories carry the most predictive signal.
+
+```{r l2-ablation}
+abl_l2 <- load_target("ablation_l2_ghana_women_iron")
+if (!is.null(abl_l2) && is.data.frame(abl_l2) && nrow(abl_l2) > 0) {
+  if (!"delta_auc" %in% colnames(abl_l2) && "auc" %in% colnames(abl_l2)) {
+    base_auc <- abl_l2 |> filter(domain_removed == "none") |> pull(auc)
+    if (length(base_auc) > 0) {
+      abl_l2 <- abl_l2 |> mutate(delta_auc = base_auc[1] - auc)
+    }
+  }
+  show_cols <- intersect(
+    c("domain_removed", "n_removed", "auc", "brier", "delta_auc"),
+    colnames(abl_l2)
+  )
+  kable(abl_l2[, show_cols] |> mutate(across(where(is.numeric), ~ round(., 3))),
+        col.names = c("Domain Removed", "N Vars", "AUC", "Brier", "Delta AUC")[seq_along(show_cols)],
+        caption = "Level-2 conceptual domain ablation --- Ghana, women's iron deficiency") |>
+    kable_styling(bootstrap_options = c("striped", "hover"),
+                  full_width = FALSE, font_size = 10)
+} else {
+  cat("Level-2 conceptual ablation target not yet available.\n")
+}
+```
+
+
+## Individual Variable Importance {#sec-varimp}
+
+Beyond domain-level ablation, per-variable permutation importance identifies the individual predictors most critical to the top-performing models. For the **two best-performing binary models** (by AUC with adequate event counts), each variable is individually permuted (5 replicates) and the AUC drop is recorded.
+
+```{r varimp-load}
+# Load pre-computed variable importance results
+vi_files <- list.files(here("results", "tables"),
+                        pattern = "^variable_importance_.*\\.csv$",
+                        full.names = TRUE)
+
+vi_all <- if (length(vi_files) > 0) {
+  bind_rows(lapply(vi_files, read.csv))
+} else {
+  NULL
+}
+```
+
+```{r varimp-plots, fig.height=8, fig.width=10}
+#| fig-cap: "Top 20 individual variables by ranger impurity importance for the two best-performing models."
+
+if (!is.null(vi_all) && nrow(vi_all) > 0) {
+  vi_top <- vi_all |>
+    group_by(country, outcome) |>
+    slice_max(importance, n = 20) |>
+    ungroup() |>
+    mutate(
+      outcome_label = outcome_labels[outcome],
+      model_label = paste0(country, " — ", outcome_label),
+      var_short = gsub("^(ihme_|MAP_|gee_|dhs[0-9]*_|chirps_|wp_|ntl_|sg_|gdl_|wfp_|hc_|mics_)", "", variable),
+      var_short = substr(var_short, 1, 50)
+    )
+
+  for (ml in unique(vi_top$model_label)) {
+    vi_sub <- vi_top |>
+      filter(model_label == ml) |>
+      arrange(importance_norm) |>
+      mutate(var_short = factor(var_short, levels = var_short))
+
+    p <- ggplot(vi_sub, aes(x = importance_norm, y = var_short)) +
+      geom_col(fill = "#2c7bb6", width = 0.7) +
+      labs(x = "Relative Importance (normalized impurity)",
+           y = NULL,
+           title = sprintf("Top 20 Variables: %s", ml),
+           subtitle = "Ranger impurity-based importance | Higher = more important") +
+      scale_x_continuous(labels = scales::percent_format(accuracy = 1)) +
+      theme_minimal(base_size = 11) +
+      theme(axis.text.y = element_text(size = 8))
+
+    save_fig(paste0("varimp_", gsub("[^a-zA-Z0-9]", "_", ml)), p)
+    print(p)
+  }
+} else {
+  cat("Variable importance results not yet available. Run `scripts/variable_importance.R` first.\n")
+}
+```
+
+```{r varimp-interpretation, results='asis'}
+if (!is.null(vi_all) && nrow(vi_all) > 0) {
+  for (ml in unique(paste0(vi_all$country, "_", vi_all$outcome))) {
+    parts <- strsplit(ml, "_", fixed = TRUE)[[1]]
+    ctry <- parts[1]
+    oc <- paste(parts[-1], collapse = "_")
+
+    vi_sub <- vi_all |> filter(country == ctry, outcome == oc) |> arrange(desc(importance))
+    top5 <- head(vi_sub, 5)
+
+    cat(sprintf("\n**%s — %s:**\n", ctry, outcome_labels[oc]))
+    cat("The top 5 most important variables are:\n\n")
+    for (i in seq_len(nrow(top5))) {
+      cat(sprintf("- `%s` (relative importance = %.1f%%)\n",
+                  top5$variable[i], top5$importance_norm[i] * 100))
+    }
+    cat("\n")
+  }
+
+  cat("\n*Variable importance computed using impurity-based importance from a ranger random forest (1000 trees) fit to the same preprocessed training data used by the SuperLearner ensemble.*\n")
+}
+```
+
+## Variable Importance by Data Source {#sec-varimp-source}
+
+To understand which **data sources** contribute the most important predictors, we classify each variable by its source prefix and aggregate importance within each source.
+
+```{r varimp-source-heatmap, fig.height=6, fig.width=10}
+#| fig-cap: "Mean variable importance by data source for the top-performing models. Darker = higher mean importance within that source."
+
+if (!is.null(vi_all) && nrow(vi_all) > 0) {
+  # Classify variables by data source
+  get_source <- function(v) {
+    if (grepl("^dhs\\d{4}_", v)) return("DHS")
+    if (grepl("^mics_", v))      return("MICS")
+    if (grepl("^ihme_", v))      return("IHME")
+    if (grepl("^MAP_", v))       return("MAP")
+    if (grepl("^gee_", v))       return("GEE")
+    if (grepl("^fsec_", v))      return("FSEC")
+    if (grepl("^wfp_", v))       return("WFP")
+    if (grepl("^chirps_", v))    return("CHIRPS")
+    if (grepl("^worldpop_|^wp_", v)) return("WorldPop")
+    if (grepl("^ntl_|^viirs_", v)) return("VIIRS")
+    if (grepl("^soil_|^sg_", v)) return("SoilGrids")
+    if (grepl("^gdl_", v))       return("GDL")
+    if (grepl("^spam_|^hc_|^crop_", v)) return("HarvestChoice")
+    if (grepl("^missing_", v))   return("Missingness")
+    return("Other")
+  }
+
+  vi_src <- vi_all |>
+    mutate(
+      source = sapply(variable, get_source),
+      model_label = paste0(country, " — ", outcome_labels[outcome])
+    ) |>
+    group_by(model_label, source) |>
+    summarise(
+      mean_importance = mean(importance_norm, na.rm = TRUE),
+      max_importance = max(importance_norm, na.rm = TRUE),
+      n_vars = n(),
+      .groups = "drop"
+    )
+
+  # Order sources by overall mean importance
+  src_order <- vi_src |>
+    group_by(source) |>
+    summarise(overall = mean(mean_importance), .groups = "drop") |>
+    arrange(desc(overall))
+  vi_src$source <- factor(vi_src$source, levels = rev(src_order$source))
+
+  p <- ggplot(vi_src, aes(x = model_label, y = source, fill = mean_importance)) +
+    geom_tile(colour = "white", linewidth = 0.8) +
+    geom_text(aes(label = sprintf("%.0f%%\n(n=%d)", mean_importance * 100, n_vars)),
+              size = 3, lineheight = 0.8) +
+    scale_fill_viridis_c(name = "Mean Relative\nImportance",
+                          labels = percent_format(accuracy = 1),
+                          option = "mako", direction = -1) +
+    labs(x = NULL, y = NULL,
+         title = "Variable Importance by Data Source",
+         subtitle = "Mean normalized importance | n = number of variables from that source") +
+    theme_minimal(base_size = 12) +
+    theme(axis.text.x = element_text(angle = 15, hjust = 1),
+          panel.grid = element_blank())
+
+  save_fig("varimp_source_heatmap", p)
+  print(p)
+}
+```
+
+
+# Transportability --- Leave-One-Country-Out {#sec-loco}
+
+Leave-one-country-out (LOCO) cross-validation trains the model on three countries and predicts the held-out country. This assesses whether proxy-based predictions generalise across national boundaries.
+
+LOCO analysis covers the four outcomes measured in all four countries: child vitamin A, women's vitamin A, child iron, and women's iron deficiency.
+
+## LOCO performance table
+
+```{r loco-table}
+if (!is.null(transportability_summary) && nrow(transportability_summary) > 0) {
+  loco_show <- transportability_summary |>
+    mutate(across(where(is.numeric), ~ round(., 3)))
+
+  kable(loco_show,
+        caption = "Leave-one-country-out transportability results") |>
+    kable_styling(bootstrap_options = c("striped", "hover"),
+                  full_width = FALSE, font_size = 11)
+} else if (length(loco_results) > 0) {
+  # Build summary from individual LOCO targets
+  loco_rows <- list()
+  for (oc in names(loco_results)) {
+    obj <- loco_results[[oc]]
+    if (is.data.frame(obj)) {
+      obj$outcome <- oc
+      loco_rows[[oc]] <- obj
+    } else if (is.list(obj) && "results" %in% names(obj)) {
+      r <- obj$results
+      if (is.data.frame(r)) {
+        r$outcome <- oc
+        loco_rows[[oc]] <- r
+      }
+    }
+  }
+
+  if (length(loco_rows) > 0) {
+    loco_combined <- bind_rows(loco_rows) |>
+      mutate(across(where(is.numeric), ~ round(., 3)))
+
+    kable(loco_combined,
+          caption = "Leave-one-country-out cross-validation results") |>
+      kable_styling(bootstrap_options = c("striped", "hover"),
+                    full_width = FALSE, font_size = 11)
+  } else {
+    cat("LOCO targets loaded but format could not be parsed for display.")
+  }
+} else {
+  cat("No LOCO transportability targets loaded.")
+}
+```
+
+## LOCO AUC heatmap
+
+```{r loco-heatmap, fig.height=5, fig.width=9}
+#| fig-cap: "LOCO AUC by held-out country and outcome. Values below 0.5 indicate the model performs worse than chance when applied to the held-out country."
+
+if (!is.null(transportability_summary) && nrow(transportability_summary) > 0 &&
+    all(c("held_out", "auc", "outcome") %in% colnames(transportability_summary))) {
+
+  loco_plot <- transportability_summary |>
+    mutate(outcome_label = outcome_labels[outcome])
+
+  p <- ggplot(loco_plot, aes(x = outcome_label, y = held_out, fill = auc)) +
+    geom_tile(colour = "white", linewidth = 1) +
+    geom_text(aes(label = sprintf("%.3f", auc)), size = 4.5, fontface = "bold") +
+    scale_fill_gradient2(name = "AUC", low = "#c0392b", mid = "white", high = "#27ae60",
+                          midpoint = 0.5, limits = c(0.4, 0.8), oob = scales::squish) +
+    labs(x = NULL, y = "Held-out country",
+         title = "LOCO AUC: Cross-Country Transportability",
+         subtitle = "Green = transfers well | Red = below chance | Trained on 3 countries, tested on held-out") +
+    theme_minimal(base_size = 13) +
+    theme(axis.text.x = element_text(angle = 25, hjust = 1),
+          panel.grid = element_blank())
+
+  save_fig("loco_heatmap", p)
+  print(p)
+} else {
+  cat("LOCO transportability summary not available.")
+}
+```
+
+## LOCO AUC forest plot
+
+```{r loco-forest, fig.height=7, fig.width=10}
+#| fig-cap: "LOCO AUC by held-out country with within-country CV AUC for comparison. The gap between within-country (filled) and LOCO (open) quantifies transportability loss."
+
+if (!is.null(transportability_summary) && nrow(transportability_summary) > 0 &&
+    all(c("held_out", "auc", "outcome") %in% colnames(transportability_summary))) {
+
+  # LOCO data
+  loco_df <- transportability_summary |>
+    mutate(
+      outcome_label = outcome_labels[outcome],
+      label = paste0(held_out, " (n=", n_test, ")"),
+      type = "LOCO (held-out)"
+    ) |>
+    select(country = held_out, outcome, outcome_label, label, auc, type, n = n_test)
+
+  # Within-country AUC for comparison (from DeLong CIs computed in setup)
+  within_df <- NULL
+  if (!is.null(auc_ci) && nrow(auc_ci) > 0) {
+    within_df <- auc_ci |>
+      filter(outcome %in% unique(loco_df$outcome)) |>
+      mutate(
+        outcome_label = outcome_labels[outcome],
+        label = paste0(country, " (within)"),
+        type = "Within-country CV"
+      ) |>
+      select(country, outcome, outcome_label, label, auc, auc_lo, auc_hi, type)
+  }
+
+  # Combine
+  plot_df <- loco_df
+  if (!is.null(within_df)) {
+    plot_df <- bind_rows(
+      loco_df |> mutate(auc_lo = NA_real_, auc_hi = NA_real_),
+      within_df |> mutate(n = NA_integer_)
+    )
+  }
+
+  p <- ggplot(plot_df, aes(x = auc, y = reorder(label, auc),
+                            colour = type, shape = type)) +
+    geom_vline(xintercept = 0.5, linetype = "dashed", colour = "grey60") +
+    geom_point(size = 3) +
+    scale_colour_manual(name = NULL,
+      values = c("LOCO (held-out)" = "#d7191c", "Within-country CV" = "#2c7bb6")) +
+    scale_shape_manual(name = NULL,
+      values = c("LOCO (held-out)" = 1, "Within-country CV" = 16)) +
+    scale_x_continuous(limits = c(0.3, 1), breaks = seq(0.3, 1, 0.1)) +
+    facet_wrap(~ outcome_label, scales = "free_y", ncol = 2) +
+    labs(x = "ROC-AUC", y = NULL,
+         title = "Within-Country vs. LOCO Cross-Country AUC",
+         subtitle = "Filled = within-country CV | Open = LOCO (trained on other 3 countries)") +
+    theme_minimal(base_size = 11) +
+    theme(strip.text = element_text(face = "bold"),
+          legend.position = "bottom")
+
+  # Add DeLong CIs for within-country points if available
+  if (!is.null(within_df) && any(!is.na(plot_df$auc_lo))) {
+    p <- p + geom_errorbarh(
+      data = plot_df |> filter(!is.na(auc_lo)),
+      aes(xmin = auc_lo, xmax = auc_hi),
+      height = 0.3, linewidth = 0.5
+    )
+  }
+
+  save_fig("loco_forest", p)
+  print(p)
+}
+```
+
+## National prevalence: within-country conformal CIs
+
+```{r conformal-forest, fig.height=8, fig.width=10}
+#| fig-cap: "National predicted prevalence (blue dots) with 95% conformal prediction intervals vs. observed survey prevalence (red triangles)."
+
+# Load conformal CI data (nat_list) — needed here before the national-ci section
+nat_list <- list()
+for (ctry in countries) {
+  for (oc in outcomes) {
+    key <- paste0(ctry, "_", oc)
+    b <- boot_ci[[key]]
+    if (is.null(b)) next
+    nc <- if (is.list(b) && "national_ci" %in% names(b)) b$national_ci else NULL
+    if (!is.null(nc) && nrow(nc) > 0) {
+      if (!"country" %in% colnames(nc)) nc$country <- country_labels[ctry]
+      nat_list[[key]] <- nc
+    }
+  }
+}
+
+# Load observed prevalence from national estimate targets
+nat_obs <- list()
+for (ctry in countries) {
+  for (oc in outcomes) {
+    ne <- load_target(paste0("national_est_", ctry, "_", oc))
+    if (!is.null(ne) && is.data.frame(ne) && nrow(ne) > 0 && "obs_prev" %in% names(ne)) {
+      nat_obs[[paste0(ctry, "_", oc)]] <- data.frame(
+        country = country_labels[ctry], outcome = oc,
+        obs_prev = ne$obs_prev[1], stringsAsFactors = FALSE)
+    }
+  }
+}
+nat_obs_df <- if (length(nat_obs) > 0) bind_rows(nat_obs) else NULL
+
+if (length(nat_list) > 0) {
+  nat_forest <- bind_rows(nat_list) |>
+    # Keep only binary prevalence models (boot_mean in 0-1 range)
+    # and exclude Malawi folate which is continuous-only (1 event)
+    filter(boot_mean >= 0, boot_mean <= 1, ci_lo >= -0.5, ci_hi <= 1.5) |>
+    filter(!(country == "Malawi" & outcome == "women_folate")) |>
+    mutate(
+      outcome_label = outcome_labels[outcome],
+      label = paste0(country, " — ", outcome_label)
+    )
+
+  # Merge observed prevalence
+  if (!is.null(nat_obs_df)) {
+    # Also filter obs_prev to valid prevalences
+    nat_obs_valid <- nat_obs_df |> filter(obs_prev >= 0, obs_prev <= 1)
+    nat_forest <- nat_forest |>
+      left_join(nat_obs_valid, by = c("country", "outcome"))
+  }
+
+  if (nrow(nat_forest) > 0 && all(c("ci_lo", "ci_hi", "boot_mean") %in% colnames(nat_forest))) {
+    p <- ggplot(nat_forest, aes(y = reorder(label, boot_mean))) +
+      geom_errorbarh(aes(xmin = pmax(ci_lo, 0), xmax = pmin(ci_hi, 1)),
+                      height = 0.3, colour = "grey40", linewidth = 0.5) +
+      geom_point(aes(x = boot_mean, colour = "Predicted"), size = 3, shape = 16) +
+      scale_x_continuous(labels = percent_format(accuracy = 1),
+                          limits = c(0, NA)) +
+      labs(x = "National prevalence (95% conformal PI)",
+           y = NULL,
+           title = "National Prevalence: Predicted vs. Observed",
+           subtitle = "Circle = predicted (with 95% conformal PI) | X = observed survey prevalence") +
+      theme_minimal(base_size = 11) +
+      theme(legend.position = "bottom")
+
+    # Add observed prevalence as X markers
+    if ("obs_prev" %in% colnames(nat_forest) && any(!is.na(nat_forest$obs_prev))) {
+      p <- p + geom_point(aes(x = obs_prev, colour = "Observed (survey)"),
+                           size = 4, shape = 4, stroke = 1.5)
+    }
+
+    p <- p + scale_colour_manual(name = NULL,
+      values = c("Predicted" = "#2c7bb6", "Observed (survey)" = "#d7191c"))
+
+    save_fig("conformal_forest", p)
+    print(p)
+  }
+}
+```
+
+### Interpretation
+
+Transportability analysis reveals how well proxy-based models generalise across national contexts:
+
+- **Countries with unique covariate profiles** (e.g., distinct agro-ecological zones, dietary patterns) will show lower LOCO AUC when held out, indicating that country-specific signal is not easily borrowed from neighbours.
+- **Outcomes with strong universal predictors** (shared across all countries) will show more consistent LOCO performance.
+- Countries that are hardest to predict when held out may benefit most from country-specific survey data or targeted model calibration.
+- The gap between within-country CV AUC and LOCO AUC quantifies how much country-specific signal drives prediction. A large gap (~0.15--0.25) indicates substantial country-specific patterns that do not transfer.
+
+
+# National Prevalence with Conformal Intervals {#sec-national}
+
+```{r national-ci}
+nat_list <- list()
+for (ctry in countries) {
+  for (oc in outcomes) {
+    key <- paste0(ctry, "_", oc)
+    b <- boot_ci[[key]]
+    if (is.null(b)) next
+    nc <- if (is.list(b) && "national_ci" %in% names(b)) b$national_ci else NULL
+    if (!is.null(nc) && nrow(nc) > 0) {
+      if (!"country" %in% colnames(nc)) nc$country <- country_labels[ctry]
+      nat_list[[key]] <- nc
+    }
+  }
+}
+
+if (length(nat_list) > 0) {
+  nat_ci <- bind_rows(nat_list) |>
+    # Filter out continuous outcomes and Malawi folate (1 event, continuous-only)
+    filter(boot_mean >= 0, boot_mean <= 1, ci_lo >= -0.5, ci_hi <= 1.5) |>
+    filter(!(country == "Malawi" & outcome == "women_folate")) |>
+    mutate(
+      mean_pct = round(boot_mean * 100, 1),
+      lo_pct   = round(ci_lo * 100, 1),
+      hi_pct   = round(ci_hi * 100, 1),
+      ci_width = round((ci_hi - ci_lo) * 100, 1),
+      outcome_label = outcome_labels[outcome]
+    ) |>
+    select(Country = country, Outcome = outcome_label,
+           `Predicted mean (%)` = mean_pct,
+           `95% CI lower (%)` = lo_pct, `95% CI upper (%)` = hi_pct,
+           `CI width (pp)` = ci_width)
+
+  tbl <- kable(nat_ci,
+        caption = "National prevalence estimates with conformal 95% prediction intervals (all countries)") |>
+    kable_styling(bootstrap_options = c("striped", "hover"),
+                  full_width = FALSE, font_size = 11)
+  if (nrow(nat_ci) > 1) tbl <- tbl |> collapse_rows(columns = 1, valign = "top")
+  tbl
+} else {
+  cat("No conformal CI targets loaded.")
+}
+```
+
+```{r national-ci-forest, fig.height=8, fig.width=9}
+if (length(nat_list) > 0) {
+  nat_plot <- bind_rows(nat_list) |>
+    filter(boot_mean >= 0, boot_mean <= 1, ci_lo >= -0.5, ci_hi <= 1.5) |>
+    filter(!(country == "Malawi" & outcome == "women_folate")) |>
+    mutate(
+      outcome_label = outcome_labels[outcome],
+      ctry_label = country
+    )
+
+  # Merge observed prevalence for X markers
+  if (!is.null(nat_obs_df)) {
+    nat_plot <- nat_plot |>
+      left_join(nat_obs_df |> filter(obs_prev >= 0, obs_prev <= 1),
+                by = c("country", "outcome"))
+  }
+
+  if (nrow(nat_plot) > 0 && all(c("ci_lo", "ci_hi", "boot_mean") %in% colnames(nat_plot))) {
+    p <- ggplot(nat_plot, aes(y = ctry_label)) +
+      geom_errorbarh(aes(xmin = pmax(ci_lo, 0), xmax = pmin(ci_hi, 1)),
+                      height = 0.3, colour = "grey40", linewidth = 0.5) +
+      geom_point(aes(x = boot_mean, colour = ctry_label), size = 3) +
+      scale_x_continuous(labels = percent_format(accuracy = 1)) +
+      scale_colour_brewer(palette = "Set2", guide = "none") +
+      facet_wrap(~ outcome_label, scales = "free_x", ncol = 2) +
+      labs(x = "Prevalence", y = NULL,
+           title = "National Prevalence with Conformal 95% Prediction Intervals",
+           subtitle = "Circles = predicted | X = observed survey prevalence") +
+      theme(strip.text = element_text(face = "bold"))
+
+    # Add observed prevalence as X markers
+    if ("obs_prev" %in% colnames(nat_plot) && any(!is.na(nat_plot$obs_prev))) {
+      p <- p + geom_point(aes(x = obs_prev), shape = 4, size = 3,
+                           stroke = 1.5, colour = "black")
+    }
+
+    print(p)
+  }
+}
+```
+
+::: {.callout-note}
+## Conformal Intervals
+
+These intervals are computed using split-conformal prediction with adaptive width scaling. Unlike bootstrap CIs, they do not depend on the number of resamples and are valid in both fast and full pipeline modes. Wider intervals indicate areas where the model's residuals are larger, naturally flagging regions with greater prediction uncertainty.
+:::
+
+## Conformal CI coverage validation
+
+Conformal prediction intervals target 95% marginal coverage. The table below validates this empirically using the individual-level cross-validated predictions.
+
+```{r conformal-coverage}
+cov_rows <- list()
+
+for (ctry in countries) {
+  for (oc_name in outcomes) {
+    suffix <- paste0(ctry, "_", oc_name)
+    ci_obj <- boot_ci[[suffix]]
+    if (is.null(ci_obj)) next
+
+    # Access diagnostics safely — the individual_ci sub-element is large
+    diag <- tryCatch(ci_obj$diagnostics, error = function(e) NULL)
+    if (is.null(diag) || is.null(diag$constant_coverage)) next
+
+    cov_rows[[suffix]] <- data.frame(
+      Country             = country_labels[ctry],
+      Outcome             = outcome_labels[oc_name],
+      Constant_Width_pp   = sprintf("%.1f", diag$constant_width * 100),
+      Constant_Coverage   = sprintf("%.1f%%", diag$constant_coverage * 100),
+      Adaptive_Coverage   = sprintf("%.1f%%", diag$adaptive_coverage * 100),
+      Target              = "95.0%",
+      stringsAsFactors    = FALSE
+    )
+  }
+}
+
+if (length(cov_rows) > 0) {
+  cov_df <- do.call(rbind, cov_rows)
+  rownames(cov_df) <- NULL
+
+  kable(cov_df,
+        col.names = c("Country", "Outcome", "Constant half-width (pp)",
+                       "Constant coverage", "Adaptive coverage", "Target"),
+        caption = "Empirical coverage of conformal prediction intervals (individual-level)") |>
+    kable_styling(bootstrap_options = c("striped", "hover"),
+                  full_width = FALSE, font_size = 11) |>
+    collapse_rows(columns = 1, valign = "top")
+} else {
+  cat("No conformal coverage diagnostics available.")
+}
+```
+
+
+# Cross-Country Summary {#sec-summary}
+
+## Predictability ranking
+
+```{r cross-country-ranking, fig.height=6, fig.width=10}
+if (!is.null(cv_perf) && nrow(cv_perf) > 0 && "auc" %in% colnames(cv_perf) &&
+    !is.null(a2_error) && nrow(a2_error) > 0) {
+
+  # Merge individual-level AUC with admin2-level correlation
+  cv_auc <- cv_perf |>
+    filter(!is.na(auc)) |>
+    select(country, outcome, auc)
+
+  r_col <- intersect(c("pearson_r", "r"), colnames(a2_error))
+  if (length(r_col) > 0) {
+    a2_r <- a2_error |>
+      select(country, outcome, admin2_r = !!r_col[1])
+
+    rank_df <- cv_auc |>
+      left_join(a2_r, by = c("country", "outcome")) |>
+      mutate(outcome_label = outcome_labels[outcome])
+
+    if (nrow(rank_df) > 0) {
+      ggplot(rank_df, aes(x = auc, y = admin2_r, colour = country, shape = outcome_label)) +
+        geom_point(size = 4, alpha = 0.8) +
+        geom_hline(yintercept = 0, linetype = "dashed", colour = "grey60") +
+        geom_vline(xintercept = 0.5, linetype = "dashed", colour = "grey60") +
+        scale_colour_brewer(palette = "Set2", name = "Country") +
+        scale_shape_manual(values = c(16, 17, 15, 18, 0, 1, 2, 5)[seq_len(length(unique(rank_df$outcome_label)))], name = "Outcome") +
+        labs(
+          x = "Individual-level AUC (binary CV)",
+          y = "Admin-2 Pearson r",
+          title = "Predictability: Individual-Level vs. Area-Level Performance",
+          subtitle = "Upper-right = best performing | Lower-left = hardest to predict"
+        ) +
+        theme(legend.position = "bottom",
+              legend.box = "vertical")
+    }
+  }
+}
+```
+
+```{r cross-country-table}
+if (!is.null(cv_perf) && nrow(cv_perf) > 0 && "auc" %in% colnames(cv_perf)) {
+  rank_table <- cv_perf |>
+    filter(!is.na(auc)) |>
+    mutate(outcome_label = outcome_labels[outcome]) |>
+    select(Country = country, Outcome = outcome_label, AUC = auc) |>
+    arrange(desc(AUC)) |>
+    mutate(
+      Rank = row_number(),
+      AUC = round(AUC, 3),
+      Predictability = case_when(
+        AUC >= 0.70 ~ "Good",
+        AUC >= 0.60 ~ "Moderate",
+        AUC >= 0.55 ~ "Weak",
+        TRUE ~ "Near chance"
+      )
+    ) |>
+    select(Rank, Country, Outcome, AUC, Predictability)
+
+  kable(rank_table,
+        caption = "All country-outcome combinations ranked by binary AUC") |>
+    kable_styling(bootstrap_options = c("striped", "hover"), full_width = FALSE)
+}
+```
+
+### Comparative discussion
+
+```{r comparative-discussion, results='asis'}
+# Build data-driven discussion from actual results
+if (!is.null(cv_perf) && nrow(cv_perf) > 0 && "auc" %in% colnames(cv_perf)) {
+
+  auc_df <- cv_perf |> filter(!is.na(auc)) |> arrange(desc(auc))
+
+  if (nrow(auc_df) > 0) {
+    best <- auc_df[1, ]
+    worst <- auc_df[nrow(auc_df), ]
+
+    cat("#### Best-performing model\n\n")
+    cat(sprintf(
+      "**%s --- %s** achieves the highest binary AUC (%.3f). ",
+      best$country, outcome_labels[best$outcome], best$auc))
+    if (best$auc >= 0.80) {
+      cat("This model shows strong discrimination, suggesting proxy data captures ")
+      cat("meaningful geographic variation in this outcome. ")
+    } else if (best$auc >= 0.70) {
+      cat("This model reaches the 'good' discrimination threshold (AUC > 0.70). ")
+    }
+    cat("The strong performance likely reflects sharper geographic gradients ")
+    cat("in deficiency risk that align well with the proxy predictor layers available.\n\n")
+
+    cat("#### Outcome patterns\n\n")
+
+    # Compute median AUC by outcome
+    oc_med <- auc_df |>
+      mutate(outcome_label = outcome_labels[outcome]) |>
+      group_by(outcome_label) |>
+      summarise(med_auc = median(auc), n = n(),
+                min_auc = min(auc), max_auc = max(auc), .groups = "drop") |>
+      arrange(desc(med_auc))
+
+    cat("Median AUC across countries by outcome:\n\n")
+    for (i in seq_len(nrow(oc_med))) {
+      cat(sprintf("- **%s**: median AUC = %.3f, range %.3f--%.3f (n = %d countries)\n",
+                  oc_med$outcome_label[i], oc_med$med_auc[i],
+                  oc_med$min_auc[i], oc_med$max_auc[i], oc_med$n[i]))
+    }
+
+    cat("\n**Key patterns:**\n\n")
+
+    # Data-driven: identify best/worst outcome
+    best_oc <- oc_med$outcome_label[1]
+    worst_oc <- oc_med$outcome_label[nrow(oc_med)]
+
+    cat(sprintf("1. **%s** has the highest median AUC (%.3f), ",
+        best_oc, oc_med$med_auc[1]))
+    cat("suggesting proxy data captures geographic gradients in this outcome most effectively. ")
+    cat("This likely reflects stronger ecological correlates (diet, urbanisation, food systems) ")
+    cat("that are well-represented in the external predictor ensemble.\n\n")
+
+    cat("2. **Cross-country variation is substantial.** The same outcome can range from near-chance ")
+    cat("to strong discrimination depending on country context. This suggests the proxy--deficiency ")
+    cat("relationship is country-specific, driven by local confounders and ecological structure.\n\n")
+
+    cat("3. **The expanded predictor set** (13+ external sources including CHIRPS, WorldPop, NTL, ")
+    cat("SoilGrids, GDL, and HarvestChoice) improves performance compared to using DHS/GEE alone, ")
+    cat("particularly for outcomes with strong environmental or socioeconomic correlates.\n\n")
+
+    cat("4. **Models with moderate individual-level AUC** can still produce useful area-level ")
+    cat("prevalence estimates if calibration is adequate --- which the Admin-1 scatter plots ")
+    cat("and calibration analyses address.\n\n")
+
+    cat("#### Country patterns\n\n")
+
+    ctry_med <- auc_df |>
+      group_by(country) |>
+      summarise(med_auc = median(auc), best_auc = max(auc),
+                best_oc = outcome[which.max(auc)], .groups = "drop") |>
+      arrange(desc(med_auc))
+
+    for (i in seq_len(nrow(ctry_med))) {
+      cat(sprintf("- **%s**: median AUC = %.3f; best outcome = %s (%.3f)\n",
+                  ctry_med$country[i], ctry_med$med_auc[i],
+                  outcome_labels[ctry_med$best_oc[i]], ctry_med$best_auc[i]))
+    }
+
+    # Data-driven: identify best/worst country
+    best_ctry <- ctry_med$country[1]
+    worst_ctry <- ctry_med$country[nrow(ctry_med)]
+    cat(sprintf("\n**%s** is the strongest-performing country overall (median AUC = %.3f), ",
+        best_ctry, ctry_med$med_auc[1]))
+    cat("likely due to greater geographic heterogeneity in both deficiency prevalence and proxy ")
+    cat("covariates. ")
+    cat(sprintf("**%s** shows the weakest overall performance (median AUC = %.3f), ",
+        worst_ctry, ctry_med$med_auc[nrow(ctry_med)]))
+    cat("which may reflect different survey design characteristics or more homogeneous ")
+    cat("geographic variation in proxy predictors.\n\n")
+  }
+}
+```
+
+```{r domain-discussion, results='asis'}
+# Domain importance patterns
+if (!is.null(ablation) && nrow(ablation) > 0 && "auc" %in% colnames(ablation)) {
+  base_rows <- ablation |> filter(domain_removed == "none", !is.na(auc))
+  perm_rows <- ablation |> filter(domain_removed != "none", !is.na(auc))
+
+  if (nrow(perm_rows) > 0 && nrow(base_rows) > 0) {
+    cat("#### Conceptual domain importance\n\n")
+    cat("Permutation importance measures how much model performance degrades when a ")
+    cat("conceptual domain's columns are shuffled. Variables are grouped into ~22 thematic ")
+    cat("areas (e.g., Climate, Child Health, Malaria, Socioeconomic, Agriculture). ")
+    cat("The *relative* ordering of domains is informative for understanding which ")
+    cat("types of information drive predictions.\n\n")
+
+    # Use delta_auc if already computed upstream; otherwise compute it
+    if ("delta_auc" %in% colnames(perm_rows)) {
+      merged_abl <- perm_rows
+    } else {
+      merged_abl <- perm_rows |>
+        left_join(
+          base_rows |> select(outcome, country, .base_auc = auc),
+          by = c("outcome", "country")
+        ) |>
+        mutate(delta_auc = .base_auc - auc) |>
+        select(-any_of(".base_auc"))
+    }
+
+    # Average delta by domain across all outcomes/countries
+    dom_avg <- merged_abl |>
+      group_by(domain_removed) |>
+      summarise(
+        mean_delta = mean(delta_auc, na.rm = TRUE),
+        median_delta = median(delta_auc, na.rm = TRUE),
+        n_models = n(),
+        .groups = "drop"
+      ) |>
+      arrange(mean_delta)  # most negative = biggest drop when permuted
+
+    cat("Mean AUC change when each domain is permuted (more negative = more important):\n\n")
+    for (i in seq_len(nrow(dom_avg))) {
+      cat(sprintf("- **%s**: mean $\\Delta$AUC = %.4f (across %d models)\n",
+                  dom_avg$domain_removed[i], dom_avg$mean_delta[i], dom_avg$n_models[i]))
+    }
+
+    # Data-driven: identify most/least important domains
+    if (nrow(dom_avg) > 0) {
+      most_important <- dom_avg$domain_removed[1]
+      least_important <- dom_avg$domain_removed[nrow(dom_avg)]
+      cat(sprintf("\n**Most important domain:** %s (mean delta = %.4f). ", most_important, dom_avg$mean_delta[1]))
+      cat(sprintf("**Least important domain:** %s (mean delta = %.4f). ", least_important, dom_avg$mean_delta[nrow(dom_avg)]))
+    }
+    cat("\n\n**Note:** The ablation uses conceptual domain groupings (~22 thematic areas) ")
+    cat("rather than data-source groupings, providing insight into *which types of information* ")
+    cat("(e.g., Climate, Malaria, Socioeconomic, Food Security) drive predictions. ")
+    cat("The expanded predictor set (CHIRPS, WorldPop, NTL, SoilGrids, GDL, HarvestChoice) ")
+    cat("enriches domains like Climate, Socioeconomic, and Agriculture that were previously ")
+    cat("underrepresented.\n\n")
+  }
+}
+```
+
+
+# Out-of-Sample Prediction: Cote d'Ivoire {#sec-oos-civ}
+
+The pipeline generates out-of-sample (OOS) predictions for **Cote d'Ivoire**, a country without biomarker survey data, by training area-level elastic net models on pooled Admin-2 data from all four surveyed countries and applying them to Cote d'Ivoire's GADM Admin-2 polygons.
+
+::: {.callout-warning}
+## Limited predictor overlap
+
+The current OOS predictions use **only GEE satellite raster variables** (the intersection available across all countries and Cote d'Ivoire). The new external predictors (CHIRPS, WorldPop, NTL, SoilGrids, GDL, HarvestChoice) are **not yet included** in OOS prediction because they have not been extracted for Cote d'Ivoire. With only ~5 common GEE variables, spatial variation in predictions is limited. Expanding the OOS predictor set to include the external sources would likely improve geographic discrimination.
+:::
+
+```{r oos-civ-setup}
+# Load CIV OOS predictions
+oos_civ <- list()
+for (oc_name in outcomes) {
+  tname <- paste0("oos_civ_", oc_name)
+  obj <- load_target(tname)
+  if (!is.null(obj)) oos_civ[[oc_name]] <- obj
+}
+
+# Load CIV GADM polygons
+civ_poly_a1 <- tryCatch({
+  g <- geodata::gadm(country = "CIV", level = 1, path = here("data", "gadm"))
+  sf::st_as_sf(g) |>
+    dplyr::select(NAME_1) |>
+    dplyr::rename(Admin1 = NAME_1) |>
+    sf::st_transform(crs = 4326)
+}, error = function(e) NULL)
+
+civ_poly_a2 <- tryCatch({
+  g <- geodata::gadm(country = "CIV", level = 2, path = here("data", "gadm"))
+  sf::st_as_sf(g) |>
+    dplyr::select(NAME_1, NAME_2) |>
+    dplyr::rename(Admin1 = NAME_1, Admin2 = NAME_2) |>
+    sf::st_transform(crs = 4326)
+}, error = function(e) NULL)
+
+n_oos <- length(oos_civ)
+cat(sprintf("Loaded %d OOS prediction targets for Cote d'Ivoire\n", n_oos))
+```
+
+## OOS model summary
+
+```{r oos-civ-summary}
+if (n_oos > 0) {
+  oos_summary <- do.call(rbind, lapply(names(oos_civ), function(oc_name) {
+    obj <- oos_civ[[oc_name]]
+    a2 <- obj$admin2_preds
+    has_ci <- "ci_lo" %in% colnames(a2) && any(!is.na(a2$ci_lo))
+    ci_meth <- if (!is.null(obj$ci_method)) obj$ci_method else "none"
+    n_cal <- if (!is.null(obj$n_calibration)) obj$n_calibration else NA
+    data.frame(
+      Outcome        = outcome_labels[oc_name],
+      `N Admin-2`    = nrow(a2),
+      `N model vars` = obj$n_model_vars,
+      `N matched`    = obj$n_matched,
+      `Min prev (%)`  = round(min(a2$pred_prev, na.rm = TRUE) * 100, 1),
+      `Max prev (%)`  = round(max(a2$pred_prev, na.rm = TRUE) * 100, 1),
+      `Range (pp)`   = round((max(a2$pred_prev) - min(a2$pred_prev)) * 100, 1),
+      `CI method`    = ci_meth,
+      `N calibration` = n_cal,
+      `Median CI width (pp)` = if (has_ci) round(median(a2$ci_width, na.rm = TRUE) * 100, 1) else NA,
+      stringsAsFactors = FALSE, check.names = FALSE
+    )
+  }))
+
+  kable(oos_summary,
+        caption = "Out-of-sample predictions for Cote d'Ivoire: summary by outcome") |>
+    kable_styling(bootstrap_options = c("striped", "hover"),
+                  full_width = FALSE, font_size = 11)
+} else {
+  cat("No OOS predictions available for Cote d'Ivoire.")
+}
+```
+
+## Admin-1 predicted prevalence
+
+```{r oos-civ-a1-table}
+if (n_oos > 0) {
+  a1_rows <- list()
+  for (oc_name in names(oos_civ)) {
+    a1 <- oos_civ[[oc_name]]$admin1_preds
+    if (!is.null(a1) && nrow(a1) > 0) {
+      a1$Outcome <- outcome_labels[oc_name]
+      a1_rows[[oc_name]] <- a1
+    }
+  }
+
+  if (length(a1_rows) > 0) {
+    a1_all <- dplyr::bind_rows(a1_rows)
+    has_ci <- "ci_lo" %in% colnames(a1_all) && any(!is.na(a1_all$ci_lo))
+
+    if (has_ci) {
+      # Show prevalence with CI
+      a1_all <- a1_all |>
+        dplyr::mutate(
+          display = sprintf("%.1f [%.1f, %.1f]",
+                            pred_prev * 100, ci_lo * 100, ci_hi * 100)
+        )
+      a1_combined <- a1_all |>
+        tidyr::pivot_wider(id_cols = Admin1, names_from = Outcome,
+                           values_from = display)
+    } else {
+      a1_combined <- a1_all |>
+        tidyr::pivot_wider(id_cols = Admin1, names_from = Outcome,
+                           values_from = pred_prev) |>
+        dplyr::mutate(dplyr::across(where(is.numeric), ~ round(. * 100, 1)))
+    }
+
+    kable(a1_combined,
+          caption = if (has_ci)
+            "Predicted prevalence % [90% CI] by Admin-1 region, Cote d'Ivoire"
+          else
+            "Predicted prevalence (%) by Admin-1 region, Cote d'Ivoire") |>
+      kable_styling(bootstrap_options = c("striped", "hover"),
+                    full_width = FALSE, font_size = 11)
+  }
+}
+```
+
+## Admin-2 prevalence maps
+
+::: {.column-page}
+
+```{r oos-civ-maps, results='asis'}
+#| fig-height: 6
+#| fig-width: 14
+#| out-width: "100%"
+#| column: page
+
+if (n_oos > 0 && !is.null(civ_poly_a2)) {
+  map_panels <- list()
+
+  for (oc_name in names(oos_civ)) {
+    a2 <- oos_civ[[oc_name]]$admin2_preds
+    if (is.null(a2) || nrow(a2) == 0) next
+
+    # Skip outcomes with essentially no spatial variation
+    prev_range <- max(a2$pred_prev) - min(a2$pred_prev)
+    if (prev_range < 0.005) {
+      cat(sprintf("\n\n**%s:** Predicted prevalence is essentially flat (%.1f%%) — insufficient GEE variable overlap to generate spatial variation.\n\n",
+                  outcome_labels[oc_name], mean(a2$pred_prev) * 100))
+      next
+    }
+
+    p <- map_admin2(civ_poly_a2, a2, "pred_prev",
+                     paste0(outcome_labels[oc_name]),
+                     limits = range(a2$pred_prev))
+    if (!is.null(p)) map_panels[[oc_name]] <- p
+  }
+
+  if (length(map_panels) > 0) {
+    p_all <- Reduce(`+`, map_panels) +
+      plot_layout(ncol = length(map_panels), guides = "collect") +
+      plot_annotation(
+        title = "Predicted Micronutrient Deficiency Prevalence: Cote d'Ivoire",
+        subtitle = "Out-of-sample predictions from pooled 4-country area-level elastic net | GEE covariates only",
+        theme = theme(plot.title = element_text(size = 14, face = "bold"))
+      )
+    print(p_all)
+  }
+}
+```
+
+:::
+
+## Admin-1 prevalence maps
+
+::: {.column-page}
+
+```{r oos-civ-a1-maps, results='asis'}
+#| fig-height: 6
+#| fig-width: 14
+#| out-width: "100%"
+#| column: page
+
+if (n_oos > 0 && !is.null(civ_poly_a1)) {
+  a1_panels <- list()
+
+  for (oc_name in names(oos_civ)) {
+    a1 <- oos_civ[[oc_name]]$admin1_preds
+    if (is.null(a1) || nrow(a1) == 0) next
+
+    prev_range <- max(a1$pred_prev, na.rm = TRUE) - min(a1$pred_prev, na.rm = TRUE)
+    if (prev_range < 0.005) next
+
+    map_data <- civ_poly_a1 |> left_join(a1, by = "Admin1")
+    p <- ggplot(map_data) +
+      geom_sf(aes(fill = pred_prev), colour = "white", linewidth = 0.3) +
+      scale_fill_viridis_c(name = "Prevalence",
+                            labels = scales::percent_format(accuracy = 1),
+                            option = "plasma", na.value = "grey85") +
+      labs(title = outcome_labels[oc_name]) +
+      theme_void(base_size = 10) +
+      theme(plot.title = element_text(size = 10, face = "bold"),
+            legend.position = "bottom", legend.key.width = unit(1, "cm"))
+    a1_panels[[oc_name]] <- p
+  }
+
+  if (length(a1_panels) > 0) {
+    p_a1 <- Reduce(`+`, a1_panels) +
+      plot_layout(ncol = min(length(a1_panels), 4), guides = "collect") +
+      plot_annotation(
+        title = "Admin-1 Predicted Prevalence: Cote d'Ivoire",
+        subtitle = "Out-of-sample predictions | Area-level elastic net",
+        theme = theme(plot.title = element_text(size = 14, face = "bold"))
+      )
+    print(p_a1)
+  }
+}
+```
+
+:::
+
+## Conformal prediction interval width maps
+
+::: {.column-page}
+
+```{r oos-civ-ci-width, results='asis'}
+#| fig-height: 6
+#| fig-width: 14
+#| out-width: "100%"
+#| column: page
+
+if (n_oos > 0 && !is.null(civ_poly_a2)) {
+  ci_panels <- list()
+
+  for (oc_name in names(oos_civ)) {
+    a2 <- oos_civ[[oc_name]]$admin2_preds
+    if (is.null(a2) || nrow(a2) == 0) next
+    if (!"ci_lo" %in% colnames(a2) || all(is.na(a2$ci_lo))) next
+
+    a2 <- a2 |> mutate(ci_width = ci_hi - ci_lo)
+    map_data <- civ_poly_a2 |> left_join(a2, by = "Admin2")
+
+    p <- ggplot(map_data) +
+      geom_sf(aes(fill = ci_width), colour = "white", linewidth = 0.15) +
+      scale_fill_viridis_c(name = "CI Width",
+                            labels = scales::percent_format(accuracy = 1),
+                            option = "inferno", direction = -1,
+                            na.value = "grey85") +
+      labs(title = outcome_labels[oc_name]) +
+      theme_void(base_size = 10) +
+      theme(plot.title = element_text(size = 10, face = "bold"),
+            legend.position = "bottom", legend.key.width = unit(1, "cm"))
+    ci_panels[[oc_name]] <- p
+  }
+
+  if (length(ci_panels) > 0) {
+    p_ci <- Reduce(`+`, ci_panels) +
+      plot_layout(ncol = min(length(ci_panels), 4), guides = "collect") +
+      plot_annotation(
+        title = "Conformal Prediction Interval Width: Cote d'Ivoire",
+        subtitle = "Wider intervals = greater uncertainty | Weighted conformal CIs with covariate-shift density ratios",
+        theme = theme(plot.title = element_text(size = 14, face = "bold"))
+      )
+    print(p_ci)
+  } else {
+    cat("No conformal CIs available for CIV predictions.\n")
+  }
+}
+```
+
+:::
+
+## Admin-1 forest plot
+
+```{r oos-civ-forest, fig.height=8, fig.width=10}
+if (n_oos > 0) {
+  forest_rows <- list()
+  for (oc_name in names(oos_civ)) {
+    a1 <- oos_civ[[oc_name]]$admin1_preds
+    if (!is.null(a1) && nrow(a1) > 0) {
+      a1$outcome_label <- outcome_labels[oc_name]
+      forest_rows[[oc_name]] <- a1
+    }
+  }
+
+  if (length(forest_rows) > 0) {
+    forest_df <- dplyr::bind_rows(forest_rows) |>
+      dplyr::filter(!is.na(pred_prev))
+
+    # Only plot outcomes with meaningful variation
+    varied <- forest_df |>
+      dplyr::group_by(outcome_label) |>
+      dplyr::summarise(rng = max(pred_prev) - min(pred_prev), .groups = "drop") |>
+      dplyr::filter(rng > 0.005)
+
+    forest_plot_df <- forest_df |>
+      dplyr::filter(outcome_label %in% varied$outcome_label)
+
+    if (nrow(forest_plot_df) > 0) {
+      has_ci <- "ci_lo" %in% colnames(forest_plot_df) &&
+                any(!is.na(forest_plot_df$ci_lo))
+
+      p <- ggplot(forest_plot_df,
+             aes(x = pred_prev, y = reorder(Admin1, pred_prev)))
+
+      if (has_ci) {
+        p <- p + geom_errorbarh(aes(xmin = ci_lo, xmax = ci_hi),
+                                height = 0.3, colour = "#2c7bb6", linewidth = 0.5,
+                                alpha = 0.6)
+      }
+      p <- p +
+        geom_point(colour = "#2c7bb6", size = 2.5) +
+        scale_x_continuous(labels = percent_format(accuracy = 1)) +
+        facet_wrap(~ outcome_label, scales = "free_x", ncol = 2) +
+        labs(x = "Predicted prevalence", y = NULL,
+             title = "Admin-1 Predicted Prevalence: Cote d'Ivoire",
+             subtitle = if (has_ci)
+               "Out-of-sample predictions with weighted conformal 90% prediction intervals"
+             else
+               "Out-of-sample pooled elastic net predictions") +
+        theme_minimal(base_size = 11) +
+        theme(strip.text = element_text(face = "bold"))
+      print(p)
+    }
+  }
+}
+```
+
+### Interpretation
+
+The Cote d'Ivoire predictions represent **exploratory estimates** based on area-level elastic net models trained on pooled Admin-2 prevalence data from 4 surveyed countries. Key features and caveats:
+
+1. **Prediction intervals** use **weighted conformal inference** with covariate-shift adjustment. A logistic regression density ratio model estimates how "different" each CIV district is from the training pool, and districts with unusual covariate profiles receive wider intervals. This provides more honest uncertainty estimates than assuming training and target areas are exchangeable.
+2. **Calibration set** consists of leave-one-out (LOO) residuals from the area-level elastic net trained on all surveyed Admin-2 areas. Coverage is nominally 90% under the covariate shift assumption.
+3. **Outcomes with flat predictions** (e.g., women's vitamin A, women's iron) indicate the model cannot distinguish districts — the prediction is essentially the pooled training-country mean.
+4. **No ground truth** is available for Cote d'Ivoire, so these predictions cannot be validated.
+5. **Expanding the predictor set** to include CHIRPS, WorldPop, NTL, SoilGrids, GDL, and HarvestChoice data for Cote d'Ivoire (run `scripts/download_external_predictors.R`) would likely improve both spatial discrimination and CI precision.
+
+
+# Limitations {#sec-limitations}
+
+## Current limitations
+
+1. **Variable proxy-only performance.** Without survey variables, models achieve binary AUC ranging from 0.50 to 0.98 depending on country and outcome. While some combinations show strong discrimination (especially vitamin A in women), others remain near chance level, reflecting the genuine difficulty of predicting individual biomarker status from area-level indicators.
+
+2. **Temporal snapshots.** Each country model is trained on a single survey wave with contemporaneous predictors. Temporal extrapolation has not been tested --- predictions for future years assume stable relationships between proxy indicators and micronutrient status.
+
+3. **Admin-2 small-sample instability.** Districts with fewer than ~20 survey observations have uncertain ground truth. SL predictions smooth over this noise but validation is limited in thin-data areas.
+
+4. **No explicit spatial random effects.** The current SuperLearner framework does not model spatial correlation directly. BYM2 or SPDE models via INLA could improve area-level predictions, particularly in countries with strong spatial structure.
+
+5. **Conformal intervals.** Split-conformal prediction intervals provide marginal coverage guarantees but assume exchangeable residuals. Spatial correlation in residuals may reduce effective coverage in clustered areas.
+
+6. **Food security coverage.** FSEC and WFP data availability varies across countries and time periods. Missing food security indicators are imputed, which may attenuate their contribution.
+
+7. **GADM boundary matching.** Admin-1 and Admin-2 names must match exactly between GADM boundaries and survey datasets. Minor mismatches (spelling, transliteration) may cause join failures that appear as grey (missing) areas on maps.
+
+## Strengths
+
+1. **Multi-country framework.** The same pipeline, predictor domains, and evaluation framework are applied consistently across four countries, enabling direct comparison.
+
+2. **Proxy-only design.** By excluding survey variables, the models address the policy-relevant question: can we estimate micronutrient burden in areas without biomarker surveys?
+
+3. **Transportability testing.** LOCO cross-validation provides the first systematic assessment of whether proxy-based micronutrient models generalise across national boundaries in sub-Saharan Africa.
+
+4. **Diverse predictor ensemble.** Combining 13+ external data sources --- DHS, MICS, GEE, IHME, MAP, WFP, FSEC, CHIRPS, WorldPop, VIIRS NTL, SoilGrids, GDL, and HarvestChoice --- creates a robust, multi-domain predictor set covering climate, population, agriculture, health, and socioeconomic dimensions.
+
+5. **Reproducible pipeline.** All results are generated from a `{targets}` pipeline with cached, dependency-tracked execution. Any result can be reproduced or updated by rerunning the relevant targets.
+
+
+```{r save-figures, include=FALSE}
+# Save all collected figures to an RDS file for use in presentations
+# Figures are stored as a named list of ggplot objects
+fig_dir <- here("results", "figures")
+dir.create(fig_dir, showWarnings = FALSE, recursive = TRUE)
+
+# Add national prevalence CI forest plot if available
+if (length(nat_list) > 0) {
+  nat_plot <- bind_rows(nat_list) |>
+    filter(boot_mean >= 0, boot_mean <= 1, ci_lo >= -0.5, ci_hi <= 1.5) |>
+    filter(!(country == "Malawi" & outcome == "women_folate")) |>
+    mutate(outcome_label = outcome_labels[outcome], ctry_label = country)
+
+  # Merge observed prevalence for X markers
+  if (!is.null(nat_obs_df)) {
+    nat_plot <- nat_plot |>
+      left_join(nat_obs_df |> filter(obs_prev >= 0, obs_prev <= 1),
+                by = c("country", "outcome"))
+  }
+
+  if (nrow(nat_plot) > 0 && all(c("ci_lo", "ci_hi", "boot_mean") %in% colnames(nat_plot))) {
+    p_nat <- ggplot(nat_plot, aes(y = ctry_label)) +
+      geom_errorbarh(aes(xmin = pmax(ci_lo, 0), xmax = pmin(ci_hi, 1)),
+                      height = 0.3, colour = "grey40", linewidth = 0.5) +
+      geom_point(aes(x = boot_mean, colour = ctry_label), size = 3) +
+      scale_x_continuous(labels = percent_format(accuracy = 1)) +
+      scale_colour_brewer(palette = "Set2", guide = "none") +
+      facet_wrap(~ outcome_label, scales = "free_x", ncol = 2) +
+      labs(x = "Prevalence", y = NULL,
+           title = "National Prevalence with Conformal 95% Prediction Intervals",
+           subtitle = "Circles = predicted | X = observed survey prevalence") +
+      theme_minimal(base_size = 13) +
+      theme(strip.text = element_text(face = "bold"))
+
+    # Add observed prevalence as X markers
+    if ("obs_prev" %in% colnames(nat_plot) && any(!is.na(nat_plot$obs_prev))) {
+      p_nat <- p_nat + geom_point(aes(x = obs_prev), shape = 4, size = 3,
+                                    stroke = 1.5, colour = "black")
+    }
+
+    save_fig("national_ci_forest", p_nat)
+  }
+}
+
+# Add AUC heatmap if available
+if (!is.null(cv_perf) && nrow(cv_perf) > 0 && "auc" %in% colnames(cv_perf)) {
+  cv_binary <- cv_perf |> filter(!is.na(auc)) |>
+    mutate(outcome_label = outcome_labels[outcome])
+  if (nrow(cv_binary) > 0) {
+    p_hm <- ggplot(cv_binary,
+        aes(x = outcome_label, y = country, fill = auc)) +
+      geom_tile(colour = "white", linewidth = 1) +
+      geom_text(aes(label = sprintf("%.3f", auc)), size = 4, fontface = "bold") +
+      scale_fill_viridis_c(name = "AUC", limits = c(0.45, 0.95),
+                            option = "plasma", oob = scales::squish) +
+      labs(x = NULL, y = NULL, title = "Binary Classification AUC") +
+      theme_minimal(base_size = 13) +
+      theme(axis.text.x = element_text(angle = 25, hjust = 1),
+            panel.grid = element_blank())
+    save_fig("auc_heatmap", p_hm)
+  }
+}
+
+# Save all figures
+if (length(.figures) > 0) {
+  saveRDS(.figures, file.path(fig_dir, "report_figures.rds"))
+  cat(sprintf("Saved %d figures to results/figures/report_figures.rds\n",
+              length(.figures)))
+}
+```

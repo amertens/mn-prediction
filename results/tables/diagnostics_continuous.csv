@@ -1,0 +1,24 @@
+n,rmse,mae,r2,r,prev_obs,prev_pred,prev_bias,model_type,country,outcome
+1020,0.2323,0.1791,0.0809,0.2923,0.7392,1,0.2608,continuous,Gambia,child_vitA
+1413,0.4651,0.3064,0.1054,0.3259,0.9703,1,0.0297,continuous,Gambia,women_vitA
+1013,0.804,0.6508,0.0762,0.2802,0.3771,0.1718,-0.2053,continuous,Gambia,child_iron
+1402,0.8815,0.7236,0.0895,0.3014,0.5485,0.6127,0.0642,continuous,Gambia,women_iron
+1165,0.2805,0.2096,0.1289,0.3634,0.794,0.9914,0.1974,continuous,Ghana,child_vitA
+992,0.5468,0.4079,0.1525,0.3968,0.9869,1,0.0131,continuous,Ghana,women_vitA
+1159,0.8237,0.6688,0.2671,0.5183,0.8119,0.9638,0.1519,continuous,Ghana,child_iron
+981,0.7587,0.6112,0.1537,0.3972,0.8705,1,0.1295,continuous,Ghana,women_iron
+475,8.3559,6.2781,0.2003,0.4626,0.4526,0.7495,0.2969,continuous,Ghana,women_folate
+473,216.9594,169.8828,0.2312,0.4922,0.9175,1,0.0825,continuous,Ghana,women_b12
+486,0.3543,0.2542,0.0328,0.191,0.8169,1,0.1831,continuous,Sierra Leone,child_vitA
+774,0.4795,0.3521,0.1124,0.343,0.9767,1,0.0233,continuous,Sierra Leone,women_vitA
+486,41.5281,33.0731,0.113,0.3467,0.9424,1,0.0576,continuous,Sierra Leone,child_iron
+766,4.6979,2.4918,0.1378,0.3742,0.2063,0.0875,-0.1188,continuous,Sierra Leone,women_folate
+768,239.3081,181.3744,0.1703,0.4173,0.9961,1,0.0039,continuous,Sierra Leone,women_b12
+1102,0.2716,0.2154,0.0561,0.2612,0.7613,1,0.2387,continuous,Malawi,child_vitA
+807,0.4233,0.3254,0.0916,0.3144,0.9789,1,0.0211,continuous,Malawi,women_vitA
+1102,20.9693,16.0277,0.138,0.3797,0.7985,1,0.2015,continuous,Malawi,child_iron
+752,38.1547,22.6219,0,NA,0.8258,1,0.1742,continuous,Malawi,women_iron
+799,26.7304,19.0269,0.3807,0.622,1,1,0,continuous,Malawi,women_folate
+809,239.0908,163.9003,0.5285,0.7308,0.9716,1,0.0284,continuous,Malawi,women_b12
+1087,21.0276,12.1701,0.1685,0.4125,0.3275,0.2824,-0.0451,continuous,Malawi,child_zinc
+814,18.092,11.0517,0.2668,0.5187,0.2555,0.2912,0.0357,continuous,Malawi,women_zinc

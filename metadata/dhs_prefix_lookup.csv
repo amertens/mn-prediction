@@ -1,0 +1,311 @@
+prefix,level1,level2
+AH_ALCO,Adult Health,Alcohol consumption
+AH_BTHP,Adult Health,Place of birth
+AH_CIGA,Adult Health,Number of cigarettes last 24 hours
+AH_HINS,Adult Health,Health insurance coverage
+AH_MIGR,Adult Health,Migration reason
+AH_MIGT,Adult Health,Type of migration
+AH_RMIG,Adult Health,Recent migration
+AH_TOBA,Adult Health,Use of any tobacco
+AH_TOBC,Adult Health,Use of tobacco
+AH_TOBU,Adult Health,Use of tobacco products
+AN_ANEM,Adult Nutrition,Prevalence of anemia
+AN_MIAM,Adult Nutrition,Micronutrient intake among mothers
+AN_NUTS,Adult Nutrition,Nutritional status
+CH_ARIS,Child Health,Prevalence and treatment of symptoms of ARI
+CH_ARSA,Child Health,Source of advice or treatment among children with symptoms of ARI for whom advice or treatment was sought
+CH_ARSS,Child Health,Source of advice or treatment among children with symptoms of ARI
+CH_DIAR,Child Health,Prevalence of diarrhea
+CH_DIAT,Child Health,Treatment of diarrhea
+CH_DIFP,Child Health,Feeding practices during diarrhea
+CH_DISA,Child Health,Source of advice or treatment among children with diarrhea for whom advice or treatment was sought
+CH_DISO,Child Health,Source of advice or treatment among children with diarrhea who received ORS
+CH_DISS,Child Health,Source of advice or treatment among children with diarrhea
+CH_DSTL,Child Health,Disposal of children's stools
+CH_FEVR,Child Health,Prevalence of fever
+CH_FEVT,Child Health,Treatment of fever
+CH_KORS,Child Health,Knowledge of ORS packets or pre-packaged liquids
+CH_SZWT,Child Health,Child's size and weight at birth
+CH_VAC1,Child Health,Vaccinations within the first year of life
+CH_VACC,Child Health,Vaccinations
+CH_VACP,Child Health,Possession and observation of vaccination cards
+CH_VACS,Child Health,Vaccinations by source of information
+CM_ECMR,Infant and Child Mortality,Early childhood mortality rates
+CM_ECMT,Infant and Child Mortality,Early childhood mortality rates (5 year)
+CM_HRFB,Infant and Child Mortality,High-risk fertility behaviour: births
+CM_HRFR,Infant and Child Mortality,High-risk fertility behaviour: risk ratio
+CM_HRFW,Infant and Child Mortality,High-risk fertility behaviour: women
+CM_PNMR,Infant and Child Mortality,Perinatal mortality
+CN_ANMC,Child Nutrition,Prevalence of anemia in children
+CN_BFDR,Child Nutrition,Duration of breastfeeding
+CN_BFSS,Child Nutrition,Breastfeeding status by age
+CN_BRFI,Child Nutrition,Initial breastfeeding
+CN_BRFS,Child Nutrition,Breastfeeding status
+CN_EFUF,Child Nutrition,Egg and/or flesh food consumption and unhealthy feeding practices
+CN_FDBF,Child Nutrition,Foods and liquids consumed by breastfeeding children
+CN_FDNB,Child Nutrition,Foods and liquids consumed by non-breastfeeding children
+CN_GWMT,Child Nutrition,Child growth monitoring
+CN_IFPS,Child Nutrition,Infant feeding practices by age
+CN_IODZ,Child Nutrition,Presence of iodized salt in household
+CN_IYCB,Child Nutrition,Infant and young child breastfeeding
+CN_IYCC,Child Nutrition,Infant and young child feeding counseling
+CN_IYCF,Child Nutrition,Infant and young child feeding practices
+CN_LQBF,Child Nutrition,Liquids consumed by breastfeeding children
+CN_LQNB,Child Nutrition,Liquids consumed by non-breastfeeding children
+CN_MIAC,Child Nutrition,Micronutrient intake among children
+CN_NUTS,Child Nutrition,Nutritional status of children
+CN_THSF,Child Nutrition,Therapeutic and supplemental foods
+CO_INUS,Communication,Internet usage
+CO_MOBB,Communication,Mobile phone and banking
+CP_BREG,Child Protection,Birth registration
+CP_CDIS,Child Protection,Child discipline
+CP_CLAB,Child Protection,Child labor of children age 5-14
+CP_CLBC,Child Protection,Child labor of children age 5-11
+CP_CLBS,Child Protection,Child labor and school attendance
+CP_CLBY,Child Protection,Child labor of children age 12-14
+DV_AFSV,Domestic Violence,Age at first experience of sexual violence
+DV_ESVO,Domestic Violence,Experience of sexual violence by any non-intimate partner
+DV_EXPV,Domestic Violence,Experience of physical violence
+DV_EXSV,Domestic Violence,Experience of sexual violence
+DV_FMVL,Domestic Violence,Experience of different forms of violence
+DV_FSVL,Domestic Violence,Forms of spousal violence
+DV_INJR,Domestic Violence,Injuries to women due to spousal violence
+DV_MCTL,Domestic Violence,Marital control exercised by husbands
+DV_PCPV,Domestic Violence,First person committing sexual violence
+DV_PCSV,Domestic Violence,Persons committing sexual violence
+DV_PPSV,Domestic Violence,Persons committing sexual violence
+DV_SPV1,Domestic Violence,Spousal violence in last 12 months
+DV_SPVL,Domestic Violence,Spousal violence
+DV_SPVM,Domestic Violence,Spousal violence by marriage duration
+DV_STPS,Domestic Violence,Sources for help to stop the violence
+DV_STPV,Domestic Violence,Help seeking to stop violence
+DV_VIOW,Domestic Violence,Violence by women against their spouse
+DV_VPRG,Domestic Violence,Experience of violence during pregnancy
+ED_EDAT,Education,Educational attainment of the household population
+ED_EDUC,Education,Highest level of schooling
+ED_EEDP,Education,Early childhood education participation
+ED_GARP,Education,Gross attendance ratio - primary
+ED_GARS,Education,Gross attendance ratio - secondary
+ED_LITR,Education,Literacy
+ED_LITY,Education,Literacy - Youth
+ED_MDIA,Education,Exposure to mass media
+ED_NARP,Education,Net attendance ratio - primary
+ED_NARS,Education,Net attendance ratio - secondary
+ED_SCHA,Education,School attendance by survivorship of parents
+EM_EMPL,Employment,Employment status
+EM_EMPM,Employment,Employment of married persons
+EM_EMPT,Employment,Type of employment
+EM_ERNM,Employment,Earnings of married persons
+EM_MERN,Employment,Control over husband's cash earnings
+EM_OCCP,Employment,Occupation
+EM_RERN,Employment,Relative magnitude of women's cash earnings
+EM_WERN,Employment,Control over women's cash earnings
+FE_AAFB,Fertility,Median age at first birth
+FE_ABRT,Fertility,Induced abortion rates
+FE_BBAG,Fertility,First birth by exact age
+FE_BBAY,Fertility,First birth by exact age (women age 20-24)
+FE_BINT,Fertility,Birth intervals
+FE_BORD,Fertility,Birth order
+FE_CEBA,Fertility,Children ever born to all women
+FE_CEBM,Fertility,Children ever born to currently married women
+FE_FRTR,Fertility,Fertility rates
+FE_FRTT,Fertility,Fertility trends
+FE_FRTY,Fertility,Fertility
+FE_MENA,Fertility,First menstruation
+FE_MENO,Fertility,Menopause
+FE_PPID,Fertility,Postpartum insusceptibility duration
+FE_PPIS,Fertility,Postpartum insusceptibility
+FE_PRGO,Fertility,Pregnancy outcome
+FE_TNBH,Fertility,Teen sexual health behaviors before age 15
+FE_TNPG,Fertility,Teenage pregnancy
+FG_ACCG,Female Genital Cutting,Age at circumcision of girls 0-14
+FG_AFCC,Female Genital Cutting,Age at circumcision
+FG_INFB,Female Genital Cutting,Infibulation among circumcised girls
+FG_KFCC,Female Genital Cutting,Knowledge of female circumcision
+FG_OFCC,Female Genital Cutting,Opinions about whether the practice of circumcision should continue
+FG_OFCR,Female Genital Cutting,Opinions about whether circumcision is required by religion
+FG_PFCC,Female Genital Cutting,Prevalence of female circumcision
+FG_PFCG,Female Genital Cutting,Prevalence of circumcision of girls
+FG_PFCT,Female Genital Cutting,Type of female circumcision
+FG_PPCG,Female Genital Cutting,Person who performed the circumcision of girls
+FG_PPCW,Female Genital Cutting,Person who performed the circumcision of women
+FI_CSFI,Fistula,Fistula treatment
+FI_DAFI,Fistula,Days after reported fistula cause that symptoms began
+FI_EXFI,Fistula,Experience of fistula symptoms
+FI_NCFI,Fistula,Reasons for not seeking treatment for fistula
+FI_OCFI,Fistula,Fistula treatment outcome
+FI_PVFT,Fistula,Fistula treatment provider
+FI_RCFI,Fistula,Reported causes of fistula symptoms
+FP_ASTR,Family Planning,Age at time of sterilization
+FP_CUSA,Family Planning,Current use of contraception by all women
+FP_CUSM,Family Planning,Current use of contraception by currently married women
+FP_CUSU,Family Planning,Current use of contraception by sexually active unmarried women
+FP_CUSY,Family Planning,Current use of contraception by young women
+FP_DISR,Family Planning,Twelve-month contraceptive discontinuation rates
+FP_DMKF,Family Planning,Decisionmaking about family planning
+FP_DMKP,Family Planning,Decisionmaking about family planning
+FP_ECUS,Family Planning,Emergency contraception use
+FP_EFPM,Family Planning,Exposure to family planning messages
+FP_EVUA,Family Planning,Ever use of contraceptive methods by all respondents
+FP_EVUM,Family Planning,Ever use of contraceptive methods by currently married respondents
+FP_EVUU,Family Planning,Ever use of contraceptive methods by sexually active unmarried respondents
+FP_FUTU,Family Planning,Future use of contraception
+FP_ICHC,Family Planning,Informed choice
+FP_KFPC,Family Planning,Correct knowledge of fertile period
+FP_KFTP,Family Planning,Knowledge of fertile period
+FP_KMET,Family Planning,Knowledge of contraceptive methods
+FP_KMTA,Family Planning,Knowledge of contraceptive methods by all respondents
+FP_KMTM,Family Planning,Knowledge of contraceptive methods by currently married respondents
+FP_KMTU,Family Planning,Knowledge of contraceptive methods by sexually active unmarried respondents
+FP_NADA,Family Planning,Need and demand for family planning for all women
+FP_NADM,Family Planning,Need and demand for family planning for currently married women
+FP_NADU,Family Planning,Need and demand for family planning for sexually active unmarried women
+FP_NDYA,Family Planning,Need and demand for family planning for all young women age 15-24
+FP_NDYM,Family Planning,Need and demand for family planning for currently married young women age 15-24
+FP_NDYU,Family Planning,Need and demand for family planning for sexually active unmarried women age 15-24
+FP_NFPP,Family Planning,Contact of nonusers with family planning providers
+FP_PRGP,Family Planning,Pressure to become pregnant
+FP_RDIS,Family Planning,Reasons for discontinuation
+FP_RNIU,Family Planning,Reason for not intending to use contraception
+FP_SOCM,Family Planning,Use of social marketing brand pills and condoms
+FP_SPUS,Family Planning,Sayana Press use
+FP_SRCM,Family Planning,Source of modern contraception methods
+HA_AATT,HIV/AIDS,Accepting attitudes toward those living with HIV/AIDS
+HA_AFSY,HIV/AIDS,Age at first sexual intercourse among young people
+HA_AMXY,HIV/AIDS,Age-mixing in sexual relationships among young people
+HA_ANSS,HIV/AIDS,Attitudes toward negotiating safer sexual relations with husband
+HA_ASEC,HIV/AIDS,Adult support of education about condom use to prevent AIDS
+HA_CATH,HIV/AIDS,Pregnant women counseled and tested for HIV
+HA_CHVT,HIV/AIDS,Coverage of survey HIV testing
+HA_CKNA,HIV/AIDS,Comprehensive knowledge about AIDS
+HA_CKNY,HIV/AIDS,Comprehensive knowledge about AIDS and of a source of condoms among young people
+HA_CONC,HIV/AIDS,Point prevalence and cumulative prevalence of concurrent sexual partners
+HA_CPHT,HIV/AIDS,Coverage of prior HIV testing
+HA_DATT,HIV/AIDS,Discriminatory attitudes toward those living with HIV/AIDS
+HA_HIVP,HIV/AIDS,HIV prevalence
+HA_HIVY,HIV/AIDS,HIV prevalence among young people
+HA_HPAC,HIV/AIDS,HIV prevalence among couples
+HA_HPMC,HIV/AIDS,HIV prevalence by male circumcision
+HA_HRSX,HIV/AIDS,Higher risk sex
+HA_HVST,HIV/AIDS,Knowledge and coverage of self-testing for HIV
+HA_HVTY,HIV/AIDS,Recent HIV tests among young people
+HA_KAID,HIV/AIDS,Knowledge of AIDS
+HA_KHVP,HIV/AIDS,Knowledge of HIV prevention methods
+HA_KMTC,HIV/AIDS,Knowledge of prevention of mother-to-child transmission of HIV
+HA_MCRC,HIV/AIDS,Male circumcision
+HA_MINJ,HIV/AIDS,Prevalence of medical injections
+HA_MSPY,HIV/AIDS,Multiple sexual partners in the past 12 months among young people
+HA_MSXP,HIV/AIDS,Multiple sexual partners
+HA_PHVT,HIV/AIDS,Prior HIV testing by current HIV status
+HA_PSXY,HIV/AIDS,Premarital sexual intercourse and condom use during premarital sexual intercourse among young people
+HA_PYSX,HIV/AIDS,Payment for sexual intercourse and condom use at last paid sexual intercourse
+HA_STIS,HIV/AIDS,Self-reported prevalence of STIs and symptoms
+HA_STSC,HIV/AIDS,Source of advice or treatment for STIs
+HC_AGEG,Household Characteristics,Age of population
+HC_AGON,Household Characteristics,Agricultural ownership
+HC_CHAR,Household Characteristics,Household characteristics
+HC_CKFL,Household Characteristics,Cooking fuel
+HC_CKPL,Household Characteristics,Place for cooking
+HC_CKTC,Household Characteristics,Cooking technology
+HC_CLFT,Household Characteristics,Clean fuels and technologies
+HC_ELEC,Household Characteristics,Electricity
+HC_FLRM,Household Characteristics,Flooring material
+HC_HEFF,Household Characteristics,Household effects
+HC_HHHD,Household Characteristics,Household headship
+HC_HTFL,Household Characteristics,Heating fuel
+HC_HTTC,Household Characteristics,Heating technology
+HC_LTFL,Household Characteristics,Lighting fuel or technology
+HC_LVAR,Household Characteristics,Children's living arrangements and orphanhood
+HC_LVAY,Household Characteristics,Children 10-14 living arrangements and orphanhood
+HC_MEMB,Household Characteristics,Number of usual members
+HC_OLDR,Household Characteristics,Older age persons
+HC_ORPH,Household Characteristics,Households with orphans and foster children
+HC_PPRM,Household Characteristics,Persons per sleeping room
+HC_RMSL,Household Characteristics,Rooms used for sleeping
+HC_SMKH,Household Characteristics,Frequency of smoking in the home
+HC_TRNS,Household Characteristics,Household means of transport
+HC_WIXQ,Household Characteristics,Wealth quintiles
+HC_YTHC,Household Characteristics,Youth Characteristics
+MA_AAFM,Marriage,Median age at first marriage
+MA_ADIF,Marriage,Age difference between partners (women 15-24)
+MA_CWIV,Marriage,Number of women's co-wives
+MA_MBAG,Marriage,First married by exact age
+MA_MBAY,Marriage,First married by exact age (age 20-24)
+MA_MREG,Marriage,Marriage registration
+MA_MSTA,Marriage,Current marital status
+MA_MSTY,Marriage,Current marital status - Youth
+MA_WIVE,Marriage,Number of men's wives
+ML_AMLD,Malaria,Type of antimalarial drugs used
+ML_CMLT,Malaria,Coverage of testing for anemia and malaria in children
+ML_FEVA,Malaria,Source of advice or treatment for children with fever for whom advice or treatment was sought
+ML_FEVR,Malaria,Prevalence of children with fever
+ML_FEVS,Malaria,Source of advice or treatment for children with fever
+ML_FEVT,Malaria,Diagnosis and treatment of children with fever
+ML_HEMO,Malaria,Hemoglobin <8.0 g/dl in children
+ML_IPTP,Malaria,Use of IPTp by women during pregnancy
+ML_IRSM,Malaria,Indoor residual spraying against mosquitoes
+ML_ITNA,Malaria,Access to an insecticide-treated net
+ML_ITNU,Malaria,Use of existing ITNs
+ML_NETC,Malaria,Use of mosquito nets by children
+ML_NETP,Malaria,Household possession of mosquito nets
+ML_NETU,Malaria,Use of mosquito nets by persons in the household
+ML_NETW,Malaria,Use of mosquito nets by pregnant women
+ML_NSRC,Malaria,Source of mosquito nets
+ML_PMAL,Malaria,Prevalence of malaria in children
+MM_AMPB,Adult and Maternal Mortality,Adult mortality probabilities
+MM_AMRT,Adult and Maternal Mortality,Adult mortality rates
+MM_MMRO,Adult and Maternal Mortality,Maternal mortality ratio
+MM_MMRT,Adult and Maternal Mortality,Maternal mortality rate
+PR_DESC,Fertility Preferences,Desire for children
+PR_DESL,Fertility Preferences,Desire to limit childbearing
+PR_IDLC,Fertility Preferences,Ideal number of children
+PR_MIDL,Fertility Preferences,Mean ideal number of children
+PR_PLSA,Fertility Preferences,Fertility planning status (all pregnancy outcomes)
+PR_PLST,Fertility Preferences,Fertility planning status
+PR_WTFR,Fertility Preferences,Wanted fertility rates
+RH_ANCC,Reproductive Health,Components of antenatal care
+RH_ANCN,Reproductive Health,Number of antenatal care visits
+RH_ANCP,Reproductive Health,Antenatal care
+RH_ANCS,Reproductive Health,Antenatal care services (of those receiving ANC)
+RH_ANCT,Reproductive Health,Timing of antenatal care visits
+RH_CPCN,Reproductive Health,Content of postnatal care for newborns
+RH_DELA,Reproductive Health,Assistance during delivery
+RH_DELP,Reproductive Health,Place of delivery
+RH_DURH,Reproductive Health,Duration of stay in health facility
+RH_PAHC,Reproductive Health,Problems in accessing health care
+RH_PCCP,Reproductive Health,Type of provider of first postnatal checkup for the newborn
+RH_PCCT,Reproductive Health,Timing of first postnatal checkup for the newborn
+RH_PCMP,Reproductive Health,Type of provider of first postnatal checkup for the mother
+RH_PCMT,Reproductive Health,Timing of first postnatal checkup for the mother
+RH_TTIJ,Reproductive Health,Tetanus toxoid injections
+SV_BACK,Survey Characteristics,Background characteristics
+SV_HRES,Survey Characteristics,Results of the household interviews
+SV_HRSM,Survey Characteristics,Results of the household interviews for men's subsample
+SV_INTV,Survey Characteristics,Interview date and duration
+SV_RESI,Survey Characteristics,Results of the individual interviews
+SX_AAFS,Sexual Activity,Median age at first sexual intercourse
+SX_LSEX,Sexual Activity,Timing of last sexual intercourse
+SX_SACY,Sexual Activity,Sexual activity among 15-19 year olds
+SX_SBAG,Sexual Activity,First sexual intercourse by exact age
+SX_SBAY,Sexual Activity,First sexual intercourse by exact age (age 20-24)
+WE_AWBT,Women's Empowerment,Attitude toward wife beating
+WE_DMAK,Women's Empowerment,Participation in decision making
+WE_DMKH,Women's Empowerment,Participation in decision making: Own health care
+WE_DMKP,Women's Empowerment,Participation in decision making: Major household purchases
+WE_DMKV,Women's Empowerment,Participation in decision making: Visits to her family or relatives
+WE_IDMH,Women's Empowerment,Informed decision making for reproductive health
+WE_JRSX,Women's Empowerment,Justified in refusing sex
+WE_OWNA,Women's Empowerment,Ownership of assets
+WE_WEMP,Women's Empowerment,Indicators of women's empowerment
+WS_ASDW,Water and Sanitation,Availability of sufficient drinking water
+WS_ERWA,Water and Sanitation,Emptying and removal of waste
+WS_HNDW,Water and Sanitation,Handwashing
+WS_MHEX,Water and Sanitation,Management of household excreta
+WS_MHYG,Water and Sanitation,Menstrual hygiene
+WS_PCDW,Water and Sanitation,Person collecting drinking water
+WS_SRCE,Water and Sanitation,Source of drinking water
+WS_TIME,Water and Sanitation,Time to obtain drinking water (round trip)
+WS_TLET,Water and Sanitation,Household sanitation facilities
+WS_TLOC,Water and Sanitation,Location of toilet facilities
+WS_WAVL,Water and Sanitation,Availability of water
+WS_WTRT,Water and Sanitation,Water treatment prior to drinking

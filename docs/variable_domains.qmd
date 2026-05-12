@@ -1,0 +1,421 @@
+---
+title: "Predictor Variable Conceptual Domains"
+subtitle: "Classification of ~900--1,100 proxy predictors into thematic categories"
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    code-fold: true
+    theme: flatly
+    self-contained: true
+execute:
+  warning: false
+  message: false
+---
+
+```{r setup}
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+library(knitr)
+library(kableExtra)
+library(targets)
+library(here)
+
+# ── Results source toggle ──────────────────────────────────────────────────
+# Switch between fast and full results:
+# TARGETS_STORE <- here("_targets")        # fast-mode results
+TARGETS_STORE <- here("_targets_full")      # full-mode results
+
+source(here("R", "conceptual_ablation.R"))
+mapping <- load_conceptual_domains()
+```
+
+## Overview
+
+The micronutrient prediction models draw on **13+ data sources** containing **~900--1,100 proxy predictor variables** (after excluding same-survey variables to prevent leakage). These variables span diverse domains — from satellite-derived soil chemistry to household survey responses about breastfeeding practices. Understanding *what* the model uses, and *which thematic areas contribute most*, is critical for interpretability and policy relevance.
+
+This document classifies every predictor variable into a **two-level conceptual hierarchy**:
+
+- **Level 1** (broad thematic area): e.g., "Child Nutrition", "Climate", "Soil"
+- **Level 2** (specific topic): e.g., "Breastfeeding", "Precipitation", "Soil micronutrients"
+
+Variables that cannot be confidently classified from their prefix patterns are marked "Unknown".
+
+## Data Source → Conceptual Domain Mapping
+
+```{r source-summary}
+source_summary <- mapping |>
+  group_by(data_source) |>
+  summarise(
+    n_patterns = n(),
+    level1_domains = paste(sort(unique(level1_domain)), collapse = ", "),
+    .groups = "drop"
+  ) |>
+  arrange(desc(n_patterns))
+
+kable(source_summary,
+      col.names = c("Data Source", "# Patterns", "Level-1 Domains"),
+      caption = "Data sources and the conceptual domains they contribute to") |>
+  kable_styling(bootstrap_options = c("striped", "hover"),
+                full_width = FALSE, font_size = 11)
+```
+
+## Level-1 Conceptual Domains
+
+```{r l1-table}
+l1_summary <- mapping |>
+  filter(match_type == "prefix") |>
+  group_by(level1_domain) |>
+  summarise(
+    n_patterns   = n(),
+    data_sources = paste(sort(unique(data_source)), collapse = ", "),
+    .groups      = "drop"
+  ) |>
+  arrange(desc(n_patterns))
+
+kable(l1_summary,
+      col.names = c("Level-1 Domain", "# Variable Patterns", "Data Sources"),
+      caption = "Level-1 conceptual domains across all data sources") |>
+  kable_styling(bootstrap_options = c("striped", "hover"),
+                full_width = FALSE, font_size = 11)
+```
+
+```{r l1-bar, fig.width=9, fig.height=5}
+ggplot(l1_summary, aes(x = reorder(level1_domain, n_patterns), y = n_patterns)) +
+  geom_col(fill = "#2c7bb6", alpha = 0.85) +
+  geom_text(aes(label = n_patterns), hjust = -0.2, size = 3.5) +
+  coord_flip() +
+  labs(
+    title = "Number of variable patterns per Level-1 domain",
+    x = NULL, y = "# Variable patterns in metadata"
+  ) +
+  theme_minimal(base_size = 12) +
+  theme(panel.grid.minor = element_blank())
+```
+
+## Level-2 Conceptual Domains
+
+```{r l2-table}
+l2_summary <- mapping |>
+  filter(match_type == "prefix") |>
+  group_by(level1_domain, level2_domain) |>
+  summarise(
+    n_patterns   = n(),
+    data_sources = paste(sort(unique(data_source)), collapse = ", "),
+    .groups      = "drop"
+  ) |>
+  arrange(level1_domain, desc(n_patterns))
+
+kable(l2_summary,
+      col.names = c("Level-1", "Level-2", "# Patterns", "Data Sources"),
+      caption = "Full two-level conceptual hierarchy") |>
+  kable_styling(bootstrap_options = c("striped", "hover"),
+                full_width = FALSE, font_size = 10) |>
+  collapse_rows(columns = 1, valign = "top")
+```
+
+## Applied Classification: Ghana Child Iron
+
+The following shows the actual variable classification applied to the Ghana child iron deficiency model (the best-performing outcome).
+
+```{r ghana-classify}
+# Try to load the Ghana child_iron model Xvars
+sl_fit <- tryCatch(tar_read(sl_fit_ghana_child_iron, store = TARGETS_STORE), error = function(e) NULL)
+
+if (!is.null(sl_fit) && (!is.null(sl_fit$bin_fit) || !is.null(sl_fit$cont_fit))) {
+  xvars <- if (!is.null(sl_fit$bin_fit)) sl_fit$bin_fit$Xvars else sl_fit$cont_fit$Xvars
+
+  l1_class <- classify_variables(xvars, mapping)
+  l2_class <- classify_variables_l2(xvars, mapping)
+
+  cat(sprintf("Total model variables: %d\n", length(xvars)))
+  cat(sprintf("Classified: %d (%.0f%%)\n",
+              sum(l1_class != "Unknown"),
+              100 * mean(l1_class != "Unknown")))
+  cat(sprintf("Unknown: %d\n", sum(l1_class == "Unknown")))
+} else {
+  cat("Ghana child_iron model not available — run targets pipeline first.\n")
+  l1_class <- NULL
+}
+```
+
+```{r ghana-l1-dist, fig.width=9, fig.height=6}
+if (!is.null(l1_class)) {
+  l1_df <- data.frame(domain = l1_class) |>
+    count(domain) |>
+    arrange(desc(n))
+
+  ggplot(l1_df, aes(x = reorder(domain, n), y = n)) +
+    geom_col(fill = "#d7191c", alpha = 0.8) +
+    geom_text(aes(label = n), hjust = -0.2, size = 3.5) +
+    coord_flip() +
+    labs(
+      title = "Ghana Child Iron: Variables per Level-1 domain",
+      subtitle = sprintf("%d total variables in the fitted model", length(xvars)),
+      x = NULL, y = "# Variables"
+    ) +
+    theme_minimal(base_size = 12)
+}
+```
+
+### Cross-tabulation: Data Source × Level-1 Domain
+
+```{r crosstab, fig.width=10, fig.height=6}
+if (!is.null(l1_class)) {
+  # Determine data source from variable prefix
+  get_source <- function(v) {
+    if (grepl("^dhs\\d{4}_", v)) return("DHS")
+    if (grepl("^mics_", v))      return("MICS")
+    if (grepl("^ihme_", v))      return("IHME")
+    if (grepl("^MAP_", v))       return("MAP")
+    if (grepl("^gee_", v))       return("GEE")
+    if (grepl("^fsec_", v))      return("FSEC")
+    if (grepl("^wfp_|^nearest_market", v)) return("WFP")
+    if (grepl("^chirps_", v))    return("CHIRPS")
+    if (grepl("^worldpop_|^wp_", v)) return("WorldPop")
+    if (grepl("^ntl_|^viirs_", v)) return("VIIRS")
+    if (grepl("^soil_|^sg_", v)) return("SoilGrids")
+    if (grepl("^gdl_", v))       return("GDL")
+    if (grepl("^spam_|^hc_|^crop_", v)) return("HarvestChoice")
+    if (grepl("^acled_", v))     return("ACLED")
+    if (grepl("^ipc_", v))       return("IPC")
+    if (grepl("^missing_", v))   return("DERIVED")
+    return("Other")
+  }
+
+  cross_df <- data.frame(
+    variable = xvars,
+    source   = sapply(xvars, get_source, USE.NAMES = FALSE),
+    domain   = l1_class,
+    stringsAsFactors = FALSE
+  )
+
+  cross_tab <- cross_df |>
+    count(source, domain) |>
+    pivot_wider(names_from = source, values_from = n, values_fill = 0)
+
+  kable(cross_tab, caption = "Variables by Data Source × Level-1 Domain") |>
+    kable_styling(bootstrap_options = c("striped", "hover"),
+                  full_width = FALSE, font_size = 10)
+
+  # Heatmap
+  cross_heat <- cross_df |> count(source, domain)
+
+  ggplot(cross_heat, aes(x = source, y = domain, fill = n)) +
+    geom_tile(color = "white") +
+    geom_text(aes(label = ifelse(n > 0, n, "")), size = 3) +
+    scale_fill_viridis_c(option = "mako", direction = -1, na.value = "grey95") +
+    labs(
+      title = "Variable count: Data Source × Conceptual Domain",
+      x = "Data Source", y = "Level-1 Domain", fill = "# Vars"
+    ) +
+    theme_minimal(base_size = 11) +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1))
+}
+```
+
+## Conceptual Domain Permutation Importance
+
+Two complementary analyses measure each domain's importance:
+
+- **Permute-one** (marginal importance): Shuffle one domain at a time while keeping all others intact. The AUC drop measures how much that domain contributes *on top of everything else*. Domains with redundant signal (correlated with other domains) will show small drops even if individually informative.
+- **Leave-one-in** (standalone contribution): Shuffle *all other* domains and keep only one domain intact. The resulting AUC measures how well that domain predicts *on its own*. A domain can have high standalone AUC but low marginal importance if other domains carry overlapping signal.
+
+Both analyses use cross-validated predictions (`predict_fold("validation")`) to avoid overfitting bias. Confidence intervals are empirical 2.5th--97.5th percentiles across permutation replicates.
+
+```{r load-perm-results}
+perm_l1_file <- here::here("results", "conceptual_ablation", "ghana_child_iron_level1.csv")
+loi_l1_file  <- here::here("results", "conceptual_ablation", "ghana_child_iron_leave_one_in_l1.csv")
+perm_l2_file <- here::here("results", "conceptual_ablation", "ghana_child_iron_level2.csv")
+
+perm_l1 <- if (file.exists(perm_l1_file)) read.csv(perm_l1_file) else NULL
+loi_l1  <- if (file.exists(loi_l1_file))  read.csv(loi_l1_file)  else NULL
+perm_l2 <- if (file.exists(perm_l2_file)) read.csv(perm_l2_file) else NULL
+
+has_results <- !is.null(perm_l1)
+has_loi     <- !is.null(loi_l1)
+```
+
+### Permute-one: Marginal domain importance {.tabset}
+
+Shuffling each domain's variables breaks its relationship with the outcome. Domains whose removal causes the largest AUC drop are contributing the most marginal signal.
+
+```{r perm-one-table}
+if (has_results) {
+  kable(perm_l1 |>
+          arrange(desc(auc_drop)) |>
+          select(domain, n_vars, baseline_auc, perm_auc, auc_drop, auc_drop_lo, auc_drop_hi) |>
+          mutate(across(where(is.numeric), ~ round(., 4))),
+        col.names = c("Domain", "# Vars", "Baseline AUC", "Permuted AUC",
+                       "AUC Drop", "Drop Lo", "Drop Hi"),
+        caption = "Level-1 marginal importance (permute-one): ranked by AUC drop") |>
+    kable_styling(bootstrap_options = c("striped", "hover"),
+                  full_width = FALSE, font_size = 10)
+} else {
+  cat("Run `source('scripts/test_conceptual_ablation.R')` first.\n")
+}
+```
+
+```{r perm-one-forest, fig.width=10, fig.height=8}
+if (has_results) {
+  # Ranked forest plot with CI bars
+  df <- perm_l1 |>
+    arrange(auc_drop) |>
+    mutate(label = sprintf("%s (n=%d)", domain, n_vars),
+           label = factor(label, levels = label))
+
+  ggplot(df, aes(x = auc_drop, y = label)) +
+    geom_vline(xintercept = 0, linetype = "dashed", color = "grey50") +
+    geom_errorbarh(aes(xmin = auc_drop_lo, xmax = auc_drop_hi),
+                   height = 0.3, color = "#2c7bb6", linewidth = 0.7) +
+    geom_point(size = 3, color = "#2c7bb6") +
+    labs(
+      title = "Ghana Child Iron: Marginal Domain Importance (Permute-One)",
+      subtitle = sprintf("Baseline AUC = %.3f | %d permutations per domain",
+                         df$baseline_auc[1], df$n_perm_valid[1]),
+      x = "AUC Drop (higher = more important)",
+      y = NULL
+    ) +
+    theme_minimal(base_size = 12) +
+    theme(
+      plot.title    = element_text(face = "bold", size = 13),
+      plot.subtitle = element_text(color = "grey40", size = 10),
+      panel.grid.minor = element_blank()
+    )
+}
+```
+
+### Leave-one-in: Standalone domain contribution
+
+Keeping only one domain's variables intact (shuffling all others) shows how well each domain predicts on its own. The blue vertical line marks the full model AUC; the dashed line marks chance (AUC = 0.5).
+
+```{r loi-table}
+if (has_loi) {
+  kable(loi_l1 |>
+          arrange(desc(solo_auc)) |>
+          select(domain, n_vars, baseline_auc, solo_auc, solo_auc_lo, solo_auc_hi, recovery_auc) |>
+          mutate(across(where(is.numeric), ~ round(., 4)),
+                 recovery_pct = sprintf("%.0f%%", recovery_auc * 100)) |>
+          select(-recovery_auc),
+        col.names = c("Domain", "# Vars", "Baseline AUC", "Solo AUC",
+                       "Solo Lo", "Solo Hi", "Recovery"),
+        caption = "Level-1 standalone contribution (leave-one-in): ranked by solo AUC") |>
+    kable_styling(bootstrap_options = c("striped", "hover"),
+                  full_width = FALSE, font_size = 10)
+} else {
+  cat("Leave-one-in results not available.\n")
+}
+```
+
+```{r loi-forest, fig.width=10, fig.height=8}
+if (has_loi) {
+  baseline_val <- loi_l1$baseline_auc[1]
+
+  df <- loi_l1 |>
+    arrange(solo_auc) |>
+    mutate(label = sprintf("%s (n=%d)", domain, n_vars),
+           label = factor(label, levels = label))
+
+  ggplot(df, aes(x = solo_auc, y = label)) +
+    geom_vline(xintercept = 0.5, linetype = "dashed", color = "grey50") +
+    geom_vline(xintercept = baseline_val, linetype = "solid",
+               color = "#2c7bb6", linewidth = 0.8) +
+    geom_errorbarh(aes(xmin = solo_auc_lo, xmax = solo_auc_hi),
+                   height = 0.3, color = "#d7191c", linewidth = 0.7) +
+    geom_point(size = 3, color = "#d7191c") +
+    annotate("text", x = baseline_val, y = Inf,
+             label = sprintf("Full model (%.3f)", baseline_val),
+             hjust = -0.05, vjust = 2, color = "#2c7bb6", size = 3.5) +
+    annotate("text", x = 0.5, y = Inf, label = "Chance",
+             hjust = -0.1, vjust = 2, color = "grey50", size = 3.5) +
+    labs(
+      title = "Ghana Child Iron: Standalone Domain Contribution (Leave-One-In)",
+      subtitle = sprintf("Each domain alone, all others permuted | %d permutations",
+                         max(df$n_perm_valid, na.rm = TRUE)),
+      x = "Solo AUC (domain alone, all others shuffled)",
+      y = NULL
+    ) +
+    theme_minimal(base_size = 12) +
+    theme(
+      plot.title    = element_text(face = "bold", size = 13),
+      plot.subtitle = element_text(color = "grey40", size = 10),
+      panel.grid.minor = element_blank()
+    )
+}
+```
+
+### Side-by-side comparison
+
+```{r comparison, fig.width=12, fig.height=7}
+if (has_results && has_loi) {
+  # Merge both analyses by domain
+  comparison <- merge(
+    perm_l1 |> select(domain, n_vars, auc_drop, auc_drop_lo, auc_drop_hi),
+    loi_l1 |> select(domain, solo_auc, solo_auc_lo, solo_auc_hi, recovery_auc),
+    by = "domain"
+  )
+
+  # Scatter: marginal importance vs standalone contribution
+  ggplot(comparison, aes(x = auc_drop, y = solo_auc)) +
+    geom_hline(yintercept = 0.5, linetype = "dashed", color = "grey70") +
+    geom_vline(xintercept = 0, linetype = "dashed", color = "grey70") +
+    geom_errorbar(aes(ymin = solo_auc_lo, ymax = solo_auc_hi),
+                  width = 0, color = "grey60", linewidth = 0.4) +
+    geom_errorbarh(aes(xmin = auc_drop_lo, xmax = auc_drop_hi),
+                   height = 0, color = "grey60", linewidth = 0.4) +
+    geom_point(aes(size = n_vars), color = "#2c7bb6", alpha = 0.8) +
+    ggrepel::geom_text_repel(aes(label = domain), size = 3, max.overlaps = 20) +
+    scale_size_continuous(range = c(2, 8), name = "# Variables") +
+    labs(
+      title = "Marginal vs Standalone Domain Importance",
+      subtitle = "Upper-right = high marginal AND standalone value; lower-left = low on both",
+      x = "Marginal Importance (AUC drop when permuted)",
+      y = "Standalone AUC (domain alone, all others permuted)"
+    ) +
+    theme_minimal(base_size = 12) +
+    theme(
+      plot.title    = element_text(face = "bold", size = 13),
+      plot.subtitle = element_text(color = "grey40", size = 10)
+    )
+}
+```
+
+### Level-2 detail (if available)
+
+```{r forest-l2, fig.width=10, fig.height=10}
+if (!is.null(perm_l2)) {
+  p2 <- plot_conceptual_forest(
+    perm_l2,
+    title = "Ghana Child Iron — Level-2 Conceptual Domain Importance"
+  )
+  print(p2)
+} else {
+  cat("Level-2 analysis not run. Set `RUN_LEVEL2 <- TRUE` in the test script.\n")
+}
+```
+
+## Unknown Variables
+
+Variables classified as "Unknown" could not be matched to any pattern in the metadata. These should be reviewed and added to `metadata/variable_conceptual_domains.csv`.
+
+```{r unknown}
+if (!is.null(l1_class)) {
+  unknowns <- names(l1_class[l1_class == "Unknown"])
+  if (length(unknowns) > 0) {
+    # Group by apparent prefix
+    unk_df <- data.frame(variable = unknowns, stringsAsFactors = FALSE) |>
+      mutate(prefix = sub("_.*", "_", variable)) |>
+      count(prefix) |>
+      arrange(desc(n))
+
+    kable(unk_df,
+          col.names = c("Prefix Pattern", "# Variables"),
+          caption = "Unknown variables grouped by prefix") |>
+      kable_styling(bootstrap_options = c("striped", "hover"),
+                    full_width = FALSE, font_size = 11)
+  } else {
+    cat("All variables successfully classified!")
+  }
+}
+```

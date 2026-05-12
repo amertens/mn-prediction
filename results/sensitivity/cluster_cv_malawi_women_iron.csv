@@ -1,0 +1,3 @@
+country,outcome,model_type,auc_patched,brier_patched,rmse_patched,mae_patched,r2_patched,r_patched,auc_baseline,brier_baseline,rmse_baseline,mae_baseline,r2_baseline,r_baseline,auc_delta,brier_delta,rmse_delta,mae_delta,r2_delta,r_delta
+Malawi,women_iron,continuous,NA,NA,38.15467272233508,22.621922259478946,0,NA,NA,NA,38.15467272233508,22.621922259478943,0,NA,NA,NA,0,3.552713678800501e-15,0,NA
+Malawi,women_iron,binary,0.7964900741449414,0.07746039165831964,NA,NA,NA,NA,0.7953539823008849,0.07731566291937372,NA,NA,NA,NA,0.001136091844056497,1.447287389459151e-4,NA,NA,NA,NA

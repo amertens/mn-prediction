@@ -1,0 +1,55 @@
+---
+title: "Abstract Drafts: Micronutrient Deficiency Prediction"
+format: html
+---
+
+## Version 1: Methods-Forward (Emphasizes the Modeling Framework)
+
+**Background:** Micronutrient deficiencies affect billions globally, yet subnational prevalence estimates remain scarce in sub-Saharan Africa due to the cost and infrequency of biomarker surveys. We developed a scalable machine learning framework to predict vitamin and mineral deficiency prevalences using routinely available proxy indicators.
+
+**Methods:** Individual-level data from nationally representative micronutrient surveys in four sub-Saharan African countries (The Gambia, Ghana, Sierra Leone, Malawi) were linked to over 200 proxy predictors spanning household survey aggregates (DHS, MICS), remotely sensed environmental and climate variables, infectious disease burden estimates, food system indicators, and demographic surfaces. SuperLearner ensembles combining 16 algorithms including regularized regression, tree-based methods, and Bayesian additive regression trees were trained to predict individual-level deficiency for up to eight outcomes across children and women of reproductive age. Model performance was assessed via clustered cross-validation and leave-one-country-out validation. Uncertainty was quantified using conformal prediction intervals.
+
+**Results:** Within-country models achieved AUCs of 0.65--0.93, with strongest discrimination for women's vitamin A deficiency (AUC 0.85--0.93) and vitamin B12 deficiency (AUC 0.85--0.90). National prevalence predictions were calibrated within two percentage points of survey-weighted estimates. District-level predicted prevalences correlated strongly with observed values (Pearson *r* = 0.73--0.97). Cross-country transportability was limited (AUC 0.50--0.73), highlighting country-specific epidemiological heterogeneity. Ablation analyses identified climate, environment, and water and sanitation domains as consistent contributors, with importance distributed across many domains rather than concentrated in a few.
+
+**Conclusions:** Proxy-based ensemble models can generate plausible, uncertainty-quantified subnational estimates of micronutrient deficiency where biomarker data are unavailable, but limited cross-country transportability underscores the need for country-specific calibration data.
+
+*[~248 words]*
+
+
+## Version 2: Results-Forward (Leads with Key Findings)
+
+Reliable subnational estimates of micronutrient deficiency are essential for targeting nutrition interventions but remain unavailable across much of sub-Saharan Africa. Using nationally representative biomarker surveys from The Gambia, Ghana, Sierra Leone, and Malawi, we trained SuperLearner ensemble models to predict deficiency prevalence for up to eight micronutrient outcomes in children and women using only routinely available proxy predictors---including remotely sensed climate and environmental data, demographic surfaces, infectious disease estimates, food system indicators, and aggregated household survey variables.
+
+Within-country models achieved moderate to strong discrimination (AUC 0.65--0.93), performing best for women's vitamin A deficiency (AUC 0.85--0.93) and vitamin B12 deficiency (AUC 0.85--0.90), and more modestly for iron deficiency (AUC 0.65--0.83). Predicted national prevalences were calibrated within two percentage points of survey-weighted estimates across all outcomes and countries. At the district level, predicted prevalences correlated strongly with observed values (Pearson *r* = 0.73--0.97, mean absolute error 1--12 percentage points), demonstrating utility for spatial targeting.
+
+However, leave-one-country-out validation revealed limited cross-country transportability (AUC 0.50--0.73), indicating substantial country-specific epidemiological variation not captured by external predictors alone. Domain ablation analyses showed predictive importance was distributed across climate, environment, water and sanitation, and infectious disease domains, with no single predictor class dominating. Area-level aggregation models further improved district-level accuracy by 20--50% over individual-level predictions.
+
+These findings demonstrate that machine learning models using proxy data can produce uncertainty-quantified subnational deficiency estimates for program planning, while underscoring the continued need for periodic biomarker surveys and country-specific model calibration.
+
+*[~246 words]*
+
+
+## Version 3: Public Health Impact (Emphasizes Practical Implications)
+
+Micronutrient deficiencies remain a leading cause of morbidity among women and children in sub-Saharan Africa, yet most countries lack the subnational prevalence data needed to efficiently target interventions. We evaluated whether machine learning models trained on routinely available proxy data can fill this gap by generating district-level deficiency estimates without new biomarker collection.
+
+We compiled individual-level biomarker data from nationally representative surveys in The Gambia, Ghana, Sierra Leone, and Malawi, covering up to eight micronutrient outcomes including iron, vitamin A, zinc, folate, and vitamin B12 deficiency in children and women of reproductive age. These were linked to over 200 predictors derived from satellite imagery, climate models, disease burden models, food system indicators, and household survey aggregates. Ensemble machine learning models with 16 algorithms were used for prediction, with performance assessed through clustered and leave-one-country-out cross-validation.
+
+Models discriminated well for most outcomes (AUC 0.65--0.93). Predictive performance was strongest for women's vitamin A and B12 deficiency but weaker for rarer outcomes. Critically, cross-country transportability was more limited (AUC 0.50--0.73), indicating that models require country-specific calibration data to perform reliably. Climate, environmental, and food pricing and security variables were consistently among the most informative predictor domains.
+
+Proxy-based prediction models offer a practical, low-cost tool for generating actionable subnational micronutrient estimates between survey rounds, supporting evidence-based program targeting while highlighting where new biomarker data collection is most needed.
+
+*[~246 words]*
+
+
+## Version 4: Concise and Direct (Journal-Ready, Tightest Prose)
+
+Subnational micronutrient deficiency prevalences are rarely available in sub-Saharan Africa, limiting evidence-based intervention targeting. We assessed whether ensemble machine learning models trained on proxy predictors can generate reliable district-level estimates without new biomarker data.
+
+Individual-level data from nationally representative micronutrient surveys in The Gambia, Ghana, Sierra Leone, and Malawi were linked to over 200 proxy predictors from remote sensing, climate reanalyses, disease burden models, household survey aggregates, and food system indicators. SuperLearner ensembles combining 16 algorithms predicted deficiency status for up to eight outcomes---iron, vitamin A, zinc, folate, and vitamin B12 deficiency in children and women of reproductive age. Performance was evaluated using clustered cross-validation and leave-one-country-out validation, with uncertainty quantified via conformal prediction intervals.
+
+Models achieved AUCs of 0.65--0.93, with best performance for women's vitamin A (0.85--0.93) and B12 deficiency (0.85--0.90), and weaker discrimination for iron deficiency (0.65--0.83). National prevalence estimates were calibrated within two percentage points of survey-weighted values. District-level predictions correlated strongly with observed prevalences (Pearson *r* = 0.73--0.97). Leave-one-country-out validation showed limited transportability (AUC 0.50--0.73), revealing country-specific patterns not captured by external predictors. Domain ablation identified climate, environment, and water and sanitation as consistently informative, with importance distributed broadly rather than concentrated in any single predictor class.
+
+Proxy-based ensemble models can produce plausible, uncertainty-quantified subnational micronutrient estimates for program planning in data-sparse settings, but limited cross-country generalizability underscores the need for in-country calibration data and periodic biomarker surveys.
+
+*[~237 words]*

@@ -16,13 +16,21 @@
 DHS_SL_clustered <- function(d, Xvars, outcome = "mod_sev_anemia",
                               population, id = "gw_cnum",
                               folds = 5L, CV = FALSE,
-                              prescreen = TRUE, sl) {
+                              prescreen = TRUE, sl,
+                              seed = NULL) {
+  # Resolve seed: explicit arg > cfg global > default
+  if (is.null(seed)) {
+    seed <- tryCatch(cfg$seed, error = function(e) 12345L)
+  }
+
+  # Ensure future globals size limit is large enough for SL learner objects
+  options(future.globals.maxSize = 2 * 1024^3)  # 2 GB
 
   X      <- d %>% dplyr::select(dplyr::all_of(Xvars)) %>% as.data.frame()
   cov    <- labelled::unlabelled(X, user_na_to_na = TRUE)
   Y      <- d[[outcome]]
   id_vec <- d[[id]]
-  dataid <- d$dataid
+  dataid <- if ("dataid" %in% colnames(d)) d$dataid else seq_len(nrow(d))
 
   # Drop all-NA columns
   cov <- cov[, !sapply(cov, function(x) all(is.na(x))), drop = FALSE]
@@ -37,11 +45,12 @@ DHS_SL_clustered <- function(d, Xvars, outcome = "mod_sev_anemia",
   if (length(nzv_idx) > 0) cov <- cov[, -nzv_idx, drop = FALSE]
 
   # Impute missing values (ck37r)
-  cov <- cov %>%
-    do(ck37r::impute_missing_values(., type = "standard",
-                                    add_indicators = TRUE,
-                                    prefix = "missing_")$data) %>%
-    as.data.frame()
+  # Note: avoid dplyr::do() which is deprecated and fragile with edge cases
+  cov <- as.data.frame(
+    ck37r::impute_missing_values(cov, type = "standard",
+                                 add_indicators = TRUE,
+                                 prefix = "missing_")$data
+  )
 
   # Second NZV pass (new indicator columns may be zero-variance)
   nzv_idx <- caret::nearZeroVar(cov)
@@ -58,11 +67,17 @@ DHS_SL_clustered <- function(d, Xvars, outcome = "mod_sev_anemia",
     cov <- cov %>% dplyr::select(dplyr::all_of(Wvars))
   }
 
+  # Save the column names that go INTO the recipe (pre-recipe columns).
+  # This is the column set AFTER imputation + NZV + prescreening, but BEFORE
+  # the recipe applies step_corr / step_normalize.  Needed by one_bootstrap()
+  # to prepare prediction data identically.
+  pre_recipe_cols <- colnames(cov)
+
   # Recipes-based final cleaning (correlation removal, normalisation)
   auto_recipe <- recipes::recipe(~ ., data = cov) %>%
     recipes::step_zv(recipes::all_predictors()) %>%
     recipes::step_nzv(recipes::all_predictors()) %>%
-    recipes::step_corr(recipes::all_numeric(), threshold = 0.9) %>%
+    recipes::step_corr(recipes::all_numeric(), threshold = 0.85) %>%
     recipes::step_normalize(recipes::all_numeric()) %>%
     recipes::prep()
   cov    <- recipes::bake(auto_recipe, new_data = cov)
@@ -72,7 +87,7 @@ DHS_SL_clustered <- function(d, Xvars, outcome = "mod_sev_anemia",
   dat <- data.table::data.table(Y = Y, id = id_vec, cov)
 
   # Cluster-blocked folds
-  set.seed(cfg$seed)
+  set.seed(seed)
   fold_obj <- origami::make_folds(cluster_ids = id_vec, V = folds)
 
   SL_task <- sl3::make_sl3_Task(
@@ -106,16 +121,17 @@ DHS_SL_clustered <- function(d, Xvars, outcome = "mod_sev_anemia",
     yhat_full  = yhat_full
   )
 
-  # NOTE: return covars (not SL_task$column_names).
-  # SL_task$column_names includes the internally-created Y and id columns,
-  # which are 2 wider than what the learners were trained on.  Returning
-  # covars ensures the bootstrap prediction task has the correct dimensions.
+  # Return the prepped recipe so that prediction on new data can use
+
+  # recipes::bake(auto_recipe, new_data = ...) for identical transforms.
   list(
     sl_fit               = sl_fit,
     res                  = res,
     cv_risk_w_sl_revere  = cv_risk,
     task                 = SL_task,
-    Xvars                = covars
+    Xvars                = covars,
+    auto_recipe          = auto_recipe,
+    pre_recipe_cols      = pre_recipe_cols
   )
 }
 
@@ -137,7 +153,12 @@ one_bootstrap <- function(b, d_boot_orig, Xvars_b, outcome_b, population_b,
                           id_col, K, sl_obj,
                           d_predict, cutoff, cutoff_dir,
                           binary_outcome = FALSE,
-                          seed_base = 12345L) {
+                          seed_base = 12345L,
+                          admin1_col = NULL) {
+  # Resolve admin1_col: explicit arg > cfg global > default
+  if (is.null(admin1_col)) {
+    admin1_col <- tryCatch(cfg$admin1, error = function(e) "Admin1")
+  }
 
   set.seed(seed_base + b)
 
@@ -168,28 +189,58 @@ one_bootstrap <- function(b, d_boot_orig, Xvars_b, outcome_b, population_b,
   if (is.null(fit_b)) return(NULL)
 
   # 3. Predict on the ORIGINAL full dataset.
-  #    Use task$nodes$covariates — the covariate names the sl3 task was built
-  #    with — NOT fit_b$Xvars, which in older session objects may include the
-  #    Y and id columns added to the data.table inside DHS_SL_clustered.
-  final_covars <- fit_b$task$nodes$covariates
+  #    Must reproduce the EXACT same preprocessing chain as DHS_SL_clustered():
+  #      a) Select raw columns → unlabel → drop all-NA → NZV → impute → NZV
+  #      b) Subset to prescreened columns (pre_recipe_cols)
+  #      c) Bake with the saved recipe (step_corr, step_normalize)
+  #    This guarantees column count + scale match the trained model.
+  final_covars <- fit_b$Xvars
 
   X_pred <- tryCatch({
+    # a) Raw preprocessing (mirrors lines 21-48 of DHS_SL_clustered)
     X0   <- d_predict %>%
       dplyr::select(dplyr::any_of(Xvars_b)) %>%
       as.data.frame()
     cov0 <- labelled::unlabelled(X0, user_na_to_na = TRUE)
+    cov0 <- cov0[, !sapply(cov0, function(x) all(is.na(x))), drop = FALSE]
+
+    # NZV removal (same as training)
     cov0 <- cov0 %>%
-      do(ck37r::impute_missing_values(., type = "standard",
-                                      add_indicators = TRUE,
-                                      prefix = "missing_")$data) %>%
-      as.data.frame()
-    # Align to the columns the model was trained on
-    keep <- intersect(final_covars, colnames(cov0))
-    if (length(keep) == 0) return(NULL)
+      dplyr::select(dplyr::where(~{
+        non_na <- .x[!is.na(.x)]
+        length(non_na) > 0 && length(unique(non_na)) > 1
+      }))
+    nzv0 <- caret::nearZeroVar(cov0)
+    if (length(nzv0) > 0) cov0 <- cov0[, -nzv0, drop = FALSE]
+
+    # Impute (same as training)
+    cov0 <- as.data.frame(
+      ck37r::impute_missing_values(cov0, type = "standard",
+                                   add_indicators = TRUE,
+                                   prefix = "missing_")$data
+    )
+    nzv0 <- caret::nearZeroVar(cov0)
+    if (length(nzv0) > 0) cov0 <- cov0[, -nzv0, drop = FALSE]
+
+    # b) Subset to the prescreened columns the recipe expects
+    pre_cols <- fit_b$pre_recipe_cols
+    # Add any missing columns as 0 (e.g., missing_ indicators not created)
+    for (col in setdiff(pre_cols, colnames(cov0))) cov0[[col]] <- 0
+    cov0 <- cov0[, pre_cols, drop = FALSE]
+
+    # c) Apply the saved recipe (step_corr + step_normalize)
+    cov0 <- recipes::bake(fit_b$auto_recipe, new_data = cov0)
+    cov0 <- data.frame(cov0)
+
+    # Final alignment: ensure exact column match
     for (col in setdiff(final_covars, colnames(cov0))) cov0[[col]] <- 0
     cov0 <- cov0[, final_covars, drop = FALSE]
+
     data.table::data.table(cov0)
-  }, error = function(e) NULL)
+  }, error = function(e) {
+    message(sprintf("    Boot %d: prediction prep failed: %s", b, e$message))
+    NULL
+  })
 
   if (is.null(X_pred)) return(NULL)
 
@@ -219,7 +270,7 @@ one_bootstrap <- function(b, d_boot_orig, Xvars_b, outcome_b, population_b,
   }
 
   # 5. Aggregate to Admin1 and national
-  admin1_col <- cfg$admin1
+  # admin1_col resolved in function header (explicit arg > cfg > default)
   out_df <- data.frame(Admin1 = d_predict[[admin1_col]],
                        deficient_pred = deficient_pred)
   out_df <- out_df[!is.na(out_df$Admin1), ]

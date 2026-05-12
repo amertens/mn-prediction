@@ -1,0 +1,316 @@
+variable_pattern,data_source,level1_domain,level2_domain,description,match_type
+dhs####_FE_FRTR,DHS,Fertility,Fertility rates,Age-specific and total fertility rates,prefix
+dhs####_FE_FRTY,DHS,Fertility,Fertility,Pregnancy status and children ever born,prefix
+dhs####_FE_FRTT,DHS,Fertility,Fertility trends,Fertility rate trends over time,prefix
+dhs####_FE_CEBA,DHS,Fertility,Children ever born,Children ever born to women,prefix
+dhs####_FE_CEBM,DHS,Fertility,Children ever born,Children ever born to married women,prefix
+dhs####_FE_BISP,DHS,Fertility,Birth intervals,Birth spacing intervals,prefix
+dhs####_FE_BRDR,DHS,Fertility,Birth order,Birth order statistics,prefix
+dhs####_FE_PPIS,DHS,Fertility,Postpartum insusceptibility,Postpartum amenorrhea and abstinence,prefix
+dhs####_FE_TEEN,DHS,Fertility,Teenage pregnancy,Teenage pregnancy and childbearing,prefix
+dhs####_FP_,DHS,Family Planning,Contraception,Knowledge and use of contraception,prefix
+dhs####_CM_,DHS,Child Mortality,Childhood mortality,Infant and child mortality rates,prefix
+dhs####_CN_BRFS,DHS,Child Nutrition,Breastfeeding,Breastfeeding status and duration,prefix
+dhs####_CN_NUTS,DHS,Child Nutrition,Child nutritional status,Stunting wasting and underweight,prefix
+dhs####_CN_ANMC,DHS,Child Nutrition,Anemia (children),Anemia prevalence in children,prefix
+dhs####_CN_IYCF,DHS,Child Nutrition,Infant feeding,Infant and young child feeding practices,prefix
+dhs####_CN_SALT,DHS,Child Nutrition,Iodized salt,Household iodized salt availability,prefix
+dhs####_CN_MNIC,DHS,Child Nutrition,Micronutrient supplementation,Vitamin A and iron supplementation in children,prefix
+dhs####_AN_NUTS,DHS,Adult Nutrition,Nutritional status (women),BMI and nutritional status of women,prefix
+dhs####_AN_ANEM,DHS,Adult Nutrition,Anemia (women),Anemia prevalence in women,prefix
+dhs####_AN_MNIM,DHS,Adult Nutrition,Micronutrient intake,Iron and vitamin A supplementation in women,prefix
+dhs####_CH_VACC,DHS,Child Health,Vaccinations,Childhood vaccination coverage,prefix
+dhs####_CH_DIAR,DHS,Child Health,Diarrhea,Diarrhea prevalence and treatment,prefix
+dhs####_CH_FEVR,DHS,Child Health,Fever,Fever prevalence and treatment,prefix
+dhs####_CH_ARI,DHS,Child Health,ARI,Acute respiratory infection prevalence,prefix
+dhs####_CH_SIZE,DHS,Child Health,Birth weight,Size and weight at birth,prefix
+dhs####_CH_STOL,DHS,Child Health,Sanitation behavior,Disposal of stools,prefix
+dhs####_RH_ANCN,DHS,Reproductive Health,Antenatal care,Antenatal care visits and components,prefix
+dhs####_RH_DELV,DHS,Reproductive Health,Delivery care,Place of delivery and assistance,prefix
+dhs####_RH_PSNC,DHS,Reproductive Health,Postnatal care,Postnatal health checks,prefix
+dhs####_MA_,DHS,Malaria,Malaria prevention,ITN ownership and use and malaria treatment,prefix
+dhs####_WS_SRCE,DHS,Water and Sanitation,Water source,Source of drinking water,prefix
+dhs####_WS_TIME,DHS,Water and Sanitation,Water access time,Time to water source,prefix
+dhs####_WS_TLET,DHS,Water and Sanitation,Sanitation facility,Type of sanitation facility,prefix
+dhs####_WS_HNDW,DHS,Water and Sanitation,Handwashing,Handwashing practices,prefix
+dhs####_WS_WTRT,DHS,Water and Sanitation,Water treatment,Household water treatment,prefix
+dhs####_HC_ELEC,DHS,Household Characteristics,Electricity,Household electricity access,prefix
+dhs####_HC_FLOR,DHS,Household Characteristics,Housing quality,Floor material,prefix
+dhs####_HC_ROOF,DHS,Household Characteristics,Housing quality,Roof material,prefix
+dhs####_HC_WALL,DHS,Household Characteristics,Housing quality,Wall material,prefix
+dhs####_HC_CKFL,DHS,Household Characteristics,Cooking fuel,Cooking fuel type,prefix
+dhs####_HC_WLTH,DHS,Household Characteristics,Wealth,Wealth index quintiles,prefix
+dhs####_HC_HEFF,DHS,Household Characteristics,Assets,Household assets and possessions,prefix
+dhs####_HC_LIVS,DHS,Household Characteristics,Livestock,Livestock and agricultural ownership,prefix
+dhs####_ED_,DHS,Education,Education and literacy,Educational attainment and media exposure,prefix
+dhs####_EM_,DHS,Employment,Employment,Employment status and occupation,prefix
+dhs####_WE_,DHS,Women's Empowerment,Empowerment,Decision-making and asset ownership,prefix
+dhs####_DV_,DHS,Domestic Violence,Violence,Domestic and sexual violence,prefix
+dhs####_HA_HIVR,DHS,HIV/AIDS,HIV prevalence,HIV testing and prevalence,prefix
+dhs####_HA_HIVP,DHS,HIV/AIDS,HIV prevention,HIV/AIDS knowledge and prevention,prefix
+dhs####_MR_,DHS,Marriage,Marriage,Marital status and age at marriage,prefix
+dhs####_SX_,DHS,Sexual Activity,Sexual activity,Sexual activity and age at first intercourse,prefix
+dhs####_FG_,DHS,Female Genital Cutting,FGC,Female genital cutting prevalence,prefix
+dhs####_SC_,DHS,Survey Characteristics,Survey metadata,Interview characteristics,prefix
+mics_hc1,MICS,Household Characteristics,Religion/ethnicity,Religion language and ethnicity of household head,prefix
+mics_hc2,MICS,Household Characteristics,Ethnicity,Ethnic group of household head,prefix
+mics_hc3,MICS,Household Characteristics,Housing quality,Number of rooms used for sleeping,prefix
+mics_hc4,MICS,Household Characteristics,Housing quality,Main material of floor,prefix
+mics_hc5,MICS,Household Characteristics,Housing quality,Main material of roof,prefix
+mics_hc6,MICS,Household Characteristics,Housing quality,Main material of exterior wall,prefix
+mics_hc7,MICS,Household Characteristics,Assets,Household durable goods and possessions,prefix
+mics_hc8,MICS,Household Characteristics,Electricity,Household electricity access,prefix
+mics_hc9,MICS,Household Characteristics,Assets,Household appliances and electronics,prefix
+mics_hc10,MICS,Household Characteristics,Assets,Personal transport and vehicle ownership,prefix
+mics_hc11,MICS,Household Characteristics,Assets,Computer ownership,prefix
+mics_hc12,MICS,Household Characteristics,Assets,Mobile telephone ownership,prefix
+mics_hc13,MICS,Household Characteristics,Assets,Internet access at home,prefix
+mics_hc14,MICS,Household Characteristics,Housing quality,Dwelling ownership,prefix
+mics_hc15,MICS,Household Characteristics,Agriculture,Agricultural land ownership,prefix
+mics_hc16,MICS,Household Characteristics,Agriculture,Agricultural land area,prefix
+mics_hc17,MICS,Household Characteristics,Livestock,Animal ownership,prefix
+mics_hc18,MICS,Household Characteristics,Livestock,Livestock counts by type,prefix
+mics_hc19,MICS,Household Characteristics,Wealth,Bank account ownership,prefix
+mics_eu,MICS,Household Characteristics,Cooking fuel,Cookstove type and energy source,prefix
+mics_tn,MICS,Malaria,Mosquito nets,Mosquito net ownership and number,prefix
+mics_ir,MICS,Malaria,Indoor residual spraying,Interior wall spraying against mosquitoes,prefix
+mics_wscore,MICS,Household Characteristics,Wealth index,MICS combined wealth score,prefix
+mics_windex,MICS,Household Characteristics,Wealth index,MICS wealth index quintile/percentile,prefix
+mics_ws,MICS,Water and Sanitation,Water source and sanitation,Drinking water source and sanitation facilities,prefix
+mics_hw,MICS,Water and Sanitation,Handwashing,Handwashing facilities and practices,prefix
+mics_sa,MICS,Child Nutrition,Salt iodization,Salt iodization test outcomes,prefix
+mics_wq,MICS,Water and Sanitation,Water quality testing,E. coli and water quality test results,prefix
+mics_ec,MICS,Water and Sanitation,Water contamination,E. coli test results,prefix
+mics_hhsex,MICS,Household Characteristics,Household head,Sex of household head,prefix
+mics_hhage,MICS,Household Characteristics,Household head,Age of household head,prefix
+mics_hhsize,MICS,Household Characteristics,Household size,Number of household members,prefix
+mics_hhweight,MICS,Survey Characteristics,Survey weight,Household sample weight,prefix
+mics_hh,MICS,Survey Characteristics,MICS interview metadata,Interview dates and consent,prefix
+mics_helevel,MICS,Education,Education of household head,Educational attainment of household head,prefix
+mics_education,MICS,Education,Education of household head,Educational attainment of household head,prefix
+mics_ethnicity,MICS,Household Characteristics,Ethnicity,Ethnicity of household head,prefix
+mics_hhsize,MICS,Household Characteristics,Household size,Number of household members,prefix
+mics_hhweight,MICS,Survey Characteristics,Survey weight,Household sample weight,prefix
+mics_san_,MICS,Water and Sanitation,Sanitation facility,Improved sanitation classification,prefix
+mics_wat_,MICS,Water and Sanitation,Water source type,Water source classification,prefix
+mics_treat_,MICS,Water and Sanitation,Water treatment,Household water treatment practices,prefix
+mics_floor,MICS,Household Characteristics,Housing quality,Floor material classification,prefix
+mics_animals,MICS,Household Characteristics,Livestock,Household animal ownership,prefix
+mics_storage,MICS,Water and Sanitation,Water storage,Household water storage practices,prefix
+mics_popweight,MICS,Survey Characteristics,Survey weight,Population weight,prefix
+mics_,MICS,Survey Indicators,MICS indicators (other),Other MICS variables not classified above,prefix
+ihme_haqi,IHME,Health System,Healthcare access,Healthcare Access and Quality Index,prefix
+ihme_sdi,IHME,Development,Socio-Demographic Index,SDI composite development index,prefix
+ihme_uhc,IHME,Health System,Universal health coverage,UHC effective coverage index,prefix
+ihme_edu,IHME,Education,Educational attainment,Mean years of education,prefix
+ihme_ldi,IHME,Development,Income,Lag-distributed income per capita,prefix
+ihme_tfr,IHME,Fertility,Total fertility rate,Total fertility rate estimate,prefix
+ihme_u5mr,IHME,Child Mortality,Under-5 mortality,Under-five mortality rate,prefix
+ihme_nmr,IHME,Child Mortality,Neonatal mortality,Neonatal mortality rate,prefix
+ihme_wasting,IHME,Child Nutrition,Wasting,Child wasting prevalence estimate,prefix
+ihme_stunting,IHME,Child Nutrition,Stunting,Child stunting prevalence estimate,prefix
+ihme_underweight,IHME,Child Nutrition,Underweight,Child underweight prevalence estimate,prefix
+ihme_overweight,IHME,Adult Nutrition,Overweight/obesity,Adult overweight/obesity prevalence,prefix
+ihme_anemia,IHME,Nutrition,Anemia,Anemia prevalence estimate,prefix
+ihme_vita,IHME,Nutrition,Vitamin A deficiency,Vitamin A deficiency prevalence,prefix
+ihme_iron,IHME,Nutrition,Iron deficiency,Iron deficiency prevalence,prefix
+ihme_zinc,IHME,Nutrition,Zinc deficiency,Zinc deficiency prevalence,prefix
+ihme_iodine,IHME,Nutrition,Iodine deficiency,Iodine deficiency prevalence,prefix
+ihme_hiv,IHME,Infectious Disease,HIV,HIV prevalence and incidence,prefix
+ihme_malaria,IHME,Infectious Disease,Malaria,Malaria prevalence and incidence,prefix
+ihme_tb,IHME,Infectious Disease,Tuberculosis,TB prevalence and incidence,prefix
+ihme_diarrhea,IHME,Infectious Disease,Diarrhea,Diarrheal disease burden,prefix
+ihme_lri,IHME,Infectious Disease,Lower respiratory,Lower respiratory infection burden,prefix
+ihme_ntd,IHME,Infectious Disease,Neglected tropical,Neglected tropical disease burden,prefix
+ihme_sanitation,IHME,Water and Sanitation,Sanitation,Improved sanitation coverage,prefix
+ihme_water,IHME,Water and Sanitation,Safe water,Safe water access,prefix
+ihme_air,IHME,Environment,Air pollution,Air pollution exposure,prefix
+MAP_Pf,MAP,Infectious Disease,P. falciparum malaria,Plasmodium falciparum prevalence and incidence,prefix
+MAP_Pv,MAP,Infectious Disease,P. vivax malaria,Plasmodium vivax prevalence,prefix
+MAP_ITN,MAP,Malaria Prevention,ITN coverage,Insecticide-treated net coverage,prefix
+MAP_IRS,MAP,Malaria Prevention,IRS coverage,Indoor residual spraying coverage,prefix
+MAP_ACT,MAP,Malaria Prevention,ACT access,Artemisinin combination therapy access,prefix
+MAP_accessibility,MAP,Infrastructure,Healthcare accessibility,Travel time to healthcare facilities,prefix
+MAP_housing,MAP,Household Characteristics,Housing quality,Housing quality index,prefix
+MAP_friction,MAP,Infrastructure,Travel friction,Land surface travel friction,prefix
+MAP_mortality,MAP,Child Mortality,Child mortality,Child mortality estimates,prefix
+gee_NDVI,GEE,Environment,Vegetation,Normalized Difference Vegetation Index,prefix
+gee_LST,GEE,Climate,Land surface temperature,Nighttime land surface temperature,prefix
+gee_FLDAS,GEE,Climate,Hydrology,FLDAS land surface model variables,prefix
+gee_TRMM,GEE,Climate,Precipitation,Tropical Rainfall Measuring Mission precipitation,prefix
+gee_WAPOR,GEE,Environment,Water productivity,Water productivity estimates,prefix
+gee_CCNL,GEE,Infrastructure,Nighttime lights,Calibrated nighttime lights,prefix
+gee_PopDensity,GEE,Demographics,Population density,Gridded population density,prefix
+gee_GPW_Demographic,GEE,Demographics,Demographics,Gridded population demographic variables,prefix
+gee_GPW_Grasslands,GEE,Environment,Land cover,Grassland and pasture cover,prefix
+gee_ESA_WorldCereal,GEE,Agriculture,Cropland,ESA World Cereal cropland map,prefix
+gee_GHSL_SMOD,GEE,Infrastructure,Settlement type,Global Human Settlement urban/rural classification,prefix
+gee_GlobalHumanModification,GEE,Infrastructure,Human modification,Global index of land modification,prefix
+gee_SoilAluminium,GEE,Soil,Soil micronutrients,Soil aluminium content,prefix
+gee_SoilCalcium,GEE,Soil,Soil micronutrients,Soil calcium content,prefix
+gee_SoilCEC,GEE,Soil,Soil quality,Soil cation exchange capacity,prefix
+gee_SoilIron,GEE,Soil,Soil micronutrients,Soil iron content,prefix
+gee_SoilMagnesium,GEE,Soil,Soil micronutrients,Soil magnesium content,prefix
+gee_SoilNitrogen,GEE,Soil,Soil fertility,Soil nitrogen content,prefix
+gee_SoilPhosphorus,GEE,Soil,Soil fertility,Soil phosphorus content,prefix
+gee_SoilPotassium,GEE,Soil,Soil micronutrients,Soil potassium content,prefix
+gee_SoilSulfur,GEE,Soil,Soil micronutrients,Soil sulfur content,prefix
+gee_SoilTotalCarbon,GEE,Soil,Soil quality,Soil total carbon content,prefix
+gee_SoilZinc,GEE,Soil,Soil micronutrients,Soil zinc content,prefix
+fsec_hfid_ipc_phase,FSEC,Food Security,IPC phase classification,IPC food insecurity phase,prefix
+fsec_hfid_fcs,FSEC,Food Security,Food consumption,Food Consumption Score,prefix
+fsec_hfid_rcsi,FSEC,Food Security,Coping strategies,Reduced Coping Strategy Index,prefix
+fsec_ch_prop_phase,FSEC,Food Security,IPC phase distribution,Cadre Harmonise IPC phase proportions,prefix
+fsec_ch_phase_class,FSEC,Food Security,IPC phase classification,Cadre Harmonise overall phase,prefix
+fsec_ch_FCG,FSEC,Food Security,Food consumption,Food Consumption Group,prefix
+fsec_ch_HHS,FSEC,Food Security,Hunger,Household Hunger Scale,prefix
+fsec_ch_HDDS,FSEC,Food Security,Dietary diversity,Household Dietary Diversity Score,prefix
+fsec_ch_rCSI,FSEC,Food Security,Coping strategies,Reduced Coping Strategy Index,prefix
+wfp_,WFP,Food Security,Market access,Distance to nearest market,prefix
+flunet_,FLUNET,Infectious Disease,Influenza,FluNet influenza surveillance data,prefix
+lsms_,LSMS,Household Characteristics,Livelihoods,Living Standards Measurement Study variables,prefix
+nearest_market,WFP,Food Security,Market access,Distance to nearest market,exact
+missing_,DERIVED,Missingness Indicators,Imputation flags,Indicator of whether original value was imputed,prefix
+dhs####_FE_,DHS,Fertility,Fertility (other),Other fertility indicators,prefix
+dhs####_CN_,DHS,Child Nutrition,Child nutrition (other),Other child nutrition indicators,prefix
+dhs####_AN_,DHS,Adult Nutrition,Adult nutrition (other),Other adult nutrition indicators,prefix
+dhs####_CH_,DHS,Child Health,Child health (other),Other child health indicators,prefix
+dhs####_RH_,DHS,Reproductive Health,Reproductive health (other),Other reproductive health indicators,prefix
+dhs####_WS_,DHS,Water and Sanitation,WASH (other),Other water and sanitation indicators,prefix
+dhs####_HC_,DHS,Household Characteristics,Household (other),Other household characteristics,prefix
+dhs####_HA_,DHS,HIV/AIDS,HIV/AIDS (other),Other HIV/AIDS indicators,prefix
+dhs####_ML_,DHS,Malaria,Malaria (other),Other malaria indicators,prefix
+dhs####_AH_,DHS,Adult Health,Adult health,Tobacco alcohol and health insurance,prefix
+dhs####_SV_,DHS,Survey Characteristics,Survey design,Interview and survey design variables,prefix
+dhs####_CP_,DHS,Child Protection,Child protection,Birth registration and child labor,prefix
+dhs####_DHSREG,DHS,Survey Characteristics,DHS region codes,DHS regional identifiers,prefix
+ihme_,IHME,Health and Development,IHME (other),Other IHME global burden indicators,prefix
+MAP_,MAP,Infectious Disease,MAP (other),Other Malaria Atlas Project indicators,prefix
+gee_trmm,GEE,Climate,Precipitation,TRMM rainfall estimates,prefix
+gee_ndvi,GEE,Environment,Vegetation,NDVI vegetation index,prefix
+gee_temp,GEE,Climate,Temperature,Land surface temperature,prefix
+gee_tpp,GEE,Agriculture,Cropland,Cropland and land use,prefix
+gee_smod,GEE,Infrastructure,Settlement type,Settlement classification,prefix
+gee_ghm,GEE,Infrastructure,Human modification,Global human modification index,prefix
+gee_wapor,GEE,Environment,Water productivity,Water productivity,prefix
+gee_,GEE,Environment,Remote sensing (other),Other GEE satellite variables,prefix
+chirps_precip_jan,CHIRPS,Climate,Precipitation,January rainfall (CHIRPS),exact
+chirps_precip_feb,CHIRPS,Climate,Precipitation,February rainfall (CHIRPS),exact
+chirps_precip_mar,CHIRPS,Climate,Precipitation,March rainfall (CHIRPS),exact
+chirps_precip_apr,CHIRPS,Climate,Precipitation,April rainfall (CHIRPS),exact
+chirps_precip_may,CHIRPS,Climate,Precipitation,May rainfall (CHIRPS),exact
+chirps_precip_jun,CHIRPS,Climate,Precipitation,June rainfall (CHIRPS),exact
+chirps_precip_jul,CHIRPS,Climate,Precipitation,July rainfall (CHIRPS),exact
+chirps_precip_aug,CHIRPS,Climate,Precipitation,August rainfall (CHIRPS),exact
+chirps_precip_sep,CHIRPS,Climate,Precipitation,September rainfall (CHIRPS),exact
+chirps_precip_oct,CHIRPS,Climate,Precipitation,October rainfall (CHIRPS),exact
+chirps_precip_nov,CHIRPS,Climate,Precipitation,November rainfall (CHIRPS),exact
+chirps_precip_dec,CHIRPS,Climate,Precipitation,December rainfall (CHIRPS),exact
+chirps_annual_mean,CHIRPS,Climate,Precipitation,Annual mean rainfall (CHIRPS),exact
+chirps_annual_sd,CHIRPS,Climate,Precipitation,Rainfall variability (CHIRPS),exact
+chirps_annual_total,CHIRPS,Climate,Precipitation,Annual total rainfall (CHIRPS),exact
+chirps_dry_months,CHIRPS,Climate,Precipitation,Number of dry months (CHIRPS),exact
+worldpop_pop_density,WorldPop,Demographics,Population density,WorldPop population density,exact
+worldpop_pop_total,WorldPop,Demographics,Population total,WorldPop total population,exact
+ntl_mean,VIIRS,Infrastructure,Nighttime lights,Mean nighttime radiance (VIIRS),exact
+ntl_median,VIIRS,Infrastructure,Nighttime lights,Median nighttime radiance (VIIRS),exact
+ntl_max,VIIRS,Infrastructure,Nighttime lights,Max nighttime radiance (VIIRS),exact
+ntl_sd,VIIRS,Infrastructure,Nighttime lights,Nighttime radiance variability (VIIRS),exact
+map2_,MAP,Infectious Disease,Malaria Atlas Project,Malaria Atlas raster surfaces,prefix
+soil_ph,SoilGrids,Environment,Soil properties,Soil pH (0-5cm),exact
+soil_organic_carbon,SoilGrids,Environment,Soil properties,Soil organic carbon (0-5cm),exact
+soil_nitrogen,SoilGrids,Environment,Soil properties,Soil nitrogen (0-5cm),exact
+soil_clay,SoilGrids,Environment,Soil properties,Soil clay fraction (0-5cm),exact
+soil_sand,SoilGrids,Environment,Soil properties,Soil sand fraction (0-5cm),exact
+soil_silt,SoilGrids,Environment,Soil properties,Soil silt fraction (0-5cm),exact
+soil_cec,SoilGrids,Environment,Soil properties,Soil cation exchange capacity (0-5cm),exact
+gdl_shdi,GDL,Livelihoods,Human development,Subnational Human Development Index,exact
+gdl_education_idx,GDL,Education,Education index,GDL education index,exact
+gdl_health_idx,GDL,Health and Development,Health index,GDL health index,exact
+gdl_income_idx,GDL,Livelihoods,Income index,GDL income index,exact
+ipc_phase3plus_pct,IPC,Food Security,Food crisis,IPC Phase 3+ percentage,exact
+ipc_phase4plus_pct,IPC,Food Security,Food emergency,IPC Phase 4+ percentage,exact
+ipc_avg_phase,IPC,Food Security,Food security phase,Average IPC/CH phase,exact
+acled_total_events,ACLED,Conflict,Conflict events,Total conflict events (ACLED),exact
+acled_total_fatalities,ACLED,Conflict,Conflict fatalities,Total conflict fatalities (ACLED),exact
+acled_battles,ACLED,Conflict,Battles,Battle events (ACLED),exact
+acled_violence_civilians,ACLED,Conflict,Civilian violence,Violence against civilians (ACLED),exact
+crop_n_crops,HarvestStat,Agriculture,Crop diversity,Number of crops grown,exact
+crop_mean_yield,HarvestStat,Agriculture,Crop yield,Mean crop yield (mt/ha),exact
+crop_total_production,HarvestStat,Agriculture,Crop production,Total crop production (mt),exact
+crop_total_area,HarvestStat,Agriculture,Crop area,Total cultivated area (ha),exact
+crop_staple_yield,HarvestStat,Agriculture,Staple crop yield,Staple crop yield (mt/ha),exact
+crop_staple_n,HarvestStat,Agriculture,Staple crop diversity,Number of staple crops,exact
+wfp_fcs,WFP,Food Security,Food consumption,Food Consumption Score (WFP),exact
+wfp_rcsi,WFP,Food Security,Coping strategies,Reduced Coping Strategy Index (WFP),exact
+wfp_insufficient_food,WFP,Food Security,Food insufficiency,Proportion with insufficient food (WFP),exact
+map2_pf_mortality,MAP,Infectious Disease,Pf malaria mortality,P. falciparum mortality rate/count,prefix
+map2_pf_incidence,MAP,Infectious Disease,Pf malaria incidence,P. falciparum incidence rate/count,prefix
+map2_pf_parasite,MAP,Infectious Disease,Pf parasite rate,P. falciparum parasite prevalence,prefix
+map2_pv_incidence,MAP,Infectious Disease,Pv malaria incidence,P. vivax incidence rate/count,prefix
+map2_pv_parasite,MAP,Infectious Disease,Pv parasite rate,P. vivax parasite prevalence,prefix
+map2_pf_reproductive,MAP,Infectious Disease,Malaria reproduction number,Pf reproductive number,prefix
+map2_antimalarial,MAP,Health and Development,Antimalarial treatment,Effective antimalarial treatment coverage,prefix
+map2_itn,MAP,Health and Development,Insecticide-treated nets,ITN access/use/use rate,prefix
+map2_irs,MAP,Health and Development,Indoor residual spraying,IRS coverage,prefix
+map2_duffy,MAP,Blood Disorders,Duffy negativity,Duffy negativity phenotype frequency,prefix
+map2_g6pd,MAP,Blood Disorders,G6PD deficiency,G6PD deficiency allele frequency,prefix
+map2_hbc,MAP,Blood Disorders,HbC frequency,Hemoglobin C allele frequency,prefix
+map2_sickle,MAP,Blood Disorders,Sickle cell,Sickle hemoglobin (HbS) allele frequency,prefix
+map2_motorized_friction,MAP,Accessibility,Motorized friction,Motorized travel friction surface,prefix
+map2_walking_friction,MAP,Accessibility,Walking friction,Walking-only travel friction surface,prefix
+map2_travel_speed,MAP,Accessibility,Travel speed,Travel speed friction surface,prefix
+map2_travel_time_cities,MAP,Accessibility,Travel time to cities,Travel time to nearest city,prefix
+map2_motorized_healthcare,MAP,Accessibility,Healthcare access (motorized),Motorized travel time to healthcare,prefix
+map2_walking_healthcare,MAP,Accessibility,Healthcare access (walking),Walking travel time to healthcare,prefix
+map2_pf_limits,MAP,Infectious Disease,Pf geographic limits,P. falciparum geographic limits,prefix
+map2_pv_limits,MAP,Infectious Disease,Pv geographic limits,P. vivax geographic limits,prefix
+map2_temp_suitability,MAP,Climate,Malaria temperature suitability,Temperature suitability for malaria transmission,prefix
+map2_fever,MAP,Child Health,Fever prevalence,All-cause and malaria-related fever,prefix
+map2_housing,MAP,Household Characteristics,Housing quality,Housing quality index (MAP),prefix
+map2_act,MAP,Health and Development,ACT coverage,ACT treatment coverage,prefix
+map2_pv_relapse,MAP,Infectious Disease,Pv relapse incidence,P. vivax relapse incidence,prefix
+map2_pv_cases,MAP,Infectious Disease,Pv cases,P. vivax case counts,prefix
+map2_funestus,MAP,Infectious Disease,An. funestus,Anopheles funestus distribution,prefix
+map2_friction,MAP,Accessibility,Friction surface,Travel friction surface (general),prefix
+map2_accessibility,MAP,Accessibility,Accessibility to cities,Accessibility to cities index,prefix
+map2_am_effective,MAP,Health and Development,Effective treatment,Effective antimalarial treatment (Explorer),prefix
+chirps_,CHIRPS,Climate,Precipitation,CHIRPS rainfall (prefix fallback),prefix
+worldpop_,WorldPop,Demographics,Population density,WorldPop population (prefix fallback),prefix
+ntl_,VIIRS,Infrastructure,Nighttime lights,VIIRS nighttime lights (prefix fallback),prefix
+soil_,SoilGrids,Environment,Soil properties,SoilGrids soil properties (prefix fallback),prefix
+gdl_,GDL,Livelihoods,Human development,Global Data Lab indices (prefix fallback),prefix
+crop_,HarvestStat,Agriculture,Crop data,HarvestChoice crop data (prefix fallback),prefix
+ipc_,IPC,Food Security,Food crisis,IPC food security (prefix fallback),prefix
+acled_,ACLED,Conflict,Conflict events,ACLED conflict data (prefix fallback),prefix
+gee_fldas,GEE,Climate,Land surface climate,FLDAS land surface model variables,prefix
+gee_wapor,GEE,Agriculture,Water productivity,WAPOR net primary productivity,prefix
+gee_gpw_demographic,GEE,Demographics,Population structure,GPW gridded population demographics,prefix
+gee_gpw_grassland,GEE,Environment,Land cover,GPW grassland fraction,prefix
+gee_soilaluminium,GEE,Environment,Soil properties,Soil aluminium content (GEE),prefix
+gee_soilcalcium,GEE,Environment,Soil properties,Soil calcium content (GEE),prefix
+gee_soilcec,GEE,Environment,Soil properties,Soil cation exchange capacity (GEE),prefix
+gee_soiliron,GEE,Environment,Soil properties,Soil iron content (GEE),prefix
+gee_soilmagnesium,GEE,Environment,Soil properties,Soil magnesium content (GEE),prefix
+gee_soilnitrogen,GEE,Environment,Soil properties,Soil nitrogen content (GEE),prefix
+gee_soilphosphorus,GEE,Environment,Soil properties,Soil phosphorus content (GEE),prefix
+gee_soilpotassium,GEE,Environment,Soil properties,Soil potassium content (GEE),prefix
+gee_soilsulfur,GEE,Environment,Soil properties,Soil sulfur content (GEE),prefix
+gee_soiltotalcarbon,GEE,Environment,Soil properties,Soil total carbon (GEE),prefix
+gee_soilzinc,GEE,Environment,Soil properties,Soil zinc content (GEE),prefix
+gee_esa_worldcereal,GEE,Agriculture,Crop classification,ESA WorldCereal crop types,prefix
+gee_ccnl,GEE,Infrastructure,Nighttime lights,CCNL nighttime lights composite,prefix
+gee_ghsl_smod,GEE,Infrastructure,Settlement type,GHSL settlement model,prefix
+gee_globalhumanmodification,GEE,Infrastructure,Human modification,Global human modification index,prefix
+gee_lst_night,GEE,Climate,Temperature,Land surface temperature at night,prefix
+gee_ndvi,GEE,Environment,Vegetation,Normalized Difference Vegetation Index,prefix
+gee_trmm,GEE,Climate,Precipitation,TRMM rainfall estimates,prefix
+gee_temp,GEE,Climate,Temperature,Temperature estimates,prefix
+gee_tpp,GEE,Demographics,Population density,Population density raster,prefix
+gee_fpp,GEE,Agriculture,Food production,Food production proxy,prefix
+gee_built_surface,GEE,Infrastructure,Built-up area,Built surface area fraction,prefix
+gee_smod,GEE,Infrastructure,Settlement type,Settlement model classification,prefix
+gee_ghm,GEE,Infrastructure,Human modification,Global human modification index,prefix
+gee_grassland,GEE,Environment,Land cover,Grassland fraction,prefix
+gee_popdensity,GEE,Demographics,Population density,Population density (GEE raster),prefix
+wfp_price_,WFP,Food Security,Food prices,Staple food commodity prices (WFP USD/kg),prefix
