@@ -97,7 +97,10 @@ ui <- page_navbar(
     primary = "#2c7bb6",
     base_font = font_google("Source Sans Pro")
   ),
-  fillable = TRUE,
+  # Only map-heavy tabs should fill the viewport. Tabs with stacked cards +
+  # methods notes need to size to their content — otherwise each card is
+  # cropped to a fraction of viewport height and shows a scrollbar.
+  fillable = c("Map explorer", "Côte d'Ivoire (OOS)"),
   underline = TRUE,
 
   nav_panel(
