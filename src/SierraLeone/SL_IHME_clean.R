@@ -9,8 +9,11 @@ library(haven)
 
 # # Load raster datasets
 ihme <- read_dta(here("data/IHME/IHME_Sierra_Leone_data.dta")) %>% filter(adm0_name=="Sierra Leone" & year==2012) %>%
-  filter(adm2_name!="", source!="africa hiv prevalence geospatial estimates 2000-2017",
-         source!="lmic dbm geospatial estimates 2000-2017", !is.na(mean)) #%>%
+  filter(adm2_name!="", !is.na(mean),
+         # HIV 2017 is fully duplicated by the newer SSA 2018 HIV source — drop it.
+         source!="africa hiv prevalence geospatial estimates 2000-2017",
+         # DBM wasting duplicates CGF wasting — drop wasting only, keep DBM overweight.
+         !(source=="lmic dbm geospatial estimates 2000-2017" & measure=="Wasting prevalence"))
 #select(adm2_name, age_group_name, age_group_id, sex, measure, metric, mean)
 head(ihme)
 
@@ -56,5 +59,13 @@ head(df_wide_tidyr)
 
 # Save result
 write_csv(df_wide_tidyr, here("data/IHME/SierraLeone_2012_merged_IHME_data.csv"))
+
+# Admin1-level companion table
+source(here("src/IHME/build_ihme_admin1.R"))
+build_ihme_admin1(
+  country_name = "Sierra Leone",
+  year_filter  = 2012L,
+  out_path     = here("data/IHME/SierraLeone_2012_merged_IHME_admin1_data.csv")
+)
 
 
