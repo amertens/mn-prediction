@@ -98,6 +98,86 @@ get_country_admin2 <- function(ctry_key, oc_key,
   joined
 }
 
+#' Aggregate Admin-2 predictions to Admin-1 polygons.
+#'
+#' Population-weighted aggregation of prevalence, CIs, and survey n. Conformal
+#' CIs were already computed at Admin-1 in the pipeline and broadcast to
+#' Admin-2, so all Admin-2 rows within an Admin-1 region share the same
+#' ci_lo/ci_hi; we recover that value as the population-weighted mean (= the
+#' shared value when populations are non-negative). WHO classification at
+#' Admin-1 is the population-weighted modal class within the region — ties
+#' broken by max severity.
+#'
+#' Returns an sf object keyed on Admin1, with the same column schema as
+#' get_country_admin2() so the rest of the map logic can be level-agnostic.
+get_country_admin1 <- function(ctry_key, oc_key,
+                                admin1_bnds, admin2_bnds,
+                                admin2_pred, admin2_pop,
+                                pop_year = "survey") {
+  a2 <- get_country_admin2(ctry_key, oc_key,
+                            admin2_bnds, admin2_pred, admin2_pop,
+                            pop_year = pop_year)
+  if (is.null(a2) || nrow(a2) == 0) return(NULL)
+  bnd1 <- admin1_bnds[[ctry_key]]
+  if (is.null(bnd1)) return(NULL)
+
+  a2_df <- as.data.frame(a2)
+  a2_df$geometry <- NULL
+
+  # Drop rows with no Admin1 assignment or no population — can't aggregate
+  a2_df <- a2_df[!is.na(a2_df$Admin1) & !is.na(a2_df$population) &
+                  a2_df$population > 0, , drop = FALSE]
+  if (nrow(a2_df) == 0) return(NULL)
+
+  pop_weighted <- function(x, w) {
+    keep <- !is.na(x) & !is.na(w) & w > 0
+    if (!any(keep)) return(NA_real_)
+    sum(x[keep] * w[keep]) / sum(w[keep])
+  }
+
+  agg <- do.call(rbind, lapply(split(a2_df, a2_df$Admin1), function(g) {
+    w <- g$population
+
+    # Modal WHO class, ties broken by severity rank
+    sev_rank <- c("Low" = 1, "Mild" = 2, "Moderate" = 3,
+                  "Severe" = 4, "No data" = 0)
+    who_tab <- tapply(w, g$who_class, sum, na.rm = TRUE)
+    if (length(who_tab) == 0 || all(is.na(who_tab))) {
+      who_a1 <- "No data"
+    } else {
+      max_w <- max(who_tab, na.rm = TRUE)
+      cands <- names(who_tab)[!is.na(who_tab) & who_tab == max_w]
+      who_a1 <- cands[which.max(sev_rank[cands])]
+    }
+
+    data.frame(
+      Admin1     = g$Admin1[1],
+      pred_prev  = pop_weighted(g$pred_prev,  w),
+      obs_prev   = pop_weighted(g$obs_prev,   w),
+      ci_lo      = pop_weighted(g$ci_lo,      w),
+      ci_hi      = pop_weighted(g$ci_hi,      w),
+      ci_width   = pop_weighted(g$ci_width,   w),
+      n_survey   = sum(g$n_survey, na.rm = TRUE),
+      population = sum(g$population, na.rm = TRUE),
+      who_class  = who_a1,
+      stringsAsFactors = FALSE
+    )
+  }))
+  agg$pop_at_risk <- agg$pred_prev * agg$population
+
+  bnd1$Admin1 <- trimws(bnd1$Admin1)
+  joined <- merge(bnd1, agg, by = "Admin1", all.x = TRUE, sort = FALSE)
+  joined$who_class[is.na(joined$who_class)] <- "No data"
+
+  # Add Admin2 column = NA so downstream code can reuse the same field names
+  # safely (we expose "area" for label/click logic instead).
+  joined$Admin2 <- NA_character_
+  joined$pop_year_label <- attr(a2, "pop_year_label") %||%
+                            (if (pop_year == "2023") "2023 projection"
+                             else "Survey year")
+  joined
+}
+
 #' Confidence badge — categorize CI width into low/moderate/high confidence
 #'
 #' Used as a visual companion to the numeric interval. CI widths are in

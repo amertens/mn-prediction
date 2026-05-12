@@ -20,6 +20,11 @@ mod_map_explorer_ui <- function(id) {
                   choices = outcome_choices,
                   selected = "women_iron"),
 
+      radioButtons(ns("admin_level"), "Geographic level",
+                   choices = c("Admin 2 (district)" = "admin2",
+                               "Admin 1 (region)"  = "admin1"),
+                   selected = "admin2", inline = TRUE),
+
       radioButtons(ns("layer"), "Display layer",
                    choices = c("Predicted prevalence" = "pred_prev",
                                "Survey-observed prevalence (where available)" = "obs_prev",
@@ -64,12 +69,22 @@ mod_map_explorer_server <- function(id) {
   moduleServer(id, function(input, output, session) {
     ns <- session$ns
 
-    # Reactive: joined sf for selected country × outcome
+    # Reactive: joined sf for selected country × outcome × admin level
     map_data <- reactive({
-      req(input$country, input$outcome)
-      get_country_admin2(input$country, input$outcome,
-                          admin2_bnds, admin2_pred, admin2_pop)
+      req(input$country, input$outcome, input$admin_level)
+      if (input$admin_level == "admin1") {
+        get_country_admin1(input$country, input$outcome,
+                            admin1_bnds, admin2_bnds, admin2_pred, admin2_pop)
+      } else {
+        get_country_admin2(input$country, input$outcome,
+                            admin2_bnds, admin2_pred, admin2_pop)
+      }
     })
+
+    # Convenience: the area-name column for the active level
+    area_col <- reactive(
+      if (isTRUE(input$admin_level == "admin1")) "Admin1" else "Admin2"
+    )
 
     # National headline
     output$headline <- renderUI({
@@ -150,11 +165,16 @@ mod_map_explorer_server <- function(id) {
         )
       }
 
-      # Build hover labels
+      # Build hover labels. At Admin-1 the subtitle line is hidden (no parent).
+      area_name <- df[[area_col()]]
+      sub_line <- if (area_col() == "Admin2") {
+        ifelse(is.na(df$Admin1), "", df$Admin1)
+      } else {
+        rep("", nrow(df))
+      }
       labels <- sprintf(
         "<strong>%s</strong><br/>%s<br/>Predicted: %s<br/>Population: %s<br/>WHO class: %s",
-        df$Admin2,
-        ifelse(is.na(df$Admin1), "", df$Admin1),
+        area_name, sub_line,
         fmt_pct(df$pred_prev),
         fmt_count(df$population),
         df$who_class
@@ -176,7 +196,7 @@ mod_map_explorer_server <- function(id) {
             textsize = "13px",
             direction = "auto"
           ),
-          layerId = df$Admin2
+          layerId = df[[area_col()]]
         )
 
       if (!is.null(pal) && layer != "who_class") {
@@ -216,21 +236,24 @@ mod_map_explorer_server <- function(id) {
     })
 
     output$district_detail <- renderUI({
-      district <- clicked()
+      area <- clicked()
       df <- map_data()
-      if (is.null(district) || is.null(df)) {
-        return(p(em("Click a district to see details."),
+      level_label <- if (isTRUE(input$admin_level == "admin1"))
+                       "region" else "district"
+      if (is.null(area) || is.null(df)) {
+        return(p(em(sprintf("Click a %s to see details.", level_label)),
                  style = "color: #888;"))
       }
 
-      row <- df[df$Admin2 == district, , drop = FALSE]
+      row <- df[df[[area_col()]] == area, , drop = FALSE]
       if (nrow(row) == 0) return(NULL)
 
       conf <- confidence_badge(row$ci_width)
 
       tagList(
-        h5(district, style = "margin-top: 0;"),
-        if (!is.na(row$Admin1[1])) p(em(row$Admin1[1])),
+        h5(area, style = "margin-top: 0;"),
+        if (area_col() == "Admin2" && !is.na(row$Admin1[1]))
+          p(em(row$Admin1[1])),
         p(strong("Predicted prevalence: "),
           fmt_pct(row$pred_prev[1])),
         if (!is.na(row$ci_lo[1])) {
@@ -259,14 +282,22 @@ mod_map_explorer_server <- function(id) {
     output$map_caption <- renderText({
       ctry_label <- meta$countries[input$country]
       sy <- meta$survey_years[input$country]
-      sprintf("Data: %s, survey year %s. Districts in gray have no model coverage (unsurveyed clusters).",
-              ctry_label, sy)
+      lvl <- if (isTRUE(input$admin_level == "admin1"))
+               "Admin-1 (region)" else "Admin-2 (district)"
+      sprintf(
+        "Data: %s, survey year %s. %s view. %s in gray have no model coverage. Admin-1 values are population-weighted aggregates of Admin-2 predictions.",
+        ctry_label, sy, lvl,
+        if (isTRUE(input$admin_level == "admin1")) "Regions" else "Districts"
+      )
     })
+
+    # Clear the click selection when the user switches admin level
+    observeEvent(input$admin_level, { clicked(NULL) }, ignoreInit = TRUE)
 
     output$download_map_data <- downloadHandler(
       filename = function() {
-        sprintf("map_%s_%s_%s.csv",
-                input$country, input$outcome, Sys.Date())
+        sprintf("map_%s_%s_%s_%s.csv",
+                input$country, input$outcome, input$admin_level, Sys.Date())
       },
       content = function(file) {
         df <- map_data()
