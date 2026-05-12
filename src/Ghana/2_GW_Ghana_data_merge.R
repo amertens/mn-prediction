@@ -448,6 +448,15 @@ ihme_vars <- colnames(ihme)
 df <- merge_with_ihme(df, ihme, lookup_table, min_similarity = 0.90)
 table(is.na(df$ihme_2_to_10_years_2_to_10_both_malaria_prevalence_rate ))
 
+# Admin1-level IHME predictors (built by IHME_clean.R via build_ihme_admin1).
+source(here("src/IHME/build_ihme_admin1.R"))
+df <- merge_ihme_admin1(
+  df,
+  admin1_csv  = here("data/IHME/ghana_2017_merged_IHME_admin1_data.csv"),
+  admin1_col  = "Admin1"
+)
+ihme_vars <- unique(c(ihme_vars, grep("^ihme_adm1_", colnames(df), value = TRUE)))
+
 
 
 #-------------------------------------------------------------------------------
