@@ -1723,7 +1723,184 @@ extract_harveststat <- function(admin2_sf, country_name, survey_year, cache_dir)
 
 
 # =============================================================================
-# 11. Master function: extract_all_external
+# 11. WFP Staple Food Prices
+# =============================================================================
+
+#' Extract WFP staple food commodity prices aggregated to Admin-2
+#'
+#' Reads WFP food price CSV data, filters to the survey year (± 1 year),
+#' aggregates mean USD prices per commodity per Admin-2, and returns a wide
+#' data.frame with one column per commodity.
+#'
+#' @param admin2_sf sf object with Admin-2 polygons (must have Admin2 column)
+#' @param country_name Country name as used in config (e.g., "Gambia")
+#' @param survey_year Integer survey year
+#' @param price_dir Directory containing wfp_food_prices_*.csv files
+#' @return data.frame with Admin2 + wfp_price_* columns
+extract_wfp_foodprices <- function(admin2_sf, country_name, survey_year,
+                                    price_dir = here::here("data", "food_price")) {
+
+  country_codes <- c(
+    "Gambia"       = "gmb",
+    "Ghana"        = "gha",
+    "Sierra Leone" = "sle",
+    "Malawi"       = "mwi"
+  )
+
+  code <- country_codes[[country_name]]
+  if (is.null(code)) {
+    cat(sprintf("[WFP prices] No food price CSV mapping for '%s'\n", country_name))
+    return(.empty_result(admin2_sf[["Admin2"]]))
+  }
+
+  csv_path <- file.path(price_dir, paste0("wfp_food_prices_", code, ".csv"))
+  if (!file.exists(csv_path)) {
+    cat(sprintf("[WFP prices] File not found: %s\n", csv_path))
+    return(.empty_result(admin2_sf[["Admin2"]]))
+  }
+
+  cat(sprintf("[WFP prices] Loading %s\n", basename(csv_path)))
+  raw <- utils::read.csv(csv_path, stringsAsFactors = FALSE)
+
+  # Remove HXL metadata row (starts with #)
+  raw <- raw[!grepl("^#", raw[[1]]), ]
+  cat(sprintf("[WFP prices] %d rows after removing metadata\n", nrow(raw)))
+
+  # Parse year from date column
+  raw$year <- as.integer(substr(raw$date, 1, 4))
+
+  # Filter to survey year ± 1 for temporal alignment
+  raw <- raw[!is.na(raw$year) &
+             raw$year >= (survey_year - 1L) &
+             raw$year <= survey_year, ]
+  cat(sprintf("[WFP prices] %d rows in %d-%d\n", nrow(raw),
+              survey_year - 1L, survey_year))
+
+  if (nrow(raw) == 0) {
+    cat("[WFP prices] No data for survey period\n")
+    return(.empty_result(admin2_sf[["Admin2"]]))
+  }
+
+  # Convert usdprice to numeric
+  raw$usdprice <- suppressWarnings(as.numeric(raw$usdprice))
+  raw <- raw[!is.na(raw$usdprice) & raw$usdprice > 0, ]
+
+  # Exclude non-food items (fuel, exchange rates, wage labour, etc.)
+  if ("category" %in% colnames(raw)) {
+    raw <- raw[!grepl("non-food|miscellaneous", raw$category, ignore.case = TRUE), ]
+  }
+
+  cat(sprintf("[WFP prices] %d food price observations\n", nrow(raw)))
+  if (nrow(raw) == 0) return(.empty_result(admin2_sf[["Admin2"]]))
+
+  # Prioritize actual > aggregate prices, Retail > Wholesale
+  if ("priceflag" %in% colnames(raw)) {
+    raw <- raw[order(raw$priceflag), ]
+  }
+  if ("pricetype" %in% colnames(raw)) {
+    raw <- raw[order(raw$pricetype), ]
+  }
+
+  # Aggregate: mean USD price per admin2 × commodity
+  # Use admin2 from WFP CSV; fall back to admin1 if admin2 is missing
+  admin_col <- if ("admin2" %in% colnames(raw) &&
+                   sum(nchar(trimws(raw$admin2)) > 0) > nrow(raw) / 2) {
+    "admin2"
+  } else if ("admin1" %in% colnames(raw)) {
+    cat("[WFP prices] admin2 sparse — using admin1 for aggregation\n")
+    "admin1"
+  } else {
+    cat("[WFP prices] No admin columns available\n")
+    return(.empty_result(admin2_sf[["Admin2"]]))
+  }
+
+  # Remove rows with empty admin names
+  raw <- raw[nchar(trimws(raw[[admin_col]])) > 0, ]
+  if (nrow(raw) == 0) return(.empty_result(admin2_sf[["Admin2"]]))
+
+  # Clean commodity names for column naming (don't use make_clean_names —
+  # it deduplicates and would create one unique name per row)
+  raw$commodity_clean <- tolower(gsub("[^a-zA-Z0-9]+", "_", raw$commodity))
+  raw$commodity_clean <- gsub("_+", "_", raw$commodity_clean)
+  raw$commodity_clean <- gsub("^_|_$", "", raw$commodity_clean)
+  raw$wfp_admin <- raw[[admin_col]]
+
+  # Average price per admin area × commodity
+  agg <- stats::aggregate(
+    usdprice ~ wfp_admin + commodity_clean,
+    data = raw,
+    FUN = function(x) mean(x, na.rm = TRUE)
+  )
+
+  # Pivot to wide format
+  wide <- tidyr::pivot_wider(
+    agg,
+    names_from  = commodity_clean,
+    values_from = usdprice
+  )
+
+  # Add wfp_price_ prefix to commodity columns
+  price_cols <- setdiff(colnames(wide), "wfp_admin")
+  for (pc in price_cols) {
+    colnames(wide)[colnames(wide) == pc] <- paste0("wfp_price_", pc)
+  }
+
+  cat(sprintf("[WFP prices] %d admin areas × %d commodities\n",
+              nrow(wide), length(price_cols)))
+
+  # ── Match WFP admin names to GADM Admin2 names ──
+  gadm_names <- admin2_sf[["Admin2"]]
+  gadm_admin1 <- admin2_sf[["Admin1"]]
+  wfp_names <- wide$wfp_admin
+
+  # Build name map: GADM name → WFP name
+  name_map <- setNames(rep(NA_character_, length(gadm_names)), gadm_names)
+
+  # If WFP uses admin1 aggregation, match via Admin1 instead
+  match_target <- if (admin_col == "admin1") gadm_admin1 else gadm_names
+
+  # Exact matches first
+  for (i in seq_along(match_target)) {
+    nm <- match_target[i]
+    if (nm %in% wfp_names) {
+      name_map[gadm_names[i]] <- nm
+    }
+  }
+
+  # Fuzzy matches for unmatched
+  unmatched <- gadm_names[is.na(name_map)]
+  for (nm in unique(match_target[gadm_names %in% unmatched])) {
+    fuzzy <- agrep(nm, wfp_names, max.distance = 0.2, value = TRUE)
+    if (length(fuzzy) >= 1) {
+      # Pick closest by string length
+      best <- fuzzy[which.min(abs(nchar(fuzzy) - nchar(nm)))]
+      idx <- which(match_target == nm & is.na(name_map))
+      name_map[gadm_names[idx]] <- best
+    }
+  }
+
+  n_matched <- sum(!is.na(name_map))
+  cat(sprintf("[WFP prices] Matched %d/%d GADM Admin-2 units to WFP areas\n",
+              n_matched, length(gadm_names)))
+
+  if (n_matched == 0) return(.empty_result(gadm_names))
+
+  # Build result: GADM Admin2 spine with matched WFP prices
+  result <- data.frame(Admin2 = gadm_names, stringsAsFactors = FALSE)
+  result$.wfp_admin <- name_map[gadm_names]
+
+  wfp_price_cols <- grep("^wfp_price_", colnames(wide), value = TRUE)
+  result <- merge(result, wide[, c("wfp_admin", wfp_price_cols), drop = FALSE],
+                  by.x = ".wfp_admin", by.y = "wfp_admin",
+                  all.x = TRUE, sort = FALSE)
+  result$.wfp_admin <- NULL
+
+  result
+}
+
+
+# =============================================================================
+# 12. Master function: extract_all_external
 # =============================================================================
 
 #' Extract all external predictor variables for a country
@@ -1797,7 +1974,7 @@ extract_all_external <- function(cc, survey_year, cache_dir = "data/external_cac
   # ── Call each extraction function with tryCatch ──────────────────────────
 
   # 1. CHIRPS rainfall
-  cat("\n--- [1/10] CHIRPS Rainfall ---\n")
+  cat("\n--- [1/11] CHIRPS Rainfall ---\n")
   chirps_df <- tryCatch(
     extract_chirps(admin2_sf, country_iso3, survey_year, cache_dir),
     error = function(e) {
@@ -1807,7 +1984,7 @@ extract_all_external <- function(cc, survey_year, cache_dir = "data/external_cac
   )
 
   # 2. WorldPop population density
-  cat("\n--- [2/10] WorldPop Population ---\n")
+  cat("\n--- [2/11] WorldPop Population ---\n")
   worldpop_df <- tryCatch(
     extract_worldpop(admin2_sf, country_iso3, survey_year, cache_dir),
     error = function(e) {
@@ -1817,7 +1994,7 @@ extract_all_external <- function(cc, survey_year, cache_dir = "data/external_cac
   )
 
   # 3. Nighttime lights
-  cat("\n--- [3/10] VIIRS Nighttime Lights ---\n")
+  cat("\n--- [3/11] VIIRS Nighttime Lights ---\n")
   ntl_df <- tryCatch(
     extract_nightlights(admin2_sf, country_iso3, survey_year, nasa_token, cache_dir),
     error = function(e) {
@@ -1827,7 +2004,7 @@ extract_all_external <- function(cc, survey_year, cache_dir = "data/external_cac
   )
 
   # 4. Malaria Atlas Project
-  cat("\n--- [4/10] Malaria Atlas Project ---\n")
+  cat("\n--- [4/11] Malaria Atlas Project ---\n")
   map_df <- tryCatch(
     extract_malaria_atlas(admin2_sf, survey_year, cache_dir, country_iso3 = country_iso3),
     error = function(e) {
@@ -1837,7 +2014,7 @@ extract_all_external <- function(cc, survey_year, cache_dir = "data/external_cac
   )
 
   # 5. SoilGrids
-  cat("\n--- [5/10] SoilGrids ---\n")
+  cat("\n--- [5/11] SoilGrids ---\n")
   soil_df <- tryCatch(
     extract_soilgrids(admin2_sf, cache_dir),
     error = function(e) {
@@ -1847,7 +2024,7 @@ extract_all_external <- function(cc, survey_year, cache_dir = "data/external_cac
   )
 
   # 6. Global Data Lab (Admin-1 level)
-  cat("\n--- [6/10] Global Data Lab ---\n")
+  cat("\n--- [6/11] Global Data Lab ---\n")
   gdl_df <- tryCatch(
     extract_gdl(country_iso3, admin1_names, survey_year),
     error = function(e) {
@@ -1857,7 +2034,7 @@ extract_all_external <- function(cc, survey_year, cache_dir = "data/external_cac
   )
 
   # 7. WFP HungerMap (Admin-1 level)
-  cat("\n--- [7/10] WFP HungerMap ---\n")
+  cat("\n--- [7/11] WFP HungerMap ---\n")
   wfp_df <- tryCatch(
     extract_wfp_hungermap(country_iso3, admin1_names, wfp_key),
     error = function(e) {
@@ -1867,7 +2044,7 @@ extract_all_external <- function(cc, survey_year, cache_dir = "data/external_cac
   )
 
   # 8. IPC/Cadre Harmonisé API
-  cat("\n--- [8/10] IPC/CH Food Security ---\n")
+  cat("\n--- [8/11] IPC/CH Food Security ---\n")
   ipc_df <- tryCatch(
     extract_ipc(country_iso3, admin2_sf, survey_year),
     error = function(e) {
@@ -1877,7 +2054,7 @@ extract_all_external <- function(cc, survey_year, cache_dir = "data/external_cac
   )
 
   # 9. ACLED Conflict Data
-  cat("\n--- [9/10] ACLED Conflict Events ---\n")
+  cat("\n--- [9/11] ACLED Conflict Events ---\n")
   acled_df <- tryCatch(
     extract_acled(admin2_sf, cc$country, survey_year),
     error = function(e) {
@@ -1887,11 +2064,21 @@ extract_all_external <- function(cc, survey_year, cache_dir = "data/external_cac
   )
 
   # 10. HarvestStat Africa Crop Statistics
-  cat("\n--- [10/10] HarvestStat Africa Crop Data ---\n")
+  cat("\n--- [10/11] HarvestStat Africa Crop Data ---\n")
   harvest_df <- tryCatch(
     extract_harveststat(admin2_sf, cc$country, survey_year, cache_dir),
     error = function(e) {
       warning(sprintf("HarvestStat extraction failed: %s", e$message))
+      .empty_result(admin2_names)
+    }
+  )
+
+  # 11. WFP Staple Food Prices
+  cat("\n--- [11/11] WFP Staple Food Prices ---\n")
+  foodprice_df <- tryCatch(
+    extract_wfp_foodprices(admin2_sf, cc$country, survey_year),
+    error = function(e) {
+      warning(sprintf("WFP food prices extraction failed: %s", e$message))
       .empty_result(admin2_names)
     }
   )
@@ -1908,7 +2095,7 @@ extract_all_external <- function(cc, survey_year, cache_dir = "data/external_cac
 
   # Join Admin-2 level data — deduplicate sources first to prevent cartesian joins
   admin2_sources <- list(chirps_df, worldpop_df, ntl_df, map_df, soil_df,
-                         ipc_df, acled_df, harvest_df)
+                         ipc_df, acled_df, harvest_df, foodprice_df)
   for (src_df in admin2_sources) {
     if (is.null(src_df) || !is.data.frame(src_df)) next
     if (!("Admin2" %in% colnames(src_df)) || ncol(src_df) <= 1) next
@@ -1990,16 +2177,18 @@ extract_all_external <- function(cc, survey_year, cache_dir = "data/external_cac
 external_predictors_target <- function(cc, params, cache_dir = "data/external_cache",
                                        nasa_token = NULL, wfp_key = NULL) {
 
-  # Map country names to survey years
-  survey_years <- c(
-    "Gambia"       = 2018L,
-    "Ghana"        = 2017L,
-    "Sierra Leone" = 2013L,  # SLMS fieldwork: 11 Nov – 2 Dec 2013
-    "Malawi"       = 2016L
-  )
-
-  survey_year <- survey_years[cc$country]
-  if (is.na(survey_year)) {
+  # Get survey year from config (centralized) or fall back to hardcoded
+  survey_year <- cc$survey_year
+  if (is.null(survey_year)) {
+    survey_years <- c(
+      "Gambia"       = 2018L,
+      "Ghana"        = 2017L,
+      "Sierra Leone" = 2013L,
+      "Malawi"       = 2016L
+    )
+    survey_year <- survey_years[cc$country]
+  }
+  if (is.na(survey_year) || is.null(survey_year)) {
     warning(sprintf("No survey year defined for country '%s'. Using 2018 as default.",
                     cc$country))
     survey_year <- 2018L

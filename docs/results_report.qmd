@@ -418,12 +418,23 @@ for (ctry in countries) {
       if (!is.null(od$Xvars)) n_pred <- length(od$Xvars)
     }
 
+    # Get prevalence from binary diagnostics if available
+    bin_diag <- load_target(paste0("diagnostics_", suffix))
+    n_events <- NA_integer_
+    prev_pct <- NA_character_
+    if (!is.null(bin_diag) && !is.null(bin_diag$binary_metrics)) {
+      n_events <- bin_diag$binary_metrics$n_events
+      prev_pct <- sprintf("%.1f%%", bin_diag$binary_metrics$prevalence * 100)
+    }
+
     desc_rows[[suffix]] <- data.frame(
       Country  = ctry_label,
       Outcome  = outcome_labels[oc_name],
       Admin1   = n_a1_units,
       Admin2   = n_a2_units,
       n        = n_obs,
+      Events   = n_events,
+      Prevalence = prev_pct,
       p        = n_pred,
       stringsAsFactors = FALSE
     )
@@ -437,8 +448,9 @@ if (length(desc_rows) > 0) {
 
   kable(desc_df,
         col.names = c("Country", "Outcome", "Admin-1 regions", "Admin-2 districts",
-                       "Observations (n)", "Proxy predictors (p)"),
-        caption = "Descriptive summary: geographic units, sample sizes, and predictor dimensions by country and outcome") |>
+                       "Observations (n)", "Events", "Prevalence",
+                       "Proxy predictors (p)"),
+        caption = "Descriptive summary: geographic units, sample sizes, prevalence, and predictor dimensions by country and outcome") |>
     kable_styling(bootstrap_options = c("striped", "hover"),
                   full_width = FALSE, font_size = 11) |>
     collapse_rows(columns = 1:4, valign = "top")
@@ -844,6 +856,70 @@ if (!is.null(diagnostics_all) && !is.null(diagnostics_all$binary_metrics) &&
 - **Calibration slope** near 1.0 = well-calibrated; < 1 = overconfident predictions; > 1 = underconfident
 - **Calibration intercept** near 0 = no systematic bias
 
+## Ensemble learner weights
+
+Which learners contribute most to the SuperLearner ensemble? The metalearner (NNLS) assigns non-negative weights to each base learner, with weights summing to 1. Higher weights indicate greater contribution to the final prediction.
+
+```{r learner-weights, fig.height=8, fig.width=10}
+wt_rows <- list()
+
+for (ctry in countries) {
+  for (oc_name in outcomes) {
+    suffix <- paste0(ctry, "_", oc_name)
+    sl <- load_target(paste0("sl_fit_", suffix))
+    if (is.null(sl)) next
+
+    for (mtype in c("cont_fit", "bin_fit")) {
+      fit <- sl[[mtype]]
+      if (is.null(fit) || is.null(fit$cv_risk_w_sl_revere)) next
+
+      risk_tbl <- fit$cv_risk_w_sl_revere
+      if (is.null(risk_tbl) || !is.data.frame(risk_tbl) ||
+          nrow(risk_tbl) == 0 || !"coefficients" %in% colnames(risk_tbl)) next
+
+      wt_rows[[paste0(suffix, "_", mtype)]] <- data.frame(
+        country    = country_labels[ctry],
+        outcome    = outcome_labels[oc_name],
+        model_type = ifelse(mtype == "bin_fit", "Binary", "Continuous"),
+        learner    = risk_tbl$learner,
+        weight     = round(as.numeric(risk_tbl$coefficients), 3),
+        stringsAsFactors = FALSE
+      )
+    }
+  }
+}
+
+if (length(wt_rows) > 0) {
+  wt_df <- do.call(rbind, wt_rows)
+  rownames(wt_df) <- NULL
+
+  # Filter to binary models and non-zero weights for the heatmap
+  wt_bin <- wt_df |>
+    filter(model_type == "Binary", weight > 0.001)
+
+  if (nrow(wt_bin) > 0) {
+    wt_bin$label <- paste0(wt_bin$country, " - ", wt_bin$outcome)
+
+    ggplot(wt_bin, aes(x = learner, y = label, fill = weight)) +
+      geom_tile(colour = "white", linewidth = 0.3) +
+      geom_text(aes(label = ifelse(weight >= 0.01, sprintf("%.2f", weight), "")),
+                size = 2.5) +
+      scale_fill_gradient(low = "white", high = "#2166ac",
+                          limits = c(0, 1), name = "Weight") +
+      labs(
+        title = "SuperLearner ensemble weights (binary models)",
+        subtitle = "NNLS metalearner weights. Only learners with weight > 0 shown.",
+        x = "Base learner",
+        y = NULL
+      ) +
+      theme_minimal(base_size = 10) +
+      theme(axis.text.x = element_text(angle = 45, hjust = 1))
+  }
+} else {
+  cat("Learner weights not available — mlr3superlearner does not expose per-learner weights in the current version. The ensemble uses NNLS (non-negative least squares) metalearning to combine base learner predictions.")
+}
+```
+
 ## Reliability (calibration) plots
 
 ```{r calibration-plots, fig.height=6, fig.width=10}
@@ -916,6 +992,37 @@ if (!is.null(diagnostics_all) && !is.null(diagnostics_all$pr_curves) &&
   }
 } else {
   cat("No PR curve data available.")
+}
+```
+
+## ROC curves
+
+Receiver Operating Characteristic curves showing the trade-off between true positive rate (sensitivity) and false positive rate (1 - specificity) at all classification thresholds.
+
+```{r roc-curves, fig.height=6, fig.width=10}
+if (!is.null(diagnostics_all) && !is.null(diagnostics_all$roc_curves) &&
+    nrow(diagnostics_all$roc_curves) > 0) {
+
+  roc <- diagnostics_all$roc_curves |>
+    filter(!is.na(fpr) & !is.na(tpr)) |>
+    mutate(label = paste0(country, " - ", outcome_labels[outcome]))
+
+  if (nrow(roc) > 0) {
+    ggplot(roc, aes(x = fpr, y = tpr)) +
+      geom_abline(slope = 1, intercept = 0, linetype = "dashed", colour = "grey50") +
+      geom_line(colour = "#d95f02", linewidth = 0.8) +
+      facet_wrap(~ label, scales = "free") +
+      labs(
+        title = "ROC curves (binary classification models)",
+        subtitle = "Dashed diagonal = random classifier (AUC = 0.5). Further above = better discrimination.",
+        x = "False positive rate (1 - Specificity)",
+        y = "True positive rate (Sensitivity)"
+      ) +
+      coord_cartesian(xlim = c(0, 1), ylim = c(0, 1)) +
+      theme_minimal(base_size = 11)
+  }
+} else {
+  cat("No ROC curve data available.")
 }
 ```
 
@@ -2129,6 +2236,51 @@ if (length(nat_list) > 0) {
 
 These intervals are computed using split-conformal prediction with adaptive width scaling. Unlike bootstrap CIs, they do not depend on the number of resamples and are valid in both fast and full pipeline modes. Wider intervals indicate areas where the model's residuals are larger, naturally flagging regions with greater prediction uncertainty.
 :::
+
+## Conformal CI coverage validation
+
+Conformal prediction intervals target 95% marginal coverage. The table below validates this empirically using the individual-level cross-validated predictions.
+
+```{r conformal-coverage}
+cov_rows <- list()
+
+for (ctry in countries) {
+  for (oc_name in outcomes) {
+    suffix <- paste0(ctry, "_", oc_name)
+    ci_obj <- boot_ci[[suffix]]
+    if (is.null(ci_obj)) next
+
+    # Access diagnostics safely — the individual_ci sub-element is large
+    diag <- tryCatch(ci_obj$diagnostics, error = function(e) NULL)
+    if (is.null(diag) || is.null(diag$constant_coverage)) next
+
+    cov_rows[[suffix]] <- data.frame(
+      Country             = country_labels[ctry],
+      Outcome             = outcome_labels[oc_name],
+      Constant_Width_pp   = sprintf("%.1f", diag$constant_width * 100),
+      Constant_Coverage   = sprintf("%.1f%%", diag$constant_coverage * 100),
+      Adaptive_Coverage   = sprintf("%.1f%%", diag$adaptive_coverage * 100),
+      Target              = "95.0%",
+      stringsAsFactors    = FALSE
+    )
+  }
+}
+
+if (length(cov_rows) > 0) {
+  cov_df <- do.call(rbind, cov_rows)
+  rownames(cov_df) <- NULL
+
+  kable(cov_df,
+        col.names = c("Country", "Outcome", "Constant half-width (pp)",
+                       "Constant coverage", "Adaptive coverage", "Target"),
+        caption = "Empirical coverage of conformal prediction intervals (individual-level)") |>
+    kable_styling(bootstrap_options = c("striped", "hover"),
+                  full_width = FALSE, font_size = 11) |>
+    collapse_rows(columns = 1, valign = "top")
+} else {
+  cat("No conformal coverage diagnostics available.")
+}
+```
 
 
 # Cross-Country Summary {#sec-summary}

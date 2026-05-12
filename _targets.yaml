@@ -1,2 +1,5 @@
 main:
-  store: _targets
+  store: _targets_full
+national:
+  script: national_prediction/_targets.R
+  store: national_prediction/_targets

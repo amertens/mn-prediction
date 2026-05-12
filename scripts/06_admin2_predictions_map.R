@@ -24,6 +24,8 @@
 COUNTRY     <- "Gambia"       # "Gambia" or "Ghana"
 OUTCOME_TAG <- "child_vitA"   # see OUTCOME REGISTRY below
 B_BOOT      <- 10L            # bootstrap replicates (10 for dev; 200 for pub)
+MIN_N_SVY   <- 10L            # min surveyed individuals per Admin2 for error
+                              # metrics (smaller cells have unstable svy_prev)
 # ─────────────────────────────────────────────────────────────────────────────
 
 suppressPackageStartupMessages({
@@ -401,12 +403,16 @@ cat("\n[03] Aggregating SL predictions to Admin2...\n")
 pred_df <- res_active$res %>%
   dplyr::select(dataid, Y, yhat_full)
 
-# Attach Admin2 from d_oc by dataid
+# Attach Admin2 + survey weight from d_oc by dataid. Survey-weighted
+# aggregation matches the survey-weighted Admin2 prevalence in §10 and
+# R/admin2_analysis.R (so SL vs survey is an apples-to-apples comparison).
 geo_df <- d_oc %>%
   dplyr::select(dataid,
                 Admin2  = dplyr::all_of(cc$admin2_col),
-                Admin1  = dplyr::all_of(cc$admin1_col)) %>%
-  dplyr::mutate(across(c(Admin2, Admin1), as.character))
+                Admin1  = dplyr::all_of(cc$admin1_col),
+                .wt     = dplyr::all_of(cc$weight_col)) %>%
+  dplyr::mutate(across(c(Admin2, Admin1), as.character),
+                .wt = as.numeric(.wt))
 
 pred_geo <- dplyr::left_join(pred_df, geo_df, by = "dataid")
 
@@ -417,14 +423,20 @@ pred_geo <- pred_geo %>%
                 else apply_threshold(yhat_full, oc$cutoff, oc$cutoff_dir)
   )
 
-# Admin2-level: mean predicted prevalence, n, observed prevalence
+# Admin2-level: survey-weighted predicted prevalence, n, observed prevalence.
+# Falls back to unweighted mean when all weights in a group are NA/0.
+.safe_wmean <- function(x, w) {
+  ok <- !is.na(x) & !is.na(w) & w > 0
+  if (!any(ok)) return(mean(x, na.rm = TRUE))
+  stats::weighted.mean(x[ok], w[ok])
+}
 sl_admin2 <- pred_geo %>%
   dplyr::filter(!is.na(Admin2)) %>%
   dplyr::group_by(Admin2) %>%
   dplyr::summarise(
     n_sl        = dplyr::n(),
-    sl_prev     = mean(deficient, na.rm = TRUE),
-    obs_prev_sl = mean(Y,         na.rm = TRUE),  # unweighted observed
+    sl_prev     = .safe_wmean(deficient, .wt),
+    obs_prev_sl = .safe_wmean(Y,         .wt),
     .groups     = "drop"
   )
 
@@ -794,7 +806,11 @@ if (!is.null(cc$strata_col)) {
   )
 }
 
-# Admin2-level design-based prevalence
+# Admin2-level design-based prevalence. srvyr's default vartype="ci" is a
+# Wald interval, which can extend below 0 or above 1 for rare outcomes.
+# We add logit-transformed CIs (clamped to [0, 1]) as a more sensible bound
+# for low-prevalence Admin2 cells, while preserving the Wald CIs for
+# backwards compatibility with downstream consumers.
 svy_admin2 <- svy_des %>%
   dplyr::group_by(.data[[cc$admin2_col]]) %>%
   dplyr::summarise(
@@ -808,6 +824,24 @@ svy_admin2 <- svy_des %>%
     svy_cv      = if_else(svy_prev > 0, svy_prev_se / svy_prev, NA_real_),
     svy_ci_width = svy_prev_upp - svy_prev_low
   )
+
+# Logit-CI (delta method on log-odds; falls back to clamped Wald at 0/1)
+.logit_ci <- function(p, se, alpha = 0.05) {
+  out <- list(lo = pmin(pmax(p - 1.96 * se, 0), 1),
+              hi = pmin(pmax(p + 1.96 * se, 0), 1))
+  ok <- !is.na(p) & !is.na(se) & p > 0 & p < 1 & se > 0
+  if (any(ok)) {
+    eta <- log(p[ok] / (1 - p[ok]))
+    se_eta <- se[ok] / (p[ok] * (1 - p[ok]))
+    z <- stats::qnorm(1 - alpha / 2)
+    out$lo[ok] <- stats::plogis(eta - z * se_eta)
+    out$hi[ok] <- stats::plogis(eta + z * se_eta)
+  }
+  out
+}
+.logit <- .logit_ci(svy_admin2$svy_prev, svy_admin2$svy_prev_se)
+svy_admin2$svy_prev_logit_lo <- .logit$lo
+svy_admin2$svy_prev_logit_hi <- .logit$hi
 
 cat(sprintf("  Admin2 units with survey estimate: %d\n", nrow(svy_admin2)))
 
@@ -843,12 +877,19 @@ if (exists("admin2_ci")) {
     )
 }
 
-# Compute error metrics only where both estimates available
-eval_df <- merged_admin2 %>%
+# Compute error metrics only where both estimates available AND the survey
+# cell has at least MIN_N_SVY individuals. Cells with n_svy below this are
+# kept for context (in the full per-Admin2 table) but excluded from MAE/RMSE
+# because their svy_prev variance dominates the metric.
+eval_all <- merged_admin2 %>%
   dplyr::filter(!is.na(sl_prev), !is.na(svy_prev))
+eval_df  <- eval_all %>% dplyr::filter(n_svy >= MIN_N_SVY)
 
-n_eval <- nrow(eval_df)
-cat(sprintf("  Admin2 units with both SL and survey estimate: %d\n", n_eval))
+n_eval     <- nrow(eval_df)
+n_eval_low <- nrow(eval_all) - n_eval
+cat(sprintf("  Admin2 units with both SL and survey estimate: %d\n", nrow(eval_all)))
+cat(sprintf("  After filtering n_svy >= %d: %d (excluded %d sparse cells)\n",
+            MIN_N_SVY, n_eval, n_eval_low))
 
 if (n_eval >= 2) {
   mae      <- mean(abs(eval_df$sl_prev - eval_df$svy_prev))
@@ -862,15 +903,41 @@ if (n_eval >= 2) {
   cat(sprintf("  Mean bias: %+.3f (%+.1f pp) [SL − survey]\n",
               mean_bias, mean_bias * 100))
 
+  # Spatial residual diagnostic: tests whether the SL leaves Admin2 spatial
+  # structure unexplained. Defined in R/diagnostics.R; uses GADM centroids.
+  morans <- tryCatch({
+    src <- here::here("R", "diagnostics.R")
+    if (!exists("spatial_residual_diagnostics", mode = "function") &&
+        file.exists(src)) source(src)
+    spatial_residual_diagnostics(
+      data.frame(Admin1   = eval_df[[cc$admin1_col]],
+                 Admin2   = eval_df[[cc$admin2_col]],
+                 svy_prev = eval_df$svy_prev,
+                 sl_prev  = eval_df$sl_prev),
+      gadm_code = cc$gadm_code
+    )
+  }, error = function(e) {
+    cat(sprintf("  [morans] %s\n", conditionMessage(e)))
+    data.frame(morans_i = NA_real_, p_value = NA_real_)
+  })
+  if (!is.null(morans$morans_i) && !is.na(morans$morans_i)) {
+    cat(sprintf("  Moran's I (residuals): %.3f (p = %.3f, n = %d)\n",
+                morans$morans_i, morans$p_value, morans$n))
+  }
+
   error_summary <- data.frame(
-    outcome    = OUTCOME_TAG,
-    country    = COUNTRY,
-    model_type = model_type,
-    n_admin2   = n_eval,
-    mae_pp     = round(mae  * 100, 2),
-    rmse_pp    = round(rmse * 100, 2),
-    pearson_r  = round(r_cor,      3),
-    mean_bias_pp = round(mean_bias * 100, 2)
+    outcome             = OUTCOME_TAG,
+    country             = COUNTRY,
+    model_type          = model_type,
+    n_admin2            = n_eval,
+    n_admin2_excluded   = n_eval_low,
+    min_n_svy           = MIN_N_SVY,
+    mae_pp              = round(mae  * 100, 2),
+    rmse_pp             = round(rmse * 100, 2),
+    pearson_r           = round(r_cor,      3),
+    mean_bias_pp        = round(mean_bias * 100, 2),
+    morans_i_residual   = round(morans$morans_i, 3),
+    morans_i_p_value    = round(morans$p_value,  4)
   )
   readr::write_csv(error_summary,
     file.path(out_tables,

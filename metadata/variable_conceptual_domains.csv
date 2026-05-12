@@ -313,3 +313,4 @@ gee_smod,GEE,Infrastructure,Settlement type,Settlement model classification,pref
 gee_ghm,GEE,Infrastructure,Human modification,Global human modification index,prefix
 gee_grassland,GEE,Environment,Land cover,Grassland fraction,prefix
 gee_popdensity,GEE,Demographics,Population density,Population density (GEE raster),prefix
+wfp_price_,WFP,Food Security,Food prices,Staple food commodity prices (WFP USD/kg),prefix

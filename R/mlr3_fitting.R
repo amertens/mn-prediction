@@ -243,10 +243,16 @@ mlr3_SL_clustered <- function(d, Xvars, outcome, population,
     }
   }
 
-  # Replace any remaining NaN/Inf with 0
+  # Replace any remaining NaN/Inf with NA (not 0 — zero is a valid value
+  # and would introduce bias). Edge cases from recipe transforms.
+  # xgboost and ranger handle NA natively.
   for (col in colnames(cov)) {
-    bad <- !is.finite(cov[[col]])
-    if (any(bad)) cov[[col]][bad] <- 0
+    bad <- !is.finite(cov[[col]]) & !is.na(cov[[col]])
+    if (any(bad)) {
+      cov[[col]][bad] <- NA
+      cat(sprintf("  [mlr3_SL] Post-recipe: replaced %d Inf/NaN with NA in '%s'\n",
+                  sum(bad), col))
+    }
   }
 
   # ── Add class-weighted learner variants for rare binary outcomes ──────
@@ -282,7 +288,11 @@ mlr3_SL_clustered <- function(d, Xvars, outcome, population,
   mlr3_df <- mlr3_df[valid_rows, ]
 
   # ── Determine outcome type and set up folds ──
-  # Create cluster-based fold assignments using origami
+  # Cluster-based CV: pass cluster IDs to mlr3superlearner via `group=`,
+  # which keeps observations from the same PSU in the same fold (per
+  # mlr3superlearner help: "observations in the same group are treated
+  # like a 'block' of observations kept together during sample splitting").
+  # The origami fold_obj is also retained for downstream consumers.
   cluster_ids <- mlr3_df$cluster_id
   fold_obj <- origami::make_folds(cluster_ids = cluster_ids, V = folds)
 
@@ -301,8 +311,10 @@ mlr3_SL_clustered <- function(d, Xvars, outcome, population,
     )
   }
 
-  # Remove cluster_id from features before fitting
-  fit_df <- mlr3_df[, !colnames(mlr3_df) %in% "cluster_id", drop = FALSE]
+  # Keep cluster_id IN the data and reference it by name via `group=`.
+  # mlr3superlearner uses `group` as the blocking variable for sample
+  # splitting and excludes it from predictors automatically.
+  fit_df <- mlr3_df  # cluster_id stays as a column
 
   t0 <- proc.time()
   mlr3_fit <- tryCatch({
@@ -312,7 +324,8 @@ mlr3_SL_clustered <- function(d, Xvars, outcome, population,
         target = "Y",
         library = mlr3_library,
         outcome_type = outcome_type,
-        folds = folds
+        folds = folds,
+        group = "cluster_id"
       )
     )
   }, error = function(e) {

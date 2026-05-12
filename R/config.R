@@ -14,9 +14,16 @@
 get_country_configs <- function() {
   list(
 
+    # ── Gambia (GMNS 2018) ────────────────────────────────────────────────
+    # Gambia National Micronutrient Survey. Fieldwork: 13 Mar – 4 May 2018.
+    # DHS year: 2019 (Gambia DHS 2019-20). No 2018 DHS round exists for
+    # Gambia; 2019 is the closest available (+1 year post-survey). The prior
+    # round (2013) has a 5-year gap and is significantly less representative.
     Gambia = list(
       country     = "Gambia",
       gadm_code   = "GMB",
+      survey_year = 2018L,
+      dhs_year    = 2019L,    # closest available; no 2018 DHS round exists
       data_path   = here::here("data", "IPD", "Gambia", "Gambia_merged_dataset.rds"),
       raster_dir  = here::here("data", "Gambia_GEE_rasters"),
 
@@ -101,15 +108,18 @@ get_country_configs <- function() {
       # ── Future outcomes (Gambia has no folate/B12/zinc biomarker data) ──
     ),
 
-    # ── Ghana ─────────────────────────────────────────────────────────────
-    # GMS 2017: 2450 individuals (1165 children, ~992 women, some overlap)
-    # No gw_child_flag in merged data — derived in load_merged_data() from
-    # presence of child vs. women biomarker columns.
-    # DHS available for 3 survey years (2014, 2016, 2017).
-    # Has LSMS and FluNet data (unique among countries).
+    # ── Ghana (GMS 2017) ────────────────────────────────────────────────
+    # Ghana Micronutrient Survey. Fieldwork: 27 Apr – 9 Jun 2017.
+    # 2450 individuals (1165 children, ~992 women, some overlap).
+    # No gw_child_flag in merged data — derived in load_merged_data().
+    # DHS available: 2014, 2016, 2017. Currently using 2014 (3-year gap).
+    # TODO: Switch to DHS 2017 once Admin-2 aggregation is run for that year
+    #       (src/DHS/DHS_admin2_aggregation.R already configured for Ghana 2017).
     Ghana = list(
       country     = "Ghana",
       gadm_code   = "GHA",
+      survey_year = 2017L,
+      dhs_year    = 2014L,    # TODO: upgrade to 2017 when pre-computed files available
       data_path   = here::here("data", "IPD", "Ghana", "Ghana_merged_dataset.rds"),
       raster_dir  = here::here("data", "Ghana_GEE rasters"),
 
@@ -214,16 +224,19 @@ get_country_configs <- function() {
       )
     ),
 
-    # ── Sierra Leone ──────────────────────────────────────────────────────
-    # GMS 2012: 1477 individuals (532 children, 945 women)
+    # ── Sierra Leone (SLMS 2013) ────────────────────────────────────────
+    # Sierra Leone Micronutrient Survey. Fieldwork: 11 Nov – 2 Dec 2013.
+    # 1477 individuals (532 children, 945 women).
     # Biomarker columns use different naming (no Thurn/Brinda suffix):
     #   Vitamin A: gw_cRBPAdj / gw_wRBPAdj (continuous), no binary VAD column
     #   Iron: gw_cFerrAdj / gw_wFerrAdj (continuous), gw_cIDA / gw_wIDA (binary)
     # Binary VAD derived in load_merged_data() from continuous RBP < 0.70.
-    # No MICS, LSMS, FluNet, or WFP data. DHS 2013 only.
+    # No MICS, LSMS, FluNet, or WFP data. DHS 2013 aligned.
     SierraLeone = list(
       country     = "Sierra Leone",
       gadm_code   = "SLE",
+      survey_year = 2013L,
+      dhs_year    = 2013L,    # aligned with survey year
       data_path   = here::here("data", "IPD", "Sierra Leone",
                                 "SierraLeone_merged_dataset.rds"),
       raster_dir  = here::here("data", "Sierra_Leone_GEE_rasters"),
@@ -322,14 +335,17 @@ get_country_configs <- function() {
       )
     )
 
-    # ── Malawi (MNS 2015-16) ──────────────────────────────────────────────
-    # Malawi Micronutrient Survey. Biomarker columns use raw names (rbp,
-    # fer, vitA_def, iron_def) rather than gw_ prefix. Population filtering
-    # uses a text `population` column, not a binary child_flag.
-    # DHS predictors use "dhs2015_" prefix; also has WFP data.
+    # ── Malawi (MNS 2015-16, within DHS round) ──────────────────────────
+    # Malawi Micronutrient Survey. Fieldwork: 8 Dec 2015 – 16 Feb 2016.
+    # Biomarker columns use raw names (rbp, fer, vitA_def, iron_def)
+    # rather than gw_ prefix. Population filtering uses a text `population`
+    # column, not a binary child_flag.
+    # DHS 2015 used (−1yr); 78% of interviews in Jan–Feb 2016.
     , Malawi = list(
       country     = "Malawi",
       gadm_code   = "MWI",
+      survey_year = 2016L,    # majority of fieldwork in Jan-Feb 2016
+      dhs_year    = 2015L,    # closest available DHS (−1 year)
       data_path   = here::here("data", "IPD", "Malawi",
                                 "Malawi_merged_dataset.rds"),
       raster_dir  = here::here("data", "Malawi_GEE_rasters"),
@@ -392,9 +408,10 @@ get_country_configs <- function() {
           label          = "Folate deficiency (women)",
           population     = "women",
           child_flag_val = "women",
-          continuous     = "fol",              # serum folate, ng/mL
+          continuous     = "fol_nmol",         # serum folate, nmol/L (converted from ng/mL × 2.266)
           binary         = "folate_def",       # derived: fol < 3 ng/mL
-          cutoff         = 3,                  # WHO: <3 ng/mL (= <6.8 nmol/L)
+          cutoff         = 3,                  # Malawi MNS: <3 ng/mL (≈6.8 nmol/L); binary uses
+                                               # original survey definition. Ghana/SL use 10 nmol/L.
           cutoff_dir     = "less",
           cutoff_scale   = "original"
         ),

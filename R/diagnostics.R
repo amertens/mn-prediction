@@ -93,12 +93,45 @@ compute_binary_diagnostics <- function(preds, n_bins = 10) {
   # ── Calibration slope and intercept (logistic recalibration) ──
   calib_int   <- NA_real_
   calib_slope <- NA_real_
+  calib_slope_lo <- NA_real_
+  calib_slope_hi <- NA_real_
+  calib_int_lo   <- NA_real_
+  calib_int_hi   <- NA_real_
   tryCatch({
     logit_yhat <- log(yhat / (1 - yhat))
     fit <- glm(Y ~ logit_yhat, family = binomial)
     calib_int   <- coef(fit)[1]
     calib_slope <- coef(fit)[2]
+    ci <- suppressMessages(stats::confint.default(fit))
+    if (is.matrix(ci) && all(c("(Intercept)", "logit_yhat") %in% rownames(ci))) {
+      calib_int_lo   <- ci["(Intercept)", 1]
+      calib_int_hi   <- ci["(Intercept)", 2]
+      calib_slope_lo <- ci["logit_yhat",  1]
+      calib_slope_hi <- ci["logit_yhat",  2]
+    }
   }, error = function(e) NULL)
+
+  # ── Expected Calibration Error (ECE) ──
+  # |mean(yhat) - mean(Y)| within each equal-width bin, weighted by bin size.
+  # Uses the same n_bins as the calibration table for consistency.
+  ece <- tryCatch({
+    bins <- cut(yhat, breaks = n_bins, include.lowest = TRUE)
+    n_per <- as.integer(table(bins))
+    mp    <- tapply(yhat, bins, mean, na.rm = TRUE)
+    mo    <- tapply(Y,    bins, mean, na.rm = TRUE)
+    ok    <- !is.na(mp) & !is.na(mo)
+    if (sum(n_per[ok]) == 0) NA_real_
+    else sum(n_per[ok] * abs(mp[ok] - mo[ok])) / sum(n_per[ok])
+  }, error = function(e) NA_real_)
+
+  # ── Maximum Calibration Error (MCE) — worst-case bin gap ──
+  mce <- tryCatch({
+    bins <- cut(yhat, breaks = n_bins, include.lowest = TRUE)
+    mp <- tapply(yhat, bins, mean, na.rm = TRUE)
+    mo <- tapply(Y,    bins, mean, na.rm = TRUE)
+    ok <- !is.na(mp) & !is.na(mo)
+    if (!any(ok)) NA_real_ else max(abs(mp[ok] - mo[ok]))
+  }, error = function(e) NA_real_)
 
   # ── Binned calibration table ──
   cal_table <- tryCatch({
@@ -134,15 +167,21 @@ compute_binary_diagnostics <- function(preds, n_bins = 10) {
   }, error = function(e) NULL)
 
   metrics <- data.frame(
-    n           = n,
-    n_events    = n_events,
-    prevalence  = round(prev, 4),
-    roc_auc     = round(roc_auc, 4),
-    pr_auc      = round(pr_auc, 4),
-    brier       = round(brier, 4),
-    brier_skill = round(brier_skill, 4),
-    calib_int   = round(calib_int, 4),
-    calib_slope = round(calib_slope, 4),
+    n              = n,
+    n_events       = n_events,
+    prevalence     = round(prev, 4),
+    roc_auc        = round(roc_auc, 4),
+    pr_auc         = round(pr_auc, 4),
+    brier          = round(brier, 4),
+    brier_skill    = round(brier_skill, 4),
+    calib_int      = round(calib_int, 4),
+    calib_int_lo   = round(calib_int_lo, 4),
+    calib_int_hi   = round(calib_int_hi, 4),
+    calib_slope    = round(calib_slope, 4),
+    calib_slope_lo = round(calib_slope_lo, 4),
+    calib_slope_hi = round(calib_slope_hi, 4),
+    ece            = round(ece, 4),
+    mce            = round(mce, 4),
     stringsAsFactors = FALSE
   )
 
@@ -294,4 +333,41 @@ plot_pr_curve <- function(pr_data, prevalence = NULL, title = "Precision-Recall 
   }
 
   p
+}
+
+
+#' Moran's I on Admin2 SL residuals
+#'
+#' Tests whether the global SuperLearner leaves spatial structure unexplained
+#' at Admin2. Builds a row-standardised k-nearest-neighbour weights matrix on
+#' Admin2 polygon centroids (GADM level 2) and runs spdep::moran.test on
+#' (svy_prev - sl_prev). Returns NA fields if spatial packages are missing or
+#' if too few Admin2s have both survey and SL predictions.
+#'
+#' @param admin2_df data.frame with Admin1, Admin2, svy_prev, sl_prev
+#' @param gadm_code 3-letter ISO code for GADM (e.g. "GMB")
+#' @param k_neighbors integer (default 5)
+#' @return 1-row data.frame: n, morans_i, expectation, variance, z, p_value
+spatial_residual_diagnostics <- function(admin2_df, gadm_code, k_neighbors = 5) {
+  if (!requireNamespace("spdep", quietly = TRUE) ||
+      !requireNamespace("sf", quietly = TRUE) ||
+      !requireNamespace("geodata", quietly = TRUE)) {
+    return(data.frame(n = NA_integer_, morans_i = NA_real_,
+                      expectation = NA_real_, variance = NA_real_,
+                      z = NA_real_, p_value = NA_real_,
+                      note = "spdep/sf/geodata not installed"))
+  }
+  if (!exists("morans_i_residuals", mode = "function")) {
+    src <- here::here("R", "gwr_analysis.R")
+    if (file.exists(src)) source(src)
+  }
+  polys <- tryCatch(load_admin2_centroids(gadm_code),
+                    error = function(e) NULL)
+  if (is.null(polys)) {
+    return(data.frame(n = NA_integer_, morans_i = NA_real_,
+                      expectation = NA_real_, variance = NA_real_,
+                      z = NA_real_, p_value = NA_real_,
+                      note = "GADM load failed"))
+  }
+  morans_i_residuals(admin2_df, polys, k_neighbors = k_neighbors)$morans_i
 }

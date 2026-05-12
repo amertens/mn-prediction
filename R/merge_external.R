@@ -156,10 +156,13 @@ merge_external_predictors <- function(merged_data, cc,
   dhs_dir <- here::here("data", "DHS", "clean")
   dhs_country_name <- cc$country  # e.g., "Ghana", "Gambia"
 
-  # Map country to DHS year
-  dhs_years <- c("Gambia" = 2019L, "Ghana" = 2014L,
-                 "Sierra Leone" = 2013L, "Malawi" = 2015L)
-  dhs_year <- dhs_years[dhs_country_name]
+  # Map country to DHS year — prefer config, fall back to hardcoded
+  dhs_year <- cc$dhs_year
+  if (is.null(dhs_year)) {
+    dhs_years <- c("Gambia" = 2019L, "Ghana" = 2014L,
+                   "Sierra Leone" = 2013L, "Malawi" = 2015L)
+    dhs_year <- dhs_years[dhs_country_name]
+  }
 
   if (!is.na(dhs_year) && dir.exists(dhs_dir)) {
     dhs_admin2 <- tryCatch(
@@ -237,11 +240,15 @@ merge_external_predictors <- function(merged_data, cc,
 #' @param cc Country config
 #' @return Integer survey year
 get_survey_year <- function(cc) {
+  # Prefer survey_year from config (centralized source of truth)
+  if (!is.null(cc$survey_year)) return(as.integer(cc$survey_year))
+
+  # Fallback: hardcoded mapping (kept for backward compatibility)
   # Fieldwork dates from survey reports:
-  #   Ghana:        27 Apr – 9 Jun 2017
-  #   Gambia:       13 Mar – 4 May 2018
-  #   Sierra Leone: 11 Nov – 2 Dec 2013
-  #   Malawi:       2015-2016 (exact dates TBD)
+  #   Gambia GMNS:  13 Mar – 4 May 2018
+  #   Ghana GMS:    27 Apr – 9 Jun 2017
+  #   Sierra Leone SLMS: 11 Nov – 2 Dec 2013
+  #   Malawi MNS:   8 Dec 2015 – 16 Feb 2016
   survey_years <- c(
     "Gambia"       = 2018L,
     "Ghana"        = 2017L,

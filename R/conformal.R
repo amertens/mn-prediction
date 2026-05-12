@@ -194,8 +194,62 @@ compute_conformal_ci <- function(outcome_data, sl_fit, cc, oc, alpha = 0.05) {
   cat(sprintf("  National: %.1f%% (%.1f%%, %.1f%%)\n",
               100 * nat_mean, 100 * national_ci$ci_lo, 100 * national_ci$ci_hi))
 
+  # ── Step 6: Admin-2 conformal CIs ──────────────────────────────────────
+  # Aggregate individual conformal half-widths to Admin-2 level using the
+  # same delta method as Admin-1 above. This produces district-specific
+  # uncertainty rather than broadcasting a single Admin-1 CI to all
+  # constituent districts.
+  admin2_ci <- NULL
+  admin2_col <- cc$admin2_col %||% "Admin2"
+  admin2_vec <- if (admin2_col %in% colnames(d)) d[[admin2_col]]
+                else if ("Admin2" %in% colnames(d)) d[["Admin2"]] else NULL
+  if (!is.null(admin2_vec)) {
+    admin2_df <- data.frame(
+      Admin2 = admin2_vec,
+      yhat   = yhat,
+      Y      = Y,
+      wt     = wts,
+      ci_lo  = ci_lo_adaptive,
+      ci_hi  = ci_hi_adaptive,
+      half_w = adaptive_width,
+      stringsAsFactors = FALSE
+    ) %>%
+      dplyr::filter(!is.na(Admin2))
+
+    admin2_ci <- admin2_df %>%
+      dplyr::group_by(Admin2) %>%
+      dplyr::summarise(
+        n_obs     = dplyr::n(),
+        conf_mean = stats::weighted.mean(yhat, wt, na.rm = TRUE),
+        obs_prev  = stats::weighted.mean(Y, wt, na.rm = TRUE),
+        conf_se   = {
+          w <- wt / sum(wt)
+          sigma_i <- half_w / stats::qnorm(1 - alpha / 2)
+          # For very small Admin-2 samples, the CI can collapse — apply
+          # a minimum SE floor based on the global conformal width.
+          se_raw <- sqrt(sum(w^2 * sigma_i^2))
+          pmax(se_raw, conformal_width / (4 * stats::qnorm(1 - alpha / 2)))
+        },
+        .groups = "drop"
+      ) %>%
+      dplyr::mutate(
+        ci_lo    = pmax(conf_mean - stats::qnorm(1 - alpha / 2) * conf_se, 0),
+        ci_hi    = pmin(conf_mean + stats::qnorm(1 - alpha / 2) * conf_se, 1),
+        ci_width = ci_hi - ci_lo
+      ) %>%
+      dplyr::rename(boot_mean = conf_mean) %>%
+      dplyr::select(Admin2, n_boot = n_obs, boot_mean, ci_lo, ci_hi, ci_width)
+
+    cat(sprintf("  Admin-2 CI widths: median = %.1f pp, range = [%.1f, %.1f] pp (%d districts)\n",
+                100 * median(admin2_ci$ci_width),
+                100 * min(admin2_ci$ci_width),
+                100 * max(admin2_ci$ci_width),
+                nrow(admin2_ci)))
+  }
+
   list(
     admin1_ci   = admin1_ci,
+    admin2_ci   = admin2_ci,
     national_ci = national_ci,
     method      = "conformal",
     # Extra diagnostics (not used by downstream targets but useful for reports)

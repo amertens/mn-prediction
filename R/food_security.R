@@ -16,10 +16,16 @@
 # =============================================================================
 
 # Survey year for each country (used to match food security data temporally)
+# Fieldwork dates:
+#   Gambia GMNS:         13 Mar – 4 May 2018
+#   Ghana GMS:           27 Apr – 9 Jun 2017
+#   Sierra Leone SLMS:   11 Nov – 2 Dec 2013
+#   Malawi MNS:          8 Dec 2015 – 16 Feb 2016
+# These are fallbacks — prefer cc$survey_year from R/config.R when available.
 COUNTRY_SURVEY_YEARS <- list(
   Gambia         = 2018L,
   Ghana          = 2017L,
-  SierraLeone    = 2013L,  # SLMS fieldwork: 11 Nov – 2 Dec 2013
+  SierraLeone    = 2013L,
   Malawi         = 2016L
 )
 

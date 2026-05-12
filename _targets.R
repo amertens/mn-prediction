@@ -309,6 +309,35 @@ make_outcome_targets <- function(country_name, outcome_name, cc, oc, params) {
           oc_val       = oc
         )
       )
+    ),
+
+    # ── 14. SHAP feature attributions (district top factors + global imp) ─
+    tar_target_raw(
+      paste0("shap_", suffix),
+      substitute(
+        compute_shap_explanations(outcome_data, sl_fit, cc_val, oc_val),
+        list(
+          outcome_data = as.symbol(paste0("outcome_data_", suffix)),
+          sl_fit       = as.symbol(paste0("sl_fit_", suffix)),
+          cc_val       = cc,
+          oc_val       = oc
+        )
+      )
+    ),
+
+    # ── 15. Single-variable permutation importance (top-30 vars) ──────────
+    tar_target_raw(
+      paste0("varimp_", suffix),
+      substitute(
+        run_single_var_ablation(outcome_data, sl_fit, cc_val, oc_val,
+                                 top_n = 30L, n_perm = 3L),
+        list(
+          outcome_data = as.symbol(paste0("outcome_data_", suffix)),
+          sl_fit       = as.symbol(paste0("sl_fit_", suffix)),
+          cc_val       = cc,
+          oc_val       = oc
+        )
+      )
     )
   )
 }
@@ -449,51 +478,61 @@ for (country_name in names(all_country_configs)) {
   }
 }
 
-# ── Area-level model: Ghana × women_iron only ──────────────────────────────
-# Expensive GEE raster extraction + area-level elastic net.
-# Run for a single exemplar outcome to demonstrate the method.
-# To expand, add more country/outcome pairs below.
-{
-  cc_area <- all_country_configs[["Ghana"]]
-  oc_area <- cc_area$outcomes[["women_iron"]]
-  area_suffix <- "ghana_women_iron"
+# ── Area-level model: ALL country × outcome combinations ──────────────────
+# Expensive GEE raster extraction + area-level elastic net. Produces
+# Admin-2 prevalence predictions for *all* polygons in the country
+# (surveyed + unsurveyed), enabling full choropleth coverage in the
+# dashboard. Previously this ran only for Ghana × women_iron as an exemplar.
+for (cc_name_area in names(all_country_configs)) {
+  cc_area_local <- all_country_configs[[cc_name_area]]
+  for (oc_name_area in names(cc_area_local$outcomes)) {
+    oc_area_local <- cc_area_local$outcomes[[oc_name_area]]
+    area_suffix <- paste0(tolower(cc_name_area), "_", oc_name_area)
 
-  country_targets <- c(country_targets, list(
-    tar_target_raw(
-      paste0("area_model_", area_suffix),
-      substitute(
-        fit_area_level_model(svy_admin2, cc_val, oc_val, params_val),
-        list(
-          svy_admin2 = as.symbol(paste0("svy_admin2_", area_suffix)),
-          cc_val     = cc_area,
-          oc_val     = oc_area,
-          params_val = params
+    country_targets <- c(country_targets, list(
+      tar_target_raw(
+        paste0("area_model_", area_suffix),
+        substitute(
+          fit_area_level_model(svy_admin2, cc_val, oc_val, params_val),
+          list(
+            svy_admin2 = as.symbol(paste0("svy_admin2_", area_suffix)),
+            cc_val     = cc_area_local,
+            oc_val     = oc_area_local,
+            params_val = params
+          )
         )
       )
-    ),
-    tar_target_raw(
-      paste0("plot_admin2_coverage_", area_suffix),
-      substitute(
-        plot_admin2_coverage(area_model, oc_val, cc_val),
-        list(
-          area_model = as.symbol(paste0("area_model_", area_suffix)),
-          oc_val     = oc_area,
-          cc_val     = cc_area
+    ))
+
+    # Plot targets for the original Ghana × women_iron exemplar only —
+    # the dashboard renders all other combinations interactively.
+    if (area_suffix == "ghana_women_iron") {
+      country_targets <- c(country_targets, list(
+        tar_target_raw(
+          paste0("plot_admin2_coverage_", area_suffix),
+          substitute(
+            plot_admin2_coverage(area_model, oc_val, cc_val),
+            list(
+              area_model = as.symbol(paste0("area_model_", area_suffix)),
+              oc_val     = oc_area_local,
+              cc_val     = cc_area_local
+            )
+          )
+        ),
+        tar_target_raw(
+          paste0("plot_admin2_forest_", area_suffix),
+          substitute(
+            plot_admin2_forest(area_model, oc_val, cc_val),
+            list(
+              area_model = as.symbol(paste0("area_model_", area_suffix)),
+              oc_val     = oc_area_local,
+              cc_val     = cc_area_local
+            )
+          )
         )
-      )
-    ),
-    tar_target_raw(
-      paste0("plot_admin2_forest_", area_suffix),
-      substitute(
-        plot_admin2_forest(area_model, oc_val, cc_val),
-        list(
-          area_model = as.symbol(paste0("area_model_", area_suffix)),
-          oc_val     = oc_area,
-          cc_val     = cc_area
-        )
-      )
-    )
-  ))
+      ))
+    }
+  }
 }
 
 # ── Level-2 conceptual ablation: Ghana × women_iron exemplar only ──────────
@@ -820,6 +859,9 @@ admin2_error_names <- character()
 ablation_names <- character()
 diagnostics_names <- character()
 national_est_names <- character()
+shap_names <- character()
+varimp_names <- character()
+area_model_names <- character()
 
 for (country_name in names(all_country_configs)) {
   cc <- all_country_configs[[country_name]]
@@ -830,6 +872,9 @@ for (country_name in names(all_country_configs)) {
     ablation_names <- c(ablation_names, paste0("ablation_", suffix))
     diagnostics_names <- c(diagnostics_names, paste0("diagnostics_", suffix))
     national_est_names <- c(national_est_names, paste0("national_est_", suffix))
+    shap_names <- c(shap_names, paste0("shap_", suffix))
+    varimp_names <- c(varimp_names, paste0("varimp_", suffix))
+    area_model_names <- c(area_model_names, paste0("area_model_", suffix))
   }
 }
 
@@ -899,6 +944,29 @@ summary_targets <- list(
     )
   ),
 
+  # Combined SHAP outputs (district top factors + global importance)
+  tar_target_raw(
+    "shap_all",
+    substitute({
+      shap_list <- target_vals
+      district_factors <- dplyr::bind_rows(lapply(shap_list,
+                                                    function(x) x$district_factors))
+      global_importance <- dplyr::bind_rows(lapply(shap_list,
+                                                     function(x) x$global_importance))
+      list(district_factors = district_factors,
+           global_importance = global_importance)
+    }, list(target_vals = make_list_expr(shap_names)))
+  ),
+
+  # Combined per-variable importance
+  tar_target_raw(
+    "varimp_all",
+    substitute(
+      dplyr::bind_rows(target_vals),
+      list(target_vals = make_list_expr(varimp_names))
+    )
+  ),
+
   # Save combined CSV tables
   tar_target(
     save_tables,
@@ -921,15 +989,42 @@ summary_targets <- list(
       if (!is.null(diagnostics_all$continuous_metrics) && nrow(diagnostics_all$continuous_metrics) > 0)
         readr::write_csv(diagnostics_all$continuous_metrics,
                          file.path(out_dir, "diagnostics_continuous.csv"))
+      # Calibration tables and PR/ROC curve data (for dashboard reuse)
+      if (!is.null(diagnostics_all$calibration_tables) &&
+          nrow(diagnostics_all$calibration_tables) > 0)
+        readr::write_csv(diagnostics_all$calibration_tables,
+                         file.path(out_dir, "calibration_tables.csv"))
+      if (!is.null(diagnostics_all$pr_curves) &&
+          nrow(diagnostics_all$pr_curves) > 0)
+        readr::write_csv(diagnostics_all$pr_curves,
+                         file.path(out_dir, "pr_curves.csv"))
+      if (!is.null(diagnostics_all$roc_curves) &&
+          nrow(diagnostics_all$roc_curves) > 0)
+        readr::write_csv(diagnostics_all$roc_curves,
+                         file.path(out_dir, "roc_curves.csv"))
 
       # Save national estimates
       if (!is.null(national_estimates_all) && nrow(national_estimates_all) > 0)
         readr::write_csv(national_estimates_all,
                          file.path(out_dir, "national_estimates_all.csv"))
 
+      # SHAP and per-variable importance — for dashboard
+      if (!is.null(shap_all$district_factors) &&
+          nrow(shap_all$district_factors) > 0)
+        readr::write_csv(shap_all$district_factors,
+                         file.path(out_dir, "shap_district_factors.csv"))
+      if (!is.null(shap_all$global_importance) &&
+          nrow(shap_all$global_importance) > 0)
+        readr::write_csv(shap_all$global_importance,
+                         file.path(out_dir, "shap_global_importance.csv"))
+      if (!is.null(varimp_all) && nrow(varimp_all) > 0)
+        readr::write_csv(varimp_all,
+                         file.path(out_dir, "single_var_importance.csv"))
+
       list(cv_perf = cv_perf, admin2_error = admin2_error_all,
            ablation = ablation_all, diagnostics = diagnostics_all,
-           national = national_estimates_all)
+           national = national_estimates_all,
+           shap = shap_all, varimp = varimp_all)
     }
   )
 )
