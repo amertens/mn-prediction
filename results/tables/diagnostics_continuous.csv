@@ -18,7 +18,7 @@ n,rmse,mae,r2,r,prev_obs,prev_pred,prev_bias,model_type,country,outcome
 807,0.4233,0.3254,0.0916,0.3144,0.9789,1,0.0211,continuous,Malawi,women_vitA
 1102,20.9693,16.0277,0.138,0.3797,0.7985,1,0.2015,continuous,Malawi,child_iron
 752,38.1547,22.6219,0,NA,0.8258,1,0.1742,continuous,Malawi,women_iron
-799,11.7963,8.3967,0.3807,0.622,0.9987,1,0.0013,continuous,Malawi,women_folate
+799,26.7304,19.0269,0.3807,0.622,1,1,0,continuous,Malawi,women_folate
 809,239.0908,163.9003,0.5285,0.7308,0.9716,1,0.0284,continuous,Malawi,women_b12
 1087,21.0276,12.1701,0.1685,0.4125,0.3275,0.2824,-0.0451,continuous,Malawi,child_zinc
 814,18.092,11.0517,0.2668,0.5187,0.2555,0.2912,0.0357,continuous,Malawi,women_zinc

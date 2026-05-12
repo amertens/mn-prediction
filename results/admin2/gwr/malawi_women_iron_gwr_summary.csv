@@ -1,0 +1,2 @@
+"country","outcome","n","n_predictors","bandwidth","kernel","adaptive","aic_global","aic_gwr","aic_delta","r2_global","r2_gwr","f_statistic","f_p_value","predictors"
+"Malawi","women_iron",84,6,51,"gaussian",TRUE,-156.804265842056,-182.184534705315,25.3802688632595,0.552567277522539,0.645971936525552,NA,NA,"iron_def;sf_c2;ida;mtype;m115b;dhs2015_w_delivery_csection_adm2"

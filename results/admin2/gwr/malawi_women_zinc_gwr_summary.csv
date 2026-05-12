@@ -1,0 +1,2 @@
+"country","outcome","n","n_predictors","bandwidth","kernel","adaptive","aic_global","aic_gwr","aic_delta","r2_global","r2_gwr","f_statistic","f_p_value","predictors"
+"Malawi","women_zinc",83,6,77,"gaussian",TRUE,-80.5065565612501,-91.2617875334413,10.7552309721912,0.719071432830933,0.728129758514651,NA,NA,"zinc_def;zn_gdl;gee_trmm_Feb_50km;gee_built_surface_10km;height;dhs2015_c_zinc_diarrhea_adm2"

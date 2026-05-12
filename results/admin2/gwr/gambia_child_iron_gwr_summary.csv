@@ -1,0 +1,2 @@
+"country","outcome","n","n_predictors","bandwidth","kernel","adaptive","aic_global","aic_gwr","aic_delta","r2_global","r2_gwr","f_statistic","f_p_value","predictors"
+"Gambia","child_iron",17,6,19,"gaussian",TRUE,-14.5526626346728,-23.5373107576474,8.98464812297466,0.489956224246554,0.496541137770507,NA,NA,"wfp_sorghum;wfp_carrots;wfp_beans_dry;mics_floor;dhs2019_CH_VACC_C_MSL_adm2;mics_hh56"
