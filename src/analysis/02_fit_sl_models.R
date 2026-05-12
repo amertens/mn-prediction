@@ -15,7 +15,7 @@
 # Both model types use cluster-blocked K-fold CV (folds on gw_cnum clusters)
 # so that no cluster is split across folds.
 #
-# Inputs  : cfg, gw_data_list, Xvars_full (from 01_load_and_construct.R)
+# Inputs  : cfg, gw_data_list, Xvars (from 01_load_and_construct.R)
 #           slmod, slmod2_bin              (from src/0-SL-setup.R)
 # Outputs : results/models/res_GW_Gambia_SL_*.rds  (continuous)
 #           results/models/res_bin_GW_Gambia_SL_*.rds (binary)
@@ -78,7 +78,7 @@ sl_results_cont$child_vitA <- safe_fit(
   d          = gw_data_list$child_vitA,
   outcome    = cfg$outcomes$child_vitA$continuous,
   population = cfg$outcomes$child_vitA$population,
-  Xvars      = Xvars_full[Xvars_full %in% colnames(gw_data_list$child_vitA)],
+  Xvars      = Xvars[Xvars %in% colnames(gw_data_list$child_vitA)],
   id         = id,
   folds      = K,
   sl         = slmod,
@@ -90,7 +90,7 @@ sl_results_cont$women_vitA <- safe_fit(
   d          = gw_data_list$women_vitA,
   outcome    = cfg$outcomes$women_vitA$continuous,
   population = cfg$outcomes$women_vitA$population,
-  Xvars      = Xvars_full[Xvars_full %in% colnames(gw_data_list$women_vitA)],
+  Xvars      = Xvars[Xvars %in% colnames(gw_data_list$women_vitA)],
   id         = id,
   folds      = K,
   sl         = slmod,
@@ -102,7 +102,7 @@ sl_results_cont$child_iron <- safe_fit(
   d          = gw_data_list$child_iron,
   outcome    = cfg$outcomes$child_iron$continuous,
   population = cfg$outcomes$child_iron$population,
-  Xvars      = Xvars_full[Xvars_full %in% colnames(gw_data_list$child_iron)],
+  Xvars      = Xvars[Xvars %in% colnames(gw_data_list$child_iron)],
   id         = id,
   folds      = K,
   sl         = slmod,
@@ -114,7 +114,7 @@ sl_results_cont$women_iron <- safe_fit(
   d          = gw_data_list$women_iron,
   outcome    = cfg$outcomes$women_iron$continuous,
   population = cfg$outcomes$women_iron$population,
-  Xvars      = Xvars_full[Xvars_full %in% colnames(gw_data_list$women_iron)],
+  Xvars      = Xvars[Xvars %in% colnames(gw_data_list$women_iron)],
   id         = id,
   folds      = K,
   sl         = slmod,
@@ -157,7 +157,7 @@ if (!is.null(d_tmp)) {
     d          = d_tmp,
     outcome    = cfg$outcomes$child_vitA$binary,
     population = cfg$outcomes$child_vitA$population,
-    Xvars      = Xvars_full[Xvars_full %in% colnames(d_tmp)],
+    Xvars      = Xvars[Xvars %in% colnames(d_tmp)],
     id         = id,
     folds      = K,
     sl         = slmod2_bin,
@@ -173,7 +173,7 @@ if (!is.null(d_tmp)) {
     d          = d_tmp,
     outcome    = cfg$outcomes$women_vitA$binary,
     population = cfg$outcomes$women_vitA$population,
-    Xvars      = Xvars_full[Xvars_full %in% colnames(d_tmp)],
+    Xvars      = Xvars[Xvars %in% colnames(d_tmp)],
     id         = id,
     folds      = K,
     sl         = slmod2_bin,
@@ -189,7 +189,7 @@ if (!is.null(d_tmp)) {
     d          = d_tmp,
     outcome    = cfg$outcomes$child_iron$binary,
     population = cfg$outcomes$child_iron$population,
-    Xvars      = Xvars_full[Xvars_full %in% colnames(d_tmp)],
+    Xvars      = Xvars[Xvars %in% colnames(d_tmp)],
     id         = id,
     folds      = K,
     sl         = slmod2_bin,
@@ -205,7 +205,7 @@ if (!is.null(d_tmp)) {
     d          = d_tmp,
     outcome    = cfg$outcomes$women_iron$binary,
     population = cfg$outcomes$women_iron$population,
-    Xvars      = Xvars_full[Xvars_full %in% colnames(d_tmp)],
+    Xvars      = Xvars[Xvars %in% colnames(d_tmp)],
     id         = id,
     folds      = K,
     sl         = slmod2_bin,
@@ -214,3 +214,4 @@ if (!is.null(d_tmp)) {
 }
 
 cat("[02] Done.\n\n")
+
