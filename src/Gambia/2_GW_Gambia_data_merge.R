@@ -135,8 +135,12 @@ gee_a2_path <- here("data/GEE/Gambia_2018_admin2_gee.csv")
 if (file.exists(gee_a2_path)) {
   gee_a2 <- read.csv(gee_a2_path, check.names = FALSE)
   gee_a2$Admin2 <- trimws(gee_a2$Admin2)
-  gee_a2_vars <- setdiff(colnames(gee_a2), "Admin2")
-  df <- df %>% dplyr::left_join(gee_a2, by = "Admin2")
+  if ("Admin1" %in% colnames(gee_a2)) gee_a2$Admin1 <- trimws(gee_a2$Admin1)
+  # Join on (Admin1, Admin2) when both present — disambiguates duplicate
+  # Admin2 names across regions (e.g. Malawi TAs sharing names across districts).
+  gee_a2_keys <- intersect(c("Admin1", "Admin2"), colnames(gee_a2))
+  gee_a2_vars <- setdiff(colnames(gee_a2), gee_a2_keys)
+  df <- df %>% dplyr::left_join(gee_a2, by = gee_a2_keys)
   gee_vars <- unique(c(gee_vars, gee_a2_vars))
   cat(sprintf("  GEE admin2 merge: %d gee_a2_ columns added\n",
               length(gee_a2_vars)))

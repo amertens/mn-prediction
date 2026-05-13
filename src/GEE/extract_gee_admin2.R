@@ -75,8 +75,18 @@ extract_gee_admin2 <- function(admin2_sf, raster_files,
   stopifnot(inherits(admin2_sf, "sf"), "Admin2" %in% names(admin2_sf))
 
   poly_vect <- terra::vect(admin2_sf)
-  out <- data.frame(Admin2 = trimws(admin2_sf$Admin2),
-                    stringsAsFactors = FALSE)
+  # Preserve Admin1 alongside Admin2 so country merge scripts can join on the
+  # (Admin1, Admin2) pair — needed for countries (e.g. Malawi) where Admin2
+  # names are not unique without their parent Admin1 (TA names like
+  # "TA Lundu", "Lake Malawi" appear in multiple districts).
+  out <- if ("Admin1" %in% names(admin2_sf)) {
+    data.frame(Admin1 = trimws(as.character(admin2_sf$Admin1)),
+               Admin2 = trimws(as.character(admin2_sf$Admin2)),
+               stringsAsFactors = FALSE)
+  } else {
+    data.frame(Admin2 = trimws(as.character(admin2_sf$Admin2)),
+               stringsAsFactors = FALSE)
+  }
 
   clean_family <- function(fname) {
     family <- sub("\\.tif$", "", basename(fname), ignore.case = TRUE)

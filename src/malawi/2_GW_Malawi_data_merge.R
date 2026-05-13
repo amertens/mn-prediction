@@ -89,8 +89,12 @@ gee_a2_path <- here("data/GEE/Malawi_2016_admin2_gee.csv")
 if (file.exists(gee_a2_path)) {
   gee_a2 <- read.csv(gee_a2_path, check.names = FALSE)
   gee_a2$Admin2 <- trimws(gee_a2$Admin2)
-  gee_a2_vars <- setdiff(colnames(gee_a2), "Admin2")
-  df <- df %>% dplyr::left_join(gee_a2, by = "Admin2")
+  if ("Admin1" %in% colnames(gee_a2)) gee_a2$Admin1 <- trimws(gee_a2$Admin1)
+  # Join on (Admin1, Admin2) when both present — disambiguates duplicate
+  # Admin2 names across regions (e.g. Malawi TAs sharing names across districts).
+  gee_a2_keys <- intersect(c("Admin1", "Admin2"), colnames(gee_a2))
+  gee_a2_vars <- setdiff(colnames(gee_a2), gee_a2_keys)
+  df <- df %>% dplyr::left_join(gee_a2, by = gee_a2_keys)
   gee_vars <- unique(c(gee_vars, gee_a2_vars))
   cat(sprintf("  GEE admin2 merge: %d gee_a2_ columns added\n",
               length(gee_a2_vars)))
@@ -418,12 +422,18 @@ merge_with_ihme <- function(main_df, ihme_df, lookup_table, min_similarity = 0.7
 
   cat("Using", nrow(good_matches), "matches with similarity >=", min_similarity, "\n")
 
-  # Perform the merge
-  # Bug fix 2026-05: was previously by=c("Admin1"="Admin2") which silently
-  # produced all-NA IHME admin-2 columns for every Malawi cluster (Admin1
-  # regions never matched district names).
+  # Perform the merge.
+  # NOTE on Malawi admin hierarchy (different from other countries):
+  #   df$Admin1 = district (28 units; "Mangochi", "Blantyre", ...)
+  #   df$Admin2 = Traditional Authority / Sub-Chief (89 units; "TA Kawinga",
+  #               "SC Chowe", ...)
+  #   df$mregion = region (3 units; 1=Northern, 2=Central, 3=Southern)
+  # IHME admin-2 estimates are at *district* level, so the fuzzy match above
+  # uses df_admin1 (districts) and the lookup column called "Admin2" actually
+  # holds district names. The join therefore correctly pairs main_df.Admin1
+  # (districts) with the misnamed lookup.Admin2 (also districts).
   merged_data <- main_df %>%
-    left_join(good_matches, by = "Admin2") %>%
+    left_join(good_matches, by = c("Admin1" = "Admin2")) %>%
     left_join(ihme_df, by = "ihme_adm2_name")
 
   # Summary statistics
@@ -444,11 +454,22 @@ df <- merge_with_ihme(df, ihme, lookup_table, min_similarity = 0.90)
 table(is.na(df$ihme_2_to_10_years_2_to_10_both_malaria_prevalence_rate ))
 
 # Admin1-level IHME predictors (built by malawi_IHME_clean.R via build_ihme_admin1).
+# Malawi-specific: IHME admin-1 estimates are at the region level (Northern/
+# Central/Southern). The survey df has mregion as integer (1/2/3), but
+# df$Admin1 is districts (not regions). Map mregion → region name first,
+# then use that as the join column.
+df$mregion_name <- dplyr::case_when(
+  df$mregion == 1L ~ "Northern",
+  df$mregion == 2L ~ "Central",
+  df$mregion == 3L ~ "Southern",
+  TRUE             ~ NA_character_
+)
+
 source(here("src/IHME/build_ihme_admin1.R"))
 df <- merge_ihme_admin1(
   df,
   admin1_csv  = here("data/IHME/Malawi_2015_merged_IHME_admin1_data.csv"),
-  admin1_col  = "Admin1"
+  admin1_col  = "mregion_name"
 )
 ihme_vars <- unique(c(ihme_vars, grep("^ihme_adm1_", colnames(df), value = TRUE)))
 
