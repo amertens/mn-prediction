@@ -31,7 +31,12 @@ gw_vars <- colnames(d)
 # GEE data
 #-------------------------------------------------------------------------------
 
-gee <- read.csv(here("data/GEE/SL2012_buffers_01.08.2026.csv")) %>% select(SR,cnum.x, trmm_Jan_10km:grassland_50km) %>% rename(cnum=cnum.x)
+gee_buffer_path <- {
+  cands <- Sys.glob(here("data/GEE/SL2012_buffers_*.csv"))
+  if (length(cands) == 0) stop("No SL2012_buffers_*.csv found in data/GEE/")
+  cands[which.max(file.info(cands)$mtime)]
+}
+gee <- read.csv(gee_buffer_path) %>% select(SR,cnum.x, trmm_Jan_10km:grassland_50km) %>% rename(cnum=cnum.x)
 head(gee)
 colnames(gee)= paste0("gee_",colnames(gee))
 head(gee)
@@ -45,6 +50,13 @@ gee$gee_cnum
 d <- left_join(d, gee, by = c("gw_cnum"="gee_cnum"))
 table(is.na(gee$gee_grassland_50km))
 table(is.na(d$gee_trmm_Jan_10km))
+
+# F-1: Derive seasonality summary features from monthly GEE buffer columns.
+source(here("src/GEE/seasonality_features.R"))
+d <- add_seasonality_features(d, verbose = TRUE)
+gee_vars <- unique(c(gee_vars,
+  grep("_(annual_mean|seasonal_sd|seasonal_cv|seasonal_range|peak_month)$",
+       colnames(d), value = TRUE)))
 
 
 
@@ -93,6 +105,27 @@ if (file.exists(gee_a2_path)) {
               length(gee_a2_vars)))
 } else {
   warning("Admin2 GEE CSV not found — run scripts/build_gee_admin2.R SierraLeone")
+}
+
+
+#-------------------------------------------------------------------------------
+# SoilGrids/ISRIC Admin-2 predictors
+# Built by scripts/build_soilgrids_admin2.R. pH, organic carbon, nitrogen,
+# clay, sand, silt, CEC at 0-5cm depth, zonal-mean per Admin-2.
+#-------------------------------------------------------------------------------
+
+soil_path <- here("data/SoilGrids/SierraLeone_soilgrids_admin2.csv")
+if (file.exists(soil_path)) {
+  soil_df <- read.csv(soil_path, check.names = FALSE)
+  soil_df$Admin2 <- trimws(soil_df$Admin2)
+  if ("Admin1" %in% colnames(soil_df)) soil_df$Admin1 <- trimws(soil_df$Admin1)
+  soil_keys <- intersect(c("Admin1", "Admin2"), colnames(soil_df))
+  soil_vars <- setdiff(colnames(soil_df), soil_keys)
+  df <- df %>% dplyr::left_join(soil_df, by = soil_keys)
+  cat(sprintf("  SoilGrids merge: %d soil_ columns added\n", length(soil_vars)))
+} else {
+  soil_vars <- character(0)
+  warning("SoilGrids CSV not found — run scripts/build_soilgrids_admin2.R SierraLeone")
 }
 
 
@@ -174,6 +207,16 @@ head(df)
 df <- left_join(df, price_df, by = c("nearest_market_id" = "wfp_nearest_market_id"))
 table(is.na(price_df$wfp_cassava ))
 table(is.na(df$wfp_cassava ))
+
+WFP_MAX_DIST_KM <- 100
+far <- !is.na(df$nearest_market_distance_km) &
+        df$nearest_market_distance_km > WFP_MAX_DIST_KM
+if (any(far)) {
+  cat(sprintf("  WFP distance cutoff: %d/%d rows beyond %d km — wfp_* set to NA\n",
+              sum(far), nrow(df), WFP_MAX_DIST_KM))
+  wfp_data_cols <- intersect(wfp_vars, colnames(df))
+  for (cc_wfp in wfp_data_cols) df[[cc_wfp]][far] <- NA
+}
 
 
 #
@@ -461,6 +504,26 @@ df <- merge_ihme_admin1(
 ihme_vars <- unique(c(ihme_vars, grep("^ihme_adm1_", colnames(df), value = TRUE)))
 
 
+#-------------------------------------------------------------------------------
+# Food security (Cadre Harmonisé + HFID / FEWS NET IPC)
+#-------------------------------------------------------------------------------
+
+source(here("R", "food_security.R"))
+source(here("R", "config.R"))
+cc_fsec  <- get_country_configs()[["SierraLeone"]]
+hfid_path <- here("data", "HFID", "hfid_hv1.csv")
+ch_path   <- here("data", "CadreHarmonise", "cadre_harmonise_caf_ipc_dec25.xlsx")
+if (file.exists(hfid_path) || file.exists(ch_path)) {
+  df <- as.data.frame(df)
+  df <- merge_food_security(df, cc_fsec,
+                             hfid_path = if (file.exists(hfid_path)) hfid_path else NULL,
+                             ch_path   = if (file.exists(ch_path))   ch_path   else NULL)
+  fsec_vars <- grep("^fsec_", colnames(df), value = TRUE)
+} else {
+  fsec_vars <- character(0)
+  warning("Neither HFID nor Cadre Harmonisé file found; skipping fsec_ merge.")
+}
+
 
 #-------------------------------------------------------------------------------
 # MICS Data
@@ -703,7 +766,9 @@ metadata <- list(
   map_vars = map_vars[map_vars %in% colnames(df)],
   wfp_vars = wfp_vars[wfp_vars %in% colnames(df)],
   #flunet_vars = flu_vars[flu_vars %in% colnames(df)],
-  gee_vars = gee_vars[gee_vars %in% colnames(df)]
+  gee_vars = gee_vars[gee_vars %in% colnames(df)],
+  fsec_vars = fsec_vars[fsec_vars %in% colnames(df)],
+  soil_vars = soil_vars[soil_vars %in% colnames(df)]
 )
 
 

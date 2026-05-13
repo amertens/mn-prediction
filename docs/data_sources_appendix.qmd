@@ -16,7 +16,7 @@ This appendix documents every data source, cleaning operation, and merging step 
 
 The primary modelling framing is **proxy-only**: the predictor matrix excludes all variables derived from the same biomarker survey as the outcome (any column with the `gw_` prefix is dropped at fitting time). A sensitivity model that retains `gw_` survey-derived variables is reported as a supplementary analysis.
 
-All predictor sources are organised into ten **domain prefixes** that define both the column-naming convention in the merged dataset and the unit of analysis for domain-level variable importance / domain ablation:
+All predictor sources are organised into eleven **domain prefixes** that define both the column-naming convention in the merged dataset and the unit of analysis for domain-level variable importance / domain ablation:
 
 | Prefix | Domain | Conceptual content |
 |---|---|---|
@@ -24,12 +24,13 @@ All predictor sources are organised into ten **domain prefixes** that define bot
 | `dhs<year>_` | DHS | Demographic and Health Surveys, model-based admin1 and admin2 indicators |
 | `mics_` | MICS | UNICEF Multiple Indicator Cluster Surveys, admin1 region summaries |
 | `ihme_` | IHME GBD geospatial | Modeled prevalence/incidence at admin1 and admin2 from IHME's geospatial releases |
-| `lsms_` | LSMS | World Bank Living Standards Measurement Study (Integrated Surveys on Agriculture) |
+| `lsms_` | LSMS | World Bank Living Standards Measurement Study (Integrated Surveys on Agriculture) — Ghana only |
 | `MAP_` | Malaria Atlas | Malaria epidemiology, malaria interventions, blood-disorder gene frequencies |
-| `wfp_` | WFP food prices | Commodity prices at nearest market |
-| `flunet_` | FluNet | WHO global influenza surveillance |
-| `gee_` | Google Earth Engine | Satellite-derived climate, vegetation, soil, demographic, infrastructure rasters (cluster-buffer + admin2 zonal) |
-| `fsec_` | Food security | Cadre Harmonisé (West Africa) / FEWS NET IPC food security phase classifications |
+| `wfp_` | WFP food prices | Commodity prices at nearest market, filtered to clusters ≤100 km from a market |
+| `flunet_` | FluNet | WHO global influenza surveillance — Ghana only |
+| `gee_` | Google Earth Engine | Satellite-derived climate, vegetation, soil, demographic, infrastructure rasters (cluster-buffer + admin2 zonal + survey-year-aligned + derived seasonality and YoY features) |
+| `fsec_` | Food security | Cadre Harmonisé (West Africa) / HFID & FEWS NET IPC food security phase classifications |
+| `soil_` | SoilGrids/ISRIC | Soil pH, organic carbon, nitrogen, clay, sand, silt, CEC at 0–5 cm, zonal-mean per Admin-2 |
 
 Domain prefixes are configured in `R/config.R` per country and consumed by `R/sl_fitting.R`, `R/domain_ablation.R`, and `R/single_var_ablation.R` for variable selection and importance analysis.
 
@@ -53,13 +54,26 @@ Each country's survey provides cluster-level GPS coordinates, a survey weight, p
 Each outcome (population × micronutrient combination) has both a continuous biomarker value and a binary deficiency indicator computed with WHO / Brinda / Thurnham thresholds:
 
 - **Vitamin A**: serum RBP < 0.70 µmol/L (children & women)
-- **Iron — children**: ferritin < 12 µg/L (Brinda-adjusted)
-- **Iron — women**: ferritin < 15 µg/L (Brinda-adjusted)
+- **Iron — children**: ferritin < 12 µg/L (inflammation-adjusted)
+- **Iron — women**: ferritin < 15 µg/L (inflammation-adjusted)
 - **Folate**: serum folate < 10 nmol/L (Ghana, SL); < 3 ng/mL in Malawi (study convention)
 - **B₁₂**: serum B₁₂ < 148 pmol/L
 - **Zinc** (Malawi only): serum zinc < 65 µg/dL (children, IZiNCG) / < 66 µg/dL (women, IZiNCG)
 
-Outcome definitions are encoded in `R/config.R::get_country_configs()` per country. Continuous biomarkers may be log-transformed (e.g. `gw_LogFerAdj`); the conformal regression target is fitted on the transformed scale.
+#### Inflammation adjustment per country (ferritin)
+
+Acute / chronic inflammation elevates serum ferritin and can mask iron deficiency. The pipeline uses inflammation-adjusted ferritin throughout, but the adjustment **method** differs by country based on what each survey's clean file provides:
+
+| Country | Continuous (modeling target) | Binary | Adjustment method |
+|---|---|---|---|
+| Gambia | `gw_LogFerAdj` | `gw_cIDA_Brinda` / `gw_wIDA_Brinda` | Brinda |
+| Ghana  | `gw_cLogFerrAdjThurn` / `gw_wLogFerrAdjThurn` (derived in Stage 1 from `gw_cFerrAdjThurn` / `gw_wFerrAdjThurn`) | `gw_cIDAdjThurn` / `gw_wIDA_Thurn` | Thurnham |
+| Sierra Leone | `gw_cFerrAdj` / `gw_wFerAdjBR1` | `gw_cIDA` / `gw_wIDA` | Mixed (raw "Adj" suffix; Brinda for women) |
+| Malawi | `sf_reg` (raw) | `iron_def` | None (raw biomarker) |
+
+Both Brinda and Thurnham apply CRP/AGP-based corrections; results are highly correlated. The 2026-05-13 update switched Ghana from un-adjusted continuous ferritin (`gw_cLogFerr`) to Thurnham-adjusted (`gw_cLogFerrAdjThurn` derived in `1_GW_Ghana_data_clean.R`) to align with Ghana's already-adjusted binary outcome and reduce cross-country bias. The remaining Brinda-vs-Thurnham mismatch is documented as a limitation; a full BRINDA-package re-derivation for all four countries is recommended for the published manuscript.
+
+Outcome definitions are encoded in `R/config.R::get_country_configs()` per country. Continuous biomarkers are log-transformed; the conformal regression target is fitted on the log scale.
 
 ---
 
@@ -194,16 +208,93 @@ WHO Global Influenza Surveillance (FluNet) — weekly virological surveillance c
 
 ### Domain 10 — Food security (`fsec_`)
 
-`R/food_security.R::merge_food_security()` ingests two sources:
+`R/food_security.R::merge_food_security()` is called near the end of each country's Stage 2 merge script (added 2026-05-13; previously defined but never invoked) and ingests two sources:
 
-- **Cadre Harmonisé** (West African food security classification, December 2025 update): `data/CadreHarmonise/cadre_harmonise_caf_ipc_dec25.xlsx` + `wca_chipc_current_march2023.geojson`. Provides IPC-equivalent food insecurity phase per admin region. Covers Gambia, Ghana, SL; not Malawi.
-- **HFID / FEWS NET IPC** (when available, country-specific path): same data structure, includes Malawi.
+- **Cadre Harmonisé** (West African food security classification, December 2025 update): `data/CadreHarmonise/cadre_harmonise_caf_ipc_dec25.xlsx` + `wca_chipc_current_march2023.geojson`. Provides IPC-equivalent food-insecurity phase per admin region. Covers Gambia, Ghana, Sierra Leone; not Malawi.
+- **HFID / FEWS NET IPC** (`data/HFID/hfid_hv1.csv`): same data structure, includes Malawi.
 
-Columns include `fsec_ipc_phase_*`, `fsec_pop_phase_*` (population in each phase), and derived severity scores.
+Columns include `fsec_ipc_phase_*`, `fsec_pop_phase_*` (population in each phase), and derived severity scores. The function tries Admin-2 merge first, falls back to Admin-1 if Admin-2 keys are unavailable.
 
-### Soil predictors via SoilGrids (`extract_soilgrids()`)
+### Domain 11 — SoilGrids/ISRIC (`soil_`)
 
-`R/external_data.R::extract_soilgrids()` extracts SoilGrids/ISRIC layers (pH, soil organic carbon, nitrogen, clay, sand, silt, CEC) at admin-2 polygons. These flow into the merged dataset with `soil_*` column names. This is independent of the iSDAsoil soil micronutrient layers (which are extracted as `gee_a2_Soil*` from the GEE folder; see GEE Domain 7).
+`R/external_data.R::extract_soilgrids()` extracts seven properties at 0–5 cm depth (mean values) from the SoilGrids global VRT via `/vsicurl/` and computes zonal means per Admin-2 polygon:
+
+- `soil_ph`, `soil_organic_carbon`, `soil_nitrogen`, `soil_clay`, `soil_sand`, `soil_silt`, `soil_cec`
+
+Built by `scripts/build_soilgrids_admin2.R` per country into `data/SoilGrids/<Country>_soilgrids_admin2.csv`. Joined on `(Admin1, Admin2)` in each Stage 2 merge script (added 2026-05-13; previously defined but never invoked). This domain is **complementary** to the iSDAsoil micronutrient layers in the GEE folder — SoilGrids provides macro soil chemistry (pH, organic matter, particle size), while iSDA provides plant-available Fe / Zn / Ca / Mg / N / P / K / S etc. that flow in as `gee_a2_Soil*`.
+
+---
+
+## Derived feature engineering (2026-05-13)
+
+Beyond raw predictor columns, the merge scripts derive several feature families. All are computed at cluster level (merging upstream domain-level data with row-level transformations) and inherit the parent domain's prefix.
+
+### Seasonality summary features (from monthly GEE buffers)
+
+The cluster-buffer GEE CSV contains 12 monthly columns per (family × scale) for `trmm_*`, `ndvi_*`, `temp_*` at 10/25/50 km — roughly 108 monthly columns per cluster. `src/GEE/seasonality_features.R::add_seasonality_features()` (called from each Stage 2 merge after the cluster-buffer join) derives five summary columns per (family, scale) pair:
+
+| Suffix | Formula | Interpretation |
+|---|---|---|
+| `_annual_mean` | mean across 12 months | year-level baseline |
+| `_seasonal_sd` | sd across months | absolute seasonal variability |
+| `_seasonal_cv` | sd / |mean| | seasonality intensity (drought-vulnerability proxy) |
+| `_seasonal_range` | max − min | absolute spread between wettest/greenest and driest/sparsest month |
+| `_peak_month` | which.max | timing of peak (1=Jan, 12=Dec) — drives malaria seasonality, harvest timing |
+
+These 5 dense features are more useful to the SuperLearner than 12 raw monthly columns. The monthly columns are retained alongside.
+
+### Year-over-year (YoY) change features (from annual GEE rasters)
+
+`scripts/build_gee_admin2.R` now selects two files per raster family when available: the survey-year file and the previous-year file. After extraction, a post-processing step computes per-Admin-2 YoY delta columns named `gee_a2_<family>_yoy_<curyr>_<prevyr>` (e.g. `gee_a2_NDVI_yoy_2018_2017`). YoY change captures *recent* trends (rapid urbanisation, drought emergence, vegetation recovery) which static-snapshot predictors miss.
+
+### LSMS dietary-share proxies (Ghana)
+
+The Ghana LSMS clean file is pre-aggregated to household level and does not include raw food-group consumption columns required for standard HDDS/MDD-W indices. As a substitute, the merge script derives three expenditure-share proxies (named `lsms_food_share_of_total`, `lsms_animal_source_share`, `lsms_fruit_share`) which correlate with dietary diversity. These map to biologically motivated micronutrient pathways: animal-source food share for iron/B₁₂, fruit share for vitamin A/folate, food expenditure share as a proxy for poverty (Engel's law).
+
+### LSMS / WFP / nearest-market distance quality filter
+
+WFP commodity prices are joined by `nearest_market_id` regardless of distance. Stage 2 now sets all `wfp_*` columns to `NA` for clusters whose nearest market is **>100 km** away (configurable `WFP_MAX_DIST_KM` constant per script). This prevents distant-market noise from polluting the predictor matrix in remote clusters.
+
+---
+
+## Pipeline architecture and helper files
+
+### Stage 1 cleaning scripts
+
+Each country has a Stage 1 script that reads raw biomarker survey .dta files and emits a per-country cleaned RDS. Conventions:
+
+| Country | Stage 1 script | Output path |
+|---|---|---|
+| Gambia | `src/Gambia/1_GW_Gambia_data_clean.R` | `data/IPD/Gambia/Gambia_GMS_cleaned.rds` |
+| Ghana | `src/Ghana/1_GW_Ghana_data_clean.R` | `data/IPD/Ghana/Ghana_GMS_cleaned.rds` |
+| Sierra Leone | `src/SierraLeone/1_GW_SierraLeone_data_clean.R` | `data/IPD/Sierra Leone/SierraLeone_GMS_cleaned.rds` |
+| **Malawi** | `src/malawi/1_DHS_mn_data.R` (legacy naming) | `data/IPD/Malawi/clean_malawi_mn_data.RDS` |
+
+The Malawi script's name is a legacy artifact ("DHS" refers to the older Demographic-and-Health-Survey-style code generation; the script actually processes the Malawi Micronutrient Survey). A standardisation rename (to `1_GW_Malawi_data_clean.R`) is planned but defers the file move.
+
+The Ghana Stage 1 script now also (2026-05-13):
+- Guards `parse_date_time()` against silent NA fallback with a 95% parse-success assertion.
+- Derives `gw_cLogFerrAdjThurn` and `gw_wLogFerrAdjThurn` from `gw_cFerrAdjThurn` / `gw_wFerrAdjThurn` for outcome modeling (see ferritin discussion above).
+
+### Helper modules sourced by Stage 1 + Stage 2
+
+| File | Purpose |
+|---|---|
+| `src/0-functions.R` | Bench of small utilities: `fuzzy_match_admin2()`, `clean_DHS()`, `getDHSdata()`, `makeVlist()`, `evaluate_sl_performance()`. Sourced at the top of every Stage 1 script. |
+| `src/0-SL-setup.R` | SuperLearner / `sl3` configuration. Sourced where the modelling stack is set up (currently in `R/sl_fitting.R`, not the merge scripts). |
+| `src/DHS/DHS_functions.R` | DHS-specific helpers used by `getDHSdata()`. |
+| `src/DHS/DHS_variable_recode.R` | DHS variable name harmonisation across survey years. |
+| `R/data_prep.R` | Higher-level wrappers: `load_gadm_cached()`, `load_dhs_admin1()`, `load_dhs_admin2()`, `build_outcome_dataset()` (domain assignment). |
+| `R/external_data.R` | Generic admin-2 zonal-mean extractors for SoilGrids, CHIRPS, WorldPop, NTL, MAP. `extract_soilgrids()` is wired into the merge pipeline (2026-05-13); the others remain dormant — see "Dormant helpers" note below. |
+| `R/merge_external.R` | Join utilities (e.g. `merge_by_admin()`) with duplicate-key guards. |
+| `R/food_security.R` | `merge_food_security()` for CH + HFID — wired into all four Stage 2 scripts (2026-05-13). |
+| `src/IHME/build_ihme_admin1.R` | IHME admin-1 wide table builder and merge helper with fuzzy admin matching. |
+| `src/GEE/extract_gee_admin2.R` | GEE admin-2 zonal-mean extractor with temporal-aggregation heuristics. |
+| `src/GEE/seasonality_features.R` | Derives seasonality summary features from monthly buffer columns. |
+
+### Dormant helpers
+
+`R/external_data.R::extract_all_external()` is an orchestrator that wraps SoilGrids + CHIRPS + WorldPop + NTL + MAP extractions. SoilGrids is now invoked individually (via `scripts/build_soilgrids_admin2.R`); the other extractors in `extract_all_external()` overlap with the GEE buffer / admin-2 pipeline (CHIRPS ≈ TRMM, WorldPop ≈ GHSPOP, NTL ≈ CCNL) and remain dormant. A future cleanup should either wire the non-duplicate extracts (e.g. fine-resolution CHIRPS daily) or remove the dead code.
 
 ---
 
@@ -311,25 +402,50 @@ The counts below reflect the column count *after* cleaning (high-cardinality dro
 | `gee_a2_*` (admin-2 zonal of all GEE rasters) | 261 | 264 | 261 | 264 |
 | **New total this branch** | **322** | **384** | **381** | **384** |
 
-### Per-country total after 2026-05 updates
+### Per-country total after 2026-05-13 updates (from actual merged datasets)
+
+Counts reflect the final `data/IPD/<Country>/<Country>_merged_dataset.rds` files written 2026-05-13 (validated by `scripts/validate_merged_datasets.R`).
 
 | Domain | Gambia 2018 | Ghana 2017 | Sierra Leone 2013 | Malawi 2015–16 |
 |---|---:|---:|---:|---:|
-| `gw_` (excluded) | 599 | 428 | 501 | 330 |
-| `dhs<year>_` | 129 | 21 | 21 | 21 |
+| Rows (clusters × people) | 3,209 | 2,450 | 1,477 | 3,099 |
+| `gw_` (excluded from primary) | 599 | 430 | 501 | 1 (Malawi uses non-`gw_` naming) |
+| `dhs<year>_` | 129 | 132 | 131 | 131 |
 | `mics_` | 290 | 336 | — | — |
-| `ihme_` (admin-2) | 60 | 119 | 120 | 120 |
-| `ihme_adm1_` (new) | 57 | 116 | 116 | 116 |
-| `lsms_` | — | 275 | — | — |
+| `ihme_` (admin-2) | 117 | 237 | 238 | 238 |
+| `ihme_adm1_` (added 2026-05-12) | 58 | 117 | 117 | 117 |
+| `lsms_` (incl. F-7 diversity proxies) | — | 278 | — | — |
 | `MAP_` (malaria + interventions + blood disorders) | 30 | 30 | 30 | 30 |
-| `wfp_` | 45 | 26 | 0 | 11 |
+| `wfp_` (with 100 km distance filter) | 45 | 26 | 0 | 13 |
 | `flunet_` | — | 3 | — | — |
-| `gee_` cluster buffer | 141 | 177 | 141 | 141 |
-| `gee_a2_` admin-2 zonal (new) | 261 | 264 | 261 | 264 |
-| `fsec_` | wired | wired | wired | wired |
-| **Total predictor matrix (proxy-only)** | **~1,013** | **~1,247** | **~589** | **~603** |
+| `gee_` (cluster buffer + F-1 seasonality features) | 621 | 659 | 606 | 608 |
+| `gee_a2_` (admin-2 zonal + F-2 YoY features) | 434 | 437 | 419 | 422 |
+| `fsec_` (Cadre Harmonisé + HFID, wired 2026-05-13) | 10 | 33 | 33 | 10 |
+| `soil_` (SoilGrids/ISRIC, wired 2026-05-13) | 7 | 7 | 7 | 7 |
+| **Total columns** | **1,859** | **2,182** | **1,556** | **1,378** |
+| **Proxy-only predictor matrix (excl. `gw_`)** | **~1,260** | **~1,752** | **~1,055** | **~1,377** |
 
-GADM 4.1 polygon counts: Gambia 37 admin-2 (LGAs subdivided), Ghana 260, Sierra Leone 14 (pre-2017 districts), Malawi 256.
+GADM 4.1 polygon counts: Gambia 37 admin-2 (LGAs subdivided), Ghana 260, Sierra Leone 14 (pre-2017 districts), Malawi 256 admin-2 (TAs/Sub-Chiefs; districts live in Malawi's `Admin1` column).
+
+#### NA rates per domain (mean across columns in domain)
+
+| Domain | Gambia | Ghana | Sierra Leone | Malawi |
+|---|---:|---:|---:|---:|
+| `gw_` | 41% | 55% | 55% | 0% (single col) |
+| `dhs<year>_` | 12% | 8% | 0% | 16% |
+| `mics_` | 0% | 0% | — | — |
+| `ihme_` | 6% | 36% | 2% | 2% |
+| `ihme_adm1_` | 10% | 23% | 2% | 0% |
+| `MAP_` | 10% | 10% | 10% | 10% |
+| `wfp_` | 35% | 22% | — | 72% (very rural) |
+| `gee_` | 2% | 2% | 4% | 1% |
+| `gee_a2_` | 3% | 2% | 5% | 2% |
+| `fsec_` | 80% | 83% | 75% | 80% |
+| `soil_` | **100%** | 2% | **100%** | **100%** |
+
+The `soil_` domain shows 100% NA for Gambia/SL/Malawi because the ISRIC SoilGrids VRT download failed for those countries on the most recent run (network/server flakiness). The infrastructure is in place; re-running `scripts/build_soilgrids_admin2.R` will populate the domain when ISRIC's file server is responsive. Ghana succeeded on first attempt and has 98% non-NA soil data.
+
+The `fsec_` 75–83% NA rates reflect that food-security IPC classifications are only published for specific admin units (and only some have current-period data); the remaining clusters get NA. This is informative missingness, not a defect.
 
 ---
 

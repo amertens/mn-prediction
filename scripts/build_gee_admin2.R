@@ -79,21 +79,25 @@ family_key <- function(fname, tokens) {
   tolower(key)
 }
 
-#' For each raster family, pick the single best file for the survey year.
-#' Priority order:
+#' For each raster family, pick the single best file for the survey year,
+#' AND optionally pick the previous year's file (for YoY lag features).
+#'
+#' Returns a named character vector:
+#'   - names "current"  -> the survey-year files (one per family)
+#'   - names "lag1"     -> the previous-year files (where available, for
+#'                          families with year-specific variants)
+#' Priority for "current":
 #'   1. Year-specific file whose year exactly matches target_year.
 #'   2. Year-specific file with the nearest year.
-#'   3. No-year file (e.g. SoilIron_Gambia.tif) — used only if no year-
-#'      specific exists for the family.
-#'
-#' This avoids duplicate columns when a family has both a no-year canonical
-#' file and year-specific variants (e.g. SoilIron has 3 files: no-year + 2017
-#' + 2018; we keep just the year matching the survey).
-select_rasters_for_year <- function(files, target_year, tokens) {
+#'   3. No-year file (e.g. SoilIron_Gambia.tif) — only if no year-specific.
+#' For "lag1" we only emit files when (a) the family has multiple year-
+#' specific files and (b) we can find a year-specific file <= target_year - 1.
+select_rasters_for_year <- function(files, target_year, tokens,
+                                     include_lag1 = TRUE) {
   if (length(files) == 0) return(character(0))
   yrs <- vapply(basename(files), extract_year, integer(1))
   fams <- vapply(files, family_key, character(1), tokens = tokens)
-  selected <- character(0)
+  selected <- character(0); kinds <- character(0)
   for (fam in unique(fams)) {
     idx <- which(fams == fam)
     fam_files <- files[idx]
@@ -103,11 +107,29 @@ select_rasters_for_year <- function(files, target_year, tokens) {
       diffs <- abs(fam_years[year_idx] - target_year)
       pick <- year_idx[which.min(diffs)]
       selected <- c(selected, fam_files[pick])
+      kinds <- c(kinds, "current")
+
+      if (include_lag1) {
+        # Pick the file with year closest to target_year-1, EXCLUDING the
+        # already-picked one. Only if multiple year-specific files exist.
+        avail <- setdiff(year_idx, pick)
+        if (length(avail) > 0) {
+          diffs_lag <- abs(fam_years[avail] - (target_year - 1L))
+          pick_lag <- avail[which.min(diffs_lag)]
+          # Only emit if it's actually a *different* year and earlier than current
+          if (fam_years[pick_lag] != fam_years[pick] &&
+              fam_years[pick_lag] <= fam_years[pick]) {
+            selected <- c(selected, fam_files[pick_lag])
+            kinds <- c(kinds, "lag1")
+          }
+        }
+      }
     } else {
-      # All files for this family are no-year — keep them all.
       selected <- c(selected, fam_files)
+      kinds <- c(kinds, rep("current", length(fam_files)))
     }
   }
+  names(selected) <- kinds
   selected
 }
 
@@ -146,6 +168,35 @@ for (cn in sel) {
 
   res <- extract_gee_admin2(poly, all_rasters,
                              country_tokens = cc$tokens, verbose = TRUE)
+
+  # ── F-2: YoY change features ───────────────────────────────────────────
+  # When a family has both a current-year and previous-year column, derive
+  # the YoY delta. Family columns end with the year (e.g. "..._NDVI_2018"
+  # and "..._NDVI_2017"). Pair them by stripping the year suffix.
+  data_cols <- setdiff(colnames(res), c("Admin1", "Admin2"))
+  yr_rgx    <- "_(?:19|20)\\d{2}(?:_annual_mean)?$"
+  has_year  <- grepl(yr_rgx, data_cols)
+  if (any(has_year)) {
+    stems   <- sub("_((?:19|20)\\d{2})((?:_annual_mean)?)$",
+                   "_YR\\2", data_cols[has_year], perl = TRUE)
+    by_stem <- split(data_cols[has_year], stems)
+    yoy_added <- 0L
+    for (stem_key in names(by_stem)) {
+      group <- by_stem[[stem_key]]
+      if (length(group) < 2) next
+      year_of <- as.integer(regmatches(
+        group, regexpr("(?:19|20)\\d{2}", group)))
+      ord <- order(year_of, decreasing = TRUE)
+      cur <- group[ord[1]]; lag <- group[ord[2]]
+      yoy_col <- sub("_YR", sprintf("_yoy_%d_%d_",
+                                     max(year_of), max(year_of) - 1L),
+                     stem_key)
+      yoy_col <- sub("_$", "", yoy_col)
+      res[[yoy_col]] <- res[[cur]] - res[[lag]]
+      yoy_added <- yoy_added + 1L
+    }
+    if (yoy_added > 0) message(sprintf("  + YoY delta features: %d new columns", yoy_added))
+  }
 
   out_path <- here("data/GEE",
                    sprintf("%s_%d_admin2_gee.csv", cn, cc$target_year))

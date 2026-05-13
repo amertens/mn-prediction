@@ -114,6 +114,14 @@ head(df)
 df$date= parse_date_time(as.character(df$start),
                          orders = c("a b d H:M:S z Y", "a b d H:M:S Y", "Y-m-d H:M:S"),
                          tz = "UTC")
+# Guard against silent parse failure: require ≥95% parse success on a
+# non-empty start column. parse_date_time falls back silently to NA otherwise.
+{
+  n_total <- sum(!is.na(df$start) & nzchar(as.character(df$start)))
+  n_ok    <- sum(!is.na(df$date))
+  if (n_total > 0 && n_ok / n_total < 0.95)
+    stop(sprintf("parse_date_time succeeded on only %d/%d non-empty dates", n_ok, n_total))
+}
 
 df$year = year(df$date)
 df$month = month(df$date)
@@ -132,6 +140,21 @@ df$date
 
 colnames(df)[!(colnames(df) %in% c("longitude","latitude"))] <- paste0("gw_", colnames(df)[!(colnames(df) %in% c("longitude","latitude"))])
 
+# Derive log of Thurnham-adjusted ferritin for outcome modeling.
+# The Ghana survey provides Thurnham-adjusted continuous ferritin
+# (gw_cFerrAdjThurn / gw_wFerrAdjThurn) and Thurnham/Brinda-adjusted binary
+# IDA outcomes. We need a *log-adjusted* continuous column so that Ghana
+# matches Gambia / SL's convention of `gw_<c|w>LogFer*Adj*` for the SL outcome.
+# Previously the config used un-adjusted log ferritin (gw_cLogFerr) paired with
+# Thurnham-adjusted binary — a cross-country and within-country inconsistency.
+if ("gw_cFerrAdjThurn" %in% names(df)) {
+  v <- suppressWarnings(as.numeric(df$gw_cFerrAdjThurn))
+  df$gw_cLogFerrAdjThurn <- ifelse(is.na(v) | v <= 0, NA_real_, log(v))
+}
+if ("gw_wFerrAdjThurn" %in% names(df)) {
+  v <- suppressWarnings(as.numeric(df$gw_wFerrAdjThurn))
+  df$gw_wLogFerrAdjThurn <- ifelse(is.na(v) | v <= 0, NA_real_, log(v))
+}
 
 saveRDS(df, file=here("data", "IPD", "Ghana", "Ghana_GMS_cleaned.rds"))
 

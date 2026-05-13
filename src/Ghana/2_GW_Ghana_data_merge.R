@@ -39,7 +39,12 @@ gw_vars <- colnames(d)
 # gee_old <- read.csv(here("data/GEE/ghana2017_buffers_clean.csv")) %>% select(SR,EACode, trmm_mean_10km:wapor_npp_11_Dec_50km) #%>%
 # head(gee_old)
 
-gee <- read.csv(here("data/GEE/ghana2017_buffers_01.08.2026.csv"))
+gee_buffer_path <- {
+  cands <- Sys.glob(here("data/GEE/ghana2017_buffers_*.csv"))
+  if (length(cands) == 0) stop("No ghana2017_buffers_*.csv found in data/GEE/")
+  cands[which.max(file.info(cands)$mtime)]
+}
+gee <- read.csv(gee_buffer_path)
 colnames(gee)= gsub("\\.x","",colnames(gee))
 gee <- gee %>% select(SR,EACode, trmm_Jan_10km:grassland_50km) #%>%
 head(gee)
@@ -64,6 +69,13 @@ unique(gee$gee_EACode)
 d <- left_join(d, gee, by = c("gw_cn"="gee_SR", "gw_EACode"="gee_EACode"))
 table(is.na(gee$gee_grassland_50km))
 table(is.na(d$gee_grassland_50km))
+
+# F-1: Derive seasonality summary features from monthly GEE buffer columns.
+source(here("src/GEE/seasonality_features.R"))
+d <- add_seasonality_features(d, verbose = TRUE)
+gee_vars <- unique(c(gee_vars,
+  grep("_(annual_mean|seasonal_sd|seasonal_cv|seasonal_range|peak_month)$",
+       colnames(d), value = TRUE)))
 
 #merged_proxies <- readRDS(here::here("data/DHS/clean/dhs_Ghana_2019_gee_fp_map_merge.RDS"))
 
@@ -149,6 +161,27 @@ if (file.exists(gee_a2_path)) {
 
 
 #-------------------------------------------------------------------------------
+# SoilGrids/ISRIC Admin-2 predictors
+# Built by scripts/build_soilgrids_admin2.R. pH, organic carbon, nitrogen,
+# clay, sand, silt, CEC at 0-5cm depth, zonal-mean per Admin-2.
+#-------------------------------------------------------------------------------
+
+soil_path <- here("data/SoilGrids/Ghana_soilgrids_admin2.csv")
+if (file.exists(soil_path)) {
+  soil_df <- read.csv(soil_path, check.names = FALSE)
+  soil_df$Admin2 <- trimws(soil_df$Admin2)
+  if ("Admin1" %in% colnames(soil_df)) soil_df$Admin1 <- trimws(soil_df$Admin1)
+  soil_keys <- intersect(c("Admin1", "Admin2"), colnames(soil_df))
+  soil_vars <- setdiff(colnames(soil_df), soil_keys)
+  df <- df %>% dplyr::left_join(soil_df, by = soil_keys)
+  cat(sprintf("  SoilGrids merge: %d soil_ columns added\n", length(soil_vars)))
+} else {
+  soil_vars <- character(0)
+  warning("SoilGrids CSV not found — run scripts/build_soilgrids_admin2.R Ghana")
+}
+
+
+#-------------------------------------------------------------------------------
 # Food price
 #-------------------------------------------------------------------------------
 
@@ -228,6 +261,16 @@ head(df)
 df <- left_join(df, price_df, by = c("nearest_market_id" = "wfp_nearest_market_id"))
 table(is.na(price_df$wfp_cassava ))
 table(is.na(df$wfp_cassava ))
+
+WFP_MAX_DIST_KM <- 100
+far <- !is.na(df$nearest_market_distance_km) &
+        df$nearest_market_distance_km > WFP_MAX_DIST_KM
+if (any(far)) {
+  cat(sprintf("  WFP distance cutoff: %d/%d rows beyond %d km — wfp_* set to NA\n",
+              sum(far), nrow(df), WFP_MAX_DIST_KM))
+  wfp_data_cols <- intersect(wfp_vars, colnames(df))
+  for (cc_wfp in wfp_data_cols) df[[cc_wfp]][far] <- NA
+}
 
 
 #
@@ -513,6 +556,26 @@ df <- merge_ihme_admin1(
 ihme_vars <- unique(c(ihme_vars, grep("^ihme_adm1_", colnames(df), value = TRUE)))
 
 
+#-------------------------------------------------------------------------------
+# Food security (Cadre Harmonisé + HFID / FEWS NET IPC)
+#-------------------------------------------------------------------------------
+
+source(here("R", "food_security.R"))
+source(here("R", "config.R"))
+cc_fsec  <- get_country_configs()[["Ghana"]]
+hfid_path <- here("data", "HFID", "hfid_hv1.csv")
+ch_path   <- here("data", "CadreHarmonise", "cadre_harmonise_caf_ipc_dec25.xlsx")
+if (file.exists(hfid_path) || file.exists(ch_path)) {
+  df <- as.data.frame(df)
+  df <- merge_food_security(df, cc_fsec,
+                             hfid_path = if (file.exists(hfid_path)) hfid_path else NULL,
+                             ch_path   = if (file.exists(ch_path))   ch_path   else NULL)
+  fsec_vars <- grep("^fsec_", colnames(df), value = TRUE)
+} else {
+  fsec_vars <- character(0)
+  warning("Neither HFID nor Cadre Harmonisé file found; skipping fsec_ merge.")
+}
+
 
 #-------------------------------------------------------------------------------
 # MICS Data
@@ -632,6 +695,45 @@ lsms_vars <- colnames(lsms)
 unique(lsms$lsms_admin1)
 unique(df$Admin1)
 df <- left_join(df, lsms, by = c("Admin1_old" = "lsms_admin1"))
+
+# F-7: Dietary-diversity proxies from LSMS household-aggregate columns.
+# The Ghana LSMS clean file is pre-aggregated (no raw food-group columns),
+# so we can't derive standard HDDS / MDD-W. Instead we derive expenditure-
+# share proxies that correlate with dietary diversity:
+#   - food_share_of_total     — fraction of household expenditure on food
+#                                (inverse proxy for wealth; Engel's law)
+#   - animal_source_share     — meat / fish protein share of food spend
+#   - fruit_share             — fruit share of food spend
+# These are biologically motivated proxies for iron/B12/folate/vitamin-A
+# access at the household level.
+safe_ratio <- function(num, den) {
+  out <- ifelse(is.na(num) | is.na(den) | den <= 0,
+                 NA_real_, num / den)
+  out
+}
+if (all(c("lsms_hh_totfood") %in% colnames(df))) {
+  # Total expenditure may live under various names; prefer lsms_hh_totalch
+  total_exp_col <- intersect(c("lsms_hh_totalch", "lsms_hh_mtotalch"),
+                              colnames(df))[1]
+  if (!is.na(total_exp_col)) {
+    df$lsms_food_share_of_total <-
+      safe_ratio(df$lsms_hh_totfood, df[[total_exp_col]])
+  }
+  if ("lsms_hh_fd_p_meat" %in% colnames(df)) {
+    df$lsms_animal_source_share <-
+      safe_ratio(df$lsms_hh_fd_p_meat, df$lsms_hh_totfood)
+  }
+  if ("lsms_hh_fd_p_fruit" %in% colnames(df)) {
+    df$lsms_fruit_share <-
+      safe_ratio(df$lsms_hh_fd_p_fruit, df$lsms_hh_totfood)
+  }
+  derived <- intersect(c("lsms_food_share_of_total",
+                          "lsms_animal_source_share",
+                          "lsms_fruit_share"),
+                        colnames(df))
+  lsms_vars <- unique(c(lsms_vars, derived))
+  cat(sprintf("  LSMS dietary-proxy features: %d derived\n", length(derived)))
+}
 
 
 #-------------------------------------------------------------------------------
@@ -758,7 +860,9 @@ metadata <- list(
   map_vars = map_vars[map_vars %in% colnames(df)],
   wfp_vars = wfp_vars[wfp_vars %in% colnames(df)],
   flunet_vars = flu_vars[flu_vars %in% colnames(df)],
-  gee_vars = gee_vars[gee_vars %in% colnames(df)]
+  gee_vars = gee_vars[gee_vars %in% colnames(df)],
+  fsec_vars = fsec_vars[fsec_vars %in% colnames(df)],
+  soil_vars = soil_vars[soil_vars %in% colnames(df)]
 )
 
 

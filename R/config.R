@@ -95,7 +95,8 @@ get_country_configs <- function() {
         WFP    = list(prefix = "wfp_", extra = "nearest_market_id"),
         FLUNET = list(prefix = "flunet_"),
         GEE    = list(prefix = "gee_"),
-        FSEC   = list(prefix = "fsec_")
+        FSEC   = list(prefix = "fsec_"),
+        SOIL   = list(prefix = "soil_")
       ),
 
       # Patterns for outcome-leakage removal in gw_ predictors
@@ -155,13 +156,19 @@ get_country_configs <- function() {
           cutoff_dir     = "less",
           cutoff_scale   = "original"
         ),
+        # 2026-05-13 fix (review N-2): switch from un-adjusted gw_cLogFerr /
+        # gw_wLogFerr to Thurnham-adjusted log-ferritin (derived in
+        # 1_GW_Ghana_data_clean.R as gw_cLogFerrAdjThurn / gw_wLogFerrAdjThurn).
+        # The pre-2026-05 config paired un-adjusted continuous ferritin with
+        # adjusted binary outcomes — inconsistent across countries (Gambia/SL
+        # use adjusted) and within Ghana (the binary was already adjusted).
         child_iron = list(
           tag            = "child_iron",
           label          = "Iron deficiency (children)",
           population     = "children",
           child_flag_val = 1L,
-          continuous     = "gw_cLogFerr",
-          binary         = "gw_cIDA_Brinda",
+          continuous     = "gw_cLogFerrAdjThurn",
+          binary         = "gw_cIDAdjThurn",
           cutoff         = log(12),
           cutoff_dir     = "less",
           cutoff_scale   = "log"
@@ -171,7 +178,7 @@ get_country_configs <- function() {
           label          = "Iron deficiency (women)",
           population     = "women",
           child_flag_val = 0L,
-          continuous     = "gw_wLogFerr",
+          continuous     = "gw_wLogFerrAdjThurn",
           binary         = "gw_wIDA_Thurn",
           cutoff         = log(15),
           cutoff_dir     = "less",
@@ -214,7 +221,8 @@ get_country_configs <- function() {
         WFP     = list(prefix = "wfp_", extra = "nearest_market_id"),
         FLUNET  = list(prefix = "flunet_"),
         GEE     = list(prefix = "gee_"),
-        FSEC    = list(prefix = "fsec_")
+        FSEC    = list(prefix = "fsec_"),
+        SOIL    = list(prefix = "soil_")
       ),
 
       gw_exclude_patterns = c(
@@ -325,7 +333,8 @@ get_country_configs <- function() {
         IHME   = list(prefix = "ihme_"),
         MAP    = list(prefix = "MAP_"),
         GEE    = list(prefix = "gee_"),
-        FSEC   = list(prefix = "fsec_")
+        FSEC   = list(prefix = "fsec_"),
+        SOIL   = list(prefix = "soil_")
       ),
 
       gw_exclude_patterns = c(
@@ -457,7 +466,8 @@ get_country_configs <- function() {
         MAP    = list(prefix = "MAP_"),
         GEE    = list(prefix = "gee_"),
         WFP    = list(prefix = "wfp_"),
-        FSEC   = list(prefix = "fsec_")
+        FSEC   = list(prefix = "fsec_"),
+        SOIL   = list(prefix = "soil_")
       ),
 
       gw_exclude_patterns = c(
