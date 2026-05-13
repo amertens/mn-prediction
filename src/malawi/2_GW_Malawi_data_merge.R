@@ -148,7 +148,7 @@ wfp <- wfp %>%
          usdprice=as.numeric(usdprice),
          priceflag=factor(priceflag, levels=c("actual","actual,aggregate","aggregate")),
          pricetype = factor(pricetype, levels=c("Retail","Wholesale")),
-         unit=factor(unit)) %>% filter(year==2017)
+         unit=factor(unit)) %>% filter(year %in% c(2015L, 2016L))  # MNS fieldwork window (Dec 2015 - Feb 2016). Previously year==2017 — future-year prices = temporal leak.
 
 levels(wfp$unit) <- c("KG", setdiff(levels(wfp$unit), "KG"))
 
@@ -419,8 +419,11 @@ merge_with_ihme <- function(main_df, ihme_df, lookup_table, min_similarity = 0.7
   cat("Using", nrow(good_matches), "matches with similarity >=", min_similarity, "\n")
 
   # Perform the merge
+  # Bug fix 2026-05: was previously by=c("Admin1"="Admin2") which silently
+  # produced all-NA IHME admin-2 columns for every Malawi cluster (Admin1
+  # regions never matched district names).
   merged_data <- main_df %>%
-    left_join(good_matches, by = c("Admin1"="Admin2")) %>%
+    left_join(good_matches, by = "Admin2") %>%
     left_join(ihme_df, by = "ihme_adm2_name")
 
   # Summary statistics
