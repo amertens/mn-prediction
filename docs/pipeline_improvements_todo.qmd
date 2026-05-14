@@ -466,3 +466,98 @@ Create a Docker container with all R packages, GADM cache, and external predicto
 | P3 | CIs | Spatial conformal prediction | 8 hours |
 | P3 | OOS | Temporal extrapolation | 16+ hours |
 | P1 | Data Quality | Deduplicate `.x`/`.y` columns from merge joins in `R/merge_external.R` — DHS Admin-2 indicators appear twice (e.g., `dhs2014_c_overweight_adm2.x` and `.y`), inflating predictor count and creating "Unknown" domain in conceptual ablation. Investigate which merge produces duplicates and keep only one copy. | 2 hours |
+| P1 | Predictors | Retry SoilGrids for Gambia / SL / Malawi (Ghana succeeded, others got all-NA due to ISRIC server flakiness) — `Rscript scripts/build_soilgrids_admin2.R <Country>` then re-run that country's `2_GW_*_data_merge.R` | 30 min |
+| P1 | Predictors | Upgrade Ghana DHS from 2014 → 2017 — run `src/DHS/DHS_admin2_aggregation.R`, flip `R/config.R:122` `dhs_year=2014L→2017L`, re-run Ghana merge | 4 hours |
+| P1 | Pipeline | Re-run `targets::tar_make_future()` against the 2026-05-13-refreshed merged RDS inputs (which carry the new `fsec_`, `soil_`, `gee_a2_*_yoy_*`, seasonality features, and Ghana Brinda-Thurnham ferritin fix) | 5–60 min |
+
+---
+
+# Follow-ups from the 2026-05-13 implementation round {#sec-followup-2026-05-13}
+
+After applying N-1..N-11 + F-1/F-2/F-7 from `pipeline_review_2026-05-13.md`, three items remain.
+
+## P1: Retry SoilGrids for Gambia / Sierra Leone / Malawi {.unnumbered}
+
+**Status:** Infrastructure wired; Ghana succeeded on first run (98% non-NA `soil_*` cols). Gambia, Sierra Leone, and Malawi got all-NA CSVs because the ISRIC SoilGrids VRT server returned no data during the run (transient server / network issue).
+
+**What to do:**
+
+```bash
+Rscript scripts/build_soilgrids_admin2.R Gambia
+Rscript scripts/build_soilgrids_admin2.R SierraLeone
+Rscript scripts/build_soilgrids_admin2.R Malawi
+# then re-run that country's merge to pick up the new soil_* values
+Rscript src/Gambia/2_GW_Gambia_data_merge.R
+Rscript src/SierraLeone/2_GW_SierraLeone_data_merge.R
+Rscript src/malawi/2_GW_Malawi_data_merge.R
+```
+
+Cache is shared in `data/external_cache/soilgrids/`, so retries are cheap once a property downloads. If `/vsicurl/` is blocked from the current network, `extract_soilgrids()` has a WCS-endpoint fallback that may work instead.
+
+**Verify success:** the resulting CSV should have non-NA values for ≥ 95% of admin-2 rows.
+
+**Affected files:** `data/SoilGrids/<Country>_soilgrids_admin2.csv`, `data/IPD/<Country>/<Country>_merged_dataset.rds`, `metadata/<country>_variable_categories.rds`.
+
+**Estimated effort:** 30 min (mostly download time).
+
+## P1: Upgrade Ghana DHS from 2014 → 2017 {.unnumbered}
+
+**Status:** Ghana micronutrient survey is 2017 but `R/config.R:122` still pins `dhs_year = 2014L` (3-year gap). The pre-existing TODO comment notes: "Switch to DHS 2017 once Admin-2 aggregation is run." The aggregation script (`src/DHS/DHS_admin2_aggregation.R`) is already configured for Ghana 2017; just needs to be executed.
+
+**What to do:**
+
+```r
+# 1. Run the DHS 2017 admin-2 BYM2 aggregation for Ghana
+#    (produces data/DHS/clean/Ghana_2017_dhs_admin2_*.rds)
+source("src/DHS/DHS_admin2_aggregation.R")
+
+# 2. Edit R/config.R: change Ghana's dhs_year from 2014L to 2017L
+#    (single-line edit at config.R:122)
+
+# 3. Re-run Ghana Stage 2 merge
+source("src/Ghana/2_GW_Ghana_data_merge.R")
+```
+
+**Note:** Ghana currently carries DHS rounds 2014, 2016, AND 2017 as separate domain prefixes in `R/config.R:207-209`. Once the 2017 admin-2 aggregate is built, decide whether to keep all three rounds (collinear but supports trend features) or drop 2014/2016 to reduce model complexity. The 2026-05-12 review (item I-4) recommended dropping the redundant rounds.
+
+**Affected files:** `data/DHS/clean/Ghana_2017_dhs_admin2_*.rds` (new), `R/config.R`, `data/IPD/Ghana/Ghana_merged_dataset.rds`.
+
+**Estimated effort:** 4 hours (mostly the surveyPrev BYM2 aggregation in step 1).
+
+## P1: Re-run the targets pipeline against the 2026-05-13 inputs {.unnumbered}
+
+**Status:** All four `data/IPD/<Country>/<Country>_merged_dataset.rds` files were regenerated on 2026-05-13 and now carry:
+
+- New `fsec_` columns (Cadre Harmonisé + HFID), 10–33 per country.
+- New `soil_` columns (SoilGrids), 7 per country — populated for Ghana, NA pending retry for the others.
+- New `gee_a2_*_yoy_<curyr>_<prevyr>` YoY deltas, 8 per country.
+- New `gee_*_seasonal_{sd,cv,range}` / `_peak_month` / `_annual_mean` seasonality features, ~45 per country.
+- Recovered Malawi IHME admin-1 and admin-2 columns (previously 100% NA, now 0% / 1.8%).
+- Ghana ferritin outcome switched from un-adjusted `gw_cLogFerr` to Brinda-Thurnham-aligned `gw_cLogFerrAdjThurn` / `gw_wLogFerrAdjThurn`.
+
+The targets pipeline (`_targets.R`) reads from these RDS files but its cached results were built against older inputs — so all downstream targets are stale.
+
+**What to do:**
+
+```r
+targets::tar_invalidate(names = matches("^outcome_data_|^sl_fit_|^cv_perf|^domain_ablation"))
+targets::tar_make_future(workers = 4)
+# Or for full publication mode:
+Sys.setenv(PIPELINE_MODE = "full")
+targets::tar_invalidate(names = matches("^pipeline_params"))
+targets::tar_make_future(workers = 4)
+```
+
+After the targets pipeline finishes, refresh the dashboard:
+
+```bash
+Rscript dashboard/data-raw/01_prepare_dashboard_data.R
+Rscript dashboard/deploy.R
+```
+
+**Affected files:** `_targets/` cache, `results/tables/*.csv`, `results/figures/*.png`, `results/models/*.rds`, `docs/results_report.html`, the live dashboard at `https://amertens.shinyapps.io/micronutrient-burden/`.
+
+**Estimated effort:** 5–10 min in fast mode (default); ~1 hour in full mode; +5 min for dashboard redeploy.
+
+**Expected outcome:** AUCs and domain ablation rankings should shift because of (a) the ~250+ new predictors per country and (b) the corrected Malawi IHME columns. Re-validate that the Ghana iron-deficiency outcome distribution is sensible after the Brinda-Thurnham swap (it may shift prevalence by a few percentage points relative to the old un-adjusted ferritin definition).
+| P1 | Data Quality | Deduplicate `.x`/`.y` columns from merge joins in `R/merge_external.R` — DHS Admin-2 indicators appear twice (e.g., `dhs2014_c_overweight_adm2.x` and `.y`), inflating predictor count and creating "Unknown" domain in conceptual ablation. Investigate which merge produces duplicates and keep only one copy. | 2 hours |
