@@ -168,8 +168,23 @@ run_loco_cv <- function(pooled, sl_learners, params) {
   Xvars   <- pooled$Xvars_common
   countries <- unique(d$country)
 
-  # Use mlr3 library from sl_learners
+  # Use mlr3 library from sl_learners.
+  # Drop BART variants for LOCO — dbarts MCMC has been crashing the R
+  # process during LOCO fits (likely callr subprocess OOM with the large
+  # pooled multi-country dataset; 4 of 4 LOCO retries on full stack have
+  # died mid-MCMC). The remaining 13 learners (mean + 3 glmnet + 3 ranger
+  # + 2 xgboost + gp) are sufficient for transportability evaluation.
   mlr3_lib <- sl_learners$library
+  n_before <- length(mlr3_lib)
+  mlr3_lib <- Filter(function(x) {
+    type <- if (is.list(x)) (x[[1]] %||% "") else x
+    !grepl("bart", type, ignore.case = TRUE)
+  }, mlr3_lib)
+  n_after <- length(mlr3_lib)
+  if (n_before != n_after) {
+    cat(sprintf("[LOCO] Filtered %d BART variants from library (%d -> %d learners)\n",
+                n_before - n_after, n_before, n_after))
+  }
 
   results <- list()
 
@@ -262,8 +277,16 @@ run_loco_cv <- function(pooled, sl_learners, params) {
         for (col in setdiff(final_covars, colnames(cov0))) cov0[[col]] <- 0
         cov0 <- cov0[, final_covars, drop = FALSE]
 
-        # Use the mlr3 wrapper's predict method
-        as.numeric(fit$sl_fit$predict(cov0))
+        # Use the mlr3 wrapper's predict method, augmented with Y and
+        # cluster_id so mlr3superlearner can reconstruct the task
+        # (matches the fix in predict_on_new_data()).
+        cov0_aug <- cov0
+        cov0_aug$Y <- 0
+        cov0_aug$cluster_id <- "predict_dummy_cluster"
+        tryCatch(
+          as.numeric(predict(fit$sl_fit$mlr3_fit, cov0_aug)),
+          error = function(e) as.numeric(fit$sl_fit$predict(cov0))
+        )
       }, error = function(e) {
         cat(sprintf("  Manual prediction also failed for %s: %s\n", held_out, e$message))
         NULL
@@ -401,8 +424,24 @@ predict_on_new_data <- function(fit, newdata, Xvars) {
   for (col in missing_final) cov0[[col]] <- 0
   cov0 <- cov0[, final_covars, drop = FALSE]
 
-  # Predict using the model wrapper (works for both sl3 and mlr3)
-  result <- as.numeric(fit$sl_fit$predict(cov0))
+  # mlr3_SL_clustered (post-2026-05-12) trains with group="cluster_id",
+  # so mlr3superlearner's predict reconstructs the task with the group
+  # column and fails with "undefined columns selected" if cluster_id is
+  # missing on newdata. Bypass the wrapper's column-stripping closure by
+  # calling mlr3 directly on an augmented frame that includes Y and
+  # cluster_id. Fall back to the wrapper's predict only if the direct
+  # mlr3 path raises a different error.
+  cov0_aug <- cov0
+  cov0_aug$Y <- 0
+  cov0_aug$cluster_id <- "predict_dummy_cluster"
+  result <- tryCatch(
+    as.numeric(predict(fit$sl_fit$mlr3_fit, cov0_aug)),
+    error = function(e) {
+      cat(sprintf("    [predict] direct mlr3 predict failed: %s; falling back to wrapper\n",
+                  e$message))
+      as.numeric(fit$sl_fit$predict(cov0))
+    }
+  )
   cat(sprintf("    [predict] Got %d predictions, range: [%.4f, %.4f]\n",
               length(result), min(result, na.rm=TRUE), max(result, na.rm=TRUE)))
   result
