@@ -369,24 +369,32 @@ res_active  <- if (use_binary) res_bin else res_cont
 outcome_col <- if (use_binary) oc$binary else oc$continuous
 model_type  <- if (use_binary) "binary_prob" else "continuous_threshold"
 
-# Choose bootstrap SL: use same learner that produced res_active.
-# If we fitted inline (minimal stack), use that same minimal stack for bootstrap.
-# If we loaded a saved model, use the production stack from 0-SL-setup.R.
-if (exists("sl_min_bin") || exists("sl_min_cont")) {
-  # Inline fit was used — bootstrap with the same minimal stack
-  if (use_binary && exists("sl_min_bin")) {
-    sl_for_boot <- sl_min_bin
-  } else if (!use_binary && exists("sl_min_cont")) {
-    sl_for_boot <- sl_min_cont
+# Always use a minimal lasso-only stack for the bootstrap, even when a
+# production model was loaded for the main fit. Reason: production
+# stacks (slmod / slmod2_bin) include screener -> learner pipelines
+# (e.g., screen.coefs -> xgboost) whose per-rep column counts vary
+# because correlated-predictor screening is unstable across bootstrap
+# resamples. predict.glmnet / predict.ranger then fail with
+# "newx must be N" when the predict matrix has different columns
+# than the bootstrap-rep training matrix. A mean+lasso stack has no
+# per-rep screening and is stable across resamples.
+sl_for_boot <- {
+  lrnr_mean_boot   <- Lrnr_mean$new()
+  lrnr_glmnet_boot <- Lrnr_glmnet$new()
+  stack_boot       <- make_learner(Stack, lrnr_mean_boot, lrnr_glmnet_boot)
+  if (use_binary) {
+    make_learner(Lrnr_sl,
+                 learners      = stack_boot,
+                 loss_function = loss_loglik_binomial,
+                 metalearner   = make_learner(Lrnr_nnls))
   } else {
-    sl_for_boot <- if (use_binary) slmod2_bin else slmod
+    make_learner(Lrnr_sl,
+                 learners      = stack_boot,
+                 loss_function = loss_squared_error,
+                 metalearner   = make_learner(Lrnr_nnls))
   }
-  cat("  Bootstrap will use: minimal inline learner stack (mean + glmnet)\n")
-} else {
-  # Saved model was loaded — use production stack
-  sl_for_boot <- if (use_binary) slmod2_bin else slmod
-  cat("  Bootstrap will use: production learner stack (from 0-SL-setup.R)\n")
 }
+cat("  Bootstrap will use: minimal lasso-only stack (stable across resamples)\n")
 
 if (is.null(res_active)) stop("Model fitting failed — cannot continue.")
 

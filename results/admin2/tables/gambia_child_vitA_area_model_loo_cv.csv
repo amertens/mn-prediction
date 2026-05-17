@@ -1,0 +1,2 @@
+outcome,country,model,n_train,n_predictors,loo_mae_pp,loo_rmse_pp,loo_r,loo_bias_pp
+child_vitA,Gambia,area_level_glmnet,30,108,10.06,12.83,0.145,0.23
