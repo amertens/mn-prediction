@@ -12,4 +12,5 @@ _targets/
 # Reproducible pipeline outputs — rerun targets to regenerate.
 results/sl_exploration/models/*.rds
 results/figures/malawi_oos_figures.rds
+results/figures/map_figures.rds
 mn_proxy_tutorial/mn_proxy_tutorial_cache/

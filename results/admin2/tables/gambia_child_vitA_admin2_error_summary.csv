@@ -1,2 +1,2 @@
-outcome,country,model_type,n_admin2,mae_pp,rmse_pp,pearson_r,mean_bias_pp
-child_vitA,Gambia,binary_prob,30,2.91,4.1,0.95,0.12
+outcome,country,model_type,n_admin2,n_admin2_excluded,min_n_svy,mae_pp,rmse_pp,pearson_r,mean_bias_pp,morans_i_residual,morans_i_p_value
+child_vitA,Gambia,binary_prob,27,3,10,2.38,3.06,0.974,-0.79,NA,NA
