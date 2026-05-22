@@ -9,6 +9,16 @@
 #   - Error analysis
 # =============================================================================
 
+# Outcomes whose Admin-2 prevalence is derived from the adjusted continuous
+# biomarker + a uniform WHO cutoff (apply_threshold) rather than the survey-
+# provided binary column. This makes the cross-country transportability
+# outcome COMPARABLE: the survey binaries otherwise mix iron deficiency (ID,
+# ferritin only) with iron-deficiency anaemia (IDA, ferritin + anaemia) and
+# different inflammation-adjustment methods across (and within) countries.
+# Vitamin A is already cutoff-uniform (RBP < 0.70); including it harmonises
+# Malawi women (whose survey VAD was unadjusted) onto the adjusted biomarker.
+UNIFORM_TRANSPORT_TAGS <- c("child_iron", "women_iron", "child_vitA", "women_vitA")
+
 
 #' Extract GEE raster zonal means for all Admin-2 polygons in a country
 #'
@@ -211,6 +221,25 @@ aggregate_admin2_sl <- function(sl_fit, outcome_data, cc, oc) {
 #' @return data.frame with Admin2, svy_prev, svy_prev_se, n_svy, etc.
 compute_svy_admin2 <- function(outcome_data, cc, oc) {
   d <- outcome_data$data
+
+  # ── Uniform, cross-country-comparable outcome ───────────────────────────
+  # For the harmonized transportability outcomes, overwrite the survey binary
+  # with one derived from the adjusted continuous biomarker + a uniform WHO
+  # cutoff, so every country uses the SAME definition (e.g. ferritin < 12/15 =
+  # ID, RBP < 0.70 = VAD). Falls back to the survey binary if the continuous
+  # column is unavailable. Downstream survey weighting is unchanged.
+  if (!is.null(oc$tag) && oc$tag %in% UNIFORM_TRANSPORT_TAGS &&
+      !is.null(oc$continuous) && oc$continuous %in% colnames(d) &&
+      !is.null(oc$cutoff) && !is.null(oc$binary)) {
+    derived <- apply_threshold(suppressWarnings(as.numeric(d[[oc$continuous]])),
+                               oc$cutoff, oc$cutoff_dir %||% "less")
+    n_def <- sum(derived == 1, na.rm = TRUE); n_ok <- sum(!is.na(derived))
+    cat(sprintf("  [svy_admin2] %s — %s: uniform outcome %s %s %g => %d/%d (%.1f%%) deficient\n",
+                cc$country, oc$tag, oc$continuous, oc$cutoff_dir %||% "less",
+                oc$cutoff, n_def, n_ok, 100 * n_def / max(n_ok, 1)))
+    d[[oc$binary]] <- derived   # overwrite so the survey_mean below uses it
+    outcome_data$data <- d
+  }
 
   svy_cols <- c(cc$psu_col, cc$weight_col, cc$admin2_col,
                 cc$admin1_col, oc$binary)

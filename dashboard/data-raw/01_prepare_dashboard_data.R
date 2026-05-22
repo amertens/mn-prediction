@@ -199,37 +199,23 @@ saveRDS(admin2_all, file.path(DASHBOARD_DATA, "admin2_predictions.rds"))
 # how far a model transported from other countries lands from the local survey.
 cat("\n── Building transportability (LOCO) Admin-2 predictions ──\n")
 tryCatch({
-  source(here::here("R", "transportability_area.R"))
-  loco_outcomes <- c("child_vitA", "child_iron", "women_vitA", "women_iron")
-
-  cov_list <- lapply(countries, function(cn) {
-    g <- safe_read(paste0("gee_admin2_", cn))
-    m <- safe_read(paste0("merged_", cn))
-    if (is.null(g) || is.null(m)) return(NULL)
-    build_admin2_covariates(g, m)
-  })
-  names(cov_list) <- countries
-  cov_list <- cov_list[!vapply(cov_list, is.null, logical(1))]
-
-  loco_rows <- list()
-  for (oc in loco_outcomes) {
-    sl <- lapply(names(cov_list), function(cn) safe_read(paste0("svy_admin2_", cn, "_", oc)))
-    names(sl) <- names(cov_list)
-    pooled <- assemble_area_transport(sl, cov_list, oc)
-    if (is.null(pooled)) next
-    res <- run_area_transport_loco(pooled, AREA_TRANSPORT_RECIPE)
-    if (!is.null(res$predictions)) loco_rows[[oc]] <- res$predictions
-  }
-  loco_all <- bind_rows(loco_rows)
-  if (nrow(loco_all) > 0) {
-    loco_all <- loco_all |>
+  # Prefer the canonical results file produced by
+  # scripts/run_area_transportability.R, which uses the HARMONIZED outcome
+  # (uniform WHO cutoffs) and the same recipe. This keeps the dashboard's
+  # transport-error layer consistent with the analysis deliverables and
+  # carries each area's harmonized survey prevalence (loco_survey_prev).
+  loco_results <- here::here("results", "transportability", "area_loco_predictions.rds")
+  if (file.exists(loco_results)) {
+    lr <- readRDS(loco_results)
+    loco_all <- lr |>
       transmute(country, outcome, Admin2,
-                loco_modeled_prev = modeled_prev, survey_prev, n_svy)
+                loco_modeled_prev = modeled_prev,
+                loco_survey_prev  = survey_prev, n_svy)
     saveRDS(loco_all, file.path(DASHBOARD_DATA, "transportability_loco.rds"))
-    cat(sprintf("  Saved %d LOCO predictions across %d outcomes\n",
-                nrow(loco_all), length(loco_rows)))
+    cat(sprintf("  Loaded %d harmonized LOCO predictions from results/\n", nrow(loco_all)))
   } else {
-    cat("  No LOCO predictions produced (insufficient inputs)\n")
+    cat("  results/transportability/area_loco_predictions.rds not found —\n")
+    cat("  run scripts/run_area_transportability.R first to generate it.\n")
   }
 }, error = function(e) cat(sprintf("  LOCO prep skipped: %s\n", e$message)))
 

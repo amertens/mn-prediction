@@ -192,8 +192,8 @@ mod_map_explorer_server <- function(id) {
       fmt_pp <- function(x) ifelse(is.na(x), "—", sprintf("%+.1f pp", x * 100))
       # Difference line shown for the difference layers (and harmless otherwise)
       diff_line <- if (layer == "loco_diff") {
-        sprintf("Transport modeled: %s<br/>Survey: %s<br/><strong>Transport − survey: %s</strong><br/>",
-                fmt_pct(df$loco_pred_prev), fmt_pct(df$obs_prev), fmt_pp(df$loco_diff))
+        sprintf("Transport modeled: %s<br/>Survey (harmonized): %s<br/><strong>Transport − survey: %s</strong><br/>",
+                fmt_pct(df$loco_pred_prev), fmt_pct(df$loco_survey_prev), fmt_pp(df$loco_diff))
       } else if (layer == "diff_prev") {
         sprintf("Modeled: %s<br/>Survey: %s<br/><strong>Modeled − survey: %s</strong><br/>",
                 fmt_pct(df$pred_prev), fmt_pct(df$obs_prev), fmt_pp(df$diff_prev))
@@ -329,7 +329,7 @@ mod_map_explorer_server <- function(id) {
                "Admin-1 (region)" else "Admin-2 (district)"
       layer_note <- switch(input$layer,
         diff_prev = " Difference layer: modeled (within-country) minus survey-observed prevalence; red = model over-predicts, blue = under-predicts.",
-        loco_diff = " Transportability layer: prevalence predicted by the universal model trained ONLY on the other countries, minus the local survey; red = over-predicts, blue = under-predicts. Gray = country/outcome not covered by the transportability model.",
+        loco_diff = " Transportability layer: prevalence predicted by the universal model trained ONLY on the other countries, minus the local survey, using a harmonized cross-country outcome (uniform WHO cutoffs: ferritin<12/15 = iron deficiency, RBP<0.70 = VAD). Red = over-predicts, blue = under-predicts. Gray = country/outcome not covered.",
         ""
       )
       sprintf(

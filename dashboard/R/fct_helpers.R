@@ -97,9 +97,14 @@ get_country_admin2 <- function(ctry_key, oc_key,
   joined$diff_prev <- joined$pred_prev - joined$obs_prev
 
   # Transportability (leave-one-country-out) modeled prevalence and its
-  # difference from the local survey. Available only for the country × outcome
-  # combinations covered by the transportability model; NA otherwise.
+  # difference from the local survey. The transportability model uses a
+  # HARMONIZED, cross-country comparable outcome (uniform WHO cutoffs:
+  # ferritin<12/15 = ID, RBP<0.70 = VAD), so the difference is taken against
+  # that file's OWN survey prevalence (loco_survey_prev) rather than the
+  # dashboard's survey-native obs_prev. Available only for the country ×
+  # outcome combinations covered by the transportability model; NA otherwise.
   joined$loco_pred_prev <- NA_real_
+  joined$loco_survey_prev <- NA_real_
   joined$loco_diff <- NA_real_
   if (exists("loco_pred") && !is.null(loco_pred) && nrow(loco_pred) > 0) {
     lp <- loco_pred[loco_pred$country == ctry_key &
@@ -108,7 +113,8 @@ get_country_admin2 <- function(ctry_key, oc_key,
       lp <- lp[!duplicated(lp$Admin2), , drop = FALSE]
       idx <- match(trimws(joined$Admin2), trimws(lp$Admin2))
       joined$loco_pred_prev <- lp$loco_modeled_prev[idx]
-      joined$loco_diff <- joined$loco_pred_prev - joined$obs_prev
+      joined$loco_survey_prev <- lp$loco_survey_prev[idx]
+      joined$loco_diff <- joined$loco_pred_prev - joined$loco_survey_prev
     }
   }
 
@@ -175,6 +181,7 @@ get_country_admin1 <- function(ctry_key, oc_key,
       pred_prev     = pop_weighted(g$pred_prev,  w),
       obs_prev      = pop_weighted(g$obs_prev,   w),
       loco_pred_prev = pop_weighted(g$loco_pred_prev, w),
+      loco_survey_prev = pop_weighted(g$loco_survey_prev, w),
       ci_lo         = pop_weighted(g$ci_lo,      w),
       ci_hi         = pop_weighted(g$ci_hi,      w),
       ci_width      = pop_weighted(g$ci_width,   w),
@@ -186,7 +193,7 @@ get_country_admin1 <- function(ctry_key, oc_key,
   }))
   agg$pop_at_risk <- agg$pred_prev * agg$population
   agg$diff_prev   <- agg$pred_prev - agg$obs_prev
-  agg$loco_diff   <- agg$loco_pred_prev - agg$obs_prev
+  agg$loco_diff   <- agg$loco_pred_prev - agg$loco_survey_prev
 
   bnd1$Admin1 <- trimws(bnd1$Admin1)
   joined <- merge(bnd1, agg, by = "Admin1", all.x = TRUE, sort = FALSE)

@@ -167,22 +167,25 @@ get_country_configs <- function() {
           label          = "Iron deficiency (children)",
           population     = "children",
           child_flag_val = 1L,
-          continuous     = "gw_cLogFerrAdjThurn",
+          continuous     = "gw_cFerrAdjThurn",   # Thurnham-adjusted ferritin (linear µg/L).
+                                                  # The log-transformed column is created by
+                                                  # 1_GW_Ghana_data_clean.R but is absent from the
+                                                  # current merged cache; use the linear column.
           binary         = "gw_cIDAdjThurn",
-          cutoff         = log(12),
+          cutoff         = 12,                    # WHO: serum ferritin <12 µg/L (children) = ID
           cutoff_dir     = "less",
-          cutoff_scale   = "log"
+          cutoff_scale   = "original"
         ),
         women_iron = list(
           tag            = "women_iron",
           label          = "Iron deficiency (women)",
           population     = "women",
           child_flag_val = 0L,
-          continuous     = "gw_wLogFerrAdjThurn",
+          continuous     = "gw_wFerrAdjThurn",   # Thurnham-adjusted ferritin (linear µg/L)
           binary         = "gw_wIDA_Thurn",
-          cutoff         = log(15),
+          cutoff         = 15,                    # WHO: serum ferritin <15 µg/L (women) = ID
           cutoff_dir     = "less",
-          cutoff_scale   = "log"
+          cutoff_scale   = "original"
         ),
 
         women_folate = list(

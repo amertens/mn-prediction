@@ -8,31 +8,47 @@
 #   * results/transportability/area_loco_predictions.rds         (for dashboard)
 #   * results/tables/transportability_area_selected_vars.csv     (interpretability)
 #
-# Reads inputs from the cached `_targets` store.
+# Inputs (merged_*, gee_admin2_*) come from the cached `_targets_full` store;
+# the Admin-2 SURVEY prevalence is recomputed fresh via the production path
+# (build_outcome_dataset -> compute_svy_admin2) so the harmonized, cross-country
+# comparable outcome (UNIFORM_TRANSPORT_TAGS: ferritin<12/15 = ID, RBP<0.70 =
+# VAD) is used instead of the heterogeneous survey ID/IDA binaries.
 # =============================================================================
 suppressMessages({ library(targets); library(dplyr) })
-source("R/transportability_area.R")
+for (f in list.files("R", "\\.R$", full.names = TRUE)) source(f)
+try(source(file.path("src", "0-functions.R")), silent = TRUE)
 set.seed(20260521)
 
-STORE <- "_targets"
+STORE <- "_targets_full"
 COUNTRIES <- c("gambia", "ghana", "malawi", "sierraleone")
 OUTCOMES  <- c("child_vitA", "child_iron", "women_vitA", "women_iron")
 
-cat("Building enriched Admin-2 covariates...\n")
+configs <- get_country_configs()
+cc_for  <- function(cn) configs[[ names(configs)[tolower(names(configs)) == cn][1] ]]
+
+cat("Loading merged data + building enriched Admin-2 covariates...\n")
+merged_cache <- lapply(COUNTRIES, function(cn) tar_read_raw(paste0("merged_", cn), store = STORE))
+names(merged_cache) <- COUNTRIES
 cov_list <- lapply(COUNTRIES, function(cn) {
   g <- tar_read_raw(paste0("gee_admin2_", cn), store = STORE)
-  m <- tar_read_raw(paste0("merged_", cn), store = STORE)
-  d <- build_admin2_covariates(g, m)
+  d <- build_admin2_covariates(g, merged_cache[[cn]])
   cat(sprintf("  %s: %d areas x %d covariates\n", cn, nrow(d), ncol(d) - 1))
   d
 })
 names(cov_list) <- COUNTRIES
 
+# Recompute Admin-2 survey prevalence with the harmonized outcome definition.
+uniform_svy <- function(cn, oc_tag) {
+  cc <- cc_for(cn); if (is.null(cc)) return(NULL)
+  oc <- cc$outcomes[[oc_tag]]; if (is.null(oc)) return(NULL)
+  od <- tryCatch(build_outcome_dataset(merged_cache[[cn]], cc, oc), error = function(e) NULL)
+  if (is.null(od) || nrow(od$data) == 0) return(NULL)
+  tryCatch(compute_svy_admin2(od, cc, oc), error = function(e) NULL)
+}
+
 all_metrics <- list(); all_preds <- list(); all_sel <- list()
 for (oc in OUTCOMES) {
-  svy_list <- lapply(COUNTRIES, function(cn)
-    tryCatch(tar_read_raw(paste0("svy_admin2_", cn, "_", oc), store = STORE),
-             error = function(e) NULL))
+  svy_list <- lapply(COUNTRIES, function(cn) uniform_svy(cn, oc))
   names(svy_list) <- COUNTRIES
   pooled <- assemble_area_transport(svy_list, cov_list, outcome = oc)
   if (is.null(pooled)) { cat(sprintf("[%s] insufficient data\n", oc)); next }
