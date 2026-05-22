@@ -210,6 +210,23 @@ mlr3_SL_clustered <- function(d, Xvars, outcome, population,
   if (!requireNamespace("mlr3", quietly = TRUE))
     stop("mlr3 required. Install with: install.packages('mlr3')")
 
+  # ── Validate the outcome column exists and is usable ──
+  # Guards against config/data drift (e.g. a stale merged cache missing a
+  # biomarker column): without this, an absent column yields Y = NULL and the
+  # downstream data.frame() / prescreen fails with a cryptic
+  # "differing number of rows" error.
+  if (is.null(outcome) || !(outcome %in% colnames(d))) {
+    cat(sprintf("  [mlr3_SL] SKIP: outcome column '%s' not found in data\n",
+                outcome %||% "NULL"))
+    return(NULL)
+  }
+  y_check <- suppressWarnings(as.numeric(d[[outcome]]))
+  if (sum(!is.na(y_check)) == 0 || length(unique(y_check[!is.na(y_check)])) < 2) {
+    cat(sprintf("  [mlr3_SL] SKIP: outcome '%s' has <2 distinct non-missing values\n",
+                outcome))
+    return(NULL)
+  }
+
   # ── Preprocessing (identical to DHS_SL_clustered) ──
   X <- d %>% dplyr::select(dplyr::all_of(Xvars)) %>% as.data.frame()
   cov <- labelled::unlabelled(X, user_na_to_na = TRUE)
@@ -264,6 +281,7 @@ mlr3_SL_clustered <- function(d, Xvars, outcome, population,
     prevalence <- mean(Y == 1, na.rm = TRUE)
     pval_thresh <- if (family_screen == "binomial" && prevalence < 0.10) 0.3 else 0.2
 
+    n_before_screen <- ncol(cov)
     Wvars <- tryCatch(
       washb::washb_prescreen(Y = Y, Ws = cov, family = family_screen,
                               pval = pval_thresh, print = FALSE),
@@ -278,8 +296,11 @@ mlr3_SL_clustered <- function(d, Xvars, outcome, population,
       Wvars <- colnames(cov)
     }
     cov <- cov %>% dplyr::select(dplyr::all_of(Wvars))
+    # Log input -> output counts (n_before_screen is captured BEFORE subsetting;
+    # the previous code measured ncol(cov) after subsetting, so it always
+    # printed "n/n" and hid whether screening actually filtered anything).
     cat(sprintf("  [mlr3_SL] Prescreen (p<%.2f): %d/%d vars retained\n",
-                pval_thresh, length(Wvars), ncol(cov)))
+                pval_thresh, length(Wvars), n_before_screen))
   }
 
   # Save pre-recipe columns (needed for prediction on new data)
@@ -704,19 +725,29 @@ fit_mlr3_models <- function(outcome_data, cc, oc, sl_learners, params) {
   }
 
   # ── Continuous model ──
-  cat("  Fitting continuous mlr3 SL...\n")
-  cont_fit <- tryCatch(
-    mlr3_SL_clustered(
-      d = d, Xvars = Xvars, outcome = oc$continuous,
-      population = oc$population, id = cc$cluster_id,
-      folds = params$K, mlr3_library = mlr3_lib,
-      outcome_type = "continuous", prescreen = TRUE
-    ),
-    error = function(e) {
-      cat(sprintf("  Continuous SL failed: %s\n", e$message))
-      NULL
-    }
-  )
+  # Skip cleanly when the configured continuous outcome column is absent
+  # (e.g. a stale merged cache missing a biomarker), mirroring the binary
+  # guard below. Previously this attempted a guaranteed-to-fail fit that
+  # surfaced as a cryptic washb_prescreen "differing number of rows" error.
+  cont_fit <- NULL
+  if (is.null(oc$continuous) || !(oc$continuous %in% colnames(d))) {
+    cat(sprintf("  SKIPPING continuous: outcome column '%s' not in data\n",
+                oc$continuous %||% "NULL"))
+  } else {
+    cat("  Fitting continuous mlr3 SL...\n")
+    cont_fit <- tryCatch(
+      mlr3_SL_clustered(
+        d = d, Xvars = Xvars, outcome = oc$continuous,
+        population = oc$population, id = cc$cluster_id,
+        folds = params$K, mlr3_library = mlr3_lib,
+        outcome_type = "continuous", prescreen = TRUE
+      ),
+      error = function(e) {
+        cat(sprintf("  Continuous SL failed: %s\n", e$message))
+        NULL
+      }
+    )
+  }
 
   # ── Binary model ──
   bin_fit <- NULL
