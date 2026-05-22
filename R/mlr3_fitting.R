@@ -209,6 +209,13 @@ mlr3_SL_clustered <- function(d, Xvars, outcome, population,
     stop("mlr3superlearner required. Install with: devtools::install_github('nt-williams/mlr3superlearner')")
   if (!requireNamespace("mlr3", quietly = TRUE))
     stop("mlr3 required. Install with: install.packages('mlr3')")
+  # The full stack uses BART / Gaussian-process learners that live in
+  # mlr3extralearners; attaching it registers them in mlr3's learner
+  # dictionary. Without this the fit fails with "mlr3extralearners required"
+  # whenever the caller hasn't already attached it (the targets pipeline does
+  # so via tar_option_set, but standalone callers may not).
+  if (requireNamespace("mlr3extralearners", quietly = TRUE))
+    suppressMessages(suppressWarnings(library(mlr3extralearners)))
 
   # ── Validate the outcome column exists and is usable ──
   # Guards against config/data drift (e.g. a stale merged cache missing a
