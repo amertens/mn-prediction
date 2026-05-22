@@ -6,30 +6,46 @@
 # (GEE remote sensing + IHME + Malaria Atlas + food security).
 #
 # Selected recipe (see scripts/transportability_experiments.R for the model
-# bake-off): within-country-CENTERED elastic net on the top-K correlation-
-# screened predictors, fit on the logit-prevalence scale and weighted by
-# survey sample size. Country-centering (country fixed effects) isolates
-# WITHIN-country spatial gradients from between-country level differences and
-# was the single biggest driver of cross-country (leave-one-country-out)
-# transfer performance.
+# bake-off): elastic net on the top-30 correlation-screened predictors, fit on
+# the logit-prevalence scale and weighted by survey sample size (~8 predictors
+# retained). On the full ~1.2k-covariate set with the harmonized outcome,
+# heavy correlation screening (top-15) overfits and within-country centering
+# does not help; un-screened ridge is marginally better but uses all
+# predictors, so the screened elastic net is the parsimonious default
+# (AREA_TRANSPORT_RECIPE_RIDGE holds the max-performance alternative).
 #
-# Key empirical finding: LOCO spatial transfer (~Spearman 0.21) is on par with
-# the within-country cross-validation ceiling (~0.26) — i.e. a model trained on
-# OTHER countries ranks a held-out country's Admin-2 areas about as well as a
-# model trained within that country. Iron outcomes transfer best; low-
-# prevalence women's vitamin A is near the noise floor.
+# Outcome comparability: the Admin-2 survey prevalence is derived from a uniform
+# WHO cutoff on the adjusted biomarker (compute_svy_admin2 / UNIFORM_TRANSPORT_
+# TAGS), so every country uses the SAME definition (ferritin<12/15 = ID,
+# RBP<0.70 = VAD) rather than the heterogeneous survey ID/IDA binaries.
+#
+# Key empirical finding: under the comparable outcome, child iron and child
+# vitamin A spatial patterns transfer modestly across borders (within-country
+# Spearman ~0.30); women's iron does not (≈0, a data limitation).
 # =============================================================================
 
 # Default recommended recipe ------------------------------------------------
+# Re-selected (scripts/transportability_experiments.R) AFTER outcome
+# harmonization on the full covariate set (~1.2k common predictors). On that
+# set, screening to 15 overfits and within-country centering no longer helps;
+# the parsimonious sweet spot is elastic net on the top-30 correlation-screened
+# predictors (~8 retained), at ~83% of the best (un-screened ridge) recipe.
+# For maximum performance over parsimony, use ridge with screen_K = NULL.
 AREA_TRANSPORT_RECIPE <- list(
   model    = "enet",         # elastic net (glmnet alpha = 0.5)
   alpha    = 0.5,
-  screen_K = 15,             # correlation prescreen: keep top-K candidate predictors
-  center   = TRUE,           # within-country centering (country fixed effects)
+  screen_K = 30,             # correlation prescreen: keep top-K candidate predictors
+  center   = FALSE,          # centering did not help on the harmonized/full set
   weight   = TRUE,           # weight Admin-2 units by survey n
   scale    = "logit",
   lambda   = "lambda.min",   # lambda.1se over-shrinks small folds to the null
   seed     = 12345           # fixes cv.glmnet folds for reproducible maps
+)
+
+# Maximum-performance (less parsimonious) alternative: ridge on all predictors.
+AREA_TRANSPORT_RECIPE_RIDGE <- list(
+  model = "ridge", alpha = 0, screen_K = NULL, center = FALSE,
+  weight = TRUE, scale = "logit", lambda = "lambda.min", seed = 12345
 )
 
 # Domains treated as universal, non-survey proxies (present in all countries).
