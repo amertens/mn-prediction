@@ -102,6 +102,76 @@ setup_mlr3_learners <- function(params) {
 }
 
 
+#' Compute genuine out-of-fold (cross-validated) SuperLearner predictions
+#'
+#' `mlr3superlearner` runs cross-validation internally to estimate the ensemble
+#' weights but then DISCARDS the cross-validated predictions, returning learners
+#' refit on the full data — so `predict(fit, training_data)` is in-sample
+#' (resubstitution). This recomputes honest out-of-fold predictions by
+#' re-running `mlr3::resample()` on the fitted (cloned + reset) base learners
+#' with the same clustered fold structure, then combining them with the SL
+#' weights. For the default discrete SL this is a single learner (cheap).
+#'
+#' These OOF predictions are what conformal intervals, calibration, AUC/Brier,
+#' and area-level aggregation must use to be valid / non-optimistic.
+#'
+#' @return numeric vector aligned to the rows of `fit_df`, or NULL on failure
+#'   (caller falls back to in-sample predictions).
+mlr3_oof_predictions <- function(mlr3_fit, fit_df, target = "Y",
+                                  outcome_type = "binomial",
+                                  group = "cluster_id", folds = 5L,
+                                  seed = 5249L) {
+  tryCatch({
+    data <- as.data.frame(fit_df)
+    if (outcome_type == "continuous") {
+      task <- mlr3::as_task_regr(data, target = target)
+    } else {
+      data[[target]] <- factor(data[[target]])
+      task <- mlr3::as_task_classif(data, target = target, positive = "1")
+    }
+    if (!is.null(group) && group %in% colnames(data)) {
+      task$set_col_roles(group, "group")
+    }
+    # Features = SL predictors minus the grouping column
+    feats <- setdiff(intersect(mlr3_fit$x, colnames(data)), group)
+    task$select(feats)
+
+    rsmp <- mlr3::rsmp("cv", folds = folds)
+    set.seed(seed)
+    rsmp$instantiate(task)
+
+    w <- mlr3_fit$weights
+    use <- names(w)[is.finite(w) & w != 0]
+    if (length(use) == 0) return(NULL)
+
+    extract_oof <- function(lid) {
+      idx <- which(vapply(mlr3_fit$learners, function(l) l$id, character(1)) == lid)
+      if (length(idx) == 0) {
+        if (length(mlr3_fit$learners) == 1) idx <- 1L else return(NULL)
+      }
+      lrn <- mlr3_fit$learners[[idx[1]]]$clone(deep = TRUE)
+      lrn$reset()
+      rr <- mlr3::resample(task, lrn, rsmp, store_models = FALSE)
+      pr <- rr$prediction()
+      dt <- data.table::as.data.table(pr)
+      data.table::setorder(dt, row_ids)
+      if (outcome_type == "continuous") dt[["response"]] else dt[["prob.1"]]
+    }
+
+    Z <- vapply(use, extract_oof, numeric(nrow(data)))
+    if (is.null(dim(Z))) Z <- matrix(Z, ncol = length(use))
+    wn <- w[use] / sum(w[use])
+    oof <- as.numeric(Z %*% wn)
+    if (length(oof) != nrow(data) || all(is.na(oof))) return(NULL)
+    oof
+  }, error = function(e) {
+    cat(sprintf("  [mlr3_SL] OOF prediction failed (%s); using in-sample fallback\n",
+                e$message))
+    NULL
+  })
+}
+
+
 #' Fit mlr3 SuperLearner for one outcome (wrapper matching DHS_SL_clustered interface)
 #'
 #' This function does the same preprocessing as DHS_SL_clustered():
@@ -339,16 +409,41 @@ mlr3_SL_clustered <- function(d, Xvars, outcome, population,
     return(NULL)
   }
 
-  # ── Extract CV predictions ──
-  # mlr3superlearner stores CV predictions internally
-  # Use predict on training data as fallback (resubstitution — not ideal)
-  yhat_full <- tryCatch({
-    preds <- predict(mlr3_fit, fit_df)
-    as.numeric(preds)
+  # ── Extract predictions ──
+  # In-sample (resubstitution) predictions from the full-data ensemble.
+  yhat_insample <- tryCatch({
+    as.numeric(predict(mlr3_fit, fit_df))
   }, error = function(e) {
     cat(sprintf("  [mlr3_SL] predict() failed: %s\n", e$message))
     rep(NA_real_, nrow(fit_df))
   })
+
+  # Genuine out-of-fold (cross-validated) predictions. mlr3superlearner does
+  # not retain its internal CV predictions, so recompute them by resampling
+  # the fitted base learners on the same clustered folds (see
+  # mlr3_oof_predictions()). These are what conformal CIs, calibration, AUC
+  # and area aggregation must use — resubstitution would be optimistic.
+  yhat_oof <- mlr3_oof_predictions(
+    mlr3_fit, fit_df, target = "Y", outcome_type = outcome_type,
+    group = "cluster_id", folds = folds
+  )
+  if (is.null(yhat_oof)) {
+    cat("  [mlr3_SL] WARNING: falling back to in-sample yhat (OOF unavailable)\n")
+    yhat_full <- yhat_insample
+  } else {
+    yhat_full <- yhat_oof
+    # Report the in-sample vs OOF optimism gap for binary outcomes.
+    if (outcome_type %in% c("binomial", "binary") &&
+        requireNamespace("pROC", quietly = TRUE)) {
+      gap <- tryCatch({
+        yv <- mlr3_df$Y
+        auc_in  <- as.numeric(pROC::auc(pROC::roc(yv, yhat_insample, quiet = TRUE)))
+        auc_oof <- as.numeric(pROC::auc(pROC::roc(yv, yhat_full,     quiet = TRUE)))
+        sprintf("AUC in-sample=%.3f, OOF=%.3f (optimism=%.3f)", auc_in, auc_oof, auc_in - auc_oof)
+      }, error = function(e) NULL)
+      if (!is.null(gap)) cat(sprintf("  [mlr3_SL] %s\n", gap))
+    }
+  }
 
   # ── Extract CV risk table ──
   cv_risk_table <- tryCatch({
@@ -549,7 +644,8 @@ mlr3_SL_clustered <- function(d, Xvars, outcome, population,
     outcome   = outcome,
     population = population,
     Y         = mlr3_df$Y,
-    yhat_full = yhat_full
+    yhat_full = yhat_full,        # out-of-fold (cross-validated) — used downstream
+    yhat_insample = yhat_insample  # resubstitution — kept for reference/diagnostics
   )
 
   # Store training data for permutation-based domain importance

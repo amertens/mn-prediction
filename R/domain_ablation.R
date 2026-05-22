@@ -184,8 +184,13 @@ run_domain_ablation <- function(outcome_data, sl_fit, cc, oc, sl_learners, param
   cat(sprintf("\n[permutation] %s — %s | %d domains, %d permutations each\n",
               cc$country, oc$tag, n_domains, n_perm))
 
-  # Baseline metrics (unpermuted CV predictions)
-  baseline <- compute_perf_metrics(fit_obj$res$Y, fit_obj$res$yhat_full, use_binary)
+  # Baseline metrics. Permutation importance compares the SAME fitted model's
+  # predictions with vs without a domain shuffled; the permuted predictions
+  # below are in-sample (fit$predict on permuted data), so the baseline must
+  # also be in-sample. yhat_full is now out-of-fold, so use yhat_insample
+  # (falls back to yhat_full for models fit before that column existed).
+  yhat_base_is <- fit_obj$res$yhat_insample %||% fit_obj$res$yhat_full
+  baseline <- compute_perf_metrics(fit_obj$res$Y, yhat_base_is, use_binary)
   baseline$domain_removed <- "none"
   baseline$n_removed      <- 0L
   baseline$n_perm_valid   <- NA_integer_

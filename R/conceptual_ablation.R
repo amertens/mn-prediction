@@ -229,7 +229,9 @@ run_conceptual_permutation <- function(sl_fit, outcome_data, oc,
   task       <- fit_obj$task
   xvars      <- fit_obj$Xvars
   Y          <- as.double(unclass(fit_obj$res$Y))
-  yhat_base  <- as.double(unclass(fit_obj$res$yhat_full))
+  # In-sample baseline (permuted predictions below are in-sample, so compare
+  # like-with-like; yhat_full is now out-of-fold). Falls back for old fits.
+  yhat_base  <- as.double(unclass(fit_obj$res$yhat_insample %||% fit_obj$res$yhat_full))
 
   # Classify variables
   if (level == "level1") {
@@ -393,7 +395,9 @@ run_leave_one_in <- function(sl_fit, outcome_data, oc,
   task       <- fit_obj$task
   xvars      <- fit_obj$Xvars
   Y          <- as.double(unclass(fit_obj$res$Y))
-  yhat_base  <- as.double(unclass(fit_obj$res$yhat_full))
+  # In-sample baseline (permuted predictions below are in-sample, so compare
+  # like-with-like; yhat_full is now out-of-fold). Falls back for old fits.
+  yhat_base  <- as.double(unclass(fit_obj$res$yhat_insample %||% fit_obj$res$yhat_full))
 
   if (level == "level1") {
     var_domains <- classify_variables(xvars, mapping)

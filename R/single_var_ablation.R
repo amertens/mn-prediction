@@ -38,7 +38,9 @@ run_single_var_ablation <- function(outcome_data, sl_fit, cc, oc,
 
   d <- outcome_data$data
   Y <- as.double(unclass(fit_obj$res$Y))
-  yhat_full <- as.double(unclass(fit_obj$res$yhat_full))
+  # In-sample baseline to match the in-sample permuted predictions below
+  # (yhat_full is now out-of-fold; fall back to it for pre-existing fits).
+  yhat_full <- as.double(unclass(fit_obj$res$yhat_insample %||% fit_obj$res$yhat_full))
   baseline <- compute_perf_metrics(Y, yhat_full, use_binary)
   baseline_metric <- if (use_binary) baseline$auc else baseline$rmse
 
