@@ -15,9 +15,15 @@ for (ctry in names(meta$countries)) {
     df <- get_country_admin2(ctry, oc, admin2_bnds, admin2_pred, admin2_pop)
     stopifnot(!is.null(df))
     stopifnot(nrow(df) > 0)
+    # Difference layers must exist
+    stopifnot(all(c("diff_prev", "loco_pred_prev", "loco_diff") %in% names(df)))
     natl <- national_aggregate(df)
-    cat(sprintf("  %s × %s: %d districts, %d with predictions, national=%.2f%%\n",
+    df1 <- get_country_admin1(ctry, oc, admin1_bnds, admin2_bnds,
+                              admin2_pred, admin2_pop)
+    stopifnot(all(c("diff_prev", "loco_diff") %in% names(df1)))
+    cat(sprintf("  %s x %s: %d districts, %d preds, %d diff, %d LOCO, national=%.2f%%\n",
                 ctry, oc, nrow(df), sum(!is.na(df$pred_prev)),
+                sum(!is.na(df$diff_prev)), sum(!is.na(df$loco_diff)),
                 100 * natl$pred_prev_natl))
   }
 }

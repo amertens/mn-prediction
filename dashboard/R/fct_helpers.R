@@ -92,6 +92,26 @@ get_country_admin2 <- function(ctry_key, oc_key,
   # Compute population at risk (subgroup × prevalence)
   joined$pop_at_risk <- joined$pred_prev * joined$population
 
+  # Difference between the modeled (within-country SuperLearner) prevalence and
+  # the survey-observed prevalence (NA where there is no survey value).
+  joined$diff_prev <- joined$pred_prev - joined$obs_prev
+
+  # Transportability (leave-one-country-out) modeled prevalence and its
+  # difference from the local survey. Available only for the country × outcome
+  # combinations covered by the transportability model; NA otherwise.
+  joined$loco_pred_prev <- NA_real_
+  joined$loco_diff <- NA_real_
+  if (exists("loco_pred") && !is.null(loco_pred) && nrow(loco_pred) > 0) {
+    lp <- loco_pred[loco_pred$country == ctry_key &
+                      loco_pred$outcome == oc_key, , drop = FALSE]
+    if (nrow(lp) > 0) {
+      lp <- lp[!duplicated(lp$Admin2), , drop = FALSE]
+      idx <- match(trimws(joined$Admin2), trimws(lp$Admin2))
+      joined$loco_pred_prev <- lp$loco_modeled_prev[idx]
+      joined$loco_diff <- joined$loco_pred_prev - joined$obs_prev
+    }
+  }
+
   # WHO class for coloring (NA → "No data")
   joined$who_class[is.na(joined$who_class)] <- "No data"
 
@@ -151,19 +171,22 @@ get_country_admin1 <- function(ctry_key, oc_key,
     }
 
     data.frame(
-      Admin1     = g$Admin1[1],
-      pred_prev  = pop_weighted(g$pred_prev,  w),
-      obs_prev   = pop_weighted(g$obs_prev,   w),
-      ci_lo      = pop_weighted(g$ci_lo,      w),
-      ci_hi      = pop_weighted(g$ci_hi,      w),
-      ci_width   = pop_weighted(g$ci_width,   w),
-      n_survey   = sum(g$n_survey, na.rm = TRUE),
-      population = sum(g$population, na.rm = TRUE),
-      who_class  = who_a1,
+      Admin1        = g$Admin1[1],
+      pred_prev     = pop_weighted(g$pred_prev,  w),
+      obs_prev      = pop_weighted(g$obs_prev,   w),
+      loco_pred_prev = pop_weighted(g$loco_pred_prev, w),
+      ci_lo         = pop_weighted(g$ci_lo,      w),
+      ci_hi         = pop_weighted(g$ci_hi,      w),
+      ci_width      = pop_weighted(g$ci_width,   w),
+      n_survey      = sum(g$n_survey, na.rm = TRUE),
+      population    = sum(g$population, na.rm = TRUE),
+      who_class     = who_a1,
       stringsAsFactors = FALSE
     )
   }))
   agg$pop_at_risk <- agg$pred_prev * agg$population
+  agg$diff_prev   <- agg$pred_prev - agg$obs_prev
+  agg$loco_diff   <- agg$loco_pred_prev - agg$obs_prev
 
   bnd1$Admin1 <- trimws(bnd1$Admin1)
   joined <- merge(bnd1, agg, by = "Admin1", all.x = TRUE, sort = FALSE)

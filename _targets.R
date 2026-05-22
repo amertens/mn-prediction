@@ -676,6 +676,73 @@ if (length(all_country_configs) >= 2) {
 }
 
 
+# ── Enriched area-level transportability targets ──────────────────────────
+# Universal / parsimonious within-country-centered elastic-net LOCO using
+# harmonized GEE + IHME + Malaria-Atlas + food-security proxies aggregated to
+# Admin-2. Functions live in R/transportability_area.R. Produces both LOCO
+# metrics and per-Admin-2 out-of-sample predictions (the latter power the
+# dashboard "transportability error" difference map).
+area_transport_targets <- list()
+if (length(all_country_configs) >= 2) {
+  shared_outcomes_t <- c("child_vitA", "women_vitA", "child_iron", "women_iron")
+  cc_lower_t <- tolower(names(all_country_configs))
+
+  gee_syms_t <- setNames(lapply(paste0("gee_admin2_", cc_lower_t), as.symbol), cc_lower_t)
+  gee_expr_t <- as.call(c(list(as.symbol("list")), gee_syms_t))
+  merged_syms_t <- setNames(lapply(paste0("merged_", cc_lower_t), as.symbol), cc_lower_t)
+  merged_expr_t <- as.call(c(list(as.symbol("list")), merged_syms_t))
+
+  # Enriched Admin-2 covariate tables (one per country)
+  area_transport_targets <- c(area_transport_targets, list(
+    tar_target_raw(
+      "area_transport_covariates",
+      substitute({
+        gl <- gee_list_val; ml <- merged_list_val
+        cov <- lapply(names(gl), function(cn) build_admin2_covariates(gl[[cn]], ml[[cn]]))
+        names(cov) <- names(gl)
+        cov
+      }, list(gee_list_val = gee_expr_t, merged_list_val = merged_expr_t))
+    )
+  ))
+
+  for (otag in shared_outcomes_t) {
+    svy_syms_t <- setNames(
+      lapply(cc_lower_t, function(cn) as.symbol(paste0("svy_admin2_", cn, "_", otag))),
+      cc_lower_t)
+    svy_expr_t <- as.call(c(list(as.symbol("list")), svy_syms_t))
+    area_transport_targets <- c(area_transport_targets, list(
+      tar_target_raw(
+        paste0("area_transport_", otag),
+        substitute({
+          pooled <- assemble_area_transport(svy_list_val, area_transport_covariates, otag_val)
+          if (is.null(pooled)) NULL else run_area_transport_loco(pooled, AREA_TRANSPORT_RECIPE)
+        }, list(svy_list_val = svy_expr_t, otag_val = otag))
+      )
+    ))
+  }
+
+  at_names <- paste0("area_transport_", shared_outcomes_t)
+  at_syms  <- setNames(lapply(at_names, as.symbol), shared_outcomes_t)
+  at_list_expr <- as.call(c(list(as.symbol("list")), at_syms))
+  area_transport_targets <- c(area_transport_targets, list(
+    tar_target_raw(
+      "area_transport_summary",
+      substitute({
+        res <- res_list_val
+        mets  <- dplyr::bind_rows(lapply(res, function(r) if (!is.null(r)) r$metrics))
+        preds <- dplyr::bind_rows(lapply(res, function(r) if (!is.null(r)) r$predictions))
+        dir.create(here::here("results", "tables"), showWarnings = FALSE, recursive = TRUE)
+        dir.create(here::here("results", "transportability"), showWarnings = FALSE, recursive = TRUE)
+        write.csv(mets,  here::here("results", "tables", "transportability_area_loco_metrics.csv"), row.names = FALSE)
+        write.csv(preds, here::here("results", "tables", "transportability_area_loco_predictions.csv"), row.names = FALSE)
+        saveRDS(preds, here::here("results", "transportability", "area_loco_predictions.rds"))
+        list(metrics = mets, predictions = preds)
+      }, list(res_list_val = at_list_expr))
+    )
+  ))
+}
+
+
 # ── Transportability targets (cross-country LOCO CV) ──────────────────────
 # Train on N-1 countries, predict on the held-out country. Uses only proxy
 # predictors shared across ALL countries (IHME, MAP, GEE).
@@ -1031,4 +1098,4 @@ summary_targets <- list(
 
 # ── Combine everything ──────────────────────────────────────────────────────
 c(static_targets, country_targets, area_comparison_targets, area_loco_targets,
-  transport_targets, oos_targets, summary_targets)
+  area_transport_targets, transport_targets, oos_targets, summary_targets)

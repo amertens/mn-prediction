@@ -17,3 +17,13 @@ results/sl_exploration/models/*.rds
 results/figures/malawi_oos_figures.rds
 results/figures/map_figures.rds
 mn_proxy_tutorial/mn_proxy_tutorial_cache/
+
+# Transportability model outputs — reproducible via
+# scripts/run_area_transportability.R or the area_transport_* targets.
+results/tables/transportability_experiments_folds.csv
+results/tables/transportability_experiments_summary.csv
+results/tables/transportability_within_country_ceiling.csv
+results/tables/transportability_area_loco_metrics.csv
+results/tables/transportability_area_loco_predictions.csv
+results/tables/transportability_area_selected_vars.csv
+results/transportability/

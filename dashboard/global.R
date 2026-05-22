@@ -39,6 +39,12 @@ oos_civ <- if (file.exists(oos_civ_path)) {
   list(predictions = data.frame(), boundaries = NULL)
 }
 
+# Transportability (leave-one-country-out) Admin-2 predictions, used by the
+# map explorer's "transportability error" difference layer. NULL if the
+# data-prep step has not produced it yet (layer then shows as "no data").
+loco_path <- file.path(DATA_DIR, "transportability_loco.rds")
+loco_pred <- if (file.exists(loco_path)) readRDS(loco_path) else NULL
+
 # Importance / SHAP / domain ablation
 importance_path <- file.path(DATA_DIR, "importance.rds")
 importance_data <- if (file.exists(importance_path)) {

@@ -28,6 +28,8 @@ mod_map_explorer_ui <- function(id) {
       radioButtons(ns("layer"), "Display layer",
                    choices = c("Predicted prevalence" = "pred_prev",
                                "Survey-observed prevalence (where available)" = "obs_prev",
+                               "Modeled − survey difference (pp)" = "diff_prev",
+                               "Transportability error: held-out country (pp)" = "loco_diff",
                                "Confidence interval width" = "ci_width",
                                "Population at risk (count)" = "pop_at_risk",
                                "WHO public health classification" = "who_class"),
@@ -132,6 +134,21 @@ mod_map_explorer_server <- function(id) {
                            na.color = "#cccccc")
         fill_col <- pal(df$who_class)
         legend_title <- "WHO classification"
+      } else if (layer %in% c("diff_prev", "loco_diff")) {
+        # Diverging palette centered at 0: blue = model UNDER-predicts vs survey,
+        # red = model OVER-predicts. Domain is symmetric around 0.
+        nz <- vals[is.finite(vals)]
+        if (length(nz) > 0) {
+          M <- max(abs(nz), na.rm = TRUE)
+          if (!is.finite(M) || M == 0) M <- 0.01
+          pal <- colorNumeric(c("#2166ac", "#f7f7f7", "#b2182b"),
+                              domain = c(-M, M), na.color = "#cccccc")
+          fill_col <- ifelse(is.finite(vals), pal(vals), "#cccccc")
+        } else {
+          fill_col <- rep("#cccccc", nrow(df)); pal <- NULL
+        }
+        legend_title <- if (layer == "diff_prev")
+          "Modeled − survey (pp)" else "Transport − survey (pp)"
       } else if (layer == "pop_at_risk") {
         # Log-scale for population counts
         nz <- vals[!is.na(vals) & vals > 0]
@@ -172,10 +189,21 @@ mod_map_explorer_server <- function(id) {
       } else {
         rep("", nrow(df))
       }
+      fmt_pp <- function(x) ifelse(is.na(x), "—", sprintf("%+.1f pp", x * 100))
+      # Difference line shown for the difference layers (and harmless otherwise)
+      diff_line <- if (layer == "loco_diff") {
+        sprintf("Transport modeled: %s<br/>Survey: %s<br/><strong>Transport − survey: %s</strong><br/>",
+                fmt_pct(df$loco_pred_prev), fmt_pct(df$obs_prev), fmt_pp(df$loco_diff))
+      } else if (layer == "diff_prev") {
+        sprintf("Modeled: %s<br/>Survey: %s<br/><strong>Modeled − survey: %s</strong><br/>",
+                fmt_pct(df$pred_prev), fmt_pct(df$obs_prev), fmt_pp(df$diff_prev))
+      } else {
+        sprintf("Predicted: %s<br/>", fmt_pct(df$pred_prev))
+      }
       labels <- sprintf(
-        "<strong>%s</strong><br/>%s<br/>Predicted: %s<br/>Population: %s<br/>WHO class: %s",
+        "<strong>%s</strong><br/>%s<br/>%sPopulation: %s<br/>WHO class: %s",
         area_name, sub_line,
-        fmt_pct(df$pred_prev),
+        diff_line,
         fmt_count(df$population),
         df$who_class
       ) |> lapply(HTML)
@@ -203,6 +231,9 @@ mod_map_explorer_server <- function(id) {
         legend_vals <- if (layer == "pop_at_risk") {
           legend_vals_actual <- vals[!is.na(vals) & vals > 0]
           log10(pmax(legend_vals_actual, 1))
+        } else if (layer %in% c("diff_prev", "loco_diff")) {
+          M <- max(abs(vals[is.finite(vals)]), na.rm = TRUE)
+          c(-M, M)  # symmetric, centered at 0
         } else {
           vals[!is.na(vals)]
         }
@@ -213,6 +244,8 @@ mod_map_explorer_server <- function(id) {
             labelFormat(transform = function(x) round(10^x))
           } else if (layer %in% c("pred_prev", "obs_prev")) {
             labelFormat(suffix = "", transform = function(x) round(x * 100, 1))
+          } else if (layer %in% c("diff_prev", "loco_diff")) {
+            labelFormat(suffix = " pp", transform = function(x) round(x * 100, 1))
           } else {
             labelFormat()
           }
@@ -265,10 +298,20 @@ mod_map_explorer_server <- function(id) {
                       conf))
         },
         if (!is.na(row$obs_prev[1])) {
-          p(strong("Survey observed: "), fmt_pct(row$obs_prev[1]),
-            br(),
-            tags$small(sprintf("(n=%s individuals surveyed)",
-                                fmt_count(row$n_survey[1]))))
+          tagList(
+            p(strong("Survey observed: "), fmt_pct(row$obs_prev[1]),
+              br(),
+              tags$small(sprintf("(n=%s individuals surveyed)",
+                                  fmt_count(row$n_survey[1])))),
+            if (!is.na(row$diff_prev[1]))
+              p(strong("Modeled − survey: "),
+                sprintf("%+.1f pp", row$diff_prev[1] * 100)),
+            if (!is.null(row$loco_diff) && !is.na(row$loco_diff[1]))
+              p(strong("Transportability error: "),
+                sprintf("%+.1f pp", row$loco_diff[1] * 100),
+                br(),
+                tags$small("(model trained on other countries only)"))
+          )
         } else {
           p(em("No survey data for this district"),
             style = "color: #888;")
@@ -284,10 +327,16 @@ mod_map_explorer_server <- function(id) {
       sy <- meta$survey_years[input$country]
       lvl <- if (isTRUE(input$admin_level == "admin1"))
                "Admin-1 (region)" else "Admin-2 (district)"
+      layer_note <- switch(input$layer,
+        diff_prev = " Difference layer: modeled (within-country) minus survey-observed prevalence; red = model over-predicts, blue = under-predicts.",
+        loco_diff = " Transportability layer: prevalence predicted by the universal model trained ONLY on the other countries, minus the local survey; red = over-predicts, blue = under-predicts. Gray = country/outcome not covered by the transportability model.",
+        ""
+      )
       sprintf(
-        "Data: %s, survey year %s. %s view. %s in gray have no model coverage. Admin-1 values are population-weighted aggregates of Admin-2 predictions.",
+        "Data: %s, survey year %s. %s view. %s in gray have no model coverage. Admin-1 values are population-weighted aggregates of Admin-2 predictions.%s",
         ctry_label, sy, lvl,
-        if (isTRUE(input$admin_level == "admin1")) "Regions" else "Districts"
+        if (isTRUE(input$admin_level == "admin1")) "Regions" else "Districts",
+        layer_note
       )
     })
 
