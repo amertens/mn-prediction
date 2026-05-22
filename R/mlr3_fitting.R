@@ -98,6 +98,20 @@ setup_mlr3_learners <- function(params) {
     )
   }
 
+  # Optional: drop BART learners (dbarts MCMC can fatally crash the R process
+  # — OOM in parallel workers and segfaults even single-process). Set
+  # SL_NO_BART=1 for a reliable unattended run; the remaining stack is still
+  # rich (glmnet x3, ranger x3, xgboost x2, gaussian process). Default keeps BART.
+  if (nzchar(Sys.getenv("SL_NO_BART"))) {
+    n0 <- length(library_spec)
+    library_spec <- Filter(function(x) {
+      type <- if (is.list(x)) (x[[1]] %||% "") else x
+      !grepl("bart", type, ignore.case = TRUE)
+    }, library_spec)
+    cat(sprintf("[mlr3_learners] SL_NO_BART set — dropped %d BART learner(s) (%d -> %d)\n",
+                n0 - length(library_spec), n0, length(library_spec)))
+  }
+
   list(library = library_spec, stack_mode = stack_mode)
 }
 
