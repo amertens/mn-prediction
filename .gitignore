@@ -11,6 +11,12 @@ _targets/
 
 # git worktrees created under .claude (committed as gitlinks by accident)
 .claude/worktrees/
+
+# Stray editor/run artifacts
+Rplots.pdf
+*.bak
+*.log
+temp_loco*.rds
 # Large model / figure artifacts (exceed or approach GitHub 100MB limit).
 # Reproducible pipeline outputs — rerun targets to regenerate.
 results/sl_exploration/models/*.rds

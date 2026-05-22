@@ -15,9 +15,9 @@ GEE raster covariates  ──┘                         │
                               Predictions for unsurveyed areas
 ```
 
-**Countries:** Gambia (active), with Ghana, Sierra Leone, and Malawi in development.
+**Countries:** Gambia, Ghana, Sierra Leone, and Malawi (all active).
 
-**Outcomes:** Vitamin A deficiency (children & women), iron deficiency anaemia (children & women).
+**Outcomes:** Vitamin A deficiency (children & women), iron deficiency anaemia (children & women); several countries also have folate, vitamin B12, and zinc.
 
 ## Quick Start
 
@@ -31,12 +31,18 @@ install.packages(c("targets", "here", "dplyr", "tidyr", "readr", "ggplot2",
                     "patchwork", "haven", "labelled", "caret", "recipes",
                     "future.apply", "data.table"))
 
-# tlverse (SuperLearner)
-# See https://tlverse.org for installation instructions
-install.packages(c("sl3", "origami"), repos = "https://tlverse.r-universe.dev")
+# SuperLearner stack (mlr3) — the active modelling backend
+install.packages(c("mlr3", "mlr3learners", "mlr3extralearners",
+                    "ranger", "xgboost", "dbarts", "kernlab", "origami"))
+# mlr3superlearner is GitHub-only:
+# remotes::install_github("nt-williams/mlr3superlearner")
 
-# Additional
-install.packages(c("ck37r", "washb"), repos = "https://cloud.r-project.org")
+# Preprocessing / screening helpers
+install.packages("ck37r", repos = "https://cloud.r-project.org")
+install.packages("washb", repos = "https://cloud.r-project.org")
+
+# Note: the legacy sl3 path (R/sl_fitting.R, R/bootstrap.R) is retained for
+# reference only and is NOT part of the active `targets` graph.
 ```
 
 ### Run the pipeline
@@ -50,7 +56,7 @@ That's it. The pipeline defaults to **fast mode**, which runs in ~10-30 minutes 
 
 ## Pipeline Modes
 
-The pipeline has two modes that control the SuperLearner stack complexity and bootstrap replication count:
+The pipeline has two modes that control the SuperLearner stack complexity:
 
 ### Fast mode (default)
 
@@ -63,11 +69,9 @@ targets::tar_make()
 
 | Parameter | Value |
 |-----------|-------|
-| SL stack | 3 learners (mean + glmnet + ranger) |
+| SL stack | 5 learners (mean + lasso + elastic net + ranger + xgboost) |
 | CV folds | 5 |
-| Admin-1 bootstrap | 10 reps |
-| Admin-2 SL bootstrap | 5 reps |
-| Area-level bootstrap | 20 reps |
+| Uncertainty | Split + locally-adaptive conformal intervals |
 | Approximate runtime | 10-30 minutes |
 
 ### Full mode
@@ -88,11 +92,9 @@ PIPELINE_MODE=full Rscript -e 'targets::tar_make()'
 
 | Parameter | Value |
 |-----------|-------|
-| SL stack | 5+ learners with screener pipelines (RF, lasso, correlation) |
+| SL stack | ~16 learners (glmnet ×3, ranger ×3, xgboost ×2, BART ×3, Gaussian process, + class-weighted variants for rare outcomes) |
 | CV folds | 5 |
-| Admin-1 bootstrap | 200 reps |
-| Admin-2 SL bootstrap | 50 reps |
-| Area-level bootstrap | 500 reps |
+| Uncertainty | Split + locally-adaptive conformal intervals |
 | Approximate runtime | 2-4 hours |
 
 ### Switching between modes
@@ -120,9 +122,9 @@ targets::tar_visnetwork()
 | `merged_{country}` | Load merged survey + covariate dataset | No |
 | `outcome_data_{country}_{outcome}` | Filter to population, select predictors, remove leakage | No |
 | `sl_fit_{country}_{outcome}` | Fit continuous + binary SuperLearner models | **Yes** |
-| `cv_perf_{country}_{outcome}` | Extract cross-validated performance metrics | No |
+| `cv_perf_{country}_{outcome}` | Extract out-of-fold (cross-validated) performance metrics | No |
 | `admin1_prev_{country}_{outcome}` | Aggregate predictions to Admin-1 prevalence | No |
-| `bootstrap_ci_{country}_{outcome}` | Cluster bootstrap for Admin-1/national CIs | **Yes** |
+| `conformal_ci_{country}_{outcome}` | Conformal prediction intervals (Admin-1/national) | No |
 | `ablation_{country}_{outcome}` | Domain ablation (leave-one-domain-out importance) | **Yes** |
 | `svy_admin2_{country}_{outcome}` | Survey-weighted Admin-2 prevalence (design-based) | No |
 | `admin2_sl_{country}_{outcome}` | Aggregate individual SL predictions to Admin-2 | No |
@@ -145,14 +147,18 @@ targets::tar_visnetwork()
 mn-prediction/
 ├── _targets.R              # Pipeline definition (start here)
 ├── R/                      # Pipeline function modules
-│   ├── config.R            #   Country configs, outcome definitions, mode params
-│   ├── data_prep.R         #   Load data, build outcome-specific datasets
-│   ├── sl_fitting.R        #   SuperLearner fitting (fast/full stacks)
-│   ├── admin1_analysis.R   #   Admin-1 aggregation and CV performance
-│   ├── bootstrap.R         #   Cluster bootstrap uncertainty
-│   ├── domain_ablation.R   #   Leave-one-domain-out feature importance
-│   ├── admin2_analysis.R   #   Admin-2 analysis + area-level GEE model
-│   └── plotting.R          #   Maps, scatter plots, forest plots
+│   ├── config.R              #   Country configs, outcome definitions, mode params
+│   ├── data_prep.R           #   Load data, build outcome-specific datasets
+│   ├── mlr3_fitting.R        #   SuperLearner fitting (active, mlr3) + out-of-fold preds
+│   ├── sl_fitting.R          #   Legacy sl3 fitting (reference only)
+│   ├── conformal.R           #   Conformal prediction intervals (active uncertainty)
+│   ├── bootstrap.R           #   Legacy cluster bootstrap (reference only)
+│   ├── admin1_analysis.R     #   Admin-1 aggregation and CV performance
+│   ├── admin2_analysis.R     #   Admin-2 analysis + area-level GEE model
+│   ├── area_level_comparison.R #  Area-level SL + cross-country LOCO (GEE-only)
+│   ├── transportability_area.R #  Universal area-level transportability model
+│   ├── domain_ablation.R     #   Leave-one-domain-out feature importance
+│   └── plotting.R            #   Maps, scatter plots, forest plots
 ├── src/                    # Legacy source code and country-specific scripts
 │   ├── analysis/           #   Core analysis scripts (01-05) + sl_helpers.R
 │   ├── Gambia/             #   Gambia data cleaning, merging, DHS aggregation
@@ -233,6 +239,9 @@ Ghana = list(
 
 - **Ecological prediction model:** Area-level predictors map to area-level prevalence. This is explicitly *not* individual risk prediction or causal inference.
 - **Survey design:** Stratified cluster sampling with `srvyr::as_survey_design()`. PSU = cluster number, weights = survey weights.
-- **SuperLearner:** Cluster-blocked cross-validation via `origami::make_folds(cluster_ids = ...)`. NNLS metalearner.
+- **SuperLearner:** `mlr3superlearner` (`R/mlr3_fitting.R`) with cluster-blocked cross-validation (cluster IDs passed via `group=`, so a PSU's observations stay together across folds). Discrete SuperLearner — CV selects the single best learner. The legacy `sl3` path (`R/sl_fitting.R`) is retained for reference only.
+- **Out-of-fold predictions:** Reported CV performance and the residuals feeding the conformal intervals use genuine out-of-fold predictions (`res$yhat_full`), recomputed by resampling the fitted learners (`mlr3_oof_predictions()`), since `mlr3superlearner` does not retain its internal CV predictions. `res$yhat_insample` keeps the resubstitution predictions for reference and for permutation-importance baselines.
+- **Uncertainty:** Conformal prediction intervals (`R/conformal.R`) — split (constant-width) and locally-adaptive variants — built from out-of-fold residuals. (The earlier cluster-bootstrap path in `R/bootstrap.R` is retained for reference only.)
+- **Individual-level area aggregation:** Out-of-fold individual predictions are survey-weighted and aggregated to Admin-1/Admin-2 prevalence.
 - **Area-level model:** Elastic net (`glmnet`, alpha = 0.5) trained on survey-weighted Admin-2 prevalence ~ GEE raster zonal means. Enables prediction to Admin-2 areas with no survey data.
-- **Bootstrap:** Cluster-level resampling (resample PSUs with replacement, refit SL, predict on original data).
+- **Cross-country transportability (`R/transportability_area.R`):** A universal, parsimonious within-country-centered elastic net on harmonized GEE + IHME + Malaria-Atlas + food-security proxies, validated by leave-one-country-out CV (`area_transport_*` targets).
