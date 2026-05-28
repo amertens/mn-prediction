@@ -1427,12 +1427,15 @@ build_adjacency_list <- function(cc_list, svy_admin2_list,
     return(list())
   }
   out <- list()
-  # Build a case-insensitive lookup so callers can key svy_admin2_list by
-  # display name ("SierraLeone") or by config $country ("sierraleone").
-  svy_keys_lower <- setNames(names(svy_admin2_list), tolower(names(svy_admin2_list)))
+  # Build a name-insensitive lookup so callers can key svy_admin2_list by
+  # display name ("Sierra Leone" / "SierraLeone") or by config $country
+  # ("sierraleone"); we strip spaces AND lowercase both sides.
+  .norm_nm <- function(x) gsub(" ", "", tolower(x))
+  svy_keys_norm <- setNames(names(svy_admin2_list), .norm_nm(names(svy_admin2_list)))
   for (cc in cc_list) {
     nm <- cc$country
-    key <- svy_keys_lower[[tolower(nm)]] %||% nm
+    norm_nm <- .norm_nm(nm)
+    key <- if (norm_nm %in% names(svy_keys_norm)) svy_keys_norm[[norm_nm]] else nm
     svy <- svy_admin2_list[[key]]
     if (is.null(svy) || nrow(svy) == 0) {
       cat(sprintf("  [adj] %s (key=%s): no svy data, skipping\n", nm, key)); next
