@@ -100,8 +100,15 @@ add_spatial_smoothing <- function(pooled_data, vars, adjacency_list,
 # ── 2. Within-domain PCA ────────────────────────────────────────────────────
 # Groups covariates by data-source prefix (via .assign_variable_groups() in
 # R/benchmark_models.R), runs prcomp per group on the pooled training data,
-# extracts the top `top_k` principal components, and appends them as new
-# `pc_<group>_<i>` columns.
+# extracts the top `top_k` principal components, and APPENDS them as new
+# `pc_<group>_<i>` columns ALONGSIDE the original raw covariates. The PCs
+# are intended as an *additional / alternative* predictor set — downstream
+# methods can choose to use them in place of the raw within-group
+# covariates (e.g., for collinearity-sensitive methods like Fay-Herriot or
+# OLS), or alongside them (e.g., for lasso/elastic-net which will pick
+# between PCs and raw vars). `drop_originals = FALSE` is the default and
+# the recommended setting; pass `drop_originals = TRUE` only in narrow
+# experiments where you specifically want PCs to replace the raw vars.
 add_within_domain_pca <- function(pooled_data, vars,
                                     top_k = 3L, min_group_size = 3L,
                                     drop_originals = FALSE) {

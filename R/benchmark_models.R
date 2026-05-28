@@ -985,6 +985,19 @@ fit_predict_betareg <- function(train, test, vars,
 }
 
 
+# ── TODO(pc-hal): future benchmark method — PC-HAL from UC Berkeley ──────────
+# Watch for a stable release of PC-HAL (principal-components highly
+# adaptive lasso) from Mark van der Laan's group at UC Berkeley. The
+# regular `hal9001` package implements standard HAL; PC-HAL extends it
+# with a low-rank PC basis to scale to mid-dimensional inputs without
+# losing the n^{-1/3} convergence rate. This is a strong candidate to
+# add as a benchmark method on this project once a public release
+# exists — the within-domain PCs produced by Bucket A
+# (add_within_domain_pca() in R/feature_engineering_bucket_a.R) are the
+# natural input basis. See docs/data_and_approach_ideas.qmd §3.0 for
+# rationale.
+
+
 # ── Causal DAG-based variable selection ──────────────────────────────────────
 # Defines a hand-curated directed acyclic graph (DAG) per outcome capturing
 # the causal pathway from environmental / livelihood / health-system

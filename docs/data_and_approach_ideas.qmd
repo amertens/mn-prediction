@@ -206,6 +206,44 @@ biologically-motivated set we should support.
 
 Ordered by expected upside × feasibility within a 3-6 month timeline.
 
+## 3.0 PC-HAL (UC Berkeley, in development)
+
+A new method from Mark van der Laan's group at UC Berkeley extends the
+Highly Adaptive Lasso (HAL; Benkeser & van der Laan 2016) by
+incorporating principal-component representations of the covariate
+space. PC-HAL is designed to retain HAL's $n^{-1/3}$ rate of convergence
+while reducing the basis-function explosion that limits HAL on
+moderate-dimensional inputs — exactly the situation we have with
+152+ GEE covariates on 200 admin-2 polygons.
+
+Relevance for this project:
+
+- **HAL is uniquely well-suited to mid-dimensional spatial data** —
+  it constructs an indicator basis of all main effects and pairwise
+  interactions of the input variables, then fits an L1-penalised
+  regression. This subsumes both linear and tree-based models as
+  special cases.
+- **PC-HAL substitutes a low-rank PC basis** into HAL's construction,
+  preserving the convergence guarantees but making the basis size
+  computationally tractable.
+- **The within-domain PCs we already produce** (Bucket A item 2.4)
+  are a natural input set for PC-HAL — the method would discover
+  interactions among the PCs that an elastic-net miss.
+- HAL is implemented in the `hal9001` R package; PC-HAL is in
+  pre-release. Watch the [vanderLaan-Group/hal9001](https://github.com/tlverse/hal9001)
+  and related `tlverse` repositories for the official release.
+
+Implementation when available: drop in as an additional benchmark
+method (`fit_predict_pchal`) using the within-domain PCs as the input
+basis. Could feasibly be the strongest single LOCO method on this
+data — it specifically targets the regime our problem lives in
+(modest n, modest p, complex unknown interactions, smoothness
+unverified).
+
+**Status:** add as TODO; check `hal9001` package release notes
+quarterly. If a stable PC-HAL implementation lands, this becomes a
+top-priority addition before the next benchmark run.
+
 ## 3.1 Multi-task learning across the 8 outcomes
 
 The 8 deficiency outcomes share predictive structure (wealth,
