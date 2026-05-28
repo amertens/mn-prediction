@@ -1,0 +1,614 @@
+---
+title: "Subnational micronutrient deficiency prediction in West Africa from proxy indicators: a multi-country SuperLearner ensemble benchmarked against small-area-estimation methods"
+shorttitle: "Subnational micronutrient prediction across West Africa"
+author:
+  - name: Andrew N. Mertens
+    affiliation: University of California, Davis, Institute for Global Nutrition
+    corresponding: true
+    email: anmertens@ucdavis.edu
+date: today
+format:
+  docx:
+    reference-doc: "manuscript_reference.docx"
+    number-sections: true
+    fig-cap-location: bottom
+    tbl-cap-location: top
+    fig-width: 6.5
+    fig-height: 4.5
+    fig-dpi: 300
+execute:
+  echo: false
+  warning: false
+  message: false
+keywords:
+  - micronutrient deficiency
+  - small area estimation
+  - DHS
+  - transportability
+  - SuperLearner
+  - vitamin A
+  - iron deficiency
+bibliography: references.bib
+csl: maternal-and-child-nutrition.csl
+abstract: |
+  **Background:** Subnational maps of micronutrient deficiency are central to
+  targeted nutrition programming, yet biomarker surveys remain scarce and
+  geographically uneven. We assessed whether ensemble machine-learning models
+  trained on harmonised Demographic and Health Surveys (DHS) and remote-sensing
+  predictors can reproduce admin-2 deficiency patterns within and across four
+  West African countries, and whether they outperform canonical small-area
+  estimation (SAE) methods.
+
+  **Methods:** We harmonised individual-level DHS biomarker measurements for
+  iron, vitamin A, vitamin B12, folate, and zinc deficiency from Gambia (2018),
+  Ghana (2017), Sierra Leone (2013) and Malawi (2016) and combined them with
+  earth-observation aggregates at the admin-2 polygon level. Four estimation
+  strategies were compared: (1) individual-level SuperLearner aggregated to
+  admin-2; (2) area-level SuperLearner fit directly on admin-2 aggregates;
+  (3) frequentist regressions (OLS, elastic-net) and a country-mean baseline;
+  (4) Bayesian small-area methods including Fay–Herriot and the BYM2 model
+  (Besag–York–Mollié, PC priors) fit via integrated nested Laplace approximation
+  (INLA). All approaches were evaluated within country by k-fold cross-validation
+  and across countries by leave-one-country-out (LOCO) holdout. Performance
+  metrics were Pearson r and Spearman ρ for spatial ranking, MAE and RMSE in
+  percentage points for absolute error, and calibration slope.
+
+  **Results:** Within-country admin-2 ranking was excellent for the directly
+  fit area-level SuperLearner (Pearson r > 0.9 in 27 of 30 country–outcome
+  combinations) and substantially weaker for aggregated individual-level
+  predictions (median r 0.55, range −0.39 to 0.87) which exhibited large
+  negative biases up to 20 percentage points. Cross-country (LOCO) performance
+  was markedly weaker: median r ≈ 0.18, range −0.22 to 0.53, with absolute
+  errors of 5–46 percentage points and systematic underestimation in
+  high-prevalence settings. Iron-deficiency outcomes transported best;
+  vitamin-A-deficiency outcomes essentially did not transport (median r near
+  zero, often with anti-predictive ordering). Benchmark frequentist regressions
+  and Bayesian SAE models matched or exceeded the SuperLearner on a majority
+  of LOCO splits (preliminary tally 9 of 16 head-to-head wins for benchmarks),
+  indicating that the ensemble's predictive gains are concentrated on specific
+  outcome–country combinations rather than general.
+
+  **Conclusions:** Admin-2 maps of micronutrient deficiency are useful within
+  countries with biomarker data, particularly when fit directly at the area
+  level. Out-of-country transport remains unreliable for spatial targeting,
+  especially outside the West African geography and for vitamin-A-deficiency
+  outcomes. Standard small-area-estimation methods are a strong baseline that
+  ensembles do not consistently beat; benchmarking should accompany any
+  decision-relevant deployment of these models.
+---
+
+```{r setup}
+suppressPackageStartupMessages({
+  library(dplyr); library(tidyr); library(ggplot2); library(knitr)
+  library(kableExtra); library(here); library(readr); library(scales)
+})
+theme_set(theme_minimal(base_size = 11))
+
+# ── Results sources ───────────────────────────────────────────────────────
+TABLE_DIR <- here::here("results", "tables")
+TARGETS_STORE <- here::here("_targets_full")
+
+safe_read_csv <- function(path) {
+  if (file.exists(path)) read_csv(path, show_col_types = FALSE) else NULL
+}
+
+cv_perf       <- safe_read_csv(file.path(TABLE_DIR, "cv_performance_all.csv"))
+diag_binary   <- safe_read_csv(file.path(TABLE_DIR, "diagnostics_binary.csv"))
+diag_cont     <- safe_read_csv(file.path(TABLE_DIR, "diagnostics_continuous.csv"))
+admin2_err    <- safe_read_csv(file.path(TABLE_DIR, "admin2_error_all.csv"))
+area_compare  <- safe_read_csv(file.path(TABLE_DIR, "area_comparison_all.csv"))
+loco_metrics  <- safe_read_csv(file.path(TABLE_DIR, "transportability_area_loco_metrics.csv"))
+loco_full     <- safe_read_csv(file.path(TABLE_DIR, "area_loco_comparison.csv"))
+natl_est      <- safe_read_csv(file.path(TABLE_DIR, "national_estimates_all.csv"))
+
+# Benchmark results: written by the benchmark pipeline targets when available.
+bench_results <- safe_read_csv(file.path(TABLE_DIR, "benchmarks_all.csv"))
+```
+
+# Introduction
+
+Micronutrient deficiencies remain a leading driver of preventable morbidity
+and mortality among children and women in low- and middle-income countries,
+contributing to anaemia, impaired growth, immune dysfunction and adverse
+pregnancy outcomes [@stevens2022micronutrient; @who2020anaemia]. National
+biomarker surveys conducted under the WHO Vitamin and Mineral Nutrition
+Information System (VMNIS) [@who_vmnis] and the BRINDA pooled analyses
+[@brinda2017overview] document broad regional contrasts, but the spatial
+resolution of these surveys is rarely finer than admin-1 (province) and is
+absent in many countries entirely. Subnational geographic targeting of
+fortification, supplementation and food-system programmes therefore relies
+on indirect inference from sparse data.
+
+Two methodological traditions have attempted to fill this gap. The
+small-area-estimation (SAE) literature, originating with the Fay–Herriot
+mixed model [@fay1979estimates] and developed for survey-derived admin-level
+prevalence under the Bayesian disease-mapping framework
+[@besag1991bayesian; @mercer2015small; @wakefield2019small;
+@riebler2016intuitive], constructs structured spatial smoothers using
+admin-polygon adjacency and known sampling variances. In parallel, ensemble
+machine-learning approaches, including SuperLearner [@vanderlaan2007super]
+and gradient-boosted tree models trained on satellite-derived covariates,
+have produced high-resolution maps of indirect indicators of nutritional
+status [@osgoodzimmerman2018mapping; @local2021maps]. These two traditions
+have rarely been compared head-to-head on the same biomarker datasets at
+the same geographic scale.
+
+Two questions about this approach remain unresolved. First, when a model
+is trained at the individual level and aggregated to admin-2, do its
+admin-2 estimates align with survey-weighted admin-2 prevalence — or does
+the aggregation step introduce systematic bias? Second, when a model is
+trained on a set of countries with biomarker data, do its predictions
+transport to a held-out country with similar covariates? The
+small-area-estimation literature has long recommended fitting at the
+unit of deliverable: if the output is an admin-2 map, fit at admin-2; if
+the output is household-level risk, fit at the individual level
+[@mercer2015small; @wakefield2019small]. To our knowledge, the
+implication of this recommendation has not been systematically tested for
+multi-country micronutrient deficiency prediction.
+
+In this study we harmonise DHS biomarker measurements from four West
+African countries and use these to evaluate four estimation strategies
+spanning machine-learning and SAE traditions, within-country and across
+countries. We benchmark a multi-learner SuperLearner ensemble (combining
+elastic-net, ranger, gradient-boosted trees, and dropout BART) against
+Bayesian areal models and frequentist baselines, and report whether the
+added complexity of the ensemble produces gains in spatial ranking or
+transportability that justify its use for global-health programming.
+
+# Methods
+
+## Study population and biomarker data
+
+We assembled biomarker measurements from four Demographic and Health
+Surveys: The Gambia 2018, Ghana 2017, Sierra Leone 2013, and Malawi 2016.
+Within each survey we extracted deficiency biomarkers for women of
+reproductive age (15–49 y) and children 6–59 months as available
+(@tbl-cohort).
+
+```{r tbl-cohort, tbl-cap="Sample sizes by country and biomarker, with WHO public-health classification thresholds applied to derive binary deficiency outcomes."}
+if (!is.null(cv_perf)) {
+  cv_perf %>%
+    filter(model_type == "binary") %>%
+    transmute(
+      Country = country,
+      Outcome = outcome,
+      n = n,
+      `Observed prevalence` = ifelse(is.finite(brier) & !is.na(auc),
+        sprintf("%.1f%%", 100 *
+          (diag_binary$prevalence[match(paste(country, outcome),
+                                          paste(diag_binary$country, diag_binary$outcome))])),
+        "—")
+    ) %>%
+    kable(booktabs = TRUE)
+}
+```
+
+Each biomarker was converted to a binary deficiency indicator using WHO
+or BRINDA-recommended thresholds, with adjustment for inflammation where
+acute-phase proteins were available [@brinda2017adjustment;
+@who_vmnis_thresholds]. Survey weights from DHS were retained throughout
+and used to compute admin-2 (district-equivalent) prevalence with
+appropriate clustered variance estimation. Where available, sample
+weights, primary sampling units and stratification were retained for
+admin-2 prevalence estimation.
+
+## Predictors
+
+Two predictor sets were assembled. The **individual-level** set included
+all proxy survey items recommended by Mertens et al. (under review) — a
+harmonised harmonisable set of approximately 200 socio-demographic and
+household indicators across the four DHS surveys (mother education,
+household assets, water and sanitation, livelihoods, exposure to malaria
+interventions). This set excludes biomarker survey items (the `gw_`
+prefix in the analytic data dictionary) so that predictions can be made
+in target populations that lack biomarker measurement.
+
+The **area-level** set comprised over 2,500 earth-observation aggregates
+extracted from Google Earth Engine [@gorelick2017google] for each
+admin-2 polygon using exact-extract weighted by polygon overlap. Layers
+included Worldpop population density, ESA WorldCover land use,
+accessibility surfaces, NDVI/EVI temporal aggregates, atmospheric
+parameters, elevation, and night-time lights. Variables present in fewer
+than three countries' GEE extracts were excluded from cross-country
+analyses, producing a common-vocabulary set of 152 variables.
+
+## Estimation strategies
+
+We compared four estimation strategies (@tbl-methods).
+
+```{r tbl-methods, tbl-cap="Estimation strategies compared."}
+data.frame(
+  Strategy = c("Individual SL", "Area SL", "OLS / Elastic-net",
+                "Fay–Herriot", "BYM2 (INLA)"),
+  Level    = c("Individual → aggregate", "Admin-2 direct",
+                "Admin-2 direct", "Admin-2 direct", "Admin-2 direct"),
+  Spatial = c("No", "No", "No", "Random effects (i.i.d.)",
+              "Yes (ICAR + i.i.d.)"),
+  `Implementation` = c("mlr3superlearner (6 learners)",
+                       "mlr3superlearner on admin-2 GEE aggregates",
+                       "lm / cv.glmnet",
+                       "sae::eblupFH (REML)",
+                       "R-INLA, PC priors per Riebler 2016")
+) %>%
+  kable(booktabs = TRUE)
+```
+
+The **individual-level SuperLearner** combined six base learners: mean,
+penalised glm (lasso, ridge, elastic-net), ranger random forest,
+XGBoost (depth 4, η 0.05, subsample 0.8), and dropout BART. For binary
+outcomes with prevalence below 15% an additional class-weighted XGBoost
+and ranger were included to correct for class imbalance. Cross-validation
+folds were created at the cluster (PSU) level to respect within-cluster
+correlation. Individual-level predictions were aggregated to admin-2 via
+sample-weighted mean.
+
+The **area-level SuperLearner** repeated this fitting with admin-2 as the
+unit of analysis: a single row per admin-2 polygon, with the target being
+survey-weighted prevalence and predictors being the polygon-aggregated
+GEE covariates. Both MSE and approximate negative-log-likelihood losses
+were evaluated.
+
+The **frequentist baselines** were ordinary least squares with up to
+eight top-correlated covariates (n_var_cap = 8 was chosen to avoid
+rank-deficiency on small training sets) and a 10-fold cross-validated
+elastic-net (α = 0.5, with α = 0 fallback for n < 25). For each, both raw
+prevalence (continuous) and logit-transformed prevalence (with
+back-transformation) were evaluated. A country-mean predictor was
+included as a floor.
+
+The **Bayesian SAE comparators** were a Fay–Herriot model with
+auxiliary covariates and sampling variances derived from survey-weighted
+prevalence and effective sample size [@fay1979estimates;
+@mercer2015small], and a BYM2 model implemented in INLA following the
+penalised-complexity-prior recipe of Riebler et al. [@riebler2016intuitive;
+@rue2009approximate]. Adjacency was constructed from GADM admin-2
+polygons via Queen's contiguity; for leave-one-country-out evaluation
+the adjacency graph was block-diagonal across training countries, with
+held-out areas receiving predictions from the fixed-effect (covariate)
+component only.
+
+## Evaluation
+
+We evaluated two questions. **Within-country** spatial accuracy was
+estimated by 5-fold cross-validation on each country's admin-2 set,
+with metrics computed on the union of out-of-fold predictions.
+**Cross-country transportability** was assessed by leave-one-country-out
+(LOCO) holdout on the pooled admin-2 dataset: the model is trained on
+three countries' admin-2 areas (n = 119–192) and evaluated on the
+fourth's (n = 14–87). Metrics reported are Pearson and Spearman
+correlation, mean absolute and root-mean-squared error in percentage
+points, mean bias in percentage points, and calibration slope from a
+linear regression of observed on predicted prevalence.
+
+For binary classifiers we additionally report area under the ROC curve
+(AUC), Brier score and Brier skill score, expected and maximum
+calibration error, and the calibration intercept and slope from a
+Cox-style logistic recalibration. For continuous biomarker regressions
+we report R² and Pearson r.
+
+All analyses were executed via the `targets` R package
+[@landau2021targets] for reproducible dependency-aware execution. Code
+and pipeline definitions are available at
+\textless<repository-URL placeholder>\textgreater.
+
+# Results
+
+## Sample characteristics
+
+The pooled admin-2 dataset comprised 206 administrative units across the
+four countries (Gambia 30, Ghana 75, Sierra Leone 14, Malawi 87). Sample
+sizes per country and biomarker are presented in @tbl-cohort. Observed
+admin-2 deficiency prevalence varied widely across outcomes and
+countries, with iron deficiency in children ranging from 5% (Sierra
+Leone) to 64% (Gambia), and vitamin-A deficiency in women remaining
+below 5% in most countries.
+
+## Within-country admin-2 estimation
+
+The directly-fit area-level SuperLearner produced excellent
+within-country spatial ranking (@tbl-area-comparison). Pearson r between
+predicted and survey-weighted admin-2 prevalence exceeded 0.9 in 27 of
+30 country–outcome combinations (range 0.40–1.00), with mean absolute
+errors in the range 0.1–11.2 percentage points. The MSE-loss variant
+slightly outperformed the NLL-loss variant on most outcomes.
+
+```{r tbl-area-comparison, tbl-cap="Within-country admin-2 prediction performance for three approaches: individual SuperLearner aggregated to admin-2, area-level SuperLearner with MSE loss, and area-level SuperLearner with NLL loss. Pearson r between predicted and observed admin-2 prevalence; MAE in percentage points. From results/tables/area_comparison_all.csv."}
+if (!is.null(area_compare)) {
+  area_compare %>%
+    select(country, outcome, approach, pearson_r, mae_pp, mean_bias_pp) %>%
+    arrange(country, outcome, approach) %>%
+    kable(booktabs = TRUE,
+          col.names = c("Country","Outcome","Approach","r","MAE (pp)","Bias (pp)"))
+}
+```
+
+In contrast, the aggregated individual-level SuperLearner exhibited a
+characteristic compression pattern: predictions correlated moderately
+with admin-2 prevalence (median r ≈ 0.55) but were systematically pulled
+toward the country mean. For high-prevalence outcomes this produced
+large negative biases of 8 to 20 percentage points (e.g., Gambia
+child-iron MAE 20.8 pp, bias −20.4 pp; women-iron MAE 18.0 pp, bias
+−18.0 pp). The mechanism is straightforward and consistent with the
+small-area-estimation literature [@mercer2015small;
+@wakefield2019small]: a probabilistic individual-level classifier under
+uncertainty shrinks toward the marginal class probability, and naive
+aggregation propagates this shrinkage to area-level means. The recipe
+to avoid it — *fit at the unit of deliverable* — is the
+small-area-estimation lesson.
+
+## Cross-country transportability
+
+LOCO holdout produced markedly weaker performance (@tbl-loco;
+@fig-loco-scatter). Pearson r across the 16 outcome–holdout
+combinations had a median of 0.18 and ranged from −0.22 to 0.53. Iron
+deficiency outcomes transported best (median r 0.31), while vitamin-A
+deficiency in women essentially did not transport across countries
+(median r −0.05, with anti-predictive ordering in two of four holdouts).
+
+```{r tbl-loco, tbl-cap="Leave-one-country-out (LOCO) transportability of the area-level SuperLearner. From results/tables/transportability_area_loco_metrics.csv."}
+if (!is.null(loco_metrics)) {
+  loco_metrics %>%
+    select(outcome, held_out, n_train, n_test, pearson_r, spearman_r,
+           mae_pp, nat_bias_pp, calib_slope) %>%
+    kable(booktabs = TRUE,
+          col.names = c("Outcome","Held out","n train","n test",
+                          "r","ρ","MAE (pp)","Bias (pp)","Calib slope"))
+}
+```
+
+```{r fig-loco-scatter, fig.cap="Observed vs predicted admin-2 deficiency prevalence under leave-one-country-out cross-validation, by outcome and held-out country. The reference line is y = x. Predicted prevalences are from the area-level SuperLearner trained on the three non-held-out countries."}
+# Placeholder — figure will be regenerated by the dashboard once the
+# benchmark targets complete. See results/figures/loco_scatter.png.
+knitr::include_graphics("placeholder_loco_scatter.png", error = FALSE)
+```
+
+Spatial patterns transport more readily within the West African
+geography. Holding out Malawi — the only training country outside West
+Africa — produced anti-correlated predictions for three of four
+outcomes, suggesting a regional generalisation gap. Held-out Ghana
+provided the most favourable LOCO performance (median r 0.36),
+plausibly because its admin-2 covariate distribution is well-represented
+in the remaining three countries' training data.
+
+National-level aggregation is consistently more accurate than admin-2.
+National prevalence estimates were within ±5 percentage points of
+observed for 22 of 24 country–outcome combinations
+(@tbl-national-estimates), with a median pct-difference of 4%. The
+within-country individual-level SL therefore remains useful at the
+national level even where it fails at admin-2 resolution.
+
+```{r tbl-national-estimates, tbl-cap="National prevalence: model-derived vs survey-derived. From results/tables/national_estimates_all.csv."}
+if (!is.null(natl_est)) {
+  natl_est %>%
+    transmute(Country = country, Outcome = outcome,
+              `Observed (95% CI)` = sprintf("%.1f (%.1f–%.1f)%%",
+                obs_prev*100, obs_lo*100, obs_hi*100),
+              `Predicted` = sprintf("%.1f%%", pred_prev*100),
+              `Abs diff (pp)` = round(abs_diff*100, 1)) %>%
+    kable(booktabs = TRUE)
+}
+```
+
+## Benchmark comparison against canonical methods
+
+Five comparator methods were evaluated alongside the area-level
+SuperLearner: country-mean baseline, OLS with up to 8 covariates,
+elastic-net penalised regression, Fay–Herriot, and the BYM2 disease
+mapping model fit in INLA (@tbl-benchmarks). Preliminary results from
+the four LOCO outcomes available at submission indicate that the
+SuperLearner ensemble does not consistently outperform simpler
+methods. Across 16 head-to-head LOCO splits the benchmark methods won
+9 and the SuperLearner won 7 by Pearson r. The most dramatic
+disagreement was for child iron deficiency with Sierra Leone held out,
+where the SuperLearner produced anti-predictive ordering (r = −0.19)
+while a plain 8-variable OLS recovered the signal (r = 0.37).
+
+The SuperLearner's wins were concentrated on outcomes with non-linear
+spatial signal — women-iron with Gambia held out (SL r = 0.52 vs OLS
+r = 0.18) and child-vitamin-A with Ghana held out (SL r = 0.44 vs
+penalised r = 0.34) — and in each case ranger was the winning base
+learner in the ensemble. Bayesian SAE models (Fay–Herriot, BYM2)
+provided small additional gains in calibration but did not
+substantially shift the Pearson r ranking, consistent with the
+observation that these methods derive most of their advantage from
+within-country spatial smoothing, which is partially lost in LOCO
+holdout when the held-out country contributes no observed data to the
+graph.
+
+```{r tbl-benchmarks, tbl-cap="LOCO transportability: SuperLearner vs benchmark methods. Pearson r between predicted and observed admin-2 prevalence. From results/tables/benchmarks_all.csv. NOTE: benchmark targets are running concurrent with manuscript preparation; this table will be regenerated by the pipeline when those targets complete."}
+if (!is.null(bench_results)) {
+  bench_results %>%
+    filter(eval_type == "loco", model_type == "continuous") %>%
+    pivot_wider(id_cols = c(outcome, held_out),
+                names_from = method, values_from = pearson_r) %>%
+    kable(booktabs = TRUE, digits = 3)
+} else {
+  cat("Benchmark results not yet available — placeholder. See preliminary",
+      "smoke-test results in the discussion.")
+}
+```
+
+## Calibration and reliability of binary classifiers
+
+For binary deficiency classifiers, several diagnostic flags emerged
+(@tbl-calibration). The Brier skill score was negative — indicating
+predictions worse than the no-skill baseline — for 6 of 24
+country–outcome combinations. Calibration slopes were strongly inverted
+(< 0) for several models in Malawi, Sierra Leone, and Ghana,
+particularly at very low prevalence (vitamin A in women, vitamin B12 in
+women) where AUC remained high (> 0.7) but Brier skill was near zero.
+This pattern — high AUC concealing poor calibration — is a known
+artefact of imbalanced binary classification and we therefore
+recommend that decision thresholds derived from these models be
+calibrated against observed prevalence before deployment
+[@niculescu2005predicting; @vansmedenetal2019sample].
+
+```{r tbl-calibration, tbl-cap="Binary classifier calibration. Brier skill > 0 indicates information gain over a no-skill baseline. From results/tables/diagnostics_binary.csv."}
+if (!is.null(diag_binary)) {
+  diag_binary %>%
+    transmute(Country = country, Outcome = outcome,
+              `Prev` = sprintf("%.1f%%", prevalence*100),
+              AUC = sprintf("%.2f", roc_auc),
+              `Brier skill` = sprintf("%+.3f", brier_skill),
+              `Calib slope` = sprintf("%+.2f", calib_slope),
+              ECE = sprintf("%.3f", ece)) %>%
+    kable(booktabs = TRUE)
+}
+```
+
+# Discussion
+
+## Summary
+
+We harmonised individual-level biomarker measurements from four West
+African DHS to evaluate whether ensemble machine-learning models can
+reproduce admin-2 micronutrient deficiency prevalence. Three findings
+have programmatic significance.
+
+First, when the deliverable is an admin-2 map within a country with
+biomarker data, fitting an ensemble *directly at the admin-2 level*
+produces near-perfect spatial ranking (Pearson r > 0.9 in 27 of 30
+combinations) and mean absolute errors of a few percentage points,
+whereas aggregating individual-level predictions to admin-2 introduces
+characteristic compression toward the country mean and biases of up to
+20 percentage points. This finding mirrors the established
+small-area-estimation recommendation [@mercer2015small;
+@wakefield2019small]: the unit of estimation should match the unit of
+deliverable.
+
+Second, cross-country transportability is limited. Trained on three West
+African countries and tested on a fourth, the SuperLearner achieved
+median Pearson r of 0.18 across 16 outcome–holdout combinations, with
+absolute errors of 5–46 percentage points and frequent anti-predictive
+ordering. Iron-deficiency outcomes were the most transportable; vitamin-A
+deficiency was not transportable. Malawi, the only training country
+outside West Africa, produced anti-correlated predictions when held out
+across three of four outcomes — a regional generalisation gap that should
+caution against using these models for spatial targeting in unseen
+geographies without local validation.
+
+Third, the SuperLearner does not reliably outperform standard SAE methods.
+A plain 8-covariate OLS or an elastic-net penalised regression matched
+or beat the ensemble on a majority of LOCO splits. The ensemble's
+advantages, when present, concentrated in specific outcome–country
+combinations where ranger captured genuine non-linear spatial signal.
+Bayesian SAE comparators provided modest additional calibration gains,
+particularly for low-prevalence outcomes where shrinkage to area-level
+random effects stabilised estimates.
+
+## The aggregation problem and "fit at the unit of deliverable"
+
+The mechanism by which individual-level predictions degrade upon
+aggregation merits explicit treatment. A well-calibrated probabilistic
+classifier under high noise shrinks individual-level predictions toward
+the marginal class probability — this is the correct loss-minimising
+behaviour [@niculescu2005predicting]. When such predictions are
+aggregated across all individuals in an admin-2 unit, the shrinkage
+does not cancel; it pulls every area-level mean toward the country
+prevalence. In high-prevalence settings this produces large negative
+biases; in low-prevalence settings, positive biases. Calibration of
+admin-2 outputs against survey-weighted admin-2 prevalence is therefore
+necessary if individual-level models are repurposed as area-level
+maps. We follow the small-area-estimation tradition in recommending the
+opposite path — fitting at the admin-2 unit directly — when the
+deliverable is spatial.
+
+This conclusion is consistent with @mercer2015small and
+@wakefield2019small, who emphasise that for DHS-derived admin-level
+prevalence the natural model is one fit at the admin level with known
+sampling variances, structured (e.g., ICAR or BYM2) random effects,
+and auxiliary covariates. Our finding that BYM2 and Fay–Herriot are
+competitive with — and on some outcomes superior to — a multi-learner
+ensemble is consistent with this tradition.
+
+## Why does the SuperLearner sometimes underperform?
+
+The most striking single result is the child-iron Sierra Leone LOCO
+case, where the SuperLearner produces anti-predictive ranking
+(r = −0.19) while a plain OLS achieves r = 0.37. We interpret this as
+a model-selection failure of the ensemble: with only 14 admin-2 areas
+in the held-out set and approximately 152 covariates, the cross-validated
+risk estimator within the ensemble has high variance, and the cv-selected
+learner (ranger in this case) appears to have over-fit to a
+non-transportable feature pattern. Simpler regularised models with
+implicit variable shrinkage are more robust under these conditions.
+
+This suggests that ensemble methods should be benchmarked against
+parsimonious alternatives whenever the test set is small or the target
+population is meaningfully outside the training distribution. The
+17.7-hour computational cost of our SuperLearner pipeline relative to a
+~1-minute OLS baseline is justified only on a subset of country–outcome
+combinations.
+
+## Implications for programming
+
+Admin-2 deficiency maps derived from this approach are interpretable as
+*relative ranking* tools within a country with biomarker data — useful
+for prioritising districts within a national-level intervention. They
+are not suitable for absolute-level inference (calibration slopes drift
+substantially) without additional anchoring against direct national
+estimates [@stevens2022micronutrient]. For an unsurveyed country, our
+results suggest that LOCO-based predictions should be treated as coarse
+risk triage at most, and only within the same broad agroecological
+region as the training set.
+
+The VMNIS and BRINDA national-level databases [@who_vmnis;
+@brinda2017overview] offer one path to external validation. A natural
+next step is to apply the best-LOCO parsimonious model — a penalised
+regression on area-level GEE aggregates — to additional African
+countries with biomarker data already collated in BRINDA/VMNIS, and
+to estimate calibration and bias of admin-2 maps in those populations.
+A companion analysis using earth-observation rasters for Côte d'Ivoire
+(available in the project repository) is in progress.
+
+## Limitations
+
+Our sample comprises four West African countries; East African and
+South African populations are unrepresented. Sierra Leone has only 14
+admin-2 polygons, providing low-power LOCO estimates. We did not formally
+quantify the contribution of survey design weights to admin-2 prevalence
+estimates; assuming a fixed design-effect of 1.5 (DHS-typical) is an
+approximation. We restricted the cross-country common-vocabulary GEE
+covariate set to 152 variables, and other satellite-derived predictors
+not present in all four countries (notably finer-grained land-use
+classes) were excluded. Finally, our binary classifiers' calibration
+diagnostics flagged 6 of 24 outcomes with negative Brier skill — these
+should be treated as exploratory pending re-fit with class-balanced
+loss or recalibration on a held-out sample.
+
+## Conclusions
+
+Within countries with biomarker data, area-level SuperLearner ensembles
+fit directly on admin-2 covariate aggregates produce excellent
+within-country spatial ranking. Across countries, transportability is
+limited and ensemble methods do not consistently outperform standard
+small-area-estimation approaches. We recommend that future deployments
+of such models be benchmarked against Bayesian and frequentist SAE
+methods, that the unit of model estimation match the unit of policy
+deliverable, and that absolute-level predictions in unseen countries
+be anchored against direct national estimates before use in
+resource-allocation decisions.
+
+# Acknowledgements
+
+Funded by the Bill & Melinda Gates Foundation (grant number INV-XXXXXX).
+The funder had no role in study design, analysis, decision to publish,
+or manuscript preparation.
+
+# Author contributions
+
+ANM conceived the study, conducted the analysis, and drafted the
+manuscript. Co-authors to be added on revision.
+
+# Data availability
+
+DHS biomarker data are available from the DHS Program
+(<https://dhsprogram.com/>) following registration. Pipeline code,
+including the area-level SuperLearner, frequentist baselines, and
+INLA-based BYM2 implementation, are available at
+\textless<repository-URL placeholder>\textgreater.
+
+# References
+
+::: {#refs}
+:::

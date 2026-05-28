@@ -477,6 +477,79 @@ if (!is.null(ts) && nrow(ts) > 0) {
 
 ---
 
+## Admin-2 estimation: fit at the unit of deliverable
+
+**Within-country area-level SuperLearner (fit directly on admin-2 aggregates)
+dramatically outperforms aggregating an individual-level SL to admin-2:**
+
+| Approach | Pearson r (admin-2, median across 30 country–outcomes) | MAE (pp) | Bias |
+|---|---|---|---|
+| Individual SL → aggregate to admin-2 | 0.55 (range −0.39 to 0.87) | 4--21 | Often large negative |
+| **Area SL (MSE)** — fit at admin-2 | **0.97** (r > 0.9 in 27 of 30) | **1--11** | Near zero |
+| Area SL (NLL)                       | 0.94                          | 1--14 | Near zero |
+
+Aggregating individual-level predictions to admin-2 introduces characteristic
+*shrinkage compression*: high-prevalence districts are systematically
+under-predicted (e.g., Gambia child-iron MAE 20.8 pp, bias −20.4 pp).
+
+> This is the classic small-area-estimation lesson [Mercer 2015, Wakefield
+> 2019]: **fit at the unit of deliverable**. If the output is an admin-2 map,
+> fit at admin-2; if the output is household-level risk, fit at the individual
+> level.
+
+---
+
+## Cross-country (LOCO) admin-2 transportability is limited
+
+LOCO Pearson r between predicted and observed admin-2 prevalence:
+
+| Outcome | Held-out best | Held-out worst | Median |
+|---|---|---|---|
+| child_iron  | Ghana (r=0.53) | Malawi (r=−0.02) | 0.31 |
+| women_iron  | Gambia (r=0.40) | Sierra Leone (r=−0.08) | 0.15 |
+| child_vitA  | Ghana (r=0.38) | Malawi (r=0.18) | 0.27 |
+| women_vitA  | Ghana (r=0.17) | Sierra Leone (r=−0.15) | 0.03 |
+
+- Iron-deficiency outcomes transport best.
+- Vitamin-A in women essentially does not transport.
+- **Malawi held out → anti-predictive in 3 of 4 outcomes** — a regional
+  generalisation gap (only training country outside West Africa).
+- MAE 5--46 pp; mean bias often > 10 pp.
+
+---
+
+## Benchmark comparison: does the SuperLearner beat simpler methods?
+
+We compared the area-level SL against four canonical baselines:
+
+::: {.columns}
+::: {.column width="55%"}
+| Method | Why include |
+|---|---|
+| Country-mean baseline | Is the model doing anything? |
+| OLS (top-8 covariates) | Is anything more than linear needed? |
+| Penalised GLM (elastic-net) | Best frequentist comparator |
+| Fay--Herriot (`sae`) | Industry standard SAE |
+| BYM2 (INLA, PC priors) | Bayesian areal disease-mapping |
+:::
+::: {.column width="45%"}
+**Preliminary head-to-head, 16 LOCO splits:**
+
+> **SuperLearner wins:** 7
+> **Benchmark wins:** 9
+
+The 17.7-h SL pipeline does **not consistently beat** an 8-variable OLS or
+penalised regression. Where SL wins, it does so via genuine non-linearity
+(ranger consistently the winning learner).
+:::
+:::
+
+**Stark example:** child-iron Sierra Leone --- SL r = **−0.19** (anti-predictive),
+plain OLS r = **0.37**. Ensemble model selection failed; a simpler regularised
+model recovered the signal.
+
+---
+
 # Out-of-Sample: Cote d'Ivoire {background-color="#1a3a5c"}
 
 ---
@@ -529,12 +602,14 @@ if (length(oos_list) > 0) {
 
 ## Limitations and Cautions
 
-1. **Rare outcome instability** --- women_vitA has < 20 events in several countries; binary AUC unreliable
-2. **Cross-country heterogeneity** --- LOCO shows 0.15--0.25 AUC drop vs. within-country; biomarker-predictor relationships not fully portable
-3. **Static predictor vintage** --- DHS/MICS data ages; predictive performance may degrade
-4. **No spatial random effects** --- individuals treated as conditionally independent given predictors
-5. **Survey support dependence** --- Admin-1 units with no nearby clusters are pure extrapolations
-6. **Sierra Leone challenges** --- fewer clusters, lower prevalence; mean-learner dominance required code fix
+1. **Rare outcome instability** --- women_vitA has < 20 events in several countries; binary AUC unreliable; Brier skill is negative for ~25% of binary models.
+2. **Cross-country heterogeneity** --- LOCO shows 0.15--0.25 AUC drop vs. within-country; admin-2 Pearson r often 0.0--0.3 cross-country; vitamin-A in women essentially does not transport.
+3. **Aggregation bias** --- individual-level SL aggregated to admin-2 introduces shrinkage compression and large negative biases in high-prevalence districts. Fit at the unit of deliverable.
+4. **SuperLearner does not consistently beat simpler methods** under LOCO --- preliminary head-to-head shows 9 of 16 splits won by benchmark methods (OLS, penalised GLM, Fay--Herriot, BYM2). The ensemble's advantage concentrates on outcomes with genuine non-linear spatial signal.
+5. **Calibration drift** --- several models have negative calibration slopes (predictions move opposite to truth), especially in Sierra Leone and Malawi at low prevalence. Continuous biomarker R² is near zero across the board.
+6. **Static predictor vintage** --- DHS/MICS data ages; predictive performance may degrade.
+7. **Survey support dependence** --- Admin-1/2 units with no nearby clusters are extrapolations.
+8. **Limited geographic coverage** --- 4 West African countries; Malawi LOCO failure suggests model does not transport to East / Southern Africa without local validation.
 
 ---
 

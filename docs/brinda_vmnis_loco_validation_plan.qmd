@@ -1,0 +1,299 @@
+---
+title: "Validating LOCO admin-2 deficiency models against BRINDA and VMNIS national estimates"
+subtitle: "Design plan + Côte d'Ivoire pilot"
+author: "Andrew Mertens"
+date: today
+format:
+  docx:
+    number-sections: true
+    reference-doc: "manuscript_reference.docx"
+    fig-cap-location: bottom
+    tbl-cap-location: top
+  html:
+    toc: true
+    number-sections: true
+    self-contained: true
+---
+
+# Goal
+
+Use the best parsimonious LOCO admin-2 model (an elastic-net penalised
+regression or OLS on GEE area-level covariates, trained on the four
+West African DHS countries) to predict micronutrient deficiency in
+**Côte d'Ivoire** and additional LMICs with biomarker estimates available
+in BRINDA or VMNIS, and to validate those predictions against the
+external estimates.
+
+# Data available in the repository
+
+## Training data (4 West African countries, admin-2)
+
+Already in `_targets_full` for child_vitA, women_vitA, child_iron, women_iron:
+
+- `svy_admin2_<country>_<outcome>`: survey-weighted admin-2 prevalence + n.
+- `gee_admin2_<country>`: ~2,500 GEE covariates per admin-2 polygon
+  (152 common across all four countries).
+- `pooled_gee_<outcome>` / `loco_gee_<outcome>`: existing GEE-only LOCO
+  fits (a starting point — same data shape we'd reuse).
+
+## Côte d'Ivoire (target for OOS prediction)
+
+Already present:
+
+- `data/Cote_dIvoire_GEE_rasters/`: full set of GEE raster .tif files
+  (Accessibility 2019, NDVI/EVI 2017–2018, AerosolOptical,
+  Atmospheric parameters, CCNL nightlights 2013, ESA WorldCereal 2021,
+  …). Sufficient to extract admin-2 aggregates that match the training
+  covariate vocabulary.
+- `_targets_full/objects/oos_gee_civ`: a previously-computed admin-2
+  GEE covariate table for Côte d'Ivoire (via the `oos_gee_civ` target
+  in `_targets.R`).
+- `_targets_full/objects/oos_admin2_predictions_civ`: existing admin-2
+  prediction set (from `run_oos_prediction`).
+- `dashboard/data/oos_cote_divoire.rds`: dashboard-ready cleaned version
+  (425 KB; loaded by the existing CIV panel in the Shiny app).
+
+The existing CIV OOS pipeline already does *what the user asks for* at
+the admin-2 spatial resolution — it just needs to be extended with
+benchmark comparator predictions and external validation.
+
+## External validation data: BRINDA + VMNIS
+
+### National-level BRINDA (`national_prediction/data/clean_brinda_data.rds`)
+
+A list of country-level data.frames containing pooled BRINDA-adjusted
+deficiency prevalence by country × year × age stratum. Variables:
+
+- `prev_ferr` — iron-deficiency prevalence (low ferritin)
+- `prev_stfr` — iron-deficiency prevalence (high soluble transferrin
+  receptor)
+- `prev_rbp` — vitamin-A-deficiency prevalence (low retinol-binding
+  protein)
+- `prev_rol` — vitamin-A-deficiency prevalence (low serum retinol)
+- `prev_zinc` — zinc-deficiency prevalence (low plasma zinc)
+
+Resolution: **national, country × year**. *No subnational stratification.*
+
+### VMNIS (`data/VMNIS/VMNISIndicator_long_format.dta`)
+
+Long-format Stata file with WHO VMNIS deposits across nutrients and
+populations. Variables:
+
+- `Country`, `Beginyear`, `Endyear`
+- `Indicator` — e.g., "Retinol (plasma or serum)", "Zinc (plasma or
+  serum)", "Ferritin (serum)", "Vitamin B12", "Folate (serum or red
+  blood cell)", "Vitamin D"
+- `Population` — e.g., "Children aged 6-59 months", "Women aged 15-49
+  years"
+- `Representativeness` — **this is the key flag for subnational
+  coverage**. Common values:
+    - "National" — national-representative survey.
+    - "Sub-national" — admin-1 / region-level estimate.
+    - "Local" — single-site or district estimate.
+- `Mean` — mean biomarker value (for continuous reports).
+- `Prevalenceofdeficiency` — deficiency prevalence (in %).
+- `n` — sample size.
+
+**Resolution: VMNIS has both national AND subnational estimates**,
+though subnational rows have variable geographic granularity and
+country coverage. Specifically:
+
+- For most LMICs, national-level rows are well-populated for the
+  six nutrients of interest (retinol, zinc, ferritin, B12, folate,
+  vitamin D).
+- Subnational rows exist but are not consistently linked to admin-1
+  or admin-2 boundaries; they're typically described in free text
+  ("Eastern region", "rural Tamil Nadu"). Matching to GADM polygons
+  would require manual georeferencing — out of scope for the first
+  pass.
+
+A pragmatic conclusion: **for the v1 validation we should compare our
+LOCO admin-2 predictions, aggregated to the national level, against
+VMNIS and BRINDA national prevalence**. Subnational comparison is a
+v2 deliverable that requires data-cleanup effort.
+
+# Pipeline sketch
+
+## Stage A: pre-existing infrastructure (already in pipeline)
+
+```
+extract_gee_for_country("CIV", civ_raster_dir)   →  oos_gee_civ
+run_oos_prediction(area_transport_models, oos_gee_civ, ...)
+                                                  →  oos_admin2_predictions_civ
+```
+
+These targets already produce admin-2 deficiency predictions for Côte
+d'Ivoire using the area-level models trained on the four DHS countries.
+
+## Stage B: new validation targets to add
+
+### B1. Apply the *best parsimonious LOCO model* (elastic-net) per outcome
+
+Add to `_targets.R`:
+
+```r
+tar_target(
+  oos_civ_predictions_parsimonious,
+  predict_civ_from_parsimonious_loco(
+    pooled_data    = bind_pooled_loco(...),       # 4-country pooled
+    gee_civ        = oos_gee_civ,                 # CIV admin2 covariates
+    outcomes       = c("child_vitA","women_vitA","child_iron","women_iron"),
+    method         = "penalized",                  # elastic-net = best LOCO
+    alpha          = 0.5
+  )
+)
+```
+
+The function (new in `R/oos_prediction.R`):
+
+```r
+predict_civ_from_parsimonious_loco <- function(pooled_data, gee_civ,
+                                                outcomes, method, alpha) {
+  out <- list()
+  for (oc in outcomes) {
+    pooled <- build_area_loco_dataset(svy_list[[oc]], gee_list)
+    vars <- intersect(pooled$common_gee_vars, colnames(gee_civ))
+    # Train on all 4 training countries; predict on CIV admin-2.
+    fit <- glmnet::cv.glmnet(
+      x = as.matrix(pooled$pooled_data[, vars]),
+      y = pooled$pooled_data$svy_prev,
+      alpha = alpha, nfolds = 10)
+    pred <- as.numeric(predict(fit, newx = as.matrix(gee_civ[, vars]),
+                                s = fit$lambda.min))
+    out[[oc]] <- data.frame(
+      Admin2  = gee_civ$Admin2,
+      outcome = oc,
+      pred_prev = pmin(pmax(pred, 0), 1),
+      method = "elastic_net_loco")
+  }
+  bind_rows(out)
+}
+```
+
+### B2. Aggregate CIV admin-2 → national prevalence
+
+Population-weight to a single national estimate per outcome. Population
+weights come from `admin2_population.rds` (already in dashboard data)
+or recompute via WorldPop.
+
+```r
+tar_target(
+  oos_civ_national_estimates,
+  aggregate_admin2_to_national(
+    admin2_pred = oos_civ_predictions_parsimonious,
+    admin2_pop  = oos_civ_population
+  )
+)
+```
+
+### B3. Match against BRINDA & VMNIS records for CIV
+
+```r
+tar_target(
+  oos_civ_external_validation,
+  match_external_estimates(
+    pred_national    = oos_civ_national_estimates,
+    brinda_data      = brinda_clean,         # from national_prediction
+    vmnis_data       = vmnis_clean,
+    country          = "Cote d'Ivoire",
+    nutrient_map     = list(
+      child_vitA = c("Retinol (plasma or serum)", "Retinol-binding protein"),
+      women_vitA = c("Retinol (plasma or serum)", "Retinol-binding protein"),
+      child_iron = c("Ferritin (serum)", "Soluble transferrin receptor"),
+      women_iron = c("Ferritin (serum)", "Soluble transferrin receptor")
+    )
+  )
+)
+```
+
+Output: data.frame with one row per (outcome × source × year) of:
+
+| field | meaning |
+|---|---|
+| outcome | DHS biomarker tag |
+| source | "BRINDA" or "VMNIS" |
+| year | survey year |
+| pred_prev | model-predicted national prevalence |
+| obs_prev | externally-reported national prevalence |
+| abs_diff_pp | |pred − obs| in pp |
+
+### B4. Extend to multiple LMICs
+
+Loop the above over every country present in both BRINDA/VMNIS AND
+with GEE rasters available (or computable from the GADM-level boundaries
+already in `data/admin_boundaries/`). The same Stage B logic applies;
+the only required addition is automating GEE raster extraction for new
+countries (see `R/external_data.R::extract_gee_for_country`).
+
+A reasonable v1 country list (with BRINDA / VMNIS deposits and GADM
+boundaries): Côte d'Ivoire, Burkina Faso, Senegal, Nigeria, Mali, Niger,
+Liberia, Mozambique, Tanzania, Uganda, Kenya.
+
+### B5. Surface in the dashboard
+
+Add a new tab to `dashboard/app.R`:
+
+- Table: predicted vs observed national prevalence by country / outcome
+  / source.
+- Bias / RMSE per nutrient (one row per nutrient, columns = sources).
+- Calibration scatter: predicted vs observed, with x = y reference.
+
+This gives the reader a single panel showing transportability against
+*real external biomarker data* rather than only internal LOCO holdouts.
+
+# Feasibility for Côte d'Ivoire specifically
+
+**Yes — Côte d'Ivoire is fully feasible from data already in the repo:**
+
+| Need | Status |
+|---|---|
+| Admin-2 GEE rasters | ✅ `data/Cote_dIvoire_GEE_rasters/*.tif` |
+| Admin-2 polygons (GADM) | ✅ available via `geodata::gadm("CIV", level=2)` (cached in `data/gadm`) |
+| Existing OOS admin-2 predictions | ✅ `oos_admin2_predictions_civ` already computed |
+| External validation (BRINDA) | ✅ `prev_ferr`, `prev_rbp`, `prev_zinc` available for CIV in BRINDA pooled analyses |
+| External validation (VMNIS) | ✅ multiple national-level retinol, ferritin, B12, folate deposits for CIV |
+| Population weights for admin-2 aggregation | ⚠️ need to either compute from WorldPop or use the `gee_admin2_civ$Worldpop_*` columns if present |
+
+The only missing piece is the **B1 + B3 functions** above, which are
+each ~30–80 lines of R. Estimated effort: half a day.
+
+# Subnational BRINDA/VMNIS — current limitations
+
+- **BRINDA** does not publish subnational stratification for most
+  countries; pooled BRINDA analyses are national. Subnational BRINDA
+  comparison would require contacting the BRINDA consortium for raw
+  data.
+- **VMNIS** has subnational records (`Representativeness == "Sub-national"`)
+  but inconsistent geographic linkage. A v2 deliverable would build a
+  manual crosswalk from VMNIS region names to GADM admin-1 polygons
+  for a subset of high-coverage countries (Nigeria, India, Bangladesh,
+  Tanzania).
+
+# Recommended sequencing
+
+1. **v0 (today):** confirm pipeline plumbing works; add the elastic-net
+   LOCO + CIV national-prediction target. Surface in dashboard.
+2. **v1 (this week):** extend to ~10 LMICs with BRINDA/VMNIS national
+   coverage. Publish comparison table.
+3. **v2 (next iteration):** crosswalk VMNIS subnational to GADM admin-1
+   for a high-coverage subset. Compute admin-1 RMSE for transportability
+   of the area-level model to a separate continent.
+
+# Next concrete steps
+
+If the user wants to proceed with v0:
+
+```r
+# Add to R/oos_prediction.R:
+predict_civ_from_parsimonious_loco <- function(...)  # B1 above
+aggregate_admin2_to_national       <- function(...)  # B2 above
+match_external_estimates           <- function(...)  # B3 above
+
+# Add to _targets.R:
+tar_target(oos_civ_predictions_parsimonious, …)
+tar_target(oos_civ_national_estimates,      …)
+tar_target(oos_civ_external_validation,     …)
+```
+
+I can implement these in a focused follow-up if the user confirms the
+nutrient mapping in B3 is correct for their preferences.
