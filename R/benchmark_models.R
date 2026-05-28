@@ -985,6 +985,148 @@ fit_predict_betareg <- function(train, test, vars,
 }
 
 
+# ── METHOD 15: Domain-invariance filter (H5 from sandbox) ───────────────────
+# Pre-screen covariates by within-country variance ratio: keep variables
+# whose variation happens MOSTLY within each country rather than between
+# them. Variables with high between/within ratio are mostly encoding
+# country fixed effects and don't transport (the held-out country has no
+# observed country effect).
+#
+# This is the strongest single-filter method tested in sandbox/
+# (mean LOCO Pearson r = 0.195 at min_within_ratio = 0.70, top_k = 8).
+# Recipe is parsimonious, fits in seconds, and the selection criterion
+# is interpretable.
+#
+# Reference: sandbox/06_domain_adversarial.R / sandbox/findings_log.md §H5
+.country_variance_decomp <- function(train, vars) {
+  out <- vapply(vars, function(v) {
+    x <- train[[v]]; ctry <- train$country
+    grand_var <- stats::var(x, na.rm = TRUE)
+    if (!is.finite(grand_var) || grand_var == 0) return(0)
+    ctry_means <- tapply(x, ctry, mean, na.rm = TRUE)
+    x_centered <- x - ctry_means[ctry]
+    within_var <- stats::var(x_centered, na.rm = TRUE)
+    within_var / grand_var
+  }, numeric(1))
+  data.frame(variable = vars, within_ratio = out, stringsAsFactors = FALSE)
+}
+
+fit_predict_invariance_filter <- function(train, test, vars,
+                                             model_type = c("continuous", "logit"),
+                                             min_within_ratio = 0.7,
+                                             top_k = 8L) {
+  model_type <- match.arg(model_type)
+  vars <- vars[vars %in% colnames(train)]
+  if (length(vars) < 2) return(NULL)
+  scores <- .country_variance_decomp(train, vars)
+  keep <- scores[scores$within_ratio >= min_within_ratio, , drop = FALSE]
+  if (nrow(keep) < 2) keep <- scores  # fall back to full ranking
+  imp_pre <- .impute_train_test(train, test, keep$variable)
+  keep$abs_r <- vapply(keep$variable, function(v)
+    suppressWarnings(abs(cor(imp_pre$train[[v]], train$svy_prev,
+                                use = "pairwise"))), numeric(1))
+  selected <- head(keep[order(-keep$abs_r), ]$variable, top_k)
+  if (length(selected) < 2) return(NULL)
+  imp <- .impute_train_test(train, test, selected)
+  Y   <- if (model_type == "logit") .safe_logit(train$svy_prev) else train$svy_prev
+  wt  <- pmax(train$n_svy %||% rep(1, nrow(imp$train)), 1)
+  Xtr <- as.matrix(imp$train); Xte <- as.matrix(imp$test)
+  fit <- tryCatch(glmnet::cv.glmnet(Xtr, Y, alpha = 0.5,
+                                        nfolds = min(nrow(Xtr), 10L),
+                                        weights = wt),
+                   error = function(e) NULL)
+  if (is.null(fit)) return(NULL)
+  pred_te_link <- as.numeric(stats::predict(fit, newx = Xte, s = "lambda.min"))
+  pred_tr_link <- as.numeric(stats::predict(fit, newx = Xtr, s = "lambda.min"))
+  if (model_type == "logit") {
+    pred_te <- .safe_invlogit(pred_te_link); pred_tr <- .safe_invlogit(pred_tr_link)
+  } else {
+    pred_te <- pred_te_link; pred_tr <- pred_tr_link
+  }
+  list(pred = .bound01(pred_te), train_pred = .bound01(pred_tr),
+       method_note = sprintf("invariance filter (%d/%d vars, w>=%.2f)",
+                              length(selected), length(vars), min_within_ratio),
+       selected_vars = selected)
+}
+
+
+# ── METHOD 16: Combined invariance + multi-outcome-shared filter ─────────────
+# Two-filter promotion of the winning H6 from sandbox/. Combines the
+# within-country invariance filter (H5) with the outcome-shared filter
+# (H4) via a composite score:
+#
+#   score(v) = within_ratio(v) * mean_abs_r_across_outcomes(v)
+#
+# Requires the OTHER outcomes' pooled data (so it can compute shared signal)
+# — pass via `cross_outcome_pooled = list(<outcome_tag> = pooled_data, ...)`.
+# Falls back to fit_predict_invariance_filter (H5) when cross-outcome data
+# isn't supplied — i.e., this is a strict superset of method 15.
+#
+# Best sandbox config: min_within_ratio = 0.70, top_k = 12 ->
+# mean LOCO Pearson r = 0.224 (sandbox/07_combined_winners.R).
+#
+# Reference: sandbox/07_combined_winners.R / sandbox/findings_log.md §H6
+fit_predict_combined_filter <- function(train, test, vars,
+                                          cross_outcome_pooled = NULL,
+                                          this_outcome = NA_character_,
+                                          model_type = "continuous",
+                                          min_within_ratio = 0.70,
+                                          top_k = 12L) {
+  # Fall back to pure invariance filter if no cross-outcome data given.
+  if (is.null(cross_outcome_pooled) || length(cross_outcome_pooled) < 2) {
+    return(fit_predict_invariance_filter(train, test, vars,
+                                            model_type = model_type,
+                                            min_within_ratio = min_within_ratio,
+                                            top_k = top_k))
+  }
+  vars <- vars[vars %in% colnames(train)]
+  if (length(vars) < 2) return(NULL)
+  # Filter 1: within-country variance ratio on this outcome's training data.
+  inv_scores <- .country_variance_decomp(train, vars)
+  pass <- inv_scores[inv_scores$within_ratio >= min_within_ratio, , drop = FALSE]
+  if (nrow(pass) < 2) pass <- inv_scores
+  candidate_vars <- pass$variable
+  # Filter 2: mean absolute correlation with svy_prev across ALL outcomes
+  # (computed on the same set of training countries as this fold).
+  training_countries <- setdiff(unique(train$country), unique(test$country))
+  cor_mat <- vapply(names(cross_outcome_pooled), function(oc) {
+    pd <- cross_outcome_pooled[[oc]]
+    if (is.null(pd) || nrow(pd) == 0) return(rep(NA_real_, length(candidate_vars)))
+    tr_oc <- pd[pd$country %in% training_countries, , drop = FALSE]
+    vapply(candidate_vars, function(v) {
+      if (!v %in% colnames(tr_oc)) return(NA_real_)
+      suppressWarnings(abs(cor(tr_oc[[v]], tr_oc$svy_prev, use = "pairwise")))
+    }, numeric(1))
+  }, numeric(length(candidate_vars)))
+  if (!is.matrix(cor_mat)) cor_mat <- matrix(cor_mat, ncol = 1)
+  mean_abs_r <- rowMeans(cor_mat, na.rm = TRUE)
+  composite  <- pass$within_ratio * mean_abs_r
+  selected_idx <- order(-composite)[seq_len(min(top_k, length(composite)))]
+  selected <- candidate_vars[selected_idx]
+  if (length(selected) < 2) return(NULL)
+  # Final fit: weighted elastic net.
+  imp <- .impute_train_test(train, test, selected)
+  Y   <- if (model_type == "logit") .safe_logit(train$svy_prev) else train$svy_prev
+  wt  <- pmax(train$n_svy %||% rep(1, nrow(imp$train)), 1)
+  Xtr <- as.matrix(imp$train); Xte <- as.matrix(imp$test)
+  fit <- tryCatch(glmnet::cv.glmnet(Xtr, Y, alpha = 0.5,
+                                        nfolds = min(nrow(Xtr), 10L),
+                                        weights = wt),
+                   error = function(e) NULL)
+  if (is.null(fit)) return(NULL)
+  pred_te <- as.numeric(stats::predict(fit, newx = Xte, s = "lambda.min"))
+  pred_tr <- as.numeric(stats::predict(fit, newx = Xtr, s = "lambda.min"))
+  if (model_type == "logit") {
+    pred_te <- .safe_invlogit(pred_te); pred_tr <- .safe_invlogit(pred_tr)
+  }
+  list(pred = .bound01(pred_te), train_pred = .bound01(pred_tr),
+       method_note = sprintf(
+         "combined filter (n_outcomes=%d, w>=%.2f, top_k=%d)",
+         length(cross_outcome_pooled), min_within_ratio, top_k),
+       selected_vars = selected)
+}
+
+
 # ── TODO(pc-hal): future benchmark method — PC-HAL from UC Berkeley ──────────
 # Watch for a stable release of PC-HAL (principal-components highly
 # adaptive lasso) from Mark van der Laan's group at UC Berkeley. The
@@ -1247,15 +1389,19 @@ bootstrap_loco_ci <- function(pooled_data, gee_vars, country_names,
     if (length(vars) == 0) next
 
     fit_pred <- switch(method,
-      baseline    = fit_predict_baseline,
-      glm         = fit_predict_glm,
-      penalized   = fit_predict_penalized,
-      mixed       = fit_predict_mixed,
-      gam         = fit_predict_gam,
-      two_stage   = fit_predict_two_stage,
-      forward     = fit_predict_forward_loco,
-      grouplasso  = fit_predict_grouplasso,
-      stacked     = fit_predict_stacked,
+      baseline          = fit_predict_baseline,
+      glm               = fit_predict_glm,
+      penalized         = fit_predict_penalized,
+      mixed             = fit_predict_mixed,
+      gam               = fit_predict_gam,
+      two_stage         = fit_predict_two_stage,
+      forward           = fit_predict_forward_loco,
+      grouplasso        = fit_predict_grouplasso,
+      stacked           = fit_predict_stacked,
+      quasibinomial     = fit_predict_quasibinomial,
+      invariance_filter = fit_predict_invariance_filter,
+      combined_filter   = function(train, test, vars, ...)
+                            fit_predict_invariance_filter(train, test, vars),
       stop("unknown method"))
     out <- tryCatch(fit_pred(train, test, vars), error = function(e) NULL)
     if (is.null(out) || is.null(out$pred)) next
@@ -1496,9 +1642,12 @@ run_area_benchmarks_loco <- function(pooled_data, gee_vars, country_names,
                                                    "forward", "gam",
                                                    "grouplasso", "stacked",
                                                    "quasibinomial", "quantile",
-                                                   "betareg", "dag"),
+                                                   "betareg", "dag",
+                                                   "invariance_filter",
+                                                   "combined_filter"),
                                        model_types = c("continuous", "logit"),
-                                       augment_features = TRUE) {
+                                       augment_features = TRUE,
+                                       cross_outcome_pooled = NULL) {
   # Optional outcome-aware feature augmentation: adds biologically-motivated
   # interaction terms BEFORE the LOCO loop, so every method sees the same
   # augmented feature set and the new features go through the same
@@ -1521,7 +1670,7 @@ run_area_benchmarks_loco <- function(pooled_data, gee_vars, country_names,
     for (m in methods) {
       mts <- if (m %in% c("baseline", "fh", "bym2", "two_stage",
                             "grouplasso", "stacked", "quasibinomial",
-                            "betareg", "dag"))
+                            "betareg", "dag", "combined_filter"))
               "continuous" else model_types
       for (mt in mts) {
         out <- tryCatch(switch(m,
@@ -1546,7 +1695,12 @@ run_area_benchmarks_loco <- function(pooled_data, gee_vars, country_names,
           betareg       = fit_predict_betareg     (train, test, vars),
           dag           = fit_predict_dag         (train, test, vars,
                                                      outcome_tag = outcome_label,
-                                                     model_type = mt)
+                                                     model_type = mt),
+          invariance_filter = fit_predict_invariance_filter(train, test, vars,
+                                                              model_type = mt),
+          combined_filter   = fit_predict_combined_filter  (train, test, vars,
+                                                              cross_outcome_pooled = cross_outcome_pooled,
+                                                              this_outcome = outcome_label)
         ), error = function(e) {
           cat(sprintf("    [%s/%s] %s failed: %s\n",
                       held_out, mt, m, conditionMessage(e)))

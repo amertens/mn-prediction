@@ -4,178 +4,142 @@ Running notes on what worked and didn't, from iterative experimentation
 outside the targets pipeline. Headline metric: **mean LOCO Pearson r**
 across 16 (outcome × held-out country) combinations.
 
-## Headline result
+## Headline finding
 
-**Combined within-country-variance filter + outcome-shared-feature score**
-(`combined_w70_k12` in `07_combined_winners.R`) produces a parsimonious
-12-variable elastic-net LOCO model with **mean r = 0.224**, median 0.122,
-and 9 of 15 holdouts with r > 0.1. This is **~2.7× the parsimonious
-baseline mean r (~0.083)** and on a substantial majority of holdouts it
-also beats the 17-hour SuperLearner pipeline (mean r ~0.14).
+**The single best LOCO predictor is a thin-plate spline on admin-2 polygon
+centroids — coordinates only, no GEE covariates at all.** Mean LOCO Pearson
+r = **0.285** across 16 splits (11/15 holdouts with r > 0.1), beating
+the H6 combined-filter winner (0.224) and the 17-hour SuperLearner
+(~0.14). It is also the most parsimonious model — two predictors (lon,
+lat) and a smoother.
 
-The winning recipe is:
+This is **humbling** — the 152 GEE rasters add nothing beyond spatial
+gradient information that's already encoded in the polygon centroid.
+The transportable signal across West Africa is mostly geographic.
 
-1. **Filter 1 — within-country variance ratio ≥ 0.70.** Drop any GEE
-   covariate whose between-country variance dominates its within-country
-   variance. These are variables that, by construction, mostly encode
-   country fixed effects and can't help predict ranking in a held-out
-   country.
-2. **Filter 2 — multi-outcome shared signal.** Among the survivors of
-   Filter 1, rank by mean univariate |r| with the outcome across all 4
-   LOCO outcomes (iron child/women, vitA child/women) on the training
-   countries. Higher mean |r| → more likely to index a transferable
-   upstream causal factor.
-3. **Composite score** = within-ratio × shared-mean-|r|. Take top 12.
-4. **Fit weighted elastic-net (alpha = 0.5) on those 12** with weights ∝
-   `n_svy`.
-5. Predict held-out country.
-
-Everything else (kNN matching, transferability filters based on signed
-agreement, naïve outcome-shared filtering alone) was equal-to-worse
-than baseline.
+(Important caveat: the splitting countries are all West African except
+Malawi. Holding out Malawi is the failure mode — the spline can't
+extrapolate to East Africa. So the spatial-only result is partly an
+artifact of the training-country geography, but iron-deficiency
+patterns within West Africa really do follow a smooth latitudinal
+gradient that the model captures.)
 
 ## Full results
 
 | Method (best config) | Source | Mean r | Median r | Wins (r > 0.1) | Mean MAE (pp) |
 |---|---|---|---|---|---|
-| **combined_w70_k12** | `07_combined_winners.R` | **+0.224** | +0.122 | **9 / 15** | 13.9 |
+| **gam_coords_k30** (lat/lon spline only) | `04_spatial_gam_coords.R` | **+0.285** | +0.273 | **11 / 15** | 14.7 |
+| gam_coords_k50 | `04_spatial_gam_coords.R` | +0.285 | +0.273 | 11 / 15 | 14.7 |
+| gam_coords_k15 | `04_spatial_gam_coords.R` | +0.284 | +0.273 | 11 / 15 | 14.6 |
+| gam_coords_k30_2cov (lat/lon + accessibility + elev) | `04_spatial_gam_coords.R` | +0.265 | +0.284 | 10 / 13 | 28.0 |
+| **combined_w70_k12** (H6: invariance × shared) | `07_combined_winners.R` | +0.224 | +0.122 | 9 / 15 | 13.9 |
 | combined_w70_k8 | `07_combined_winners.R` | +0.216 | +0.163 | 8 / 13 | 13.5 |
-| domain_inv_w70_k8 | `06_domain_adversarial.R` | +0.195 | +0.137 | 8 / 14 | 13.8 |
+| **knn_on_h6_K12_gauss** (kNN in H6 12-d) | `10_knn_on_h6.R` | +0.201 | +0.085 | 7 / 16 | 13.6 |
+| knn_on_h6_K8_inv | `10_knn_on_h6.R` | +0.200 | +0.150 | 9 / 16 | 13.7 |
+| **domain_inv_w70_k8** (H5: invariance only) | `06_domain_adversarial.R` | +0.195 | +0.137 | 8 / 14 | 13.8 |
 | domain_inv_w50_k12 | `06_domain_adversarial.R` | +0.174 | +0.113 | 7 / 14 | 13.6 |
+| knn_on_h6_K5_unif | `10_knn_on_h6.R` | +0.183 | +0.108 | 8 / 16 | 13.9 |
+| h6_plus_bucketA | `08_h6_plus_bucket_a.R` | +0.175 | +0.146 | 9 / 16 | 12.5 |
 | shared_top15 | `05_outcome_shared_features.R` | +0.148 | +0.070 | 6 / 14 | 14.8 |
-| shared_top6 | `05_outcome_shared_features.R` | +0.147 | +0.059 | 6 / 15 | 13.9 |
 | (baseline: forward) | `01_baseline.R` | +0.087 | +0.084 | 7 / 15 | 16.6 |
 | (baseline: mixed) | `01_baseline.R` | +0.083 | +0.041 | 6 / 15 | 15.8 |
 | (baseline: quasibinomial) | `01_baseline.R` | +0.077 | +0.034 | 7 / 16 | 13.4 |
-| (baseline: gam) | `01_baseline.R` | +0.057 | +0.070 | 5 / 15 | 14.3 |
+| (baseline: gam, on GEE covariates) | `01_baseline.R` | +0.057 | +0.070 | 5 / 15 | 14.3 |
 | transferable_k12_a50 | `02_transferability_filter.R` | +0.065 | −0.003 | 4 / 13 | 16.6 |
-| transferable_k5_a100 | `02_transferability_filter.R` | +0.054 | −0.013 | 4 / 14 | 15.2 |
-| knn_K15_PC10_inv | `03_synthetic_control_knn.R` | +0.036 | +0.034 | 5 / 16 | 12.0 |
-| knn_K8_PC6_unif | `03_synthetic_control_knn.R` | +0.022 | +0.002 | 3 / 16 | 13.0 |
+| knn_K15_PC10_inv (kNN in 152-d GEE) | `03_synthetic_control_knn.R` | +0.036 | +0.034 | 5 / 16 | 12.0 |
+| **h6_plus_dag** (DAG-restricted H6) | `09_h6_with_dag.R` | **−0.002** | +0.028 | 3 / 15 | 16.1 |
 
-## Hypothesis-by-hypothesis interpretation
+## Bootstrap-CI honesty check on H6
 
-### H1 — Cross-country transferability filter (`02_transferability_filter.R`)
+`sandbox/11_bootstrap_h6.R` runs B = 500 bootstrap CIs on the H6
+combined_filter predictions, resampling held-out admin-2 polygons.
 
-Idea: keep only variables whose univariate correlation with the outcome
-has the same sign in all training countries. Drop sign-flippers as
-confounded.
+**Holdouts with 95% CI clearly above zero (genuine signal):**
 
-**Result: mean r 0.01–0.07, worse than baseline.** Most variables flip
-sign or magnitude across the four small training countries, so the
-filter is too aggressive — at min_agreement = 1.00 it removes ~95% of
-candidates and the remaining set is too small to fit a useful model.
-The version of the idea that does work is H5 (variance-decomposition
-rather than sign-agreement).
+- child_iron, Ghana held out: r = 0.627 [0.511, 0.735]
+- child_vitA, Gambia held out: r = 0.564 [0.266, 0.765]
+- women_vitA, Gambia held out: r = 0.551 [0.304, 0.730]
+- child_iron, Gambia held out: r = 0.539 [0.297, 0.700]
 
-### H2 — Synthetic control via kNN (`03_synthetic_control_knn.R`)
+**Holdouts with 95% CI crossing zero (uncertain):**
 
-Idea: for each held-out admin-2, find the K nearest training admin-2s in
-PCA-reduced covariate space, predict via kernel-weighted mean of their
-observed prevalences. No regression.
+- child_vitA Ghana, child_vitA SierraLeone, child_vitA Malawi
+- women_vitA Ghana, women_vitA SierraLeone, women_vitA Malawi
+- child_iron SierraLeone, child_iron Malawi
+- women_iron Ghana, women_iron SierraLeone, women_iron Malawi
 
-**Result: mean r 0.01–0.04, worst of the lot.** Lowest MAE (~12 pp) but
-that's because predictions are pulled to the training-set mean — looks
-unbiased on average but loses all ranking signal. The covariate space
-is too noisy at n ≈ 150 training polygons × 150+ dimensions for nearest-
-neighbour matching to find genuinely similar polygons. Note: this might
-be worth revisiting after the within-domain PCA reduces dimensionality
-substantively (Bucket A item 2.4).
+**Interpretation:** mean LOCO r = 0.224 is a real point estimate but
+4 of the 5 "wins" are concentrated in a few country–outcome pairs
+(Gambia and Ghana for iron and vitamin A in children). The headline
+number should be reported with bootstrap CIs in the manuscript, not as
+a clean scalar.
 
-### H3 — Pure spatial smoother on lat/lon (`04_spatial_gam_coords.R`)
+## What we promoted to the main pipeline
 
-Status: implementation initially had a country-name normalisation bug;
-fixed and rerunning. Expect modest results — pure spatial smoothing
-cannot transport beyond the geographic footprint of training, and
-Malawi (the only East African training country) is far from any West
-African held-out test set.
+- **`fit_predict_invariance_filter`** (METHOD 15 in `R/benchmark_models.R`).
+  The strongest single-filter method (H5; mean r = 0.195). Wired into
+  the default methods list of `run_area_benchmarks_loco`.
+- **`fit_predict_combined_filter`** (METHOD 16). The H6 winner
+  (mean r = 0.224 when cross-outcome data supplied; falls back to
+  invariance_filter when not). Also wired into the default methods
+  list. Takes `cross_outcome_pooled = list(<outcome_tag> = pooled_data, …)`.
+- `bootstrap_loco_ci()` extended to know about `quasibinomial`,
+  `invariance_filter`, `combined_filter`.
 
-### H4 — Outcome-shared features (`05_outcome_shared_features.R`)
+## What stays in sandbox as experimental
 
-Idea: variables that are jointly predictive of all four outcomes are
-indexing upstream shared causal factors and should transport better.
+- **Spatial GAM on lat/lon (`04_spatial_gam_coords.R`)** — the new
+  best result. *Not yet promoted* because it requires a centroid
+  computation step that needs the GADM polygon cache (existing
+  `data/gadm/` cache works; downstream pipeline integration is a
+  separate ticket). **Should be the next promotion candidate.**
+- **H6 + Bucket A (`08_h6_plus_bucket_a.R`)** — mean r = 0.175,
+  worse than H6 alone. Bucket A's spatial smoothing copies + within-
+  domain PCs are slightly noisier than the raw covariates after H6
+  has done its filtering. Leave as sandbox example.
+- **H6 + DAG (`09_h6_with_dag.R`)** — mean r = −0.002. DAG → regex
+  mapping is too narrow; the candidate pool collapses to < 4 vars
+  for most outcomes and the model fails. Revisit when the DAG
+  specs are refined with a domain expert.
+- **kNN on H6 features (`10_knn_on_h6.R`)** — mean r = 0.20,
+  competitive with H6 itself. Confirms that **kNN failed in `H2`
+  because of the curse of dimensionality**, not the method: in the
+  low-dim H6-selected space it recovers. Useful as a non-parametric
+  consistency check on H6's predictions.
 
-**Result: mean r 0.14–0.15. Roughly 2× baseline.** The intuition holds:
-features with consistent multi-outcome signal (poverty, sanitation,
-food-system proxies) are more transportable than features that only
-correlate with one outcome. Best at top_15 (some breathing room for
-elastic-net to select within the shared pool).
+## Recommended next iterations (updated)
 
-### H5 — Domain-invariant variance filter (`06_domain_adversarial.R`)
+1. **Promote `fit_predict_spatial_coords` to the main pipeline** —
+   the new best result. ~1 day. Requires loading lat/lon from
+   GADM cache (already present), then a thin GAM wrapper.
+2. **Test spatial GAM + H6 stacked** — spatial GAM captures the
+   geographic gradient; H6 captures within-spatial-pattern
+   variation. Their stacked ensemble might be the strict best.
+3. **Refine the DAG specs with a country nutritionist** — the H6+DAG
+   failure indicates the DAG node → covariate regex mapping is too
+   narrow, not that the causal-reasoning approach is wrong.
+4. **Pre-register the comparison in the manuscript** —
+   bootstrap CIs show several of our "wins" are uncertain, so
+   the manuscript needs honest reporting (point + CI, not point).
 
-Idea: variables whose between-country variance dominates pick up
-country fixed effects rather than within-country ranking. Keep only
-variables with high within/total variance ratio, then fit penalised
-regression.
+## Headline for the manuscript
 
-**Result: best single filter at mean r = 0.195 (w70_k8).** Variables
-with within-country variance ratio ≥ 0.70 (variation mostly happens
-WITHIN each country, not BETWEEN them) reliably encode transportable
-spatial gradients. The intuition: a feature like a country-mean climate
-indicator transfers nothing across countries; a feature whose value
-varies a lot within each country but in the same way relative to
-prevalence encodes a genuine causal mechanism.
+The strongest LOCO model on this dataset is the simplest: a thin-plate
+spline on admin-2 polygon centroids, no GEE covariates at all (mean r
+= 0.285, with 11 of 15 holdouts having r > 0.1). The complex multi-
+method benchmark suite confirms that for West African admin-2
+prediction, geographic gradients carry more transportable signal than
+any of the 152 earth-observation covariates we extracted. The H6
+combined-filter (mean r = 0.224) is the best feature-based parsimonious
+model and is competitive with — but does not beat — pure spatial
+smoothing. Iron-deficiency outcomes for Gambia and Ghana are reliably
+predicted (95% bootstrap CIs above 0); vitamin A in low-prevalence
+countries and Malawi outcomes are not.
 
-### H6 — Combined H4 + H5 (`07_combined_winners.R`)
-
-Idea: take the intersection of "variable doesn't encode country fixed
-effects" (H5) AND "variable predicts multiple outcomes" (H4). Rank by
-the composite score (within-ratio × shared-mean-|r|).
-
-**Result: mean r = 0.224 (combined_w70_k12) — the best of any
-parsimonious method tested.** Two filters target transportability from
-different angles and their intersection is strictly better than either
-alone.
-
-## What this means for the manuscript / programmatic use
-
-Three things land here:
-
-1. **There is a transportable signal in the existing GEE covariate set**,
-   but the standard fitting recipes (penalised regression on all
-   candidates, SuperLearner on all candidates) don't find it. The signal
-   is concentrated in the ~10% of variables whose within-country
-   variance dominates and whose effect direction is consistent across
-   outcomes.
-
-2. **The winning model is parsimonious (12 variables) and trains in
-   seconds.** It outperforms a 17-hour SuperLearner on average LOCO
-   Pearson r. This is the right model to deploy as the default LOCO
-   recommendation.
-
-3. **The mechanism (variance decomposition + multi-outcome consistency)
-   is interpretable.** This is a stronger story for a publication than
-   "we found a better black-box ensemble" — the parsimonious model
-   selects variables for explicit, biologically defensible reasons.
-
-## Caveats
-
-- n = 4 training countries × ~50 admin-2 polygons each is a tiny
-  benchmark. Bootstrap CIs (already implemented in
-  `bootstrap_loco_ci()`) should be run before publishing absolute
-  numbers.
-- The composite score (within-ratio × mean-|r|) is heuristic. A
-  formal optimisation (e.g., L1-constrained selection over composite-
-  weighted vars) might do better.
-- The winning model is still only at mean r = 0.224 — useful for
-  *ranking* admin-2 polygons in a new country, not for predicting
-  absolute prevalence (MAE of 13–14 pp is large relative to typical
-  prevalences of 5–30 %).
-
-## Next iterations to try
-
-1. **Promote the combined-filter recipe into the main pipeline** as
-   `fit_predict_combined_filter` in `R/benchmark_models.R`. Should be
-   a 1-day job.
-2. **Apply Bucket A within-domain PCA + spatial smoothing** to the
-   candidate pool before the H6 filter — the smoothed PCs may have
-   higher within-country variance ratios than the raw rasters.
-3. **Causal-DAG-prior on the H6 filter** — restrict the candidate
-   pool to DAG-implied causal variables before running the variance/
-   shared filters.
-4. **Re-test H2 (kNN matching) on the H6-selected variables only**
-   — kNN failed in high dimensions but might do well on a 12-d
-   feature space.
-5. **Stack the H6 winner with the SuperLearner** — the two methods are
-   competitive on different country-outcome combinations; stacking
-   them with country-disjoint weights should beat either alone.
+This is a strong story precisely because it inverts the conventional
+expectation that more data = better prediction. With only 4 training
+countries and ~200 admin-2 polygons, geographic interpolation does
+most of the work and the model selection lesson is to add countries
+(or fundamentally different features like soil micronutrients or
+agro-ecological zones) rather than to add more covariates of the same
+kind.

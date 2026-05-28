@@ -1,0 +1,17 @@
+method,outcome,held_out,n_train,n_test,pearson_r,spearman_r,mae_pp,rmse_pp,mean_bias_pp
+h6_plus_dag,child_vitA,Gambia,176,30,0.147,-0.186,10.05,12.73,-1.42
+h6_plus_dag,child_vitA,Ghana,131,75,0.325,0.309,10.99,13.39,2.01
+h6_plus_dag,child_vitA,SierraLeone,192,14,-0.233,-0.059,7.64,9.82,4.82
+h6_plus_dag,child_vitA,Malawi,119,87,0.065,0.046,17.21,21.79,-14.74
+h6_plus_dag,women_vitA,Gambia,176,30,NA,NA,3.92,6.07,-2.29
+h6_plus_dag,women_vitA,Ghana,131,75,0.025,-0.045,2.77,3.58,0.82
+h6_plus_dag,women_vitA,SierraLeone,192,14,0.083,-0.137,1.73,2.06,0.76
+h6_plus_dag,women_vitA,Malawi,119,87,0.028,-0.032,3.82,5.64,-0.19
+h6_plus_dag,child_iron,Gambia,176,30,0.201,0.222,44.06,47.2,-44.06
+h6_plus_dag,child_iron,Ghana,131,75,-0.059,-0.024,19.67,24.66,9.52
+h6_plus_dag,child_iron,SierraLeone,192,14,-0.338,-0.314,21.97,22.49,21.97
+h6_plus_dag,child_iron,Malawi,119,87,0.015,0.065,32.35,36.62,30.04
+h6_plus_dag,women_iron,Gambia,176,30,0.049,0.105,34.54,37.99,-34.54
+h6_plus_dag,women_iron,Ghana,131,75,0.006,0.063,15.6,17.74,12.24
+h6_plus_dag,women_iron,SierraLeone,192,14,-0.39,-0.288,9.7,11.23,8.05
+h6_plus_dag,women_iron,Malawi,119,87,0.042,0.098,21.92,26.46,16.06
