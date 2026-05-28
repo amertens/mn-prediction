@@ -90,10 +90,20 @@ permute_domain <- function(sl_fit_obj, domain_cols, domain_name,
       }
     }
 
-    # Predict on permuted data
+    # Predict on permuted data. Prefer mlr3superlearner's own predict when
+    # available: perm_df comes from train_data and already contains the CV
+    # group column (cluster_id), which mlr3 needs present. The wrapper's
+    # $predict in older fitted objects aligned newdata to covars only and
+    # stripped cluster_id, causing every call here to error with "undefined
+    # columns selected". Calling mlr3_fit directly sidesteps that closure.
     yhat_perm <- tryCatch({
-      perm_df <- data.frame(dt_perm)
-      p <- as.numeric(fit$predict(perm_df))
+      perm_df  <- data.frame(dt_perm)
+      mlr3_obj <- fit$mlr3_fit
+      p <- if (!is.null(mlr3_obj)) {
+        as.numeric(stats::predict(mlr3_obj, perm_df))
+      } else {
+        as.numeric(fit$predict(perm_df))
+      }
       # Detect degenerate predictions (all identical = predict failed silently)
       if (length(unique(round(p, 6))) <= 1) {
         cat(sprintf("    [permute] WARNING: degenerate predictions for %s rep %d (all %.4f)\n",

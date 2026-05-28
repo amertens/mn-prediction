@@ -575,6 +575,21 @@ mlr3_SL_clustered <- function(d, Xvars, outcome, population,
         stop("predict() expects a data.frame or sl3_Task")
       }
       # Ensure column alignment
+      # TODO(wrapper-cluster_id): aligning to `covars` strips the CV group
+      # column (cluster_id) that mlr3superlearner's predict needs present
+      # (it's recorded in mlr3_fit$x even though no learner uses it as a
+      # feature), so the primary path below errors with "undefined columns
+      # selected" and the fallback at `newdata[, sl_x]` also errors. Every
+      # current caller bypasses this by calling predict(fit$mlr3_fit, ...)
+      # directly (see R/domain_ablation.R, R/single_var_ablation.R,
+      # R/conceptual_ablation.R). Fix the wrapper properly the next time
+      # sl_fit_* needs to be invalidated for another reason:
+      #   needed <- union(covars, sl_x)
+      #   for (col in setdiff(needed, colnames(newdata))) newdata[[col]] <- 0
+      #   newdata <- newdata[, needed, drop = FALSE]
+      # and at the fallback selection (line ~597):
+      #   nd <- newdata[, intersect(covars, colnames(newdata)), drop = FALSE]
+      # Held off here to avoid forcing a costly refit of every SL model.
       for (col in setdiff(covars, colnames(newdata))) newdata[[col]] <- 0
       newdata <- newdata[, covars, drop = FALSE]
       newdata$Y <- 0  # dummy outcome for predict

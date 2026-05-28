@@ -260,8 +260,12 @@ run_conceptual_permutation <- function(sl_fit, outcome_data, oc,
     cat(sprintf("  Baseline: R2 = %.3f, MAE = %.4f\n", baseline_r2, baseline_mae))
   }
 
-  # Get task data as data.table, stripping haven labels to avoid arithmetic errors
-  task_data <- data.table::as.data.table(task$data)
+  # Get task data as data.table, stripping haven labels to avoid arithmetic
+  # errors. mlr3 wrapper objects have task = NULL but store the training
+  # frame on the fit object as `train_data`; fall back to it when task is
+  # absent so this function works for mlr3-fitted models too.
+  raw_task_data <- if (!is.null(task) && !is.null(task$data)) task$data else fit_obj$train_data
+  task_data <- data.table::as.data.table(raw_task_data)
   for (col in names(task_data)) {
     if (inherits(task_data[[col]], "haven_labelled")) {
       data.table::set(task_data, j = col, value = as.double(unclass(task_data[[col]])))
@@ -291,8 +295,17 @@ run_conceptual_permutation <- function(sl_fit, outcome_data, oc,
       # since the mlr3 wrapper doesn't support predict_fold.
       # The permutation baseline is also computed from resubstitution.
       yhat_perm <- tryCatch({
-        perm_df <- data.frame(shuffled_data)
-        as.numeric(sl_model$predict(perm_df))
+        perm_df  <- data.frame(shuffled_data)
+        # Prefer mlr3superlearner's predict when available — the wrapper's
+        # $predict strips cluster_id during alignment and then errors with
+        # "undefined columns selected". perm_df comes from train_data and
+        # already contains cluster_id, so the direct call works.
+        mlr3_obj <- sl_model$mlr3_fit
+        if (!is.null(mlr3_obj)) {
+          as.numeric(stats::predict(mlr3_obj, perm_df))
+        } else {
+          as.numeric(sl_model$predict(perm_df))
+        }
       }, error = function(e) NULL)
       if (is.null(yhat_perm) || length(yhat_perm) != length(Y)) next
 

@@ -67,8 +67,20 @@ run_single_var_ablation <- function(outcome_data, sl_fit, cc, oc,
     for (k in seq_len(n_perm)) {
       shuffled <- newdata
       shuffled[[v]] <- sample(shuffled[[v]])
+      # Prefer mlr3superlearner's own predict when available. Calling the
+      # generic predict() on the wrapper has no S3 method (silent failure),
+      # and the wrapper's $predict aligns newdata to covars only and strips
+      # the CV group column (cluster_id) that mlr3_fit$x expects — so it
+      # errors with "undefined columns selected". `shuffled` comes from
+      # fit_obj$train_data and already contains cluster_id, so we can call
+      # mlr3_fit directly.
       pred_perm <- tryCatch({
-        as.numeric(predict(fit_obj$sl_fit, shuffled))
+        mlr3_obj <- fit_obj$sl_fit$mlr3_fit
+        if (!is.null(mlr3_obj)) {
+          as.numeric(stats::predict(mlr3_obj, shuffled))
+        } else {
+          as.numeric(fit_obj$sl_fit$predict(shuffled))
+        }
       }, error = function(e) rep(NA_real_, nrow(shuffled)))
 
       if (all(is.na(pred_perm))) {

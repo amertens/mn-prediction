@@ -1,44 +1,71 @@
 "country","outcome","approach","n_admin2","mae_pp","rmse_pp","pearson_r","mean_bias_pp"
-"Gambia","child_vitA","Individual SL",30,4.24,5.79,0.914,0.66
-"Gambia","child_vitA","Area SL (MSE)",30,3.75,4.9,0.963,-0.13
-"Gambia","child_vitA","Area SL (NLL)",30,4.04,5.44,0.935,-2.35
-"Gambia","women_vitA","Individual SL",30,1.43,1.85,0.97,0.06
-"Gambia","women_vitA","Area SL (MSE)",30,0.16,0.21,1,0.01
-"Gambia","women_vitA","Area SL (NLL)",30,2.07,3.78,0.923,-1.79
-"Gambia","child_iron","Individual SL",30,3.24,4.7,0.974,0.07
-"Gambia","child_iron","Area SL (MSE)",30,5.33,6.85,0.962,0.06
-"Gambia","child_iron","Area SL (NLL)",30,5.1,6.54,0.955,-0.76
-"Gambia","women_iron","Individual SL",30,4.74,6.89,0.921,-0.18
-"Gambia","women_iron","Area SL (MSE)",30,7.19,9.39,0.812,0
-"Gambia","women_iron","Area SL (NLL)",30,7.03,9.22,0.818,-0.83
-"Ghana","child_vitA","Individual SL",75,7.53,9.86,0.728,0.99
-"Ghana","women_vitA","Individual SL",75,1.54,2.38,0.833,0.19
-"Ghana","child_iron","Individual SL",75,4.4,6.72,0.93,0.42
-"Ghana","women_iron","Individual SL",75,4.73,6.23,0.814,1.26
-"Ghana","women_folate","Individual SL",75,11.69,14.89,0.903,-0.25
-"Ghana","women_b12","Individual SL",75,6.3,9.43,0.875,-0.23
-"Sierra Leone","child_vitA","Individual SL",14,3.43,4.26,0.839,0.38
-"Sierra Leone","women_vitA","Individual SL",14,1.47,1.73,0.667,0.7
-"Sierra Leone","child_iron","Individual SL",14,1.62,2.13,0.895,0.25
-"Sierra Leone","women_folate","Individual SL",14,3.04,3.91,0.939,-0.91
-"Sierra Leone","women_b12","Individual SL",14,0.64,0.69,-0.312,0.1
-"Malawi","child_vitA","Individual SL",87,7.2,9.42,0.735,-0.07
-"Malawi","child_vitA","Area SL (MSE)",87,4.35,5.51,0.971,0.31
-"Malawi","child_vitA","Area SL (NLL)",87,8.91,12.49,0.492,-4.78
-"Malawi","women_vitA","Individual SL",87,2.45,3.81,0.847,-0.03
-"Malawi","women_vitA","Area SL (MSE)",87,3.72,5.24,0.44,0
-"Malawi","women_vitA","Area SL (NLL)",87,2.5,5.77,0.643,-2.1
-"Malawi","child_iron","Individual SL",87,6.21,8,0.735,-0.25
-"Malawi","child_iron","Area SL (MSE)",87,3.14,4.16,0.976,-0.02
-"Malawi","child_iron","Area SL (NLL)",87,5.36,8.46,0.897,-5.08
-"Malawi","women_iron","Individual SL",87,4.63,6.07,0.897,0.27
-"Malawi","women_iron","Area SL (MSE)",87,4.03,5.9,0.957,0.31
-"Malawi","women_iron","Area SL (NLL)",87,5.51,10.16,0.922,-5.21
+"Gambia","child_vitA","Individual SL",30,6.88,9.57,0.663,0.39
+"Gambia","child_vitA","Area SL (MSE)",30,3.84,5.05,0.957,-0.2
+"Gambia","child_vitA","Area SL (NLL)",30,3.68,5.23,0.943,-1.86
+"Gambia","women_vitA","Individual SL",30,3.46,4.92,0.531,-0.71
+"Gambia","women_vitA","Area SL (MSE)",30,1.45,2,0.944,0
+"Gambia","women_vitA","Area SL (NLL)",30,1.97,3.75,0.906,-1.75
+"Gambia","child_iron","Individual SL",30,20.84,23.95,0.617,-20.38
+"Gambia","child_iron","Area SL (MSE)",30,4.99,6.15,0.956,-0.11
+"Gambia","child_iron","Area SL (NLL)",30,4.89,6,0.951,0.96
+"Gambia","women_iron","Individual SL",30,18.04,21.98,0.649,-18.04
+"Gambia","women_iron","Area SL (MSE)",30,2.38,3.42,0.981,0
+"Gambia","women_iron","Area SL (NLL)",30,0.19,0.28,1,0.01
+"Ghana","child_vitA","Individual SL",75,10.54,13.43,0.292,1.02
+"Ghana","child_vitA","Area SL (MSE)",75,4.34,5.47,0.955,0.24
+"Ghana","child_vitA","Area SL (NLL)",75,6.29,8.99,0.884,-5.78
+"Ghana","women_vitA","Individual SL",75,2.28,3.59,-0.389,0.07
+"Ghana","women_vitA","Area SL (MSE)",75,2.11,3.39,0.399,0
+"Ghana","women_vitA","Area SL (NLL)",75,1.17,3.12,0.971,-0.91
+"Ghana","child_iron","Individual SL",75,10.01,13.04,0.714,0.89
+"Ghana","child_iron","Area SL (MSE)",75,4.57,6.11,0.96,0.23
+"Ghana","child_iron","Area SL (NLL)",75,5.69,7.59,0.939,-3.79
+"Ghana","women_iron","Individual SL",75,8.76,11.09,0.486,-3.98
+"Ghana","women_iron","Area SL (MSE)",75,3.24,4.14,0.969,0.03
+"Ghana","women_iron","Area SL (NLL)",75,4.65,7,0.922,-4.36
+"Ghana","women_folate","Individual SL",75,21.13,25.41,0.495,-0.06
+"Ghana","women_folate","Area SL (MSE)",75,11.15,14.22,0.885,0.07
+"Ghana","women_folate","Area SL (NLL)",75,7.81,10.68,0.934,2.19
+"Ghana","women_b12","Individual SL",75,8.37,13.78,0.574,-0.54
+"Ghana","women_b12","Area SL (MSE)",75,6.71,9.01,0.858,0.02
+"Ghana","women_b12","Area SL (NLL)",75,4.91,8.86,0.895,-4.53
+"Sierra Leone","child_vitA","Individual SL",14,4.75,6.13,0.63,0.77
+"Sierra Leone","child_vitA","Area SL (MSE)",14,0.25,0.54,0.998,0.03
+"Sierra Leone","child_vitA","Area SL (NLL)",14,0.28,0.43,0.999,-0.15
+"Sierra Leone","women_vitA","Individual SL",14,1.06,1.31,0.871,0.73
+"Sierra Leone","women_vitA","Area SL (MSE)",14,1.36,1.68,NA,0
+"Sierra Leone","women_vitA","Area SL (NLL)",14,0.8,1.19,0.922,-0.59
+"Sierra Leone","child_iron","Individual SL",14,2.86,3.99,0.545,-0.34
+"Sierra Leone","child_iron","Area SL (MSE)",14,0.09,0.2,0.999,0.01
+"Sierra Leone","child_iron","Area SL (NLL)",14,1.92,2.75,0.949,-1.27
+"Sierra Leone","women_iron","Individual SL",14,8.38,9.84,0.559,-8.14
+"Sierra Leone","women_iron","Area SL (MSE)",14,0.33,0.68,0.996,0.02
+"Sierra Leone","women_iron","Area SL (NLL)",14,0.32,0.44,0.998,-0.09
+"Sierra Leone","women_folate","Individual SL",14,4.87,5.94,0.865,-2.79
+"Sierra Leone","women_folate","Area SL (MSE)",14,3.62,4.9,0.959,-0.04
+"Sierra Leone","women_folate","Area SL (NLL)",14,3.71,5.39,0.943,2.26
+"Sierra Leone","women_b12","Individual SL",14,0.67,0.71,-0.29,0.1
+"Sierra Leone","women_b12","Area SL (MSE)",14,0.6,0.68,NA,0
+"Sierra Leone","women_b12","Area SL (NLL)",14,0.09,0.1,0.999,0.06
+"Malawi","child_vitA","Individual SL",87,12.66,15.95,-0.1,-3.34
+"Malawi","child_vitA","Area SL (MSE)",87,5.24,6.5,0.977,-0.17
+"Malawi","child_vitA","Area SL (NLL)",87,6.76,9.7,0.907,-5.75
+"Malawi","women_vitA","Individual SL",87,3.64,5.37,0.263,0.07
+"Malawi","women_vitA","Area SL (MSE)",87,3.34,4.73,0.584,0
+"Malawi","women_vitA","Area SL (NLL)",87,2.17,4.98,0.693,-1.83
+"Malawi","child_iron","Individual SL",87,12.73,17.16,0.287,-9.26
+"Malawi","child_iron","Area SL (MSE)",87,4.33,5.99,0.969,0.07
+"Malawi","child_iron","Area SL (NLL)",87,6.9,9.53,0.819,-3.97
+"Malawi","women_iron","Individual SL",87,13.44,18.2,0.266,-8.08
+"Malawi","women_iron","Area SL (MSE)",87,5.09,6.72,0.971,-0.04
+"Malawi","women_iron","Area SL (NLL)",87,2.63,4,0.983,-2.06
 "Malawi","women_folate","Individual SL",87,0.14,1.34,NA,-0.14
-"Malawi","women_b12","Individual SL",87,2.57,3.38,0.893,0.25
-"Malawi","women_b12","Area SL (MSE)",87,3.63,5.07,0.578,0.02
-"Malawi","women_b12","Area SL (NLL)",87,2.97,6.22,0.633,-2.51
-"Malawi","child_zinc","Individual SL",87,7.91,10.58,0.937,0.25
-"Malawi","child_zinc","Area SL (MSE)",87,8.44,10.35,0.975,-0.24
-"Malawi","child_zinc","Area SL (NLL)",87,7.3,9.04,0.943,0.7
-"Malawi","women_zinc","Individual SL",87,9.17,11.76,0.938,-1.28
+"Malawi","women_b12","Individual SL",87,4.2,5.83,0.287,0.41
+"Malawi","women_b12","Area SL (MSE)",87,3.07,4.41,0.731,0.07
+"Malawi","women_b12","Area SL (NLL)",87,2.6,5.62,0.691,-2.2
+"Malawi","child_zinc","Individual SL",87,20.23,24.27,-0.223,0.5
+"Malawi","child_zinc","Area SL (MSE)",87,8.22,10.18,0.97,-0.1
+"Malawi","child_zinc","Area SL (NLL)",87,6.83,8.46,0.951,0.82
+"Malawi","women_zinc","Individual SL",87,21.44,26.35,0.192,-1.27
+"Malawi","women_zinc","Area SL (MSE)",87,9.19,10.93,0.966,-0.11
+"Malawi","women_zinc","Area SL (NLL)",87,10.62,14.48,0.929,9.06

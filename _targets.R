@@ -372,14 +372,30 @@ ch_path   <- here::here("data", "raw", "CadreHarmonise",
 
 for (country_name in names(all_country_configs)) {
   cc <- all_country_configs[[country_name]]
+  lc <- tolower(country_name)
 
-  # Load raw merged data (one per country — cached, only reloads if file changes)
-  raw_target_name <- paste0("merged_raw_", tolower(country_name))
+  # ── Track the merged dataset FILE so on-disk changes invalidate downstream ──
+  # A bare path string is NOT tracked by {targets} — only a format = "file"
+  # target hashes the file's contents. Without this, edits to the source
+  # *_merged_dataset.rds (e.g. the 2026-05-13 admin-1 IHME addition) are
+  # silently ignored and the pipeline keeps serving a stale cached snapshot.
+  path_target_name <- paste0("path_merged_", lc)
+  country_targets <- c(country_targets, list(
+    tar_target_raw(
+      path_target_name,
+      substitute(p, list(p = cc$data_path)),
+      format = "file"
+    )
+  ))
+
+  # Load raw merged data. Depends on the file target above, so it reloads
+  # whenever the underlying .rds changes on disk.
+  raw_target_name <- paste0("merged_raw_", lc)
   raw_data_target <- tar_target_raw(
     raw_target_name,
     substitute(
       load_merged_data(data_path_val),
-      list(data_path_val = cc$data_path)
+      list(data_path_val = as.symbol(path_target_name))
     ),
     format = "rds"
   )
@@ -485,6 +501,18 @@ for (country_name in names(all_country_configs)) {
 # dashboard. Previously this ran only for Ghana × women_iron as an exemplar.
 for (cc_name_area in names(all_country_configs)) {
   cc_area_local <- all_country_configs[[cc_name_area]]
+
+  # Per-country GADM download + GEE raster zonal extraction. Runs ONCE per
+  # country and is reused by every area_model_<outcome> target below — the
+  # extraction depends only on the country, not the outcome.
+  area_cov_target <- paste0("area_covariates_", tolower(cc_name_area))
+  country_targets <- c(country_targets, list(
+    tar_target_raw(
+      area_cov_target,
+      substitute(extract_area_covariates(cc_val), list(cc_val = cc_area_local))
+    )
+  ))
+
   for (oc_name_area in names(cc_area_local$outcomes)) {
     oc_area_local <- cc_area_local$outcomes[[oc_name_area]]
     area_suffix <- paste0(tolower(cc_name_area), "_", oc_name_area)
@@ -493,9 +521,10 @@ for (cc_name_area in names(all_country_configs)) {
       tar_target_raw(
         paste0("area_model_", area_suffix),
         substitute(
-          fit_area_level_model(svy_admin2, cc_val, oc_val, params_val),
+          fit_area_level_model(svy_admin2, area_cov, cc_val, oc_val, params_val),
           list(
             svy_admin2 = as.symbol(paste0("svy_admin2_", area_suffix)),
+            area_cov   = as.symbol(area_cov_target),
             cc_val     = cc_area_local,
             oc_val     = oc_area_local,
             params_val = params
@@ -671,6 +700,105 @@ if (length(all_country_configs) >= 2) {
                   row.names = FALSE)
         result
       }, list(loco_list_val = area_loco_list_expr))
+    )
+  ))
+}
+
+
+# ── Benchmark suite: SuperLearner vs standard SAE methods ─────────────────
+# Compares the area-level SuperLearner against (1) country-mean baseline,
+# (2) OLS GLM, (3) elastic-net penalised GLM, (4) Fay-Herriot, (5) BYM2
+# (INLA). Runs both within-country k-fold CV and leave-one-country-out
+# (LOCO) transportability. Implementation in R/benchmark_models.R.
+#
+# Outputs:
+#   - area_adjacency_list : country -> spdep::nb (built once, reused).
+#   - benchmarks_<outcome>: per-outcome data.frame with one row per
+#                           (method, holdout, model_type) eval combo.
+#   - benchmarks_all      : stacked rollup with CSV save for the dashboard.
+benchmark_targets <- list()
+if (length(all_country_configs) >= 2) {
+  bench_outcomes <- c("child_vitA", "women_vitA", "child_iron", "women_iron")
+  cc_lower_b <- tolower(names(all_country_configs))
+  cc_label_b <- names(all_country_configs)  # display names (Gambia, ...)
+
+  gee_syms_b <- setNames(lapply(paste0("gee_admin2_", cc_lower_b), as.symbol),
+                          cc_label_b)
+  gee_expr_b <- as.call(c(list(as.symbol("list")), gee_syms_b))
+
+  # Adjacency built once across all training countries (used by BYM2 LOCO
+  # and within-country runs). Depends on configs + at least one svy_admin2
+  # frame per country so the GADM polygons align with the admin-2 ordering.
+  any_svy_syms_b <- setNames(
+    lapply(cc_lower_b, function(c) as.symbol(paste0("svy_admin2_", c, "_child_vitA"))),
+    cc_label_b)
+  any_svy_expr_b <- as.call(c(list(as.symbol("list")), any_svy_syms_b))
+
+  benchmark_targets <- c(benchmark_targets, list(
+    tar_target_raw(
+      "area_adjacency_list",
+      substitute({
+        build_adjacency_list(get_country_configs(), any_svy_val)
+      }, list(any_svy_val = any_svy_expr_b))
+    )
+  ))
+
+  # Per-outcome benchmark target.
+  for (otag in bench_outcomes) {
+    svy_syms_b <- setNames(
+      lapply(cc_lower_b, function(c) as.symbol(paste0("svy_admin2_", c, "_", otag))),
+      cc_label_b)
+    svy_expr_b <- as.call(c(list(as.symbol("list")), svy_syms_b))
+
+    benchmark_targets <- c(benchmark_targets, list(
+      tar_target_raw(
+        paste0("benchmarks_", otag),
+        substitute({
+          pooled <- build_area_loco_dataset(svy_list_val, gee_list_val)
+          # Run LOCO only (within-country requires a per-country adjacency
+          # slice, which is already available via area_adjacency_list).
+          out <- run_area_benchmarks_loco(
+            pooled_data    = pooled$pooled_data,
+            gee_vars       = pooled$common_gee_vars,
+            country_names  = pooled$country_names,
+            adjacency_list = adj_val,
+            outcome_label  = otag_val)
+          if (nrow(out) > 0) out$eval_type <- "loco"
+          out
+        }, list(
+          svy_list_val = svy_expr_b,
+          gee_list_val = gee_expr_b,
+          adj_val      = as.symbol("area_adjacency_list"),
+          otag_val     = otag
+        ))
+      )
+    ))
+  }
+
+  # Combined benchmarks rollup with CSV save.
+  bench_names <- paste0("benchmarks_", bench_outcomes)
+  bench_syms <- setNames(lapply(bench_names, as.symbol), bench_outcomes)
+  bench_list_expr <- as.call(c(list(as.symbol("list")), bench_syms))
+
+  benchmark_targets <- c(benchmark_targets, list(
+    tar_target_raw(
+      "benchmarks_all",
+      substitute({
+        rows <- list()
+        all_b <- bench_list_val
+        for (oc in names(all_b)) {
+          if (is.data.frame(all_b[[oc]]) && nrow(all_b[[oc]]) > 0) {
+            all_b[[oc]]$outcome <- oc
+            rows[[oc]] <- all_b[[oc]]
+          }
+        }
+        result <- dplyr::bind_rows(rows)
+        out_dir <- here::here("results", "tables")
+        dir.create(out_dir, showWarnings = FALSE, recursive = TRUE)
+        write.csv(result, file.path(out_dir, "benchmarks_all.csv"),
+                  row.names = FALSE)
+        result
+      }, list(bench_list_val = bench_list_expr))
     )
   ))
 }
@@ -1098,4 +1226,5 @@ summary_targets <- list(
 
 # ── Combine everything ──────────────────────────────────────────────────────
 c(static_targets, country_targets, area_comparison_targets, area_loco_targets,
-  area_transport_targets, transport_targets, oos_targets, summary_targets)
+  benchmark_targets, area_transport_targets, transport_targets, oos_targets,
+  summary_targets)
