@@ -1,0 +1,381 @@
+---
+title: "Generalisable micronutrient prediction: additional data and alternative analysis approaches"
+subtitle: "Brainstorm + critical evaluation"
+author: "Andrew Mertens"
+date: today
+format:
+  docx:
+    number-sections: true
+    reference-doc: "manuscript_reference.docx"
+    fig-cap-location: bottom
+    tbl-cap-location: top
+  html:
+    toc: true
+    number-sections: true
+    self-contained: true
+---
+
+# Goal restated
+
+We want admin-2 micronutrient deficiency models that **generalise** to
+countries with no biomarker survey, with calibrated uncertainty and
+interpretable inputs. The current pipeline trains on four West African
+DHS cohorts; transportability beyond West Africa is the binding
+limitation. The recommendations below are ordered by **expected impact
+per implementation hour** within that frame.
+
+# Tier 1 — Additional open-access data with highest expected impact
+
+These are concrete datasets that (a) are open, (b) can be ingested via
+the existing `R/external_data.R` and Google Earth Engine plumbing, and
+(c) plausibly add signal that today's predictor set misses.
+
+## 1.1 AfSIS / SoilGrids 2.0 micronutrient layers
+
+SoilGrids v2.0 (ISRIC, 250 m) and the Africa Soil Information Service
+(AfSIS) publish raster layers for soil organic carbon, pH, exchangeable
+zinc, iron, magnesium, and trace minerals. **Soil micronutrient
+concentration is mechanistically tied to dietary intake** of the same
+nutrients via staple-crop bioavailability — particularly zinc and iron.
+The pipeline today uses SoilGrids' generic layers (clay, organic carbon)
+but not the trace-element layers.
+
+Expected gain: zinc-deficiency LOCO is currently near-zero. Direct soil
+zinc is a strong candidate as a primary predictor.
+
+Implementation: GEE asset `OpenLandMap/SOL/SOL_*` and AfSIS Africa
+Soil 30m. Add to `R/external_data.R::download_gee_layer()`.
+
+## 1.2 MapSPAM v2 crop area, production, and dietary supply
+
+MapSPAM 2017 v2 provides 5 km gridded estimates of harvested area,
+production, and physical area for ~42 crops, separated by 4 farming
+systems. Combined with FAO food-balance-sheets, this lets us compute
+per-admin-2 dietary diversity proxies:
+
+- Cereal:legume:vegetable ratio.
+- Animal-source food availability (livestock density × milk + meat
+  trade).
+- Iron-rich vs iron-poor staple proportions.
+
+These map directly onto known causal pathways for each deficiency.
+
+Implementation: Open data, download once and join by admin-2 polygon.
+Add to GEE-style extraction pipeline.
+
+## 1.3 GAEZ v4 agro-ecological zones + crop suitability
+
+The FAO/IIASA Global Agro-Ecological Zones (v4, ~9 km) classify land by
+agro-climatic potential. The classification is biologically
+interpretable and **transports across countries** by construction —
+which is what we need. Adding a categorical AEZ feature should improve
+out-of-region transportability where covariate distributions differ.
+
+## 1.4 GBD subnational anaemia, stunting, and U5 mortality
+
+The Institute for Health Metrics and Evaluation (IHME) GBD 2021
+release includes admin-1 (and where available admin-2) estimates of
+anaemia among women, child stunting, and under-5 mortality, with
+uncertainty intervals. These are highly correlated with iron and
+vitamin-A deficiency by definition. For LOCO transportability they
+provide an external "weak supervision" signal that constrains the
+model to a plausible deficiency level.
+
+Adding these as `predicted` features for the held-out country (rather
+than as outcomes) anchors the absolute level prediction — addressing
+the large bias we see in iron-LOCO MAE (40+ pp on Gambia).
+
+## 1.5 MICS-derived admin-2 indicators for non-DHS countries
+
+UNICEF's Multiple Indicator Cluster Surveys (MICS) cover many countries
+where DHS is sparse, including Burkina Faso, Mali, Niger, Tanzania,
+Mozambique, Uganda. MICS doesn't measure biomarkers, but it does
+measure the same household / livelihood / WASH covariates that our
+predictor set uses. Adding MICS-derived admin-2 covariate means lets
+the model extrapolate to countries with MICS but no DHS.
+
+Implementation: ~2 days. Pull MICS6 admin-1/2 indicator means via
+UNICEF's surveys API, join to GADM admin-2 polygons.
+
+## 1.6 ACLED conflict + displacement data
+
+Active and recent conflict reshapes the predictive landscape — food
+access, healthcare reach, livelihoods all shift. The current pipeline
+does not include conflict exposure. ACLED's event database is free for
+academic use and can be aggregated to admin-2 polygon-years (event
+density, fatalities per capita).
+
+Expected gain: largest in the Sahel and East Africa transportability
+direction. May help Malawi LOCO failure if extended to
+conflict-affected training countries.
+
+## 1.7 WorldClim v2.1 bioclimatic variables
+
+We're using individual GEE raster aggregates (NDVI, EVI) but not the
+standardised 19 bioclim variables (BIO1 - BIO19) which capture
+annual/seasonal patterns of temperature and precipitation in a
+biologically motivated way. These are widely used in ecological niche
+modelling — the closest analogy to what we're doing.
+
+## 1.8 Travel time to health facilities (Weiss et al 2020) and OSM healthsites
+
+`Accessibility_2019` is in our covariate set; the more recent Weiss
+et al. 2020 finer-grained travel-time to healthcare layer is a stronger
+predictor of vaccine coverage and intervention reach. Combined with
+OpenStreetMap's `healthsites.io` clinic locations, this directly proxies
+healthcare access (which mediates iron deficiency via antenatal care
+and supplementation).
+
+## 1.9 DHS Atlas / DHS Spatial Database covariates
+
+The current pipeline uses DHS-only-for-trained-countries. The DHS
+Program also publishes the DHS Spatial Database with admin-1/2 indicator
+estimates for **all DHS countries** (not just our four). Adding those
+as auxiliary predictors for held-out countries gives the model a
+country-mean anchor for variables that are causally relevant.
+
+# Tier 2 — Feature engineering wins from existing data
+
+These don't require new downloads; just better use of what's loaded.
+
+## 2.1 Temporal aggregates and phenology metrics
+
+Most GEE variables are loaded as single-year snapshots. Add for each
+admin-2 polygon:
+
+- 5-year mean and SD (climate smoothing).
+- Anomaly from long-term mean (drought / shock detection).
+- Phenology metrics from MODIS: start-of-season day, length of season,
+  peak NDVI day, area-under-curve.
+
+The TIMESAT or DHC-Phenology pipeline produces these from monthly NDVI.
+
+## 2.2 Spatial smoothing of covariates
+
+Compute per-admin-2 the mean of its neighbours' covariates (k-nearest
+or contiguity-weighted). Smoothing reduces noise and captures regional
+gradients that are stronger than within-polygon variation. Adds 152
+"smoothed" features but with small effective degrees of freedom under
+penalised regression.
+
+## 2.3 Compositional / ratio features
+
+Several existing variables are partial counts; their meaningful form is
+a ratio. Add:
+
+- Cereal:legume:vegetable area ratio (from MapSPAM if added; current
+  ESA WorldCereal gives just cereal share).
+- Livestock per capita (animal-source-food proxy).
+- WASH composite: piped water × improved sanitation share.
+- Wealth Gini within admin-2 (from cluster-level household wealth in DHS).
+
+## 2.4 Within-domain dimension reduction
+
+Run PCA per data-source group (NDVI vars, accessibility vars,
+SoilGrids vars). Use the first 2-3 PCs as features instead of the raw
+40+. Reduces collinearity, mitigates the rank-deficiency we observed
+in Fay-Herriot, and is more transparent than blanket correlation
+filtering.
+
+## 2.5 Cluster-level aggregates of individual DHS variables
+
+The pipeline currently exposes individual-level survey variables to the
+individual SL but not as cluster-level aggregates to the area SL. Add
+admin-2 means of: maternal education, mean household wealth quintile,
+% with electricity, % using improved sanitation. These are the
+*direct* drivers of nutritional status that the GEE rasters only
+proxy.
+
+## 2.6 Outcome-aware feature engineering (now implemented)
+
+The `augment_outcome_features()` function in `R/benchmark_models.R`
+adds outcome-specific interaction terms before LOCO fitting. The current
+augmentations are a starter set; the table below lists the full
+biologically-motivated set we should support.
+
+| Outcome | Interaction | Rationale |
+|---|---|---|
+| Iron (child) | ITN coverage × cereal share | Malaria reduction lowers anaemia; cereal staples are low-iron |
+| Iron (women) | Antenatal care × wealth | ANC delivers iron supplementation; wealth modulates uptake |
+| Vit A (child) | NDVI × livelihood density | Greens are seasonal & local; markets shape access |
+| Vit A (women) | Latitude × season-of-survey | Carotene-rich vegetable availability seasonal |
+| Zinc | Soil Zn × staple crop yield | Direct bioavailability proxy |
+| B12 / folate | Livestock density × access | Animal-source foods scarce in some markets |
+
+# Tier 3 — Outside-the-box analysis approaches
+
+Ordered by expected upside × feasibility within a 3-6 month timeline.
+
+## 3.1 Multi-task learning across the 8 outcomes
+
+The 8 deficiency outcomes share predictive structure (wealth,
+sanitation, agriculture). A single multi-task model with a shared
+encoder and outcome-specific heads can borrow strength: B12 (only 4
+events in Sierra Leone) benefits from data-rich iron training.
+
+Implementation: a 2-layer feed-forward network (or multivariate elastic
+net with cross-outcome penalty) trained with cross-outcome regularisation.
+`{mlr3multioutput}` or `{glmnet}` group lasso with multivariate response.
+
+Expected upside: substantial for vitamin A in women and B12 — the
+outcomes where single-outcome models fail.
+
+## 3.2 Causal-structure modelling with DAGs
+
+Build a directed acyclic graph per outcome capturing the known causal
+pathway (diet → biomarker; environment → diet; programmes → diet).
+Use the DAG to identify the minimal sufficient adjustment set for each
+predictor.
+
+The downstream model becomes parsimonious *by causal reasoning* rather
+than statistical screening. **Causal structure is more invariant than
+predictive associations** — predictors selected by causal arguments
+transport better. This is the most principled answer to the LOCO
+problem.
+
+`{dagitty}` for DAG construction; `{r-cdat}` or `{IDP}` for sufficient
+adjustment sets.
+
+## 3.3 Distributionally robust optimisation (DRO)
+
+Standard ML minimises average loss; DRO minimises worst-case loss
+across covariate-shift perturbations. The held-out country LOCO problem
+*is* a covariate-shift problem.
+
+Implementation: `{robustbase}` for robust regression baselines, or
+group-DRO via mini-batch reweighting in a custom optimisation loop on
+top of the elastic-net. Specifically: maximise worst-case-by-country
+training loss.
+
+This re-frames LOCO from "out-of-sample performance" to "performance
+under worst plausible country shift", and the resulting model is by
+construction robust to the kind of shift we encounter.
+
+## 3.4 Synthetic control method for the held-out country
+
+For each held-out country, find weights over training-country admin-2
+polygons that match the held-out country's covariate distribution
+(Abadie & Gardeazabal 2003; Doudchenko & Imbens 2016). Predict each
+held-out admin-2 polygon's prevalence as a weighted combination of the
+matched training polygons' observed prevalence.
+
+This is essentially nearest-neighbour prediction in covariate space
+with rigorous matching weights. Predictions are bounded by observed
+prevalences in the matched set, so the LOCO bias we see for iron should
+shrink.
+
+`{tidysynth}` or `{Synth}` packages.
+
+## 3.5 Foundation-model embeddings as features
+
+Pre-trained satellite imagery foundation models (Prithvi from
+IBM/NASA; SatMAE; GeoFM) produce learned embeddings of any spatial
+patch. Run the held-out country's admin-2 polygons through the
+foundation model and use the embeddings as features alongside the
+manually-curated GEE aggregates. The embeddings capture spatial
+patterns at scales the manually-chosen rasters miss.
+
+Cost: GPU inference for ~200-500 admin-2 polygons per country. Feasible
+on Colab.
+
+Expected upside: hard to estimate. Has worked well for crop-type
+classification and poverty mapping at admin-2 scale.
+
+## 3.6 Hierarchical Bayesian with learned country embeddings
+
+Instead of country fixed effects (which are unobserved for held-out
+countries), learn a low-dimensional country embedding from data: each
+country gets a 3-5 dimensional latent vector that affects its
+intercept and key slopes. At inference for a new country, the embedding
+is initialised from observable country-level features (latitude, GDP,
+food balance) and updated jointly with predictions.
+
+Implementation: `{brms}` or `{rstan}` with non-centered parameterisation;
+moderate compute (5-20 min per outcome).
+
+## 3.7 Conformal prediction with adaptive bands by covariate distance
+
+Apply weighted-conformal-prediction (Tibshirani et al. 2019) to give
+admin-2-level prediction intervals whose widths *increase* with
+covariate distance from the training distribution. Honestly conveys
+that predictions for atypical admin-2 polygons are less reliable —
+critical for programmatic use.
+
+The pipeline already uses split-conformal CIs; this would be a tighter,
+covariate-aware refinement.
+
+## 3.8 Active learning for next-survey prioritisation
+
+Reframe the question: *given a fixed budget for one new biomarker
+survey, which admin-2 polygon would be most informative?* The variance
+of the LOCO predictions across our 11 benchmark methods is a natural
+acquisition function. The pipeline output becomes "here are the 5
+high-priority districts to sample next" — directly programmatic.
+
+Implementation: a small wrapper around the existing benchmark
+predictions; ~half a day.
+
+## 3.9 Expert-elicited Bayesian priors
+
+Survey nutritionists familiar with each country: "rank admin-2
+polygons by deficiency burden". Use these rankings as a soft Bayesian
+prior that constrains the LOCO predictions. Combines model
+predictions with structured expert knowledge.
+
+`{shelf}` for the formal elicitation; expert input from BMGF-funded
+country nutrition advisors.
+
+## 3.10 Ecological inference corrections (Wakefield 2004)
+
+The current Area SL is doing what the ecological inference literature
+calls *individual-level ecological regression*. Wakefield's 2004 series
+identifies the specific aggregation biases this incurs and proposes
+hierarchical Bayesian corrections. Worth implementing as a sensitivity
+analysis, especially since our manuscript already emphasises the
+fit-at-the-unit-of-deliverable lesson.
+
+# Recommended sequence
+
+If you want a single ordered work plan for the next 3 months:
+
+1. **Add MapSPAM v2, GAEZ v4, AfSIS soil micronutrients** (≈2 weeks).
+   Largest data-driven gain expected for zinc and iron.
+2. **Add MICS admin-1/2 covariates for ≥6 new countries** (≈3 weeks).
+   Opens up Burkina Faso, Mali, Tanzania, Uganda, Mozambique for OOS
+   validation against the BRINDA / VMNIS comparator in the existing
+   `docs/brinda_vmnis_loco_validation_plan.qmd`.
+3. **Multi-task SL across the 8 outcomes** (≈2 weeks).
+   Highest expected upside for rare outcomes (women_vitA, women_b12).
+4. **Causal DAG-based variable selection** (≈4 weeks).
+   The principled answer to transportability — likely modest gain
+   in headline r but big interpretability win.
+5. **Distributionally robust optimisation** (≈3 weeks).
+   Specifically targets LOCO failure modes.
+6. **Foundation-model embeddings** (≈3 weeks, requires GPU).
+   High-variance bet; could be transformational for spatial
+   transportability or could add nothing.
+7. **Active-learning next-survey prioritisation** (≈1 week).
+   Highest direct programmatic value once any of (1)-(6) shifts the
+   needle.
+
+# What I would *not* prioritise
+
+- **Deeper neural networks on the same data.** Our n is 14-87 admin-2
+  polygons per country. Capacity is not the bottleneck; signal is.
+- **More-aggressive feature screening.** We've already shown that the
+  17-hour SL doesn't reliably beat 8-variable OLS. Adding 5000 more
+  variables to a problem with 200 observations is the wrong direction.
+- **Yet another ensemble layer.** The stacked-LOCO ensemble we just
+  added is the right ensemble form. Adding more layers risks
+  over-fitting the stacker.
+- **Switching to time-series forecasting of national trends.** DHS
+  cycles every 5-7 years; our temporal resolution is too coarse.
+
+# Summary
+
+The fastest path to materially better generalisable models is **better
+predictors and better problem framing**, not better algorithms. Add
+MapSPAM + GAEZ + AfSIS micronutrients + MICS country coverage, then
+move to multi-task learning and causal-structure selection. Foundation
+models and DRO are exciting high-variance experiments to run in
+parallel.

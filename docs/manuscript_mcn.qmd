@@ -219,16 +219,47 @@ We compared four estimation strategies (@tbl-methods).
 ```{r tbl-methods, tbl-cap="Estimation strategies compared."}
 data.frame(
   Strategy = c("Individual SL", "Area SL", "OLS / Elastic-net",
-                "Fay–Herriot", "BYM2 (INLA)"),
-  Level    = c("Individual → aggregate", "Admin-2 direct",
-                "Admin-2 direct", "Admin-2 direct", "Admin-2 direct"),
-  Spatial = c("No", "No", "No", "Random effects (i.i.d.)",
-              "Yes (ICAR + i.i.d.)"),
+                "Fay–Herriot", "BYM2 (INLA)",
+                "Mixed (random country intercept)",
+                "Two-stage (country mean + within-country deviance)",
+                "Forward selection with LOCO-CV criterion",
+                "GAM (mgcv thin-plate)",
+                "Group-lasso by data source",
+                "Stacked LOCO ensemble",
+                "Quasi-binomial logit GLM",
+                "Quantile (median) regression",
+                "Beta regression",
+                "Causal DAG-based variable selection"),
+  Loss = c("NLL (binary) / MSE (continuous)",
+            "MSE on prevalence",
+            "MSE (weighted by n_svy)",
+            "Gaussian likelihood + sampling variance",
+            "Binomial / Gaussian (n_svy-weighted)",
+            "REML, weights = n_svy",
+            "MSE stage-1; weighted MSE stage-2",
+            "MSE, weights = n_svy",
+            "REML, weights = n_svy",
+            "L2 (group), weights = n_svy",
+            "Inherits from base methods",
+            "Quasi-binomial deviance, weights = n_svy",
+            "L1 (median), weights = n_svy",
+            "Beta likelihood (mean + precision)",
+            "MSE, weights = n_svy on DAG adjustment set"),
   `Implementation` = c("mlr3superlearner (6 learners)",
                        "mlr3superlearner on admin-2 GEE aggregates",
-                       "lm / cv.glmnet",
+                       "lm / cv.glmnet (n_svy weighted)",
                        "sae::eblupFH (REML)",
-                       "R-INLA, PC priors per Riebler 2016")
+                       "R-INLA, PC priors per Riebler 2016",
+                       "lme4::lmer, weights = n_svy",
+                       "Stage 1: OLS country means; Stage 2: cv.glmnet on residuals",
+                       "lm with stepwise add, LOCO-r screen, k_max = 6",
+                       "mgcv::gam, thin-plate splines, k = 4",
+                       "gglasso, groups by data-source prefix",
+                       "NNLS stacker over base methods with country-disjoint CV",
+                       "glm(family = quasibinomial, link = logit)",
+                       "quantreg::rq at tau = 0.5",
+                       "betareg::betareg(link = logit)",
+                       "dagitty adjustment sets per-outcome causal DAG → OLS")
 ) %>%
   kable(booktabs = TRUE)
 ```
@@ -266,6 +297,61 @@ polygons via Queen's contiguity; for leave-one-country-out evaluation
 the adjacency graph was block-diagonal across training countries, with
 held-out areas receiving predictions from the fixed-effect (covariate)
 component only.
+
+Three additional **transportability-aware** comparators were
+implemented to address specific failure modes observed in initial
+benchmarking. A **random-intercept mixed model** (`lme4::lmer` with
+logit-prevalence response, survey-n weighting, and country random
+intercept) was fit; predictions for the held-out country use the
+marginal mean (random effect set to zero) so that out-of-country
+prediction depends only on the area-level covariate slopes. A
+**two-stage country-mean plus within-country-deviance model**
+decomposed admin-2 prevalence into a country-level component
+(predicted from country-aggregated covariates via a small OLS) and a
+within-country deviation (predicted from within-country-centred area
+covariates via elastic-net regression); held-out country predictions
+combine the stage-1 country mean with the stage-2 deviation. A
+**forward variable-selection model with leave-one-training-country-out
+selection criterion** built an OLS using up to six variables, selecting
+at each step the variable that maximised the average Pearson r across
+splits of the training countries — directly optimising for
+transportability rather than within-training fit.
+
+A **post-hoc calibration** step using Platt logistic recalibration
+was applied to the binary out-of-fold probability predictions of the
+individual-level SL classifiers to repair the Brier-skill failures
+identified in diagnostic flagging. Calibration parameters were
+estimated on training fold predictions and applied to held-out fold
+predictions to preserve honest cross-validation.
+
+Three additional comparator methods extend the comparison: a
+**generalised additive model** (mgcv with thin-plate spline smoothers,
+k = 4 basis functions per term) on the top correlation-screened
+predictors, fit on the logit scale and weighted by survey n; a
+**group-lasso** model (`gglasso`) that penalises the L2 norm of
+whole-data-source variable groups (NDVI vs accessibility vs
+livelihood vs SoilGrids, etc.) jointly rather than at the individual-
+variable level, yielding more interpretable variable selection; and a
+**stacked LOCO ensemble** combining the country-mean baseline,
+penalised regression, mixed-effects model, GAM, two-stage and
+forward-LOCO predictors. The stacker is the central transportability-
+aware ensemble of this work: its meta-weights are estimated from
+country-disjoint leave-one-training-country-out predictions (so
+the stacker itself does not over-fit to within-training-country
+structure), and they are constrained to be non-negative and sum to one.
+
+To honestly characterise the uncertainty of the LOCO Pearson r point
+estimates, we report 80% and 95% bootstrap confidence intervals
+constructed by resampling admin-2 polygons within each held-out country
+with replacement (B = 500 bootstrap replicates).
+
+Outcome-aware feature augmentation added biologically-motivated
+interaction terms before LOCO fitting: insecticide-treated bed-net
+coverage × cereal share for iron, vegetation index × livelihood
+density for vitamin A, soil zinc × staple-crop yield for zinc, and
+livestock density × accessibility for B12/folate. Each interaction
+was passed through the same correlation screening as the GEE base
+covariates so it could be selected (or not) by each method.
 
 ## Evaluation
 

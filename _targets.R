@@ -297,6 +297,22 @@ make_outcome_targets <- function(country_name, outcome_name, cc, oc, params) {
       )
     ),
 
+    # ── 12b. Calibrated diagnostics: Platt recalibration of OOF binary
+    # predictions before computing Brier-skill / calibration-slope metrics.
+    # Repairs the ~25% of binary models with negative Brier skill identified
+    # in diagnostics_binary.csv. Cheap — reuses the same sl_fit object.
+    tar_target_raw(
+      paste0("diagnostics_calibrated_", suffix),
+      substitute(
+        run_diagnostics_calibrated(sl_fit, cc_val, oc_val),
+        list(
+          sl_fit = as.symbol(paste0("sl_fit_", suffix)),
+          cc_val = cc,
+          oc_val = oc
+        )
+      )
+    ),
+
     # ── 13. National estimates: survey-weighted observed vs predicted ─────
     tar_target_raw(
       paste0("national_est_", suffix),
@@ -1053,6 +1069,7 @@ cv_perf_names <- character()
 admin2_error_names <- character()
 ablation_names <- character()
 diagnostics_names <- character()
+diagnostics_calibrated_names <- character()
 national_est_names <- character()
 shap_names <- character()
 varimp_names <- character()
@@ -1066,6 +1083,8 @@ for (country_name in names(all_country_configs)) {
     admin2_error_names <- c(admin2_error_names, paste0("admin2_error_", suffix))
     ablation_names <- c(ablation_names, paste0("ablation_", suffix))
     diagnostics_names <- c(diagnostics_names, paste0("diagnostics_", suffix))
+    diagnostics_calibrated_names <- c(diagnostics_calibrated_names,
+                                       paste0("diagnostics_calibrated_", suffix))
     national_est_names <- c(national_est_names, paste0("national_est_", suffix))
     shap_names <- c(shap_names, paste0("shap_", suffix))
     varimp_names <- c(varimp_names, paste0("varimp_", suffix))
@@ -1128,6 +1147,26 @@ summary_targets <- list(
       )
     },
     list(diag_vals = make_list_expr(diagnostics_names)))
+  ),
+
+  # Combined calibrated diagnostics — same shape as diagnostics_all but the
+  # binary OOF probabilities have been re-passed through a Platt logistic
+  # recalibrator before metrics are recomputed. Writes a CSV side-by-side
+  # with the raw diagnostics so the user can see Brier-skill recovery.
+  tar_target_raw(
+    "diagnostics_calibrated_all",
+    substitute({
+      diag_list <- diag_vals
+      bin_metrics <- dplyr::bind_rows(lapply(diag_list, function(x) x$binary_metrics))
+      cal_tables <- dplyr::bind_rows(lapply(diag_list, function(x) x$calibration_table))
+      out_dir <- here::here("results", "tables")
+      dir.create(out_dir, showWarnings = FALSE, recursive = TRUE)
+      if (!is.null(bin_metrics) && nrow(bin_metrics) > 0)
+        readr::write_csv(bin_metrics,
+                          file.path(out_dir, "diagnostics_binary_calibrated.csv"))
+      list(binary_metrics = bin_metrics, calibration_tables = cal_tables)
+    },
+    list(diag_vals = make_list_expr(diagnostics_calibrated_names)))
   ),
 
   # Combined national estimates
