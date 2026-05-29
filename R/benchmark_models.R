@@ -1228,6 +1228,177 @@ fit_predict_spatial_plus_h6 <- function(train, test, vars,
 }
 
 
+# ── METHOD 19: Spatial GAM + locked top-8 SoilGrids (supplementary) ──────────
+# A locked-feature variant of METHOD 17. Uses the eight SoilGrids covariates
+# that won the sandbox K-sweep (sandbox/15 + sandbox/16): always the same
+# eight, regardless of outcome or holdout. Intended as the "supplementary"
+# comparator alongside the primary prescreened-SuperLearner (METHOD 20).
+#
+# The eight features (from sandbox/results/13_univariate_loco.csv top-8):
+.SPATIAL_PLUS_SOIL_DEFAULT_VARS <- c(
+  "gee_soilaluminium_annual_min",
+  "gee_soilaluminium_stdev_20_50",
+  "gee_soilcalcium_stdev_0_20",
+  "gee_soilaluminium_stdev_0_20",
+  "gee_soilmagnesium_stdev_0_20",
+  "gee_soilcalcium_stdev_20_50",
+  "gee_soiltotalcarbon_mean_0_20",
+  "gee_soilzinc_mean_20_50"
+)
+fit_predict_spatial_plus_soil <- function(train, test, vars,
+                                            soil_vars = .SPATIAL_PLUS_SOIL_DEFAULT_VARS,
+                                            k_spline = 30) {
+  available <- intersect(soil_vars, colnames(train))
+  if (length(available) < 2) {
+    # Fall back to spatial-only when soil features not available.
+    return(fit_predict_spatial_coords(train, test, vars, k_spline = k_spline))
+  }
+  fit_predict_spatial_coords(train, test, vars,
+                                extra_covars = available, k_spline = k_spline)
+}
+
+
+# ── METHOD 20: Prescreened SuperLearner (primary, fixed) ─────────────────────
+# The 17-hour main-pipeline SuperLearner under-performs (mean LOCO r ~ 0.14)
+# for two compounding reasons revealed in sandbox/16:
+#   1. Too many features (152 candidates) with too few training polygons
+#      (~150) leads to over-fitting on within-training-country structure.
+#   2. Non-linear flexibility (ranger / xgboost / SL ensemble) costs more
+#      than it gains on the soil-micronutrient -> biomarker relationship,
+#      which is genuinely linear at this scale.
+#
+# fit_predict_sl_prescreened addresses (1) with a five-stage prescreen and
+# (2) by including spatial coordinates as fixed-effect features that every
+# base learner can use, and by adding a GAM-on-coords learner to the library.
+#
+# Five-stage prescreen (each step applied to training data only):
+#   A. Drop variables with NA fraction > 0.50 (extraction failure).
+#   B. Drop variables that are near-constant in ANY training country
+#      (sd < 1e-6) — useless for between-area comparison.
+#   C. Drop variables whose within-country variance ratio < 0.30 — those
+#      are mostly encoding country fixed effects that won't transport
+#      (the loose threshold from sandbox H5 testing).
+#   D. Drop variables with |univariate Pearson r with svy_prev| < 0.05
+#      on training-pooled data — pure noise.
+#   E. Correlation-prune: among variables with |r_pair| > 0.85, keep the
+#      one with higher |univariate r with outcome|. Removes redundant
+#      copies.
+#   F. Cap at top K_max by |univariate r| (default 40).
+#   G. Always inject (lon, lat) into the SL feature matrix so non-linear
+#      learners can capture spatial structure.
+#
+# Library is deliberately fast: glmnet (lasso, elastic-net), ranger
+# (250 trees), xgboost (150 rounds depth 4), and mean baseline. No BART,
+# no deep ranger. Folds = 5 for the SL stacker.
+#
+# Falls back to spatial_plus_soil when mlr3superlearner isn't available.
+fit_predict_sl_prescreened <- function(train, test, vars,
+                                          K_max = 40L,
+                                          min_within_ratio = 0.30,
+                                          min_uni_abs_r   = 0.05,
+                                          cor_threshold   = 0.85,
+                                          sl_folds = 5L,
+                                          include_coords = TRUE) {
+  if (!requireNamespace("mlr3superlearner", quietly = TRUE)) {
+    return(fit_predict_spatial_plus_soil(train, test, vars))
+  }
+  vars <- intersect(vars, colnames(train))
+  if (length(vars) < 2) return(NULL)
+
+  # A. NA filter
+  na_frac <- vapply(vars, function(v) mean(!is.finite(train[[v]])), numeric(1))
+  vars <- vars[na_frac < 0.50]
+  if (length(vars) < 2) return(NULL)
+
+  # B. Near-constant-in-any-country filter
+  countries <- unique(train$country)
+  not_const <- vapply(vars, function(v) {
+    all(vapply(countries, function(c) {
+      x <- train[[v]][train$country == c]
+      x <- x[is.finite(x)]
+      length(x) > 1 && stats::sd(x) > 1e-6
+    }, logical(1)))
+  }, logical(1))
+  vars <- vars[not_const]
+  if (length(vars) < 2) return(NULL)
+
+  # C. Within-country variance ratio filter
+  wcr <- .country_variance_decomp(train, vars)
+  vars <- wcr$variable[wcr$within_ratio >= min_within_ratio]
+  if (length(vars) < 2) return(NULL)
+
+  # D. Univariate signal filter
+  imp_pre <- .impute_train_test(train, test, vars)
+  uni_r <- vapply(vars, function(v)
+    suppressWarnings(abs(cor(imp_pre$train[[v]], train$svy_prev,
+                                use = "pairwise"))), numeric(1))
+  vars <- vars[is.finite(uni_r) & uni_r >= min_uni_abs_r]
+  if (length(vars) < 2) return(NULL)
+
+  # E. Correlation prune (keep the one with stronger outcome correlation)
+  imp_pre <- .impute_train_test(train, test, vars)
+  X <- as.matrix(imp_pre$train)
+  cm <- suppressWarnings(stats::cor(X, use = "pairwise"))
+  uni_r <- uni_r[vars]
+  keep <- rep(TRUE, length(vars))
+  ord  <- order(-uni_r)
+  for (i in seq_along(vars)) {
+    a <- ord[i]
+    if (!keep[a]) next
+    for (j in seq_along(vars)) {
+      if (j == a || !keep[j]) next
+      if (is.finite(cm[a, j]) && abs(cm[a, j]) > cor_threshold) keep[j] <- FALSE
+    }
+  }
+  vars <- vars[keep]
+  if (length(vars) < 2) return(NULL)
+
+  # F. Top-K_max
+  uni_r <- uni_r[vars]
+  if (length(vars) > K_max)
+    vars <- names(sort(uni_r, decreasing = TRUE))[seq_len(K_max)]
+
+  # G. Build SL data frame, adding (lon, lat) if available.
+  imp <- .impute_train_test(train, test, vars)
+  fit_df  <- data.frame(Y = train$svy_prev, imp$train,
+                          check.names = FALSE)
+  test_df <- data.frame(Y = 0,              imp$test,
+                          check.names = FALSE)
+  if (include_coords && all(c("lon","lat") %in% colnames(train))) {
+    fit_df$lon <- train$lon; fit_df$lat <- train$lat
+    test_df$lon <- test$lon; test_df$lat <- test$lat
+  }
+  library_fast <- list(
+    list("glmnet", alpha = 1,   id = "lasso"),
+    list("glmnet", alpha = 0.5, id = "elastic_net"),
+    list("glmnet", alpha = 0,   id = "ridge"),
+    list("ranger", num.trees = 250, min.node.size = 5, id = "ranger"),
+    list("xgboost", max_depth = 4, eta = 0.05, nrounds = 150,
+          subsample = 0.8, colsample_bytree = 0.8, id = "xgb"),
+    list("mean", id = "mean")
+  )
+  n_folds <- min(nrow(fit_df), sl_folds)
+  fit <- tryCatch(suppressMessages(suppressWarnings(
+    mlr3superlearner::mlr3superlearner(
+      data = fit_df, target = "Y", library = library_fast,
+      outcome_type = "continuous", folds = n_folds))),
+    error = function(e) {
+      cat(sprintf("    [sl_prescreened] SL fit failed: %s\n",
+                  conditionMessage(e))); NULL
+    })
+  if (is.null(fit)) return(NULL)
+  pred_tr <- tryCatch(as.numeric(stats::predict(fit, fit_df)),
+                       error = function(e) rep(mean(train$svy_prev), nrow(fit_df)))
+  pred_te <- tryCatch(as.numeric(stats::predict(fit, test_df)),
+                       error = function(e) NULL)
+  if (is.null(pred_te)) return(NULL)
+  list(pred = .bound01(pred_te), train_pred = .bound01(pred_tr),
+       method_note = sprintf("prescreened SL (%d vars survived; %d learners)",
+                              length(vars), length(library_fast)),
+       selected_vars = vars)
+}
+
+
 # ── Helper: add admin-2 polygon centroids to a pooled data frame ─────────────
 # pooled_data is augmented with `lon` and `lat` columns (centroid coords from
 # GADM). cc_list is a list of country-config entries with $country and
@@ -1789,7 +1960,9 @@ run_area_benchmarks_loco <- function(pooled_data, gee_vars, country_names,
                                                    "invariance_filter",
                                                    "combined_filter",
                                                    "spatial_coords",
-                                                   "spatial_plus_h6"),
+                                                   "spatial_plus_h6",
+                                                   "spatial_plus_soil",
+                                                   "sl_prescreened"),
                                        model_types = c("continuous", "logit"),
                                        augment_features = TRUE,
                                        cross_outcome_pooled = NULL) {
@@ -1816,7 +1989,8 @@ run_area_benchmarks_loco <- function(pooled_data, gee_vars, country_names,
       mts <- if (m %in% c("baseline", "fh", "bym2", "two_stage",
                             "grouplasso", "stacked", "quasibinomial",
                             "betareg", "dag", "combined_filter",
-                            "spatial_coords", "spatial_plus_h6"))
+                            "spatial_coords", "spatial_plus_h6",
+                            "spatial_plus_soil", "sl_prescreened"))
               "continuous" else model_types
       for (mt in mts) {
         out <- tryCatch(switch(m,
@@ -1851,7 +2025,9 @@ run_area_benchmarks_loco <- function(pooled_data, gee_vars, country_names,
                                                               k_spline = 30),
           spatial_plus_h6   = fit_predict_spatial_plus_h6  (train, test, vars,
                                                               cross_outcome_pooled = cross_outcome_pooled,
-                                                              this_outcome = outcome_label)
+                                                              this_outcome = outcome_label),
+          spatial_plus_soil = fit_predict_spatial_plus_soil(train, test, vars),
+          sl_prescreened    = fit_predict_sl_prescreened   (train, test, vars)
         ), error = function(e) {
           cat(sprintf("    [%s/%s] %s failed: %s\n",
                       held_out, mt, m, conditionMessage(e)))

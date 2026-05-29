@@ -31,11 +31,21 @@ load_pooled <- function(outcome, refresh = FALSE) {
   if (!refresh && file.exists(cache_path)) return(readRDS(cache_path))
   source(here::here("R", "area_level_comparison.R"))
   gee_list <- setNames(lapply(COUNTRIES, function(c)
-    targets::tar_read_raw(paste0("gee_admin2_", c), store = STORE)),
+    tryCatch(targets::tar_read_raw(paste0("gee_admin2_", c), store = STORE),
+              error = function(e) NULL)),
     names(COUNTRY_LABELS))
   svy_list <- setNames(lapply(COUNTRIES, function(c)
-    targets::tar_read_raw(paste0("svy_admin2_", c, "_", outcome), store = STORE)),
+    tryCatch(targets::tar_read_raw(paste0("svy_admin2_", c, "_", outcome),
+                                     store = STORE),
+              error = function(e) NULL)),
     names(COUNTRY_LABELS))
+  # Drop countries without this outcome OR without GEE data (Côte d'Ivoire etc.).
+  ok <- !vapply(svy_list, is.null, logical(1)) & !vapply(gee_list, is.null, logical(1))
+  if (sum(ok) < 2) {
+    warning(sprintf("Only %d countries have data for outcome '%s'", sum(ok), outcome))
+    return(NULL)
+  }
+  svy_list <- svy_list[ok]; gee_list <- gee_list[ok]
   pooled <- build_area_loco_dataset(svy_list, gee_list)
   pooled$svy_list <- svy_list
   saveRDS(pooled, cache_path)
