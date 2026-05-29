@@ -220,6 +220,23 @@ tryCatch({
 }, error = function(e) cat(sprintf("  LOCO prep skipped: %s\n", e$message)))
 
 
+# ── Optimized primary SL: prescreened SuperLearner LOCO results ───────────
+# Source: results/tables/sl_prescreened_main.csv (from
+#   scripts/run_sl_prescreened_main.R or `sl_prescreened_all` target).
+# This is the OPTIMIZED primary SL workflow — fast (~30s per LOCO fold)
+# with five-stage feature prescreening. Picks up automatically if the
+# CSV exists.
+cat("\n── Loading optimized SL prescreened LOCO results ──\n")
+sl_pre_path <- here::here("results", "tables", "sl_prescreened_main.csv")
+if (file.exists(sl_pre_path)) {
+  sl_pre <- read.csv(sl_pre_path, stringsAsFactors = FALSE)
+  saveRDS(sl_pre, file.path(DASHBOARD_DATA, "sl_prescreened_loco.rds"))
+  cat(sprintf("  %d SL-prescreened LOCO rows saved\n", nrow(sl_pre)))
+} else {
+  cat("  results/tables/sl_prescreened_main.csv not found - skipping.\n")
+}
+
+
 # =============================================================================
 # 2. NATIONAL ESTIMATES (pre-computed from pipeline)
 # =============================================================================

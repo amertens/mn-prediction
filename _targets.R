@@ -817,6 +817,98 @@ if (length(all_country_configs) >= 2) {
       }, list(bench_list_val = bench_list_expr))
     )
   ))
+
+  # ── Fast primary SL run: ONE method (sl_prescreened) per outcome ──────────
+  # Optimized main-analysis workflow. fit_predict_sl_prescreened uses
+  # five-stage prescreening + spatial coords + a fast learner library
+  # (no BART, no deep ranger). Per-outcome wall time ~30s per LOCO fold
+  # vs. the historical 17-hour SL.
+  #
+  # The 4 main outcomes are in every training country; women_b12 and
+  # women_folate are in 3 of 4 (Gambia missing), so we wrap their
+  # svy_admin2 list in tryCatch and let build_area_loco_dataset drop
+  # missing countries.
+  sl_outcomes <- c(bench_outcomes, "women_b12", "women_folate")
+  # Hardcode known country-availability: women_b12 / women_folate are absent
+  # from Gambia. Other outcomes are 4-country. Determined from the targets
+  # manifest at session start (sandbox/00_setup.R load_pooled() also handles
+  # this case).
+  outcome_countries <- list(
+    child_vitA   = cc_lower_b,
+    women_vitA   = cc_lower_b,
+    child_iron   = cc_lower_b,
+    women_iron   = cc_lower_b,
+    women_b12    = setdiff(cc_lower_b, "gambia"),
+    women_folate = setdiff(cc_lower_b, "gambia")
+  )
+  for (otag in sl_outcomes) {
+    avail <- outcome_countries[[otag]]
+    if (length(avail) < 2) next  # Need >=2 countries for LOCO.
+    avail_labels <- cc_label_b[match(avail, cc_lower_b)]
+    sl_svy_syms <- setNames(
+      lapply(avail, function(c) as.symbol(paste0("svy_admin2_", c, "_", otag))),
+      avail_labels)
+    sl_svy_expr <- as.call(c(list(as.symbol("list")), sl_svy_syms))
+    sl_gee_syms <- setNames(
+      lapply(avail, function(c) as.symbol(paste0("gee_admin2_", c))),
+      avail_labels)
+    sl_gee_expr <- as.call(c(list(as.symbol("list")), sl_gee_syms))
+
+    benchmark_targets <- c(benchmark_targets, list(
+      tar_target_raw(
+        paste0("sl_prescreened_", otag),
+        substitute({
+          pooled <- build_area_loco_dataset(svy_list_val, gee_list_val)
+          # Add admin-2 centroids so the prescreened SL can use (lon, lat).
+          pooled$pooled_data <- add_admin2_centroids(
+            pooled$pooled_data, get_country_configs(), svy_list_val)
+          out <- run_area_benchmarks_loco(
+            pooled_data    = pooled$pooled_data,
+            gee_vars       = pooled$common_gee_vars,
+            country_names  = pooled$country_names,
+            adjacency_list = NULL,            # not needed for sl_prescreened
+            outcome_label  = otag_val,
+            methods        = "sl_prescreened",
+            augment_features = FALSE)
+          if (nrow(out) > 0) {
+            out$eval_type <- "loco_sl_only"
+            out$outcome   <- otag_val
+          }
+          out
+        }, list(
+          svy_list_val = sl_svy_expr,
+          gee_list_val = sl_gee_expr,
+          otag_val     = otag
+        ))
+      )
+    ))
+  }
+
+  # Rollup: combined CSV consumed by dashboard prep.
+  sl_pre_names <- paste0("sl_prescreened_", sl_outcomes)
+  sl_pre_syms  <- setNames(lapply(sl_pre_names, as.symbol), sl_outcomes)
+  sl_pre_expr  <- as.call(c(list(as.symbol("list")), sl_pre_syms))
+  benchmark_targets <- c(benchmark_targets, list(
+    tar_target_raw(
+      "sl_prescreened_all",
+      substitute({
+        rows <- list()
+        all_pre <- pre_list_val
+        for (oc in names(all_pre)) {
+          if (is.data.frame(all_pre[[oc]]) && nrow(all_pre[[oc]]) > 0) {
+            rows[[oc]] <- all_pre[[oc]]
+          }
+        }
+        result <- dplyr::bind_rows(rows)
+        out_dir <- here::here("results", "tables")
+        dir.create(out_dir, showWarnings = FALSE, recursive = TRUE)
+        write.csv(result,
+                   file.path(out_dir, "sl_prescreened_main.csv"),
+                   row.names = FALSE)
+        result
+      }, list(pre_list_val = sl_pre_expr))
+    )
+  ))
 }
 
 
