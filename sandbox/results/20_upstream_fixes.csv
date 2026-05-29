@@ -1,0 +1,16 @@
+outcome,label,held_out,n_test,pearson_r,spearman_r
+women_b12,b12_raw,Ghana,75,0.124,0.46
+women_b12,b12_raw,SierraLeone,14,-0.588,-0.596
+women_b12,b12_raw,Malawi,97,0.161,0.307
+women_b12,b12_capped,Ghana,75,0.303,0.452
+women_b12,b12_capped,SierraLeone,14,-0.247,-0.064
+women_b12,b12_capped,Malawi,97,-0.296,-0.217
+women_folate,folate_serum_2country,SierraLeone,14,-0.248,-0.332
+women_vitA,vitA_raw,Gambia,30,0.49,0.371
+women_vitA,vitA_raw,Ghana,75,0.217,0.275
+women_vitA,vitA_raw,SierraLeone,14,-0.006,-0.305
+women_vitA,vitA_raw,Malawi,97,-0.031,0.152
+women_vitA,vitA_shifted,Gambia,30,0.54,0.387
+women_vitA,vitA_shifted,Ghana,75,0.194,0.238
+women_vitA,vitA_shifted,SierraLeone,14,0.016,-0.244
+women_vitA,vitA_shifted,Malawi,97,-0.031,0.152
