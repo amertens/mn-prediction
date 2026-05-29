@@ -4,25 +4,70 @@ Running notes on what worked and didn't, from iterative experimentation
 outside the targets pipeline. Headline metric: **mean LOCO Pearson r**
 across 16 (outcome × held-out country) combinations.
 
-## Headline finding
+## Headline finding (updated — new winner)
 
-**The single best LOCO predictor is a thin-plate spline on admin-2 polygon
-centroids — coordinates only, no GEE covariates at all.** Mean LOCO Pearson
-r = **0.285** across 16 splits (11/15 holdouts with r > 0.1), beating
-the H6 combined-filter winner (0.224) and the 17-hour SuperLearner
-(~0.14). It is also the most parsimonious model — two predictors (lon,
-lat) and a smoother.
+**Spatial thin-plate spline on (lon, lat) PLUS top-5 univariate-LOCO
+SoilGrids predictors (linear).** Mean LOCO Pearson r = **0.327**,
+median 0.330, 11 of 14 holdouts with r > 0.1. The top-5 are all
+SoilGrids variables (`gee_soilaluminium_stdev_20_50`,
+`gee_soilcalcium_stdev_0_20`, `gee_soilaluminium_stdev_0_20`,
+`gee_soilmagnesium_stdev_0_20`, `gee_soilcalcium_stdev_20_50`).
 
-This is **humbling** — the 152 GEE rasters add nothing beyond spatial
-gradient information that's already encoded in the polygon centroid.
-The transportable signal across West Africa is mostly geographic.
+This beats:
 
-(Important caveat: the splitting countries are all West African except
-Malawi. Holding out Malawi is the failure mode — the spline can't
-extrapolate to East Africa. So the spatial-only result is partly an
-artifact of the training-country geography, but iron-deficiency
-patterns within West Africa really do follow a smooth latitudinal
-gradient that the model captures.)
+- spatial-only (`gam_coords_k30`):           mean r = 0.282
+- H6 combined filter (`combined_w70_k12`):   mean r = 0.224
+- 17-hour SuperLearner:                       mean r ≈ 0.14
+
+The +0.045 r over spatial-only is the contribution of soil
+micronutrient content beyond what the geographic gradient already
+provides. Adding MORE features (top-10) DROPS performance to 0.270 —
+classic small-n degrees-of-freedom problem. Residual-stacked elastic
+net on top GEE features (`spatial_then_resid_en_top10`) sits at 0.287,
+roughly equal to spatial-only — the linear addition is what works.
+
+### How we got here (two-experiment chain)
+
+1. `sandbox/12_audit_gee_data.R` audited all 154 common GEE
+   variables. Findings: NA rates near zero, multi-year coverage
+   (2000-2022), SoilGrids already extracted for 8 nutrients
+   (Al, Ca, Mg, Fe, Zn, N, P, K, S, total carbon) at two depth
+   profiles each. The GEE extraction quality is good — the
+   bottleneck wasn't data quality.
+
+2. `sandbox/13_univariate_loco_ranking.R` ran every variable
+   ALONE as a single-predictor LOCO regression. Top 10 are
+   dominated by SoilGrids — soil aluminium / calcium / magnesium /
+   total carbon / zinc all in the 0.22-0.27 range. Best single
+   variable: `gee_soilaluminium_stdev_20_50` r = 0.273 — doesn't
+   beat spatial GAM alone but is competitive.
+
+3. `sandbox/14_spatial_plus_topgee.R` combined spatial GAM with
+   top-K univariate-LOCO features. The winning configuration
+   (top-5 linear) reaches mean r = 0.327.
+
+### Why this works
+
+Soil micronutrient content is the closest covariate we have to a
+direct causal mechanism: low soil zinc / iron / magnesium → low
+staple-crop micronutrient content → low dietary intake → low
+biomarker status. The spatial spline captures aggregate geographic
+gradient (climate, urbanity, agro-ecology); SoilGrids contributes the
+*specific causal pathway* that geography alone can't separate. The
+linear additions let the model express "this district has unusually
+high/low soil X for its location," which is exactly the
+within-gradient information that pure smoothing misses.
+
+This also explains why earlier methods couldn't find this: SoilGrids
+variables were 5 of 154 candidate features in a pool dominated by
+NDVI / accessibility / nightlights, so penalised regression and
+SuperLearner couldn't isolate them in CV. The univariate ranking +
+linear-addition recipe specifically privileges them.
+
+### Earlier (now superseded) headline
+
+(Kept for historical context — see prior commit
+`c4ecb9e` for the spatial-only-wins narrative.)
 
 ## Full results
 

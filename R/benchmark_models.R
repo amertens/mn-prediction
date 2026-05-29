@@ -1127,6 +1127,149 @@ fit_predict_combined_filter <- function(train, test, vars,
 }
 
 
+# ── METHOD 17: Spatial GAM on admin-2 centroids ──────────────────────────────
+# Thin-plate spline on (lon, lat) of admin-2 polygon centroids. NO GEE
+# covariates — coordinates only. This was the strongest single LOCO
+# method in sandbox testing (mean LOCO Pearson r = 0.285 vs the H6
+# combined filter's 0.224 and the 17-hour SuperLearner's ~0.14). The
+# 152 GEE rasters add nothing beyond the smooth geographic gradient
+# already encoded in (lon, lat) — at least within the West African
+# training footprint.
+#
+# Requires `lon` / `lat` columns in train and test. Use
+# add_admin2_centroids() upstream to add them.
+#
+# Reference: sandbox/04_spatial_gam_coords.R / sandbox/findings_log.md
+fit_predict_spatial_coords <- function(train, test, vars = NULL,
+                                          k_spline = 30, extra_covars = character(),
+                                          n_var_cap_extra = 0L,
+                                          model_type = c("continuous", "logit")) {
+  if (!requireNamespace("mgcv", quietly = TRUE)) return(NULL)
+  if (!all(c("lon","lat") %in% colnames(train)) ||
+      !all(c("lon","lat") %in% colnames(test))) return(NULL)
+  if (any(!is.finite(train$lon)) || any(!is.finite(train$lat))) return(NULL)
+  model_type <- match.arg(model_type)
+  Y  <- if (model_type == "logit") .safe_logit(train$svy_prev) else train$svy_prev
+  wt <- pmax(train$n_svy %||% rep(1, nrow(train)), 1)
+  # Choose a small number of additional covariates if requested (correlation-
+  # screened). Default is zero extras = pure spatial smoothing.
+  if (length(extra_covars) == 0 && n_var_cap_extra > 0 && length(vars) > 0) {
+    imp_pre <- .impute_train_test(train, test, vars)
+    cors <- vapply(vars, function(v)
+      suppressWarnings(abs(cor(imp_pre$train[[v]], train$svy_prev, use = "pairwise"))),
+      numeric(1))
+    extra_covars <- names(sort(cors, decreasing = TRUE))[seq_len(min(n_var_cap_extra, length(cors)))]
+  }
+  if (length(extra_covars) > 0) {
+    imp <- .impute_train_test(train, test, extra_covars)
+    fit_df <- data.frame(Y = Y, lon = train$lon, lat = train$lat, imp$train)
+    test_df <- data.frame(lon = test$lon, lat = test$lat, imp$test)
+    rhs <- paste(c(sprintf("s(lon, lat, k = %d, bs = 'tp')", k_spline),
+                    extra_covars), collapse = " + ")
+  } else {
+    fit_df  <- data.frame(Y = Y, lon = train$lon, lat = train$lat)
+    test_df <- data.frame(    lon = test$lon, lat = test$lat)
+    rhs <- sprintf("s(lon, lat, k = %d, bs = 'tp')", k_spline)
+  }
+  form <- stats::as.formula(paste("Y ~", rhs))
+  fit <- tryCatch(mgcv::gam(form, data = fit_df, weights = wt, method = "REML"),
+                   error = function(e) NULL)
+  if (is.null(fit)) return(NULL)
+  p_te_link <- as.numeric(mgcv::predict.gam(fit, newdata = test_df))
+  p_tr_link <- as.numeric(mgcv::predict.gam(fit, newdata = fit_df))
+  if (model_type == "logit") {
+    p_te <- .safe_invlogit(p_te_link); p_tr <- .safe_invlogit(p_tr_link)
+  } else { p_te <- p_te_link; p_tr <- p_tr_link }
+  list(pred = .bound01(p_te), train_pred = .bound01(p_tr),
+       method_note = sprintf("spatial thin-plate spline (k=%d, extras=%d)",
+                              k_spline, length(extra_covars)))
+}
+
+
+# ── METHOD 18: Spatial GAM + H6 residual stack ───────────────────────────────
+# Two-stage: fit spatial GAM on (lon, lat) to capture the smooth
+# geographic gradient (METHOD 17), compute training residuals, then fit
+# the H6 combined-filter elastic net on the residuals to capture
+# within-gradient variation explained by GEE covariates. Final prediction
+# is the sum of the two stages' predictions.
+fit_predict_spatial_plus_h6 <- function(train, test, vars,
+                                          cross_outcome_pooled = NULL,
+                                          this_outcome = NA_character_,
+                                          k_spline = 30,
+                                          h6_min_within_ratio = 0.70,
+                                          h6_top_k = 12L) {
+  s <- fit_predict_spatial_coords(train, test, vars, k_spline = k_spline)
+  if (is.null(s)) return(NULL)
+  # Stage-2 target = residuals of stage-1 on training.
+  resid_train <- train$svy_prev - s$train_pred
+  # Use a thin shim: fit combined_filter on the residuals by overriding
+  # svy_prev in the training frame. We restore at the end.
+  train2 <- train; train2$svy_prev <- resid_train
+  # Cross-outcome pooled also needs to use the same residual target —
+  # without it, the combined_filter falls back to invariance_filter on
+  # this outcome only. That's an acceptable degradation.
+  s2 <- tryCatch(
+    fit_predict_combined_filter(train2, test, vars,
+                                  cross_outcome_pooled = cross_outcome_pooled,
+                                  this_outcome = this_outcome,
+                                  min_within_ratio = h6_min_within_ratio,
+                                  top_k = h6_top_k),
+    error = function(e) NULL)
+  if (is.null(s2)) {
+    return(list(pred = .bound01(s$pred), train_pred = .bound01(s$train_pred),
+                method_note = "spatial_plus_h6 (stage 2 failed; spatial-only)"))
+  }
+  # Combine: spatial baseline + residual correction, but don't double-clamp
+  # to [0,1] before summing — only after.
+  pred <- s$pred + s2$pred
+  list(pred = .bound01(pred),
+       train_pred = .bound01(s$train_pred + s2$train_pred),
+       method_note = sprintf("spatial+h6 (k=%d, h6_top_k=%d)", k_spline, h6_top_k))
+}
+
+
+# ── Helper: add admin-2 polygon centroids to a pooled data frame ─────────────
+# pooled_data is augmented with `lon` and `lat` columns (centroid coords from
+# GADM). cc_list is a list of country-config entries with $country and
+# $gadm_code fields (as returned by get_country_configs()). svy_admin2_list
+# is the per-country survey frame whose Admin2 ordering keys into GADM.
+# Caches per-country centroids under <cache_dir> for re-use.
+add_admin2_centroids <- function(pooled_data, cc_list, svy_admin2_list,
+                                   gadm_cache = here::here("data", "gadm"),
+                                   centroid_cache = here::here("data",
+                                                                "admin2_centroids.rds")) {
+  if (file.exists(centroid_cache)) {
+    centroids <- readRDS(centroid_cache)
+  } else {
+    out <- list()
+    .norm_nm <- function(x) gsub(" ", "", tolower(x))
+    svy_keys_norm <- setNames(names(svy_admin2_list), .norm_nm(names(svy_admin2_list)))
+    for (cc in cc_list) {
+      nm <- cc$country
+      key <- svy_keys_norm[[.norm_nm(nm)]] %||% nm
+      svy <- svy_admin2_list[[key]]
+      if (is.null(svy) || nrow(svy) == 0) next
+      poly <- tryCatch(geodata::gadm(cc$gadm_code, level = 2, path = gadm_cache),
+                        error = function(e) NULL)
+      if (is.null(poly)) next
+      sf_poly <- sf::st_as_sf(poly)
+      suppressWarnings({ ctr <- sf::st_coordinates(sf::st_centroid(sf_poly)) })
+      out[[key]] <- data.frame(country = key, Admin2 = sf_poly$NAME_2,
+                                 lon = ctr[, 1], lat = ctr[, 2],
+                                 stringsAsFactors = FALSE)
+    }
+    centroids <- dplyr::bind_rows(out)
+    tryCatch(saveRDS(centroids, centroid_cache), error = function(e) NULL)
+  }
+  if (is.null(centroids) || nrow(centroids) == 0) return(pooled_data)
+  if (!all(c("lon","lat") %in% colnames(pooled_data))) {
+    pooled_data <- dplyr::left_join(pooled_data, centroids,
+                                      by = c("country", "Admin2"))
+  }
+  pooled_data
+}
+
+
 # ── TODO(pc-hal): future benchmark method — PC-HAL from UC Berkeley ──────────
 # Watch for a stable release of PC-HAL (principal-components highly
 # adaptive lasso) from Mark van der Laan's group at UC Berkeley. The
@@ -1644,7 +1787,9 @@ run_area_benchmarks_loco <- function(pooled_data, gee_vars, country_names,
                                                    "quasibinomial", "quantile",
                                                    "betareg", "dag",
                                                    "invariance_filter",
-                                                   "combined_filter"),
+                                                   "combined_filter",
+                                                   "spatial_coords",
+                                                   "spatial_plus_h6"),
                                        model_types = c("continuous", "logit"),
                                        augment_features = TRUE,
                                        cross_outcome_pooled = NULL) {
@@ -1670,7 +1815,8 @@ run_area_benchmarks_loco <- function(pooled_data, gee_vars, country_names,
     for (m in methods) {
       mts <- if (m %in% c("baseline", "fh", "bym2", "two_stage",
                             "grouplasso", "stacked", "quasibinomial",
-                            "betareg", "dag", "combined_filter"))
+                            "betareg", "dag", "combined_filter",
+                            "spatial_coords", "spatial_plus_h6"))
               "continuous" else model_types
       for (mt in mts) {
         out <- tryCatch(switch(m,
@@ -1699,6 +1845,11 @@ run_area_benchmarks_loco <- function(pooled_data, gee_vars, country_names,
           invariance_filter = fit_predict_invariance_filter(train, test, vars,
                                                               model_type = mt),
           combined_filter   = fit_predict_combined_filter  (train, test, vars,
+                                                              cross_outcome_pooled = cross_outcome_pooled,
+                                                              this_outcome = outcome_label),
+          spatial_coords    = fit_predict_spatial_coords   (train, test, vars,
+                                                              k_spline = 30),
+          spatial_plus_h6   = fit_predict_spatial_plus_h6  (train, test, vars,
                                                               cross_outcome_pooled = cross_outcome_pooled,
                                                               this_outcome = outcome_label)
         ), error = function(e) {
