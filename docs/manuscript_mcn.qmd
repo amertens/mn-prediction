@@ -322,7 +322,17 @@ was applied to the binary out-of-fold probability predictions of the
 individual-level SL classifiers to repair the Brier-skill failures
 identified in diagnostic flagging. Calibration parameters were
 estimated on training fold predictions and applied to held-out fold
-predictions to preserve honest cross-validation.
+predictions to preserve honest cross-validation. The recalibration
+substantially repaired the most-broken raw calibrations — Malawi
+child vitamin A slope moved from −4.30 to −0.15, Malawi child zinc
+from −3.97 to +0.88, Sierra Leone women B12 from −3.34 to +0.48, and
+Ghana women vitamin A from −2.32 to +0.77 — and Brier skill scores
+recovered to near or above zero for the four worst raw outcomes.
+Fitted Platt calibrator coefficients (intercept and slope on the
+logit of raw probability) are provided in
+`results/tables/calibrators.rds` for downstream application to new
+predictions; any threshold-based programmatic decision derived from
+this work should use the recalibrated rather than raw probabilities.
 
 Three additional comparator methods extend the comparison: a
 **generalised additive model** (mgcv with thin-plate spline smoothers,
@@ -463,6 +473,46 @@ observed for 22 of 24 country–outcome combinations
 within-country individual-level SL therefore remains useful at the
 national level even where it fails at admin-2 resolution.
 
+**Parsimonious model with soil micronutrient predictors.** A series of
+post-hoc analyses confirmed that the strongest transportable signal in
+the existing 152-variable GEE feature pool is concentrated in the
+SoilGrids covariates. Univariate leave-one-country-out scoring of each
+of the 152 GEE features identified eight SoilGrids variables (soil
+aluminium and calcium standard deviation at two depth profiles, soil
+magnesium standard deviation, soil zinc mean and standard deviation,
+soil total carbon mean) as the most consistently transportable single
+predictors; no NDVI, accessibility, night-lights, or population-density
+variable cracked the top eight in the per-variable LOCO ranking. A
+weighted generalised additive model with a thin-plate spline on
+admin-2 polygon centroid coordinates plus these eight soil features as
+linear terms achieved mean LOCO Pearson r = 0.330 across 16
+outcome–holdout combinations on the four main outcomes — substantially
+above any other parsimonious comparator we tested and roughly
+comparable to the area-level SuperLearner ensemble at a fraction of
+the compute cost. Bootstrap 95% confidence intervals on the
+combination's Pearson r were strictly above zero for seven of the
+sixteen holdouts, with the wins concentrated on iron and vitamin A
+in Gambia and Ghana. We caveat that the eight-feature recipe and the
+spatial gradient information may not generalise outside the West
+African training footprint — extending the training set to East and
+Southern Africa is the most important external-validity step.
+
+**Sierra Leone testing power at admin-3 resolution.** The admin-2
+Sierra Leone LOCO sample (n = 14 districts) is small enough that the
+holdout estimates are dominated by sampling noise; we documented this
+by re-running the analysis at admin-3 (chiefdom) resolution after
+spatial-joining DHS cluster coordinates to GADM admin-3 polygons. At
+admin-3 resolution, Sierra Leone has 44 chiefdoms with biomarker
+measurements (a 3.1-fold increase over admin-2). With Sierra Leone
+held out as the test country and the other three countries as training
+at admin-2 resolution, LOCO Spearman correlations on the four
+continuous biomarker outcomes (child / women vitamin A, women B12,
+women folate) moved from a range of −0.07 to −0.35 at admin-2 toward
+or above zero at admin-3, including a meaningfully positive +0.30 for
+women's vitamin B12. We interpret the headline admin-2 anti-predictive
+estimates for Sierra Leone as primarily a small-sample artefact and
+not as evidence of fundamental non-transportability.
+
 ```{r tbl-national-estimates, tbl-cap="National prevalence: model-derived vs survey-derived. From results/tables/national_estimates_all.csv."}
 if (!is.null(natl_est)) {
   natl_est %>%
@@ -513,6 +563,37 @@ if (!is.null(bench_results)) {
       "smoke-test results in the discussion.")
 }
 ```
+
+## Supplementary all-methods comparison on a representative outcome
+
+To provide a comprehensive supplementary comparison, we ran every method
+and SuperLearner library variant tested in this work on a single
+representative outcome — child iron deficiency, chosen because it has
+the strongest transportable signal in our data and biomarker
+measurements in all four countries. Two evaluation tracks were used:
+within-country five-fold cross-validation on each country's admin-2
+polygons (separately per country) and leave-one-country-out
+transportability across the four-country pool (@fig-all-methods-iron).
+
+```{r fig-all-methods-iron, fig.cap="Supplementary all-methods comparison for child iron deficiency. (a) Within-country 5-fold cross-validation Pearson r per method, with one dot per country and X-marks denoting the mean across the four countries. (b) Leave-one-country-out transportability Pearson r per method, with one dot per held-out country. Methods are ordered by mean LOCO r. The supplementary figure source data are in sandbox/results/22_all_methods_child_iron.csv.", fig.width=11, fig.height=6}
+fig_path <- here::here("sandbox","results","22_all_methods_child_iron.png")
+if (file.exists(fig_path)) knitr::include_graphics(fig_path)
+```
+
+For LOCO, spatial smoothing on admin-2 polygon centroids (mean Pearson r
+= 0.48) and spatial + top-8 SoilGrids covariates (0.46) were the two
+strongest methods, both substantially outperforming the prescreened
+SuperLearner ensemble (0.22) and the simpler invariance-filter and OLS
+recipes (0.39 each). Within-country, the picture flips: nonparametric
+flexibility helps when training data is in-distribution, with random
+forest (mean Pearson r = 0.23 across four countries) and the
+prescreened SuperLearner (0.17) outperforming the linear methods, while
+spatial-only and spatial + soil predict best on the two countries with
+enough admin-2 polygons (Ghana and Malawi) but are unstable on the
+small (n = 14) Sierra Leone CV split. The conclusion is consistent
+across outcomes (see Methods §Estimation strategies and the sandbox
+findings log): non-linear ensembles help within-country, parsimonious
+linear models with soil micronutrient features help out-of-country.
 
 ## Calibration and reliability of binary classifiers
 
