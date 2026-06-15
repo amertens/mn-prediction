@@ -131,7 +131,7 @@ mod_importance_server <- function(id) {
                   by = c("country", "outcome"), all.x = TRUE)
       d$drop <- d$auc_baseline - d$auc
 
-      d$label <- paste0(d$country, " — ", outcome_labels[d$outcome])
+      d$label <- paste0(d$country, " — ", meta$outcome_labels[d$outcome])
 
       plot_ly(d,
               x = ~domain_removed, y = ~label, z = ~drop,
