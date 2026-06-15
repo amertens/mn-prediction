@@ -35,6 +35,14 @@ admin2_fh_pred <- {
   .p <- file.path(DATA_DIR, "admin2_fh_predictions.rds")
   if (file.exists(.p)) readRDS(.p) else NULL
 }
+
+# Full-coverage SL -> BYM2 layer (every district) WITH spatially-smoothed 95%
+# credible intervals. Tighter, better-calibrated intervals than the Fay-Herriot
+# layer (see sandbox/sae_sl_hybrid_prototype.R). NULL if not built.
+admin2_bym2_pred <- {
+  .p <- file.path(DATA_DIR, "admin2_bym2_predictions.rds")
+  if (file.exists(.p)) readRDS(.p) else NULL
+}
 admin2_bnds <- readRDS(file.path(DATA_DIR, "admin2_boundaries.rds"))
 admin1_bnds <- readRDS(file.path(DATA_DIR, "admin1_boundaries.rds"))
 natl_est    <- readRDS(file.path(DATA_DIR, "national_estimates.rds"))
@@ -144,4 +152,32 @@ who_colors <- c(
   "Moderate" = "#fdae61",  # orange
   "Severe"   = "#d7191c",  # red
   "No data"  = "#cccccc"   # gray
+)
+
+# Per-outcome biomarker / data-quality caveats (surfaced in the map, district
+# profiles and Methods tab). Keyed by outcome tag; NULL = no specific caveat.
+biomarker_caveats <- list(
+  women_vitA   = paste("Vitamin A in women is measured by retinol-binding protein",
+                       "(RBP), a weaker proxy for vitamin A status in women that is",
+                       "affected by inflammation. Treat women's vitamin A estimates",
+                       "with extra caution."),
+  child_vitA   = paste("Vitamin A is measured by RBP, which is influenced by",
+                       "inflammation; inflammation-adjustment is applied but some",
+                       "residual bias is possible."),
+  women_b12    = paste("B12 is measured by serum B12; holo-transcobalamin (active",
+                       "B12) is a more specific marker that is still being explored.",
+                       "Interpret B12 estimates as indicative."),
+  women_folate = paste("Folate deficiency is often low-prevalence, which is harder",
+                       "to estimate precisely; small district differences may not",
+                       "be reliable."),
+  child_zinc   = paste("Zinc biomarkers and thresholds are less standardized, so",
+                       "zinc estimates carry more uncertainty than iron or vitamin A."),
+  women_zinc   = paste("Zinc biomarkers and thresholds are less standardized, so",
+                       "zinc estimates carry more uncertainty than iron or vitamin A.")
+)
+GENERAL_CAVEAT <- paste(
+  "Surveys span different years (2013–2018) and laboratories, so biomarker",
+  "values are not perfectly comparable across countries. Predictions transported",
+  "to a country with no survey are the least reliable and may be no better than",
+  "chance for some outcomes — see the Transportability and Decision value tabs."
 )

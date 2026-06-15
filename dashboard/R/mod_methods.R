@@ -142,6 +142,23 @@ mod_methods_ui <- function(id) {
           "changing indicators (soil properties) the most recent global version is used."
         )
       )
+    ),
+
+    card(
+      card_header("Biomarker and data-quality caveats"),
+      card_body(
+        p("Estimates depend on how each nutrient was measured and on differences ",
+          "between surveys. Read the per-nutrient notes below alongside any ",
+          "estimate:"),
+        tags$ul(
+          tags$li(strong("Vitamin A (women): "), biomarker_caveats$women_vitA),
+          tags$li(strong("Vitamin A (children): "), biomarker_caveats$child_vitA),
+          tags$li(strong("Vitamin B12 (women): "), biomarker_caveats$women_b12),
+          tags$li(strong("Folate (women): "), biomarker_caveats$women_folate),
+          tags$li(strong("Zinc: "), biomarker_caveats$child_zinc)
+        ),
+        p(GENERAL_CAVEAT, style = "color:#555;")
+      )
     )
   )
 }

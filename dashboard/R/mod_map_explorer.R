@@ -20,6 +20,8 @@ mod_map_explorer_ui <- function(id) {
                   choices = outcome_choices,
                   selected = "women_iron"),
 
+      uiOutput(ns("outcome_caveat")),
+
       radioButtons(ns("admin_level"), "Geographic level",
                    choices = c("Admin 2 (district)" = "admin2",
                                "Admin 1 (region)"  = "admin1"),
@@ -27,8 +29,9 @@ mod_map_explorer_ui <- function(id) {
 
       radioButtons(ns("pred_model"), "Prediction model",
                    choices = c("Area-level SAE — HAL (all districts)" = "area",
+                               "SL → BYM2 SAE (all districts, spatial intervals)" = "bym2",
                                "Fay-Herriot SAE (all districts, with intervals)" = "fh",
-                               "Individual SuperLearner (surveyed districts)" = "sl"),
+                               "Individual SuperLearner — sensitivity (surveyed districts)" = "sl"),
                    selected = "area"),
       tags$details(
         style = "font-size:0.82em; color:#555; margin-top:-2px; margin-bottom:6px;",
@@ -39,15 +42,23 @@ mod_map_explorer_ui <- function(id) {
                   "predicts every district's prevalence from satellite and ",
                   "geospatial indicators using a Highly Adaptive Lasso. Full ",
                   "coverage; point estimates only (no per-district interval)."),
+          tags$li(strong("SL → BYM2 SAE: "),
+                  "feeds the area-level SuperLearner's prediction into a ",
+                  "Bayesian spatial (BYM2) small-area model that borrows ",
+                  "strength from neighbouring districts. Full coverage with a ",
+                  "95% credible interval for every district — tighter and ",
+                  "better-calibrated than Fay-Herriot, narrow where surveyed ",
+                  "and wider (but spatially informed) where not."),
           tags$li(strong("Fay-Herriot SAE: "),
                   "a small-area model that blends each district's survey ",
                   "estimate (where one exists) with the indicator-based ",
                   "prediction. Full coverage with a 95% interval for every ",
                   "district — narrow where a survey exists, wide where it does not."),
-          tags$li(strong("Individual SuperLearner: "),
+          tags$li(strong("Individual SuperLearner (sensitivity): "),
                   "a person-level machine-learning ensemble, averaged up to ",
-                  "the surveyed districts. Covers surveyed districts only, ",
-                  "with conformal intervals.")
+                  "the surveyed districts. Retained as a sensitivity analysis ",
+                  "— the area-level SAE models above are the primary analysis. ",
+                  "Covers surveyed districts only, with conformal intervals.")
         )
       ),
 
@@ -58,7 +69,8 @@ mod_map_explorer_ui <- function(id) {
                                "Transportability error: held-out country (pp)" = "loco_diff",
                                "Confidence interval width" = "ci_width",
                                "Population affected (count)" = "pop_at_risk",
-                               "WHO public health classification" = "who_class"),
+                               "WHO public health classification" = "who_class",
+                               "WHO-class certainty (misclassification risk)" = "misclass"),
                    selected = "pred_prev"),
 
       hr(),
@@ -102,7 +114,9 @@ mod_map_explorer_server <- function(id) {
     # SuperLearner if the area bundle is not present.
     pred_df <- reactive({
       m <- input$pred_model %||% "area"
-      if (m == "fh" && exists("admin2_fh_pred") && !is.null(admin2_fh_pred)) {
+      if (m == "bym2" && exists("admin2_bym2_pred") && !is.null(admin2_bym2_pred)) {
+        admin2_bym2_pred
+      } else if (m == "fh" && exists("admin2_fh_pred") && !is.null(admin2_fh_pred)) {
         admin2_fh_pred
       } else if (m == "area" && exists("admin2_area_pred") && !is.null(admin2_area_pred)) {
         admin2_area_pred
@@ -128,6 +142,16 @@ mod_map_explorer_server <- function(id) {
     area_col <- reactive(
       if (isTRUE(input$admin_level == "admin1")) "Admin1" else "Admin2"
     )
+
+    # Per-outcome biomarker / data caveat shown under the outcome selector.
+    output$outcome_caveat <- renderUI({
+      cv <- biomarker_caveats[[input$outcome %||% ""]]
+      if (is.null(cv)) return(NULL)
+      div(style = paste("font-size:0.78em; color:#8a6d3b; background:#fcf8e3;",
+                        "border-left:3px solid #e0c97f; padding:5px 8px;",
+                        "border-radius:3px; margin:-2px 0 6px;"),
+          bsicons::bs_icon("info-circle"), " ", cv)
+    })
 
     # National headline
     output$headline <- renderUI({
@@ -156,6 +180,7 @@ mod_map_explorer_server <- function(id) {
             style = "font-size: 0.82em; color: #777;",
             switch(input$pred_model %||% "area",
               sl = "Counts cover surveyed districts only — switch to an all-district model above.",
+              bym2 = "Counts cover all districts (SL → BYM2 spatial model, with credible intervals).",
               fh = "Counts cover all districts (Fay-Herriot model, with intervals).",
               "Counts cover all districts (area-level HAL model; point estimates, no interval)."))
         ),
@@ -178,7 +203,24 @@ mod_map_explorer_server <- function(id) {
       layer <- input$layer
       vals <- df[[layer]]
 
-      if (layer == "who_class") {
+      if (layer == "misclass") {
+        # WHO-class certainty: is the 95% interval wide enough to cross a WHO
+        # severity threshold (i.e. could the district's class change)?
+        th <- meta$who_thresholds[[input$outcome]]
+        cuts <- if (!is.null(th)) sort(unique(as.numeric(th))) else numeric(0)
+        spans <- vapply(seq_len(nrow(df)), function(i) {
+          lo <- df$ci_lo[i]; hi <- df$ci_hi[i]
+          if (is.na(lo) || is.na(hi) || length(cuts) == 0) return(NA_integer_)
+          as.integer(any(cuts > lo & cuts < hi))
+        }, integer(1))
+        df$misclass <- ifelse(is.na(spans), "No interval",
+                       ifelse(spans == 1L, "Class uncertain", "Class stable"))
+        mc_cols <- c("Class stable" = "#1a9850", "Class uncertain" = "#d7191c",
+                     "No interval" = "#cccccc")
+        fill_col <- unname(mc_cols[df$misclass])
+        pal <- NULL
+        legend_title <- "WHO-class certainty"
+      } else if (layer == "who_class") {
         pal <- colorFactor(palette = unname(who_colors),
                            levels = names(who_colors),
                            na.color = "#cccccc")
@@ -254,12 +296,15 @@ mod_map_explorer_server <- function(id) {
       surveyed   <- !is.na(df$obs_prev)
       border_col <- ifelse(surveyed, "#1a1a1a", "#9aa0a6")
       border_wt  <- ifelse(surveyed, 1.8, 0.5)
+      cert_line <- if (layer == "misclass")
+        sprintf("Class certainty: %s<br/>", df$misclass) else rep("", nrow(df))
       labels <- sprintf(
-        "<strong>%s</strong><br/>%s<br/>%sPopulation: %s<br/>WHO class: %s<br/>Survey data: %s",
+        "<strong>%s</strong><br/>%s<br/>%sPopulation: %s<br/>WHO class: %s<br/>%sSurvey data: %s",
         area_name, sub_line,
         diff_line,
         fmt_count(df$population),
         df$who_class,
+        cert_line,
         ifelse(surveyed, "yes", "no (modeled)")
       ) |> lapply(HTML)
 
@@ -319,6 +364,12 @@ mod_map_explorer_server <- function(id) {
         m <- m |> addLegend(
           colors = unname(who_colors),
           labels = names(who_colors),
+          opacity = 0.75, title = legend_title, position = "bottomright"
+        )
+      } else if (layer == "misclass") {
+        m <- m |> addLegend(
+          colors = unname(mc_cols),
+          labels = names(mc_cols),
           opacity = 0.75, title = legend_title, position = "bottomright"
         )
       }

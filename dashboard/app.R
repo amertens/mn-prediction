@@ -126,6 +126,12 @@ ui <- page_navbar(
   ),
 
   nav_panel(
+    title = "Start here",
+    icon  = bsicons::bs_icon("signpost-2"),
+    mod_start_here_ui("start")
+  ),
+
+  nav_panel(
     title = "Map explorer",
     icon  = bsicons::bs_icon("map"),
     mod_map_explorer_ui("map")
@@ -239,6 +245,7 @@ ui <- page_navbar(
 
 # ── Server ─────────────────────────────────────────────────────────────────
 server <- function(input, output, session) {
+  mod_start_here_server("start")
   mod_map_explorer_server("map")
   mod_district_profile_server("district")
   mod_national_burden_server("burden")
