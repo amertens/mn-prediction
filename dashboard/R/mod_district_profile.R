@@ -17,6 +17,11 @@ mod_district_profile_ui <- function(id) {
                   choices = country_choices,
                   selected = "ghana"),
 
+      radioButtons(ns("scope"), "View",
+                   choices = c("Single district" = "district",
+                               "National (whole country)" = "national"),
+                   selected = "district", inline = TRUE),
+
       radioButtons(ns("dp_model"), "Prediction model",
                    choices = c("Fay-Herriot SAE (all districts, with intervals)" = "fh",
                                "Area-level SAE — HAL (all districts)" = "area",
@@ -101,6 +106,10 @@ mod_district_profile_server <- function(id) {
     # Dynamic district picker
     output$district_picker <- renderUI({
       req(input$country)
+      if ((input$scope %||% "district") == "national") {
+        return(p(em("Showing the country-wide national summary."),
+                 style = "color: #888;"))
+      }
       ctry_label <- meta$countries[input$country]
       pd <- dp_pred()
       districts <- sort(unique(pd$Admin2[pd$country == ctry_label]))
@@ -113,24 +122,60 @@ mod_district_profile_server <- function(id) {
                   selected = districts[1])
     })
 
+    classify_who_local <- function(prev, oc) {
+      th <- if (!is.null(meta$who_thresholds)) meta$who_thresholds[[oc]] else NULL
+      if (is.null(th) || is.na(prev)) return(NA_character_)
+      if (prev < th["none"]) "Low"
+      else if (prev < th["mild"]) "Mild"
+      else if (prev < th["moderate"]) "Moderate" else "Severe"
+    }
+
     district_data <- reactive({
-      req(input$country, input$district)
+      req(input$country)
       ctry_label <- meta$countries[input$country]
-
       pd <- dp_pred()
-      df <- pd[pd$country == ctry_label & pd$Admin2 == input$district, ,
-               drop = FALSE]
+
+      # National (country-wide) view: one population-weighted row per outcome.
+      if ((input$scope %||% "district") == "national") {
+        rows <- list()
+        for (oc_key in sort(unique(pd$outcome[pd$country == ctry_label]))) {
+          d <- get_country_admin2(input$country, oc_key, admin2_bnds, pd, admin2_pop)
+          if (is.null(d)) next
+          na <- national_aggregate(d)
+          obs <- NA_real_
+          if (exists("natl_est") && !is.null(natl_est) && is.data.frame(natl_est)) {
+            m <- natl_est[natl_est$country == ctry_label & natl_est$outcome == oc_key, ,
+                          drop = FALSE]
+            oc_col <- intersect(c("obs_prev", "svy_prev", "prev", "prevalence"),
+                                colnames(m))[1]
+            if (nrow(m) > 0 && !is.na(oc_col)) obs <- m[[oc_col]][1]
+          }
+          rows[[oc_key]] <- data.frame(
+            country = ctry_label, outcome = oc_key, Admin1 = NA_character_,
+            Admin2 = "National", pred_prev = na$pred_prev_natl, obs_prev = obs,
+            n_survey = NA_integer_, ci_lo = na$ci_lo_natl, ci_hi = na$ci_hi_natl,
+            ci_width = na$ci_hi_natl - na$ci_lo_natl,
+            who_class = classify_who_local(na$pred_prev_natl, oc_key),
+            population = na$pop_total, pop_affected = na$pop_at_risk_natl,
+            Outcome_label = meta$outcome_labels[oc_key], stringsAsFactors = FALSE)
+        }
+        if (length(rows) == 0) return(NULL)
+        return(do.call(rbind, rows))
+      }
+
+      # Single-district view
+      req(input$district)
+      df <- pd[pd$country == ctry_label & pd$Admin2 == input$district, , drop = FALSE]
       if (!"Admin1" %in% colnames(df)) df$Admin1 <- NA_character_
-
       pop_row <- admin2_pop[admin2_pop$country == ctry_label &
-                              admin2_pop$Admin2 == input$district, ,
-                              drop = FALSE]
-      pop <- if (nrow(pop_row) > 0) pop_row$population[1] else NA_real_
-
-      df$population <- pop
-      df$pop_affected <- df$pred_prev * pop
+                              admin2_pop$Admin2 == input$district, , drop = FALSE]
+      # subgroup population per outcome (children 6-59m vs women 15-49)
+      df$population <- vapply(df$outcome, function(o) {
+        col <- if (startsWith(o, "child_")) "pop_child" else "pop_women"
+        if (nrow(pop_row) > 0 && col %in% colnames(pop_row)) pop_row[[col]][1] else NA_real_
+      }, numeric(1))
+      df$pop_affected <- df$pred_prev * df$population
       df$Outcome_label <- meta$outcome_labels[df$outcome]
-
       df
     })
 
@@ -155,22 +200,37 @@ mod_district_profile_server <- function(id) {
       df <- district_data()
       if (is.null(df) || nrow(df) == 0) return(NULL)
 
+      if ((input$scope %||% "district") == "national") {
+        return(tagList(
+          h5(paste0(meta$countries[input$country], " — national summary"),
+             style = "margin-top: 0.5em;"),
+          p(em(sprintf("Country-wide aggregate across %d outcomes.", nrow(df))))
+        ))
+      }
+      ctry_label <- meta$countries[input$country]
+      pr <- admin2_pop[admin2_pop$country == ctry_label &
+                         admin2_pop$Admin2 == input$district, , drop = FALSE]
+      tot <- if (nrow(pr) > 0) pr$population[1] else NA_real_
+      a1 <- if (!is.null(df$Admin1) && length(df$Admin1) > 0) df$Admin1[1] else NA
       tagList(
         h5(input$district, style = "margin-top: 0.5em;"),
-        if (!is.null(df$Admin1) && length(df$Admin1) > 0 &&
-            !is.na(df$Admin1[1])) p(em(df$Admin1[1])),
-        p(strong("Population: "), fmt_count(df$population[1]))
+        if (!is.na(a1)) p(em(a1)),
+        p(strong("Total population: "), fmt_count(tot))
       )
     })
 
     output$outcome_plot <- renderPlotly({
       df <- district_data()
-      avgs <- natl_avgs()
       req(nrow(df) > 0)
 
-      df$natl_avg <- vapply(df$outcome, function(o) {
-        if (is.null(avgs[[o]])) NA_real_ else avgs[[o]]
-      }, numeric(1))
+      if ((input$scope %||% "district") == "national") {
+        df$natl_avg <- NA_real_   # national view IS the average; no separate line
+      } else {
+        avgs <- natl_avgs()
+        df$natl_avg <- vapply(df$outcome, function(o) {
+          if (is.null(avgs[[o]])) NA_real_ else avgs[[o]]
+        }, numeric(1))
+      }
 
       # Numeric y positions (consistent across layers) with outcome labels as
       # tick text. Mixing numeric and categorical y axes — or drawing all-NA
@@ -264,10 +324,9 @@ mod_district_profile_server <- function(id) {
 
     output$download_district <- downloadHandler(
       filename = function() {
-        sprintf("district_%s_%s_%s.csv",
-                input$country,
-                gsub("[^A-Za-z0-9]", "_", input$district),
-                Sys.Date())
+        scope_lbl <- if ((input$scope %||% "district") == "national") "national"
+                     else gsub("[^A-Za-z0-9]", "_", input$district %||% "district")
+        sprintf("profile_%s_%s_%s.csv", input$country, scope_lbl, Sys.Date())
       },
       content = function(file) {
         df <- district_data()

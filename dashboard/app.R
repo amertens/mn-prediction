@@ -110,6 +110,21 @@ ui <- page_navbar(
   fillable = c("Map explorer", "Côte d'Ivoire (OOS)"),
   underline = TRUE,
 
+  # Shown on every tab: in-development banner + a faint fixed watermark.
+  header = tagList(
+    tags$style(HTML(
+      ".indev-watermark{position:fixed;bottom:10px;right:12px;z-index:1030;
+       font-weight:700;font-size:12px;letter-spacing:1px;color:rgba(200,0,0,0.33);
+       border:2px solid rgba(200,0,0,0.28);border-radius:5px;padding:2px 8px;
+       transform:rotate(-4deg);pointer-events:none;background:rgba(255,255,255,0.45);}")),
+    div(class = "alert alert-warning",
+        style = "margin:0 0 10px;border-radius:0;text-align:center;font-size:0.88em;padding:6px 10px;",
+        bsicons::bs_icon("cone-striped"), " ",
+        strong("In development"),
+        " — preliminary results for internal review; not for citation or external distribution."),
+    div(class = "indev-watermark", "IN DEVELOPMENT")
+  ),
+
   nav_panel(
     title = "Map explorer",
     icon  = bsicons::bs_icon("map"),
