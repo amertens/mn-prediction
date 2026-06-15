@@ -230,6 +230,21 @@ if (length(area_rows) > 0) {
 
 
 # =============================================================================
+# 1d. FAY-HERRIOT / EMPIRICAL-BAYES SAE LAYER (full coverage, with intervals)
+# =============================================================================
+# Full-coverage area-level model that blends each district's direct survey
+# estimate with an indicator-based synthetic prediction, with design-based 95%
+# intervals (narrow where surveyed, wide where not). Self-contained builder;
+# sourced in an isolated environment so it cannot clobber variables here.
+
+cat("\n── Building Fay-Herriot SAE map layer (all districts, with intervals) ──\n")
+tryCatch(
+  source(here::here("dashboard", "data-raw", "_build_fh_layer.R"),
+         local = new.env()),
+  error = function(e) cat("  FH layer build skipped:", conditionMessage(e), "\n"))
+
+
+# =============================================================================
 # 1b. TRANSPORTABILITY (leave-one-country-out) Admin-2 predictions
 # =============================================================================
 # Out-of-sample modeled prevalence for each country, produced by training the

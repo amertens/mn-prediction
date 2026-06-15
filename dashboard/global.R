@@ -27,6 +27,14 @@ admin2_area_pred <- {
   .p <- file.path(DATA_DIR, "admin2_area_predictions.rds")
   if (file.exists(.p)) readRDS(.p) else NULL
 }
+
+# Full-coverage Fay-Herriot / empirical-Bayes layer (every district) WITH
+# design-based 95% intervals (tight for surveyed, wide for unsurveyed). NULL if
+# not built.
+admin2_fh_pred <- {
+  .p <- file.path(DATA_DIR, "admin2_fh_predictions.rds")
+  if (file.exists(.p)) readRDS(.p) else NULL
+}
 admin2_bnds <- readRDS(file.path(DATA_DIR, "admin2_boundaries.rds"))
 admin1_bnds <- readRDS(file.path(DATA_DIR, "admin1_boundaries.rds"))
 natl_est    <- readRDS(file.path(DATA_DIR, "national_estimates.rds"))

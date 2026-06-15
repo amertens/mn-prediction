@@ -26,12 +26,30 @@ mod_map_explorer_ui <- function(id) {
                    selected = "admin2", inline = TRUE),
 
       radioButtons(ns("pred_model"), "Prediction model",
-                   choices = c("Area-level SAE (all districts)" = "area",
+                   choices = c("Area-level SAE — HAL (all districts)" = "area",
+                               "Fay-Herriot SAE (all districts, with intervals)" = "fh",
                                "Individual SuperLearner (surveyed districts)" = "sl"),
                    selected = "area"),
-      div(style = "font-size:0.8em; color:#6c757d; margin-top:-6px;",
-          "The area-level model covers every district, including unsurveyed ones; ",
-          "it has no per-district confidence interval."),
+      tags$details(
+        style = "font-size:0.82em; color:#555; margin-top:-2px; margin-bottom:6px;",
+        tags$summary("How are these predictions built?"),
+        tags$ul(
+          style = "padding-left:1.1em; margin-bottom:0;",
+          tags$li(strong("Area-level SAE (HAL): "),
+                  "predicts every district's prevalence from satellite and ",
+                  "geospatial indicators using a Highly Adaptive Lasso. Full ",
+                  "coverage; point estimates only (no per-district interval)."),
+          tags$li(strong("Fay-Herriot SAE: "),
+                  "a small-area model that blends each district's survey ",
+                  "estimate (where one exists) with the indicator-based ",
+                  "prediction. Full coverage with a 95% interval for every ",
+                  "district — narrow where a survey exists, wide where it does not."),
+          tags$li(strong("Individual SuperLearner: "),
+                  "a person-level machine-learning ensemble, averaged up to ",
+                  "the surveyed districts. Covers surveyed districts only, ",
+                  "with conformal intervals.")
+        )
+      ),
 
       radioButtons(ns("layer"), "Display layer",
                    choices = c("Predicted prevalence" = "pred_prev",
@@ -83,8 +101,10 @@ mod_map_explorer_server <- function(id) {
     # districts only) or the full-coverage area-level SAE model. Falls back to
     # SuperLearner if the area bundle is not present.
     pred_df <- reactive({
-      if (isTRUE((input$pred_model %||% "sl") == "area") &&
-          exists("admin2_area_pred") && !is.null(admin2_area_pred)) {
+      m <- input$pred_model %||% "area"
+      if (m == "fh" && exists("admin2_fh_pred") && !is.null(admin2_fh_pred)) {
+        admin2_fh_pred
+      } else if (m == "area" && exists("admin2_area_pred") && !is.null(admin2_area_pred)) {
         admin2_area_pred
       } else {
         admin2_pred
@@ -134,9 +154,10 @@ mod_map_explorer_server <- function(id) {
           tags$br(),
           tags$span(
             style = "font-size: 0.82em; color: #777;",
-            if (isTRUE((input$pred_model %||% "sl") == "sl"))
-              "Counts cover surveyed districts only — switch to the area-level model for all districts."
-            else "Counts cover all districts (area-level model).")
+            switch(input$pred_model %||% "area",
+              sl = "Counts cover surveyed districts only — switch to an all-district model above.",
+              fh = "Counts cover all districts (Fay-Herriot model, with intervals).",
+              "Counts cover all districts (area-level HAL model; point estimates, no interval)."))
         ),
         if (!is.na(natl$ci_lo_natl)) {
           p("95% conformal CI: ",
