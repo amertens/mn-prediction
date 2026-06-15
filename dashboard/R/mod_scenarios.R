@@ -81,9 +81,7 @@ mod_scenarios_ui <- function(id) {
           sliderInput(ns("effect"), "Effect size on prevalence (%)",
                       min = 0, max = 100, value = 40, step = 5,
                       post = "%",
-                      width = "100%"),
-
-          uiOutput(ns("default_note"))
+                      width = "100%")
         ),
 
         layout_columns(
@@ -252,18 +250,6 @@ mod_scenarios_server <- function(id) {
         updateSliderInput(session, "effect",
                           value = round(d$effect * 100))
       }
-    })
-
-    output$default_note <- renderUI({
-      d <- default_effects[[input$outcome]]
-      if (is.null(d)) return(NULL)
-      tagList(
-        hr(),
-        p(strong("Suggested defaults: "), d$label,
-          style = "font-size: 0.9em; margin-bottom: 4px;"),
-        p(em(d$cite),
-          style = "font-size: 0.8em; color: #666;")
-      )
     })
 
     # Reactive: baseline data
