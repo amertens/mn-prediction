@@ -191,6 +191,45 @@ saveRDS(admin2_all, file.path(DASHBOARD_DATA, "admin2_predictions.rds"))
 
 
 # =============================================================================
+# 1c. AREA-LEVEL SAE PREDICTIONS (full district coverage, surveyed + unsurveyed)
+# =============================================================================
+# From area_model_<country>_<outcome>$area_preds — predicts EVERY Admin-2
+# polygon (not just surveyed districts), powering the map explorer's
+# "Area-level SAE (all districts)" layer. Same column schema as
+# admin2_predictions so get_country_admin2()/get_country_admin1() can consume it.
+
+cat("\n── Building area-level SAE map layer (all districts) ──\n")
+area_rows <- list()
+for (ctry in countries) {
+  for (oc in names(outcome_labels)) {
+    am <- safe_read(paste0("area_model_", ctry, "_", oc))
+    ap <- am$area_preds
+    if (is.null(ap) || !"area_pred_prev" %in% colnames(ap)) next
+    hs <- if ("has_survey" %in% colnames(ap)) as.logical(ap$has_survey)
+          else !is.na(ap$svy_prev)
+    area_rows[[paste(ctry, oc)]] <- data.frame(
+      country = country_labels[ctry], outcome = oc, Admin2 = ap$Admin2,
+      pred_prev = as.numeric(ap$area_pred_prev),
+      obs_prev = if ("svy_prev" %in% colnames(ap))
+                   ifelse(hs, ap$svy_prev, NA_real_) else NA_real_,
+      ci_lo = NA_real_, ci_hi = NA_real_, ci_width = NA_real_,
+      n_survey = if ("n_svy" %in% colnames(ap)) ap$n_svy else NA_integer_,
+      who_class = vapply(as.numeric(ap$area_pred_prev), classify_who,
+                         character(1), outcome = oc),
+      stringsAsFactors = FALSE)
+  }
+}
+if (length(area_rows) > 0) {
+  area_all <- bind_rows(area_rows)
+  saveRDS(area_all, file.path(DASHBOARD_DATA, "admin2_area_predictions.rds"))
+  cat(sprintf("  %d area-level rows across %d country × outcome combos\n",
+              nrow(area_all), length(area_rows)))
+} else {
+  cat("  No area_model_* objects found — skipping area layer.\n")
+}
+
+
+# =============================================================================
 # 1b. TRANSPORTABILITY (leave-one-country-out) Admin-2 predictions
 # =============================================================================
 # Out-of-sample modeled prevalence for each country, produced by training the

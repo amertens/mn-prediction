@@ -20,6 +20,13 @@ DATA_DIR <- "data"
 # ── Load all dashboard data once ──────────────────────────────────────────
 admin2_pred <- readRDS(file.path(DATA_DIR, "admin2_predictions.rds"))
 admin2_pop  <- readRDS(file.path(DATA_DIR, "admin2_population.rds"))
+
+# Full-coverage area-level SAE predictions (every district, surveyed +
+# unsurveyed) — the alternate "Area-level SAE" map layer. NULL if not built.
+admin2_area_pred <- {
+  .p <- file.path(DATA_DIR, "admin2_area_predictions.rds")
+  if (file.exists(.p)) readRDS(.p) else NULL
+}
 admin2_bnds <- readRDS(file.path(DATA_DIR, "admin2_boundaries.rds"))
 admin1_bnds <- readRDS(file.path(DATA_DIR, "admin1_boundaries.rds"))
 natl_est    <- readRDS(file.path(DATA_DIR, "national_estimates.rds"))

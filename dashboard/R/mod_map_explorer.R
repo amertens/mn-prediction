@@ -25,6 +25,14 @@ mod_map_explorer_ui <- function(id) {
                                "Admin 1 (region)"  = "admin1"),
                    selected = "admin2", inline = TRUE),
 
+      radioButtons(ns("pred_model"), "Prediction model",
+                   choices = c("Individual SuperLearner (surveyed districts)" = "sl",
+                               "Area-level SAE (all districts)" = "area"),
+                   selected = "sl"),
+      div(style = "font-size:0.8em; color:#6c757d; margin-top:-6px;",
+          "The area-level model covers every district, including unsurveyed ones; ",
+          "it has no per-district confidence interval."),
+
       radioButtons(ns("layer"), "Display layer",
                    choices = c("Predicted prevalence" = "pred_prev",
                                "Survey-observed prevalence (where available)" = "obs_prev",
@@ -71,15 +79,28 @@ mod_map_explorer_server <- function(id) {
   moduleServer(id, function(input, output, session) {
     ns <- session$ns
 
+    # Which prediction source feeds the map: individual SuperLearner (surveyed
+    # districts only) or the full-coverage area-level SAE model. Falls back to
+    # SuperLearner if the area bundle is not present.
+    pred_df <- reactive({
+      if (isTRUE((input$pred_model %||% "sl") == "area") &&
+          exists("admin2_area_pred") && !is.null(admin2_area_pred)) {
+        admin2_area_pred
+      } else {
+        admin2_pred
+      }
+    })
+
     # Reactive: joined sf for selected country × outcome × admin level
     map_data <- reactive({
       req(input$country, input$outcome, input$admin_level)
+      pd <- pred_df()
       if (input$admin_level == "admin1") {
         get_country_admin1(input$country, input$outcome,
-                            admin1_bnds, admin2_bnds, admin2_pred, admin2_pop)
+                            admin1_bnds, admin2_bnds, pd, admin2_pop)
       } else {
         get_country_admin2(input$country, input$outcome,
-                            admin2_bnds, admin2_pred, admin2_pop)
+                            admin2_bnds, pd, admin2_pop)
       }
     })
 
