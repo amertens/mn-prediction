@@ -250,12 +250,17 @@ mod_map_explorer_server <- function(id) {
       } else {
         sprintf("Predicted: %s<br/>", fmt_pct(df$pred_prev))
       }
+      # Border encodes whether a district has actual survey data (vs modeled).
+      surveyed   <- !is.na(df$obs_prev)
+      border_col <- ifelse(surveyed, "#1a1a1a", "#9aa0a6")
+      border_wt  <- ifelse(surveyed, 1.8, 0.5)
       labels <- sprintf(
-        "<strong>%s</strong><br/>%s<br/>%sPopulation: %s<br/>WHO class: %s",
+        "<strong>%s</strong><br/>%s<br/>%sPopulation: %s<br/>WHO class: %s<br/>Survey data: %s",
         area_name, sub_line,
         diff_line,
         fmt_count(df$population),
-        df$who_class
+        df$who_class,
+        ifelse(surveyed, "yes", "no (modeled)")
       ) |> lapply(HTML)
 
       m <- leaflet(df) |>
@@ -263,8 +268,9 @@ mod_map_explorer_server <- function(id) {
         addPolygons(
           fillColor = fill_col,
           fillOpacity = 0.75,
-          color = "white",
-          weight = 1,
+          color = border_col,
+          weight = border_wt,
+          opacity = 1,
           highlightOptions = highlightOptions(
             weight = 3, color = "#333", bringToFront = TRUE
           ),
@@ -275,7 +281,16 @@ mod_map_explorer_server <- function(id) {
             direction = "auto"
           ),
           layerId = df[[area_col()]]
-        )
+        ) |>
+        addControl(
+          position = "bottomleft",
+          html = HTML(paste0(
+            "<div style='background:rgba(255,255,255,0.85);padding:4px 8px;",
+            "border-radius:4px;font-size:11px;line-height:1.5;'>",
+            "<span style='display:inline-block;width:16px;border-top:3px solid #1a1a1a;",
+            "vertical-align:middle;'></span> has survey data<br/>",
+            "<span style='display:inline-block;width:16px;border-top:2px solid #9aa0a6;",
+            "vertical-align:middle;'></span> modeled only</div>")))
 
       if (!is.null(pal) && layer != "who_class") {
         legend_vals <- if (layer == "pop_at_risk") {

@@ -33,17 +33,16 @@ mod_district_profile_ui <- function(id) {
           plotlyOutput(ns("outcome_plot"), height = "400px"),
           methods_note(
             "Each row shows the model-predicted prevalence (point) for one ",
-            "micronutrient outcome in this district, with 95% conformal prediction ",
-            "interval (horizontal line). The dashed vertical line marks the ",
+            "micronutrient outcome in this district, with its 95% interval ",
+            "where available (horizontal line). The dashed vertical line marks the ",
             "country-level average for comparison. Outcomes where the district ",
             "estimate is meaningfully above the country average indicate ",
             "elevated local burden that may warrant targeted intervention. ",
             tags$br(), tags$br(),
-            "Confidence intervals come from split-conformal prediction applied ",
-            "to cross-validated residuals, computed at Admin-1 level and ",
-            "broadcast to constituent districts. They reflect prediction ",
-            "uncertainty about a single district's prevalence, not measurement ",
-            "uncertainty in the original survey."
+            "Intervals, where shown, come from split-conformal prediction on ",
+            "cross-validated residuals. Where an interval is not available for a ",
+            "district, only the point estimate is shown — the Map explorer's ",
+            "Fay-Herriot layer provides an interval for every district."
           )
         )
       ),
@@ -153,51 +152,50 @@ mod_district_profile_server <- function(id) {
         if (is.null(avgs[[o]])) NA_real_ else avgs[[o]]
       }, numeric(1))
 
-      # Sort outcomes for visual order
-      df$Outcome_label <- factor(df$Outcome_label,
-                                  levels = rev(df$Outcome_label[order(df$pred_prev)]))
+      # Numeric y positions (consistent across layers) with outcome labels as
+      # tick text. Mixing numeric and categorical y axes — or drawing all-NA
+      # interval segments — crashes plotly, so we avoid both.
+      df <- df[order(df$pred_prev), , drop = FALSE]
+      df$ypos <- seq_len(nrow(df))
+      has_ci <- any(is.finite(df$ci_lo) & is.finite(df$ci_hi))
+      xmax <- suppressWarnings(max(c(df$pred_prev, df$ci_hi, df$natl_avg),
+                                   na.rm = TRUE))
+      if (!is.finite(xmax) || xmax <= 0) xmax <- 0.5
 
-      plot_ly(df) |>
-        # Country average reference markers
-        add_segments(
+      p <- plot_ly()
+      avg_df <- df[is.finite(df$natl_avg), , drop = FALSE]
+      if (nrow(avg_df) > 0) {
+        p <- add_segments(p, data = avg_df,
           x = ~natl_avg, xend = ~natl_avg,
-          y = ~as.numeric(Outcome_label) - 0.3,
-          yend = ~as.numeric(Outcome_label) + 0.3,
+          y = ~ypos - 0.3, yend = ~ypos + 0.3,
           line = list(color = "#888", width = 1, dash = "dash"),
-          name = "Country average",
-          hoverinfo = "text",
-          text = ~paste("Country avg:", fmt_pct(natl_avg)),
-          showlegend = TRUE
-        ) |>
-        # CI lines
-        add_segments(
-          x = ~ci_lo, xend = ~ci_hi,
-          y = ~Outcome_label, yend = ~Outcome_label,
+          name = "Country average", hoverinfo = "text",
+          text = ~paste("Country avg:", fmt_pct(natl_avg)))
+      }
+      if (has_ci) {
+        ci_df <- df[is.finite(df$ci_lo) & is.finite(df$ci_hi), , drop = FALSE]
+        p <- add_segments(p, data = ci_df,
+          x = ~ci_lo, xend = ~ci_hi, y = ~ypos, yend = ~ypos,
           line = list(color = "#2c7bb6", width = 4),
-          name = "95% CI",
-          hoverinfo = "text",
-          text = ~sprintf("CI: %s – %s",
-                          fmt_pct(ci_lo), fmt_pct(ci_hi)),
-          showlegend = TRUE
-        ) |>
-        # Point estimate
-        add_markers(
-          x = ~pred_prev, y = ~Outcome_label,
-          marker = list(color = "#d7191c", size = 12,
-                        line = list(color = "white", width = 1.5)),
-          name = "Predicted",
-          hoverinfo = "text",
-          text = ~sprintf("%s<br>%s<br>WHO: %s",
-                          Outcome_label, fmt_pct(pred_prev), who_class)
-        ) |>
-        layout(
-          xaxis = list(title = "Prevalence",
-                       tickformat = ".0%",
-                       range = c(0, NA)),
-          yaxis = list(title = ""),
-          margin = list(l = 200),
-          legend = list(orientation = "h", y = -0.15)
-        ) |>
+          name = "95% interval", hoverinfo = "text",
+          text = ~sprintf("Interval: %s – %s", fmt_pct(ci_lo), fmt_pct(ci_hi)))
+      }
+      p <- add_markers(p, data = df,
+        x = ~pred_prev, y = ~ypos,
+        marker = list(color = "#d7191c", size = 12,
+                      line = list(color = "white", width = 1.5)),
+        name = "Predicted", hoverinfo = "text",
+        text = ~sprintf("%s<br>%s<br>WHO: %s",
+                        Outcome_label, fmt_pct(pred_prev), who_class))
+
+      p |> layout(
+        xaxis = list(title = "Prevalence", tickformat = ".0%",
+                     range = c(0, xmax * 1.08)),
+        yaxis = list(title = "", tickvals = df$ypos,
+                     ticktext = as.character(df$Outcome_label)),
+        margin = list(l = 200),
+        legend = list(orientation = "h", y = -0.15)
+      ) |>
         config(displayModeBar = FALSE)
     })
 
