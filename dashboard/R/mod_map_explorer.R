@@ -26,9 +26,9 @@ mod_map_explorer_ui <- function(id) {
                    selected = "admin2", inline = TRUE),
 
       radioButtons(ns("pred_model"), "Prediction model",
-                   choices = c("Individual SuperLearner (surveyed districts)" = "sl",
-                               "Area-level SAE (all districts)" = "area"),
-                   selected = "sl"),
+                   choices = c("Area-level SAE (all districts)" = "area",
+                               "Individual SuperLearner (surveyed districts)" = "sl"),
+                   selected = "area"),
       div(style = "font-size:0.8em; color:#6c757d; margin-top:-6px;",
           "The area-level model covers every district, including unsurveyed ones; ",
           "it has no per-district confidence interval."),
