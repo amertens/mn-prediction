@@ -225,7 +225,7 @@ mod_national_burden_server <- function(id) {
         defaultPageSize = 10,
         columns = list(
           Outcome    = colDef(name = "Outcome", minWidth = 200),
-          Population = colDef(name = "Total population",
+          Population = colDef(name = "Subgroup population",
                               format = colFormat(separators = TRUE, digits = 0)),
           Prevalence = colDef(name = "Prevalence",
                               format = colFormat(percent = TRUE, digits = 1),

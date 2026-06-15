@@ -128,7 +128,15 @@ mod_map_explorer_server <- function(id) {
         p(
           "Population affected: ",
           strong(fmt_count(natl$pop_at_risk_natl)),
-          " of ", fmt_count(natl$pop_total), " total"
+          " of ", fmt_count(natl$pop_total), " ",
+          if (startsWith(input$outcome, "child_")) "children 6–59 months"
+          else "women 15–49 years",
+          tags$br(),
+          tags$span(
+            style = "font-size: 0.82em; color: #777;",
+            if (isTRUE((input$pred_model %||% "sl") == "sl"))
+              "Counts cover surveyed districts only — switch to the area-level model for all districts."
+            else "Counts cover all districts (area-level model).")
         ),
         if (!is.na(natl$ci_lo_natl)) {
           p("95% conformal CI: ",
