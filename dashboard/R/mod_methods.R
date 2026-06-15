@@ -159,6 +159,29 @@ mod_methods_ui <- function(id) {
         ),
         p(GENERAL_CAVEAT, style = "color:#555;")
       )
+    ),
+
+    card(
+      card_header("How this compares to GBD and other models"),
+      card_body(
+        p("Different modelling efforts answer related questions with different ",
+          "inputs, which is the main reason their estimates diverge. This ",
+          "qualitative comparison of predictor families is a starting point for a ",
+          "fuller covariate comparison with the GBD and nutrient-inadequacy teams:"),
+        reactableOutput(ns("covariate_compare")),
+        p(strong("Zinc is the clearest example: "),
+          "GBD and dietary-inadequacy models infer zinc status largely from food ",
+          "supply / dietary data, whereas this project predicts from measured ",
+          "biomarkers — so the two can differ substantially even where both are ",
+          "well executed."),
+        methods_note(
+          "The GBD (Bayesian meta-regression, DisMod-MR) and WP nutrient-",
+          "inadequacy columns are summarised at the predictor-family level from ",
+          "published methods; exact per-nutrient covariate lists will be confirmed ",
+          "with the respective teams. An estimate-level comparison against GBD ",
+          "will be added once GBD Results Tool data is sourced."
+        )
+      )
     )
   )
 }
@@ -256,6 +279,37 @@ mod_methods_server <- function(id) {
 
       reactable(sources, compact = TRUE, striped = TRUE,
                defaultPageSize = 20)
+    })
+
+    output$covariate_compare <- renderReactable({
+      cmp <- data.frame(
+        `Predictor family` = c(
+          "Satellite remote sensing (rain, vegetation, temperature, night lights)",
+          "Soil & agriculture (SoilGrids, crop statistics)",
+          "Disease burden (Malaria Atlas, IHME indicators)",
+          "Food security & prices (WFP, IPC/Cadre Harmonisé)",
+          "Conflict events (ACLED)",
+          "Household-survey / DHS area indicators",
+          "Dietary intake / diversity",
+          "Socio-demographic / development index",
+          "Outcome modelled",
+          "Spatial resolution",
+          "Core method"),
+        `This project (proxy ML)` = c(
+          "Core", "Yes", "Yes", "Yes", "Yes", "Yes (Admin-2)", "No",
+          "Some (GDL HDI)", "Measured biomarker deficiency",
+          "District (Admin-2)", "ML ensemble + small-area estimation"),
+        `GBD (DisMod-MR)` = c(
+          "Rarely", "No", "Indirect", "No", "No", "Yes (study data)", "Some",
+          "Core (SDI)", "Modelled deficiency / anaemia",
+          "National / Admin-1", "Bayesian meta-regression"),
+        `WP nutrient inadequacy` = c(
+          "Some (climate)", "Some", "No", "No", "No", "Yes (diversity, SES)",
+          "Core", "Yes (SES)", "Inadequate intake (diet-based)",
+          "National / Admin-1", "Transferable ML"),
+        check.names = FALSE, stringsAsFactors = FALSE)
+      reactable(cmp, compact = TRUE, striped = TRUE, defaultPageSize = 11,
+                columns = list(`Predictor family` = colDef(minWidth = 220)))
     })
 
   })
