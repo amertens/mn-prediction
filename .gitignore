@@ -34,3 +34,17 @@ results/tables/transportability_area_loco_predictions.csv
 results/tables/transportability_area_selected_vars.csv
 results/tables/transportability_recipe_bakeoff.csv
 results/transportability/
+
+# Corrected parallel pipeline: store + run artifacts (reproducible / machine-specific)
+_targets_corrected/
+.corrected_done
+.corrected_failed
+.corrected_driver.lock
+.corrected_driver.pid
+corrected_make.out
+corrected_make.err
+corrected_verify.out
+corrected_verify.out.err
+hiv_stage3_handoff.out
+hiv_stage3_handoff.out.err
+*.run1bak

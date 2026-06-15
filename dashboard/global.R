@@ -45,12 +45,65 @@ oos_civ <- if (file.exists(oos_civ_path)) {
 loco_path <- file.path(DATA_DIR, "transportability_loco.rds")
 loco_pred <- if (file.exists(loco_path)) readRDS(loco_path) else NULL
 
+# Transport-calibration (predicted vs true prevalence under LOCO, multi-level
+# and multi-approach). NULL components if the data-prep step has not produced
+# the source tables yet — the module then renders an empty state.
+transport_cal_path <- file.path(DATA_DIR, "transport_calibration.rds")
+transport_cal <- if (file.exists(transport_cal_path)) {
+  readRDS(transport_cal_path)
+} else {
+  list(nat_indiv = NULL, nat_area = NULL, adm2_area = NULL, build_time = NULL)
+}
+
+# Cluster-resolution comparison (admin-2 vs survey-cluster). NULL components if
+# the data-prep step has not produced the cluster CSVs yet — the module then
+# renders an empty state rather than erroring.
+cluster_res_path <- file.path(DATA_DIR, "cluster_resolution.rds")
+cluster_res <- if (file.exists(cluster_res_path)) {
+  readRDS(cluster_res_path)
+} else {
+  list(comparison = NULL, loco = NULL, build_time = NULL)
+}
+
 # Importance / SHAP / domain ablation
 importance_path <- file.path(DATA_DIR, "importance.rds")
 importance_data <- if (file.exists(importance_path)) {
   readRDS(importance_path)
 } else {
   list(shap = NULL, varimp = NULL, ablation = NULL)
+}
+
+# Model diagnostics: ROC / PR / calibration curves + binary/continuous metrics
+# and the Platt-recalibrated binary metrics. NULL components if the data-prep
+# step has not produced the source CSVs yet — modules render an empty state.
+model_diag_path <- file.path(DATA_DIR, "model_diagnostics.rds")
+model_diag <- if (file.exists(model_diag_path)) {
+  readRDS(model_diag_path)
+} else {
+  list(binary = NULL, continuous = NULL, calibrated = NULL,
+       roc = NULL, pr = NULL, calibration = NULL)
+}
+
+# Methods comparison (corrected vs production): the parallel _targets_corrected
+# pipeline's P1-P8 head-to-head bundle. NULL if the corrected pipeline has not
+# been run yet — the module then renders empty states.
+methods_comp_path <- file.path(DATA_DIR, "methods_comparison.rds")
+methods_comp <- if (file.exists(methods_comp_path)) {
+  readRDS(methods_comp_path)
+} else {
+  list(cv_compare = NULL, calibration = NULL, admin2_error = NULL,
+       decision = NULL, trust = NULL, area_pp = NULL, interval_summary = NULL)
+}
+
+# Method benchmarks: SuperLearner vs small-area-estimation methods, individual-
+# vs area-level SL, per-district accuracy, prescreened SL LOCO, and enriched
+# area-transport LOCO metrics. NULL components -> empty state in the module.
+benchmarks_path <- file.path(DATA_DIR, "benchmarks.rds")
+benchmarks_data <- if (file.exists(benchmarks_path)) {
+  readRDS(benchmarks_path)
+} else {
+  list(benchmarks = NULL, area_comparison = NULL, admin2_error = NULL,
+       sl_prescreened = NULL, area_transport = NULL)
 }
 
 # Useful operator

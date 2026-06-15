@@ -122,6 +122,12 @@ ui <- page_navbar(
   ),
 
   nav_panel(
+    title = "Decision value",
+    icon  = bsicons::bs_icon("bullseye"),
+    mod_decision_value_ui("decision")
+  ),
+
+  nav_panel(
     title = "Scenarios",
     icon  = bsicons::bs_icon("sliders"),
     mod_scenarios_ui("scenarios")
@@ -131,6 +137,36 @@ ui <- page_navbar(
     title = "Importance",
     icon  = bsicons::bs_icon("bar-chart-line"),
     mod_importance_ui("importance")
+  ),
+
+  nav_panel(
+    title = "Model diagnostics",
+    icon  = bsicons::bs_icon("clipboard-data"),
+    mod_diagnostics_ui("diagnostics")
+  ),
+
+  nav_panel(
+    title = "Benchmarks",
+    icon  = bsicons::bs_icon("trophy"),
+    mod_benchmarks_ui("benchmarks")
+  ),
+
+  nav_panel(
+    title = "Methods (corrected)",
+    icon  = bsicons::bs_icon("shield-check"),
+    mod_methods_comparison_ui("methods_corrected")
+  ),
+
+  nav_panel(
+    title = "Resolution",
+    icon  = bsicons::bs_icon("bullseye"),
+    mod_resolution_ui("resolution")
+  ),
+
+  nav_panel(
+    title = "Transportability",
+    icon  = bsicons::bs_icon("globe-americas"),
+    mod_transport_calibration_ui("transport")
   ),
 
   nav_panel(
@@ -188,8 +224,14 @@ server <- function(input, output, session) {
   mod_map_explorer_server("map")
   mod_district_profile_server("district")
   mod_national_burden_server("burden")
+  mod_decision_value_server("decision")
   mod_scenarios_server("scenarios")
   mod_importance_server("importance")
+  mod_diagnostics_server("diagnostics")
+  mod_benchmarks_server("benchmarks")
+  mod_methods_comparison_server("methods_corrected")
+  mod_resolution_server("resolution")
+  mod_transport_calibration_server("transport")
   mod_oos_civ_server("oos_civ")
   mod_gbd_compare_server("gbd")
   mod_methods_server("methods")

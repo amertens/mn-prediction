@@ -535,6 +535,176 @@ cat(sprintf("  SHAP rows: %d, varimp rows: %d, ablation rows: %d\n",
 
 
 # =============================================================================
+# 7b. CLUSTER-RESOLUTION COMPARISON (admin-2 vs survey-cluster)
+# =============================================================================
+# Sensitivity analysis comparing predictive skill when prevalence is modeled at
+# administrative-2 resolution vs. the finer survey-cluster GPS buffers. Two
+# inputs, both optional (the panel degrades to an empty state if absent):
+#   results/cluster_vs_admin2_comparison.csv  — within-country CV: per
+#       country x outcome, Pearson r and MAE (pp) at each resolution.
+#   results/cluster_vs_admin2_LOCO.csv        — pooled leave-one-country-out
+#       transportability, per resolution x method x held-out country.
+
+cat("\n── Loading cluster-resolution comparison ──\n")
+
+cmp_path  <- here::here("results", "cluster_vs_admin2_comparison.csv")
+loco_path <- here::here("results", "cluster_vs_admin2_LOCO.csv")
+
+cluster_comparison <- if (file.exists(cmp_path)) {
+  cc_df <- read.csv(cmp_path, stringsAsFactors = FALSE)
+  # Derived deltas (cluster − admin2): positive r-delta = cluster more skillful;
+  # positive MAE-delta = cluster less accurate (MAE: lower is better).
+  cc_df$delta_r   <- cc_df$r_cluster   - cc_df$r_admin2
+  cc_df$delta_mae <- cc_df$mae_cluster - cc_df$mae_admin2
+  cc_df
+} else NULL
+
+cluster_loco <- if (file.exists(loco_path)) {
+  read.csv(loco_path, stringsAsFactors = FALSE)
+} else NULL
+
+saveRDS(
+  list(comparison = cluster_comparison, loco = cluster_loco,
+       build_time = Sys.time()),
+  file.path(DASHBOARD_DATA, "cluster_resolution.rds"))
+cat(sprintf("  comparison rows: %d, LOCO rows: %d\n",
+            nrow(cluster_comparison %||% data.frame()),
+            nrow(cluster_loco %||% data.frame())))
+
+
+# =============================================================================
+# 7c. TRANSPORT CALIBRATION (predicted vs. true prevalence, multi-level)
+# =============================================================================
+# Powers the interactive Transportability panel: predicted-vs-observed
+# prevalence under leave-one-country-out (LOCO) holdout, selectable across
+# outcome, aggregation level, and model/approach. Three optional sources:
+#   national, individual-level SL  -> transportability_loco_results.csv
+#   national, area-level SL        -> area_loco_comparison.csv (model_type)
+#   admin-2, area-level SL         -> results/transportability/area_loco_predictions.rds
+# Admin-1 is derived in-app by population-weighting the admin-2 predictions.
+
+cat("\n── Building transport-calibration data ──\n")
+
+tc_nat_indiv <- {
+  p <- here::here("results", "tables", "transportability_loco_results.csv")
+  if (file.exists(p)) {
+    x <- read.csv(p, stringsAsFactors = FALSE)
+    data.frame(outcome = x$outcome, held_out = x$held_out,
+               true_prev = x$prev_test, pred_prev = x$pred_prev,
+               auc = x$auc, calib_slope = x$calib_slope,
+               stringsAsFactors = FALSE)
+  } else NULL
+}
+
+tc_nat_area <- {
+  p <- here::here("results", "tables", "area_loco_comparison.csv")
+  if (file.exists(p)) {
+    x <- read.csv(p, stringsAsFactors = FALSE)
+    data.frame(outcome = x$outcome, held_out = x$held_out,
+               model_type = x$model_type, true_prev = x$obs_prev,
+               pred_prev = x$pred_prev, pearson_r = x$pearson_r,
+               mae_pp = x$mae_pp, stringsAsFactors = FALSE)
+  } else NULL
+}
+
+tc_adm2_area <- {
+  p <- here::here("results", "transportability", "area_loco_predictions.rds")
+  if (file.exists(p)) {
+    x <- readRDS(p)
+    data.frame(outcome = x$outcome, country = x$country, Admin2 = x$Admin2,
+               true_prev = x$survey_prev, pred_prev = x$modeled_prev,
+               n_svy = x$n_svy, stringsAsFactors = FALSE)
+  } else NULL
+}
+
+saveRDS(list(nat_indiv = tc_nat_indiv, nat_area = tc_nat_area,
+             adm2_area = tc_adm2_area, build_time = Sys.time()),
+        file.path(DASHBOARD_DATA, "transport_calibration.rds"))
+cat(sprintf("  national/indiv: %d rows, national/area: %d rows, admin-2/area: %d rows\n",
+            nrow(tc_nat_indiv %||% data.frame()),
+            nrow(tc_nat_area %||% data.frame()),
+            nrow(tc_adm2_area %||% data.frame())))
+
+
+# =============================================================================
+# 7d. MODEL DIAGNOSTICS (ROC / PR / calibration curves + metrics)
+# =============================================================================
+# Surfaces the per-model discrimination & calibration diagnostics produced by
+# the `diagnostics_all` / `diagnostics_calibrated_all` pipeline targets, which
+# write the following CSVs (one row per country × outcome, or per curve point):
+#   diagnostics_binary.csv            — ROC-AUC, PR-AUC, Brier skill, ECE/MCE,
+#                                       calibration intercept/slope (binary)
+#   diagnostics_continuous.csv        — RMSE, MAE, R^2, r (continuous)
+#   diagnostics_binary_calibrated.csv — same as binary after Platt recalibration
+#   roc_curves.csv                    — fpr, tpr per country × outcome
+#   pr_curves.csv                     — recall, precision per country × outcome
+#   calibration_tables.csv            — binned mean_pred vs mean_obs
+# The dashboard previously only showed ROC-AUC / Brier (via cv_performance);
+# this bundle exposes the full diagnostic set.
+
+cat("\n── Building model diagnostics bundle ──\n")
+
+read_csv_if <- function(rel) {
+  p <- here::here("results", "tables", rel)
+  if (file.exists(p)) read.csv(p, stringsAsFactors = FALSE) else NULL
+}
+
+model_diagnostics <- list(
+  binary      = read_csv_if("diagnostics_binary.csv"),
+  continuous  = read_csv_if("diagnostics_continuous.csv"),
+  calibrated  = read_csv_if("diagnostics_binary_calibrated.csv"),
+  roc         = read_csv_if("roc_curves.csv"),
+  pr          = read_csv_if("pr_curves.csv"),
+  calibration = read_csv_if("calibration_tables.csv"),
+  build_time  = Sys.time()
+)
+saveRDS(model_diagnostics, file.path(DASHBOARD_DATA, "model_diagnostics.rds"))
+cat(sprintf(paste0("  binary: %d, continuous: %d, calibrated: %d, ",
+                   "roc pts: %d, pr pts: %d, calib bins: %d\n"),
+            nrow(model_diagnostics$binary %||% data.frame()),
+            nrow(model_diagnostics$continuous %||% data.frame()),
+            nrow(model_diagnostics$calibrated %||% data.frame()),
+            nrow(model_diagnostics$roc %||% data.frame()),
+            nrow(model_diagnostics$pr %||% data.frame()),
+            nrow(model_diagnostics$calibration %||% data.frame())))
+
+
+# =============================================================================
+# 7e. METHOD BENCHMARKS (SuperLearner vs small-area-estimation methods)
+# =============================================================================
+# Exposes the area-level model-comparison tables that were previously computed
+# by the pipeline but never displayed:
+#   benchmarks_all.csv                     — SL vs baseline/GLM/elastic-net/
+#                                            Fay-Herriot/BYM2 under LOCO
+#   area_comparison_all.csv                — individual-level SL (aggregated to
+#                                            Admin-2) vs area-level SL, within-
+#                                            country
+#   admin2_error_all.csv                   — per country × outcome Admin-2
+#                                            prediction accuracy (MAE/RMSE/r)
+#   sl_prescreened_main.csv                — optimized prescreened SL, LOCO
+#   transportability_area_loco_metrics.csv — enriched area-transport LOCO metrics
+
+cat("\n── Building method-benchmarks bundle ──\n")
+
+benchmarks <- list(
+  benchmarks      = read_csv_if("benchmarks_all.csv"),
+  area_comparison = read_csv_if("area_comparison_all.csv"),
+  admin2_error    = read_csv_if("admin2_error_all.csv"),
+  sl_prescreened  = read_csv_if("sl_prescreened_main.csv"),
+  area_transport  = read_csv_if("transportability_area_loco_metrics.csv"),
+  build_time      = Sys.time()
+)
+saveRDS(benchmarks, file.path(DASHBOARD_DATA, "benchmarks.rds"))
+cat(sprintf(paste0("  benchmarks: %d, area_comparison: %d, admin2_error: %d, ",
+                   "sl_prescreened: %d, area_transport: %d\n"),
+            nrow(benchmarks$benchmarks %||% data.frame()),
+            nrow(benchmarks$area_comparison %||% data.frame()),
+            nrow(benchmarks$admin2_error %||% data.frame()),
+            nrow(benchmarks$sl_prescreened %||% data.frame()),
+            nrow(benchmarks$area_transport %||% data.frame())))
+
+
+# =============================================================================
 # 8. METADATA (labels, lookups, version info)
 # =============================================================================
 
