@@ -29,7 +29,10 @@
 mod_benchmarks_ui <- function(id) {
   ns <- NS(id)
 
-  navset_card_tab(
+  tagList(
+    p(em("For analysts: method benchmarks (SuperLearner vs small-area-estimation methods). The policy tabs above don't require these."),
+      style = "color:#6c757d; margin:0 0 0.6em;"),
+    navset_card_tab(
 
     nav_panel(
       title = "SAE method comparison",
@@ -128,6 +131,7 @@ mod_benchmarks_ui <- function(id) {
         )
       )
     )
+  )
   )
 }
 

@@ -123,7 +123,7 @@ mod_decision_value_ui <- function(id) {
       div(
         p(strong("The decision: "), "you can only act in some districts first. ",
           "If you rank districts by the model and start with the worst, how much ",
-          "of the truly-deficient population do you reach — compared with having ",
+          "of the truly-deficient population do you reach, compared with having ",
           "no sub-national data (where you can only pick districts by chance / ",
           "population size)?"),
         layout_columns(
@@ -144,10 +144,10 @@ mod_decision_value_ui <- function(id) {
           value_box(title = "Reach (act in worst 20% of pop)",
                     value = textOutput(ns("vb_capture")),
                     theme = "primary", showcase = bsicons::bs_icon("people")),
-          value_box(title = "Lift vs no targeting",
+          value_box(title = "Better than no targeting",
                     value = textOutput(ns("vb_lift")),
                     theme = "secondary", showcase = bsicons::bs_icon("arrow-up-right")),
-          value_box(title = "Top-quintile hit rate",
+          value_box(title = "Worst fifth correctly found",
                     value = textOutput(ns("vb_hit")),
                     theme = "secondary", showcase = bsicons::bs_icon("check2-square")),
           value_box(title = "Districts evaluated",

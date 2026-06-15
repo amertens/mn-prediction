@@ -14,7 +14,10 @@
 
 mod_methods_comparison_ui <- function(id) {
   ns <- NS(id)
-  navset_card_tab(
+  tagList(
+    p(em("For analysts: corrected-vs-production methods comparison. The policy tabs above don't require these."),
+      style = "color:#6c757d; margin:0 0 0.6em;"),
+    navset_card_tab(
     nav_panel(
       title = "CV honesty (P1)",
       icon = bsicons::bs_icon("shield-check"),
@@ -91,6 +94,7 @@ mod_methods_comparison_ui <- function(id) {
             "empirical-Bayes shrinkage fallback) as a first-class estimator, ",
             "beside the raw direct survey estimate and the corrected ML estimate."))
     )
+  )
   )
 }
 

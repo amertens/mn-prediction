@@ -36,10 +36,9 @@ mod_importance_ui <- function(id) {
           "are either redundant (their signal is captured by other domains) ",
           "or genuinely uninformative for the outcome. ",
           tags$br(), tags$br(),
-          "Note that permutation importance can underestimate the contribution ",
-          "of correlated predictors. If two domains carry overlapping ",
-          "information, removing either one alone may not hurt performance ",
-          "much, even though the combined signal is essential."
+          "Permutation importance can also understate correlated predictors: if ",
+          "two domains carry overlapping information, removing either one alone ",
+          "may not hurt performance much, even when the combined signal matters."
         )
       )
     ),

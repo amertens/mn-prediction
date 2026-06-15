@@ -31,7 +31,7 @@ mod_map_explorer_ui <- function(id) {
                                "Modeled − survey difference (pp)" = "diff_prev",
                                "Transportability error: held-out country (pp)" = "loco_diff",
                                "Confidence interval width" = "ci_width",
-                               "Population at risk (count)" = "pop_at_risk",
+                               "Population affected (count)" = "pop_at_risk",
                                "WHO public health classification" = "who_class"),
                    selected = "pred_prev"),
 
