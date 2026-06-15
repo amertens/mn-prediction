@@ -124,6 +124,50 @@ get_country_admin2 <- function(ctry_key, oc_key,
   joined
 }
 
+#' Get the joined Admin-3 (chiefdom) sf for a country with predictions merged.
+#'
+#' Currently available for Sierra Leone only. Mirrors get_country_admin2()'s
+#' output schema (one row per Admin-3 polygon, prediction columns merged, NA
+#' where not covered) so the rest of the map logic can stay level-agnostic.
+#' Population denominators are not available at Admin-3, so pop_* and
+#' pop_at_risk are NA; the headline then falls back to a no-population display.
+#' Transportability (LOCO) is not computed at Admin-3 either.
+get_country_admin3 <- function(ctry_key, oc_key, admin3_bnds, admin3_pred) {
+  if (is.null(admin3_bnds) || is.null(admin3_pred)) return(NULL)
+  bnd <- admin3_bnds[[ctry_key]]
+  if (is.null(bnd)) return(NULL)
+
+  ctry_label <- meta$countries[ctry_key]
+  pred_subset <- admin3_pred[admin3_pred$country == ctry_label &
+                               admin3_pred$outcome == oc_key, , drop = FALSE]
+
+  bnd$Admin3 <- trimws(bnd$Admin3)
+  pred_subset <- pred_subset[!duplicated(pred_subset$Admin3), , drop = FALSE]
+
+  joined <- merge(bnd, pred_subset[, c("Admin3", "pred_prev", "obs_prev",
+                                       "ci_lo", "ci_hi", "ci_width",
+                                       "n_survey", "who_class")],
+                  by = "Admin3", all.x = TRUE, sort = FALSE)
+
+  # No Admin-3 population denominator — keep schema parity but leave NA.
+  is_child_outcome <- startsWith(oc_key, "child_")
+  joined$pop_total      <- NA_real_
+  joined$pop_subgroup   <- NA_real_
+  joined$population     <- NA_real_
+  joined$pop_at_risk    <- NA_real_
+  joined$pop_year_label <- "Survey year"
+  joined$subgroup_label <- if (is_child_outcome) "children 6–59 months"
+                            else "women 15–49 years"
+
+  joined$diff_prev        <- joined$pred_prev - joined$obs_prev
+  joined$loco_pred_prev   <- NA_real_
+  joined$loco_survey_prev <- NA_real_
+  joined$loco_diff        <- NA_real_
+
+  joined$who_class[is.na(joined$who_class)] <- "No data"
+  joined
+}
+
 #' Aggregate Admin-2 predictions to Admin-1 polygons.
 #'
 #' Population-weighted aggregation of prevalence, CIs, and survey n. Conformal
@@ -231,6 +275,29 @@ confidence_badge <- function(ci_width) {
 #' weighted by population.
 national_aggregate <- function(df) {
   df <- as.data.frame(df)
+
+  # No-population fallback (e.g. the Admin-3 layer, which has no chiefdom
+  # denominators): report an UNWEIGHTED mean prevalence + interval across areas
+  # and leave population counts NA. The headline then hides the population line.
+  if (!("population" %in% colnames(df)) || all(is.na(df$population))) {
+    dd <- df[!is.na(df$pred_prev), , drop = FALSE]
+    if (nrow(dd) == 0) {
+      return(data.frame(
+        pop_total = NA_real_, pred_prev_natl = NA_real_,
+        pop_at_risk_natl = NA_real_, ci_lo_natl = NA_real_,
+        ci_hi_natl = NA_real_, ci_method = NA_character_,
+        stringsAsFactors = FALSE))
+    }
+    return(data.frame(
+      pop_total = NA_real_,
+      pred_prev_natl = mean(dd$pred_prev, na.rm = TRUE),
+      pop_at_risk_natl = NA_real_,
+      ci_lo_natl = if (!all(is.na(dd$ci_lo))) mean(dd$ci_lo, na.rm = TRUE) else NA_real_,
+      ci_hi_natl = if (!all(is.na(dd$ci_hi))) mean(dd$ci_hi, na.rm = TRUE) else NA_real_,
+      ci_method = "unweighted mean (no population denominator)",
+      stringsAsFactors = FALSE))
+  }
+
   df <- df[!is.na(df$pred_prev) & !is.na(df$population), , drop = FALSE]
   if (nrow(df) == 0) {
     return(data.frame(

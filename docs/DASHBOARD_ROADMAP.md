@@ -54,11 +54,25 @@ Tied to the IHME relationship; raised twice in the call (esp. zinc).
 ---
 
 ## #8 Finer resolution + SSA expansion
-### A. Sierra Leone Admin-3 (contained win)
-- ⬜ Data exists (`sierraleone_admin3_*`, ~80 chiefdoms vs 14 districts). Steps:
-  run the area/FH model at Admin-3 for SL → extract Admin-3 boundaries +
-  predictions → add "Admin 3 (chiefdom)" to the level toggle, shown only when
-  Sierra Leone is selected → `get_country_admin3` helper.
+### A. Sierra Leone Admin-3 (contained win) — ✅ done
+- ✅ **Built and wired** (153 chiefdoms vs 14 districts). Chiefdom prevalence is
+  reconstructed from individuals (`sierraleone_cluster_to_admin3.rds` maps
+  `gw_cnum` → `NAME_3`, survey-weighted binary deficiency), then a Fay-Herriot /
+  empirical-Bayes area model on chiefdom GEE covariates (greedy-decorrelated,
+  standardized) extends to all 153 chiefdoms with a 95% interval (tight where
+  surveyed, wider elsewhere). Builder: `dashboard/data-raw/_build_sl_admin3.R`
+  → `dashboard/data/admin3_predictions.rds` (918 rows = 153 × 6 outcomes) +
+  `admin3_boundaries.rds` (GADM level-3).
+- ✅ **Dashboard:** `global.R` loads `admin3_pred`/`admin3_bnds` (+
+  `admin3_countries`); `get_country_admin3()` helper in `fct_helpers.R` mirrors
+  the Admin-2 schema; `national_aggregate()` falls back to an unweighted mean
+  when no population denominator exists. Map explorer shows "Admin 3 (chiefdom)"
+  in the level toggle **only when Sierra Leone is selected** (dynamic
+  `updateRadioButtons`); headline, caption and district panel handle the
+  no-population case. All display layers (prevalence, CI width, WHO class,
+  misclassification, modeled−survey) verified via `testServer`.
+- *Note:* no chiefdom-level population denominator, so population-at-risk counts
+  are not shown at Admin-3 (prevalence, intervals and WHO class only).
 
 ### B. Whole-SSA prediction (deferred per Andrew)
 - ⬜ Pipeline can predict any SSA country (CIV is the example) but hold until the

@@ -45,6 +45,21 @@ admin2_bym2_pred <- {
 }
 admin2_bnds <- readRDS(file.path(DATA_DIR, "admin2_boundaries.rds"))
 admin1_bnds <- readRDS(file.path(DATA_DIR, "admin1_boundaries.rds"))
+
+# Admin-3 (chiefdom) layer — currently Sierra Leone only (153 chiefdoms vs 14
+# districts), built by data-raw/_build_sl_admin3.R via a Fay-Herriot/empirical-
+# Bayes area model on chiefdom GEE covariates. NULL components if not built; the
+# map explorer then simply does not offer the Admin-3 level.
+admin3_pred <- {
+  .p <- file.path(DATA_DIR, "admin3_predictions.rds")
+  if (file.exists(.p)) readRDS(.p) else NULL
+}
+admin3_bnds <- {
+  .p <- file.path(DATA_DIR, "admin3_boundaries.rds")
+  if (file.exists(.p)) readRDS(.p) else NULL
+}
+# Countries that have an Admin-3 layer available (lowercased boundary-list keys).
+admin3_countries <- if (!is.null(admin3_bnds)) names(admin3_bnds) else character(0)
 natl_est    <- readRDS(file.path(DATA_DIR, "national_estimates.rds"))
 cv_perf     <- readRDS(file.path(DATA_DIR, "cv_performance.rds"))
 meta        <- readRDS(file.path(DATA_DIR, "metadata.rds"))

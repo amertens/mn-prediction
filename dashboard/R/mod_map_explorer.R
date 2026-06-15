@@ -125,11 +125,28 @@ mod_map_explorer_server <- function(id) {
       }
     })
 
+    # Offer the Admin-3 (chiefdom) level only for countries that have an
+    # Admin-3 layer built (currently Sierra Leone). Update the choices when the
+    # country changes, preserving the current selection where still valid.
+    observeEvent(input$country, {
+      base <- c("Admin 2 (district)" = "admin2", "Admin 1 (region)" = "admin1")
+      has_a3 <- !is.null(admin3_pred) && (input$country %in% admin3_countries)
+      choices <- if (has_a3)
+        c(base, "Admin 3 (chiefdom)" = "admin3") else base
+      sel <- if ((input$admin_level %||% "admin2") %in% choices)
+        input$admin_level else "admin2"
+      updateRadioButtons(session, "admin_level", choices = choices,
+                         selected = sel, inline = TRUE)
+    })
+
     # Reactive: joined sf for selected country × outcome × admin level
     map_data <- reactive({
       req(input$country, input$outcome, input$admin_level)
       pd <- pred_df()
-      if (input$admin_level == "admin1") {
+      if (input$admin_level == "admin3") {
+        get_country_admin3(input$country, input$outcome,
+                            admin3_bnds, admin3_pred)
+      } else if (input$admin_level == "admin1") {
         get_country_admin1(input$country, input$outcome,
                             admin1_bnds, admin2_bnds, pd, admin2_pop)
       } else {
@@ -140,7 +157,8 @@ mod_map_explorer_server <- function(id) {
 
     # Convenience: the area-name column for the active level
     area_col <- reactive(
-      if (isTRUE(input$admin_level == "admin1")) "Admin1" else "Admin2"
+      switch(input$admin_level %||% "admin2",
+             admin1 = "Admin1", admin3 = "Admin3", "Admin2")
     )
 
     # Per-outcome biomarker / data caveat shown under the outcome selector.
@@ -161,29 +179,41 @@ mod_map_explorer_server <- function(id) {
       ctry_label <- meta$countries[input$country]
       oc_label <- meta$outcome_labels[input$outcome]
 
+      is_a3 <- isTRUE(input$admin_level == "admin3")
+
       tagList(
         h5("National summary", style = "margin-top: 0;"),
         p(strong(ctry_label), " | ", em(oc_label)),
         p(
           "Estimated prevalence: ",
           tags$span(style = "font-size: 1.2em; color: #d7191c;",
-                    strong(fmt_pct(natl$pred_prev_natl)))
+                    strong(fmt_pct(natl$pred_prev_natl))),
+          if (is_a3) tags$span(style = "font-size:0.82em; color:#777;",
+                               " (unweighted mean across chiefdoms)")
         ),
-        p(
-          "Population affected: ",
-          strong(fmt_count(natl$pop_at_risk_natl)),
-          " of ", fmt_count(natl$pop_total), " ",
-          if (startsWith(input$outcome, "child_")) "children 6–59 months"
-          else "women 15–49 years",
-          tags$br(),
-          tags$span(
+        if (is_a3) {
+          p(tags$span(
             style = "font-size: 0.82em; color: #777;",
-            switch(input$pred_model %||% "area",
-              sl = "Counts cover surveyed districts only — switch to an all-district model above.",
-              bym2 = "Counts cover all districts (SL → BYM2 spatial model, with credible intervals).",
-              fh = "Counts cover all districts (Fay-Herriot model, with intervals).",
-              "Counts cover all districts (area-level HAL model; point estimates, no interval)."))
-        ),
+            "Chiefdom (Admin-3) layer: 153 chiefdoms via a Fay-Herriot / ",
+            "empirical-Bayes area model, narrow where surveyed and wider ",
+            "elsewhere. Population counts are not available at chiefdom level."))
+        } else {
+          p(
+            "Population affected: ",
+            strong(fmt_count(natl$pop_at_risk_natl)),
+            " of ", fmt_count(natl$pop_total), " ",
+            if (startsWith(input$outcome, "child_")) "children 6–59 months"
+            else "women 15–49 years",
+            tags$br(),
+            tags$span(
+              style = "font-size: 0.82em; color: #777;",
+              switch(input$pred_model %||% "area",
+                sl = "Counts cover surveyed districts only — switch to an all-district model above.",
+                bym2 = "Counts cover all districts (SL → BYM2 spatial model, with credible intervals).",
+                fh = "Counts cover all districts (Fay-Herriot model, with intervals).",
+                "Counts cover all districts (area-level HAL model; point estimates, no interval)."))
+          )
+        },
         if (!is.na(natl$ci_lo_natl)) {
           p("95% conformal CI: ",
             sprintf("[%s, %s]",
@@ -387,8 +417,8 @@ mod_map_explorer_server <- function(id) {
     output$district_detail <- renderUI({
       area <- clicked()
       df <- map_data()
-      level_label <- if (isTRUE(input$admin_level == "admin1"))
-                       "region" else "district"
+      level_label <- switch(input$admin_level %||% "admin2",
+                            admin1 = "region", admin3 = "chiefdom", "district")
       if (is.null(area) || is.null(df)) {
         return(p(em(sprintf("Click a %s to see details.", level_label)),
                  style = "color: #888;"))
@@ -433,26 +463,34 @@ mod_map_explorer_server <- function(id) {
             style = "color: #888;")
         },
         p(strong("WHO classification: "), row$who_class[1]),
-        p(strong("Population: "), fmt_count(row$population[1])),
-        p(strong("Population at risk: "), fmt_count(row$pop_at_risk[1]))
+        if (!is.na(row$population[1]))
+          p(strong("Population: "), fmt_count(row$population[1])),
+        if (!is.na(row$pop_at_risk[1]))
+          p(strong("Population at risk: "), fmt_count(row$pop_at_risk[1]))
       )
     })
 
     output$map_caption <- renderText({
       ctry_label <- meta$countries[input$country]
       sy <- meta$survey_years[input$country]
-      lvl <- if (isTRUE(input$admin_level == "admin1"))
-               "Admin-1 (region)" else "Admin-2 (district)"
+      lvl <- switch(input$admin_level %||% "admin2",
+                    admin1 = "Admin-1 (region)",
+                    admin3 = "Admin-3 (chiefdom)",
+                    "Admin-2 (district)")
       layer_note <- switch(input$layer,
         diff_prev = " Difference layer: modeled (within-country) minus survey-observed prevalence; red = model over-predicts, blue = under-predicts.",
         loco_diff = " Transportability layer: prevalence predicted by the universal model trained ONLY on the other countries, minus the local survey, using a harmonized cross-country outcome (uniform WHO cutoffs: ferritin<12/15 = iron deficiency, RBP<0.70 = VAD). Red = over-predicts, blue = under-predicts. Gray = country/outcome not covered.",
         ""
       )
+      area_word <- switch(input$admin_level %||% "admin2",
+                          admin1 = "Regions", admin3 = "Chiefdoms", "Districts")
+      agg_note <- switch(input$admin_level %||% "admin2",
+        admin1 = " Admin-1 values are population-weighted aggregates of Admin-2 predictions.",
+        admin3 = " Chiefdom (Admin-3) values come from a Fay-Herriot / empirical-Bayes area model on chiefdom geospatial indicators; no population denominator at this level.",
+        "")
       sprintf(
-        "Data: %s, survey year %s. %s view. %s in gray have no model coverage. Admin-1 values are population-weighted aggregates of Admin-2 predictions.%s",
-        ctry_label, sy, lvl,
-        if (isTRUE(input$admin_level == "admin1")) "Regions" else "Districts",
-        layer_note
+        "Data: %s, survey year %s. %s view. %s in gray have no model coverage.%s%s",
+        ctry_label, sy, lvl, area_word, agg_note, layer_note
       )
     })
 
