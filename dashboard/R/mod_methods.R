@@ -72,27 +72,31 @@ mod_methods_ui <- function(id) {
           "Sample sizes (N) reflect the number of individuals with non-missing ",
           "outcome and at least some predictor data after preprocessing. Models ",
           "with N below approximately 500 may be unstable; treat their estimates ",
-          "as preliminary."
+          "as preliminary. ",
+          tags$br(), tags$br(),
+          "These are within-country, cross-validated figures and are optimistic ",
+          "relative to applying the model in a new country; the leave-one-",
+          "country-out results (see Limitations) are the deployment-honest ",
+          "benchmark."
         )
       )
     ),
 
     card(
-      card_header("Confidence intervals"),
+      card_header("Prediction intervals"),
       card_body(
-        h5("Conformal prediction intervals"),
-        p("Uncertainty around predicted prevalence is shown as a 95% ",
-          "prediction interval built from the model's own cross-validated ",
-          "errors, rather than from an assumed statistical distribution."),
-        p("These intervals aim for 95% coverage, but in our own out-of-sample ",
-          "checks they contained the true value about 90% of the time. They are ",
-          "computed at the region (Admin-1) level and shared down to the ",
-          "districts within each region, so a district's interval is ",
-          "indicative rather than exact. The \"Methods (corrected)\" tab shows a ",
-          "stricter, split-sample version."),
-        p("Wider intervals indicate higher predictor variability or sparser ",
-          "training data for that area; narrow intervals indicate a more ",
-          "confident prediction.")
+        h5("Per-district 95% intervals"),
+        p("Uncertainty around predicted prevalence is shown as a 95% interval, ",
+          "estimated by resampling the model's cross-validated predictions for ",
+          "each district, rather than from an assumed statistical distribution."),
+        p("These intervals aim for 95% coverage; in our own out-of-sample checks ",
+          "they contained the true value about 90% of the time, so treat them as ",
+          "indicative rather than exact. They are computed per district — there ",
+          "is no region-to-district broadcast. Where a district's interval is ",
+          "not available under the SuperLearner model, the Map explorer's ",
+          "Fay-Herriot layer provides an interval for every district."),
+        p("Wider intervals indicate sparser data or higher variability for that ",
+          "area; narrower intervals indicate a more confident prediction.")
       )
     ),
 

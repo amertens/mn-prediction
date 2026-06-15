@@ -174,12 +174,6 @@ ui <- page_navbar(
   ),
 
   nav_panel(
-    title = "Methods (corrected)",
-    icon  = bsicons::bs_icon("shield-check"),
-    mod_methods_comparison_ui("methods_corrected")
-  ),
-
-  nav_panel(
     title = "Resolution",
     icon  = bsicons::bs_icon("bullseye"),
     mod_resolution_ui("resolution")
@@ -197,11 +191,13 @@ ui <- page_navbar(
     mod_oos_civ_ui("oos_civ")
   ),
 
-  nav_panel(
-    title = "GBD comparison",
-    icon  = bsicons::bs_icon("globe2"),
-    mod_gbd_compare_ui("gbd")
-  ),
+  # GBD comparison hidden for now (placeholder data). Restore by uncommenting
+  # this nav_panel and the mod_gbd_compare_server() call in the server.
+  # nav_panel(
+  #   title = "GBD comparison",
+  #   icon  = bsicons::bs_icon("globe2"),
+  #   mod_gbd_compare_ui("gbd")
+  # ),
 
   nav_panel(
     title = "Methods",
@@ -251,11 +247,10 @@ server <- function(input, output, session) {
   mod_importance_server("importance")
   mod_diagnostics_server("diagnostics")
   mod_benchmarks_server("benchmarks")
-  mod_methods_comparison_server("methods_corrected")
   mod_resolution_server("resolution")
   mod_transport_calibration_server("transport")
   mod_oos_civ_server("oos_civ")
-  mod_gbd_compare_server("gbd")
+  # mod_gbd_compare_server("gbd")   # GBD comparison hidden for now
   mod_methods_server("methods")
 }
 
