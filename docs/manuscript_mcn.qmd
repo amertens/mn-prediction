@@ -1,6 +1,6 @@
 ---
-title: "Subnational micronutrient deficiency prediction in West Africa from proxy indicators: a multi-country SuperLearner ensemble benchmarked against small-area-estimation methods"
-shorttitle: "Subnational micronutrient prediction across West Africa"
+title: "Subnational micronutrient deficiency prediction in sub-Saharan Africa from proxy indicators: a multi-country SuperLearner ensemble benchmarked against small-area-estimation methods"
+shorttitle: "Subnational micronutrient prediction in sub-Saharan Africa"
 author:
   - name: Andrew N. Mertens
     affiliation: University of California, Davis, Institute for Global Nutrition
@@ -34,8 +34,8 @@ abstract: |
   geographically uneven. We assessed whether ensemble machine-learning models
   trained on harmonised Demographic and Health Surveys (DHS) and remote-sensing
   predictors can reproduce admin-2 deficiency patterns within and across four
-  West African countries, and whether they outperform canonical small-area
-  estimation (SAE) methods.
+  sub-Saharan African countries (three in West Africa plus Malawi), and whether
+  they outperform canonical small-area estimation (SAE) methods.
 
   **Methods:** We harmonised individual-level DHS biomarker measurements for
   iron, vitamin A, vitamin B12, folate, and zinc deficiency from Gambia (2018),
@@ -52,17 +52,19 @@ abstract: |
   percentage points for absolute error, and calibration slope.
 
   **Results:** Within-country admin-2 ranking was excellent for the directly
-  fit area-level SuperLearner (Pearson r > 0.9 in 27 of 30 country–outcome
-  combinations) and substantially weaker for aggregated individual-level
-  predictions (median r 0.55, range −0.39 to 0.87) which exhibited large
+  fit area-level SuperLearner (Pearson r > 0.9 in 16 of 21 evaluable
+  country–outcome combinations for the MSE-loss variant, range 0.40–1.00)
+  and substantially weaker for aggregated individual-level
+  predictions (median r 0.50, range −0.39 to 0.87) which exhibited large
   negative biases up to 20 percentage points. Cross-country (LOCO) performance
-  was markedly weaker: median r ≈ 0.18, range −0.22 to 0.53, with absolute
-  errors of 5–46 percentage points and systematic underestimation in
+  was markedly weaker: median r ≈ 0.21, range −0.14 to 0.53, with absolute
+  errors of 1.5–44 percentage points and systematic underestimation in
   high-prevalence settings. Iron-deficiency outcomes transported best;
   vitamin-A-deficiency outcomes essentially did not transport (median r near
   zero, often with anti-predictive ordering). Benchmark frequentist regressions
-  and Bayesian SAE models matched or exceeded the SuperLearner on a majority
-  of LOCO splits (preliminary tally 9 of 16 head-to-head wins for benchmarks),
+  and Bayesian SAE models matched or exceeded the SuperLearner on the large
+  majority of LOCO splits (the best benchmark beat the prescreened ensemble
+  on 10 of 13 evaluable head-to-head splits),
   indicating that the ensemble's predictive gains are concentrated on specific
   outcome–country combinations rather than general.
 
@@ -144,8 +146,9 @@ the output is household-level risk, fit at the individual level
 implication of this recommendation has not been systematically tested for
 multi-country micronutrient deficiency prediction.
 
-In this study we harmonise DHS biomarker measurements from four West
-African countries and use these to evaluate four estimation strategies
+In this study we harmonise DHS biomarker measurements from four
+sub-Saharan African countries (The Gambia, Ghana, Sierra Leone, and
+Malawi) and use these to evaluate four estimation strategies
 spanning machine-learning and SAE traditions, within-country and across
 countries. We benchmark a multi-learner SuperLearner ensemble (combining
 elastic-net, ranger, gradient-boosted trees, and dropout BART) against
@@ -403,10 +406,26 @@ below 5% in most countries.
 
 The directly-fit area-level SuperLearner produced excellent
 within-country spatial ranking (@tbl-area-comparison). Pearson r between
-predicted and survey-weighted admin-2 prevalence exceeded 0.9 in 27 of
-30 country–outcome combinations (range 0.40–1.00), with mean absolute
-errors in the range 0.1–11.2 percentage points. The MSE-loss variant
-slightly outperformed the NLL-loss variant on most outcomes.
+predicted and survey-weighted admin-2 prevalence exceeded 0.9 in 16 of
+21 evaluable country–outcome combinations for the MSE-loss variant
+(18 of 23 for the NLL-loss variant; overall range 0.40–1.00), with mean
+absolute errors in the range 0.1–11.2 percentage points. The MSE-loss
+variant slightly outperformed the NLL-loss variant on most outcomes.
+
+These within-country correlations must, however, be read against the
+small number of areal units they summarise. Because the proxy and
+earth-observation predictors are resolved at the admin-2 level, the
+effective sample size for area-level fitting is the number of polygons —
+14 in Sierra Leone, 30 in Gambia, 75 in Ghana, and 87 in Malawi — rather
+than the hundreds to thousands of individuals underlying each prevalence
+estimate. Screening on the order of 150 candidate covariates against as
+few as 14–87 points leaves few residual degrees of freedom, so the
+five-fold cross-validated r is an optimistic estimate of within-country
+generalisation; the near-perfect values for the smallest countries
+(Sierra Leone r > 0.99) in particular reflect low-degrees-of-freedom
+overfitting as much as transportable signal. We therefore report the
+number of areas alongside individual sample sizes throughout and treat
+within-country accuracy as an upper bound on real-world performance.
 
 ```{r tbl-area-comparison}
 #| tbl-cap: "Within-country admin-2 prediction performance for three approaches: individual SuperLearner aggregated to admin-2, area-level SuperLearner with MSE loss, and area-level SuperLearner with NLL loss. Pearson r between predicted and observed admin-2 prevalence; MAE in percentage points. From results/tables/area_comparison_all.csv."
@@ -421,7 +440,7 @@ if (!is.null(area_compare)) {
 
 In contrast, the aggregated individual-level SuperLearner exhibited a
 characteristic compression pattern: predictions correlated moderately
-with admin-2 prevalence (median r ≈ 0.55) but were systematically pulled
+with admin-2 prevalence (median r ≈ 0.50) but were systematically pulled
 toward the country mean. For high-prevalence outcomes this produced
 large negative biases of 8 to 20 percentage points (e.g., Gambia
 child-iron MAE 20.8 pp, bias −20.4 pp; women-iron MAE 18.0 pp, bias
@@ -437,10 +456,12 @@ small-area-estimation lesson.
 
 LOCO holdout produced markedly weaker performance (@tbl-loco;
 @fig-loco-scatter). Pearson r across the 16 outcome–holdout
-combinations had a median of 0.18 and ranged from −0.22 to 0.53. Iron
-deficiency outcomes transported best (median r 0.31), while vitamin-A
-deficiency in women essentially did not transport across countries
-(median r −0.05, with anti-predictive ordering in two of four holdouts).
+combinations had a median of 0.21 and ranged from −0.14 to 0.53 (one
+holdout — women vitamin A in Gambia — was unestimable because no
+covariate survived selection). Iron deficiency outcomes transported best
+(median r 0.28), while vitamin-A deficiency in women essentially did not
+transport across countries (median r ≈ −0.12, with anti-predictive
+ordering in two of three estimable holdouts).
 
 ```{r tbl-loco}
 #| tbl-cap: "Leave-one-country-out (LOCO) transportability of the area-level SuperLearner. From results/tables/transportability_area_loco_metrics.csv."
@@ -456,9 +477,12 @@ if (!is.null(loco_metrics)) {
 
 ```{r fig-loco-scatter}
 #| fig-cap: "Observed vs predicted admin-2 deficiency prevalence under leave-one-country-out cross-validation, by outcome and held-out country. The reference line is y = x. Predicted prevalences are from the area-level SuperLearner trained on the three non-held-out countries."
-# Placeholder — figure will be regenerated by the dashboard once the
-# benchmark targets complete. See results/figures/loco_scatter.png.
-knitr::include_graphics("placeholder_loco_scatter.png", error = FALSE)
+# Generated by scripts/fig_loco_scatter.R from
+# results/tables/transportability_area_loco_predictions.csv. Panel Pearson r
+# matches @tbl-loco (same unweighted definition).
+knitr::include_graphics(
+  here::here("results", "figures", "loco_scatter.png"),
+  error = FALSE)
 ```
 
 Spatial patterns transport more readily within the West African
@@ -471,10 +495,46 @@ in the remaining three countries' training data.
 
 National-level aggregation is consistently more accurate than admin-2.
 National prevalence estimates were within ±5 percentage points of
-observed for 22 of 24 country–outcome combinations
-(@tbl-national-estimates), with a median pct-difference of 4%. The
+observed for all 24 country–outcome combinations
+(@tbl-national-estimates), with a median absolute difference of 0.4
+percentage points (median relative difference 3.8%). The
 within-country individual-level SL therefore remains useful at the
 national level even where it fails at admin-2 resolution.
+
+However, when the model is *transported* across countries the held-out
+national estimate is systematically biased toward the pooled training
+mean (@fig-transport-calibration). The bias is outcome-specific and
+concerns the national *level*, not the within-country admin-2 ranking
+of @tbl-loco. Two outcomes transport with broadly correct calibration:
+vitamin-A deficiency, whose national prevalence sits close to the
+cross-country mean in every survey (per-outcome calibration slope 0.93
+in children, 0.65 in women), and — once its cutoff is harmonised to the
+common serum definition (folate < 10 nmol/L; Malawi's native < 3 ng/mL
+rule is otherwise non-comparable) — folate deficiency, whose held-out
+prevalence preserves the correct ordering though compressed in magnitude
+(slope 0.37; Ghana 55%→18%, Sierra Leone 79%→30%, Malawi 2%→1%). The
+remaining outcomes fail. Iron deficiency, whose national prevalence
+ranges from 6% (Sierra Leone children) to 64% (Gambia children), is
+pulled to the training mean so strongly that the ordering inverts
+(per-outcome slope −0.72 in children, −0.18 in women), over-predicting
+low-prevalence countries (Sierra Leone children 6%→40%, Malawi 10%→51%)
+and under-predicting high-prevalence ones (Gambia children 64%→22%).
+Vitamin B12 — despite being the strongest *within-country* signal
+(continuous cross-validated R² up to 0.23 in Malawi) — does not
+transport at all: held-out discrimination falls to near chance
+(AUC 0.53–0.59) and prediction becomes unstable under the rare-outcome
+class-weighting (held-out Malawi predicted at 80% against a true 2.8%).
+Cross-country transport failure is therefore a level-calibration error
+driven by between-country prevalence heterogeneity — most severe for the
+outcomes and countries that differ most from the training distribution —
+and within-country accuracy is a poor guide to which outcomes transport.
+
+```{r fig-transport-calibration}
+#| fig-cap: "Cross-country transport calibration. Predicted versus true national deficiency prevalence for the pooled individual-level SuperLearner under leave-one-country-out (LOCO) holdout — one panel per outcome, one point per held-out country (trained on the remaining countries), panels ordered worst to best calibration. The dashed line is perfect calibration (y = x); each panel header reports the fitted calibration slope (1.0 = perfectly calibrated; <1 = predictions compressed toward the cross-country mean; <0 = inverted ordering). Vertical segments mark each fold's calibration gap. Vitamin-A national prevalence, close to the cross-country mean, is well recovered and folate (harmonised to a common serum < 10 nmol/L cutoff) preserves the correct ordering; iron is pulled to the training mean and inverts, and vitamin B12 does not transport (near-chance discrimination, with unstable prediction under rare-outcome class-weighting). Folate and B12 are women-only and available in three countries; zinc is Malawi-only and cannot be assessed for transport. From results/tables/transportability_loco_results.csv."
+knitr::include_graphics(
+  here::here("results", "figures", "transport_calibration_loco_faceted.png"),
+  error = FALSE)
+```
 
 **Parsimonious model with soil micronutrient predictors.** A series of
 post-hoc analyses confirmed that the strongest transportable signal in
@@ -534,20 +594,24 @@ if (!is.null(natl_est)) {
 Five comparator methods were evaluated alongside the area-level
 SuperLearner: country-mean baseline, OLS with up to 8 covariates,
 elastic-net penalised regression, Fay–Herriot, and the BYM2 disease
-mapping model fit in INLA (@tbl-benchmarks). Preliminary results from
-the four LOCO outcomes available at submission indicate that the
-SuperLearner ensemble does not consistently outperform simpler
-methods. Across 16 head-to-head LOCO splits the benchmark methods won
-9 and the SuperLearner won 7 by Pearson r. The most dramatic
-disagreement was for child iron deficiency with Sierra Leone held out,
-where the SuperLearner produced anti-predictive ordering (r = −0.19)
-while a plain 8-variable OLS recovered the signal (r = 0.37).
+mapping model fit in INLA (@tbl-benchmarks). Results across the four
+primary LOCO outcomes indicate that the prescreened SuperLearner
+ensemble does not consistently outperform simpler methods, and in fact
+loses to them on most splits. Among the 13 outcome–holdout splits for
+which both the prescreened ensemble and at least one canonical benchmark
+(country-mean baseline, OLS, elastic-net, Fay–Herriot, or BYM2) were
+estimable, the best benchmark method beat the ensemble on 10 and the
+ensemble won 3 by Pearson r. The most dramatic disagreement was for
+child iron deficiency with Sierra Leone held out, where the ensemble
+produced anti-predictive ordering (r = −0.19) while a full-covariate
+OLS recovered the signal (r = 0.51).
 
-The SuperLearner's wins were concentrated on outcomes with non-linear
-spatial signal — women-iron with Gambia held out (SL r = 0.52 vs OLS
-r = 0.18) and child-vitamin-A with Ghana held out (SL r = 0.44 vs
-penalised r = 0.34) — and in each case ranger was the winning base
-learner in the ensemble. Bayesian SAE models (Fay–Herriot, BYM2)
+The ensemble's few wins were concentrated on outcomes with non-linear
+spatial signal — most clearly women-iron deficiency with Gambia held out
+(ensemble r = 0.59, versus 0.51 for elastic-net and −0.03 for OLS) and
+with Ghana held out (ensemble r = 0.40 versus 0.27 for elastic-net) — and
+in these cases ranger was the winning base learner in the ensemble.
+Bayesian SAE models (Fay–Herriot, BYM2)
 provided small additional gains in calibration but did not
 substantially shift the Pearson r ranking, consistent with the
 observation that these methods derive most of their advantage from
@@ -556,7 +620,7 @@ holdout when the held-out country contributes no observed data to the
 graph.
 
 ```{r tbl-benchmarks}
-#| tbl-cap: "LOCO transportability: SuperLearner vs benchmark methods. Pearson r between predicted and observed admin-2 prevalence. From results/tables/benchmarks_all.csv. NOTE: benchmark targets are running concurrent with manuscript preparation; this table will be regenerated by the pipeline when those targets complete."
+#| tbl-cap: "LOCO transportability: prescreened SuperLearner vs benchmark methods. Pearson r between predicted and observed admin-2 prevalence. From results/tables/benchmarks_all.csv."
 if (!is.null(bench_results)) {
   bench_results %>%
     filter(eval_type == "loco", model_type == "continuous") %>%
@@ -607,8 +671,12 @@ linear models with soil micronutrient features help out-of-country.
 
 For binary deficiency classifiers, several diagnostic flags emerged
 (@tbl-calibration). The Brier skill score was negative — indicating
-predictions worse than the no-skill baseline — for 6 of 24
-country–outcome combinations. Calibration slopes were strongly inverted
+predictions worse than the no-skill baseline — for 13 of 23
+country–outcome combinations, though in most the deficit was small
+(Brier skill > −0.04 for 10 of the 13). Post-hoc Platt recalibration
+(see Methods) eliminated the negative values entirely: all 23 calibrated
+classifiers achieved non-negative Brier skill. Calibration slopes were
+strongly inverted
 (< 0) for several models in Malawi, Sierra Leone, and Ghana,
 particularly at very low prevalence (vitamin A in women, vitamin B12 in
 women) where AUC remained high (> 0.7) but Brier skill was near zero.
@@ -636,15 +704,17 @@ if (!is.null(diag_binary)) {
 
 ## Summary
 
-We harmonised individual-level biomarker measurements from four West
-African DHS to evaluate whether ensemble machine-learning models can
+We harmonised individual-level biomarker measurements from four
+sub-Saharan African DHS (three West African plus Malawi) to evaluate
+whether ensemble machine-learning models can
 reproduce admin-2 micronutrient deficiency prevalence. Three findings
 have programmatic significance.
 
 First, when the deliverable is an admin-2 map within a country with
 biomarker data, fitting an ensemble *directly at the admin-2 level*
-produces near-perfect spatial ranking (Pearson r > 0.9 in 27 of 30
-combinations) and mean absolute errors of a few percentage points,
+produces near-perfect spatial ranking (Pearson r > 0.9 in 16 of 21
+evaluable combinations, MSE-loss variant) and mean absolute errors of a
+few percentage points,
 whereas aggregating individual-level predictions to admin-2 introduces
 characteristic compression toward the country mean and biases of up to
 20 percentage points. This finding mirrors the established
@@ -654,8 +724,8 @@ deliverable.
 
 Second, cross-country transportability is limited. Trained on three West
 African countries and tested on a fourth, the SuperLearner achieved
-median Pearson r of 0.18 across 16 outcome–holdout combinations, with
-absolute errors of 5–46 percentage points and frequent anti-predictive
+median Pearson r of 0.21 across 16 outcome–holdout combinations, with
+absolute errors of 1.5–44 percentage points and frequent anti-predictive
 ordering. Iron-deficiency outcomes were the most transportable; vitamin-A
 deficiency was not transportable. Malawi, the only training country
 outside West Africa, produced anti-correlated predictions when held out
@@ -701,7 +771,7 @@ ensemble is consistent with this tradition.
 
 The most striking single result is the child-iron Sierra Leone LOCO
 case, where the SuperLearner produces anti-predictive ranking
-(r = −0.19) while a plain OLS achieves r = 0.37. We interpret this as
+(r = −0.19) while a plain OLS achieves r = 0.51. We interpret this as
 a model-selection failure of the ensemble: with only 14 admin-2 areas
 in the held-out set and approximately 152 covariates, the cross-validated
 risk estimator within the ensemble has high variance, and the cv-selected
@@ -739,18 +809,64 @@ A companion analysis using earth-observation rasters for Côte d'Ivoire
 
 ## Limitations
 
-Our sample comprises four West African countries; East African and
-South African populations are unrepresented. Sierra Leone has only 14
-admin-2 polygons, providing low-power LOCO estimates. We did not formally
+Our sample comprises four sub-Saharan African countries — three in West
+Africa plus Malawi — so the rest of East, Central, and Southern Africa is
+unrepresented. Because the predictors are resolved at admin-2, the
+effective sample size for area-level models is the number of polygons
+(14–87 per country) rather than the underlying individuals, which limits
+the degrees of freedom for both within- and cross-country fitting and
+makes the within-country cross-validated correlations an optimistic bound
+(most acutely for Sierra Leone, with only 14 polygons). We did not formally
 quantify the contribution of survey design weights to admin-2 prevalence
 estimates; assuming a fixed design-effect of 1.5 (DHS-typical) is an
 approximation. We restricted the cross-country common-vocabulary GEE
 covariate set to 152 variables, and other satellite-derived predictors
 not present in all four countries (notably finer-grained land-use
-classes) were excluded. Finally, our binary classifiers' calibration
-diagnostics flagged 6 of 24 outcomes with negative Brier skill — these
-should be treated as exploratory pending re-fit with class-balanced
-loss or recalibration on a held-out sample.
+classes) were excluded. Finally, our raw binary classifiers' calibration
+diagnostics flagged 13 of 23 outcomes with negative Brier skill; post-hoc
+recalibration restored all of them to non-negative skill, but the
+underlying discrimination at very low prevalence remains weak (several
+AUCs near 0.5) and these outcomes should be treated as exploratory.
+
+## External validation pathway
+
+The findings presented here are based on a largely West African LOCO
+panel (three West African countries plus Malawi) and a single external
+held-out country (Côte d'Ivoire). We have
+prepared a multi-source national-level benchmark to evaluate future
+expansions of the model to East and Southern Africa, comprising: (i) the
+Kenya National Micronutrient Survey 2011 [@knms2011], which provides
+nationally-representative biomarker prevalence for vitamin A, iron,
+zinc, folate, B12 and iodine across pre-school children, school-age
+children, pregnant women, non-pregnant women, and men; (ii) modelled
+WHO/UNICEF joint anaemia prevalence estimates for all eight focus
+countries, retrieved via the WHO Global Health Observatory API; and
+(iii) WHO Vitamin and Mineral Nutrition Information System (VMNIS)
+historical survey-level prevalence for the same eight countries, from
+the latest publicly-released long-format dump. The Stevens et al. 2022
+*Lancet Global Health* pooled posterior estimates [@stevens2022micronutrient] are the
+natural comparator for our national-level predictions; however, the
+country-level Bayesian posteriors are not publicly released, only the
+22 input surveys used to fit the model, and none of our cohort countries
+are among them. The full assembled benchmark is in
+`results/external/{vmnis_national,who_anaemia_country,knms2011_national_summary,kenya_national_benchmark}.csv`.
+
+Three concrete next-step datasets, each requiring a Data Use Agreement
+with the originating ministry, would substantially expand the LOCO panel
+beyond West Africa: the Kenya National Micronutrient Survey (KNMS 2011),
+the Tanzania National Nutrition Survey 2018, and the Ethiopia National
+Micronutrient Survey 2016. All three include the full vitamin A / iron /
+zinc / folate / B12 / iodine biomarker panel collected under the BRINDA
+inflammation-adjustment framework, making harmonisation with our four
+training countries straightforward. As a lighter-weight alternative,
+the most recent DHS rounds with haemoglobin biomarker (Kenya DHS 2022,
+Tanzania DHS 2022, Burkina Faso DHS 2021) can be added with no further
+paperwork beyond the user's existing DHS account, providing iron-deficiency
+anaemia coverage for three additional East/Sahelian countries. We
+provide country-agnostic ingestion stubs (`R/ingest_new_country.R`,
+function `stub_new_country_config()`) for each of these candidates;
+once a harmonised survey file lands in `data/IPD/<country>/`, the entire
+LOCO, calibration, SHAP, and dashboard pipeline regenerates automatically.
 
 ## Conclusions
 

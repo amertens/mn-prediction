@@ -17,6 +17,12 @@ mod_district_profile_ui <- function(id) {
                   choices = country_choices,
                   selected = "ghana"),
 
+      radioButtons(ns("dp_model"), "Prediction model",
+                   choices = c("Fay-Herriot SAE (all districts, with intervals)" = "fh",
+                               "Area-level SAE — HAL (all districts)" = "area",
+                               "Individual SuperLearner (surveyed districts)" = "sl"),
+                   selected = "fh"),
+
       uiOutput(ns("district_picker")),
 
       hr(),
@@ -80,13 +86,24 @@ mod_district_profile_server <- function(id) {
   moduleServer(id, function(input, output, session) {
     ns <- session$ns
 
+    # Selected prediction source (mirrors the Map explorer's model toggle).
+    dp_pred <- reactive({
+      m <- input$dp_model %||% "fh"
+      if (m == "fh" && exists("admin2_fh_pred") && !is.null(admin2_fh_pred)) {
+        admin2_fh_pred
+      } else if (m == "area" && exists("admin2_area_pred") && !is.null(admin2_area_pred)) {
+        admin2_area_pred
+      } else {
+        admin2_pred
+      }
+    })
+
     # Dynamic district picker
     output$district_picker <- renderUI({
       req(input$country)
       ctry_label <- meta$countries[input$country]
-      districts <- sort(unique(
-        admin2_pred$Admin2[admin2_pred$country == ctry_label]
-      ))
+      pd <- dp_pred()
+      districts <- sort(unique(pd$Admin2[pd$country == ctry_label]))
       if (length(districts) == 0) {
         return(p(em("No districts available for this country."),
                  style = "color: #888;"))
@@ -100,9 +117,10 @@ mod_district_profile_server <- function(id) {
       req(input$country, input$district)
       ctry_label <- meta$countries[input$country]
 
-      df <- admin2_pred[admin2_pred$country == ctry_label &
-                          admin2_pred$Admin2 == input$district, ,
-                          drop = FALSE]
+      pd <- dp_pred()
+      df <- pd[pd$country == ctry_label & pd$Admin2 == input$district, ,
+               drop = FALSE]
+      if (!"Admin1" %in% colnames(df)) df$Admin1 <- NA_character_
 
       pop_row <- admin2_pop[admin2_pop$country == ctry_label &
                               admin2_pop$Admin2 == input$district, ,
@@ -121,10 +139,11 @@ mod_district_profile_server <- function(id) {
       req(input$country)
       ctry_label <- meta$countries[input$country]
 
+      pd <- dp_pred()
       avgs <- list()
-      for (oc_key in unique(admin2_pred$outcome[admin2_pred$country == ctry_label])) {
+      for (oc_key in unique(pd$outcome[pd$country == ctry_label])) {
         df <- get_country_admin2(input$country, oc_key,
-                                  admin2_bnds, admin2_pred, admin2_pop)
+                                  admin2_bnds, pd, admin2_pop)
         if (is.null(df)) next
         natl <- national_aggregate(df)
         avgs[[oc_key]] <- natl$pred_prev_natl
@@ -138,7 +157,8 @@ mod_district_profile_server <- function(id) {
 
       tagList(
         h5(input$district, style = "margin-top: 0.5em;"),
-        if (!is.na(df$Admin1[1])) p(em(df$Admin1[1])),
+        if (!is.null(df$Admin1) && length(df$Admin1) > 0 &&
+            !is.na(df$Admin1[1])) p(em(df$Admin1[1])),
         p(strong("Population: "), fmt_count(df$population[1]))
       )
     })

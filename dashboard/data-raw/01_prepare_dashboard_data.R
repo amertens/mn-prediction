@@ -149,16 +149,32 @@ for (ctry in countries) {
       df$n_survey <- NA_integer_
     }
 
-    # Merge Admin-1 conformal CIs (these are Admin-1, not Admin-2 — broadcast
-    # to constituent districts via Admin1 join when possible)
+    # Conformal prediction intervals. Prefer the DISTRICT-level intervals
+    # (conformal_ci$admin2_ci, keyed on Admin2 — no Admin-1 -> Admin-2 broadcast).
+    # Fall back to the Admin-1 intervals broadcast to constituent districts only
+    # if district-level intervals are unavailable AND Admin1 is known.
     df$ci_lo <- NA_real_
     df$ci_hi <- NA_real_
     df$ci_width <- NA_real_
 
-    if (!is.null(conf_ci) && !is.null(conf_ci$admin1_ci) &&
-        nrow(conf_ci$admin1_ci) > 0) {
+    if (!is.null(conf_ci) && !is.null(conf_ci$admin2_ci) &&
+        nrow(conf_ci$admin2_ci) > 0 && "Admin2" %in% colnames(conf_ci$admin2_ci)) {
+      a2_ci <- conf_ci$admin2_ci
+      ci_lo_col <- intersect(c("ci_lo", "lower", "lo"), colnames(a2_ci))[1]
+      ci_hi_col <- intersect(c("ci_hi", "upper", "hi"), colnames(a2_ci))[1]
+      a2_keep <- data.frame(
+        Admin2 = a2_ci$Admin2,
+        ci_lo = if (!is.na(ci_lo_col)) a2_ci[[ci_lo_col]] else NA_real_,
+        ci_hi = if (!is.na(ci_hi_col)) a2_ci[[ci_hi_col]] else NA_real_,
+        stringsAsFactors = FALSE
+      )
+      a2_keep$ci_width <- a2_keep$ci_hi - a2_keep$ci_lo
+      df <- df |>
+        select(-ci_lo, -ci_hi, -ci_width) |>
+        left_join(a2_keep, by = "Admin2")     # district-level, no broadcast
+    } else if (!is.null(conf_ci) && !is.null(conf_ci$admin1_ci) &&
+               nrow(conf_ci$admin1_ci) > 0 && !all(is.na(df$Admin1))) {
       a1_ci <- conf_ci$admin1_ci
-      # Standardize admin1_ci column names
       ci_lo_col <- intersect(c("ci_lo", "lower", "lo"), colnames(a1_ci))[1]
       ci_hi_col <- intersect(c("ci_hi", "upper", "hi"), colnames(a1_ci))[1]
       a1_keep <- data.frame(
@@ -168,8 +184,6 @@ for (ctry in countries) {
         stringsAsFactors = FALSE
       )
       a1_keep$ci_width <- a1_keep$ci_hi - a1_keep$ci_lo
-
-      # Join by Admin1 — broadcasts CI to all admin-2 in same admin-1
       df <- df |>
         select(-ci_lo, -ci_hi, -ci_width) |>
         left_join(a1_keep, by = "Admin1")
