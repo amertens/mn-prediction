@@ -94,12 +94,12 @@ We load the fitted SuperLearner model for Ghana child iron deficiency from the `
 
 # ── Attempt to load from targets cache ──────────────────────────────────────
 sl_obj <- tryCatch(
-  targets::tar_read(sl_fit_ghana_child_iron, store = here::here("_targets")),
+  targets::tar_read(sl_fit_ghana_child_iron, store = here::here("_targets_full")),
   error = function(e) NULL
 )
 
 outcome_obj <- tryCatch(
-  targets::tar_read(outcome_data_ghana_child_iron, store = here::here("_targets")),
+  targets::tar_read(outcome_data_ghana_child_iron, store = here::here("_targets_full")),
   error = function(e) NULL
 )
 
