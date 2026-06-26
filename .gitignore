@@ -63,3 +63,9 @@ results/shap_kernel/
 .shap_kernel.lock
 shap_kernel_run.out
 shap_kernel_run.out.err
+
+# Shareable simplified-subset data (override the broad `data` ignore above)
+!/simplified subset/data/
+!/simplified subset/data/**
+# Office lock/temp files
+~$*
