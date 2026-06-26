@@ -206,6 +206,19 @@ fit_sl_models <- function(outcome_data, cc, oc, sl_learners, params) {
   # circular (predicting survey results from survey results) and inflates AUC.
   Xvars <- outcome_data$Xvars
 
+  # ── Feature-engineering toggles (default = legacy behaviour) ──
+  # FE_BUNDLES=true  -> restrict to outcome-specific biology bundle
+  # FE_NORMALIZE=rank -> rank/quantile scaling inside DHS_SL_clustered
+  if (isTRUE(params$use_outcome_bundles) &&
+      !is.null(outcome_data$Xvars_bundle) &&
+      length(outcome_data$Xvars_bundle) >= 2) {
+    Xvars <- outcome_data$Xvars_bundle
+    cat(sprintf("  [FE] outcome bundle active: %d predictors (was %d)\n",
+                length(Xvars), length(outcome_data$Xvars)))
+  }
+  norm_method <- if (!is.null(params$normalize_method)) params$normalize_method else "zscore"
+  if (norm_method == "rank") cat("  [FE] rank/quantile normalisation active\n")
+
   cat(sprintf("\n[fit_sl] %s — %s | n = %d | p = %d (proxy-only, no gw_)\n",
               cc$country, oc$tag, nrow(d), length(Xvars)))
 
@@ -220,13 +233,14 @@ fit_sl_models <- function(outcome_data, cc, oc, sl_learners, params) {
   cat("  Fitting continuous SL...\n")
   t0 <- proc.time()
   cont_fit <- DHS_SL_clustered(
-    d          = d,
-    Xvars      = Xvars,
-    outcome    = oc$continuous,
-    population = oc$population,
-    id         = cc$cluster_id,
-    folds      = params$K,
-    sl         = sl_learners$slmod
+    d                = d,
+    Xvars            = Xvars,
+    outcome          = oc$continuous,
+    population       = oc$population,
+    id               = cc$cluster_id,
+    folds            = params$K,
+    sl               = sl_learners$slmod,
+    normalize_method = norm_method
   )
   elapsed <- (proc.time() - t0)["elapsed"]
   cat(sprintf("  Continuous done in %.1f min\n", elapsed / 60))
@@ -246,13 +260,14 @@ fit_sl_models <- function(outcome_data, cc, oc, sl_learners, params) {
       cat("  Fitting binary SL...\n")
       t0 <- proc.time()
       bin_fit <- DHS_SL_clustered(
-        d          = d,
-        Xvars      = Xvars,
-        outcome    = oc$binary,
-        population = oc$population,
-        id         = cc$cluster_id,
-        folds      = params$K,
-        sl         = sl_learners$slmod2_bin
+        d                = d,
+        Xvars            = Xvars,
+        outcome          = oc$binary,
+        population       = oc$population,
+        id               = cc$cluster_id,
+        folds            = params$K,
+        sl               = sl_learners$slmod2_bin,
+        normalize_method = norm_method
       )
       elapsed <- (proc.time() - t0)["elapsed"]
       cat(sprintf("  Binary done in %.1f min\n", elapsed / 60))

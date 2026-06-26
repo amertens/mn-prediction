@@ -1,0 +1,481 @@
+"country","outcome","variable","mean_abs_shap","mean_shap","rank"
+"Gambia","child_iron","dhs2019_c_min_diet_diversity_adm2.y",0.00411625796310964,0.000970851312569776,1
+"Gambia","child_iron","wfp_price_beans_dry",0.00372191587456902,0.00193333918420336,2
+"Gambia","child_iron","wfp_price_groundnuts_unshelled",0.00358535809534643,0.000534157801086843,3
+"Gambia","child_iron","dhs2019_w_iron_supplement_adm2.y",0.00344982193656154,0.00118935371337666,4
+"Gambia","child_iron","gee_temp_Jan_25km",0.00328819798196486,-0.000727557729782338,5
+"Gambia","child_iron","missing_wfp_milk_powder",0.00247282996570033,0.00124523501653392,6
+"Gambia","child_iron","wfp_price_rice_basmati_broken",0.00238302624277684,0.000959274093998441,7
+"Gambia","child_iron","dhs2019_hh_radio_adm2.y",0.0020552633569207,0.00115135561375598,8
+"Gambia","child_iron","gee_a2_LST_Night_2015_Annual_Mean_FilledProportion",0.00200459277578637,-0.000353609588634529,9
+"Gambia","child_iron","dhs2019_w_modern_fp_adm2.y",0.00139026626155319,-0.000131945817115761,10
+"Gambia","child_iron","wfp_coffee_instant",0.00136855135104155,-0.00035592025865312,11
+"Gambia","child_iron","gee_trmm_Dec_10km",0.00114594800509418,0.00013846498104533,12
+"Gambia","child_iron","wfp_oil_vegetable",0.000962981428718748,0.00041119919946617,13
+"Gambia","child_iron","gee_a2_LandCoverType_2018_2018_01_01_LC_Type4",0.000935389228727151,-0.000296812642905441,14
+"Gambia","child_iron","gee_smod_50km",0.000918578953514605,-1.08931041433065e-05,15
+"Gambia","child_iron","wfp_price_maize_local",0.000872290583765258,-0.000139334602937353,16
+"Gambia","child_iron","wfp_maize_local",0.000865901940772637,-0.000196422351291405,17
+"Gambia","child_iron","dhs2019_hh_open_defecation_adm2.y",0.00077018344865102,0.000368632341464279,18
+"Gambia","child_iron","wfp_price_tomatoes",0.000572599751915962,-0.00015569865312766,19
+"Gambia","child_iron","gee_a2_FLDAS_2017_Annual_Mean_SoilMoi100_200cm_tavg",0.000458377880847384,-0.000132910788836334,20
+"Gambia","child_vitA","MAP_202106_Antimalarial_Effective_Treatment",0.0286329464920787,-0.00320272062523226,1
+"Gambia","child_vitA","gee_trmm_Jan_10km",0.0247894722904293,-0.00797199262795278,2
+"Gambia","child_vitA","dhs2019_w_bmi_low_adm2.y",0.0147077533424969,-0.00428685764666761,3
+"Gambia","child_vitA","mics_ec_risk_h_2_se",0.0131333516630259,-0.000280762251800516,4
+"Gambia","child_vitA","dhs2019_CH_VACC_C_MSL_adm2.y",0.0125747848113709,0.0011051626907657,5
+"Gambia","child_vitA","dhs2019_w_any_media_adm2.y",0.0098203277748094,0.00265012118988561,6
+"Gambia","child_vitA","gee_productivity_2018_annual_min",0.00916702535286916,0.00198615939498905,7
+"Gambia","child_vitA","dhs2019_hh_improved_floor_adm2.y",0.0085665891476121,0.00241509301873987,8
+"Gambia","child_vitA","dhs2019_c_malaria_rdt_adm2.y",0.00764176439840756,-0.000859775762990033,9
+"Gambia","child_vitA","gee_temp_10km_seasonal_sd",0.00484795866357659,0.00181460519127315,10
+"Gambia","child_vitA","map2_explorer_2017_non_malarial_fever",0.00472893659512071,-0.00164140758645736,11
+"Gambia","child_vitA","gee_a2_WAPOR_2018_L1_NPP_1811_L1_NPP_D",0.00283101750774228,-0.00109884205212945,12
+"Gambia","child_vitA","gee_landcoverlayers_2017_2017_data_density_indicator",0.00233815551021373,0.000524645890461733,13
+"Gambia","child_vitA","dhs2019_CN_NUTS_C_HA2_adm2.y",0,0,14
+"Gambia","child_vitA","dhs2019_FP_CUSA_W_MOD_adm2.y",0,0,15
+"Gambia","child_vitA","dhs2019_w_anemia_moderate_adm2.y",0,0,16
+"Gambia","child_vitA","dhs2019_w_bmi_overweight_adm2.y",0,0,17
+"Gambia","child_vitA","dhs2019_w_anc4plus_adm2.y",0,0,18
+"Gambia","child_vitA","dhs2019_w_delivery_facility_adm2.y",0,0,19
+"Gambia","child_vitA","dhs2019_w_unmet_fp_adm2.y",0,0,20
+"Gambia","women_iron","dhs2019_hh_mean_hhsize_adm2.y",0.0419562262359279,0.0243254775598668,1
+"Gambia","women_iron","gee_trmm_Apr_10km",0.0283339868305193,0.00597821474887786,2
+"Gambia","women_iron","dhs2019_w_any_media_adm2.y",0.0160326857510372,0.00699944787619461,3
+"Gambia","women_iron","dhs2019_c_mean_birthweight_adm2.y",0.0145561593398036,0.0021738064153061,4
+"Gambia","women_iron","mics_hc9d_se",0.0137004758032591,-0.00444900175733747,5
+"Gambia","women_iron","dhs2019_w_anemia_moderate_adm2.y",0.0121031849650049,0.00426763245938545,6
+"Gambia","women_iron","mics_wq10m",0.0106355470616883,0.00151171297999369,7
+"Gambia","women_iron","gee_temp_Oct_10km",0.00849339379217819,-0.00196515620530206,8
+"Gambia","women_iron","wfp_fonio",0.00567889495051218,0.000676424776155943,9
+"Gambia","women_iron","gee_trmm_Nov_25km",0.00531428546378687,0.000404781756694506,10
+"Gambia","women_iron","gee_temp_Jul_25km",0.00329227544791453,0.000848670242780459,11
+"Gambia","women_iron","gee_ndvi_50km_seasonal_cv",0.00226003404003561,0.000568026280451479,12
+"Gambia","women_iron","gee_landcoverlayers_2017_2017_grass_coverfraction",0.00225700804437972,0.00131185451312224,13
+"Gambia","women_iron","map2_explorer_2015_nature_africa_act",0.00181162361582339,0.00021843431317629,14
+"Gambia","women_iron","wfp_fuel_petrol_gasoline",0.00150902317770159,0.000387214955053434,15
+"Gambia","women_iron","dhs2019_CH_VACC_C_DP1_adm2.y",0,0,16
+"Gambia","women_iron","dhs2019_CH_VACC_C_DP3_adm2.y",0,0,17
+"Gambia","women_iron","dhs2019_CH_VACC_C_MSL_adm2.y",0,0,18
+"Gambia","women_iron","dhs2019_CN_NUTS_C_HA2_adm2.y",0,0,19
+"Gambia","women_iron","dhs2019_CN_NUTS_C_WH2_adm2.y",0,0,20
+"Gambia","women_vitA","gee_ndvi_50km_seasonal_cv",0.0105303827399929,0.00332939319175847,1
+"Gambia","women_vitA","dhs2019_c_anemia_moderate_adm2.y",0.00587095801120276,0.00166659622819732,2
+"Gambia","women_vitA","MAP_202106_Antimalarial_Effective_Treatment",0.000720225261833888,-3.25037294255046e-05,3
+"Gambia","women_vitA","dhs2019_hh_mean_hhsize_adm2.y",0.000421679798940222,0.000233810190551107,4
+"Gambia","women_vitA","dhs2019_CH_DIAT_C_ORT_adm2.y",0,0,5
+"Gambia","women_vitA","dhs2019_CH_VACC_C_BAS_adm2.y",0,0,6
+"Gambia","women_vitA","dhs2019_CH_VACC_C_DP1_adm2.y",0,0,7
+"Gambia","women_vitA","dhs2019_CH_VACC_C_DP3_adm2.y",0,0,8
+"Gambia","women_vitA","dhs2019_CH_VACC_C_MSL_adm2.y",0,0,9
+"Gambia","women_vitA","dhs2019_CH_VACC_C_NON_adm2.y",0,0,10
+"Gambia","women_vitA","dhs2019_CN_BRFS_C_EXB_adm2.y",0,0,11
+"Gambia","women_vitA","dhs2019_CN_NUTS_C_HA2_adm2.y",0,0,12
+"Gambia","women_vitA","dhs2019_CN_NUTS_C_WH2_adm2.y",0,0,13
+"Gambia","women_vitA","dhs2019_ML_NETP_H_IT2_adm2.y",0,0,14
+"Gambia","women_vitA","dhs2019_WS_TLET_H_IMP_adm2.y",0,0,15
+"Gambia","women_vitA","dhs2019_WS_TLET_P_BAS_adm2.y",0,0,16
+"Gambia","women_vitA","dhs2019_w_anemia_moderate_adm2.y",0,0,17
+"Gambia","women_vitA","dhs2019_w_bmi_low_adm2.y",0,0,18
+"Gambia","women_vitA","dhs2019_w_bmi_overweight_adm2.y",0,0,19
+"Gambia","women_vitA","dhs2019_w_height_low_adm2.y",0,0,20
+"Ghana","child_iron","dhs2014_AN_ANEM_W_ANY",0,0,1
+"Ghana","child_iron","dhs2014_CH_VACC_C_DP3",0,0,2
+"Ghana","child_iron","dhs2014_CM_ECMR_C_NNR",0,0,3
+"Ghana","child_iron","dhs2014_CN_NUTS_C_WH2",0,0,4
+"Ghana","child_iron","dhs2014_FP_CUSA_W_MOD",0,0,5
+"Ghana","child_iron","dhs2014_FP_NADA_W_UNT",0,0,6
+"Ghana","child_iron","dhs2014_CH_VACC_C_BAS_adm2.x",0,0,7
+"Ghana","child_iron","dhs2014_CH_VACC_C_MSL_adm2.x",0,0,8
+"Ghana","child_iron","dhs2014_CN_ANMC_C_ANY_adm2.x",0,0,9
+"Ghana","child_iron","dhs2014_CN_NUTS_C_HA2_adm2.x",0,0,10
+"Ghana","child_iron","dhs2014_HA_HIVP_B_HIV_adm2.x",0,0,11
+"Ghana","child_iron","dhs2014_ML_NETP_H_IT2_adm2.x",0,0,12
+"Ghana","child_iron","dhs2014_WS_TLET_P_BAS_adm2.x",0,0,13
+"Ghana","child_iron","dhs2014_w_anemia_any_adm2.x",0,0,14
+"Ghana","child_iron","dhs2014_w_anemia_moderate_adm2.x",0,0,15
+"Ghana","child_iron","dhs2014_w_bmi_low_adm2.x",0,0,16
+"Ghana","child_iron","dhs2014_w_mean_bmi_adm2.x",0,0,17
+"Ghana","child_iron","dhs2014_w_anc4plus_adm2.x",0,0,18
+"Ghana","child_iron","dhs2014_w_anc_visits_adm2.x",0,0,19
+"Ghana","child_iron","dhs2014_w_delivery_csection_adm2.x",0,0,20
+"Ghana","child_vitA","dhs2014_AN_ANEM_W_ANY",0,0,1
+"Ghana","child_vitA","dhs2014_CH_DIAT_C_ORT",0,0,2
+"Ghana","child_vitA","dhs2014_CH_VACC_C_BAS",0,0,3
+"Ghana","child_vitA","dhs2014_CM_ECMR_C_NNR",0,0,4
+"Ghana","child_vitA","dhs2014_CN_NUTS_C_WH2",0,0,5
+"Ghana","child_vitA","dhs2014_FP_CUSA_W_MOD",0,0,6
+"Ghana","child_vitA","dhs2014_FP_NADA_W_UNT",0,0,7
+"Ghana","child_vitA","dhs2014_CH_DIAT_C_ORT_adm2.x",0,0,8
+"Ghana","child_vitA","dhs2014_CH_VACC_C_BAS_adm2.x",0,0,9
+"Ghana","child_vitA","dhs2014_CN_ANMC_C_ANY_adm2.x",0,0,10
+"Ghana","child_vitA","dhs2014_CN_NUTS_C_HA2_adm2.x",0,0,11
+"Ghana","child_vitA","dhs2014_HA_HIVP_B_HIV_adm2.x",0,0,12
+"Ghana","child_vitA","dhs2014_ML_NETP_H_IT2_adm2.x",0,0,13
+"Ghana","child_vitA","dhs2014_WS_TLET_P_BAS_adm2.x",0,0,14
+"Ghana","child_vitA","dhs2014_w_anemia_moderate_adm2.x",0,0,15
+"Ghana","child_vitA","dhs2014_w_bmi_low_adm2.x",0,0,16
+"Ghana","child_vitA","dhs2014_w_mean_bmi_adm2.x",0,0,17
+"Ghana","child_vitA","dhs2014_w_anc_visits_adm2.x",0,0,18
+"Ghana","child_vitA","dhs2014_w_delivery_csection_adm2.x",0,0,19
+"Ghana","child_vitA","dhs2014_w_unmet_fp_adm2.x",0,0,20
+"Ghana","women_b12","missing_dhs2014_AN_ANEM_W_ANY_adm2.x",0.0084377385478465,-0.000366462739950175,1
+"Ghana","women_b12","dhs2014_WS_TLET_P_BAS_adm2.x",0.00817398157431773,0.000497078857791332,2
+"Ghana","women_b12","gee_lst_night_2015_annual_mean_annual_range",0.00791566008443036,0.00052703965739629,3
+"Ghana","women_b12","wfp_rice_local",0.00787634329049545,-0.00142856372006143,4
+"Ghana","women_b12","missing_gee_tpp_1km_10km",0.00708870811066817,-0.000770172849249962,5
+"Ghana","women_b12","dhs2014_c_bottle_fed_adm2.x",0.00672121880138343,0.00160066037615991,6
+"Ghana","women_b12","dhs2014_c_dpt1_adm2.x",0.00586533875598443,0.000785798044703841,7
+"Ghana","women_b12","dhs2014_w_vitA_postpartum_adm2.x",0.00558794105772073,-4.88903969143561e-05,8
+"Ghana","women_b12","wfp_maize",0.00526475912907327,0.000490591959738799,9
+"Ghana","women_b12","dhs2014_w_health_decision_adm2.x",0.00526310263630217,0.00103408832848032,10
+"Ghana","women_b12","dhs2014_c_early_initiation_adm2.x",0.00524640900019516,4.3927954548396e-05,11
+"Ghana","women_b12","missing_dhs2014_CH_VACC_C_BAS_adm2.x",0.00514825185496843,0.00107786383261191,12
+"Ghana","women_b12","gee_a2_SoilCalcium_2016_mean_0_20",0.0048547792607172,9.88490138352418e-05,13
+"Ghana","women_b12","dhs2014_RH_DELA_C_SKP_adm2.y",0.00479087008809549,0.00053406439531529,14
+"Ghana","women_b12","dhs2014_w_mean_bmi_adm2.y",0.00471001770715599,0.001008337068277,15
+"Ghana","women_b12","gee_temp_25km_peak_month",0.00334484537639523,-1.77403746912485e-05,16
+"Ghana","women_b12","gee_temp_Mar_10km",0.00269576873474511,0.00013486722563394,17
+"Ghana","women_b12","map2_explorer_2019_global_pf_incidence",0.00263078907963604,1.63271636163709e-06,18
+"Ghana","women_b12","gee_ndvi_10km_seasonal_sd",0.0023595427900517,-0.000198167842302766,19
+"Ghana","women_b12","dhs2014_c_dpt3_adm2.x",0.00227700046437477,0.000296472156097328,20
+"Ghana","women_folate","dhs2014_AN_ANEM_W_ANY",0,0,1
+"Ghana","women_folate","dhs2014_CM_ECMR_C_NNR",0,0,2
+"Ghana","women_folate","dhs2014_FP_CUSA_W_MOD",0,0,3
+"Ghana","women_folate","dhs2014_FP_NADA_W_UNT",0,0,4
+"Ghana","women_folate","dhs2014_CH_VACC_C_BAS_adm2.x",0,0,5
+"Ghana","women_folate","dhs2014_CH_VACC_C_NON_adm2.x",0,0,6
+"Ghana","women_folate","dhs2014_RH_ANCN_W_N4P_adm2.x",0,0,7
+"Ghana","women_folate","dhs2014_WS_TLET_P_BAS_adm2.x",0,0,8
+"Ghana","women_folate","dhs2014_w_mean_bmi_adm2.x",0,0,9
+"Ghana","women_folate","dhs2014_w_vitA_postpartum_adm2.x",0,0,10
+"Ghana","women_folate","dhs2014_w_anc4plus_adm2.x",0,0,11
+"Ghana","women_folate","dhs2014_w_anc_visits_adm2.x",0,0,12
+"Ghana","women_folate","dhs2014_w_skilled_attendant_adm2.x",0,0,13
+"Ghana","women_folate","dhs2014_w_high_parity_adm2.x",0,0,14
+"Ghana","women_folate","dhs2014_w_teen_pregnancy_adm2.x",0,0,15
+"Ghana","women_folate","dhs2014_w_literate_adm2.x",0,0,16
+"Ghana","women_folate","dhs2014_c_bottle_fed_adm2.x",0,0,17
+"Ghana","women_folate","dhs2014_c_min_diet_diversity_adm2.x",0,0,18
+"Ghana","women_folate","dhs2014_c_bcg_adm2.x",0,0,19
+"Ghana","women_folate","dhs2014_c_dpt1_adm2.x",0,0,20
+"Ghana","women_iron","dhs2014_AN_ANEM_W_ANY",0,0,1
+"Ghana","women_iron","dhs2014_CH_VACC_C_NON",0,0,2
+"Ghana","women_iron","dhs2014_CM_ECMR_C_NNR",0,0,3
+"Ghana","women_iron","dhs2014_CN_NUTS_C_WH2",0,0,4
+"Ghana","women_iron","dhs2014_FP_CUSA_W_MOD",0,0,5
+"Ghana","women_iron","dhs2014_HA_HIVP_B_HIV",0,0,6
+"Ghana","women_iron","dhs2014_ML_NETP_H_IT2",0,0,7
+"Ghana","women_iron","dhs2014_CH_VACC_C_BAS_adm2.x",0,0,8
+"Ghana","women_iron","dhs2014_CH_VACC_C_MSL_adm2.x",0,0,9
+"Ghana","women_iron","dhs2014_CH_VACC_C_NON_adm2.x",0,0,10
+"Ghana","women_iron","dhs2014_CN_BRFS_C_EXB_adm2.x",0,0,11
+"Ghana","women_iron","dhs2014_FP_CUSA_W_MOD_adm2.x",0,0,12
+"Ghana","women_iron","dhs2014_HA_HIVP_B_HIV_adm2.x",0,0,13
+"Ghana","women_iron","dhs2014_ML_NETP_H_IT2_adm2.x",0,0,14
+"Ghana","women_iron","dhs2014_w_vitA_postpartum_adm2.x",0,0,15
+"Ghana","women_iron","dhs2014_w_modern_fp_adm2.x",0,0,16
+"Ghana","women_iron","dhs2014_w_literate_adm2.x",0,0,17
+"Ghana","women_iron","dhs2014_c_bottle_fed_adm2.x",0,0,18
+"Ghana","women_iron","dhs2014_c_mean_birthweight_adm2.x",0,0,19
+"Ghana","women_iron","dhs2014_c_small_at_birth_adm2.x",0,0,20
+"Ghana","women_vitA","dhs2014_CH_DIAT_C_ORT",0,0,1
+"Ghana","women_vitA","dhs2014_CH_VACC_C_NON",0,0,2
+"Ghana","women_vitA","dhs2014_CM_ECMR_C_NNR",0,0,3
+"Ghana","women_vitA","dhs2014_CN_NUTS_C_HA2",0,0,4
+"Ghana","women_vitA","dhs2014_CN_NUTS_C_WH2",0,0,5
+"Ghana","women_vitA","dhs2014_ML_NETP_H_IT2",0,0,6
+"Ghana","women_vitA","dhs2014_CH_DIAT_C_ORT_adm2.x",0,0,7
+"Ghana","women_vitA","dhs2014_CH_VACC_C_NON_adm2.x",0,0,8
+"Ghana","women_vitA","dhs2014_CN_NUTS_C_HA2_adm2.x",0,0,9
+"Ghana","women_vitA","dhs2014_HA_HIVP_B_HIV_adm2.x",0,0,10
+"Ghana","women_vitA","dhs2014_ML_NETP_H_IT2_adm2.x",0,0,11
+"Ghana","women_vitA","dhs2014_w_anc4plus_adm2.x",0,0,12
+"Ghana","women_vitA","dhs2014_w_delivery_csection_adm2.x",0,0,13
+"Ghana","women_vitA","dhs2014_w_modern_fp_adm2.x",0,0,14
+"Ghana","women_vitA","dhs2014_w_mean_parity_adm2.x",0,0,15
+"Ghana","women_vitA","dhs2014_w_birth_interval_short_adm2.x",0,0,16
+"Ghana","women_vitA","dhs2014_w_primary_edu_adm2.x",0,0,17
+"Ghana","women_vitA","dhs2014_w_watches_tv_adm2.x",0,0,18
+"Ghana","women_vitA","dhs2014_w_any_media_adm2.x",0,0,19
+"Ghana","women_vitA","dhs2014_c_bcg_adm2.x",0,0,20
+"Malawi","child_iron","dhs2015_CH_VACC_C_DP3_adm2.x",0,0,1
+"Malawi","child_iron","dhs2015_CN_ANMC_C_ANY_adm2.x",0,0,2
+"Malawi","child_iron","dhs2015_CN_BRFS_C_EXB_adm2.x",0,0,3
+"Malawi","child_iron","dhs2015_CN_NUTS_C_WH2_adm2.x",0,0,4
+"Malawi","child_iron","dhs2015_HA_HIVP_B_HIV_adm2.x",0,0,5
+"Malawi","child_iron","dhs2015_WS_TLET_P_BAS_adm2.x",0,0,6
+"Malawi","child_iron","dhs2015_w_bmi_low_adm2.x",0,0,7
+"Malawi","child_iron","dhs2015_w_bmi_overweight_adm2.x",0,0,8
+"Malawi","child_iron","dhs2015_w_height_low_adm2.x",0,0,9
+"Malawi","child_iron","dhs2015_w_anc_visits_adm2.x",0,0,10
+"Malawi","child_iron","dhs2015_w_high_parity_adm2.x",0,0,11
+"Malawi","child_iron","dhs2015_w_mean_parity_adm2.x",0,0,12
+"Malawi","child_iron","dhs2015_w_birth_interval_short_adm2.x",0,0,13
+"Malawi","child_iron","dhs2015_w_primary_edu_adm2.x",0,0,14
+"Malawi","child_iron","dhs2015_w_secondary_plus_adm2.x",0,0,15
+"Malawi","child_iron","dhs2015_w_edu_years_mean_adm2.x",0,0,16
+"Malawi","child_iron","dhs2015_w_literate_adm2.x",0,0,17
+"Malawi","child_iron","dhs2015_w_health_decision_adm2.x",0,0,18
+"Malawi","child_iron","dhs2015_w_reads_newspaper_adm2.x",0,0,19
+"Malawi","child_iron","dhs2015_w_watches_tv_adm2.x",0,0,20
+"Malawi","child_vitA","ihme_15_49_years_24_males_male_circumcision_prevalence_percent",0.0128024956968046,-0.00112514389827104,1
+"Malawi","child_vitA","dhs2015_w_bmi_low_adm2.x",0.0124555211375669,-0.000714598852099537,2
+"Malawi","child_vitA","dhs2015_c_severely_stunted_adm2.y",0.00881568458276531,-0.00163744842709338,3
+"Malawi","child_vitA","dhs2015_c_mean_haz_adm2.x",0.00626972374007788,-0.00184186980741316,4
+"Malawi","child_vitA","gee_ndvi_mean_anomaly_2015",0.00572867292527322,-0.000265866198787536,5
+"Malawi","child_vitA","dhs2015_c_dpt1_adm2.y",0.00558752566447796,0.000291284411123961,6
+"Malawi","child_vitA","dhs2015_c_mean_hemoglobin_adm2.y",0.00554440450922032,-0.000326663560738815,7
+"Malawi","child_vitA","dhs2015_w_anc_visits_adm2.y",0.00522234382314278,-0.000911431610173651,8
+"Malawi","child_vitA","dhs2015_c_under5_death_adm2.x",0.00519739692260315,-0.000301280918765198,9
+"Malawi","child_vitA","gee_a2_FLDAS_2014_Annual_Mean_Qg_tavg",0.00507427884852373,-0.000396851917463554,10
+"Malawi","child_vitA","missing_gee_a2_SoilPhosphorus_2014_mean_0_20",0.00444892260248042,0.00158192842705361,11
+"Malawi","child_vitA","dhs2015_w_anc_visits_adm2.x",0.00440530147854289,-0.000826707021261283,12
+"Malawi","child_vitA","dhs2015_hh_irs_adm2.y",0.00410776037760896,-0.000443732271616519,13
+"Malawi","child_vitA","gee_a2_LandCoverLayers_2015_2015_water_seasonal_coverfraction",0.00397144089189495,-0.00169205622900348,14
+"Malawi","child_vitA","dhs2015_w_anc1_adm2.y",0.00378925001131377,-0.00130061622380282,15
+"Malawi","child_vitA","ihme_all_ages_22_both_w_surface_percent",0.00315743635321468,-3.72071521950664e-05,16
+"Malawi","child_vitA","dhs2015_c_vita_rich_food_adm2.x",0.00310013010925928,-0.000242422755572325,17
+"Malawi","child_vitA","wfp_groundnuts_shelled",0.00244091297377616,-0.000234479242135404,18
+"Malawi","child_vitA","dhs2015_c_mean_birthweight_adm2.x",0.00181169751528314,0.000422138414669376,19
+"Malawi","child_vitA","dhs2015_c_mean_haz_adm2.y",0.00166858363854986,-0.000442747632339794,20
+"Malawi","child_zinc","dhs2015_CH_DIAT_C_ORT_adm2.x",0,0,1
+"Malawi","child_zinc","dhs2015_CH_VACC_C_MSL_adm2.x",0,0,2
+"Malawi","child_zinc","dhs2015_CH_VACC_C_NON_adm2.x",0,0,3
+"Malawi","child_zinc","dhs2015_CN_BRFS_C_EXB_adm2.x",0,0,4
+"Malawi","child_zinc","dhs2015_CN_NUTS_C_WH2_adm2.x",0,0,5
+"Malawi","child_zinc","dhs2015_RH_ANCN_W_N4P_adm2.x",0,0,6
+"Malawi","child_zinc","dhs2015_WS_TLET_P_BAS_adm2.x",0,0,7
+"Malawi","child_zinc","dhs2015_w_iron_supplement_adm2.x",0,0,8
+"Malawi","child_zinc","dhs2015_w_delivery_csection_adm2.x",0,0,9
+"Malawi","child_zinc","dhs2015_w_unmet_fp_adm2.x",0,0,10
+"Malawi","child_zinc","dhs2015_w_mean_parity_adm2.x",0,0,11
+"Malawi","child_zinc","dhs2015_w_primary_edu_adm2.x",0,0,12
+"Malawi","child_zinc","dhs2015_w_secondary_plus_adm2.x",0,0,13
+"Malawi","child_zinc","dhs2015_w_literate_adm2.x",0,0,14
+"Malawi","child_zinc","dhs2015_w_health_decision_adm2.x",0,0,15
+"Malawi","child_zinc","dhs2015_w_reads_newspaper_adm2.x",0,0,16
+"Malawi","child_zinc","dhs2015_w_watches_tv_adm2.x",0,0,17
+"Malawi","child_zinc","dhs2015_w_mean_age_first_birth_adm2.x",0,0,18
+"Malawi","child_zinc","dhs2015_c_excl_breastfed_adm2.x",0,0,19
+"Malawi","child_zinc","dhs2015_c_mean_birthweight_adm2.x",0,0,20
+"Malawi","women_b12","dhs2015_AN_ANEM_W_ANY_adm2.x",0,0,1
+"Malawi","women_b12","dhs2015_CH_VACC_C_DP1_adm2.x",0,0,2
+"Malawi","women_b12","dhs2015_CH_VACC_C_MSL_adm2.x",0,0,3
+"Malawi","women_b12","dhs2015_CM_ECMR_C_NNR_adm2.x",0,0,4
+"Malawi","women_b12","dhs2015_CN_NUTS_C_HA2_adm2.x",0,0,5
+"Malawi","women_b12","dhs2015_CN_NUTS_C_WH2_adm2.x",0,0,6
+"Malawi","women_b12","dhs2015_RH_ANCN_W_N4P_adm2.x",0,0,7
+"Malawi","women_b12","dhs2015_w_anemia_moderate_adm2.x",0,0,8
+"Malawi","women_b12","dhs2015_w_bmi_low_adm2.x",0,0,9
+"Malawi","women_b12","dhs2015_w_delivery_csection_adm2.x",0,0,10
+"Malawi","women_b12","dhs2015_w_modern_fp_adm2.x",0,0,11
+"Malawi","women_b12","dhs2015_w_mean_parity_adm2.x",0,0,12
+"Malawi","women_b12","dhs2015_w_primary_edu_adm2.x",0,0,13
+"Malawi","women_b12","dhs2015_w_secondary_plus_adm2.x",0,0,14
+"Malawi","women_b12","dhs2015_w_literate_adm2.x",0,0,15
+"Malawi","women_b12","dhs2015_w_health_decision_adm2.x",0,0,16
+"Malawi","women_b12","dhs2015_w_watches_tv_adm2.x",0,0,17
+"Malawi","women_b12","dhs2015_w_listens_radio_adm2.x",0,0,18
+"Malawi","women_b12","dhs2015_c_early_initiation_adm2.x",0,0,19
+"Malawi","women_b12","dhs2015_c_bottle_fed_adm2.x",0,0,20
+"Malawi","women_folate","dhs2015_AN_ANEM_W_ANY_adm2.x",0,0,1
+"Malawi","women_folate","dhs2015_AN_NUTS_W_THN_adm2.x",0,0,2
+"Malawi","women_folate","dhs2015_CM_ECMR_C_NNR_adm2.x",0,0,3
+"Malawi","women_folate","dhs2015_CN_ANMC_C_ANY_adm2.x",0,0,4
+"Malawi","women_folate","dhs2015_CN_NUTS_C_HA2_adm2.x",0,0,5
+"Malawi","women_folate","dhs2015_ML_NETP_H_IT2_adm2.x",0,0,6
+"Malawi","women_folate","dhs2015_RH_ANCN_W_N4P_adm2.x",0,0,7
+"Malawi","women_folate","dhs2015_w_anemia_moderate_adm2.x",0,0,8
+"Malawi","women_folate","dhs2015_w_height_low_adm2.x",0,0,9
+"Malawi","women_folate","dhs2015_w_anc4plus_adm2.x",0,0,10
+"Malawi","women_folate","dhs2015_w_anc_visits_adm2.x",0,0,11
+"Malawi","women_folate","dhs2015_w_mean_parity_adm2.x",0,0,12
+"Malawi","women_folate","dhs2015_w_teen_pregnancy_adm2.x",0,0,13
+"Malawi","women_folate","dhs2015_w_secondary_plus_adm2.x",0,0,14
+"Malawi","women_folate","dhs2015_w_reads_newspaper_adm2.x",0,0,15
+"Malawi","women_folate","dhs2015_w_watches_tv_adm2.x",0,0,16
+"Malawi","women_folate","dhs2015_c_excl_breastfed_adm2.x",0,0,17
+"Malawi","women_folate","dhs2015_c_bottle_fed_adm2.x",0,0,18
+"Malawi","women_folate","dhs2015_c_low_birthweight_adm2.x",0,0,19
+"Malawi","women_folate","dhs2015_c_mean_birthweight_adm2.x",0,0,20
+"Malawi","women_iron","MAP_202206_Pf_Mortality_Rate",0.00967511830106378,-0.000784777980297804,1
+"Malawi","women_iron","dhs2015_c_wasted_adm2.x",0.0082097550816834,-0.00110076444968581,2
+"Malawi","women_iron","dhs2015_c_mean_haz_adm2.x",0.00730615937337279,-0.000256126645952463,3
+"Malawi","women_iron","dhs2015_c_diarrhea_2wk_adm2.y",0.00722298415005207,0.000369369961321354,4
+"Malawi","women_iron","gee_productivity_2015_annual_min",0.00710132623463869,0.000270677022635937,5
+"Malawi","women_iron","gee_globalhumanmodification_2016",0.00694198620319366,-0.000273871973156929,6
+"Malawi","women_iron","gee_trmm_2017",0.00681727593764663,-0.000794738043099642,7
+"Malawi","women_iron","gee_ccnl_2013",0.00492821890115738,-0.000741602785885334,8
+"Malawi","women_iron","dhs2015_c_under5_death_adm2.x",0.00444426279142499,0.00061453327909112,9
+"Malawi","women_iron","MAP_202202_Pf_Reproductive_Number",0.00419095055386424,-0.000683529045432806,10
+"Malawi","women_iron","dhs2015_w_bmi_low_adm2.x",0.00322333643212914,0.000103250090032816,11
+"Malawi","women_iron","gee_built_surface_nres_50km",0.00309334008768201,-9.09893251955509e-05,12
+"Malawi","women_iron","gee_ndvi_10km_annual_mean",0.0029487563893199,0.000533989496529102,13
+"Malawi","women_iron","gee_ndvi_Dec_25km",0.00250565885752439,0.000105003364384174,14
+"Malawi","women_iron","gee_a2_GPW_Grasslands_yoy_2015_2014",0.00237613938376307,0.000317176651209593,15
+"Malawi","women_iron","ihme_all_ages_22_both_w_piped_number",0.00228383695334196,5.47517016530037e-05,16
+"Malawi","women_iron","dhs2015_hh_wealth_poorest_adm2.x",0.00226268205419183,0.000135252635926008,17
+"Malawi","women_iron","gee_trmm_Oct_25km",0.00150561962276697,-0.000324244819581509,18
+"Malawi","women_iron","gee_terraclimate_2014_annual_max",0.00129633796960115,9.72893610596657e-05,19
+"Malawi","women_iron","dhs2015_c_fever_2wk_adm2.y",0.000536249443888664,7.5045108795166e-05,20
+"Malawi","women_vitA","worldpop_pop_total",0.00167341353724056,-0.000140594014455639,1
+"Malawi","women_vitA","ihme_15_49_24_male_proportion_of_population_achieving_6_11_years_education",0.00139287094375956,4.95501595698199e-05,2
+"Malawi","women_vitA","wfp_cassava",0.00118711087471233,0.000333602564161284,3
+"Malawi","women_vitA","chirps_precip_jul",0.00102353920872902,-9.15446401564253e-05,4
+"Malawi","women_vitA","dhs2015_w_anemia_moderate_adm2.y",0.000947538647005086,0.000291255841542079,5
+"Malawi","women_vitA","ihme_20_24_24_female_mean_years_of_attainment",0.00069102539109661,-8.36238008556016e-05,6
+"Malawi","women_vitA","dhs2015_hh_wealth_poor_adm2.y",0.000650308024710052,1.63617276422419e-05,7
+"Malawi","women_vitA","dhs2015_c_mean_hemoglobin_adm2.y",0.000609624191067342,0.000108357173630103,8
+"Malawi","women_vitA","gee_trmm_Dec_10km",0.000471339363180615,0.000212164980597987,9
+"Malawi","women_vitA","gee_ndvi_10km_seasonal_range",0.000454339291548512,-4.84053790552588e-05,10
+"Malawi","women_vitA","gee_trmm_Feb_50km",0.000441368653299006,0.000128249263646266,11
+"Malawi","women_vitA","dhs2015_c_overweight_adm2.y",0.000426786132854083,-5.05431792031287e-07,12
+"Malawi","women_vitA","dhs2015_c_bcg_adm2.y",0.00041028687507683,-9.5580389292452e-05,13
+"Malawi","women_vitA","gee_terraclimate_2015_aet",0.000246834092100064,8.46574362215662e-06,14
+"Malawi","women_vitA","gee_terraclimate_2015_annual_mean",0.00019610216193242,3.86449416084707e-06,15
+"Malawi","women_vitA","gee_a2_AerosolOptical_yoy_2015_2014",0.000175769897747054,1.09320168549985e-05,16
+"Malawi","women_vitA","ihme_all_ages_22_both_s_piped_percent",0.000174420574869927,-2.35463597887745e-05,17
+"Malawi","women_vitA","map2_explorer_2017_anophele_funestus_mean_decompressed",0.000117066542214604,-4.98223005870582e-06,18
+"Malawi","women_vitA","gee_ndvi_50km_seasonal_cv",9.6732591295548e-05,9.07596801717878e-06,19
+"Malawi","women_vitA","gee_soilpotassium_2015_stdev_0_20",8.17981405852578e-05,-1.4756246221136e-05,20
+"Malawi","women_zinc","dhs2015_CM_ECMR_C_NNR_adm2.x",0,0,1
+"Malawi","women_zinc","dhs2015_CN_NUTS_C_WH2_adm2.x",0,0,2
+"Malawi","women_zinc","dhs2015_HA_HIVP_B_HIV_adm2.x",0,0,3
+"Malawi","women_zinc","dhs2015_RH_ANCN_W_N4P_adm2.x",0,0,4
+"Malawi","women_zinc","dhs2015_w_anemia_moderate_adm2.x",0,0,5
+"Malawi","women_zinc","dhs2015_w_bmi_overweight_adm2.x",0,0,6
+"Malawi","women_zinc","dhs2015_w_height_low_adm2.x",0,0,7
+"Malawi","women_zinc","dhs2015_w_anc4plus_adm2.x",0,0,8
+"Malawi","women_zinc","dhs2015_w_anc1_adm2.x",0,0,9
+"Malawi","women_zinc","dhs2015_w_anc_visits_adm2.x",0,0,10
+"Malawi","women_zinc","dhs2015_w_delivery_facility_adm2.x",0,0,11
+"Malawi","women_zinc","dhs2015_w_delivery_csection_adm2.x",0,0,12
+"Malawi","women_zinc","dhs2015_w_health_decision_adm2.x",0,0,13
+"Malawi","women_zinc","dhs2015_c_excl_breastfed_adm2.x",0,0,14
+"Malawi","women_zinc","dhs2015_c_early_initiation_adm2.x",0,0,15
+"Malawi","women_zinc","dhs2015_c_low_birthweight_adm2.x",0,0,16
+"Malawi","women_zinc","dhs2015_c_mean_birthweight_adm2.x",0,0,17
+"Malawi","women_zinc","dhs2015_c_iron_rich_food_adm2.x",0,0,18
+"Malawi","women_zinc","dhs2015_c_bcg_adm2.x",0,0,19
+"Malawi","women_zinc","dhs2015_c_polio3_adm2.x",0,0,20
+"Sierra Leone","child_iron","missing_gee_tpp_1km_50km",0.0121405621779479,0.00100112191626604,1
+"Sierra Leone","child_iron","gee_ndvi_Mar_25km",0.0106644970343266,0.00154261042755528,2
+"Sierra Leone","child_iron","gee_a2_LAI8days_yoy_2013_2012",0.00920905980455202,-5.13025250035208e-06,3
+"Sierra Leone","child_iron","gee_temp_Apr_10km",0.00641652345369172,3.0007413674811e-05,4
+"Sierra Leone","child_iron","gee_trmm_10km_peak_month",0.00625365581218485,-0.00067319474516853,5
+"Sierra Leone","child_iron","dhs2013_w_anc_visits_adm2",0.00536537514798943,0.00103802468178602,6
+"Sierra Leone","child_iron","gee_temp_Mar_10km",0.00191649722098524,0.000143224312113614,7
+"Sierra Leone","child_iron","gee_trmm_2014",0.00124003286357473,0.000238182641919802,8
+"Sierra Leone","child_iron","dhs2013_w_watches_tv_adm2",0.000959907779489741,1.43866396590118e-05,9
+"Sierra Leone","child_iron","dhs2013_ML_NETP_H_IT2",0,0,10
+"Sierra Leone","child_iron","dhs2013_RH_ANCN_W_N4P",0,0,11
+"Sierra Leone","child_iron","dhs2013_AN_ANEM_W_ANY_adm2",0,0,12
+"Sierra Leone","child_iron","dhs2013_CH_DIAT_C_ORT_adm2",0,0,13
+"Sierra Leone","child_iron","dhs2013_CN_BRFS_C_EXB_adm2",0,0,14
+"Sierra Leone","child_iron","dhs2013_CN_NUTS_C_HA2_adm2",0,0,15
+"Sierra Leone","child_iron","dhs2013_RH_ANCN_W_N4P_adm2",0,0,16
+"Sierra Leone","child_iron","dhs2013_w_bmi_low_adm2",0,0,17
+"Sierra Leone","child_iron","dhs2013_w_bmi_overweight_adm2",0,0,18
+"Sierra Leone","child_iron","dhs2013_w_iron_supplement_adm2",0,0,19
+"Sierra Leone","child_iron","dhs2013_w_vitA_postpartum_adm2",0,0,20
+"Sierra Leone","child_vitA","gee_trmm_Jul_10km",0.0252360659550456,-0.00173567974527272,1
+"Sierra Leone","child_vitA","gee_built_surface_nres_10km",0.020459919521636,0.00121692288731095,2
+"Sierra Leone","child_vitA","MAP_202206_Pf_Parasite_Rate",0.013440615949718,-0.000187399676594482,3
+"Sierra Leone","child_vitA","gee_ndvi_50km_seasonal_range",0.012661368230957,-0.00196873263323572,4
+"Sierra Leone","child_vitA","gee_tpp_1km_cropland_25km",0.012097766889817,-0.00464342884151351,5
+"Sierra Leone","child_vitA","ihme_all_ages_22_both_w_unimp_number",0.00972696768365108,-0.000113415528398172,6
+"Sierra Leone","child_vitA","gee_trmm_Oct_25km",0.00906782256913455,9.21541363908945e-05,7
+"Sierra Leone","child_vitA","gee_wapor_2013_annual_sd",0.00552627899516475,0.00039554207168803,8
+"Sierra Leone","child_vitA","gee_temp_Aug_25km",0.00547294006167239,-0.00146803152956354,9
+"Sierra Leone","child_vitA","missing_gee_a2_GPW_Demographic_2010_gpw_v4_basic_demographic_characteristics_rev11_a065_069bt_2010_cntm_30_sec_basic_demographic_characteristics",0.00452828633896732,-0.000671626146623497,10
+"Sierra Leone","child_vitA","gee_ndvi_50km_peak_month",0.00352976904842169,-0.000676147003060089,11
+"Sierra Leone","child_vitA","dhs2013_c_mean_birthweight_adm2",0.00324840604116192,0.000239273145407434,12
+"Sierra Leone","child_vitA","MAP_202106_Insecticide_Treated_Net_Access",0.00317023740438502,-0.00052052636483023,13
+"Sierra Leone","child_vitA","dhs2013_hh_irs_adm2",0.00132027359604192,-6.24575464114454e-05,14
+"Sierra Leone","child_vitA","ihme_under_5_1_both_ors_or_rhf_number",0.00105528929765281,-3.6288319057755e-05,15
+"Sierra Leone","child_vitA","dhs2013_CN_NUTS_C_WH2_adm2",0.000146693261820432,2.54770591594923e-05,16
+"Sierra Leone","child_vitA","gee_temp_25km_peak_month",6.78590696010332e-05,7.9890880402734e-07,17
+"Sierra Leone","child_vitA","dhs2013_RH_ANCN_W_N4P_adm2",0,0,18
+"Sierra Leone","child_vitA","dhs2013_w_height_low_adm2",0,0,19
+"Sierra Leone","child_vitA","dhs2013_hh_handwash_facility_adm2",0,0,20
+"Sierra Leone","women_b12","dhs2013_RH_ANCN_W_N4P_adm2",0,0,1
+"Sierra Leone","women_b12","dhs2013_w_iron_supplement_adm2",0,0,2
+"Sierra Leone","women_b12","dhs2013_w_anc1_adm2",0,0,3
+"Sierra Leone","women_b12","dhs2013_c_bcg_adm2",0,0,4
+"Sierra Leone","women_b12","dhs2013_c_fully_vaccinated_adm2",0,0,5
+"Sierra Leone","women_b12","dhs2013_c_vita_supplement_adm2",0,0,6
+"Sierra Leone","women_b12","dhs2013_c_diarrhea_2wk_adm2",0,0,7
+"Sierra Leone","women_b12","dhs2013_c_overweight_adm2",0,0,8
+"Sierra Leone","women_b12","ihme_under_5_1_both_oral_rehydration_solution_percent",0,0,9
+"Sierra Leone","women_b12","ihme_neonatal_42_both_deaths",0,0,10
+"Sierra Leone","women_b12","ihme_20_24_24_male_proportion_of_population_achieving_6_11_years_education",0,0,11
+"Sierra Leone","women_b12","ihme_all_ages_22_both_w_imp_other_number",0,0,12
+"Sierra Leone","women_b12","ihme_all_ages_22_both_s_od_percent",0,0,13
+"Sierra Leone","women_b12","ihme_all_ages_22_both_s_imp_number",0,0,14
+"Sierra Leone","women_b12","ihme_under_5_1_both_overweight_prevalence_percent",0,0,15
+"Sierra Leone","women_b12","gee_SR",0,0,16
+"Sierra Leone","women_b12","gee_trmm_Aug_10km",0,0,17
+"Sierra Leone","women_b12","gee_trmm_Sep_10km",0,0,18
+"Sierra Leone","women_b12","gee_trmm_Nov_10km",0,0,19
+"Sierra Leone","women_b12","gee_temp_Aug_10km",0,0,20
+"Sierra Leone","women_folate","dhs2013_RH_ANCN_W_N4P",0,0,1
+"Sierra Leone","women_folate","dhs2013_CH_DIAT_C_ORT_adm2",0,0,2
+"Sierra Leone","women_folate","dhs2013_CN_NUTS_C_WH2_adm2",0,0,3
+"Sierra Leone","women_folate","dhs2013_ML_NETP_H_IT2_adm2",0,0,4
+"Sierra Leone","women_folate","dhs2013_RH_ANCN_W_N4P_adm2",0,0,5
+"Sierra Leone","women_folate","dhs2013_w_anc4plus_adm2",0,0,6
+"Sierra Leone","women_folate","dhs2013_w_anc_visits_adm2",0,0,7
+"Sierra Leone","women_folate","dhs2013_w_delivery_facility_adm2",0,0,8
+"Sierra Leone","women_folate","dhs2013_w_delivery_csection_adm2",0,0,9
+"Sierra Leone","women_folate","dhs2013_w_birth_interval_short_adm2",0,0,10
+"Sierra Leone","women_folate","dhs2013_w_health_decision_adm2",0,0,11
+"Sierra Leone","women_folate","dhs2013_c_early_initiation_adm2",0,0,12
+"Sierra Leone","women_folate","dhs2013_c_mean_birthweight_adm2",0,0,13
+"Sierra Leone","women_folate","dhs2013_c_small_at_birth_adm2",0,0,14
+"Sierra Leone","women_folate","dhs2013_c_vita_rich_food_adm2",0,0,15
+"Sierra Leone","women_folate","dhs2013_c_bcg_adm2",0,0,16
+"Sierra Leone","women_folate","dhs2013_c_dpt1_adm2",0,0,17
+"Sierra Leone","women_folate","dhs2013_c_measles1_adm2",0,0,18
+"Sierra Leone","women_folate","dhs2013_c_fully_vaccinated_adm2",0,0,19
+"Sierra Leone","women_folate","dhs2013_c_vita_supplement_adm2",0,0,20
+"Sierra Leone","women_iron","gee_temp_May_25km",0.017138030433229,-0.000854767273579325,1
+"Sierra Leone","women_iron","gee_trmm_50km_annual_mean",0.0164081620052457,-0.00202226928834404,2
+"Sierra Leone","women_iron","MAP_202106_Insecticide_Treated_Net_Access",0.0147539696257029,0.00296871888318232,3
+"Sierra Leone","women_iron","dhs2013_c_zinc_diarrhea_adm2",0.00568284230040652,0.000798484337116991,4
+"Sierra Leone","women_iron","gee_grassland_50km",0.00507565715483257,-0.000992606793131147,5
+"Sierra Leone","women_iron","dhs2013_w_bmi_low_adm2",0.00489524680056742,-0.000311908791107791,6
+"Sierra Leone","women_iron","gee_trmm_10km_seasonal_sd",0.00489390982048852,7.83586076327733e-05,7
+"Sierra Leone","women_iron","gee_ndvi_Apr_50km",0.00468854111220155,-0.00144402661493846,8
+"Sierra Leone","women_iron","gee_trmm_Oct_25km",0.00376841268901314,0.00058510529675654,9
+"Sierra Leone","women_iron","dhs2013_c_mean_whz_adm2",0.00310413023190839,0.000587082388145583,10
+"Sierra Leone","women_iron","gee_fpp_5km_25km",0.00304183430437531,0.00108059402555227,11
+"Sierra Leone","women_iron","ihme_infant_28_both_deaths",0.00271850933453866,-0.000700593021299158,12
+"Sierra Leone","women_iron","gee_trmm_Jan_50km",0.00262794249824115,-0.000431694835424423,13
+"Sierra Leone","women_iron","gee_temp_Dec_50km",0.00262286910521133,-0.000358719831066472,14
+"Sierra Leone","women_iron","gee_temp_Aug_10km",0.0022991769015789,-5.57953757899148e-05,15
+"Sierra Leone","women_iron","gee_ndvi_Jan_10km",0.00209490614277976,-6.41587057283946e-05,16
+"Sierra Leone","women_iron","gee_trmm_Oct_10km",0.00158218749399696,-0.000186558200844697,17
+"Sierra Leone","women_iron","ihme_under_5_1_both_recommended_home_fluids_percent",0.00148365920675652,0.00034521964511701,18
+"Sierra Leone","women_iron","dhs2013_c_small_at_birth_adm2",0.00145034896475928,-0.000419243105820247,19
+"Sierra Leone","women_iron","gee_productivity_2012_annual_min",0.00142484533467463,-0.000205812204096998,20
+"Sierra Leone","women_vitA","gee_ndvi_25km_peak_month",0.00650501873095454,0.00080049844808535,1
+"Sierra Leone","women_vitA","gee_ndvi_50km_peak_month",0.00476418563315909,0.000953313110590514,2
+"Sierra Leone","women_vitA","MAP_202206_Pf_Mortality_Rate",0.00392797727552404,-0.000785615126383989,3
+"Sierra Leone","women_vitA","missing_gee_tpp_1km_10km",0.0032728711856082,0.00126350888002727,4
+"Sierra Leone","women_vitA","gee_ghm_10km",0.00290877883192671,-0.000858357390800363,5
+"Sierra Leone","women_vitA","gee_trmm_Sep_10km",0.00278069605718564,0.000418310115573151,6
+"Sierra Leone","women_vitA","gee_trmm_25km_peak_month",0.00249303502195813,0.000346568336080558,7
+"Sierra Leone","women_vitA","gee_ndvi_10km_peak_month",0.00212967943253807,0.000212903519046181,8
+"Sierra Leone","women_vitA","fsec_ch_phase_class.y",0.00181011545012341,0.000337803843853041,9
+"Sierra Leone","women_vitA","dhs2013_w_delivery_csection_adm2",0.00173634730079083,-0.000544976425000227,10
+"Sierra Leone","women_vitA","gee_tpp_1km_25km",0.00164343005362317,0.00010238247519854,11
+"Sierra Leone","women_vitA","gee_temp_Jun_25km",0.00141239829386698,-0.000274164289779248,12
+"Sierra Leone","women_vitA","gee_ndvi_10km_seasonal_sd",0.00115728341300454,-0.00033785053160054,13
+"Sierra Leone","women_vitA","gee_smod_50km",0.00104660213998257,-0.00075730620941253,14
+"Sierra Leone","women_vitA","gee_terraclimate_2013_pr",0.000939265052513114,-7.23683573367998e-05,15
+"Sierra Leone","women_vitA","gee_trmm_Jan_10km",0.000905282122248097,-0.000355196200973607,16
+"Sierra Leone","women_vitA","gee_temp_Aug_50km",0.000823728027743228,0.000144155658491282,17
+"Sierra Leone","women_vitA","gee_trmm_Feb_25km",0.000804080372555281,-0.000140065644947401,18
+"Sierra Leone","women_vitA","fsec_ch_prop_phase2.y",0.00056023748626867,-1.3442315684655e-05,19
+"Sierra Leone","women_vitA","ihme_adm1_global_lf_2000_2018_prev_all_ages_both_prevalence_rate",0.000383741326897628,-0.000124520117995029,20

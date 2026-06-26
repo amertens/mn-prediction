@@ -93,6 +93,52 @@ extract_gee_for_country <- function(gadm_code, raster_dir, gadm_path = here::her
 }
 
 
+#' CORAL domain alignment for out-of-sample prediction
+#'
+#' Aligns the training (source) covariate covariance to the target country's
+#' (unsurveyed) covariate covariance, then refits an elastic net on the aligned
+#' features. Transductive but label-honest: only the target's COVARIATES are
+#' used to estimate its covariance — no target outcome is ever touched. This
+#' corrects the covariate shift between surveyed and unsurveyed areas, which is
+#' the setting where CORAL is genuinely justified (unlike within-country k-fold).
+#'
+#' @param Xs n_train x p raw (imputed) training covariate matrix
+#' @param Ys length-n_train training prevalence
+#' @param Xt n_target x p raw (imputed) target covariate matrix (same columns)
+#' @param ridge covariance ridge for the matrix square roots
+#' @return list(fit, X_source, X_target, loo) — fit + both matrices in the
+#'   aligned feature space, and LOO residuals for conformal calibration
+.coral_oos_refit <- function(Xs, Ys, Xt, ridge = 1e-3) {
+  mu  <- colMeans(Xs); sdv <- apply(Xs, 2, stats::sd); sdv[sdv < 1e-8] <- 1
+  Zs  <- sweep(sweep(Xs, 2, mu, "-"), 2, sdv, "/")
+  Zt  <- sweep(sweep(Xt, 2, mu, "-"), 2, sdv, "/")
+  p <- ncol(Zs); Ip <- diag(p)
+  msqrt <- function(M, pw) {
+    e <- eigen(M, symmetric = TRUE); v <- pmax(e$values, 1e-8)
+    e$vectors %*% diag(v^pw, p) %*% t(e$vectors)
+  }
+  A <- msqrt(stats::cov(Zs) + ridge * Ip, -0.5) %*%
+       msqrt(stats::cov(Zt) + ridge * Ip,  0.5)
+  Xs_a <- Zs %*% A          # align source onto target covariance
+  Xt_a <- Zt                # target stays on its own standardized scale
+  colnames(Xs_a) <- colnames(Xt_a) <- colnames(Xs)
+  # Reuse the deterministic-fold cv.glmnet wrapper when available.
+  cvg <- if (exists(".cv_glmnet")) .cv_glmnet else
+           function(x, y, ...) glmnet::cv.glmnet(x, y, ...)
+  fit <- cvg(Xs_a, Ys, alpha = 0.5, nfolds = max(min(nrow(Xs_a), 10), 3))
+  loo <- rep(NA_real_, nrow(Xs_a))
+  for (i in seq_len(nrow(Xs_a))) {
+    lf <- tryCatch(cvg(Xs_a[-i, , drop = FALSE], Ys[-i], alpha = 0.5,
+                       nfolds = max(min(nrow(Xs_a) - 1, 10), 3)),
+                   error = function(e) NULL)
+    if (!is.null(lf))
+      loo[i] <- abs(Ys[i] -
+        as.numeric(predict(lf, Xs_a[i, , drop = FALSE], s = "lambda.min")))
+  }
+  list(fit = fit, X_source = Xs_a, X_target = Xt_a, loo = loo[!is.na(loo)])
+}
+
+
 #' Predict micronutrient deficiency in an unsurveyed country
 #'
 #' Uses an area-level glmnet model (from fit_area_level_model) trained on
@@ -147,6 +193,27 @@ predict_oos_country <- function(area_model, oos_gee, outcome_tag, alpha = 0.1) {
     if (any(na_idx)) X_oos[na_idx, j] <- col_medians[j]
   }
 
+  # ── Optional CORAL domain alignment (covariate-shift correction) ──────────
+  # When area_model$align == "coral", realign the source covariance onto this
+  # target country's covariance and refit before predicting. Uses target
+  # covariates only (no labels), so it stays out-of-sample-honest.
+  Xtr_used <- area_model$X_train
+  if (identical(area_model$align, "coral") &&
+      !is.null(area_model$Y_train) && !is.null(area_model$X_train)) {
+    al <- tryCatch(.coral_oos_refit(area_model$X_train, area_model$Y_train, X_oos),
+                   error = function(e) {
+                     cat(sprintf("[oos_predict] CORAL align failed (%s) — using raw model\n",
+                                 conditionMessage(e))); NULL })
+    if (!is.null(al)) {
+      fit      <- al$fit
+      X_oos    <- al$X_target
+      Xtr_used <- al$X_source
+      area_model$loo_residuals <- al$loo
+      cat(sprintf("[oos_predict] CORAL alignment applied (%d source, %d target areas)\n",
+                  nrow(Xtr_used), nrow(X_oos)))
+    }
+  }
+
   # Predict
   yhat <- pmin(pmax(
     as.numeric(predict(fit, X_oos, s = "lambda.min")),
@@ -162,7 +229,7 @@ predict_oos_country <- function(area_model, oos_gee, outcome_tag, alpha = 0.1) {
   ci_method <- "none"
 
   loo_res <- area_model$loo_residuals
-  X_train <- area_model$X_train
+  X_train <- Xtr_used   # aligned source matrix when CORAL is active, else raw
 
   if (!is.null(loo_res) && length(loo_res) >= 5 && !is.null(X_train)) {
     n_cal <- length(loo_res)
@@ -299,7 +366,9 @@ predict_oos_pooled <- function(svy_admin2_list, country_configs,
                                 oos_gadm_code, oos_raster_dir,
                                 oc, params,
                                 ext_cache_dir = here::here("data", "external_cache"),
-                                oos_country_name = NULL) {
+                                oos_country_name = NULL,
+                                align = c("none", "coral")) {
+  align <- match.arg(align)
 
   # 1. Pool all surveyed countries' Admin-2 data
   pooled_svy <- dplyr::bind_rows(lapply(names(svy_admin2_list), function(cn) {
@@ -452,7 +521,8 @@ predict_oos_pooled <- function(svy_admin2_list, country_configs,
 
   area_model <- list(fit_area = fit, gee_vars = valid_vars,
                      X_train = X_train, Y_train = Y_train,
-                     loo_residuals = loo_residuals)
+                     loo_residuals = loo_residuals,
+                     align = align)   # "coral" triggers covariate-shift alignment in predict_oos_country()
 
   # 5. Extract GEE for target country and merge external predictors
   oos_gee <- extract_gee_for_country(oos_gadm_code, oos_raster_dir)

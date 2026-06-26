@@ -1,18 +1,26 @@
 # Micronutrient Deficiency Prediction Pipeline
 
-Sub-national prediction of micronutrient deficiency prevalence using survey biomarker data and remotely sensed environmental covariates. The pipeline combines individual-level SuperLearner models with area-level ecological models to generate Admin-2 prevalence estimates, including for areas with no survey coverage.
+Sub-national prediction of micronutrient deficiency prevalence using survey biomarker data and remotely sensed environmental covariates. The pipeline generates Admin-2 prevalence estimates, including for areas with no survey coverage.
+
+**Primary analysis — Admin-2 area-level small-area estimation (SAE).** Models are fit directly at the Admin-2 level on survey-weighted prevalences and earth-observation aggregates: an area-level SuperLearner, Fay-Herriot, and an SL→BYM2 spatial model, benchmarked against standard SAE methods. These area-level predictions are the headline results and the dashboard default.
+
+**Sensitivity analysis — individual-level SuperLearner.** A person-level SuperLearner aggregated up to Admin-2. Retained for comparison; its model code lives in [`R/sensitivity/`](R/sensitivity/) and standalone sensitivity scripts in [`sensitivity/`](sensitivity/). See [`sensitivity/README.md`](sensitivity/README.md).
 
 ## Overview
 
 ```
-Survey biomarker data  ──┐
-                         ├──> SuperLearner ──> Admin-1/Admin-2 prevalence
-GEE raster covariates  ──┘                         │
-                                                   ▼
-                                    Area-level model (glmnet)
-                                            │
-                                            ▼
-                              Predictions for unsurveyed areas
+                         PRIMARY (area-level SAE)
+Survey-weighted Admin-2 ──┐
+prevalence                ├─> Area-level SuperLearner / Fay-Herriot / SL→BYM2
+GEE raster aggregates   ──┘        │
+                                   ▼
+                     Admin-2 predictions + intervals (all districts,
+                     surveyed + unsurveyed) ── dashboard default
+
+                         SENSITIVITY (individual-level SL)
+Survey biomarker data   ──┐
+(person-level)            ├─> SuperLearner ──> aggregate to Admin-2
+GEE raster covariates   ──┘
 ```
 
 **Countries:** Gambia, Ghana, Sierra Leone, and Malawi (all active).

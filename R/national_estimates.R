@@ -41,7 +41,11 @@ compute_national_estimates <- function(outcome_data, sl_fit, cc, oc) {
     y_bin <- as.numeric(d[[oc$binary]])
     valid <- !is.na(y_bin)
     result$obs_prev <- stats::weighted.mean(y_bin[valid], wts[valid])
-    result$obs_n_events <- sum(y_bin[valid] * wts[valid]) / sum(wts[valid]) * sum(valid)
+    # 2026-06-23 (M5): observed COUNT of deficient individuals (raw, unweighted).
+    # Was weighted-prevalence * n = EXPECTED events, which mislabels a model-style
+    # quantity as an observed count. `result$exp_n_events` keeps the weighted estimate.
+    result$obs_n_events <- sum(y_bin[valid] == 1, na.rm = TRUE)
+    result$exp_n_events <- stats::weighted.mean(y_bin[valid], wts[valid]) * sum(valid)
 
     # Survey design SE (using srvyr if possible)
     svy_se <- tryCatch({
@@ -87,9 +91,24 @@ compute_national_estimates <- function(outcome_data, sl_fit, cc, oc) {
       # Binary model: predictions are P(deficient)
       result$pred_prev <- stats::weighted.mean(preds, wts)
     } else {
-      # Continuous model: apply threshold
-      pred_bin <- as.numeric(apply_threshold(preds, oc$cutoff, oc$cutoff_dir))
-      result$pred_prev <- stats::weighted.mean(pred_bin, wts)
+      # Continuous model: 2026-06-23 (H3) integrate over the empirical OOF
+      # residual distribution (survey-weighted) instead of thresholding the
+      # point predictions, which is a Jensen-biased plug-in. preds and the
+      # continuous outcome are on the same modelled scale (so is oc$cutoff).
+      # Falls back to the plug-in if residuals cannot be aligned.
+      dir <- oc$cutoff_dir %||% "<"; cut <- oc$cutoff
+      ycont <- suppressWarnings(as.numeric(d[[oc$continuous]]))
+      if (length(ycont) == length(preds) &&
+          sum(is.finite(ycont) & is.finite(preds)) >= 10) {
+        okc   <- is.finite(ycont) & is.finite(preds)
+        resid <- ycont[okc] - preds[okc]
+        p_lt  <- stats::ecdf(resid)(cut - preds)         # P(resid < cut - yhat_i)
+        pcont <- if (dir == "<") p_lt else 1 - p_lt
+        result$pred_prev <- stats::weighted.mean(pcont, wts, na.rm = TRUE)
+      } else {
+        pred_bin <- as.numeric(apply_threshold(preds, oc$cutoff, oc$cutoff_dir))
+        result$pred_prev <- stats::weighted.mean(pred_bin, wts)
+      }
     }
 
     result$model_type <- if (!is.null(sl_fit$bin_fit)) "binary" else "continuous"

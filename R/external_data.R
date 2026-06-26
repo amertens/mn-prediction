@@ -709,8 +709,16 @@ extract_soilgrids <- function(admin2_sf, cache_dir) {
     bbox <- sf::st_bbox(admin2_sf)
     df <- data.frame(Admin2 = admin2_names, stringsAsFactors = FALSE)
 
+    # Key the cropped-raster cache by bbox. The cropped TIF is country-specific
+    # (it is cropped to admin2_sf's extent), so the filename MUST include a bbox
+    # hash — otherwise the first country's crop is reused for every other
+    # country and they all extract NA (they fall outside that extent). This was
+    # the cause of the all-NA SoilGrids columns for Gambia/SL/Malawi while Ghana
+    # (which ran first and wrote the crop) succeeded.
+    bbox_key <- digest::digest(bbox)
+
     for (prop in properties) {
-      cached_tif <- file.path(soil_dir, paste0(prop$col, "_0_5cm.tif"))
+      cached_tif <- file.path(soil_dir, sprintf("%s_0_5cm_%s.tif", prop$col, bbox_key))
 
       if (!file.exists(cached_tif)) {
         cat(sprintf("[SoilGrids] Downloading %s (0-5cm mean) ...\n", prop$name))

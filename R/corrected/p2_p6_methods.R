@@ -136,9 +136,11 @@ intervals_corrected <- function(slfit, svy_admin2, alpha = 0.10, seed = 7L) {
   set.seed(seed)
   cal <- sample(seq_len(nrow(m)), size = floor(nrow(m) / 2))
   res <- abs(m$pred_prev[cal] - m$svy_prev[cal])           # calibration residuals
-  qh  <- as.numeric(stats::quantile(res, probs = (1 - alpha) *
-                                      (length(cal) + 1) / length(cal),
-                                    names = FALSE, type = 1))
+  # Split-conformal level with the finite-sample (n+1)/n correction, clamped to
+  # 1: for a small calibration set (n+1)(1-alpha) can exceed n, in which case the
+  # conformal quantile is the maximum residual (prob = 1) — the standard behaviour.
+  qprob <- min(1, (1 - alpha) * (length(cal) + 1) / length(cal))
+  qh  <- as.numeric(stats::quantile(res, probs = qprob, names = FALSE, type = 1))
   qh <- min(qh, 1)
   m$conf_pi_lo <- pmax(0, m$pred_prev - qh)
   m$conf_pi_hi <- pmin(1, m$pred_prev + qh)

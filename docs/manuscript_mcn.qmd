@@ -49,15 +49,23 @@ abstract: |
   (INLA). All approaches were evaluated within country by k-fold cross-validation
   and across countries by leave-one-country-out (LOCO) holdout. Performance
   metrics were Pearson r and Spearman ρ for spatial ranking, MAE and RMSE in
-  percentage points for absolute error, and calibration slope.
+  percentage points for absolute error, and calibration slope. Headline metrics
+  are from a leakage-free corrected analysis (preprocessing confined to each
+  training fold; folds blocked by survey cluster and spatial region; out-of-fold
+  recalibration), which is the analysis of record; the original pipeline is
+  retained as a sensitivity comparison.
 
-  **Results:** Within-country admin-2 ranking was excellent for the directly
-  fit area-level SuperLearner (Pearson r > 0.9 in 16 of 21 evaluable
-  country–outcome combinations for the MSE-loss variant, range 0.40–1.00)
-  and substantially weaker for aggregated individual-level
-  predictions (median r 0.50, range −0.39 to 0.87) which exhibited large
-  negative biases up to 20 percentage points. Cross-country (LOCO) performance
-  was markedly weaker: median r ≈ 0.21, range −0.14 to 0.53, with absolute
+  **Results:** Evaluated with genuinely out-of-fold predictions, within-country
+  admin-2 ranking was modest. Aggregating individual-level SuperLearner
+  predictions to admin-2 ranked districts best (median Pearson r 0.53, range
+  −0.39 to 0.87), though with large negative biases (up to ~20 percentage
+  points) for iron. The area-level SuperLearner fit directly on admin-2
+  aggregates appeared excellent under in-sample evaluation but was substantially
+  weaker out-of-fold (MSE-loss median r 0.12, range −0.57 to 0.61; 0 of 24
+  evaluable country–outcome combinations reached r ≥ 0.9 and about half were
+  ≤ 0), reflecting overfitting in the area-level p ≫ n setting (14–87 areas,
+  ~2,400 candidate covariates). Cross-country (LOCO) performance
+  was weaker still: median r ≈ 0.1–0.2, with absolute
   errors of 1.5–44 percentage points and systematic underestimation in
   high-prevalence settings. Iron-deficiency outcomes transported best;
   vitamin-A-deficiency outcomes essentially did not transport (median r near
@@ -68,9 +76,11 @@ abstract: |
   indicating that the ensemble's predictive gains are concentrated on specific
   outcome–country combinations rather than general.
 
-  **Conclusions:** Admin-2 maps of micronutrient deficiency are useful within
-  countries with biomarker data, particularly when fit directly at the area
-  level. Out-of-country transport remains unreliable for spatial targeting,
+  **Conclusions:** Under honest out-of-fold evaluation, admin-2 prediction of
+  micronutrient deficiency is only modestly accurate within countries; the
+  apparent excellence of the directly-fit area-level ensemble was an artifact of
+  in-sample evaluation, and individual-level prediction aggregated to admin-2 is
+  the stronger area-level approach. Out-of-country transport remains unreliable for spatial targeting,
   especially outside the West African geography and for vitamin-A-deficiency
   outcomes. Standard small-area-estimation methods are a strong baseline that
   ensembles do not consistently beat; benchmarking should accompany any
@@ -103,6 +113,20 @@ natl_est      <- safe_read_csv(file.path(TABLE_DIR, "national_estimates_all.csv"
 
 # Benchmark results: written by the benchmark pipeline targets when available.
 bench_results <- safe_read_csv(file.path(TABLE_DIR, "benchmarks_all.csv"))
+
+# ── Corrected-methods (P1–P8) outputs — the analysis of record ──────────────
+# Produced by the corrected-methods section of the unified _targets.R pipeline
+# (build_methods_comparison -> results/tables/corrected/). These honest, leakage-
+# free metrics are canonical for within-country discrimination, calibration,
+# admin-2 error, prediction intervals, decision value and per-district trust;
+# the production-pipeline equivalents are retained as a sensitivity comparison.
+CORR_DIR <- file.path(TABLE_DIR, "corrected")
+corr_cv      <- safe_read_csv(file.path(CORR_DIR, "cv_honesty_compare.csv"))
+corr_calib   <- safe_read_csv(file.path(CORR_DIR, "calibration_oof_compare.csv"))
+corr_err     <- safe_read_csv(file.path(CORR_DIR, "admin2_error_sampling_adjusted.csv"))
+corr_decision<- safe_read_csv(file.path(CORR_DIR, "decision_value.csv"))
+corr_interval<- safe_read_csv(file.path(CORR_DIR, "interval_summary.csv"))
+corr_trust   <- safe_read_csv(file.path(CORR_DIR, "trust_flags.csv"))
 ```
 
 # Introduction
@@ -216,155 +240,48 @@ analyses, producing a common-vocabulary set of 152 variables.
 
 ## Estimation strategies
 
-We compared four estimation strategies (@tbl-methods).
+We compared estimation strategies spanning the machine-learning and
+small-area-estimation traditions, organised into two families. The
+**area-level small-area estimation (SAE)** family fits one row per admin-2
+polygon, with survey-weighted prevalence as the target: an area-level
+SuperLearner on the polygon-aggregated covariates; frequentist baselines (a
+country-mean floor, OLS, and cross-validated elastic-net); Bayesian areal
+models (the Fay–Herriot model [@fay1979estimates; @mercer2015small] and the
+BYM2 disease-mapping model fit by integrated nested Laplace approximation
+[@riebler2016intuitive; @rue2009approximate]); and a set of
+transportability-aware comparators (a country random-intercept model, a
+two-stage country-mean-plus-within-country-deviation model, a forward
+selection that optimises a leave-one-training-country-out criterion, a
+spatial-spline GAM, a data-source group-lasso, and a stacked ensemble of
+these). The **individual-level SuperLearner aggregated to admin-2** fits a
+person-level ensemble and averages its predictions up to the district; it
+shares the same inputs but is reported as a sensitivity analysis, because
+aggregating shrunken person-level probabilities biases area means (Results).
 
-```{r tbl-methods}
-#| tbl-cap: "Estimation strategies compared."
-data.frame(
-  Strategy = c("Individual SL", "Area SL", "OLS / Elastic-net",
-                "Fay–Herriot", "BYM2 (INLA)",
-                "Mixed (random country intercept)",
-                "Two-stage (country mean + within-country deviance)",
-                "Forward selection with LOCO-CV criterion",
-                "GAM (mgcv thin-plate)",
-                "Group-lasso by data source",
-                "Stacked LOCO ensemble",
-                "Quasi-binomial logit GLM",
-                "Quantile (median) regression",
-                "Beta regression",
-                "Causal DAG-based variable selection"),
-  Loss = c("NLL (binary) / MSE (continuous)",
-            "MSE on prevalence",
-            "MSE (weighted by n_svy)",
-            "Gaussian likelihood + sampling variance",
-            "Binomial / Gaussian (n_svy-weighted)",
-            "REML, weights = n_svy",
-            "MSE stage-1; weighted MSE stage-2",
-            "MSE, weights = n_svy",
-            "REML, weights = n_svy",
-            "L2 (group), weights = n_svy",
-            "Inherits from base methods",
-            "Quasi-binomial deviance, weights = n_svy",
-            "L1 (median), weights = n_svy",
-            "Beta likelihood (mean + precision)",
-            "MSE, weights = n_svy on DAG adjustment set"),
-  `Implementation` = c("mlr3superlearner (6 learners)",
-                       "mlr3superlearner on admin-2 GEE aggregates",
-                       "lm / cv.glmnet (n_svy weighted)",
-                       "sae::eblupFH (REML)",
-                       "R-INLA, PC priors per Riebler 2016",
-                       "lme4::lmer, weights = n_svy",
-                       "Stage 1: OLS country means; Stage 2: cv.glmnet on residuals",
-                       "lm with stepwise add, LOCO-r screen, k_max = 6",
-                       "mgcv::gam, thin-plate splines, k = 4",
-                       "gglasso, groups by data-source prefix",
-                       "NNLS stacker over base methods with country-disjoint CV",
-                       "glm(family = quasibinomial, link = logit)",
-                       "quantreg::rq at tau = 0.5",
-                       "betareg::betareg(link = logit)",
-                       "dagitty adjustment sets per-outcome causal DAG → OLS")
-) %>%
-  kable(booktabs = TRUE)
-```
+The full list of strategies with their loss functions and implementations is
+given in Supplementary Appendix Table S1, and the complete modelling detail
+(learner libraries and hyper-parameters, adjacency construction, post-hoc
+calibration, outcome-aware feature augmentation, and the bootstrap interval
+procedure) is in Supplementary Appendix Section S5.
 
-The **individual-level SuperLearner** combined six base learners: mean,
-penalised glm (lasso, ridge, elastic-net), ranger random forest,
-XGBoost (depth 4, η 0.05, subsample 0.8), and dropout BART. For binary
-outcomes with prevalence below 15% an additional class-weighted XGBoost
-and ranger were included to correct for class imbalance. Cross-validation
-folds were created at the cluster (PSU) level to respect within-cluster
-correlation. Individual-level predictions were aggregated to admin-2 via
-sample-weighted mean.
+## Honest evaluation and the corrected-methods analysis of record
 
-The **area-level SuperLearner** repeated this fitting with admin-2 as the
-unit of analysis: a single row per admin-2 polygon, with the target being
-survey-weighted prevalence and predictors being the polygon-aggregated
-GEE covariates. Both MSE and approximate negative-log-likelihood losses
-were evaluated.
-
-The **frequentist baselines** were ordinary least squares with up to
-eight top-correlated covariates (n_var_cap = 8 was chosen to avoid
-rank-deficiency on small training sets) and a 10-fold cross-validated
-elastic-net (α = 0.5, with α = 0 fallback for n < 25). For each, both raw
-prevalence (continuous) and logit-transformed prevalence (with
-back-transformation) were evaluated. A country-mean predictor was
-included as a floor.
-
-The **Bayesian SAE comparators** were a Fay–Herriot model with
-auxiliary covariates and sampling variances derived from survey-weighted
-prevalence and effective sample size [@fay1979estimates;
-@mercer2015small], and a BYM2 model implemented in INLA following the
-penalised-complexity-prior recipe of Riebler et al. [@riebler2016intuitive;
-@rue2009approximate]. Adjacency was constructed from GADM admin-2
-polygons via Queen's contiguity; for leave-one-country-out evaluation
-the adjacency graph was block-diagonal across training countries, with
-held-out areas receiving predictions from the fixed-effect (covariate)
-component only.
-
-Three additional **transportability-aware** comparators were
-implemented to address specific failure modes observed in initial
-benchmarking. A **random-intercept mixed model** (`lme4::lmer` with
-logit-prevalence response, survey-n weighting, and country random
-intercept) was fit; predictions for the held-out country use the
-marginal mean (random effect set to zero) so that out-of-country
-prediction depends only on the area-level covariate slopes. A
-**two-stage country-mean plus within-country-deviance model**
-decomposed admin-2 prevalence into a country-level component
-(predicted from country-aggregated covariates via a small OLS) and a
-within-country deviation (predicted from within-country-centred area
-covariates via elastic-net regression); held-out country predictions
-combine the stage-1 country mean with the stage-2 deviation. A
-**forward variable-selection model with leave-one-training-country-out
-selection criterion** built an OLS using up to six variables, selecting
-at each step the variable that maximised the average Pearson r across
-splits of the training countries — directly optimising for
-transportability rather than within-training fit.
-
-A **post-hoc calibration** step using Platt logistic recalibration
-was applied to the binary out-of-fold probability predictions of the
-individual-level SL classifiers to repair the Brier-skill failures
-identified in diagnostic flagging. Calibration parameters were
-estimated on training fold predictions and applied to held-out fold
-predictions to preserve honest cross-validation. The recalibration
-substantially repaired the most-broken raw calibrations — Malawi
-child vitamin A slope moved from −4.30 to −0.15, Malawi child zinc
-from −3.97 to +0.88, Sierra Leone women B12 from −3.34 to +0.48, and
-Ghana women vitamin A from −2.32 to +0.77 — and Brier skill scores
-recovered to near or above zero for the four worst raw outcomes.
-Fitted Platt calibrator coefficients (intercept and slope on the
-logit of raw probability) are provided in
-`results/tables/calibrators.rds` for downstream application to new
-predictions; any threshold-based programmatic decision derived from
-this work should use the recalibrated rather than raw probabilities.
-
-Three additional comparator methods extend the comparison: a
-**generalised additive model** (mgcv with thin-plate spline smoothers,
-k = 4 basis functions per term) on the top correlation-screened
-predictors, fit on the logit scale and weighted by survey n; a
-**group-lasso** model (`gglasso`) that penalises the L2 norm of
-whole-data-source variable groups (NDVI vs accessibility vs
-livelihood vs SoilGrids, etc.) jointly rather than at the individual-
-variable level, yielding more interpretable variable selection; and a
-**stacked LOCO ensemble** combining the country-mean baseline,
-penalised regression, mixed-effects model, GAM, two-stage and
-forward-LOCO predictors. The stacker is the central transportability-
-aware ensemble of this work: its meta-weights are estimated from
-country-disjoint leave-one-training-country-out predictions (so
-the stacker itself does not over-fit to within-training-country
-structure), and they are constrained to be non-negative and sum to one.
-
-To honestly characterise the uncertainty of the LOCO Pearson r point
-estimates, we report 80% and 95% bootstrap confidence intervals
-constructed by resampling admin-2 polygons within each held-out country
-with replacement (B = 500 bootstrap replicates).
-
-Outcome-aware feature augmentation added biologically-motivated
-interaction terms before LOCO fitting: insecticide-treated bed-net
-coverage × cereal share for iron, vegetation index × livelihood
-density for vitamin A, soil zinc × staple-crop yield for zinc, and
-livestock density × accessibility for B12/folate. Each interaction
-was passed through the same correlation screening as the GEE base
-covariates so it could be selected (or not) by each method.
+Initial benchmarking surfaced several ways an analysis at this scale can
+flatter itself, so the headline results below come from a set of corrected,
+leakage-free methods (referred to as the P1–P8 methods) that constitute the
+analysis of record; the original production-pipeline equivalents are retained
+as a sensitivity comparison. In brief, the corrected methods (i) perform all
+preprocessing inside each cross-validation fold and form folds by survey
+cluster and by spatial region, so that no information leaks from held-out
+areas; (ii) recalibrate binary predictions out-of-fold rather than in-sample;
+(iii) separate the component of admin-2 prediction error that is attributable
+to survey sampling noise from genuine model error; (iv) attach
+split-conformal prediction intervals and design-based survey intervals to each
+district; (v) score the decision-relevant task of correctly ranking the
+highest-burden districts; (vi) flag districts whose covariates fall outside the
+surveyed training range as out-of-support; and (vii) produce partial-pooling
+(empirical-Bayes) area estimates. The full specification is in Supplementary
+Appendix Section S6.
 
 ## Evaluation
 
@@ -404,28 +321,30 @@ below 5% in most countries.
 
 ## Within-country admin-2 estimation
 
-The directly-fit area-level SuperLearner produced excellent
-within-country spatial ranking (@tbl-area-comparison). Pearson r between
-predicted and survey-weighted admin-2 prevalence exceeded 0.9 in 16 of
-21 evaluable country–outcome combinations for the MSE-loss variant
-(18 of 23 for the NLL-loss variant; overall range 0.40–1.00), with mean
-absolute errors in the range 0.1–11.2 percentage points. The MSE-loss
-variant slightly outperformed the NLL-loss variant on most outcomes.
+Under genuinely out-of-fold evaluation, within-country admin-2 ranking
+was modest, and the apparent superiority of the directly-fit area-level
+SuperLearner did not survive honest cross-validation (@tbl-area-comparison).
+The area-level SuperLearner reached a median out-of-fold Pearson r of only
+0.12 (MSE loss; 0.14 for NLL) between predicted and survey-weighted admin-2
+prevalence, with 0 of 24 evaluable country–outcome combinations exceeding
+r ≥ 0.9 and roughly half at or below zero (range −0.57 to 0.61). In
+contrast, aggregating the individual-level SuperLearner's out-of-fold
+predictions to admin-2 ranked districts substantially better (median r
+0.53, range −0.39 to 0.87), albeit with larger negative biases for iron.
 
-These within-country correlations must, however, be read against the
-small number of areal units they summarise. Because the proxy and
-earth-observation predictors are resolved at the admin-2 level, the
+This reversal reflects the area-level p ≫ n setting. Because the proxy
+and earth-observation predictors are resolved at the admin-2 level, the
 effective sample size for area-level fitting is the number of polygons —
-14 in Sierra Leone, 30 in Gambia, 75 in Ghana, and 87 in Malawi — rather
-than the hundreds to thousands of individuals underlying each prevalence
-estimate. Screening on the order of 150 candidate covariates against as
-few as 14–87 points leaves few residual degrees of freedom, so the
-five-fold cross-validated r is an optimistic estimate of within-country
-generalisation; the near-perfect values for the smallest countries
-(Sierra Leone r > 0.99) in particular reflect low-degrees-of-freedom
-overfitting as much as transportable signal. We therefore report the
-number of areas alongside individual sample sizes throughout and treat
-within-country accuracy as an upper bound on real-world performance.
+14 in Sierra Leone, 30 in Gambia, 75 in Ghana, and 87 in Malawi — against
+roughly 150 screened candidate covariates, leaving few residual degrees of
+freedom. An earlier in-sample evaluation — predicting the training areas
+from the fully-fitted ensemble — produced near-perfect correlations (r up
+to 1.00), but these were overfitting artifacts rather than transportable
+signal; the present numbers use genuine out-of-fold prediction. The
+individual-level model, fit on hundreds to thousands of individuals,
+generalises better once aggregated. We report the number of areas alongside
+individual sample sizes throughout and treat the individual-level aggregate
+as the more reliable within-country estimator.
 
 ```{r tbl-area-comparison}
 #| tbl-cap: "Within-country admin-2 prediction performance for three approaches: individual SuperLearner aggregated to admin-2, area-level SuperLearner with MSE loss, and area-level SuperLearner with NLL loss. Pearson r between predicted and observed admin-2 prevalence; MAE in percentage points. From results/tables/area_comparison_all.csv."
@@ -700,6 +619,94 @@ if (!is.null(diag_binary)) {
 }
 ```
 
+## Honest evaluation: the corrected analysis of record
+
+The metrics in this section are the analysis of record, produced by the
+leakage-free corrected (P1–P8) methods described in Methods; the
+production-pipeline equivalents elsewhere are retained for comparison.
+
+**Within-country discrimination shrinks under honest cross-validation.**
+Replacing random cross-validation and full-data preprocessing with
+cluster-blocked and spatial-block folds and strictly in-fold preprocessing
+lowers within-country discrimination, confirming that the optimistic design
+overstated performance (@tbl-cv-honesty). Across the four primary outcomes the
+honest (cluster-block) AUC is typically a few points below the optimistic AUC
+and frequently near chance, consistent with the modest area-level signal seen
+throughout.
+
+```{r tbl-cv-honesty}
+#| tbl-cap: "Within-country binary discrimination (AUC) under optimistic versus honest cross-validation, from the corrected methods (results/tables/corrected/cv_honesty_compare.csv). Honest schemes block folds by survey cluster and by spatial region and confine all preprocessing to the training fold."
+if (!is.null(corr_cv)) {
+  lab <- c("random CV + full-data preprocessing (optimistic)" = "Optimistic",
+           "cluster-block CV"                                 = "Cluster-block (honest)",
+           "region/spatial-block CV"                          = "Spatial-block (honest)")
+  corr_cv %>%
+    mutate(scheme = lab[scheme]) %>%
+    filter(!is.na(scheme)) %>%
+    select(country, outcome, scheme, auc) %>%
+    tidyr::pivot_wider(names_from = scheme, values_from = auc) %>%
+    arrange(country, outcome) %>%
+    kable(booktabs = TRUE, digits = 2,
+          col.names = c("Country", "Outcome", "Optimistic",
+                        "Cluster-block (honest)", "Spatial-block (honest)"))
+}
+```
+
+**Out-of-fold calibration.** Recalibrating binary predictions out-of-fold
+(rather than in-sample) gives an honest picture of calibration; the in-sample
+Platt fit is optimistic by construction (slope forced toward 1). Raw and
+out-of-fold-calibrated slopes are reported per outcome in
+`results/tables/corrected/calibration_oof_compare.csv`.
+
+**Admin-2 error, separating sampling noise from model error.** A substantial
+part of the apparent district-level error is survey sampling noise rather than
+model error. After removing the sampling-variance component, the
+sampling-adjusted RMSE is the honest measure of how far model predictions sit
+from the true district prevalence (@tbl-corr-error).
+
+```{r tbl-corr-error}
+#| tbl-cap: "Admin-2 prediction error decomposed into a survey-sampling component and a model component (results/tables/corrected/admin2_error_sampling_adjusted.csv). Naive RMSE is the raw predicted-vs-survey error; the sampling component is what survey noise alone would produce; the adjusted RMSE is the honest model error."
+if (!is.null(corr_err)) {
+  corr_err %>%
+    select(country, outcome, n_admin2, naive_rmse_pp, sampling_rmse_pp,
+           adjusted_rmse_pp, pearson_r) %>%
+    kable(booktabs = TRUE, digits = 2,
+          col.names = c("Country", "Outcome", "n areas", "Naive RMSE (pp)",
+                        "Sampling RMSE (pp)", "Adjusted RMSE (pp)", "r"))
+}
+```
+
+**Decision value for targeting.** Because the operational task is to find the
+highest-burden districts, we score how well the predictions concentrate true
+burden in the top-ranked districts. Targeting the top 20% of districts by
+predicted prevalence reaches more of the true burden than untargeted allocation
+(lift > 1) for most outcomes, with the largest lift on the outcomes that have
+the most spatial signal (@tbl-decision).
+
+```{r tbl-decision}
+#| tbl-cap: "Decision value of district ranking (results/tables/corrected/decision_value.csv). reach@20% is the share of true burden captured by the top 20% of districts ranked by predicted prevalence; lift is that reach divided by the 20% an untargeted allocation would reach; hit-rate@top20 is the share of the predicted top-20% districts that are truly in the top 20%."
+if (!is.null(corr_decision)) {
+  corr_decision %>%
+    select(country, outcome, reach_at_20pct, lift_vs_no_targeting, hit_rate_top20) %>%
+    kable(booktabs = TRUE, digits = 2,
+          col.names = c("Country", "Outcome", "Reach@20%", "Lift", "Hit-rate@top20"))
+}
+```
+
+**Prediction intervals are reasonably calibrated.** Split-conformal intervals
+attached to each surveyed district achieve empirical held-out coverage close to
+the 90% target (range across outcomes typically 0.85–1.00;
+`results/tables/corrected/interval_summary.csv`), at the cost of wide intervals
+for the noisiest outcomes.
+
+**Per-district trust flags.** Each district is flagged for reliability by three
+criteria: whether its covariates fall outside the surveyed training range
+(out-of-support), small survey sample, and a wide prediction interval. The
+resulting OK-to-use versus do-not-rely labels are in
+`results/tables/corrected/trust_flags.csv` and drive the dashboard's certainty
+layer; out-of-support is the dominant driver of do-not-rely flags in
+unsurveyed districts.
+
 # Discussion
 
 ## Summary
@@ -710,17 +717,20 @@ whether ensemble machine-learning models can
 reproduce admin-2 micronutrient deficiency prevalence. Three findings
 have programmatic significance.
 
-First, when the deliverable is an admin-2 map within a country with
-biomarker data, fitting an ensemble *directly at the admin-2 level*
-produces near-perfect spatial ranking (Pearson r > 0.9 in 16 of 21
-evaluable combinations, MSE-loss variant) and mean absolute errors of a
-few percentage points,
-whereas aggregating individual-level predictions to admin-2 introduces
-characteristic compression toward the country mean and biases of up to
-20 percentage points. This finding mirrors the established
-small-area-estimation recommendation [@mercer2015small;
-@wakefield2019small]: the unit of estimation should match the unit of
-deliverable.
+First, within-country admin-2 accuracy is modest once evaluated
+out-of-fold, and—contrary to in-sample appearances—aggregating
+individual-level predictions to admin-2 (median Pearson r 0.53)
+outperforms fitting an ensemble *directly at the admin-2 level* (median
+r 0.12, MSE-loss variant), which overfits badly in the area-level p ≫ n
+setting (14–87 areal units against ~150 screened covariates). The
+individual-level aggregate still shows compression toward the country mean
+and negative biases of up to 20 percentage points for iron, so neither
+approach delivers the near-perfect ranking that in-sample evaluation had
+suggested. This qualifies the usual small-area-estimation expectation that
+the unit of estimation should match the unit of deliverable
+[@mercer2015small; @wakefield2019small]: with so few areal units, the
+data-richer individual-level fit generalises more reliably than a model
+trained directly on the areas.
 
 Second, cross-country transportability is limited. Trained on three West
 African countries and tested on a fourth, the SuperLearner achieved
@@ -868,17 +878,79 @@ function `stub_new_country_config()`) for each of these candidates;
 once a harmonised survey file lands in `data/IPD/<country>/`, the entire
 LOCO, calibration, SHAP, and dashboard pipeline regenerates automatically.
 
+## Future methodological directions
+
+The results above locate the limits of the current approach precisely — modest
+within-country ranking, transport failure that is predominantly a national-*level*
+calibration error rather than a ranking error, and an ensemble that does not beat
+parsimonious SAE baselines — and these limits motivate several planned
+extensions. We describe them here as directions rather than results.
+
+First, **decision-focused estimation.** For programmatic use the relevant target
+is rarely the exact prevalence of a district but whether it lies above a
+public-health action threshold, and whether the highest-risk districts are
+correctly prioritised. Because the SuperLearner's base learners optimise
+likelihood or squared-error loss while the ensembling (or discrete-selection)
+step may target any criterion [@vanderlaan2007super], the ensemble can be tuned
+directly for an aggregate, asymmetric objective — for example maximising recall of
+the truly high-risk areas (top-quantile or above-threshold) subject to a bounded
+false-positive rate. This reframes the deliverable toward the ranking signal that,
+as shown above, transports more reliably than absolute level, and is
+statistically less demanding than level estimation.
+
+Second, **anchoring to known national prevalence.** Because transport failure is
+concentrated in the national level rather than the within-country ordering
+(@fig-transport-calibration), a one-parameter level recalibration that constrains
+a transported prediction's population-weighted mean to a known or historical
+national value (e.g. from VMNIS or the BRINDA pooled analyses
+[@who_vmnis; @brinda2017overview]) should remove much of the LOCO level bias by
+construction, leaving the ranking unchanged. Such anchors are obtainable for many
+countries that lack the individual-level data needed to fit a model.
+
+Third, **borrowing strength across co-occurring deficiencies.** The micronutrient
+outcomes are biologically correlated but were modelled independently here.
+Modelling them jointly through a forward factorisation of their conditional
+density — predicting the most-informative outcome first (iron, measured in all
+four countries) and supplying predicted upstream deficiencies, with
+missing-indicator encoding and imputation, as covariates for subsequent outcomes
+— is a standard route to exploiting that covariance and may stabilise the
+data-poorest outcomes (zinc, B12). We expect within-country gains to exceed
+transport gains, since transported upstream predictions themselves carry error.
+
+Fourth, **inference and value-of-information.** Valid uncertainty on the aggregate
+deliverable (national or admin-level prevalence) — via cross-validated
+loss-based inference, conformal prediction intervals, or the area-resampling
+bootstrap already reported — enables a complementary product that is robust to the
+data being imperfect: a value-of-information map that ranks candidate survey
+locations by the product of predicted risk and predicted uncertainty, identifying
+where a new biomarker survey would be most informative. For a field constrained by
+the cost and rarity of biomarker measurement, guiding *where to measure next* may
+be as valuable as the prevalence estimates themselves.
+
+Finally, two lower-level refinements follow from the analysis: fitting
+area-prevalence learners under a binomial (rather than Gaussian) loss to respect
+the bounded, mean-variance-linked response, and adding a principal-components
+learner suited to the many correlated predictors spanning distinct domains
+(climate, soil, poverty). The most consequential validation step, however, is to
+re-run the entire methodology on anaemia (haemoglobin), which is measured in
+nearly every sub-Saharan African DHS at large sample size: a trusted,
+abundant outcome would separate methodological limitations from the disputed
+comparability of the micronutrient biomarkers themselves, and would expand the
+cross-country panel far beyond the four countries available here.
+
 ## Conclusions
 
-Within countries with biomarker data, area-level SuperLearner ensembles
-fit directly on admin-2 covariate aggregates produce excellent
-within-country spatial ranking. Across countries, transportability is
+Within countries with biomarker data, admin-2 spatial ranking is only
+modestly accurate when evaluated out-of-fold; aggregating individual-level
+SuperLearner predictions outperforms fitting an ensemble directly on
+admin-2 aggregates, which overfits given the small number of areal units.
+Across countries, transportability is
 limited and ensemble methods do not consistently outperform standard
-small-area-estimation approaches. We recommend that future deployments
-of such models be benchmarked against Bayesian and frequentist SAE
-methods, that the unit of model estimation match the unit of policy
-deliverable, and that absolute-level predictions in unseen countries
-be anchored against direct national estimates before use in
+small-area-estimation approaches. We recommend that within-country
+performance be reported only from out-of-fold (not in-sample) predictions,
+that future deployments of such models be benchmarked against Bayesian and
+frequentist SAE methods, and that absolute-level predictions in unseen
+countries be anchored against direct national estimates before use in
 resource-allocation decisions.
 
 # Acknowledgements

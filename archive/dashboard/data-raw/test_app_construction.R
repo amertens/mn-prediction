@@ -16,7 +16,8 @@ cat("UI rendered to", nchar(html), "chars of HTML\n")
 
 # Verify all 8 nav panels are in there
 for (panel_name in c("Map explorer", "District profiles",
-                     "National burden", "Scenarios", "Importance",
+                     "National burden", "Scenarios", "Importance", "Resolution",
+                     "Transportability",
                      "Côte d'Ivoire (OOS)", "GBD comparison", "Methods")) {
   if (grepl(panel_name, html, fixed = TRUE)) {
     cat("✓ Panel found:", panel_name, "\n")

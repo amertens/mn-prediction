@@ -90,7 +90,9 @@ tar_option_set(
     "srvyr", "survey", "scales", "viridis", "patchwork", "ggrepel",
     "mlr3", "mlr3learners", "mlr3extralearners", "mlr3superlearner",
     "origami", "caret", "data.table", "ck37r", "labelled",
-    "recipes", "future.apply", "glmnet", "pROC", "ROCR", "haven", "readxl"
+    "recipes", "future.apply", "glmnet", "pROC", "ROCR", "haven", "readxl",
+    # used by the folded-in corrected-methods learners (R/corrected/)
+    "ranger", "rpart"
   ),
   # Increase memory limit for SL fitting
   memory = "transient",
@@ -124,10 +126,19 @@ message(sprintf(
 
 
 # =============================================================================
-# DYNAMIC TARGET FACTORY
+# DYNAMIC TARGET FACTORY  —  SENSITIVITY ANALYSIS (individual-level SuperLearner)
 #
-# For each country x outcome, generates the full set of targets.
-# This makes it trivial to add countries/outcomes without editing this file.
+# For each country x outcome, generates the full set of individual-level
+# SuperLearner targets (sl_fit_*, conformal CIs, ablations, diagnostics, SHAP,
+# national estimates, and the Admin-2 aggregation of person-level predictions).
+#
+# NOTE ON ROLE (2026-06-15): the individual-level SL pipeline is now a
+# SENSITIVITY analysis, not the primary one. The PRIMARY analysis is the
+# Admin-2 area-level small-area estimation (SAE) — see `benchmark_targets`
+# (area-level SuperLearner, Fay-Herriot, BYM2) further below. The individual-SL
+# model code lives in R/sensitivity/{sl_fitting,mlr3_fitting}.R; this factory is
+# retained so its outputs remain available for comparison, but headline claims
+# and the dashboard default to the area-level SAE predictions.
 # =============================================================================
 
 #' Generate targets for one country x one outcome combination
@@ -721,11 +732,15 @@ if (length(all_country_configs) >= 2) {
 }
 
 
-# ── Benchmark suite: SuperLearner vs standard SAE methods ─────────────────
-# Compares the area-level SuperLearner against (1) country-mean baseline,
-# (2) OLS GLM, (3) elastic-net penalised GLM, (4) Fay-Herriot, (5) BYM2
-# (INLA). Runs both within-country k-fold CV and leave-one-country-out
-# (LOCO) transportability. Implementation in R/benchmark_models.R.
+# ── PRIMARY ANALYSIS: Admin-2 area-level small-area estimation (SAE) ───────
+# Benchmark suite — the PRIMARY analysis of the project. Compares the
+# area-level SuperLearner against (1) country-mean baseline, (2) OLS GLM,
+# (3) elastic-net penalised GLM, (4) Fay-Herriot, (5) BYM2 (INLA). Runs both
+# within-country k-fold CV and leave-one-country-out (LOCO) transportability.
+# Implementation in R/benchmark_models.R. These area-level SAE predictions —
+# not the individual-level SuperLearner factory above — are the headline
+# results and the dashboard default. The individual-level SL pipeline is a
+# sensitivity analysis (see the DYNAMIC TARGET FACTORY comment above).
 #
 # Outputs:
 #   - area_adjacency_list : country -> spdep::nb (built once, reused).
@@ -1355,7 +1370,109 @@ summary_targets <- list(
   )
 )
 
+# =============================================================================
+# CORRECTED METHODS (P1–P8)  —  folded in from the former _targets_corrected.R
+# =============================================================================
+# The honest "corrected-methods" layer, previously a separate parallel pipeline
+# (_targets_corrected.R, now archived), is a section of this single pipeline.
+# It consumes the SAME per-slice data targets built above (outcome_data_*,
+# svy_admin2_*, gee_admin2_*) and applies:
+#   P1 leakage-free in-fold preprocessing + cluster/spatial-block CV
+#   P2 out-of-fold Platt calibration
+#   P3 decision-value targeting
+#   P4 split-conformal + design-based intervals
+#   P5 sampling-error-aware admin-2 error
+#   P6 out-of-support trust flags
+#   P7 partial-pooling small-area estimator
+#   P8 join/centering bug fixes (enforced by construction in R/corrected/)
+# It emits the canonical `corrected_methods_comparison` bundle, which
+# build_methods_comparison() writes to results/tables/corrected/*.csv and
+# dashboard/data/methods_comparison.rds. Functions live in R/corrected/.
+# Config objects (cc, oc) are embedded as literals exactly as make_outcome_targets
+# does, which also avoids the get_country_configs()[[label]] keying pitfall
+# (the registry is keyed "SierraLeone", not the display label "Sierra Leone").
+CORRECTED_LIB  <- c("mean", "glmnet", "ranger", "rpart")
+CORRECTED_MAXP <- 800L
+CORRECTED_V    <- 5L
+
+corrected_targets     <- list()
+corrected_result_syms <- list()
+for (country_name in names(all_country_configs)) {
+  cc  <- all_country_configs[[country_name]]
+  low <- tolower(country_name)
+  for (outcome_name in names(cc$outcomes)) {
+    oc      <- cc$outcomes[[outcome_name]]
+    suffix  <- paste0(low, "_", outcome_name)
+    od_sym  <- as.symbol(paste0("outcome_data_", suffix))
+    svy_sym <- as.symbol(paste0("svy_admin2_",  suffix))
+    gee_sym <- as.symbol(paste0("gee_admin2_",  low))
+    sl_nm   <- paste0("corrected_sl_",  suffix)
+    int_nm  <- paste0("corrected_int_", suffix)
+    res_nm  <- paste0("corrected_result_", suffix)
+    corrected_result_syms[[suffix]] <- as.symbol(res_nm)
+
+    corrected_targets <- c(corrected_targets, list(
+      # P1: leakage-free SL fit (honest cluster + spatial-block + optimistic CV)
+      tar_target_raw(sl_nm,
+        substitute(fit_corrected_sl(OD, CCV, OCV, LAB, library = LIBR,
+                                    max_pred = MP, V = VV),
+          list(OD = od_sym, CCV = cc, OCV = oc, LAB = cc$country,
+               LIBR = CORRECTED_LIB, MP = CORRECTED_MAXP, VV = CORRECTED_V))),
+      tar_target_raw(paste0("corrected_cvperf_", suffix),
+        substitute(extract_cv_perf_corrected(SL), list(SL = as.symbol(sl_nm)))),
+      tar_target_raw(paste0("corrected_prodcv_", suffix),
+        substitute(prod_cv_for(LAB, OCN),
+                   list(LAB = cc$country, OCN = outcome_name))),
+      # P2 out-of-fold calibration
+      tar_target_raw(paste0("corrected_calib_", suffix),
+        substitute(diagnostics_calibrated_oof(SL), list(SL = as.symbol(sl_nm)))),
+      # P5 sampling-error-aware admin-2 error
+      tar_target_raw(paste0("corrected_err_", suffix),
+        substitute(admin2_error_corrected(SL, SV),
+                   list(SL = as.symbol(sl_nm), SV = svy_sym))),
+      # P3 decision value
+      tar_target_raw(paste0("corrected_dec_", suffix),
+        substitute(decision_value_corrected(SL, SV),
+                   list(SL = as.symbol(sl_nm), SV = svy_sym))),
+      # P4 split-conformal + design-based intervals
+      tar_target_raw(int_nm,
+        substitute(intervals_corrected(SL, SV),
+                   list(SL = as.symbol(sl_nm), SV = svy_sym))),
+      # P6 out-of-support trust flags
+      tar_target_raw(paste0("corrected_trust_", suffix),
+        substitute(trust_flags_corrected(SL, SV, GEE, INT),
+                   list(SL = as.symbol(sl_nm), SV = svy_sym, GEE = gee_sym,
+                        INT = as.symbol(int_nm)))),
+      # P7 partial-pooling area estimator
+      tar_target_raw(paste0("corrected_area_", suffix),
+        substitute(area_partial_pooling_corrected(SL, SV, GEE),
+                   list(SL = as.symbol(sl_nm), SV = svy_sym, GEE = gee_sym))),
+      # per-slice result bundle
+      tar_target_raw(res_nm,
+        substitute(list(cv_perf = CV, prod_cv = PCV, calibration = CAL,
+                        admin2_error = ERR, decision = DEC, trust = TR,
+                        area_pp = AR, interval_summary = INT$summary),
+          list(CV  = as.symbol(paste0("corrected_cvperf_", suffix)),
+               PCV = as.symbol(paste0("corrected_prodcv_", suffix)),
+               CAL = as.symbol(paste0("corrected_calib_", suffix)),
+               ERR = as.symbol(paste0("corrected_err_", suffix)),
+               DEC = as.symbol(paste0("corrected_dec_", suffix)),
+               TR  = as.symbol(paste0("corrected_trust_", suffix)),
+               AR  = as.symbol(paste0("corrected_area_", suffix)),
+               INT = as.symbol(int_nm))))
+    ))
+  }
+}
+# Final canonical bundle (corrected metrics + production reference, side by side)
+corrected_result_list_expr <- as.call(c(list(as.symbol("list")),
+  setNames(corrected_result_syms, names(corrected_result_syms))))
+corrected_targets <- c(corrected_targets, list(
+  tar_target_raw("corrected_methods_comparison",
+    substitute(build_methods_comparison(RL),
+               list(RL = corrected_result_list_expr)))
+))
+
 # ── Combine everything ──────────────────────────────────────────────────────
 c(static_targets, country_targets, area_comparison_targets, area_loco_targets,
   benchmark_targets, area_transport_targets, transport_targets, oos_targets,
-  summary_targets)
+  summary_targets, corrected_targets)

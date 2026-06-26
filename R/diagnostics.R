@@ -221,11 +221,21 @@ compute_continuous_diagnostics <- function(preds, oc = NULL) {
   # If we have cutoff info, compute prevalence recovery
   if (!is.null(oc) && !is.null(oc$cutoff)) {
     dir <- oc$cutoff_dir %||% "<"
-    obs_bin  <- if (dir == "<") as.integer(Y < oc$cutoff) else as.integer(Y >= oc$cutoff)
-    pred_bin <- if (dir == "<") as.integer(yhat < oc$cutoff) else as.integer(yhat >= oc$cutoff)
-    metrics$prev_obs  <- round(mean(obs_bin, na.rm = TRUE), 4)
-    metrics$prev_pred <- round(mean(pred_bin, na.rm = TRUE), 4)
-    metrics$prev_bias <- round(metrics$prev_pred - metrics$prev_obs, 4)
+    cut <- oc$cutoff
+    ok  <- is.finite(Y) & is.finite(yhat)
+    obs_bin <- if (dir == "<") as.integer(Y[ok] < cut) else as.integer(Y[ok] >= cut)
+    # 2026-06-23 (H3): integrate predicted prevalence over the empirical OOF
+    # residual distribution rather than thresholding point predictions
+    # (mean(yhat<cut) is a Jensen-biased plug-in). prev_pred = mean_i P(yhat_i +
+    # resid < cut), resid = Y - yhat; distribution-free via the residual ECDF.
+    resid   <- Y[ok] - yhat[ok]
+    p_below <- stats::ecdf(resid)(cut - yhat[ok])        # P(resid < cut - yhat_i)
+    prev_pred_int <- if (dir == "<") mean(p_below) else mean(1 - p_below)
+    prev_pred_pt  <- if (dir == "<") mean(yhat[ok] < cut) else mean(yhat[ok] >= cut)
+    metrics$prev_obs        <- round(mean(obs_bin, na.rm = TRUE), 4)
+    metrics$prev_pred       <- round(prev_pred_int, 4)   # integrated (recommended)
+    metrics$prev_pred_point <- round(prev_pred_pt, 4)    # old plug-in, for reference
+    metrics$prev_bias       <- round(metrics$prev_pred - metrics$prev_obs, 4)
   }
 
   list(metrics = metrics)

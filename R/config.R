@@ -420,10 +420,13 @@ get_country_configs <- function() {
           label          = "Folate deficiency (women)",
           population     = "women",
           child_flag_val = "women",
-          continuous     = "fol_nmol",         # serum folate, nmol/L (converted from ng/mL × 2.266)
-          binary         = "folate_def",       # derived: fol < 3 ng/mL
-          cutoff         = 3,                  # Malawi MNS: <3 ng/mL (≈6.8 nmol/L); binary uses
-                                               # original survey definition. Ghana/SL use 10 nmol/L.
+          continuous     = "fol_nmol",         # serum folate, nmol/L (raw `fol` is already nmol/L)
+          binary         = "folate_def",       # derived: fol_nmol < 10 nmol/L (WHO)
+          cutoff         = 10,                 # WHO serum-folate deficiency <10 nmol/L,
+                                               # harmonized with Ghana/SL (gw_wFolate < 10 nmol/L).
+                                               # 2026-06-16 fix: was 3 (a <3 ng/mL threshold applied
+                                               # to a nmol/L column) -> Malawi folate def ~0% vs
+                                               # 55-80% elsewhere; a cross-survey bug, not biology.
           cutoff_dir     = "less",
           cutoff_scale   = "original"
         ),
@@ -496,7 +499,29 @@ get_pipeline_params <- function(mode = Sys.getenv("PIPELINE_MODE", "fast")) {
 
   base <- list(
     seed = 12345L,
-    mode = mode
+    mode = mode,
+
+    # ── Feature-engineering options (validated in sandbox_fe/; see FINDINGS.md) ──
+    # All default to LEGACY behaviour so existing runs are unchanged. Toggle via
+    # environment variables for a clean A/B against the current pipeline.
+    #
+    #   FE_NORMALIZE=rank   -> rank/quantile scaling (step_percentile) instead of
+    #                          z-score. +0.003–0.012 AUC where it helps; never a
+    #                          material loss; transfers better. Safe to adopt.
+    #   FE_BUNDLES=true     -> restrict predictors to an outcome-specific,
+    #                          biology-driven bundle (vitamin A -> environment;
+    #                          iron/folate/B12/zinc -> health). Matches/beats the
+    #                          full set with 1/3–1/8 the features (parsimony +
+    #                          interpretability); improves women_iron transfer.
+    #
+    # NOTE: unsupervised per-domain PCA is intentionally NOT offered here. The
+    # metadata evaluation (sandbox_fe/17_pca_metadata_eval.R) showed prefix
+    # "domains" are incoherent for PCA and climate-construct loadings are not
+    # transportable across countries. Experimental construct-level reduction
+    # lives in R/feature_engineering_constructs.R, unwired by design.
+    normalize_method    = tolower(Sys.getenv("FE_NORMALIZE", "zscore")),
+    use_outcome_bundles = tolower(Sys.getenv("FE_BUNDLES", "false")) %in%
+                            c("1", "true", "yes")
   )
 
   if (mode == "fast") {
@@ -524,4 +549,25 @@ get_pipeline_params <- function(mode = Sys.getenv("PIPELINE_MODE", "fast")) {
       prescreen_pval = 0.2
     ))
   }
+}
+
+
+#' Outcome-specific predictor bundles (biology-driven feature selection)
+#'
+#' Derived from the domain-transfer analysis (sandbox_fe/12_domain_signal.R,
+#' 15_feature_bundles.R): vitamin-A deficiency transfers best on environmental
+#' / vegetation surfaces; iron (and other haematological / dietary) deficiencies
+#' on malaria burden + modelled health surfaces. Bundles are expressed as column
+#' name prefixes; only proxy-domain prefixes are used (never gw_).
+#'
+#' @param tag Outcome tag (e.g., "child_vitA", "women_iron").
+#' @return character vector of column-name prefixes, or NULL for "use all proxy".
+bundle_prefixes_for_outcome <- function(tag) {
+  if (is.null(tag)) return(NULL)
+  env_bundle    <- c("gee_", "soil_", "fsec_")               # environment-forward
+  health_bundle <- c("MAP_", "ihme_", "fsec_")               # malaria + health burden
+  if (grepl("vitA", tag, ignore.case = TRUE)) return(env_bundle)
+  if (grepl("iron|folate|b12|zinc|anemia|anaemia", tag, ignore.case = TRUE))
+    return(health_bundle)
+  NULL  # unknown outcome -> fall back to full proxy set
 }

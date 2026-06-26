@@ -31,8 +31,17 @@
 #' @param cc Country config
 #' @param oc Outcome config
 #' @param alpha Miscoverage rate (default 0.05 for 95% intervals)
+#' @param rho Assumed intra-area correlation of prediction errors used when
+#'   aggregating individual interval widths to an Admin-1/national MEAN CI
+#'   (2026-06-23 H2 fix). The previous code implicitly used rho = 0 (errors
+#'   independent), which shrank the aggregated CI by ~1/sqrt(m) and ignored
+#'   spatial/sampling error correlation, badly understating mean uncertainty.
+#'   Default 0.5 (moderate, conservative); rho = 0 reproduces the old behaviour,
+#'   rho = 1 applies no variance reduction. NOTE: the aggregated interval is a
+#'   CI for the AREA MEAN prevalence, not a predictive interval for new units.
 #' @return list with admin1_ci, national_ci (same structure as bootstrap output)
-compute_conformal_ci <- function(outcome_data, sl_fit, cc, oc, alpha = 0.05) {
+compute_conformal_ci <- function(outcome_data, sl_fit, cc, oc, alpha = 0.05,
+                                  rho = 0.5) {
 
   fit <- sl_fit$bin_fit %||% sl_fit$cont_fit
   if (is.null(fit)) {
@@ -85,9 +94,12 @@ compute_conformal_ci <- function(outcome_data, sl_fit, cc, oc, alpha = 0.05) {
   ci_lo_ind <- pmax(yhat - conformal_width, 0)
   ci_hi_ind <- pmin(yhat + conformal_width, 1)
 
-  # Coverage check
+  # Coverage check. NOTE (2026-06-23, H1): this coverage is computed on the SAME
+  # OOF residuals used to set `conformal_width`, so it is ~self-fulfilling
+  # (mechanically >= 1-alpha) — a sanity check that the quantile was applied
+  # correctly, NOT an independent validity test. Treat as in-sample coverage.
   coverage <- mean(Y >= ci_lo_ind & Y <= ci_hi_ind)
-  cat(sprintf("  Individual coverage: %.1f%% (target: %.1f%%)\n",
+  cat(sprintf("  Individual coverage (in-sample, not held-out): %.1f%% (target: %.1f%%)\n",
               coverage * 100, (1 - alpha) * 100))
 
   # ── Step 3: Locally-adaptive conformal intervals ─────────────────────
@@ -115,7 +127,7 @@ compute_conformal_ci <- function(outcome_data, sl_fit, cc, oc, alpha = 0.05) {
   ci_hi_adaptive <- pmin(yhat + adaptive_width, 1)
 
   adaptive_coverage <- mean(Y >= ci_lo_adaptive & Y <= ci_hi_adaptive)
-  cat(sprintf("  Adaptive coverage: %.1f%% (target: %.1f%%)\n",
+  cat(sprintf("  Adaptive coverage (in-sample, not held-out): %.1f%% (target: %.1f%%)\n",
               adaptive_coverage * 100, (1 - alpha) * 100))
 
   # ── Step 4: Aggregate to Admin-1 ────────────────────────────────────
@@ -153,7 +165,9 @@ compute_conformal_ci <- function(outcome_data, sl_fit, cc, oc, alpha = 0.05) {
       conf_se   = {
         w <- wt / sum(wt)
         sigma_i <- half_w / stats::qnorm(1 - alpha / 2)
-        sqrt(sum(w^2 * sigma_i^2))
+        # equicorrelation variance of the weighted mean (H2 fix): rho=0 -> old
+        # independence value sum(w^2 sigma^2); rho=1 -> (sum w*sigma)^2.
+        sqrt((1 - rho) * sum(w^2 * sigma_i^2) + rho * (sum(w * sigma_i))^2)
       },
       .groups   = "drop"
     ) %>%
@@ -178,7 +192,8 @@ compute_conformal_ci <- function(outcome_data, sl_fit, cc, oc, alpha = 0.05) {
   nat_se <- {
     w <- wts / sum(wts)
     sigma_i <- adaptive_width / stats::qnorm(1 - alpha / 2)
-    sqrt(sum(w^2 * sigma_i^2))
+    # equicorrelation variance (H2 fix); see `rho` in the function header.
+    sqrt((1 - rho) * sum(w^2 * sigma_i^2) + rho * (sum(w * sigma_i))^2)
   }
 
   national_ci <- data.frame(

@@ -148,17 +148,15 @@ The current pipeline uses only main effects. Key interactions that may improve p
 
 **Action:** Add a `recipes::step_interact()` step for theoretically motivated interactions, or add interaction terms to the glmnet models explicitly.
 
+**2026-06-15 guidance:** prioritize **malaria × iron status** specifically — it matches the domain-biology finding (iron transfers on malaria + health burden) — and add interactions only *within* a reduced/bundled feature set. At 14–87 effective areas, sprinkling many interaction terms mostly adds overfitting, not signal.
+
 **Files:** `R/mlr3_fitting.R` (preprocessing pipeline)
 
-## P2: Better imputation for external predictors {.unnumbered}
+## ~~P2: Better imputation for external predictors~~ — Evaluated, NOT recommended {.unnumbered}
 
-**Status:** Planned
+**Status:** Evaluated and closed (2026-06-15). Do not implement.
 
-Currently using median imputation (`ck37r::impute_missing_values(type = "standard")`). For external predictors with spatial structure, spatial interpolation or random forest imputation (`missRanger`) would be more appropriate.
-
-**Action:** Replace median imputation with `missRanger::missRanger()` for numeric predictors. Falls back to median if missRanger fails.
-
-**Files:** `R/mlr3_fitting.R`
+Tested directly in the `sandbox_fe/` investigation: imputation method is **irrelevant** to predictive performance here — median ≈ mean ≈ zero ≈ KNN within 0.003 AUC across outcomes, and missingness indicators are neutral. Spatial/random-forest imputation (`missRanger`) will not move the needle; the signal limitation is the small number of areas (see new §"Feature engineering & area-level modelling"), not imputation quality. Keep median imputation. See `sandbox_fe/FINDINGS.md` §I3.
 
 ## P3: Feature engineering from GEE rasters {.unnumbered}
 
@@ -175,13 +173,13 @@ Currently extracting zonal means only. Additional spatial features that could ad
 
 **Files:** `R/admin2_analysis.R`
 
-## P3: Principal component pre-reduction {.unnumbered}
+## ~~P3: Principal component pre-reduction~~ — Evaluated, NOT recommended {.unnumbered}
 
-**Status:** Exploratory
+**Status:** Evaluated (2026-06-15). Do not use unsupervised (prefix-domain) PCA.
 
-With ~300 predictors after prescreening, there is substantial redundancy. Adding `recipes::step_pca()` to create 20-50 principal components before the SL could reduce noise and speed up fitting.
+The redundancy is real (~27 components reproduce the full ~1000-feature set within country), but PCA is the wrong tool. The metadata evaluation (`sandbox_fe/17_pca_metadata_eval.R`) showed: (1) source-prefix "domains" are incoherent groupings (GEE top-3 PCs hold only 55% of variance); (2) PCA loadings are **not transportable** across countries (cross-country |cor(PC1)| ≈ 0.22 temperature, 0.33 precip, 0.46 malaria) — the mechanism behind observed negative transfer (one component gave Spearman −0.72 on a held-out country); (3) beyond the interpretability cost already noted here.
 
-**Risk:** PCA destroys interpretability for domain ablation. Would need to run ablation on original (non-PCA) features.
+**Use instead:** supervised reduction (prescreen + L1) and the outcome-specific feature bundles, plus interpretable seasonal construct summaries (transportable by construction). See new §"Feature engineering & area-level modelling" and `sandbox_fe/FINDINGS.md` §metadata.
 
 
 # Learner Library {#sec-learners}
@@ -258,23 +256,28 @@ Rather than permutation-based variable importance, use Targeted Minimum Loss-Bas
 
 ## P1: Fix ablation for models at chance (AUC=0.5) {.unnumbered}
 
-**Status:** Known issue
+**Status:** Known issue — **confirmed necessary** (2026-06-15)
 
-Models with AUC=0.5 (SL collapses to mean learner) produce meaningless ablation results. Should be flagged or skipped in the report.
+Models with AUC=0.5 (SL collapses to mean learner) produce meaningless ablation results. Should be flagged or skipped in the report. The SAE prototype made this concrete: Malawi child_vitA is *worse than the grand mean* out-of-sample (leave-area-out CV cor 0.05 vs in-sample 0.45), so any importance ranking for it is noise.
 
-**Action:** Add a guard in `run_domain_ablation()`: if baseline AUC < 0.55, return a flagged result rather than running permutations.
+**Action:** Add a guard in `run_domain_ablation()`: if baseline AUC < 0.55, return a flagged result rather than running permutations. Apply the same guard to area-level skill reporting — where leave-area-out CV skill ≤ 0, fall back to the direct/national estimate instead of a proxy map.
 
-**Files:** `R/domain_ablation.R`
+**Files:** `R/domain_ablation.R`, `R/area_level_comparison.R`
 
-## P1: Aggregate single-variable permutation for domain importance {.unnumbered}
+## P1: Domain importance — out-of-fold, two-regime, area-level (expanded) {.unnumbered}
 
-**Status:** Planned
+**Status:** Planned — design sharpened by the 2026-06-15 investigation
 
-Currently permutes all variables in a domain simultaneously. For large domains (69 Household Characteristics variables), this destroys too much signal. Better approach: permute each variable individually, compute per-variable AUC drop, then aggregate (mean or max) within each domain.
+Currently permutes all variables in a domain simultaneously, **on in-sample predictions** (`run_domain_ablation()` uses `yhat_insample`), within-country only. Four changes, in priority order:
 
-**Action:** Add `permute_single_vars = TRUE` option to `run_domain_ablation()`.
+1. **Out-of-fold, not in-sample.** In-sample permutation rewards overfitting; measure the AUC/skill drop on held-out predictions. The optimism gap is large and outcome-specific (e.g. Malawi child_vitA in-sample cor 0.45 → CV 0.05), so in-sample importance can be badly misleading.
+2. **Report two regimes — within-country AND LOCO transfer.** They disagree, and the disagreement is the scientific point: environment (GEE) is broadly useful *within* a country, but for *transfer* the biology-matched domain dominates (iron ← malaria/MAP + health/IHME; vitamin A ← environment). See `sandbox_fe/12_domain_signal.R`.
+3. **Permute at the area level, not across individuals.** Shuffling an Admin2-constant column across individuals creates impossible person-rows; shuffle area labels to respect the data structure.
+4. **Bootstrap over areas and report rank stability.** At 14–87 effective areas, point importance ranks (and single-variable permutation) are high-variance.
 
-**Files:** `R/domain_ablation.R`
+**Action:** add out-of-fold + area-level permutation + a transfer-regime pass to `run_domain_ablation()`; keep `permute_single_vars` as an option but report bootstrapped rank stability rather than point ranks.
+
+**Files:** `R/domain_ablation.R`, `R/conceptual_ablation.R`
 
 ## P2: SHAP values for individual-level explanations {.unnumbered}
 
@@ -300,11 +303,11 @@ The Level-2 ablation provides finer-grained thematic importance (e.g., "Vaccinat
 
 **Files:** `_targets.R`
 
-## P3: Conditional variable importance {.unnumbered}
+## P2: Conditional / unique-vs-shared domain importance (raised from P3) {.unnumbered}
 
-**Status:** Exploratory
+**Status:** Exploratory — **raised to P2** (2026-06-15)
 
-Standard permutation importance can underestimate correlated variables. Conditional importance (permute within strata of correlated variables) provides more accurate attribution. The `permimp` package implements this for random forests.
+Domains here are **spatially confounded** (poor areas have high malaria *and* low vegetation *and* food insecurity), so standard marginal/permutation importance double-counts shared signal. Decompose into **unique** (leave-one-domain-out) vs **total** (only-one-domain) contribution — a commonality-analysis framing — and report the gap; the only-one-domain pass is what cleanly revealed the biology in `sandbox_fe/12_domain_signal.R`. Conditional permutation (permute within strata of correlated variables; `permimp` for forests) is the per-variable analogue.
 
 
 # Prediction Confidence Intervals {#sec-ci}
@@ -319,7 +322,7 @@ The conformal prediction intervals claim 95% marginal coverage, but this hasn't 
 2. Verify actual coverage rate on held-out data (e.g., one-fold-out)
 3. Compare conformal CI width to bootstrap CI width
 
-**Action:** Add a coverage simulation to `R/conformal.R`.
+**Action:** Add a coverage simulation to `R/conformal.R`. **Use area-blocked / spatial holdout, not exchangeable holdout** — the proxy signal lives at Admin2 (effective n = 14–87 areas), so exchangeable-row coverage will look better than the deployment-relevant leave-area-out coverage. This raises the priority of the "Spatial conformal prediction" item below.
 
 **Files:** `R/conformal.R`, new analysis script
 
@@ -370,15 +373,17 @@ The OOS predictions use a simple area-level elastic net trained on ~100-200 Admi
 
 **Files:** `R/oos_prediction.R`, `R/transportability.R`
 
-## P2: Multi-country pooled SL for prediction {.unnumbered}
+## P1: Multi-country pooled SL with partial pooling (upgraded from P2) {.unnumbered}
 
-**Status:** Planned
+**Status:** Planned — **raised to P1** (2026-06-15)
 
-Instead of training country-specific models, train a single SL on pooled data from all countries with country-level random effects or fixed effects. This would leverage more data and produce predictions that account for cross-country heterogeneity.
+Instead of training country-specific models, train a single model on pooled data from all countries with **country-level random effects** (partial pooling), so areas borrow strength across countries. This is the most promising *internal* lever against the transportability ceiling: with only 4 countries, hard "predict a brand-new country" transfer is near its limit (Gambia/Ghana are rankable from the others, Sierra Leone/Malawi are not — `sandbox_fe/05_loco.R`, `11_area_level.R`), but partial pooling extracts the maximum from the data we have.
 
-**Action:** Extend `build_pooled_dataset()` to include country indicators, then fit the SL on the pooled data.
+**Prerequisite:** harmonize continuous outcome scales first (see §Feature Eng "Harmonize continuous outcome scales") — you cannot pool log-ferritin with raw ferritin.
 
-**Files:** `R/transportability.R`
+**Action:** Extend `build_pooled_dataset()` to include country indicators / random effects; for the area-level form, a multilevel / BYM model with a country random effect is the natural implementation.
+
+**Files:** `R/transportability.R`, `R/area_level_comparison.R`
 
 ## P2: Prediction for additional countries {.unnumbered}
 
@@ -437,6 +442,107 @@ The CV predictions (`res$Y`, `res$yhat_full`) are stored inside the large `sl_fi
 Create a Docker container with all R packages, GADM cache, and external predictor downloads pre-installed. Would enable reproducible runs on any machine and simplify onboarding for collaborators.
 
 
+# Feature engineering, preprocessing & area-level modelling (2026-06-15 investigation) {#sec-fe-investigation}
+
+Items below come from the `sandbox_fe/` investigation. Full write-up and evidence:
+`docs/feature_engineering_and_sae_notes.md`, `sandbox_fe/FINDINGS.md`, `sandbox_fe/SAE_FINDINGS.md`
+(figures `FE_summary.png`, `FE_confirmation.png`, `FE_sae.png`). Validated through the real `sl3`
+SuperLearner; production changes are **drafted behind default-off config flags** (defaults reproduce
+current behaviour).
+
+**Framing finding:** proxy predictors are almost all Admin2-level, so the effective sample size is the
+**number of areas (14–87), not individuals (~500–1400)**. Fitting ~1000 features to so few effective
+points is ~30× over-parameterized — the root cause of weak/unstable/over-optimistic results.
+
+## P1: Report effective n (# areas) + area-blocked uncertainty {.unnumbered}
+**Status:** Planned. Report the number of Admin2 areas alongside n_individuals everywhere, and use
+leave-area-out CV + an area-level bootstrap. Current cluster-blocked resampling still over-credits
+independent observations. **Files:** `R/bootstrap.R`, `R/aggregation_uncertainty.R`, manuscript.
+
+## P1: Area-level SAE as co-primary (Fay-Herriot → BYM/INLA) {.unnumbered}
+**Status:** Prototyped (`sandbox_fe/19_area_sae_prototype.R`). Admin2 is **below the surveys' design
+resolution** (1–3 clusters/area) so design-based direct estimation is non-estimable — model-based SAE is
+mandatory for area maps. Fay-Herriot is the minimum; a BYM/INLA spatial multilevel model (INLA installed)
+is the recommended production form and can use cluster-resolution proxies. Keep individual-level SL as a
+sensitivity analysis. **Files:** `R/area_level_comparison.R`, `R/admin2_analysis.R`.
+
+## P1: Report leave-area-out CV, not in-sample fit {.unnumbered}
+**Status:** Prototyped. The in-sample→CV optimism gap is large and outcome-specific (Ghana child_iron
+0.70→0.62; Gambia women_iron 0.72→0.41; Ghana child_vitA 0.49→0.35; Malawi child_vitA 0.45→0.05). No flat
+correction works — report area-CV skill directly and fall back to direct/national where CV skill ≤ 0.
+
+## P1: Rank/quantile normalization (drafted, flag) {.unnumbered}
+**Status:** Drafted behind `FE_NORMALIZE=rank` (default off). Swaps `step_normalize`→
+`step_percentile(outside="both")` in `DHS_SL_clustered()`; `outside="both"` is required (default returns NA
+on out-of-range new-country values). Consistent small gain, transfers better, bake-aware so the
+prediction/bootstrap path reproduces it. **Action:** A/B vs current after the stale-results re-run, then
+consider flipping the default. **Files:** `R/config.R`, `src/analysis/sl_helpers.R`.
+
+## P2: Outcome-specific feature bundles (drafted, flag) {.unnumbered}
+**Status:** Drafted behind `FE_BUNDLES=true` (default off). `vitA_env = gee_+soil_+fsec_`;
+`iron_health = MAP_+ihme_+fsec_`. Match/beat the full set with ⅓–⅛ the features and improve iron transfer
+(women_iron area-transfer Spearman 0.274→0.323). **Depends on** the SoilGrids retry (the `soil_` part of
+the vitamin-A bundle is all-NA for Gambia/SL/Malawi until then). **Files:** `R/config.R`, `R/data_prep.R`,
+`R/sl_fitting.R`.
+
+## P2: Treat supervised reduction as a first-class step {.unnumbered}
+**Status:** Validated. ~27 supervised/bundled features match the full ~1000 within country. Prefer
+prescreen+L1 / curated bundles over PCA (see closed PCA item). Document reduction as required, not optional.
+
+## P2: Apply a design effect to the SAE sampling variance {.unnumbered}
+**Status:** Planned. The FH prototype uses a binomial sampling variance (DEFF≈1, non-estimable at 1 PSU/
+area), making FH intervals slightly optimistic. Estimate a DEFF at Admin1/national level (where multiple
+PSUs exist) and apply it before production.
+
+## P2: Predictor hygiene — counts→rates + MAP snapshot dedup (IMPLEMENTED, default-on) {.unnumbered}
+**Status:** Implemented (2026-06-15) and A/B-tested. `prune_predictor_cols()` in `R/data_prep.R`, wired into
+`build_outcome_dataset()` (on by default; `FE_CLEAN_PREDICTORS=false` to disable). Drops population-scaled
+count columns — MAP `_Count` where the `_Rate` sibling exists, plus the ~50 IHME `*_count(s)`/`number_of_*`
+(rate/prevalence versions retained; arithmetic conversion avoided because the matching age/sex/year
+denominator is not reliably identifiable from names) — and collapses near-duplicate `MAP_<YYYYMM>_*`
+snapshots to the one nearest the survey year. Removes ~57–65 cols/country (~5%).
+
+**A/B verdict (performance-NEUTRAL — adopt for parsimony, not accuracy).** Fast harness (ranger +
+lasso-rank), 12 within-country cells × 2 models + area-level LOCO (`sandbox_fe/23_hygiene_ab.R`,
+`results_23_hygiene_*.csv`):
+- Within-country mean ΔAUC: ranger **−0.0004**, lasso **−0.008** (zero within noise; most cells <±0.01).
+- Area-LOCO Spearman: child_vitA 0.272→0.272, women_iron 0.274→0.272, child_iron **0.165→0.176**.
+- Two larger negative cells (SL child_iron lasso −0.076, Malawi women_iron lasso −0.045) are the
+  smallest/lowest-prevalence cells where fixed-λ lasso CV is noisy; the matched ranger runs are flat, so
+  this is CV instability in tiny-n cells, **not** signal loss.
+
+Value is parsimony, interpretability, transfer-hygiene (population-scaled counts degrade transfer), and
+cleaner variable importance (counts can't surface as spurious importance) — not an accuracy gain. Safe to
+leave on. (Test caveat: fast harness, not the full SL; reliable signal is the mean ≈ 0 across cells, not any
+single cell.)
+
+## New predictor data sources (biology-matched, globally available, transferable)
+
+Only globally-available surfaces transfer (no survey aggregate is shared across all 4 countries; the shared
+set is GEE/IHME/MAP/FSEC/SOIL — `sandbox_fe/02_overlap.R`). **Already integrated — do NOT re-add:**
+hemoglobinopathies (HbS/HbC/G6PD/Duffy from MAP), **livestock density (FAO GLW4/GLEAM3, already a GEE
+layer)**, **WASH (IHME WASH-access family)**, modelled anaemia (IHME), plant-available soil micronutrients
+Fe/Zn/Ca/Mg (iSDA, in GEE), ACLED, CHIRPS, WorldPop, GDL wealth, IPC, nightlights, LSMS dietary proxies.
+Where subnational, extract at **GPS-cluster / buffer resolution**, not just Admin2. RA should verify
+subnational coverage, licensing, and year alignment per source. **Full ingestion specs (verified access,
+output schema, join keys, acceptance criteria): `docs/ra_new_data_sources_specs.md`.**
+
+- **P2 — Soil-transmitted helminths & schistosomiasis** (WHO **ESPEN**). Hookworm is a leading cause of iron-deficiency anaemia; strongest single new source for iron, and **subnational** (helps within-country and transfer). Access: ESPEN Data API (**API key required**, free) + `ESPENAPI` R package; runnable puller drafted at `scripts/build_espen_admin2.R`.
+- **P2 — Food fortification** (**Global Fortification Data Exchange, GFDx**): standards/coverage for vitamin A, folic acid, iron, zinc (flour, oil, salt). Directly causal, especially **folate (folic-acid flour fortification)** and B12. Access: row-based CSV download, 196 countries. Caveat: **mostly national** → helps transfer/pooled model, not within-country area discrimination.
+- **P3 — Modelled dietary intake** (**Global Dietary Database**, Tufts): 15 micronutrients × 34 age-sex groups × 185 countries (+ subnational via `nutriR`). The most direct dietary signal for B12/folate/zinc/vit A. Access: public download / GitHub.
+- **P3 — Crop composition** (**MapSPAM / HarvestChoice**): gridded production/harvested-area by crop (staples vs pulses vs vegetables) — finer dietary-availability than NDVI/cropland-class. Access: GeoTIFF download. Subnational (helps within-country). HarvestChoice already flagged for download in §Predictors.
+- **P3 — High-resolution wealth** (**Meta Relative Wealth Index**, ~2.4 km): finer/more globally consistent than DHS/GDL wealth. Access: public download.
+
+Priority by outcome: iron/anaemia → **helminths (ESPEN)**, fortification; folate/B12/zinc → **fortification
+(GFDx)**, dietary intake; vitamin A → dietary intake, crop composition, fortification. Subnational sources
+(ESPEN, MapSPAM) help both within-country and transfer; national sources (GFDx, GDD) help transfer only.
+
+**Preliminary signal (2026-06-15, `sandbox_fe/21_espen_iron_test.R`):** using the IHME lymphatic-filariasis
+layer as a crude NTD-ecology proxy, area-level association with iron deficiency is weak/inconsistent
+(Spearman −0.22 to +0.38 within country), while the malaria yardstick is stronger (+0.42 to +0.63 in
+Gambia/SL). LF is a poor stand-in for hookworm, so this neither confirms nor refutes the helminth
+hypothesis — the real STH/SCH test needs the ESPEN pull (key-gated; could not run here).
+
 # Summary Priority Matrix
 
 | Priority | Category | Item | Est. Effort |
@@ -452,7 +558,7 @@ Create a Docker container with all R packages, GADM cache, and external predicto
 | P1 | Data | Fix SL women_iron / harmonize scales | 1 hour |
 | P2 | Predictors | Newer DHS rounds | 4 hours |
 | P2 | Feature Eng. | Interaction features | 2 hours |
-| P2 | Feature Eng. | Better imputation (missRanger) | 1 hour |
+| ~~P2~~ | Feature Eng. | ~~Better imputation (missRanger)~~ — closed, no benefit | — |
 | P2 | Learners | Lasso-screened pipelines | 4 hours |
 | P2 | Learners | Stratified CV for rare outcomes | 2 hours |
 | P2 | Var. Importance | SHAP values | 4 hours |
@@ -461,12 +567,28 @@ Create a Docker container with all R packages, GADM cache, and external predicto
 | P2 | OOS | Prediction for additional countries | 4 hours/country |
 | P3 | Predictors | Temporal predictor alignment | 4 hours |
 | P3 | Predictors | Gridded prediction surface | 16+ hours |
-| P3 | Feature Eng. | PCA pre-reduction | 2 hours |
+| ~~P3~~ | Feature Eng. | ~~PCA pre-reduction~~ — evaluated, not recommended (non-transportable) | — |
 | P3 | Learners | Spatial SuperLearner | 16+ hours |
 | P3 | CIs | Spatial conformal prediction | 8 hours |
 | P3 | OOS | Temporal extrapolation | 16+ hours |
+| P2 | Feature Eng. | Predictor hygiene counts→rates + MAP dedup — IMPLEMENTED (default-on); A/B neutral | done |
+| P1 | Feature Eng. | Report effective n (# areas) + area-blocked uncertainty | 2 hours |
+| P1 | Modelling | Area-level SAE co-primary (Fay-Herriot → BYM/INLA) | 8–16 hours |
+| P1 | Var. Importance | Report leave-area-out CV, not in-sample fit | 2 hours |
+| P1 | Feature Eng. | Rank/quantile normalization (drafted, flag) — A/B then default | 1 hour |
+| P1 | OOS | Multi-country pooled SL w/ partial pooling (was P2) | 8 hours |
+| P2 | Feature Eng. | Outcome-specific bundles (drafted, flag); needs SoilGrids retry | 1 hour |
+| P2 | Modelling | Design effect for SAE sampling variance | 2 hours |
+| P2 | Var. Importance | Out-of-fold + transfer + area-level permutation | 4 hours |
+| P2 | Var. Importance | Unique-vs-shared (commonality) domain importance (was P3) | 3 hours |
+| P2 | Predictors | Helminths/schisto (ESPEN, key-gated API) — iron; subnational | 4 hours |
+| P2 | Predictors | Food fortification (GFDx download) — folate/B12/iron/vitA; national | 3 hours |
+| P3 | Predictors | Dietary intake (Global Dietary Database) — B12/folate/zinc/vitA | 4 hours |
+| P3 | Predictors | Crop composition (MapSPAM/HarvestChoice) — subnational | 3 hours |
+| P3 | Predictors | Relative Wealth Index (Meta, ~2.4km) | 2 hours |
+| — | Predictors | ~~Livestock (GLW4)~~, ~~WASH~~ — already integrated, do not re-add | — |
 | P1 | Data Quality | Deduplicate `.x`/`.y` columns from merge joins in `R/merge_external.R` — DHS Admin-2 indicators appear twice (e.g., `dhs2014_c_overweight_adm2.x` and `.y`), inflating predictor count and creating "Unknown" domain in conceptual ablation. Investigate which merge produces duplicates and keep only one copy. | 2 hours |
-| P1 | Predictors | Retry SoilGrids for Gambia / SL / Malawi (Ghana succeeded, others got all-NA due to ISRIC server flakiness) — `Rscript scripts/build_soilgrids_admin2.R <Country>` then re-run that country's `2_GW_*_data_merge.R` | 30 min |
+| P1 | Predictors | SoilGrids all-NA for Gambia/SL/Malawi — **fixed** (cache-filename bug in `extract_soilgrids`, not ISRIC flakiness); CSVs rebuilt 100% non-NA 2026-06-15. Remaining: re-run the 3 `2_GW_*_data_merge.R` to propagate `soil_*` into the merged RDS | done + merge |
 | P1 | Predictors | Upgrade Ghana DHS from 2014 → 2017 — run `src/DHS/DHS_admin2_aggregation.R`, flip `R/config.R:122` `dhs_year=2014L→2017L`, re-run Ghana merge | 4 hours |
 | P1 | Pipeline | Re-run `targets::tar_make_future()` against the 2026-05-13-refreshed merged RDS inputs (which carry the new `fsec_`, `soil_`, `gee_a2_*_yoy_*`, seasonality features, and Ghana Brinda-Thurnham ferritin fix) | 5–60 min |
 
@@ -476,27 +598,31 @@ Create a Docker container with all R packages, GADM cache, and external predicto
 
 After applying N-1..N-11 + F-1/F-2/F-7 from `pipeline_review_2026-05-13.md`, three items remain.
 
-## P1: Retry SoilGrids for Gambia / Sierra Leone / Malawi {.unnumbered}
+## P1: Retry SoilGrids for Gambia / Sierra Leone / Malawi — CSVs DONE (2026-06-15); merge propagation pending {.unnumbered}
 
-**Status:** Infrastructure wired; Ghana succeeded on first run (98% non-NA `soil_*` cols). Gambia, Sierra Leone, and Malawi got all-NA CSVs because the ISRIC SoilGrids VRT server returned no data during the run (transient server / network issue).
+**Status:** **Root cause found & fixed — not ISRIC flakiness.** `extract_soilgrids()` cached each cropped
+property raster under a country-agnostic filename (`soil_ph_0_5cm.tif`), but the crop is country-specific
+(cropped to the input polygons' extent). Ghana ran first and wrote crops of *Ghana's* bbox; Gambia/SL/Malawi
+then reused those Ghana crops and extracted all-NA (they fall outside Ghana's extent). Fixed by keying the
+cached TIF on a bbox hash (`R/external_data.R`, `sprintf("%s_0_5cm_%s.tif", col, digest(bbox))`).
 
-**What to do:**
+CSVs rebuilt and verified after clearing the stale cache: **Gambia/SierraLeone/Malawi now 100% non-NA**,
+Ghana 97% (`data/SoilGrids/<Country>_soilgrids_admin2.csv`).
+
+**Remaining step (folds into the merge/targets re-run below):** the `soil_*` columns in the four
+`*_merged_dataset.rds` are still all-NA — re-run the Stage-2 merges to propagate the rebuilt CSVs:
 
 ```bash
-Rscript scripts/build_soilgrids_admin2.R Gambia
-Rscript scripts/build_soilgrids_admin2.R SierraLeone
-Rscript scripts/build_soilgrids_admin2.R Malawi
-# then re-run that country's merge to pick up the new soil_* values
 Rscript src/Gambia/2_GW_Gambia_data_merge.R
 Rscript src/SierraLeone/2_GW_SierraLeone_data_merge.R
 Rscript src/malawi/2_GW_Malawi_data_merge.R
+# (build_soilgrids_admin2.R itself no longer needs re-running — CSVs are correct)
 ```
 
-Cache is shared in `data/external_cache/soilgrids/`, so retries are cheap once a property downloads. If `/vsicurl/` is blocked from the current network, `extract_soilgrids()` has a WCS-endpoint fallback that may work instead.
+**Verify success:** merged-RDS `soil_*` columns non-NA for ≥ 95% of rows (CSV step already verified).
 
-**Verify success:** the resulting CSV should have non-NA values for ≥ 95% of admin-2 rows.
-
-**Affected files:** `data/SoilGrids/<Country>_soilgrids_admin2.csv`, `data/IPD/<Country>/<Country>_merged_dataset.rds`, `metadata/<country>_variable_categories.rds`.
+**Affected files:** `R/external_data.R` (fix), `data/SoilGrids/<Country>_soilgrids_admin2.csv` (rebuilt),
+`data/IPD/<Country>/<Country>_merged_dataset.rds` (pending merge), `metadata/<country>_variable_categories.rds`.
 
 **Estimated effort:** 30 min (mostly download time).
 
@@ -529,7 +655,7 @@ source("src/Ghana/2_GW_Ghana_data_merge.R")
 **Status:** All four `data/IPD/<Country>/<Country>_merged_dataset.rds` files were regenerated on 2026-05-13 and now carry:
 
 - New `fsec_` columns (Cadre Harmonisé + HFID), 10–33 per country.
-- New `soil_` columns (SoilGrids), 7 per country — populated for Ghana, NA pending retry for the others.
+- New `soil_` columns (SoilGrids), 7 per country — CSVs now populated for ALL four (cache-filename bug fixed 2026-06-15); merged-RDS values propagate on the next Stage-2 merge re-run.
 - New `gee_a2_*_yoy_<curyr>_<prevyr>` YoY deltas, 8 per country.
 - New `gee_*_seasonal_{sd,cv,range}` / `_peak_month` / `_annual_mean` seasonality features, ~45 per country.
 - Recovered Malawi IHME admin-1 and admin-2 columns (previously 100% NA, now 0% / 1.8%).

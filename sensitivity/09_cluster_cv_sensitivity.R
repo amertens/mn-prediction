@@ -30,7 +30,7 @@ suppressPackageStartupMessages({
 })
 
 source(here::here("R", "config.R"))
-source(here::here("R", "mlr3_fitting.R"))
+source(here::here("R", "sensitivity", "mlr3_fitting.R"))
 source(here::here("R", "admin1_analysis.R"))   # extract_cv_performance
 source(here::here("R", "diagnostics.R"))
 

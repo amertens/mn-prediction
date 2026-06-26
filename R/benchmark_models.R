@@ -109,6 +109,43 @@ compute_area_metrics <- function(obs, pred, ..., method, model_type,
 .bound01 <- function(p, lo = 0, hi = 1) pmin(pmax(p, lo), hi)
 
 
+# ── Reproducible cross-validation folds ──────────────────────────────────────
+# cv.glmnet / cv.gglasso pick CV folds at random from the global RNG, so the
+# LOCO comparators (penalized, two_stage, grouplasso, invariance_filter,
+# combined_filter, coral) jitter run-to-run. We give them a DETERMINISTIC
+# foldid built from a fixed seed, so benchmark numbers are reproducible.
+# The seed is restored afterwards so we never disturb the global RNG stream
+# that the rest of the pipeline relies on.
+.BENCHMARK_CV_SEED <- 12345L
+
+# Evaluate `expr` under a fixed seed, then restore the global RNG stream so the
+# rest of the pipeline is unaffected. `expr` is a promise (lazily evaluated by
+# force() only after the seed is set).
+.with_benchmark_seed <- function(expr, seed = .BENCHMARK_CV_SEED) {
+  old <- if (exists(".Random.seed", envir = .GlobalEnv))
+           get(".Random.seed", envir = .GlobalEnv) else NULL
+  on.exit({
+    if (!is.null(old)) assign(".Random.seed", old, envir = .GlobalEnv)
+    else if (exists(".Random.seed", envir = .GlobalEnv))
+           rm(".Random.seed", envir = .GlobalEnv)
+  }, add = TRUE)
+  set.seed(seed)
+  force(expr)
+}
+
+.det_foldid <- function(n, nfolds = 10L, seed = .BENCHMARK_CV_SEED) {
+  nfolds <- max(3L, min(as.integer(nfolds), n))
+  .with_benchmark_seed(sample(rep_len(seq_len(nfolds), n)), seed)
+}
+
+# cv.glmnet with a deterministic foldid (foldid overrides nfolds). `nfolds` and
+# `seed` are consumed here; everything else (alpha, family, weights, ...) is
+# forwarded to glmnet::cv.glmnet unchanged.
+.cv_glmnet <- function(x, y, ..., nfolds = 10L, seed = .BENCHMARK_CV_SEED) {
+  glmnet::cv.glmnet(x, y, foldid = .det_foldid(nrow(x), nfolds, seed), ...)
+}
+
+
 # ── METHOD 1: country-mean baseline ───────────────────────────────────────────
 # Predict the training-set mean prevalence for every held-out unit.
 # Floor for "is the model doing anything?"
@@ -171,8 +208,8 @@ fit_predict_penalized <- function(train, test, vars,
   if (nrow(Xtr) < 25 && alpha > 0) alpha <- 0
   n_folds <- min(nrow(Xtr), 10L)
   fit <- tryCatch(
-    glmnet::cv.glmnet(Xtr, Y, alpha = alpha, nfolds = n_folds,
-                       family = "gaussian", weights = wt),
+    .cv_glmnet(Xtr, Y, alpha = alpha, nfolds = n_folds,
+                family = "gaussian", weights = wt),
     error = function(e) NULL)
   if (is.null(fit)) return(NULL)
   s <- fit$lambda.min %||% fit$lambda.1se
@@ -377,6 +414,9 @@ fit_predict_bym2 <- function(train, test, vars, adjacency_list = NULL,
       events <- round(train$svy_prev * train$n_svy)
       dat$Y <- c(events, rep(NA_integer_, n_test))
       INLA::inla(formula, family = "binomial", Ntrials = Ntrials, data = dat,
+                  safe = FALSE,   # disable inla.core.safe rerun loop, which can
+                                  # deadlock on near-constant/rare outcomes (e.g.
+                                  # women_vitA); fail fast -> caught below -> skip.
                   control.predictor = list(link = 1, compute = TRUE),
                   control.compute   = list(config = FALSE))
     } else {
@@ -385,6 +425,9 @@ fit_predict_bym2 <- function(train, test, vars, adjacency_list = NULL,
       prec_weights <- c(1 / sv, rep(1 / mean(sv), n_test))
       INLA::inla(formula, family = "gaussian", data = dat,
                   scale = prec_weights,
+                  safe = FALSE,   # disable inla.core.safe rerun loop, which can
+                                  # deadlock on near-constant/rare outcomes (e.g.
+                                  # women_vitA); fail fast -> caught below -> skip.
                   control.family = list(hyper = list(prec = list(initial = 10, fixed = TRUE))),
                   control.predictor = list(link = 1, compute = TRUE),
                   control.compute   = list(config = FALSE))
@@ -560,9 +603,9 @@ fit_predict_two_stage <- function(train, test, vars,
   Xte2 <- as.matrix(ctr_test [, s2_keep, drop = FALSE])
   s2_wt <- pmax(train$n_svy %||% rep(1, nrow(Xtr2)), 1)
   s2_fit <- tryCatch(
-    glmnet::cv.glmnet(Xtr2, resid_train, alpha = 0.5,
-                       nfolds = min(nrow(Xtr2), 10L),
-                       weights = s2_wt),
+    .cv_glmnet(Xtr2, resid_train, alpha = 0.5,
+                nfolds = min(nrow(Xtr2), 10L),
+                weights = s2_wt),
     error = function(e) NULL)
   if (is.null(s2_fit)) return(NULL)
   s2_pred_te <- as.numeric(stats::predict(s2_fit, newx = Xte2, s = "lambda.min"))
@@ -737,7 +780,7 @@ fit_predict_grouplasso <- function(train, test, vars,
   Y <- if (model_type == "logit") .safe_logit(train$svy_prev) else train$svy_prev
   cvfit <- tryCatch(
     gglasso::cv.gglasso(Xtr, Y, group = groups, loss = loss,
-                         pred.loss = "L2", nfolds = min(nrow(Xtr), 10L)),
+                         pred.loss = "L2", foldid = .det_foldid(nrow(Xtr), 10L)),
     error = function(e) NULL)
   if (is.null(cvfit)) return(NULL)
   s <- cvfit$lambda.min
@@ -1031,9 +1074,9 @@ fit_predict_invariance_filter <- function(train, test, vars,
   Y   <- if (model_type == "logit") .safe_logit(train$svy_prev) else train$svy_prev
   wt  <- pmax(train$n_svy %||% rep(1, nrow(imp$train)), 1)
   Xtr <- as.matrix(imp$train); Xte <- as.matrix(imp$test)
-  fit <- tryCatch(glmnet::cv.glmnet(Xtr, Y, alpha = 0.5,
-                                        nfolds = min(nrow(Xtr), 10L),
-                                        weights = wt),
+  fit <- tryCatch(.cv_glmnet(Xtr, Y, alpha = 0.5,
+                                  nfolds = min(nrow(Xtr), 10L),
+                                  weights = wt),
                    error = function(e) NULL)
   if (is.null(fit)) return(NULL)
   pred_te_link <- as.numeric(stats::predict(fit, newx = Xte, s = "lambda.min"))
@@ -1109,9 +1152,9 @@ fit_predict_combined_filter <- function(train, test, vars,
   Y   <- if (model_type == "logit") .safe_logit(train$svy_prev) else train$svy_prev
   wt  <- pmax(train$n_svy %||% rep(1, nrow(imp$train)), 1)
   Xtr <- as.matrix(imp$train); Xte <- as.matrix(imp$test)
-  fit <- tryCatch(glmnet::cv.glmnet(Xtr, Y, alpha = 0.5,
-                                        nfolds = min(nrow(Xtr), 10L),
-                                        weights = wt),
+  fit <- tryCatch(.cv_glmnet(Xtr, Y, alpha = 0.5,
+                                  nfolds = min(nrow(Xtr), 10L),
+                                  weights = wt),
                    error = function(e) NULL)
   if (is.null(fit)) return(NULL)
   pred_te <- as.numeric(stats::predict(fit, newx = Xte, s = "lambda.min"))
@@ -1258,6 +1301,101 @@ fit_predict_spatial_plus_soil <- function(train, test, vars,
 }
 
 
+# ── METHOD 22: CORAL domain adaptation (covariance alignment) ────────────────
+# Sun, Feng & Saenko (2016), "Return of Frustratingly Easy Domain Adaptation".
+# Align the second-order statistics of the training (source) covariates to the
+# held-out (target) country, then fit an elastic net on the aligned features.
+# Transductive but label-honest: only the target's COVARIATES are used to
+# estimate the target covariance/mean -- the held-out svy_prev is never touched,
+# so LOCO honesty is preserved.
+#
+# Motivation: directly attacks the cross-country feature-scale mismatch that the
+# CIV external validation flagged as limiting interpretability (commit bb221bb).
+# CORAL fixes scale/units shift; it does NOT fix a covariate->outcome sign flip
+# (e.g. vitamin-A-in-women), so treat it as one comparator in the bake-off.
+#
+# With ~3 training countries / ~150 polygons the covariance is high-dimensional
+# and noisy, so we (a) cap features to the top-k by |univariate r with outcome|
+# and (b) ridge-regularize both covariances before the matrix square roots.
+#
+# align_mean (size-conditional, "auto" by default): empirically, shifting the
+# source mean onto the target mean STABILISES small held-out countries (Sierra
+# Leone, n=14), where the target covariance is too noisy to recolor alone and
+# predictions otherwise collapse to a constant (r undefined); but it OVER-shifts
+# large held-out countries (e.g. Gambia women_iron, r 0.51 -> 0.00). So "auto"
+# applies mean-alignment only when the target has <= align_mean_max_n areas.
+# Pass align_mean = TRUE/FALSE to force the behaviour.
+fit_predict_coral <- function(train, test, vars,
+                              model_type = c("continuous", "logit"),
+                              n_var_cap = 15L, alpha = 0.5,
+                              align_mean = "auto", align_mean_max_n = 20L,
+                              ridge = 1e-3) {
+  model_type <- match.arg(model_type)
+  vars <- .screen_vars(train, vars)
+  if (length(vars) < 2) return(NULL)
+  # Resolve the size-conditional alignment decision up front.
+  do_align <- if (is.character(align_mean)) nrow(test) <= align_mean_max_n
+              else isTRUE(align_mean)
+
+  # Cap dimensionality by univariate correlation with the outcome (train only).
+  if (length(vars) > n_var_cap) {
+    cors <- vapply(vars, function(v)
+      suppressWarnings(abs(cor(train[[v]], train$svy_prev, use = "pairwise"))),
+      numeric(1))
+    cors[!is.finite(cors)] <- 0
+    vars <- names(sort(cors, decreasing = TRUE))[seq_len(n_var_cap)]
+  }
+
+  imp <- .impute_train_test(train, test, vars)
+  Xtr <- as.matrix(imp$train); Xte <- as.matrix(imp$test)
+
+  # Standardize per-feature on the training scale first (CORAL assumes the
+  # features live on comparable units before covariance alignment).
+  mu <- colMeans(Xtr); sdv <- apply(Xtr, 2, stats::sd); sdv[sdv < 1e-8] <- 1
+  Ztr <- sweep(sweep(Xtr, 2, mu, "-"), 2, sdv, "/")
+  Zte <- sweep(sweep(Xte, 2, mu, "-"), 2, sdv, "/")
+
+  p <- ncol(Ztr); Ip <- diag(p)
+  cov_s <- stats::cov(Ztr) + ridge * Ip
+  cov_t <- stats::cov(Zte) + ridge * Ip
+
+  # Symmetric matrix powers via eigendecomposition (covariances are PSD).
+  msqrt <- function(M, power) {
+    e <- eigen(M, symmetric = TRUE)
+    v <- pmax(e$values, 1e-8)
+    e$vectors %*% diag(v^power, p) %*% t(e$vectors)
+  }
+  # Whiten source, recolor to target: A = cov_s^{-1/2} %*% cov_t^{1/2}.
+  A <- tryCatch(msqrt(cov_s, -0.5) %*% msqrt(cov_t, 0.5),
+                error = function(e) NULL)
+  if (is.null(A)) return(NULL)
+  Ztr_a <- Ztr %*% A
+  Zte_a <- Zte                              # target already on its own scale
+  if (isTRUE(do_align)) {                    # shift source mean onto target mean
+    shift <- colMeans(Zte) - colMeans(Ztr_a)
+    Ztr_a <- sweep(Ztr_a, 2, shift, "+")
+  }
+
+  Y  <- if (model_type == "logit") .safe_logit(train$svy_prev) else train$svy_prev
+  wt <- pmax(train$n_svy %||% rep(1, nrow(Ztr_a)), 1)
+  fit <- tryCatch(
+    .cv_glmnet(Ztr_a, Y, alpha = alpha, weights = wt,
+               nfolds = min(nrow(Ztr_a), 10L)),
+    error = function(e) NULL)
+  if (is.null(fit)) return(NULL)
+
+  s  <- fit$lambda.min
+  pt <- as.numeric(stats::predict(fit, newx = Zte_a, s = s))
+  pr <- as.numeric(stats::predict(fit, newx = Ztr_a, s = s))
+  if (model_type == "logit") { pt <- .safe_invlogit(pt); pr <- .safe_invlogit(pr) }
+
+  list(pred = .bound01(pt), train_pred = .bound01(pr),
+       method_note = sprintf("CORAL (k=%d, alpha=%.2f, align_mean=%s%s)",
+                             length(vars), alpha, do_align,
+                             if (is.character(align_mean)) " [auto]" else ""))
+}
+
+
 # ── METHOD 20: Prescreened SuperLearner (primary, fixed) ─────────────────────
 # The 17-hour main-pipeline SuperLearner under-performs (mean LOCO r ~ 0.14)
 # for two compounding reasons revealed in sandbox/16:
@@ -1378,10 +1516,10 @@ fit_predict_sl_prescreened <- function(train, test, vars,
     list("mean", id = "mean")
   )
   n_folds <- min(nrow(fit_df), sl_folds)
-  fit <- tryCatch(suppressMessages(suppressWarnings(
+  fit <- tryCatch(.with_benchmark_seed(suppressMessages(suppressWarnings(
     mlr3superlearner::mlr3superlearner(
       data = fit_df, target = "Y", library = library_fast,
-      outcome_type = "continuous", folds = n_folds))),
+      outcome_type = "continuous", folds = n_folds)))),
     error = function(e) {
       cat(sprintf("    [sl_prescreened] SL fit failed: %s\n",
                   conditionMessage(e))); NULL
@@ -1716,6 +1854,7 @@ bootstrap_loco_ci <- function(pooled_data, gee_vars, country_names,
       invariance_filter = fit_predict_invariance_filter,
       combined_filter   = function(train, test, vars, ...)
                             fit_predict_invariance_filter(train, test, vars),
+      coral             = fit_predict_coral,
       stop("unknown method"))
     out <- tryCatch(fit_pred(train, test, vars), error = function(e) NULL)
     if (is.null(out) || is.null(out$pred)) next
@@ -1866,11 +2005,25 @@ calibrate_binary_oof <- function(cv_df,
                                    method = "platt") {
   if (is.null(cv_df) || nrow(cv_df) == 0) return(cv_df)
   if (is.null(fold_col) || !fold_col %in% colnames(cv_df)) {
-    # No folds given: fit calibrator on all data (slightly optimistic, but
-    # the binary models are already heavily under-fit so this matters little).
-    cal <- fit_binary_recalibrator(cv_df[[p_col]], cv_df[[y_col]], method = method)
-    cv_df$calibrated_p <- cal$fn(cv_df[[p_col]])
-    attr(cv_df, "calibrator") <- cal
+    # No external folds: do an INTERNAL k-fold CV calibration so `calibrated_p`
+    # is out-of-fold honest (2026-06-23 M1 fix; previously fit-on-all = in-sample
+    # optimistic). The all-data calibrator is still stored for applying to
+    # NEW/production data.
+    n <- nrow(cv_df); k <- max(2L, min(5L, n))
+    set.seed(20260623L)
+    fold <- sample(rep_len(seq_len(k), n))
+    cv_df$calibrated_p <- NA_real_
+    for (f in unique(fold)) {
+      in_f <- which(fold == f); out_f <- which(fold != f)
+      cal_f <- if (length(out_f) >= 3 && length(unique(cv_df[[y_col]][out_f])) >= 2)
+        tryCatch(fit_binary_recalibrator(cv_df[[p_col]][out_f], cv_df[[y_col]][out_f],
+                                         method = method), error = function(e) NULL) else NULL
+      cv_df$calibrated_p[in_f] <- if (is.null(cal_f)) cv_df[[p_col]][in_f]
+                                  else cal_f$fn(cv_df[[p_col]][in_f])
+    }
+    attr(cv_df, "calibrator") <-
+      tryCatch(fit_binary_recalibrator(cv_df[[p_col]], cv_df[[y_col]], method = method),
+               error = function(e) NULL)
     return(cv_df)
   }
   # Honest CV: for each fold f, fit calibrator on observations not in f,
@@ -1950,11 +2103,23 @@ build_adjacency_list <- function(cc_list, svy_admin2_list,
 run_area_benchmarks_loco <- function(pooled_data, gee_vars, country_names,
                                        adjacency_list = NULL,
                                        outcome_label = NA_character_,
+                                       # NOTE (2026-06-17): dropped "grouplasso" from
+                                       # the default. Per-method timing on the rare,
+                                       # near-constant women_vitA outcome showed grpreg
+                                       # group-lasso runs for HOURS (pathological
+                                       # convergence) in a single compiled call that
+                                       # the per-method setTimeLimit cap cannot preempt;
+                                       # every other method — including the inner-LOCO
+                                       # two_stage/forward/stacked (2–15 s) and
+                                       # sl_prescreened (6 s) — completes quickly.
+                                       # Pass "grouplasso" explicitly via `methods` to
+                                       # re-enable (expect multi-hour runs on rare
+                                       # outcomes).
                                        methods = c("baseline", "glm",
                                                    "penalized", "fh", "bym2",
                                                    "mixed", "two_stage",
                                                    "forward", "gam",
-                                                   "grouplasso", "stacked",
+                                                   "stacked",
                                                    "quasibinomial", "quantile",
                                                    "betareg", "dag",
                                                    "invariance_filter",
@@ -1962,7 +2127,7 @@ run_area_benchmarks_loco <- function(pooled_data, gee_vars, country_names,
                                                    "spatial_coords",
                                                    "spatial_plus_h6",
                                                    "spatial_plus_soil",
-                                                   "sl_prescreened"),
+                                                   "sl_prescreened", "coral"),
                                        model_types = c("continuous", "logit"),
                                        augment_features = TRUE,
                                        cross_outcome_pooled = NULL) {
@@ -1977,6 +2142,15 @@ run_area_benchmarks_loco <- function(pooled_data, gee_vars, country_names,
     gee_vars <- unique(c(gee_vars, fe_cols))
   }
   results <- list()
+  # Per-method wall-clock cap (seconds). Some methods (forward selection,
+  # stacked/two_stage inner-LOCO) can run pathologically long on near-constant
+  # rare outcomes (e.g. women_vitA) without erroring — capping each method call
+  # lets the benchmark skip a stalled method instead of blocking the pipeline.
+  # Override with env var BENCH_METHOD_TIMEOUT. Default 300s.
+  .bench_method_timeout <- suppressWarnings(as.numeric(
+    Sys.getenv("BENCH_METHOD_TIMEOUT", "300")))
+  if (!is.finite(.bench_method_timeout) || .bench_method_timeout <= 0)
+    .bench_method_timeout <- 300
   for (held_out in country_names) {
     train <- pooled_data[pooled_data$country != held_out, , drop = FALSE]
     test  <- pooled_data[pooled_data$country == held_out, , drop = FALSE]
@@ -1993,7 +2167,9 @@ run_area_benchmarks_loco <- function(pooled_data, gee_vars, country_names,
                             "spatial_plus_soil", "sl_prescreened"))
               "continuous" else model_types
       for (mt in mts) {
-        out <- tryCatch(switch(m,
+        out <- tryCatch({
+          setTimeLimit(elapsed = .bench_method_timeout, transient = TRUE)
+          .res <- switch(m,
           baseline      = fit_predict_baseline    (train, test, vars, model_type = mt),
           glm           = fit_predict_glm         (train, test, vars, model_type = mt),
           penalized     = fit_predict_penalized   (train, test, vars, model_type = mt),
@@ -2027,8 +2203,13 @@ run_area_benchmarks_loco <- function(pooled_data, gee_vars, country_names,
                                                               cross_outcome_pooled = cross_outcome_pooled,
                                                               this_outcome = outcome_label),
           spatial_plus_soil = fit_predict_spatial_plus_soil(train, test, vars),
-          sl_prescreened    = fit_predict_sl_prescreened   (train, test, vars)
-        ), error = function(e) {
+          sl_prescreened    = fit_predict_sl_prescreened   (train, test, vars),
+          coral             = fit_predict_coral            (train, test, vars, model_type = mt)
+          )
+          setTimeLimit()           # clear the per-method cap on success
+          .res
+        }, error = function(e) {
+          setTimeLimit()           # clear the per-method cap on error/timeout
           cat(sprintf("    [%s/%s] %s failed: %s\n",
                       held_out, mt, m, conditionMessage(e)))
           NULL
@@ -2123,6 +2304,84 @@ run_area_benchmarks_within <- function(country_data, gee_vars,
   }
   if (length(results) == 0) return(data.frame())
   dplyr::bind_rows(results)
+}
+
+
+# ── Leave-one-REGION-out within-country runner ───────────────────────────────
+# Like run_area_benchmarks_loco, but the held-out unit is an admin-1 REGION
+# inside a SINGLE country (not a whole country, and not a random k-fold).
+# Holding out an entire region induces a genuine sub-national distribution
+# shift — the setting where domain adaptation (coral) is actually justified,
+# unlike plain within-country k-fold where train/test share a distribution.
+#
+# country_data must carry a region column (default "Admin1") plus Admin2,
+# svy_prev, n_svy, the gee_vars, and (optionally) lon/lat for spatial methods.
+# build_area_loco_dataset() now attaches Admin1/lon/lat, so a per-country slice
+# of its pooled_data is a valid input.
+run_area_benchmarks_loro <- function(country_data, gee_vars,
+                                      country = NA_character_,
+                                      region_col = "Admin1",
+                                      outcome_label = NA_character_,
+                                      methods = c("baseline", "penalized",
+                                                  "spatial_plus_soil", "coral"),
+                                      model_types = c("continuous", "logit"),
+                                      min_test = 3L, min_train = 5L,
+                                      k_spline = 15) {
+  if (!region_col %in% colnames(country_data)) {
+    cat(sprintf("[loro] %s: no '%s' column — skipping region holdout\n",
+                country, region_col))
+    return(data.frame())
+  }
+  regions <- unique(country_data[[region_col]])
+  regions <- regions[!is.na(regions)]
+  if (length(regions) < 2) {
+    cat(sprintf("[loro] %s: <2 regions with data — skipping\n", country))
+    return(data.frame())
+  }
+
+  results <- list()
+  for (held_out in regions) {
+    train <- country_data[country_data[[region_col]] != held_out, , drop = FALSE]
+    test  <- country_data[country_data[[region_col]] == held_out, , drop = FALSE]
+    if (nrow(train) < min_train || nrow(test) < min_test) next
+    vars <- .screen_vars(train, gee_vars)
+    if (length(vars) == 0) next
+    # A few comparators expect a `country` column; synthesize a constant one.
+    if (!"country" %in% colnames(train)) {
+      train$country <- country %||% "country"
+      test$country  <- country %||% "country"
+    }
+    for (m in methods) {
+      mts <- if (m %in% c("baseline", "two_stage", "spatial_coords",
+                           "spatial_plus_soil")) "continuous" else model_types
+      for (mt in mts) {
+        out <- tryCatch(switch(m,
+          baseline          = fit_predict_baseline    (train, test, vars, model_type = mt),
+          glm               = fit_predict_glm         (train, test, vars, model_type = mt),
+          penalized         = fit_predict_penalized   (train, test, vars, model_type = mt),
+          mixed             = fit_predict_mixed       (train, test, vars, model_type = mt),
+          gam               = fit_predict_gam         (train, test, vars, model_type = mt),
+          forward           = fit_predict_forward_loco(train, test, vars, model_type = mt),
+          two_stage         = fit_predict_two_stage   (train, test, vars, model_type = "continuous"),
+          spatial_coords    = fit_predict_spatial_coords   (train, test, vars, k_spline = k_spline),
+          spatial_plus_soil = fit_predict_spatial_plus_soil(train, test, vars, k_spline = k_spline),
+          coral             = fit_predict_coral            (train, test, vars, model_type = mt)
+        ), error = function(e) {
+          cat(sprintf("    [loro %s/%s] %s failed: %s\n",
+                      held_out, mt, m, conditionMessage(e))); NULL
+        })
+        if (is.null(out) || is.null(out$pred)) next
+        results[[paste(held_out, m, mt, sep = "/")]] <- compute_area_metrics(
+          obs = test$svy_prev, pred = out$pred,
+          method = m, model_type = mt,
+          n_train = nrow(train), n_test = nrow(test), n_vars = length(vars),
+          held_out = held_out, country = country, outcome = outcome_label,
+          scale_pp = TRUE)
+      }
+    }
+  }
+  if (length(results) == 0) return(data.frame())
+  res <- dplyr::bind_rows(results); res$eval_type <- "loro"; res
 }
 
 

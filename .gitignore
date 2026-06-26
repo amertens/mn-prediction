@@ -16,7 +16,16 @@ _targets/
 Rplots.pdf
 *.bak
 *.log
+*.out
+*.err
+*.pid
 temp_loco*.rds
+# Quarto render intermediates
+*.knit.md
+docs/*_files/
+# targets store backups (large, machine-specific)
+_targets_fast_backup/
+_targets_full/
 # Large model / figure artifacts (exceed or approach GitHub 100MB limit).
 # Reproducible pipeline outputs — rerun targets to regenerate.
 results/sl_exploration/models/*.rds

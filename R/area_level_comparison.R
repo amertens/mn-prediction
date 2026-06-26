@@ -127,30 +127,63 @@ fit_area_sl <- function(svy_admin2, gee_admin2, outcome_type = "binomial",
                 metrics = NULL, model_type = outcome_type))
   }
 
-  # Extract predictions
+  # Full-data (in-sample) predictions. Used ONLY as the all-areas point estimate
+  # (area_pred_full); NEVER for performance metrics.
   preds <- tryCatch(as.numeric(predict(sl_fit, fit_df)), error = function(e) NULL)
   if (is.null(preds)) preds <- rep(NA_real_, nrow(fit_df))
 
-  # Back-transform if logit was used
-  if (logit_transform) {
-    preds <- plogis(preds)  # inverse logit → [0,1]
-    Y <- train_df$svy_prev  # use original Y for metrics
+  # ── Genuine out-of-fold (OOF) predictions for honest metrics ────────────────
+  # 2026-06-17 fix: mlr3superlearner's internal CV only tunes the ensemble
+  # WEIGHTS; predict(sl_fit, fit_df) returns IN-SAMPLE fits, which inflate
+  # within-country r to ~0.97 (even 1.00). We therefore refit the whole SL in an
+  # OUTER CV loop and predict each held-out fold, so loo_preds and `metrics` are
+  # genuinely out-of-sample.
+  set.seed(20260617L)
+  n_obs   <- nrow(fit_df)
+  # Outer CV for honest OOF — capped at 10 folds. LOO outer-CV would be O(n^2)
+  # SL refits (and is unnecessary); 10-fold gives honest OOF cheaply. The inner
+  # SL weight-tuning CV is also capped (5-fold) so the outer loop stays fast.
+  n_oof   <- min(10L, n_obs)
+  oof_fold <- if (n_oof >= n_obs) seq_len(n_obs)
+              else sample(rep_len(seq_len(n_oof), n_obs))
+  oof_raw <- rep(NA_real_, n_obs)
+  for (k in unique(oof_fold)) {
+    tr <- which(oof_fold != k); te <- which(oof_fold == k)
+    if (length(tr) < 3) next
+    f_k <- tryCatch(
+      mlr3superlearner::mlr3superlearner(
+        data = fit_df[tr, , drop = FALSE], target = "Y",
+        library = sl_library, outcome_type = outcome_type,
+        folds = min(5L, length(tr))),
+      error = function(e) NULL)
+    if (is.null(f_k)) next
+    p_k <- tryCatch(as.numeric(predict(f_k, fit_df[te, , drop = FALSE])),
+                    error = function(e) NULL)
+    if (!is.null(p_k) && length(p_k) == length(te)) oof_raw[te] <- p_k
   }
-  preds <- pmin(pmax(preds, 0), 1)
 
-  # LOO predictions from CV (if LOO was used)
-  loo_preds <- preds  # CV predictions are already out-of-fold
+  # Back-transform both to the [0,1] prevalence scale.
+  if (logit_transform) {
+    preds   <- plogis(preds)
+    oof_raw <- plogis(oof_raw)
+    Y <- train_df$svy_prev  # original-scale outcome for metrics
+  }
+  preds     <- pmin(pmax(preds, 0), 1)
+  oof_preds <- pmin(pmax(oof_raw, 0), 1)
 
-  # Metrics
-  valid <- !is.na(preds) & !is.na(Y)
+  # loo_preds are genuine OUT-OF-FOLD predictions (not in-sample).
+  loo_preds <- oof_preds
+
+  # Metrics computed on OOF predictions only.
+  valid <- is.finite(oof_preds) & is.finite(Y)
   metrics <- if (sum(valid) >= 3) {
     data.frame(
       model_type = outcome_type,
       n = sum(valid),
-      mae_pp = round(mean(abs(Y[valid] - preds[valid])) * 100, 2),
-      rmse_pp = round(sqrt(mean((Y[valid] - preds[valid])^2)) * 100, 2),
-      pearson_r = round(cor(Y[valid], preds[valid]), 3),
-      mean_bias_pp = round(mean(preds[valid] - Y[valid]) * 100, 2),
+      mae_pp = round(mean(abs(Y[valid] - oof_preds[valid])) * 100, 2),
+      rmse_pp = round(sqrt(mean((Y[valid] - oof_preds[valid])^2)) * 100, 2),
+      pearson_r = round(cor(Y[valid], oof_preds[valid]), 3),
+      mean_bias_pp = round(mean(oof_preds[valid] - Y[valid]) * 100, 2),
       stringsAsFactors = FALSE
     )
   } else NULL
@@ -167,10 +200,13 @@ fit_area_sl <- function(svy_admin2, gee_admin2, outcome_type = "binomial",
                 outcome_type, metrics$mae_pp, metrics$pearson_r, winner))
   }
 
-  # Build full prediction set (with Admin2 names)
+  # Build prediction set (with Admin2 names). `area_pred` is the genuine OOF
+  # prediction (so compare_admin2_approaches reports honest within-country
+  # metrics); `area_pred_full` keeps the in-sample full-data fit for reference.
   area_preds <- data.frame(
     Admin2 = train_df$Admin2,
-    area_pred = preds,
+    area_pred = oof_preds,
+    area_pred_full = preds,
     svy_prev = train_df$svy_prev,
     stringsAsFactors = FALSE
   )
@@ -260,6 +296,21 @@ build_area_loco_dataset <- function(svy_admin2_list, gee_admin2_list) {
   cat(sprintf("[area_loco] %d common GEE variables across %d countries\n",
               length(common_vars), length(gee_admin2_list)))
 
+  # Per-country Admin-2 centroid (lon/lat) lookup so spatial comparators
+  # (spatial_coords / spatial_plus_soil) have coordinates to work with. Pulled
+  # from the shared GADM cache via the same helper GWR uses; degrades
+  # gracefully (lon/lat = NA) if a code/cache is missing, in which case spatial
+  # methods simply no-op as before.
+  configs <- tryCatch(get_country_configs(), error = function(e) NULL)
+  centroids_for <- function(ctry) {
+    if (is.null(configs) || is.null(configs[[ctry]]$gadm_code)) return(NULL)
+    tryCatch(
+      sf::st_drop_geometry(
+        load_admin2_centroids(configs[[ctry]]$gadm_code)
+      )[, c("Admin2", "Admin1", "lon", "lat")],
+      error = function(e) NULL)
+  }
+
   # Pool data
   pooled <- list()
   for (ctry in names(svy_admin2_list)) {
@@ -274,6 +325,9 @@ build_area_loco_dataset <- function(svy_admin2_list, gee_admin2_list) {
     ) |>
       dplyr::filter(!is.na(svy_prev), is.finite(svy_prev)) |>
       dplyr::mutate(country = ctry)
+
+    ctr <- centroids_for(ctry)
+    if (!is.null(ctr)) merged <- dplyr::left_join(merged, ctr, by = "Admin2")
 
     pooled[[ctry]] <- merged
   }

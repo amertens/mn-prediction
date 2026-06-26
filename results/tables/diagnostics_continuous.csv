@@ -1,24 +1,24 @@
-n,rmse,mae,r2,r,prev_obs,prev_pred,prev_bias,model_type,country,outcome
-1020,0.2377,0.1836,0.0383,0.1957,0.7392,1,0.2608,continuous,Gambia,child_vitA
-1413,0.4854,0.3261,0.0258,0.1851,0.9703,1,0.0297,continuous,Gambia,women_vitA
-1013,0.8487,0.6909,-0.0293,0.0498,0.3771,0.1935,-0.1836,continuous,Gambia,child_iron
-1402,0.9138,0.7493,0.0216,0.1596,0.5485,0.6769,0.1284,continuous,Gambia,women_iron
-1165,0.3001,0.2274,0.003,0.148,0.794,1,0.206,continuous,Ghana,child_vitA
-992,0.5805,0.4333,0.0448,0.2345,0.9869,1,0.0131,continuous,Ghana,women_vitA
-1165,26.0547,19.6851,0.0577,0.2575,0.7614,1,0.2386,continuous,Ghana,child_iron
-981,34.8969,27.3354,0.0043,0.1349,0.8644,1,0.1356,continuous,Ghana,women_iron
-475,9.1317,6.8967,0.045,0.2346,0.4526,0.76,0.3074,continuous,Ghana,women_folate
-473,236.4204,184.6157,0.0871,0.2998,0.9175,1,0.0825,continuous,Ghana,women_b12
-486,0.3755,0.2712,-0.0864,-0.0294,0.8169,1,0.1831,continuous,Sierra Leone,child_vitA
-774,0.5217,0.3839,-0.0506,0.0412,0.9767,1,0.0233,continuous,Sierra Leone,women_vitA
-486,44.7995,35.6112,-0.0323,0.1271,0.9424,1,0.0576,continuous,Sierra Leone,child_iron
-766,5.0341,2.6973,0.01,0.1433,0.2063,0.1514,-0.0549,continuous,Sierra Leone,women_folate
-768,259.2614,198.6541,0.0262,0.2007,0.9961,1,0.0039,continuous,Sierra Leone,women_b12
-1102,0.2816,0.2239,-0.0147,0.1114,0.7613,1,0.2387,continuous,Malawi,child_vitA
-807,0.445,0.3425,-0.004,-0.0838,0.9789,1,0.0211,continuous,Malawi,women_vitA
-1102,22.2635,16.9661,0.0283,0.1822,0.7985,1,0.2015,continuous,Malawi,child_iron
-752,38.248,22.701,-0.0049,-0.0942,0.8258,1,0.1742,continuous,Malawi,women_iron
-799,31.917,23.4901,0.1171,0.352,1,1,0,continuous,Malawi,women_folate
-809,305.0059,206.4136,0.2327,0.5094,0.9716,0.9728,0.0012,continuous,Malawi,women_b12
-1087,23.1253,13.6861,-0.0057,-0.1013,0.3275,0,-0.3275,continuous,Malawi,child_zinc
-814,21.1594,13.116,-0.0028,-0.0713,0.2555,0,-0.2555,continuous,Malawi,women_zinc
+n,rmse,mae,r2,r,prev_obs,prev_pred,prev_pred_point,prev_bias,model_type,country,outcome
+1020,0.2376,0.1836,0.0386,0.1967,0.7392,0.7293,1,-0.0099,continuous,Gambia,child_vitA
+1413,0.4893,0.3307,0.0101,0.1614,0.9703,0.9506,1,-0.0197,continuous,Gambia,women_vitA
+1013,0.8489,0.6909,-0.0297,0.049,0.3771,0.3717,0.1935,-0.0054,continuous,Gambia,child_iron
+1402,0.9154,0.7503,0.0183,0.1533,0.5485,0.5488,0.6705,3e-4,continuous,Gambia,women_iron
+1165,0.2943,0.2206,0.0414,0.2075,0.794,0.7824,1,-0.0116,continuous,Ghana,child_vitA
+992,0.5795,0.4322,0.0481,0.2368,0.9869,0.9692,1,-0.0177,continuous,Ghana,women_vitA
+1165,26.1871,19.8275,0.0481,0.2385,0.7614,0.7812,1,0.0198,continuous,Ghana,child_iron
+981,34.7158,27.2426,0.0146,0.1534,0.8644,0.864,1,-4e-4,continuous,Ghana,women_iron
+475,9.1412,6.8977,0.043,0.2335,0.4526,0.5129,0.72,0.0603,continuous,Ghana,women_folate
+473,238.4349,186.6827,0.0714,0.2784,0.9175,0.8994,1,-0.0181,continuous,Ghana,women_b12
+486,0.3643,0.2609,-0.0224,0.0315,0.8169,0.8133,1,-0.0036,continuous,Sierra Leone,child_vitA
+774,0.5203,0.3817,-0.0449,0.0324,0.9767,0.9609,1,-0.0158,continuous,Sierra Leone,women_vitA
+486,44.8236,35.6565,-0.0334,0.1259,0.9424,0.8743,1,-0.0681,continuous,Sierra Leone,child_iron
+766,5.0416,2.6966,0.0071,0.1347,0.2063,0.2353,0.1266,0.029,continuous,Sierra Leone,women_folate
+768,258.774,198.021,0.0298,0.2086,0.9961,0.9773,1,-0.0188,continuous,Sierra Leone,women_b12
+1102,0.2801,0.2227,-0.0039,0.0983,0.7613,0.7435,1,-0.0178,continuous,Malawi,child_vitA
+807,0.4494,0.3474,-0.0236,0.0818,0.9789,0.9718,1,-0.0071,continuous,Malawi,women_vitA
+1102,22.2324,16.9898,0.031,0.1876,0.7985,0.8096,1,0.0111,continuous,Malawi,child_iron
+752,38.429,23.1308,-0.0144,0.0723,0.8258,0.8196,1,-0.0062,continuous,Malawi,women_iron
+799,13.852,10.191,0.1461,0.3835,0.7922,0.7898,1,-0.0024,continuous,Malawi,women_folate
+809,313.854,205.7524,0.1876,0.4398,0.9716,0.884,1,-0.0876,continuous,Malawi,women_b12
+1087,23.1253,13.6861,-0.0057,-0.1013,0.3275,0.3143,0,-0.0132,continuous,Malawi,child_zinc
+814,21.1594,13.116,-0.0028,-0.0713,0.2555,0.2705,0,0.015,continuous,Malawi,women_zinc

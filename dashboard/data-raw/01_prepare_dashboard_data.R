@@ -259,6 +259,21 @@ tryCatch(
 
 
 # =============================================================================
+# 1e. SL -> BYM2 SAE LAYER (full coverage, spatially-smoothed credible intervals)
+# =============================================================================
+# Feeds the area-level SuperLearner mean into a Bayesian spatial (BYM2) model so
+# every district gets a 95% credible interval that borrows strength from
+# neighbours — tighter and better-calibrated than the Fay-Herriot intervals
+# (see sandbox/sae_sl_hybrid_prototype.R). Self-contained builder; sourced in an
+# isolated environment. Requires INLA + spdep; skipped cleanly if unavailable.
+cat("\n── Building SL → BYM2 SAE map layer (all districts, spatial intervals) ──\n")
+tryCatch(
+  source(here::here("dashboard", "data-raw", "_build_bym2_layer.R"),
+         local = new.env()),
+  error = function(e) cat("  BYM2 layer build skipped:", conditionMessage(e), "\n"))
+
+
+# =============================================================================
 # 1b. TRANSPORTABILITY (leave-one-country-out) Admin-2 predictions
 # =============================================================================
 # Out-of-sample modeled prevalence for each country, produced by training the

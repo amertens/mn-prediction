@@ -47,6 +47,11 @@ build_pooled_dataset <- function(all_merged, all_configs, outcome_tag) {
       d <- d[d[[pop_col]] == oc$child_flag_val, ]
     }
 
+    # 2026-06-24 (DC-H2 #2): apply the uniform BRINDA VAD binary so the
+    # individual-level LOCO transport uses the SAME VitA definition as the
+    # area-level transport / national estimates (no-op for non-VitA).
+    d <- apply_brinda_vita_binary(d, cc, oc, "[loco]")
+
     # Require non-missing binary outcome
     bin_col <- oc$binary
     if (is.null(bin_col) || !(bin_col %in% colnames(d))) {
@@ -346,9 +351,16 @@ run_loco_cv <- function(pooled, sl_learners, params) {
       pred_prev       = mean(preds, na.rm = TRUE),
       auc             = auc_val,
       brier           = brier_val,
+      # 2026-06-23 (M4): `null_brier` is the Brier of always predicting the
+      # HELD-OUT country's own prevalence — an oracle the transported model never
+      # sees. `null_brier_train` is the honest transport null (predict the
+      # TRAINING prevalence on the held-out test); judge Brier-skill against it.
       null_brier      = mean(Y_test) * (1 - mean(Y_test)),
+      null_brier_train = mean((mean(train_data$Y_binary, na.rm = TRUE) - Y_test)^2, na.rm = TRUE),
       calib_intercept = calib[1],
       calib_slope     = calib[2],
+      calib_scale     = "logit",  # M3: logistic-scale calibration; do NOT pool with
+                                  # the identity-scale calib_slope in compute_area_metrics
       stringsAsFactors = FALSE
     )
 

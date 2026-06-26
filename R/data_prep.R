@@ -67,16 +67,25 @@ load_merged_data <- function(data_path) {
     }
 
     # ── Derive folate deficiency (Malawi) ──────────────────────────────────
-    # Malawi `fol` is serum folate in ng/mL. WHO cutoff: <3 ng/mL (deficiency).
-    # Also create nmol/L version for cross-country consistency (1 ng/mL = 2.266 nmol/L).
+    # Malawi `fol` is serum folate ALREADY IN nmol/L (median ~17.2). Verified
+    # against Qi et al. 2024 (same survey): 8.5% deficient at <7 nmol/L vs 9.3%
+    # computed here from `fol` directly. Apply the WHO serum-folate deficiency
+    # cutoff <10 nmol/L — the SAME definition Ghana and Sierra Leone use
+    # (gw_wFolate < 10 nmol/L).
+    # 2026-06-16 fixes: (a) the earlier <3 ng/mL survey definition was far
+    # stricter than WHO; (b) a `fol * 2.266` ng/mL->nmol/L conversion was ALSO
+    # wrong because `fol` is already nmol/L. Together these reported Malawi
+    # folate deficiency as ~0% (an artifact) instead of the correct ~21% at
+    # <10 nmol/L. The residual gap vs Ghana/SL (Malawi women have higher folate)
+    # is real — consistent with Malawi's 2015 folic-acid flour fortification.
     if ("fol" %in% colnames(d)) {
-      d$fol_nmol <- d$fol * 2.266  # convert ng/mL -> nmol/L
+      d$fol_nmol <- d$fol  # already nmol/L — do NOT multiply by 2.266
       if (!"folate_def" %in% colnames(d)) {
-        d$folate_def <- ifelse(d$fol < 3, 1L, 0L)
-        d$folate_def[is.na(d$fol)] <- NA_integer_
+        d$folate_def <- ifelse(d$fol_nmol < 10, 1L, 0L)
+        d$folate_def[is.na(d$fol_nmol)] <- NA_integer_
         n_def <- sum(d$folate_def == 1, na.rm = TRUE)
         n_tot <- sum(!is.na(d$folate_def))
-        cat(sprintf("  Derived folate_def from fol < 3 ng/mL: %d/%d deficient\n", n_def, n_tot))
+        cat(sprintf("  Derived folate_def from fol_nmol < 10 nmol/L (WHO): %d/%d deficient\n", n_def, n_tot))
       }
     }
 
@@ -302,6 +311,55 @@ load_dhs_admin2 <- function(dhs_dir, country, year, merge_col = "Admin2") {
 }
 
 
+#' Identify population-scaled count columns and near-duplicate MAP snapshots to drop
+#'
+#' Pure on column names (no data needed), so it is leakage-free and cheap.
+#'
+#' counts -> rates:
+#'   - MAP: drop `MAP_<snapshot>_<ind>_Count` when the population-free
+#'     `..._Rate` sibling exists (the rate IS the converted version).
+#'   - IHME: drop population-scaled counts (`*_count(s)`, `*number_of_*`). IHME
+#'     ships rate/prevalence versions of these indicators; arithmetic conversion
+#'     is avoided because the matching age/sex/year denominator is not reliably
+#'     identifiable from column names. Counts encode population size, which is
+#'     epidemiologically uninformative and degrades cross-country transfer.
+#'
+#' MAP snapshot dedup:
+#'   - `MAP_<YYYYMM>_<indicator>` families carry multiple release dates
+#'     (e.g. 2022.06 + 2024.06). Keep only the snapshot whose year is nearest the
+#'     survey year; drop the rest (they are near-collinear duplicates).
+#'
+#' @param cols character vector of (proxy) column names
+#' @param survey_year integer survey year, for snapshot selection
+#' @return character vector of column names to drop
+prune_predictor_cols <- function(cols, survey_year = NA_integer_) {
+  drop <- character(0)
+
+  # --- counts -> rates ---
+  map_cnt <- grep("^MAP_.*_Count$", cols, value = TRUE)
+  for (cc_col in map_cnt) {
+    rate <- sub("_Count$", "_Rate", cc_col)
+    if (rate %in% cols) drop <- c(drop, cc_col)
+  }
+  ihme_cnt <- grep("^ihme_.*(_counts?$|number_of_)", cols, value = TRUE, ignore.case = TRUE)
+  drop <- c(drop, ihme_cnt)
+
+  # --- MAP snapshot dedup: keep the date nearest survey_year per indicator ---
+  map <- grep("^MAP_[0-9]{6}_", cols, value = TRUE)
+  if (length(map) && !is.na(survey_year)) {
+    yr   <- as.integer(substr(sub("^MAP_", "", map), 1, 4))   # YYYY from YYYYMM
+    stem <- sub("^MAP_[0-9]{6}_", "", map)                    # indicator stem
+    for (s in unique(stem)) {
+      idx <- which(stem == s)
+      if (length(idx) < 2) next
+      keep <- idx[which.min(abs(yr[idx] - survey_year))]
+      drop <- c(drop, map[setdiff(idx, keep)])
+    }
+  }
+  unique(drop)
+}
+
+
 #' Build an outcome-specific dataset (one population x one micronutrient)
 #'
 #' Filters to the correct population, selects predictors, removes leakage
@@ -310,8 +368,14 @@ load_dhs_admin2 <- function(dhs_dir, country, year, merge_col = "Admin2") {
 #' @param merged_data The full merged dataset
 #' @param cc Country config (from get_country_configs())
 #' @param oc Outcome config (one element of cc$outcomes)
-#' @return list with components: data, Xvars_full, Xvars, domain_vars
-build_outcome_dataset <- function(merged_data, cc, oc) {
+#' @param clean_predictors Drop population-scaled count columns (keeping rate
+#'   siblings) and collapse near-duplicate MAP temporal snapshots to the one
+#'   nearest the survey year. Defaults to TRUE; disable with
+#'   FE_CLEAN_PREDICTORS=false. See prune_predictor_cols().
+#' @return list with components: data, Xvars_full, Xvars, Xvars_bundle, domain_vars
+build_outcome_dataset <- function(merged_data, cc, oc,
+                                  clean_predictors =
+                                    !identical(tolower(Sys.getenv("FE_CLEAN_PREDICTORS", "true")), "false")) {
 
   d <- merged_data
 
@@ -320,6 +384,36 @@ build_outcome_dataset <- function(merged_data, cc, oc) {
   if (!is.null(pop_col) && pop_col %in% colnames(d)) {
     d <- d[d[[pop_col]] == oc$child_flag_val, ]
   }
+
+  # 2026-06-24: Gambia biomarker outcomes — the configured `gw_svy_weight` is
+  # NA/zero across the blood (biomarker) subsample, so it mis-weights every
+  # assayed estimate. Swap in the population-specific blood-draw weight
+  # (`gw_c_blood_weight` for children, `gw_w_blood_weight` for women), which fully
+  # covers the assayed sample. d is already population-filtered here, so all rows
+  # share one population. All downstream consumers read cc$weight_col unchanged.
+  # See docs/survey_weighting_critique.md.
+  if (identical(cc$country, "Gambia") && !is.null(cc$weight_col) &&
+      cc$weight_col %in% colnames(d)) {
+    bw <- if (!is.null(oc$population) && oc$population == "children")
+            "gw_c_blood_weight" else "gw_w_blood_weight"
+    if (bw %in% colnames(d)) {
+      bw_vals <- suppressWarnings(as.numeric(d[[bw]]))
+      old <- suppressWarnings(as.numeric(d[[cc$weight_col]]))
+      n_bad <- sum(is.na(old) | old <= 0)
+      if (sum(is.finite(bw_vals) & bw_vals > 0) >= 0.9 * nrow(d)) {
+        d[[cc$weight_col]] <- bw_vals
+        cat(sprintf("  [weights] Gambia %s: using blood-subsample weight %s (replaced %d NA/zero of %d svy weights)\n",
+                    oc$tag, bw, n_bad, nrow(d)))
+      }
+    }
+  }
+
+  # 2026-06-24 (DC-H2 #1): make the uniform BRINDA-adjusted VAD the VitA binary
+  # here (no-op for non-VitA), so national + within-country + area-transport all
+  # use one definition. Done before the non-missing filter so it operates on the
+  # BRINDA binary. CRP/AGP are still present (pre keep_cols). See
+  # docs/dc_h2_brinda_validation.md.
+  d <- apply_brinda_vita_binary(d, cc, oc, "[build]")
 
   # Require non-missing outcome
   if (!is.null(oc$continuous) && oc$continuous %in% colnames(d))
@@ -378,9 +472,25 @@ build_outcome_dataset <- function(merged_data, cc, oc) {
     if (!is.null(dom$extra)) prefix_cols <- c(prefix_cols, intersect(dom$extra, all_cols))
 
     # Remove leakage columns from GW domain
-    if (nm == "GW" && !is.null(cc$gw_exclude_patterns)) {
-      leak <- Reduce("|", lapply(cc$gw_exclude_patterns,
-                                  function(p) grepl(p, prefix_cols, ignore.case = TRUE)))
+    if (nm == "GW") {
+      # (a) per-country configured patterns
+      cfg_pat <- cc$gw_exclude_patterns
+      leak <- if (!is.null(cfg_pat) && length(cfg_pat))
+        Reduce("|", lapply(cfg_pat, function(p) grepl(p, prefix_cols, ignore.case = TRUE)))
+      else rep(FALSE, length(prefix_cols))
+      # (b) hardcoded outcome-biomarker guard. 2026-06-23 fix for outcome leakage:
+      # the per-country lists missed one-"r" "FerAdj" (e.g. gw_LNwFerAdjBR1),
+      # "VitADef"/"VitAInsuff" (pattern was "VAD"), and hemoglobin. These are
+      # outcome-DERIVED biomarkers, not legitimate diet/behaviour covariates
+      # (gw_wVitASuppl, gw_wVitARichFood, gw_wIodSalt are deliberately kept).
+      guard_ci <- paste(c("FerAdj", "RBPAdj", "Retinol",
+                          "VitADef", "VitAInsuff", "VitADefic",
+                          "FeDef", "FolDef", "B12Def", "ZincDef"),
+                        collapse = "|")
+      leak <- leak |
+        grepl(guard_ci, prefix_cols, ignore.case = TRUE) |
+        grepl("Hb", prefix_cols)   # case-SENSITIVE: matches gw_wHb/gw_cHb/gw_HbCat,
+                                    # not lower-case household vars (gw_hBuy*, gw_hBirds*)
       prefix_cols <- prefix_cols[!leak]
 
       # Also exclude the outcome columns themselves
@@ -396,20 +506,50 @@ build_outcome_dataset <- function(merged_data, cc, oc) {
   Xvars_full <- unique(Xvars_all)
   Xvars_no_gw <- unique(setdiff(Xvars_all, domain_vars[["GW"]]))
 
+  # Predictor hygiene: counts->rates + dedup near-duplicate MAP snapshots.
+  if (isTRUE(clean_predictors)) {
+    drop_hy <- prune_predictor_cols(Xvars_no_gw, survey_year = cc$survey_year)
+    if (length(drop_hy) > 0) {
+      cat(sprintf("  [hygiene] dropping %d predictor cols (population-scaled counts + duplicate MAP snapshots)\n",
+                  length(drop_hy)))
+      Xvars_no_gw <- setdiff(Xvars_no_gw, drop_hy)
+      Xvars_full  <- setdiff(Xvars_full,  drop_hy)
+    }
+  }
+
+  # Outcome-specific, biology-driven bundle (proxy-only). NULL prefixes -> use
+  # the full proxy set. Always computed so callers can opt in via config
+  # (params$use_outcome_bundles); see bundle_prefixes_for_outcome() in config.R.
+  bundle_pfx <- tryCatch(bundle_prefixes_for_outcome(oc$tag), error = function(e) NULL)
+  Xvars_bundle <- if (is.null(bundle_pfx)) Xvars_no_gw else {
+    keep <- Reduce("|", lapply(bundle_pfx, function(p) startsWith(Xvars_no_gw, p)))
+    sub  <- Xvars_no_gw[keep]
+    if (length(sub) >= 2) sub else Xvars_no_gw  # guard: never empty the model
+  }
+
+  # Retain raw RBP/CRP/AGP so compute_svy_admin2() can build the uniform BRINDA
+  # VitA transport outcome (DC-H2). These go into $data only, NOT into the
+  # predictor set (Xvars_full), so they cannot leak into models. Scoped to VitA
+  # outcomes so non-VitA outcome_data hashes (and their downstream) are unchanged.
+  brinda_keep <- if (!is.null(oc$tag) && grepl("vitA", oc$tag, ignore.case = TRUE))
+    tryCatch(unlist(brinda_rbp_cols(cc$country), use.names = FALSE), error = function(e) NULL)
+  else NULL
+
   # Keep only columns we need
   keep_cols <- unique(c(
     oc$continuous, oc$binary,
     cc$cluster_id, cc$admin1_col, cc$admin2_col,
     cc$weight_col, cc$strata_col, cc$psu_col,
-    Xvars_full
+    Xvars_full, brinda_keep
   ))
   keep_cols <- intersect(keep_cols, colnames(d))
   d <- d[, keep_cols, drop = FALSE]
 
   list(
-    data        = d,
-    Xvars_full  = Xvars_full,
-    Xvars       = Xvars_no_gw,
-    domain_vars = domain_vars
+    data         = d,
+    Xvars_full   = Xvars_full,
+    Xvars        = Xvars_no_gw,
+    Xvars_bundle = Xvars_bundle,
+    domain_vars  = domain_vars
   )
 }

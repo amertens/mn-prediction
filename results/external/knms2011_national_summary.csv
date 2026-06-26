@@ -1,0 +1,28 @@
+population,outcome,prevalence_pct,biomarker_cutoff,notes,source
+preschool_6_59m,anaemia,26.3,Hb < 11.0 g/dL,WHO altitude-adjusted,KNMS 2011 Ch5
+preschool_6_59m,iron_deficiency,21.8,serum ferritin (inflammation-corrected),BRINDA Thurnham,KNMS 2011 Ch5
+preschool_6_59m,iron_deficiency_anaemia,13.3,Hb<11 AND ferritin low,joint definition,KNMS 2011 Ch5
+preschool_6_59m,vitamin_a_deficiency,9.2,RBP < 0.70 µmol/L (inflammation-corrected),Thurnham,KNMS 2011 Ch6
+preschool_6_59m,vitamin_a_marginal,52.6,RBP 0.70-1.05 µmol/L,marginal VAD,KNMS 2011 Ch6
+preschool_6_59m,zinc_deficiency,83.3,serum zinc < age/sex IZiNCG cutoff,non-fasting morning,KNMS 2011 Ch8
+school_age_5_14y,vitamin_a_deficiency,3.6,RBP < 0.70 µmol/L,inflammation-corrected,KNMS 2011 Ch6
+school_age_5_14y,vitamin_a_marginal,33.9,RBP 0.70-1.05 µmol/L,marginal VAD,KNMS 2011 Ch6
+school_age_5_14y,iodine_deficiency,22.1,UIC < 100 µg/L,median UIC criterion,KNMS 2011 Ch7
+school_age_5_14y,zinc_deficiency,80.2,serum zinc < cutoff,IZiNCG,KNMS 2011 Ch8
+non_pregnant_women_15_49y,vitamin_a_deficiency,1.1,RBP < 0.70 µmol/L,inflammation-corrected,KNMS 2011 Ch6
+non_pregnant_women_15_49y,iodine_deficiency,25.6,UIC < 100 µg/L,median UIC,KNMS 2011 Ch7
+non_pregnant_women_15_49y,zinc_deficiency,82.3,serum zinc < cutoff,IZiNCG,KNMS 2011 Ch8
+non_pregnant_women_15_49y,folate_deficiency,30.9,serum folate,survey-reported,KNMS 2011 Ch9
+non_pregnant_women_15_49y,b12_deficiency,34.7,serum B12,survey-reported,KNMS 2011 Ch9
+pregnant_women,anaemia,41.6,Hb < 11.0 g/dL,WHO altitude-adjusted,KNMS 2011 Ch5
+pregnant_women,iron_deficiency,36.1,serum ferritin (inflammation-corrected),BRINDA,KNMS 2011 Ch5
+pregnant_women,iron_deficiency_anaemia,26.0,Hb<11 AND low ferritin,joint definition,KNMS 2011 Ch5
+pregnant_women,vitamin_a_deficiency,5.4,RBP < 0.70 µmol/L,inflammation-corrected,KNMS 2011 Ch6
+pregnant_women,zinc_deficiency,68.3,serum zinc < cutoff,IZiNCG,KNMS 2011 Ch8
+pregnant_women,folate_deficiency,32.1,serum folate,survey-reported,KNMS 2011 Ch9
+pregnant_women,b12_deficiency,7.7,serum B12,survey-reported,KNMS 2011 Ch9
+men_15_54y,anaemia,9.3,Hb < 13.0 g/dL,WHO men cutoff,KNMS 2011 Ch5
+men_15_54y,iron_deficiency,3.6,serum ferritin (inflammation-corrected),BRINDA,KNMS 2011 Ch5
+men_15_54y,zinc_deficiency,74.8,serum zinc < cutoff,IZiNCG,KNMS 2011 Ch8
+combined_national,vitamin_a_deficiency,4.1,RBP < 0.70 µmol/L,pooled across populations,KNMS 2011 Ch6
+combined_national,vitamin_a_marginal,24.4,RBP 0.70-1.05 µmol/L,pooled across populations,KNMS 2011 Ch6

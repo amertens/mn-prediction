@@ -1,0 +1,465 @@
+---
+title: "Supplementary Appendix: Subnational micronutrient deficiency prediction in sub-Saharan Africa from proxy indicators"
+shorttitle: "Supplementary Appendix"
+author:
+  - name: Andrew N. Mertens
+    affiliation: University of California, Davis, Institute for Global Nutrition
+date: today
+format:
+  docx:
+    number-sections: true
+    toc: true
+    toc-depth: 3
+    fig-cap-location: bottom
+    tbl-cap-location: top
+execute:
+  echo: false
+  warning: false
+  message: false
+bibliography: references.bib
+---
+
+```{r setup}
+suppressPackageStartupMessages({
+  library(dplyr); library(knitr); library(here); library(readr)
+})
+```
+
+This appendix documents, in full, the methods summarised at a high level in the
+main text. It covers the data sources, the data cleaning and linkage pipeline,
+the harmonisation of outcome definitions across surveys, the modelling methods,
+the procedures used to assess predictive accuracy, and the sensitivity analyses.
+It reflects the analysis as currently implemented in the project's reproducible
+`targets` pipeline. The most granular file-by-file data lineage (exact source
+filenames, fuzzy-match thresholds, and per-domain missingness rates) is
+maintained alongside this appendix in `docs/data_sources_appendix.qmd`, which
+this document summarises and extends.
+
+# S1. Data sources
+
+## S1.1 Biomarker (outcome) surveys
+
+Outcomes come from four nationally representative micronutrient or
+micronutrient-containing biomarker surveys, one per country, each conducted in a
+different year and with a partly different biomarker panel:
+
+- The Gambia, 2018 (Gambia National Micronutrient Survey).
+- Ghana, 2017 (Ghana Micronutrient Survey).
+- Sierra Leone, 2013 (Sierra Leone Micronutrient Survey).
+- Malawi, 2015 to 2016 (Malawi Micronutrient Survey).
+
+Within each survey, biomarkers were extracted for women of reproductive age (15
+to 49 years) and for children 6 to 59 months, where measured. One to two surveys
+additionally measured adult men. Each survey is nationally representative but
+modest in size (roughly 1,000 to 1,400 individuals per outcome), is georeferenced
+at the survey-cluster (primary sampling unit) level, and carries survey design
+information (sampling weights, primary sampling units, and strata).
+
+Iron is measured by serum ferritin in all four countries. Vitamin A is measured
+by retinol-binding protein (a proxy for serum retinol). Vitamin B12, folate, and
+zinc are measured by their serum concentrations and are available in a subset of
+countries. The cross-country comparability of these biomarkers is itself debated
+in the nutrition field, which is one motivation for treating absolute prevalence
+levels with caution and emphasising within-country spatial ranking.
+
+## S1.2 Predictor domains
+
+Predictors are drawn from eleven data-source domains. With one exception (the
+survey biomarker matrix, which is excluded from the deployable models) all are
+publicly available or accessible through common interfaces, so the resulting
+models can be applied where no biomarker survey exists.
+
+1. **Survey biomarker matrix (`gw_` prefix).** The original survey items,
+   including the biomarkers themselves and survey-derived dietary and household
+   items. These are **excluded** from the primary (proxy-only) models so that
+   predictions do not depend on having run a biomarker survey. They are retained
+   only for the benchmark models that deliberately use full survey information.
+2. **DHS (`dhs<year>_`).** Demographic and Health Survey indicators aggregated to
+   the administrative unit (mother's education, household assets, water and
+   sanitation, child health and nutrition, malaria interventions). Each indicator
+   is stamped with the DHS round year, so the column names differ by country and
+   the DHS indicators do not share names across countries.
+3. **MICS (`mics_`).** Multiple Indicator Cluster Survey aggregates, where
+   available, providing additional household and child indicators.
+4. **IHME GBD geospatial estimates (`ihme_`).** Modelled estimates of related
+   conditions (for example stunting, wasting, diarrhoeal disease, anaemia,
+   under-five mortality), aggregated to admin-1 and admin-2.
+5. **LSMS (`lsms_`).** World Bank Living Standards Measurement Study aggregates;
+   wired for Ghana only.
+6. **Malaria Atlas Project (`MAP_`).** Rasters of malaria epidemiology
+   (*P. falciparum* and *P. vivax* incidence, parasite rate, mortality, and the
+   *Pf* reproductive number), malaria interventions (insecticide-treated-net
+   access and use, indoor residual spraying, effective antimalarial treatment),
+   and inherited blood disorders (HbS, HbC, G6PD deficiency, Duffy negativity)
+   that confound ferritin-based iron assessment.
+7. **Google Earth Engine rasters (`gee_`).** Two complementary extractions:
+   (a) cluster-buffer summaries, in which each survey cluster's GPS point is
+   buffered at 10, 25, and 50 km and raster families are summarised within each
+   buffer (monthly precipitation, vegetation index, and land-surface temperature;
+   plus single-value population density, built-up surface, settlement model,
+   global human modification, and grassland fraction); and (b) admin-2 polygon
+   zonal means for the full set of rasters, including soil chemistry, climate,
+   vegetation and agriculture, settlement and human modification, accessibility,
+   demography, land cover, and livestock layers.
+8. **WFP food prices (`wfp_`).** Market food-price series.
+9. **FluNet (`flunet_`).** Influenza surveillance indicators.
+10. **Food security (`fsec_`).** Household food-insecurity indicators (HungerMap /
+    HFID) and IPC / Cadre Harmonisé food-security phase classifications.
+11. **SoilGrids / ISRIC (`soil_`, and `gee_a2_Soil*`).** Remotely sensed soil
+    micronutrient and chemistry layers (zinc, iron, calcium, magnesium,
+    phosphorus, potassium, sulphur, nitrogen, total carbon, cation exchange
+    capacity, aluminium).
+
+Two predictor sets are assembled from these domains. The **individual-level set**
+is roughly 200 harmonised socio-demographic and household proxy indicators shared
+across the four DHS surveys. The **area-level set** is over 2,500
+earth-observation aggregates at the admin-2 polygon level; for cross-country
+analyses this is restricted to the 152 variables present in at least three
+countries' extracts (the common-vocabulary set). Exact per-domain and per-country
+counts are tabulated in `docs/data_sources_appendix.qmd`.
+
+# S2. Data cleaning and pipeline architecture
+
+Cleaning and assembly run in two stages. **Stage 1** is a set of per-country
+cleaning scripts that read each raw survey and each external source, standardise
+variable names and types, derive the inflammation-adjusted biomarkers and binary
+deficiency flags, and write a per-country merged analytic table. **Stage 2** is
+the reproducible `targets` pipeline that reads those merged tables and runs all
+modelling, evaluation, and reporting.
+
+Key cleaning conventions:
+
+- **Outcome-leakage exclusion.** All `gw_` survey items are removed from the
+  proxy-only predictor pool by prefix matching, so no biomarker-survey
+  information enters the deployable models.
+- **High-cardinality categoricals** are dropped or collapsed to avoid
+  overfitting on identifiers.
+- **Geometry and raw temporal columns** are removed from the analytic feature
+  matrix after they have been used for linkage and temporal alignment.
+- **Missing data** are retained as `NA` in the merged table; imputation is done
+  downstream inside model fitting (and, in the corrected methods, strictly within
+  each training fold; see S6).
+
+The final analytic object for each country is a single individual-level table
+(`data/IPD/<Country>/<Country>_merged_dataset.rds`) carrying the outcomes, the
+survey design columns, and all predictor domains.
+
+# S3. Geographic and temporal harmonisation, and record linkage
+
+## S3.1 Geographic units and cluster-to-area assignment
+
+Administrative polygons are taken from GADM (admin-1 region/province and admin-2
+district; admin-3 chiefdom for Sierra Leone, used in a resolution sensitivity
+analysis). Each survey cluster is assigned to its admin-1 and admin-2 polygon by
+point-in-polygon location of the cluster GPS coordinate.
+
+## S3.2 Linkage of predictors to outcomes
+
+Predictors are linked at the finest feasible resolution:
+
+- **Cluster-level linkage.** Earth-observation cluster-buffer summaries and
+  Malaria Atlas rasters are extracted at each cluster's GPS point (buffer means
+  for GEE; bilinear interpolation for MAP) and joined on cluster identifier.
+  These predictors are therefore constant within a cluster.
+- **Area-level linkage.** Sources that are only available as area aggregates
+  (DHS, MICS, IHME, LSMS, food security, and the GEE admin-2 zonal means) are
+  joined to the survey by administrative unit. Because survey and external admin
+  names are spelled inconsistently, names are matched with fuzzy string matching
+  (Jaro-Winkler at admin-1, string-distance methods at admin-2, with conservative
+  thresholds); unmatched units are left missing rather than guessed. Every
+  survey-to-area join is keyed on the pair (country, admin-2), never on admin-2
+  name alone, to prevent cross-country mismatches.
+
+## S3.3 Temporal alignment
+
+For sources with multiple time points, the version closest to each country's
+survey fieldwork year is selected. Climate variables use the survey year
+directly; slowly changing layers (for example soil properties) use the most
+recent global version. Multi-band rasters whose bands are temporal subdivisions
+of a year are collapsed to the survey-year annual mean.
+
+# S4. Outcome definitions and harmonisation
+
+Each continuous biomarker is converted to a binary deficiency indicator using a
+WHO or BRINDA-recommended threshold. Definitions, and the inflammation
+adjustment that precedes them, vary across surveys; harmonising them is a
+central data-preparation step.
+
+## S4.1 Deficiency thresholds (binary outcomes)
+
+- **Vitamin A** (women and children): retinol-binding protein below 0.70 µmol/L.
+- **Iron** (ferritin): serum ferritin below 15 µg/L in women and below 12 µg/L
+  in children. The Gambia outcome is defined on the log-ferritin scale at the
+  equivalent cut-points (log 15 and log 12); Ghana uses Thurnham-adjusted
+  ferritin on the linear scale; Sierra Leone and Malawi use the standard
+  ferritin cut-points.
+- **Folate** (women): serum folate below 10 nmol/L. Malawi's native rule (below
+  3 ng/mL) is otherwise non-comparable, so folate is harmonised to the common
+  serum cut-point for cross-country analysis.
+- **Vitamin B12** (women): serum B12 below 148 pmol/L.
+- **Zinc** (women and children, Malawi only): serum zinc below the WHO
+  age/sex/fasting-specific cut-point.
+
+Public-health severity tiers (low / mild / moderate / severe), used for the
+map's WHO classification, are separate from these individual cut-points and
+follow the standard prevalence bands (for example, for iron, prevalence
+thresholds at 5%, 20%, and 40%; for vitamin A, at 2%, 10%, and 20%).
+
+## S4.2 Inflammation adjustment
+
+Ferritin (and, to a lesser extent, retinol-binding protein) rises with acute and
+chronic inflammation, so unadjusted values understate iron deficiency in
+high-infection settings. Where the acute-phase proteins C-reactive protein and
+alpha-1-acid glycoprotein were measured, ferritin is corrected using the BRINDA
+regression approach (or the Thurnham correction-factor approach, depending on
+the country's original processing) before the deficiency cut-point is applied.
+Country-specific details of which adjustment was applied to which biomarker are
+documented in `docs/data_sources_appendix.qmd`. A practical consequence is that
+the iron-deficiency definition is not perfectly identical across countries, which
+contributes to the between-country differences in absolute prevalence and is one
+reason transport of absolute levels is unreliable.
+
+# S5. Modelling methods
+
+## S5.1 Estimation strategies compared
+
+Table S1 lists every estimation strategy, its loss function, and its
+implementation. The strategies fall into the area-level small-area-estimation
+family (the primary analysis) and the individual-level SuperLearner aggregated to
+admin-2 (a sensitivity analysis), plus frequentist, Bayesian, and
+transportability-aware comparators.
+
+```{r tbl-s1}
+#| tbl-cap: "Table S1. Estimation strategies compared, with loss functions and implementations."
+data.frame(
+  Strategy = c("Individual SuperLearner (aggregated to admin-2)",
+               "Area-level SuperLearner", "OLS / elastic-net",
+               "Fay–Herriot", "BYM2 (INLA)",
+               "Mixed model (random country intercept)",
+               "Two-stage (country mean + within-country deviation)",
+               "Forward selection with LOCO-CV criterion",
+               "GAM (thin-plate spatial spline)",
+               "Group-lasso by data source",
+               "Stacked LOCO ensemble",
+               "Quasi-binomial logit GLM",
+               "Quantile (median) regression",
+               "Beta regression",
+               "Causal DAG-based variable selection"),
+  Loss = c("NLL (binary) / MSE (continuous)",
+           "MSE on prevalence (and NLL variant)",
+           "MSE (weighted by survey n)",
+           "Gaussian likelihood + sampling variance",
+           "Binomial / Gaussian (survey-n weighted)",
+           "REML, weights = survey n",
+           "MSE stage 1; weighted MSE stage 2",
+           "MSE, weights = survey n",
+           "REML, weights = survey n",
+           "Grouped L2, weights = survey n",
+           "Inherits from base methods",
+           "Quasi-binomial deviance, weights = survey n",
+           "L1 (median), weights = survey n",
+           "Beta likelihood (mean + precision)",
+           "MSE on DAG adjustment set"),
+  Implementation = c("mlr3superlearner (6 learners), survey-weighted aggregation",
+                     "mlr3superlearner on admin-2 aggregates",
+                     "lm / cv.glmnet",
+                     "sae::eblupFH (REML)",
+                     "R-INLA, PC priors (Riebler 2016)",
+                     "lme4::lmer",
+                     "OLS country means; cv.glmnet on residuals",
+                     "stepwise add, LOCO-r screen, max 6 vars",
+                     "mgcv::gam, thin-plate spline on centroids, k = 4",
+                     "gglasso, groups by data-source prefix",
+                     "NNLS stack over base methods, country-disjoint CV",
+                     "glm(quasibinomial, logit)",
+                     "quantreg::rq at tau = 0.5",
+                     "betareg (logit link)",
+                     "dagitty adjustment sets, then OLS")
+) %>% kable(booktabs = TRUE)
+```
+
+## S5.2 Individual-level SuperLearner
+
+The individual-level SuperLearner combines six base learners: a mean (intercept)
+learner, penalised generalised linear models (lasso, ridge, and elastic-net via
+glmnet), a ranger random forest, gradient-boosted trees (XGBoost, depth 4,
+learning rate 0.05, subsample 0.8), and dropout BART. For binary outcomes with
+prevalence below 15%, class-weighted XGBoost and ranger learners are added to
+counter class imbalance. Cross-validation folds are formed at the survey-cluster
+(primary sampling unit) level so that individuals in the same cluster are never
+split across folds. To produce an admin-2 map, person-level predictions are
+averaged within each district using survey weights.
+
+## S5.3 Area-level SuperLearner
+
+The area-level SuperLearner repeats the ensemble fit with the admin-2 polygon as
+the unit of analysis: one row per district, the target being survey-weighted
+district prevalence and the predictors being the polygon-aggregated covariates.
+Both a mean-squared-error loss and an approximate negative-log-likelihood loss
+were evaluated. Because the covariates are resolved at the district level, the
+effective sample size for this fit is the number of polygons (14 to 87 per
+country), which is the source of the area-level overfitting reported in the main
+text.
+
+## S5.4 Frequentist baselines
+
+Ordinary least squares using up to eight top-correlated covariates (capped to
+avoid rank deficiency on small training sets) and a 10-fold cross-validated
+elastic-net (alpha 0.5, with a ridge fallback for very small samples). Each was
+evaluated on both the raw prevalence scale and the logit scale with
+back-transformation. A country-mean predictor is included as a floor.
+
+## S5.5 Bayesian small-area models
+
+The Fay–Herriot area-level model uses auxiliary covariates and known
+sampling variances derived from survey-weighted prevalence and effective sample
+size. The BYM2 model is a Besag–York–Mollié disease-mapping model with
+penalised-complexity priors, fit by integrated nested Laplace approximation.
+Admin-2 adjacency is built from GADM polygons by Queen's contiguity; for
+leave-one-country-out evaluation the adjacency graph is block-diagonal across
+training countries (no edges to the held-out country), and held-out districts
+receive predictions from the covariate (fixed-effect) component only.
+
+## S5.6 Transportability-aware comparators
+
+Several comparators target cross-country transport directly: a country
+random-intercept mixed model whose held-out predictions use the marginal mean
+(random effect set to zero, so transport depends only on covariate slopes); a
+two-stage model that predicts a country-level mean from country-aggregated
+covariates and adds a within-country deviation from centred area covariates; a
+forward variable-selection model that chooses variables to maximise the average
+correlation across leave-one-training-country-out splits; a thin-plate spatial
+GAM on polygon centroids; a group-lasso that selects whole data-source domains;
+and a stacked ensemble whose non-negative weights are estimated on
+country-disjoint folds so the stack does not overfit within-training-country
+structure.
+
+## S5.7 Post-hoc calibration, feature augmentation, and intervals
+
+Binary classifier probabilities were recalibrated with Platt logistic
+recalibration; in the corrected analysis of record this is done out-of-fold
+(S6). Outcome-aware feature augmentation added a small number of
+biologically motivated interaction terms before transport fitting (for example
+bed-net coverage by cereal share for iron, vegetation by livelihood density for
+vitamin A, soil zinc by staple-crop yield for zinc, livestock density by
+accessibility for B12 and folate); each interaction passed through the same
+screening as the base covariates. Uncertainty on the transport correlation point
+estimates was characterised by resampling admin-2 polygons within each held-out
+country with replacement (500 bootstrap replicates).
+
+# S6. The corrected (P1–P8) methods: the analysis of record
+
+Initial benchmarking showed that an analysis at this scale can overstate its own
+performance through subtle leakage and optimistic evaluation. The corrected
+methods below address eight such issues and are the analysis of record; the
+original pipeline outputs are retained as a sensitivity comparison. They are
+implemented in `R/corrected/` within the single `targets` pipeline and consume
+the same per-slice data the main pipeline builds.
+
+- **P1. Leakage-free fitting and honest cross-validation.** All preprocessing
+  (screening, correlation filtering, standardisation, imputation) is performed
+  inside each training fold only. Folds are formed by survey cluster and,
+  separately, by spatial region, so spatially autocorrelated information cannot
+  leak from held-out areas. An optimistic scheme (random folds with full-data
+  preprocessing) is fit alongside purely for comparison, which quantifies the
+  optimism of the original design.
+- **P2. Out-of-fold calibration.** Platt recalibration parameters are estimated
+  on training folds and applied to held-out folds, rather than fit in-sample. The
+  in-sample calibration (slope forced toward 1) is reported only as the
+  optimistic reference.
+- **P3. Decision-value targeting.** Predictions are scored on the operational
+  task of ranking districts: the share of true burden captured by the top 20% of
+  districts ranked by predicted prevalence (reach), the lift of that reach over
+  untargeted allocation, and the hit-rate of the predicted top-20% against the
+  true top-20%.
+- **P4. Honest prediction intervals.** Each district receives a split-conformal
+  prediction interval (calibration residuals from a held-out half), with the
+  finite-sample correction clamped so the conformal level is valid for small
+  calibration sets, plus a design-based survey interval where available.
+  Empirical held-out coverage is reported against the nominal level.
+- **P5. Sampling-error-aware error.** District-level prediction error is
+  decomposed into a survey-sampling component (what survey noise alone would
+  produce) and a model component, so the honest model error (sampling-adjusted
+  RMSE) is separated from irreducible survey noise.
+- **P6. Out-of-support trust flags.** Each district is flagged on three criteria:
+  whether its covariates fall outside the range spanned by the surveyed
+  (training) districts (out-of-support distance), small survey sample, and a wide
+  prediction interval. The combined OK-to-use versus do-not-rely label drives the
+  dashboard's certainty layer.
+- **P7. Partial-pooling small-area estimator.** An empirical-Bayes estimator
+  shrinks each district's direct survey estimate toward the covariate-model
+  prediction in proportion to its sampling uncertainty, giving stable estimates
+  for sparsely sampled districts.
+- **P8. Join and centring bug fixes (by construction).** Every survey-to-area
+  join is keyed on (country, admin-2); all standardisation uses training
+  statistics only; and out-of-sample imputation uses training medians, never the
+  target rows' own values.
+
+# S7. Assessment of predictive accuracy
+
+Two questions are evaluated. **Within-country** accuracy is estimated by 5-fold
+cross-validation on each country's admin-2 set (or by the honest cluster- and
+spatial-block schemes of S6), with all metrics computed on the union of
+out-of-fold predictions, never in-sample. **Cross-country transportability** is
+assessed by leave-one-country-out holdout: the model is trained on three
+countries' districts and evaluated on the fourth, which contributed no data.
+
+Metrics. For the area-level prevalence task: Pearson and Spearman correlation
+between predicted and observed district prevalence (spatial ranking), mean
+absolute error and root-mean-squared error in percentage points (absolute
+accuracy), mean bias in percentage points, and the calibration slope from a
+regression of observed on predicted prevalence. For binary classifiers: area
+under the ROC curve, Brier score and Brier skill score, expected and maximum
+calibration error, and the calibration intercept and slope. The corrected
+analysis adds the sampling-adjusted RMSE (S6 P5), split-conformal interval
+coverage (P4), and the decision-value measures (P3). National prevalence
+estimates are compared against survey-weighted national values.
+
+A central methodological point is that honest, out-of-fold evaluation is
+materially less flattering than in-sample or random-fold evaluation, and that
+within-country accuracy is a poor guide to cross-country transportability.
+
+# S8. Sensitivity analyses
+
+The following analyses test the robustness of the main findings and are reported
+as sensitivity analyses rather than headline results:
+
+- **Individual-level versus area-level fitting.** The individual-level
+  SuperLearner aggregated to admin-2 is compared against the area-level fit; the
+  comparison motivates treating the area-level SAE as primary.
+- **Loss function and scale.** Area models were evaluated under both
+  mean-squared-error and negative-log-likelihood losses, and on both the raw and
+  logit prevalence scales.
+- **Outcome-definition harmonisation.** Folate transport was assessed before and
+  after harmonising Malawi's native cut-point to the common serum definition.
+- **Finer spatial resolution.** Sierra Leone was re-analysed at admin-3
+  (chiefdom) resolution to show that its anti-predictive admin-2 transport
+  estimates are largely a small-sample artefact (14 districts).
+- **Raw versus recalibrated classifiers.** Binary calibration diagnostics are
+  reported both raw and after out-of-fold Platt recalibration.
+- **Corrected versus production pipeline.** The full corrected-versus-original
+  comparison (CV honesty, calibration, admin-2 error, intervals, decision value,
+  trust, partial pooling) is the basis for adopting the corrected methods as the
+  analysis of record.
+- **Predictor-set restrictions.** A remote-sensing-only (GEE-only) transport
+  analysis, and a parsimonious model using a small set of soil-micronutrient
+  features plus a spatial term, test which signal transports.
+- **All-methods comparison on a representative outcome.** Every method and
+  SuperLearner library variant was run on child iron deficiency, the
+  best-transporting outcome, under both within-country and transport evaluation.
+
+# S9. Reproducibility
+
+The entire analysis is a single dependency-aware `targets` pipeline
+(`_targets.R`) that builds the data tables, fits every model, runs the corrected
+(P1–P8) methods, computes all metrics, and writes the result tables consumed by
+the manuscript and the dashboard. Stage 1 cleaning scripts regenerate the merged
+per-country analytic tables from the raw sources. The corrected methods write
+their canonical outputs to `results/tables/corrected/`. Pipeline definitions and
+code are available in the project repository; the deepest data lineage is in
+`docs/data_sources_appendix.qmd`.
+
+# References
+
+::: {#refs}
+:::

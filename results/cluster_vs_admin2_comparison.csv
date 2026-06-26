@@ -1,0 +1,13 @@
+"country","outcome","n_admin2","r_admin2","mae_admin2","n_cluster","r_cluster","mae_cluster"
+"Gambia","child_vitA",30,0.407,9.71,70,0.413,12.67
+"Gambia","women_vitA",30,0.421,3.62,70,0.189,3.54
+"Gambia","child_iron",30,0.394,12.1,70,0.291,13.31
+"Gambia","women_iron",30,0.646,10.14,70,0.472,11.66
+"Ghana","child_vitA",75,0.266,10.88,90,0.297,11.49
+"Ghana","women_vitA",75,-0.136,2.42,90,-0.072,2.39
+"Ghana","child_iron",75,0.612,11.38,90,0.571,12.3
+"Ghana","women_iron",75,0.388,8.79,90,0.285,9.82
+"SierraLeone","child_vitA",14,-0.514,7.24,NA,NA,NA
+"SierraLeone","women_vitA",14,-0.219,1.62,NA,NA,NA
+"SierraLeone","child_iron",14,-0.467,4.24,60,0.203,6.26
+"SierraLeone","women_iron",14,0.122,4.99,60,0.023,11.97
