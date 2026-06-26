@@ -564,10 +564,10 @@ polygons (separately per country) and leave-one-country-out
 transportability across the four-country pool (@fig-all-methods-iron).
 
 ```{r fig-all-methods-iron}
-#| fig-cap: "Supplementary all-methods comparison for child iron deficiency. (a) Within-country 5-fold cross-validation Pearson r per method, with one dot per country and X-marks denoting the mean across the four countries. (b) Leave-one-country-out transportability Pearson r per method, with one dot per held-out country. Methods are ordered by mean LOCO r. The supplementary figure source data are in sandbox/results/22_all_methods_child_iron.csv."
+#| fig-cap: "Supplementary all-methods comparison for child iron deficiency. (a) Within-country 5-fold cross-validation Pearson r per method, with one dot per country and X-marks denoting the mean across the four countries. (b) Leave-one-country-out transportability Pearson r per method, with one dot per held-out country. Methods are ordered by mean LOCO r. The supplementary figure source data are in results/tables/all_methods_child_iron.csv."
 #| fig-width: 11
 #| fig-height: 6
-fig_path <- here::here("sandbox","results","22_all_methods_child_iron.png")
+fig_path <- here::here("results","figures","all_methods_child_iron.png")
 if (file.exists(fig_path)) knitr::include_graphics(fig_path)
 ```
 
@@ -582,9 +582,10 @@ prescreened SuperLearner (0.17) outperforming the linear methods, while
 spatial-only and spatial + soil predict best on the two countries with
 enough admin-2 polygons (Ghana and Malawi) but are unstable on the
 small (n = 14) Sierra Leone CV split. The conclusion is consistent
-across outcomes (see Methods §Estimation strategies and the sandbox
-findings log): non-linear ensembles help within-country, parsimonious
-linear models with soil micronutrient features help out-of-country.
+across outcomes (see Methods §Estimation strategies and the exploratory
+findings logs, `docs/exploratory_loco_findings.md`): non-linear ensembles help
+within-country, parsimonious linear models with soil micronutrient features
+help out-of-country.
 
 ## Calibration and reliability of binary classifiers
 

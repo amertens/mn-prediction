@@ -93,4 +93,4 @@ To rebuild/extend the datasets from the pipeline, run
 - **Sequential transport caveat:** when conditioning one outcome on another for
   *cross-country* prediction, feed the cross-validated *prediction* of the
   upstream outcome, not its observed value (which is unavailable in a target
-  country) — see [`../docs/ANDY_KIM_PROJECT_PLAN.md`](../docs/ANDY_KIM_PROJECT_PLAN.md).
+  country) — see [`ANDY_KIM_PROJECT_PLAN.md`](ANDY_KIM_PROJECT_PLAN.md).

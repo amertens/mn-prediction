@@ -2,9 +2,10 @@
 
 **Date:** 2026-06-15
 **Companion to:** `docs/pipeline_improvements_todo.qmd` (items here are written to fold into that roadmap)
-**Evidence base:** sandbox investigation in `sandbox_fe/` — see `sandbox_fe/FINDINGS.md` (preprocessing & feature
-engineering) and `sandbox_fe/SAE_FINDINGS.md` (area-level modelling), with figures `FE_summary.png`,
-`FE_confirmation.png`, `FE_sae.png` and raw outputs `sandbox_fe/results_*.csv`.
+**Evidence base:** the (now retired) `sandbox_fe/` investigation — findings preserved in
+`docs/exploratory_fe_findings.md` (preprocessing & feature engineering) and
+`docs/exploratory_fe_sae_findings.md` (area-level modelling). The analysis scripts are archived
+under `archive/sandbox_fe/` (same filenames); see `docs/EXPLORATORY_ANALYSES.md` for the index.
 
 This note records every idea generated while exploring how to preprocess the proxy predictors and frame the
 prediction task, with enough evidence and context to act on each one. It is deliberately exhaustive; the

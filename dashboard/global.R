@@ -38,7 +38,7 @@ admin2_fh_pred <- {
 
 # Full-coverage SL -> BYM2 layer (every district) WITH spatially-smoothed 95%
 # credible intervals. Tighter, better-calibrated intervals than the Fay-Herriot
-# layer (see sandbox/sae_sl_hybrid_prototype.R). NULL if not built.
+# layer (see archive/sandbox/sae_sl_hybrid_prototype.R). NULL if not built.
 admin2_bym2_pred <- {
   .p <- file.path(DATA_DIR, "admin2_bym2_predictions.rds")
   if (file.exists(.p)) readRDS(.p) else NULL

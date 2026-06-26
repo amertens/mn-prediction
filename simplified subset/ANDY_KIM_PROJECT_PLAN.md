@@ -1,19 +1,19 @@
 # Andy Kim: starter project on the simplified subset
 
 A sequenced plan to apply the ideas from the Mertens, Hubbard, and Kim meeting to
-the demo dataset in [`../simplified subset/`](../simplified%20subset/). It is
-written so you can start without learning the full project pipeline. Each task
-connects to your existing work on sensitivity-constrained estimation, quintile
-(ranking) targeting, and parsimonious DHS proxies.
+the demo dataset in this folder. It is written so you can start without learning
+the full project pipeline. Each task connects to your existing work on
+sensitivity-constrained estimation, quintile (ranking) targeting, and
+parsimonious DHS proxies.
 
 ## The dataset
 
-The folder holds every micronutrient-deficiency outcome for the four study
+This folder holds every micronutrient-deficiency outcome for the four study
 countries (Gambia, Ghana, Sierra Leone, Malawi), aggregated to three geographic
 levels and stored in wide format (one row per area, with a small block of
 columns for each outcome plus a shared set of 16 predictors). See
-[`../simplified subset/README.md`](../simplified%20subset/README.md) and the
-column-by-column [`data_dictionary.csv`](../simplified%20subset/data_dictionary.csv).
+[`README.md`](README.md) and the
+column-by-column [`data_dictionary.csv`](data_dictionary.csv).
 
 | File | Geographic level | Rows |
 |---|---|---|

@@ -264,7 +264,7 @@ tryCatch(
 # Feeds the area-level SuperLearner mean into a Bayesian spatial (BYM2) model so
 # every district gets a 95% credible interval that borrows strength from
 # neighbours — tighter and better-calibrated than the Fay-Herriot intervals
-# (see sandbox/sae_sl_hybrid_prototype.R). Self-contained builder; sourced in an
+# (see archive/sandbox/sae_sl_hybrid_prototype.R). Self-contained builder; sourced in an
 # isolated environment. Requires INLA + spdep; skipped cleanly if unavailable.
 cat("\n── Building SL → BYM2 SAE map layer (all districts, spatial intervals) ──\n")
 tryCatch(

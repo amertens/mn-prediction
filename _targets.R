@@ -846,7 +846,7 @@ if (length(all_country_configs) >= 2) {
   sl_outcomes <- c(bench_outcomes, "women_b12", "women_folate")
   # Hardcode known country-availability: women_b12 / women_folate are absent
   # from Gambia. Other outcomes are 4-country. Determined from the targets
-  # manifest at session start (sandbox/00_setup.R load_pooled() also handles
+  # manifest at session start (archive/sandbox/00_setup.R load_pooled() also handles
   # this case).
   outcome_countries <- list(
     child_vitA   = cc_lower_b,

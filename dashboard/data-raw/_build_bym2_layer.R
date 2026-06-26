@@ -1,7 +1,7 @@
 # Build a full-coverage SL -> BYM2 small-area map layer WITH spatially-smoothed
 # 95% credible intervals, for every country x outcome.
 #
-# Motivation (sandbox/sae_sl_hybrid_prototype.R): feeding the area-level
+# Motivation (archive/sandbox/sae_sl_hybrid_prototype.R): feeding the area-level
 # SuperLearner mean as the covariate into a BYM2 spatial model gives credible
 # intervals with near-nominal coverage (~90-93%) at roughly half the width of
 # the Fay-Herriot design-based intervals (which over-cover), while leaving the
