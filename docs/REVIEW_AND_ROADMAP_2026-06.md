@@ -243,5 +243,5 @@ and Andy build on it (see §2).
 - **Scale-up phase:** anemia track + East/Southern-Africa expansion (the
   external-validity step the manuscript already flags), then revisit transport.
 
-See [`ANDY_KIM_PROJECT_PLAN.md`](../simplified%20subset/ANDY_KIM_PROJECT_PLAN.md) for the concrete
+See [`ANDY_KIM_PROJECT_PLAN.docx`](../simplified%20subset/ANDY_KIM_PROJECT_PLAN.docx) for the concrete
 starter project on the simplified subset.

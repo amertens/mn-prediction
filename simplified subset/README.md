@@ -53,22 +53,14 @@ and malaria (Malaria Atlas). They are kept as a **common predictor set for all
 outcomes**. Every column (description, units, source, role) is in
 [`data_dictionary.csv`](data_dictionary.csv) — no other reference needed.
 
-## How to run the example
+## Getting started
 
-```r
-install.packages(c("SuperLearner", "glmnet", "ranger"))   # once, if needed
-```
-```
-"C:/Program Files/R/R-4.4.2/bin/Rscript.exe" --vanilla "simplified subset/run_superlearner_example.R"
-```
-(Quote the path — the folder name contains a space.)
-
-[`run_superlearner_example.R`](run_superlearner_example.R) loads one level,
-fits a SuperLearner (mean / glm / elastic-net / random forest) weighted by
-sample size, prints **cross-validated** RMSE/R² and ensemble weights, and then
-runs a **sequential multi-outcome demo** (predict `women_vitA` from proxies,
-then from proxies + `women_iron`) to illustrate borrowing strength across
-deficiencies. Edit `LEVEL` / `OUTCOME` at the top to explore.
+The analysis plan and a worked SuperLearner recipe (single-outcome plus a
+sequential multi-outcome demo) are described in
+[`ANDY_KIM_PROJECT_PLAN.docx`](ANDY_KIM_PROJECT_PLAN.docx). A minimal fit weights
+each area by its sample size (`n_<outcome>`) and predicts `prev_<outcome>` from
+the 16 proxy columns; `SuperLearner`, `glmnet`, and `ranger` cover a reasonable
+learner library.
 
 To rebuild/extend the datasets from the pipeline, run
 [`build_simplified_subset.R`](build_simplified_subset.R) (needs the project's
@@ -93,4 +85,4 @@ To rebuild/extend the datasets from the pipeline, run
 - **Sequential transport caveat:** when conditioning one outcome on another for
   *cross-country* prediction, feed the cross-validated *prediction* of the
   upstream outcome, not its observed value (which is unavailable in a target
-  country) — see [`ANDY_KIM_PROJECT_PLAN.md`](ANDY_KIM_PROJECT_PLAN.md).
+  country) — see [`ANDY_KIM_PROJECT_PLAN.docx`](ANDY_KIM_PROJECT_PLAN.docx).
