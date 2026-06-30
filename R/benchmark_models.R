@@ -32,7 +32,9 @@
 
 # ── Helpers ──────────────────────────────────────────────────────────────────
 
-`%||%` <- function(a, b) if (is.null(a)) b else a
+`%||%` <- function(a, b) if (is.null(a) || (length(a) == 1 && is.na(a))) b else a
+# ^ NA-aware; kept byte-identical to the canonical definition in
+#   R/corrected/00_corrected_utils.R so behaviour is independent of source order.
 
 # Logit / inverse logit with bounded inputs to avoid Inf at extremes.
 .safe_logit  <- function(p, eps = 1e-3) qlogis(pmin(pmax(p, eps), 1 - eps))
@@ -229,10 +231,13 @@ fit_predict_penalized <- function(train, test, vars,
 # Sampling variance is computed from prevalence and effective sample size:
 #   v_i = p_i * (1 - p_i) / n_svy_i
 # Requires the `sae` package.  When the design effect is unknown we use the
-# DHS-standard 1.5 approximation (deff_default).
+# DHS-standard 1.5 approximation (FH_DEFF_DEFAULT) — the SAME constant is reused
+# by the corrected EB fallback in R/corrected/p7_area.R so the two SAE paths make
+# an identical sampling-variance assumption.
+FH_DEFF_DEFAULT <- 1.5
 fit_predict_fh <- function(train, test, vars,
                              model_type = c("continuous"),
-                             n_var_cap = 5L, deff_default = 1.5) {
+                             n_var_cap = 5L, deff_default = FH_DEFF_DEFAULT) {
   if (!requireNamespace("sae", quietly = TRUE)) return(NULL)
   model_type <- match.arg(model_type)
   if (!"n_svy" %in% colnames(train)) return(NULL)
@@ -252,6 +257,7 @@ fit_predict_fh <- function(train, test, vars,
   p   <- pmin(pmax(train$svy_prev, 1e-4), 1 - 1e-4)
   n_e <- pmax(train$n_svy / deff_default, 1)
   sv  <- p * (1 - p) / n_e
+  sv  <- pmax(sv, 1e-8)                       # floor degenerate (1-cluster) areas
 
   # FH fitting: direct = svy_prev, X = auxiliary vars, vardir = sv.
   # sae::eblupFH wants vardir to be a column in `data`, not a free vector
@@ -268,13 +274,27 @@ fit_predict_fh <- function(train, test, vars,
     sae::eblupFH(formula = fh_formula, vardir = .vardir, data = fh_data,
                   method = "REML"),
     error = function(e) {
-      cat(sprintf("    [fh] eblupFH failed: %s\n", conditionMessage(e)))
+      cat(sprintf("[SKIP] stage=fit_predict_fh reason=eblupFH_error:%s\n",
+                  conditionMessage(e)))
       NULL
     })
   if (is.null(fit)) return(NULL)
 
   # Fitted (in-sample) area estimates (combine direct + synthetic).
   pred_tr <- as.numeric(fit$eblup)
+
+  # Guard the sigma^2_u -> 0 collapse: when the random-effect variance vanishes
+  # (common for near-constant low-prevalence outcomes, e.g. women_vitA) the EBLUP
+  # shrinks every area to the global synthetic mean (~0.001 everywhere). Detect
+  # via near-zero spread relative to the direct estimates and SKIP rather than
+  # publish a degenerate near-constant map; the caller's EB fallback then applies.
+  sd_pred <- stats::sd(pred_tr, na.rm = TRUE)
+  sd_dir  <- stats::sd(p, na.rm = TRUE)
+  if (!is.finite(sd_pred) || sd_pred < max(1e-3, 0.05 * sd_dir)) {
+    cat(sprintf("[SKIP] stage=fit_predict_fh reason=degenerate_variance_collapse(sd_pred=%.5g,sd_direct=%.5g)\n",
+                sd_pred, sd_dir))
+    return(NULL)
+  }
 
   # Out-of-sample prediction = synthetic only (X test * beta).
   # eblupFH stores fixed-effect estimates in fit$fit$estcoef[, "beta"].

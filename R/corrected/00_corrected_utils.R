@@ -15,6 +15,56 @@
 
 `%||%` <- function(a, b) if (is.null(a) || (length(a) == 1 && is.na(a))) b else a
 
+# ── Observability: structured, greppable skip logger ─────────────────────────
+# Replaces silent `tryCatch(..., error = function(e) NULL)` traces with a single
+# greppable line so a degraded run is visible in the log. Pure stdout (no shared
+# file write) so it is safe under parallel tar_make_future(). Rollups
+# additionally emit a per-field coverage table (see comparison.R).
+.log_skip <- function(country, outcome, stage, reason) {
+  cat(sprintf("[SKIP] country=%s outcome=%s stage=%s reason=%s\n",
+              country %||% "NA", outcome %||% "NA", stage, reason))
+  invisible(NULL)
+}
+
+# ── Uncertainty for an area correlation: bootstrap CI + permutation null ──────
+# (Issue 6) With effective n = number of areas (14-87), a bare point r cannot be
+# told from sampling noise. Resamples the analysis UNITS (areas, = rows of
+# pred/obs) with replacement for a percentile CI, and permutes `obs` labels
+# (within `strata` if supplied, else globally) for a one-sided null p = P(null r
+# >= observed r). Returns a 1-row frame: <prefix>_ci_lo/_ci_hi/_perm_p, n_boot.
+metric_ci_null <- function(pred, obs, metric = c("pearson", "spearman"),
+                           strata = NULL, B = 1000L, P = 1000L,
+                           seed = 20260630L, prefix = NULL) {
+  metric <- match.arg(metric)
+  if (is.null(prefix)) prefix <- metric
+  cn <- c(paste0(prefix, c("_ci_lo", "_ci_hi", "_perm_p")), "n_boot")
+  blank <- function() { z <- data.frame(NA_real_, NA_real_, NA_real_, 0L); names(z) <- cn; z }
+  ok <- is.finite(pred) & is.finite(obs)
+  pred <- pred[ok]; obs <- obs[ok]
+  if (!is.null(strata)) strata <- strata[ok]
+  n <- length(obs)
+  if (n < 4) return(blank())
+  mfun <- function(p, o) suppressWarnings(stats::cor(
+    p, o, method = if (metric == "spearman") "spearman" else "pearson"))
+  obs_stat <- mfun(pred, obs)
+  if (!is.finite(obs_stat) || stats::sd(pred) < 1e-12) return(blank())
+  set.seed(seed)
+  bs <- vapply(seq_len(B), function(i) {
+    idx <- sample.int(n, n, replace = TRUE); mfun(pred[idx], obs[idx])
+  }, numeric(1))
+  ci <- stats::quantile(bs, c(.025, .975), na.rm = TRUE)
+  permute <- function() {
+    if (is.null(strata)) return(sample(obs))
+    o <- obs
+    for (g in unique(strata)) { ix <- which(strata == g); o[ix] <- sample(o[ix]) }
+    o
+  }
+  pn <- vapply(seq_len(P), function(i) mfun(pred, permute()), numeric(1))
+  perm_p <- (1 + sum(pn >= obs_stat, na.rm = TRUE)) / (1 + sum(is.finite(pn)))
+  z <- data.frame(round(ci[1], 3), round(ci[2], 3), round(perm_p, 4), B)
+  names(z) <- cn; z
+}
+
 # ── Read an already-built object from the PRODUCTION store ───────────────────
 # The corrected pipeline reuses production data-loading outputs (merged data,
 # per-outcome datasets, survey aggregates, GEE covariates) instead of
@@ -192,6 +242,25 @@ auc_manual <- function(y, p) {
   r <- rank(c(pos, neg))
   (sum(r[seq_along(pos)]) - length(pos) * (length(pos) + 1) / 2) /
     (length(pos) * length(neg))
+}
+
+# (Issue 6) Cluster-bootstrap CI for AUC: resample whole clusters (the survey
+# design unit) with replacement so the interval respects the within-cluster
+# dependence. Returns c(auc_ci_lo, auc_ci_hi).
+auc_ci_cluster <- function(y, p, cluster, B = 500L, seed = 303L) {
+  ok <- is.finite(y) & is.finite(p)
+  y <- y[ok]; p <- p[ok]; cluster <- as.character(cluster)[ok]
+  if (length(unique(y)) < 2 || length(y) < 8)
+    return(c(auc_ci_lo = NA_real_, auc_ci_hi = NA_real_))
+  cl <- split(seq_along(y), cluster); ucl <- names(cl)
+  set.seed(seed)
+  bs <- vapply(seq_len(B), function(i) {
+    samp <- unlist(cl[sample(ucl, length(ucl), replace = TRUE)], use.names = FALSE)
+    yy <- y[samp]; pp <- p[samp]
+    if (length(unique(yy)) < 2) NA_real_ else auc_manual(yy, pp)
+  }, numeric(1))
+  q <- stats::quantile(bs, c(.025, .975), na.rm = TRUE)
+  c(auc_ci_lo = round(unname(q[1]), 4), auc_ci_hi = round(unname(q[2]), 4))
 }
 
 binary_metrics <- function(y, p) {

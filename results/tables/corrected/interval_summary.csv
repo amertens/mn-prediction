@@ -1,6 +1,6 @@
 "country","outcome","target_coverage","split_conformal_halfwidth_pp","empirical_coverage_heldout","n_districts","n_design_ci"
 "Gambia","child_vitA",0.9,20.39,0.867,30,30
-"Gambia","women_vitA",0.9,11.84,0.933,30,30
+"Gambia","women_vitA",0.9,11.92,0.933,30,30
 "Gambia","child_iron",0.9,54.15,1,30,30
 "Gambia","women_iron",0.9,28.36,0.867,30,30
 "Ghana","child_vitA",0.9,17.07,0.816,75,75
@@ -9,16 +9,16 @@
 "Ghana","women_iron",0.9,26.14,0.947,75,75
 "Ghana","women_folate",0.9,45.37,0.921,75,75
 "Ghana","women_b12",0.9,26.62,0.947,75,75
-"Sierra Leone","child_vitA",0.9,8.41,0.714,14,14
-"Sierra Leone","women_vitA",0.9,3.54,1,14,14
-"Sierra Leone","child_iron",0.9,1.78,0.571,14,14
-"Sierra Leone","women_iron",0.9,20.72,1,14,14
-"Sierra Leone","women_folate",0.9,4.67,0.714,14,14
-"Sierra Leone","women_b12",0.9,1.58,1,14,14
+"Sierra Leone","child_vitA",0.9,7.73,0.571,14,14
+"Sierra Leone","women_vitA",0.9,4.02,1,14,14
+"Sierra Leone","child_iron",0.9,2.44,0.571,14,14
+"Sierra Leone","women_iron",0.9,21.1,1,14,14
+"Sierra Leone","women_folate",0.9,4.94,0.714,14,14
+"Sierra Leone","women_b12",0.9,1.57,1,14,14
 "Malawi","child_vitA",0.9,21.1,0.909,87,87
 "Malawi","women_vitA",0.9,7.91,0.841,87,87
 "Malawi","child_iron",0.9,40.33,0.977,87,87
-"Malawi","women_iron",0.9,28.16,0.886,87,87
+"Malawi","women_iron",0.9,26.41,0.864,87,87
 "Malawi","women_folate",0.9,29.97,0.909,87,87
 "Malawi","women_b12",0.9,11.33,0.864,87,87
 "Malawi","child_zinc",0.9,42.07,0.909,87,87

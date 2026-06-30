@@ -33,7 +33,9 @@
 # =============================================================================
 
 
-`%||%` <- function(a, b) if (is.null(a)) b else a
+`%||%` <- function(a, b) if (is.null(a) || (length(a) == 1 && is.na(a))) b else a
+# ^ NA-aware; kept byte-identical to the canonical definition in
+#   R/corrected/00_corrected_utils.R so behaviour is independent of source order.
 
 
 # ── 1. Spatial smoothing of admin-2 covariates ───────────────────────────────

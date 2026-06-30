@@ -20,7 +20,8 @@ prod_cv_for <- function(country_label, outcome_tag) {
              scheme = "PRODUCTION cv_perf (leaky preprocessing, random CV)",
              honest = FALSE,
              auc = round(sel$auc[1], 4),
-             brier = if ("brier" %in% colnames(sel)) round(sel$brier[1], 4) else NA)
+             brier = if ("brier" %in% colnames(sel)) round(sel$brier[1], 4) else NA,
+             auc_ci_lo = NA_real_, auc_ci_hi = NA_real_)  # (Issue 6) no honest CI for the leaky path
 }
 
 build_methods_comparison <- function(slices_results) {
@@ -46,8 +47,10 @@ build_methods_comparison <- function(slices_results) {
   # CV honesty table: corrected schemes + production reference, side by side.
   cv_compare <- NULL
   if (!is.null(cv)) {
-    base <- cv[, c("country", "outcome", "scheme", "honest", "auc", "brier")]
-    if (!is.null(prodcv)) base <- rbind(base, prodcv[, colnames(base)])
+    cols <- intersect(c("country", "outcome", "scheme", "honest", "auc", "brier",
+                        "auc_ci_lo", "auc_ci_hi"), colnames(cv))   # (Issue 6) carry AUC CI
+    base <- cv[, cols]
+    if (!is.null(prodcv)) base <- rbind(base, prodcv[, intersect(cols, colnames(prodcv))])
     cv_compare <- base[order(base$country, base$outcome, -base$auc), ]
   }
 
@@ -60,6 +63,27 @@ build_methods_comparison <- function(slices_results) {
   write_if(trust,  "trust_flags.csv")
   write_if(area,   "area_partial_pooling.csv")
   write_if(intsum, "interval_summary.csv")
+
+  # ── Observability: per-field slice coverage (attempted vs surviving) ───────
+  # A degraded run (silent fit failures) previously still wrote complete-looking
+  # CSVs; this table makes the drop count explicit. See .log_skip() for the
+  # per-fit reasons in the run log.
+  n_slices <- length(slices_results)
+  cov_fields <- c("cv_perf", "prod_cv", "calibration", "admin2_error",
+                  "decision", "trust", "area_pp", "interval_summary")
+  coverage <- data.frame(
+    field = cov_fields, attempted = n_slices,
+    surviving = vapply(cov_fields, function(f)
+      sum(vapply(slices_results, function(s) {
+        x <- s[[f]]; isTRUE(!is.null(x) && is.data.frame(x) && nrow(x) > 0)
+      }, logical(1))), integer(1)),
+    row.names = NULL)
+  coverage$dropped <- coverage$attempted - coverage$surviving
+  utils::write.csv(coverage, file.path(out_dir, "slice_coverage.csv"), row.names = FALSE)
+  message(sprintf("[corrected] slice coverage  %s",
+                  paste(sprintf("%s=%d/%d", coverage$field,
+                                coverage$surviving, coverage$attempted),
+                        collapse = "  ")))
 
   bundle <- list(
     cv_compare = cv_compare, calibration = calib, admin2_error = err,

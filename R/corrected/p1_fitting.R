@@ -95,6 +95,15 @@ fit_corrected_sl <- function(outcome_data, cc, oc, country_label,
   predictors <- select_candidates(outcome_data, max_n = max_pred)
   if (length(predictors) < 2) return(list(error = "too few predictors"))
 
+  # Per-individual survey weight, aligned to d (Issue 2): the honest OOF
+  # predictions are aggregated to Admin-2 with THESE weights so the predicted
+  # district prevalence shares a weighting basis with the design-weighted
+  # `svy_prev` truth. Non-finite / non-positive weights fall back to 1.
+  wcol  <- cc$weight_col %||% NA_character_
+  w_ind <- if (!is.na(wcol) && wcol %in% colnames(d))
+    suppressWarnings(as.numeric(d[[wcol]])) else rep(1, nrow(d))
+  w_ind[!is.finite(w_ind) | w_ind <= 0] <- 1
+
   clu <- cc$cluster_id %||% "gw_cnum"
   a1  <- cc$admin1_col %||% "Admin1"
   a2  <- cc$admin2_col %||% "Admin2"
@@ -113,6 +122,8 @@ fit_corrected_sl <- function(outcome_data, cc, oc, country_label,
     x$oof$Admin2  <- if (a2 %in% colnames(d)) d[[a2]] else NA_character_
     x$oof$Admin1  <- region_vec
     x$oof$country <- country_label
+    x$oof$w       <- w_ind            # per-individual survey weight (Issue 2)
+    x$oof$cluster <- as.character(cluster_vec)  # design unit for AUC bootstrap (Issue 6)
     x
   }
   list(
@@ -130,10 +141,15 @@ extract_cv_perf_corrected <- function(slfit) {
   if (!is.null(slfit$error)) return(NULL)
   mk <- function(tag, honest, x) {
     m <- binary_metrics(x$oof$Y, x$oof$yhat_full)
+    cl <- if (!is.null(x$oof$cluster)) x$oof$cluster else x$oof$Admin2  # (Issue 6)
+    ci <- if (exists("auc_ci_cluster"))
+      auc_ci_cluster(x$oof$Y, x$oof$yhat_full, cl)
+    else c(auc_ci_lo = NA_real_, auc_ci_hi = NA_real_)
     data.frame(country = slfit$country, outcome = slfit$outcome,
                scheme = tag, honest = honest,
                top_learner = paste(sort(unique(x$chosen)), collapse = "+"),
-               m, stringsAsFactors = FALSE)
+               m, auc_ci_lo = ci[["auc_ci_lo"]], auc_ci_hi = ci[["auc_ci_hi"]],
+               stringsAsFactors = FALSE)
   }
   rbind(
     mk("cluster-block CV", TRUE,  slfit$honest_cluster),

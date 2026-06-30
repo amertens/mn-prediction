@@ -40,6 +40,14 @@
 #'   rho = 1 applies no variance reduction. NOTE: the aggregated interval is a
 #'   CI for the AREA MEAN prevalence, not a predictive interval for new units.
 #' @return list with admin1_ci, national_ci (same structure as bootstrap output)
+#'
+#' @section In-sample diagnostic (Issue 5): This function runs on the PRODUCTION
+#'   sl_fit and reports coverage on the SAME OOF residuals used to set the width,
+#'   so its coverage is self-fulfilling (>= 1-alpha by construction) — a sanity
+#'   check, not an independent validity test. The honest, held-out interval
+#'   estimator of record is intervals_corrected() in
+#'   R/corrected/p2_p6_methods.R (disjoint calibration/test districts). Do not
+#'   report numbers from this function as held-out predictive coverage.
 compute_conformal_ci <- function(outcome_data, sl_fit, cc, oc, alpha = 0.05,
                                   rho = 0.5) {
 
@@ -83,14 +91,22 @@ compute_conformal_ci <- function(outcome_data, sl_fit, cc, oc, alpha = 0.05,
   # ── Step 2: Standard conformal interval ──────────────────────────────
   # The (1-alpha) quantile of |residuals| gives the constant half-width
   # that guarantees marginal coverage >= 1-alpha under exchangeability.
-  q_level <- ceiling((1 - alpha) * (n + 1)) / n
-  q_level <- min(q_level, 1)  # cap at 1
-  conformal_width <- as.numeric(quantile(residuals, q_level))
+  # (Issue 5) Use the finite-sample split-conformal level, identical to the
+  # honest district-level estimator intervals_corrected() in
+  # R/corrected/p2_p6_methods.R, so the two conformal paths never disagree
+  # (was ceiling((1-alpha)*(n+1))/n).
+  q_level <- min(1, (1 - alpha) * (n + 1) / n)
+  conformal_width <- as.numeric(quantile(residuals, q_level, type = 1))
 
   cat(sprintf("  Conformal half-width (constant): %.4f (%.1f%%)\n",
               conformal_width, conformal_width * 100))
 
-  # Individual-level intervals
+  # Individual-level intervals.
+  # (Issue 5) For a BINARY outcome these per-individual [yhat +/- w] bands are a
+  # diagnostic only: a "covered" individual interval for a 0/1 label is not a
+  # meaningful predictive statement. The reportable predictand is a DISTRICT
+  # PREVALENCE (continuous); honest district intervals come from the held-out
+  # split-conformal in intervals_corrected(), not from these individual bands.
   ci_lo_ind <- pmax(yhat - conformal_width, 0)
   ci_hi_ind <- pmin(yhat + conformal_width, 1)
 
