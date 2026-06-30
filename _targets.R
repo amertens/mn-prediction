@@ -92,7 +92,9 @@ tar_option_set(
     "origami", "caret", "data.table", "ck37r", "labelled",
     "recipes", "future.apply", "glmnet", "pROC", "ROCR", "haven", "readxl",
     # used by the folded-in corrected-methods learners (R/corrected/)
-    "ranger", "rpart"
+    "ranger", "rpart",
+    # unit-level SAE (nested-error GLMM) in the protocol-reconciliation target
+    "lme4"
   ),
   # Increase memory limit for SL fitting
   memory = "transient",
@@ -1397,6 +1399,9 @@ CORRECTED_V    <- 5L
 
 corrected_targets     <- list()
 corrected_result_syms <- list()
+corrected_recon_syms  <- list()   # protocol-reconciliation (P9) per-slice rows
+area_recipe_syms      <- list()   # area-level recipe per-slice within-country rows
+ar_frame_univ_syms    <- list()   # universal-mode area frames, grouped by outcome (transport)
 for (country_name in names(all_country_configs)) {
   cc  <- all_country_configs[[country_name]]
   low <- tolower(country_name)
@@ -1410,6 +1415,11 @@ for (country_name in names(all_country_configs)) {
     int_nm  <- paste0("corrected_int_", suffix)
     res_nm  <- paste0("corrected_result_", suffix)
     corrected_result_syms[[suffix]] <- as.symbol(res_nm)
+    corrected_recon_syms[[suffix]]  <- as.symbol(paste0("corrected_recon_", suffix))
+    area_recipe_syms[[suffix]]      <- as.symbol(paste0("area_recipe_", suffix))
+    ar_frame_univ_syms[[outcome_name]] <- c(
+      ar_frame_univ_syms[[outcome_name]],
+      setNames(list(as.symbol(paste0("ar_frame_univ_", suffix))), country_name))
 
     corrected_targets <- c(corrected_targets, list(
       # P1: leakage-free SL fit (honest cluster + spatial-block + optimistic CV)
@@ -1447,6 +1457,20 @@ for (country_name in names(all_country_configs)) {
       tar_target_raw(paste0("corrected_area_", suffix),
         substitute(area_partial_pooling_corrected(SL, SV, GEE),
                    list(SL = as.symbol(sl_nm), SV = svy_sym, GEE = gee_sym))),
+      # P9 individual-vs-area district-ranking on ONE matched protocol (reuses SL fit)
+      tar_target_raw(paste0("corrected_recon_", suffix),
+        substitute(reconcile_protocols(SL, OD, SV, GEE, CCV, OCV),
+                   list(SL = as.symbol(sl_nm), OD = od_sym, SV = svy_sym,
+                        GEE = gee_sym, CCV = cc, OCV = oc))),
+      # Area-level recipe (docs/AREA_LEVEL_RECIPE_SPEC.md): within-country
+      # district+region honest CV, enriched features, CI/perm-null metrics.
+      tar_target_raw(paste0("area_recipe_", suffix),
+        substitute(ar_within_country(OD, SV, GEE, CCV, OCV, mode = "enriched"),
+                   list(OD = od_sym, SV = svy_sym, GEE = gee_sym, CCV = cc, OCV = oc))),
+      # universal-mode area frame (gee only) for the cross-country transport rollups
+      tar_target_raw(paste0("ar_frame_univ_", suffix),
+        substitute(ar_build_frame(OD, SV, GEE, CCV, OCV, mode = "universal"),
+                   list(OD = od_sym, SV = svy_sym, GEE = gee_sym, CCV = cc, OCV = oc))),
       # per-slice result bundle
       tar_target_raw(res_nm,
         substitute(list(cv_perf = CV, prod_cv = PCV, calibration = CAL,
@@ -1471,6 +1495,39 @@ corrected_targets <- c(corrected_targets, list(
     substitute(build_methods_comparison(RL),
                list(RL = corrected_result_list_expr)))
 ))
+
+# P9 roll-up: matched-protocol reconciliation of individual-vs-area district
+# ranking (writes results/tables/corrected/protocol_reconciliation*.csv).
+corrected_recon_list_expr <- as.call(c(list(as.symbol("list")),
+  setNames(corrected_recon_syms, names(corrected_recon_syms))))
+corrected_targets <- c(corrected_targets, list(
+  tar_target_raw("protocol_reconciliation",
+    substitute(build_protocol_reconciliation(RL),
+               list(RL = corrected_recon_list_expr)))
+))
+
+# Area-level recipe roll-ups (docs/AREA_LEVEL_RECIPE_SPEC.md). Cross-country LOCO
+# transport per outcome (universal features) for outcomes in >=3 countries, then
+# a table writer for results/tables/corrected/area_recipe_{within,transport}.csv.
+ar_transport_syms <- list()
+for (oc_nm in names(ar_frame_univ_syms)) {
+  fr <- ar_frame_univ_syms[[oc_nm]]
+  if (length(fr) >= 3) {
+    frame_list_expr <- as.call(c(list(as.symbol("list")), fr))   # named by country
+    corrected_targets <- c(corrected_targets, list(
+      tar_target_raw(paste0("area_recipe_transport_", oc_nm),
+        substitute(ar_transport_loco(FR), list(FR = frame_list_expr)))))
+    ar_transport_syms[[oc_nm]] <- as.symbol(paste0("area_recipe_transport_", oc_nm))
+  }
+}
+area_recipe_within_expr <- as.call(c(list(as.symbol("list")),
+  setNames(area_recipe_syms, names(area_recipe_syms))))
+area_recipe_transport_expr <- as.call(c(list(as.symbol("list")),
+  setNames(ar_transport_syms, names(ar_transport_syms))))
+corrected_targets <- c(corrected_targets, list(
+  tar_target_raw("area_recipe_tables",
+    substitute(build_area_recipe_tables(W, TR),
+               list(W = area_recipe_within_expr, TR = area_recipe_transport_expr)))))
 
 # ── Combine everything ──────────────────────────────────────────────────────
 c(static_targets, country_targets, area_comparison_targets, area_loco_targets,
