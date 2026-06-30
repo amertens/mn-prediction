@@ -61,6 +61,27 @@ build_methods_comparison <- function(slices_results) {
   write_if(area,   "area_partial_pooling.csv")
   write_if(intsum, "interval_summary.csv")
 
+  # ── Observability: per-field slice coverage (attempted vs surviving) ───────
+  # A degraded run (silent fit failures) previously still wrote complete-looking
+  # CSVs; this table makes the drop count explicit. See .log_skip() for the
+  # per-fit reasons in the run log.
+  n_slices <- length(slices_results)
+  cov_fields <- c("cv_perf", "prod_cv", "calibration", "admin2_error",
+                  "decision", "trust", "area_pp", "interval_summary")
+  coverage <- data.frame(
+    field = cov_fields, attempted = n_slices,
+    surviving = vapply(cov_fields, function(f)
+      sum(vapply(slices_results, function(s) {
+        x <- s[[f]]; isTRUE(!is.null(x) && is.data.frame(x) && nrow(x) > 0)
+      }, logical(1))), integer(1)),
+    row.names = NULL)
+  coverage$dropped <- coverage$attempted - coverage$surviving
+  utils::write.csv(coverage, file.path(out_dir, "slice_coverage.csv"), row.names = FALSE)
+  message(sprintf("[corrected] slice coverage  %s",
+                  paste(sprintf("%s=%d/%d", coverage$field,
+                                coverage$surviving, coverage$attempted),
+                        collapse = "  ")))
+
   bundle <- list(
     cv_compare = cv_compare, calibration = calib, admin2_error = err,
     decision = dec, trust = trust, area_pp = area, interval_summary = intsum,

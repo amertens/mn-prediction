@@ -15,6 +15,17 @@
 
 `%||%` <- function(a, b) if (is.null(a) || (length(a) == 1 && is.na(a))) b else a
 
+# ── Observability: structured, greppable skip logger ─────────────────────────
+# Replaces silent `tryCatch(..., error = function(e) NULL)` traces with a single
+# greppable line so a degraded run is visible in the log. Pure stdout (no shared
+# file write) so it is safe under parallel tar_make_future(). Rollups
+# additionally emit a per-field coverage table (see comparison.R).
+.log_skip <- function(country, outcome, stage, reason) {
+  cat(sprintf("[SKIP] country=%s outcome=%s stage=%s reason=%s\n",
+              country %||% "NA", outcome %||% "NA", stage, reason))
+  invisible(NULL)
+}
+
 # ── Read an already-built object from the PRODUCTION store ───────────────────
 # The corrected pipeline reuses production data-loading outputs (merged data,
 # per-outcome datasets, survey aggregates, GEE covariates) instead of

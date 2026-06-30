@@ -60,8 +60,17 @@ diagnostics_calibrated_oof <- function(slfit) {
 corrected_admin2 <- function(slfit, svy_admin2) {
   d <- slfit$honest_cluster$oof
   d <- d[!is.na(d$yhat_full) & !is.na(d$Admin2), , drop = FALSE]
-  agg <- stats::aggregate(yhat_full ~ Admin2, data = d, FUN = mean)
-  names(agg)[2] <- "pred_prev"
+  # (Issue 2) survey-WEIGHTED district mean of the honest OOF predictions, so the
+  # predicted prevalence shares a weighting basis with the design-weighted
+  # `svy_prev` truth. `w` is threaded in by fit_corrected_sl()/attach_meta();
+  # if absent (older slfit objects) fall back to an unweighted mean.
+  if (is.null(d$w)) d$w <- 1
+  d$w[!is.finite(d$w) | d$w <= 0] <- 1
+  agg <- do.call(rbind, lapply(split(seq_len(nrow(d)), d$Admin2), function(ix)
+    data.frame(Admin2    = d$Admin2[ix][1],
+               pred_prev = stats::weighted.mean(d$yhat_full[ix], d$w[ix], na.rm = TRUE),
+               stringsAsFactors = FALSE)))
+  rownames(agg) <- NULL
   agg$country <- slfit$country
   sv <- svy_admin2
   if (is.null(sv) || !"Admin2" %in% colnames(sv)) return(agg)
