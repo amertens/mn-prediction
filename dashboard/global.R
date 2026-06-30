@@ -43,6 +43,17 @@ admin2_bym2_pred <- {
   .p <- file.path(DATA_DIR, "admin2_bym2_predictions.rds")
   if (file.exists(.p)) readRDS(.p) else NULL
 }
+
+# Full-coverage AREA-LEVEL RECIPE layer (docs/AREA_LEVEL_RECIPE_SPEC.md): area
+# prevalence under a binomial loss with a leakage-free near-null pre-filter,
+# trained on surveyed districts and applied to every polygon (universal/gee
+# features). The recommended primary district estimator. NULL if not built; build
+# with dashboard/data-raw/build_recipe_predictions.R. (Intervals: TODO — the SAE
+# layer is for interval width only; point level from national-anchor calibration.)
+admin2_recipe_pred <- {
+  .p <- file.path(DATA_DIR, "admin2_recipe_predictions.rds")
+  if (file.exists(.p)) readRDS(.p) else NULL
+}
 admin2_bnds <- readRDS(file.path(DATA_DIR, "admin2_boundaries.rds"))
 admin1_bnds <- readRDS(file.path(DATA_DIR, "admin1_boundaries.rds"))
 

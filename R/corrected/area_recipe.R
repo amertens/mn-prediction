@@ -76,11 +76,71 @@ ar_build_frame <- function(outcome_data, svy_admin2, gee_admin2, cc, oc,
 .ar_il  <- function(p) stats::qlogis(pmin(pmax(p, .005), .995))
 .ar_imp <- function(M, med) { for (j in seq_len(ncol(M))) { z <- M[, j]; z[!is.finite(z)] <- med[j]; M[, j] <- z }; M }
 
-# global near-null pre-filter: keep covariates whose |marginal cor with logit-prev|
+# global near-null pre-filter: keep covariates whose |marginal cor with the target|
 # is in the top (1 - drop) fraction. Honest (leakage-free) per the re-screen null.
-ar_prefilter <- function(X, prev, drop = 0.70) {
-  r <- abs(suppressWarnings(as.numeric(stats::cor(X, .ar_il(prev))))); r[!is.finite(r)] <- 0
+ar_prefilter_target <- function(X, y, drop = 0.70) {
+  r <- abs(suppressWarnings(as.numeric(stats::cor(X, y)))); r[!is.finite(r)] <- 0
   which(r >= stats::quantile(r, drop, na.rm = TRUE))
+}
+ar_prefilter <- function(X, prev, drop = 0.70) ar_prefilter_target(X, .ar_il(prev), drop)
+
+# ---- (c) opt-in variants: domain map, late fusion, distributional ----------
+.ar_domain <- function(cn) {
+  d <- rep("other", length(cn))
+  d[grepl("gee_soil", cn)] <- "soil"
+  d[grepl("precip|chirps|tavg|lst|temp|tmax|tmin|prec|fldas", cn, ignore.case = TRUE)] <- "climate"
+  d[grepl("ndvi|evi|fpar|lai|grassland|cropland|landcover|vegetation", cn, ignore.case = TRUE)] <- "veg"
+  d[grepl("elevation|srtm|slope|terrain", cn, ignore.case = TRUE)] <- "terrain"
+  d[grepl("pop|built|ghs|smod|accessib|nightlight|density", cn, ignore.case = TRUE)] <- "human"
+  d[grepl("MAP_|map2|map_|pf_|pv_|parasite|malaria", cn, ignore.case = TRUE)] <- "malaria"
+  d[grepl("ihme_", cn, ignore.case = TRUE)] <- "ihme"
+  d[grepl("livestock|glw|cattle|gleam", cn, ignore.case = TRUE)] <- "livestock"
+  d
+}
+.ar_enet_g <- function(Xtr, y, w, Xte) {
+  f <- tryCatch(glmnet::cv.glmnet(Xtr, y, family = "gaussian", weights = w, nfolds = 5),
+                error = function(e) NULL)
+  if (is.null(f)) return(rep(mean(y), nrow(Xte)))
+  as.numeric(stats::predict(f, Xte, s = "lambda.min"))
+}
+# late fusion: one regularised learner per domain (>=3 covariates), NNLS-stacked
+# on the logit-prevalence scale. Wins on distributed signal; can lose sparse
+# signal (see spec) -> opt-in per outcome.
+.ar_late_fusion <- function(Xtr, prev_tr, w_tr, Xte, dom) {
+  y <- .ar_il(prev_tr); doms <- unique(dom); doms <- doms[vapply(doms, function(z) sum(dom == z) >= 3, logical(1))]
+  if (length(doms) < 2) return(.ar_enet_g(scale_safe(Xtr), y, w_tr, scale_safe(Xte, Xtr)) |> stats::plogis())
+  inner <- make_random_folds(length(y), min(4L, length(y)), 7L)
+  Z <- matrix(NA_real_, length(y), length(doms), dimnames = list(NULL, doms))
+  for (ii in sort(unique(inner))) {
+    itr <- inner != ii; ite <- inner == ii; if (sum(itr) < 8) next
+    for (dd in doms) { dc <- which(dom == dd)
+      Z[ite, dd] <- .ar_enet_g(scale_safe(Xtr[itr, dc, drop = FALSE]),
+                               y[itr], w_tr[itr], scale_safe(Xtr[ite, dc, drop = FALSE], Xtr[itr, dc, drop = FALSE])) }
+  }
+  ok <- which(colSums(is.finite(Z)) == length(y)); if (!length(ok)) return(rep(mean(prev_tr), nrow(Xte)))
+  Z <- Z[, ok, drop = FALSE]; doms <- doms[ok]
+  cf <- tryCatch(nnls::nnls(Z * sqrt(w_tr), y * sqrt(w_tr))$x, error = function(e) rep(1, ncol(Z)))
+  if (sum(cf) <= 0) cf <- rep(1, ncol(Z)); cf <- cf / sum(cf)
+  Pte <- sapply(doms, function(dd) { dc <- which(dom == dd)
+    .ar_enet_g(scale_safe(Xtr[, dc, drop = FALSE]), y, w_tr, scale_safe(Xte[, dc, drop = FALSE], Xtr[, dc, drop = FALSE])) })
+  stats::plogis(as.numeric(Pte %*% cf))
+}
+# standardise Xte by Xtr (or self) column stats; robust to constants
+scale_safe <- function(X, ref = X) {
+  mu <- colMeans(ref); sdv <- apply(ref, 2, stats::sd); sdv[!is.finite(sdv) | sdv == 0] <- 1
+  m <- scale(X, mu, sdv); m[!is.finite(m)] <- 0; m
+}
+# per-area continuous biomarker mean + pooled within-area SD, on the cut-point scale
+.ar_area_cont <- function(outcome_data, cc, oc) {
+  d <- outcome_data$data; a2 <- as.character(d[[cc$admin2_col %||% "Admin2"]])
+  cont <- suppressWarnings(as.numeric(d[[oc$continuous]]))
+  logscale <- identical(oc$cutoff_scale, "log")
+  ok <- is.finite(cont) & (if (logscale) cont > 0 else TRUE)
+  val <- if (logscale) log(cont) else cont
+  df <- data.frame(a2 = a2[ok], v = val[ok])
+  mu <- tapply(df$v, df$a2, mean); resid <- df$v - mu[df$a2]
+  list(mean = mu, sdpool = sqrt(mean(resid^2, na.rm = TRUE)),
+       thr = if (logscale) log(oc$cutoff) else oc$cutoff)
 }
 
 # binomial enet on (prescreened, standardised) area X; weight = n_svy counts.
@@ -95,10 +155,12 @@ ar_prefilter <- function(X, prev, drop = 0.70) {
 
 # one honest CV pass: predict each held-out fold's area prevalence.
 ar_cv_predict <- function(area, scheme = c("district", "region"),
-                          drop = 0.70, screen_k = NULL, V = 10L, seed = 12345L) {
-  scheme <- match.arg(scheme)
+                          drop = 0.70, screen_k = NULL, V = 10L, seed = 12345L,
+                          estimator = c("binomial", "late_fusion", "distributional")) {
+  scheme <- match.arg(scheme); estimator <- match.arg(estimator)
   covcols <- attr(area, "covcols"); prev <- area$svy_prev; w <- pmax(area$n_svy, 1)
-  X0 <- as.matrix(area[, covcols, drop = FALSE])
+  X0 <- as.matrix(area[, covcols, drop = FALSE]); dom <- .ar_domain(covcols)
+  acont <- attr(area, "acont")              # distributional: list(mean, sdpool, thr)
   grp <- if (scheme == "district") area$Admin2 else area$Admin1
   Veff <- if (scheme == "district") V else min(V, length(unique(grp[!is.na(grp)])))
   folds <- make_group_folds(grp, Veff, seed)
@@ -108,15 +170,27 @@ ar_cv_predict <- function(area, scheme = c("district", "region"),
     if (length(tr) < 8) next
     med <- apply(X0[tr, , drop = FALSE], 2, stats::median, na.rm = TRUE); med[!is.finite(med)] <- 0
     Xtr <- .ar_imp(X0[tr, , drop = FALSE], med); Xte <- .ar_imp(X0[te, , drop = FALSE], med)
-    keep <- ar_prefilter(Xtr, prev[tr], drop)                     # global near-null filter (train fold)
-    k <- screen_k %||% max(4L, min(15L, floor(length(tr) / 4)))   # in-fold supervised screen
-    r <- abs(suppressWarnings(as.numeric(stats::cor(Xtr[, keep, drop = FALSE], .ar_il(prev[tr])))))
-    r[!is.finite(r)] <- 0
-    sel <- keep[order(r, decreasing = TRUE)[seq_len(min(k, length(keep)))]]
-    mu <- colMeans(Xtr[, sel, drop = FALSE]); sdv <- apply(Xtr[, sel, drop = FALSE], 2, stats::sd)
-    sdv[!is.finite(sdv) | sdv == 0] <- 1
-    Ztr <- scale(Xtr[, sel, drop = FALSE], mu, sdv); Zte <- scale(Xte[, sel, drop = FALSE], mu, sdv)
-    pred[te] <- .ar_fit_predict(Ztr, prev[tr], w[tr], Zte)
+    k <- screen_k %||% max(4L, min(15L, floor(length(tr) / 4)))
+    if (estimator == "late_fusion") {
+      pred[te] <- .ar_late_fusion(Xtr, prev[tr], w[tr], Xte, dom)
+    } else if (estimator == "distributional" && !is.null(acont)) {
+      ymv <- as.numeric(acont$mean[match(area$Admin2, names(acont$mean))])
+      ok <- tr[is.finite(ymv[tr])]; if (length(ok) < 8) next
+      keep <- ar_prefilter_target(Xtr[match(ok, tr), , drop = FALSE], ymv[ok], drop)
+      rr <- abs(suppressWarnings(as.numeric(stats::cor(Xtr[match(ok, tr), keep, drop = FALSE], ymv[ok]))))
+      rr[!is.finite(rr)] <- 0; sel <- keep[order(rr, decreasing = TRUE)[seq_len(min(k, length(keep)))]]
+      Ztr <- scale_safe(Xtr[match(ok, tr), sel, drop = FALSE])
+      Zte <- scale_safe(Xte[, sel, drop = FALSE], Xtr[match(ok, tr), sel, drop = FALSE])
+      pmu <- .ar_enet_g(Ztr, ymv[ok], w[ok], Zte)
+      pred[te] <- stats::pnorm((acont$thr - pmu) / acont$sdpool)
+    } else {                                # binomial (default)
+      keep <- ar_prefilter(Xtr, prev[tr], drop)
+      r <- abs(suppressWarnings(as.numeric(stats::cor(Xtr[, keep, drop = FALSE], .ar_il(prev[tr])))))
+      r[!is.finite(r)] <- 0
+      sel <- keep[order(r, decreasing = TRUE)[seq_len(min(k, length(keep)))]]
+      Ztr <- scale_safe(Xtr[, sel, drop = FALSE]); Zte <- scale_safe(Xte[, sel, drop = FALSE], Xtr[, sel, drop = FALSE])
+      pred[te] <- .ar_fit_predict(Ztr, prev[tr], w[tr], Zte)
+    }
   }
   pred
 }
@@ -124,11 +198,20 @@ ar_cv_predict <- function(area, scheme = c("district", "region"),
 #' Within-country area-recipe evaluation for one slice: district + region block,
 #' each with rank metrics + bootstrap CI + permutation null. One row per scheme.
 ar_within_country <- function(outcome_data, svy_admin2, gee_admin2, cc, oc,
-                              mode = "enriched", drop = 0.70, seed = 12345L) {
+                              mode = "enriched", drop = 0.70, seed = 12345L,
+                              estimator = c("binomial", "late_fusion", "distributional")) {
+  estimator <- match.arg(estimator)
   area <- ar_build_frame(outcome_data, svy_admin2, gee_admin2, cc, oc, mode)
   if (is.null(area) || nrow(area) < 8) return(NULL)
+  # distributional (recommended for vitamin A): attach per-area continuous mean.
+  if (estimator == "distributional") {
+    if (is.null(oc$continuous) || !oc$continuous %in% colnames(outcome_data$data)) {
+      estimator <- "binomial"           # no continuous biomarker -> fall back
+    } else attr(area, "acont") <- .ar_area_cont(outcome_data, cc, oc)
+  }
   out <- lapply(c("district", "region"), function(sch) {
-    p <- tryCatch(ar_cv_predict(area, sch, drop, seed = seed), error = function(e) NULL)
+    p <- tryCatch(ar_cv_predict(area, sch, drop, seed = seed, estimator = estimator),
+                  error = function(e) NULL)
     if (is.null(p)) return(NULL)
     m <- data.frame(pred = p, obs = area$svy_prev)
     m <- m[is.finite(m$pred) & is.finite(m$obs), ]
@@ -137,7 +220,7 @@ ar_within_country <- function(outcome_data, svy_admin2, gee_admin2, cc, oc,
            else data.frame(pearson_ci_lo = NA, pearson_ci_hi = NA, pearson_perm_p = NA, n_boot = 0L)
     slope <- tryCatch(stats::coef(stats::lm(obs ~ pred, m))[2], error = function(e) NA)
     data.frame(country = cc$country, outcome = oc$tag %||% oc$label, mode = mode,
-               scheme = sch, n_area = nrow(m),
+               estimator = estimator, scheme = sch, n_area = nrow(m),
                pearson_r = round(stats::cor(m$pred, m$obs), 3),
                spearman_r = round(stats::cor(m$pred, m$obs, method = "spearman"), 3),
                calib_slope = round(as.numeric(slope), 2),
@@ -147,6 +230,34 @@ ar_within_country <- function(outcome_data, svy_admin2, gee_admin2, cc, oc,
                stringsAsFactors = FALSE)
   })
   do.call(rbind, Filter(Negate(is.null), out))
+}
+
+#' Full-coverage district predictions for deployment (e.g. the dashboard): train
+#' the recipe on the surveyed areas and predict EVERY admin-2 polygon, surveyed
+#' or not. Uses the UNIVERSAL (gee, polygon-zonal) feature set, which is the only
+#' one available at unsurveyed polygons (MAP/IHME are aggregated from survey
+#' clusters). Returns one row per polygon with the predicted prevalence and, for
+#' surveyed polygons, the direct survey estimate.
+ar_full_coverage <- function(outcome_data, svy_admin2, gee_admin2, cc, oc, drop = 0.70) {
+  train <- ar_build_frame(outcome_data, svy_admin2, gee_admin2, cc, oc, mode = "universal")
+  if (is.null(train) || nrow(train) < 8) return(NULL)
+  covcols <- attr(train, "covcols")
+  gee <- as.data.frame(gee_admin2); gee$Admin2 <- as.character(gee$Admin2)
+  poly <- gee[, c("Admin2", intersect(covcols, colnames(gee))), drop = FALSE]
+  covcols <- intersect(covcols, colnames(poly))
+  Xtr0 <- as.matrix(train[, covcols, drop = FALSE]); Xpe0 <- as.matrix(poly[, covcols, drop = FALSE])
+  med <- apply(Xtr0, 2, stats::median, na.rm = TRUE); med[!is.finite(med)] <- 0
+  Xtr <- .ar_imp(Xtr0, med); Xpe <- .ar_imp(Xpe0, med)
+  keep <- ar_prefilter(Xtr, train$svy_prev, drop)
+  Ztr <- scale_safe(Xtr[, keep, drop = FALSE]); Zpe <- scale_safe(Xpe[, keep, drop = FALSE], Xtr[, keep, drop = FALSE])
+  pr <- .ar_fit_predict(Ztr, train$svy_prev, pmax(train$n_svy, 1), Zpe)
+  out <- data.frame(country = cc$country, outcome = oc$tag %||% oc$label,
+                    Admin2 = poly$Admin2, pred_prev = round(pr, 4),
+                    surveyed = poly$Admin2 %in% train$Admin2, stringsAsFactors = FALSE)
+  sv <- as.data.frame(svy_admin2); sv$Admin2 <- as.character(sv$Admin2)
+  out <- merge(out, sv[, c("Admin2", "svy_prev", "n_svy")], by = "Admin2", all.x = TRUE, sort = FALSE)
+  names(out)[names(out) == "svy_prev"] <- "direct_prev"
+  out
 }
 
 #' Cross-country LOCO transport with the area recipe (universal covariates by

@@ -258,6 +258,31 @@ person-level ensemble and averages its predictions up to the district; it
 shares the same inputs but is reported as a sensitivity analysis, because
 aggregating shrunken person-level probabilities biases area means (Results).
 
+A subsequent methods-development analysis established that the area-level
+SuperLearner's weak honest performance reflects *unregularised* fitting in the
+p ≫ n regime rather than an inherent limitation of area-level modelling, and
+that modelling the area prevalence directly is in fact the strongest approach
+once the estimator is matched to the regime (Results). We therefore add an
+**area-level prevalence recipe** as the primary district estimator. It models
+the admin-2 survey-weighted prevalence directly under a **binomial (count) loss
+weighted by the survey sample size** (which leaves district ranking unchanged
+relative to a Gaussian logit fit but markedly improves calibration); reduces the
+covariate space by a mild **global near-null pre-filter** (covariates whose
+marginal association with the outcome falls in the lowest 70% are dropped — a
+step validated as leakage-free below) followed by an in-fold supervised screen;
+and fits a penalised regression (elastic net). The covariate set is
+**regime-specific**: a malaria- and modelled-health-burden–enriched set (adding
+Malaria Atlas Project falciparum/vivax layers and IHME anaemia/stunting surfaces
+to the earth-observation covariates) for within-country gap-filling, and an
+earth-observation-only ("universal") set for cross-country transport, because
+the malaria and modelled-burden relationships are country-specific and degrade
+transport. Two opt-in variants are provided: a domain-wise **late-fusion stack**
+(one regularised learner per data source, stacked) for outcomes whose signal is
+distributed across domains, and, for vitamin A, a **distributional** estimator
+that models the continuous biomarker and integrates over the deficiency
+threshold. The recipe and the evidence for each choice are documented in the
+project's area-level recipe specification.
+
 The full list of strategies with their loss functions and implementations is
 given in Supplementary Appendix Table S1, and the complete modelling detail
 (learner libraries and hyper-parameters, adjacency construction, post-hoc
@@ -283,15 +308,35 @@ surveyed training range as out-of-support; and (vii) produce partial-pooling
 (empirical-Bayes) area estimates. The full specification is in Supplementary
 Appendix Section S6.
 
+Two further safeguards apply to the area-level recipe. First, every reported
+correlation carries an area-bootstrap 95% confidence interval and a
+non-parametric permutation-null *p*-value (the permutation re-labels districts
+within country), so signal can be distinguished from sampling noise at the small
+effective sample sizes involved. Second, the global near-null pre-filter is
+shown to be leakage-free by an honest permutation test that **re-derives the
+filter on each permuted outcome**: the resulting null distribution of the
+out-of-sample correlation remains centred at zero (95th percentile 0.17–0.35
+across cells) while the observed correlations are 0.29–0.65 (permutation
+*p* ≤ 0.02), confirming that dropping obvious near-null covariates on the full
+data introduces negligible optimism. The empirical-Bayes / Fay–Herriot layer is
+used for honest interval width only and not to shrink the point level, because
+the covariates carry district ranking but not absolute level; the level is set
+by anchoring to a known national prevalence.
+
 ## Evaluation
 
-We evaluated two questions. **Within-country** spatial accuracy was
-estimated by 5-fold cross-validation on each country's admin-2 set,
-with metrics computed on the union of out-of-fold predictions.
-**Cross-country transportability** was assessed by leave-one-country-out
-(LOCO) holdout on the pooled admin-2 dataset: the model is trained on
-three countries' admin-2 areas (n = 119–192) and evaluated on the
-fourth's (n = 14–87). Metrics reported are Pearson and Spearman
+We evaluated two questions corresponding to two deployment regimes.
+**Within-country** spatial accuracy (gap-filling unsurveyed districts in a
+country with some survey data) was estimated by cross-validation on each
+country's admin-2 set with metrics on the union of out-of-fold predictions; for
+the area-level recipe we report both **district-block** cross-validation (whole
+districts held out) and the more demanding **region-block** scheme (whole admin-1
+regions held out), using the enriched covariate set. **Cross-country
+transportability** (predicting a country with no biomarker survey) was assessed
+by leave-one-country-out (LOCO) holdout on the pooled admin-2 dataset using the
+universal covariate set and scored by rank correlation, which is invariant to
+the untransportable absolute level: the model is trained on three countries'
+admin-2 areas (n = 119–192) and evaluated on the fourth's (n = 14–87). Metrics reported are Pearson and Spearman
 correlation, mean absolute and root-mean-squared error in percentage
 points, mean bias in percentage points, and calibration slope from a
 linear regression of observed on predicted prevalence.
@@ -342,9 +387,12 @@ from the fully-fitted ensemble — produced near-perfect correlations (r up
 to 1.00), but these were overfitting artifacts rather than transportable
 signal; the present numbers use genuine out-of-fold prediction. The
 individual-level model, fit on hundreds to thousands of individuals,
-generalises better once aggregated. We report the number of areas alongside
-individual sample sizes throughout and treat the individual-level aggregate
-as the more reliable within-country estimator.
+generalises better once aggregated than the *unregularised* area-level
+ensemble. We report the number of areas alongside individual sample sizes
+throughout. Crucially, however, the area-level deficit is a property of the
+*estimator*, not of area-level modelling: once the estimator is matched to the
+p ≫ n regime — the area-level recipe described next — modelling the area
+prevalence directly becomes the strongest within-country approach.
 
 ```{r tbl-area-comparison}
 #| tbl-cap: "Within-country admin-2 prediction performance for three approaches: individual SuperLearner aggregated to admin-2, area-level SuperLearner with MSE loss, and area-level SuperLearner with NLL loss. Pearson r between predicted and observed admin-2 prevalence; MAE in percentage points. From results/tables/area_comparison_all.csv."
@@ -371,6 +419,49 @@ aggregation propagates this shrinkage to area-level means. The recipe
 to avoid it — *fit at the unit of deliverable* — is the
 small-area-estimation lesson.
 
+## The area-level prevalence recipe
+
+Fitting at the unit of deliverable, done correctly, is the strongest
+within-country estimator. The area-level recipe — admin-2 prevalence under a
+binomial count loss, a leakage-free near-null pre-filter followed by an in-fold
+supervised screen, and a penalised regression on the malaria/IHME-enriched
+covariate set — substantially exceeds both the unregularised area-level
+SuperLearner (median r 0.12) and the individual-level aggregate for the
+outcomes that carry signal (@tbl-area-recipe). Under district-block
+cross-validation the recipe reached Pearson r = 0.64 for child iron and 0.56 for
+women's vitamin B12 in Ghana, 0.60 for women's iron in Gambia, with
+permutation-null *p* < 0.05 for iron and several women's micronutrients in
+Gambia and Ghana; under the more demanding region-block scheme the same cells
+retained r = 0.20–0.55. The binomial count loss left district ranking
+essentially unchanged relative to a Gaussian logit fit but markedly improved
+calibration (slopes 0.5–1.1, versus systematic over-shrinkage under the Gaussian
+loss). Enriching the earth-observation covariates with Malaria Atlas Project and
+IHME anaemia/stunting layers recovered signal in the highest-malaria setting:
+Malawi child-iron rose from null with soil/climate features alone to r = 0.20
+(district, *p* = 0.03). The two opt-in variants behaved as designed — the
+distributional estimator improved vitamin A (Gambia child vitamin A r 0.18 →
+0.46; Gambia women vitamin A r 0.42), while domain-wise late-fusion stacking
+helped distributed-signal outcomes (Gambia women iron r 0.65) but collapsed the
+sparse Malawi child-iron signal (0.20 → 0.03), confirming that dimension
+reduction must not be a default. Across all 18 evaluable country–outcome cells,
+genuine permutation-significant within-country signal was concentrated in iron
+(and several women's micronutrients) in Gambia and Ghana, was weaker but present
+for iron and folate in Malawi, and was absent for zinc.
+
+```{r tbl-area-recipe}
+#| tbl-cap: "Area-level recipe within-country performance (binomial loss, enriched features), district- and region-block cross-validation. Pearson r with area-bootstrap 95% CI and permutation-null p; calibration slope. From results/tables/corrected/area_recipe_within.csv."
+.arp <- "results/tables/corrected/area_recipe_within.csv"
+if (file.exists(.arp)) {
+  read.csv(.arp) %>%
+    transmute(Country = country, Outcome = outcome, Scheme = scheme, n = n_area,
+              r = round(pearson_r, 2),
+              `95% CI` = sprintf("[%.2f, %.2f]", pearson_ci_lo, pearson_ci_hi),
+              `perm p` = round(pearson_perm_p, 3), Slope = round(calib_slope, 2)) %>%
+    arrange(Country, Outcome, desc(Scheme)) %>%
+    kable(booktabs = TRUE)
+}
+```
+
 ## Cross-country transportability
 
 LOCO holdout produced markedly weaker performance (@tbl-loco;
@@ -381,6 +472,20 @@ covariate survived selection). Iron deficiency outcomes transported best
 (median r 0.28), while vitamin-A deficiency in women essentially did not
 transport across countries (median r ≈ −0.12, with anti-predictive
 ordering in two of three estimable holdouts).
+
+The area-level recipe, applied with the universal (earth-observation-only)
+feature set and scored by rank correlation, modestly improved transport but did
+not overturn this picture. Iron deficiency transported to the West-African
+held-out countries (Spearman 0.42 and 0.49 for child iron, 0.75 and 0.35 for
+women's iron, in Gambia and Ghana respectively; all permutation *p* ≤ 0.01) but
+not to Malawi (Spearman ≈ 0.03–0.05, non-significant), and vitamin A did not
+transport in any country. The malaria/IHME enrichment that aided within-country
+prediction *degraded* transport (mean child-iron Spearman 0.30 with universal
+features versus 0.20 enriched), because the malaria–iron and modelled-burden
+relationships are country-specific rather than universal. Cross-country
+prediction is therefore a ranking-only product, valid within an
+epidemiologically similar neighbourhood and requiring national-anchor
+calibration to recover the absolute level.
 
 ```{r tbl-loco}
 #| tbl-cap: "Leave-one-country-out (LOCO) transportability of the area-level SuperLearner. From results/tables/transportability_area_loco_metrics.csv."
