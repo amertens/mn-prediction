@@ -94,14 +94,27 @@ admin2_error_corrected <- function(slfit, svy_admin2) {
     sv <- m$svy_prev * (1 - m$svy_prev) / pmax(m$n_svy, 1)
   naive_mse <- mean(resid2)
   samp_mse  <- mean(sv, na.rm = TRUE)
+  # (Issue 5) Truncating at 0 makes adjusted_rmse_pp a CONSERVATIVE (upward-biased)
+  # point estimate of the noise-removed error: when the true adjusted MSE is near
+  # zero the max(0, .) floor cannot return the (occasionally negative) unbiased
+  # difference, so the reported value is biased toward positive. Footnote in any
+  # table that surfaces adjusted_rmse_pp.
   adj_mse   <- max(0, naive_mse - samp_mse)   # remove truth's sampling noise
+  # (Issue 6) bootstrap CI + permutation null on the district correlation; the
+  # resampling unit is the Admin-2 area (rows of m).
+  cin <- if (exists("metric_ci_null"))
+    metric_ci_null(m$pred_prev, m$svy_prev, "pearson", seed = 202L)
+  else data.frame(pearson_ci_lo = NA_real_, pearson_ci_hi = NA_real_,
+                  pearson_perm_p = NA_real_, n_boot = 0L)
   data.frame(
     country = slfit$country, outcome = slfit$outcome, n_admin2 = nrow(m),
     naive_rmse_pp = round(sqrt(naive_mse) * 100, 2),
     sampling_rmse_pp = round(sqrt(samp_mse) * 100, 2),
     adjusted_rmse_pp = round(sqrt(adj_mse) * 100, 2),
     naive_mae_pp = round(mean(abs(m$pred_prev - m$svy_prev)) * 100, 2),
-    pearson_r = round(suppressWarnings(stats::cor(m$pred_prev, m$svy_prev)), 3)
+    pearson_r = round(suppressWarnings(stats::cor(m$pred_prev, m$svy_prev)), 3),
+    pearson_ci_lo = cin$pearson_ci_lo, pearson_ci_hi = cin$pearson_ci_hi,
+    pearson_perm_p = cin$pearson_perm_p, n_boot = cin$n_boot
   )
 }
 

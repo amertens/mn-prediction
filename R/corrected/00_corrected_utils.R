@@ -26,6 +26,44 @@
   invisible(NULL)
 }
 
+# ── Uncertainty for an area correlation: bootstrap CI + permutation null ──────
+# (Issue 6) With effective n = number of areas (14-87), a bare point r cannot be
+# told from sampling noise. Resamples the analysis UNITS (areas, = rows of
+# pred/obs) with replacement for a percentile CI, and permutes `obs` labels
+# (within `strata` if supplied, else globally) for a one-sided null p = P(null r
+# >= observed r). Returns a 1-row frame: <prefix>_ci_lo/_ci_hi/_perm_p, n_boot.
+metric_ci_null <- function(pred, obs, metric = c("pearson", "spearman"),
+                           strata = NULL, B = 1000L, P = 1000L,
+                           seed = 20260630L, prefix = NULL) {
+  metric <- match.arg(metric)
+  if (is.null(prefix)) prefix <- metric
+  cn <- c(paste0(prefix, c("_ci_lo", "_ci_hi", "_perm_p")), "n_boot")
+  blank <- function() { z <- data.frame(NA_real_, NA_real_, NA_real_, 0L); names(z) <- cn; z }
+  ok <- is.finite(pred) & is.finite(obs)
+  pred <- pred[ok]; obs <- obs[ok]
+  if (!is.null(strata)) strata <- strata[ok]
+  n <- length(obs)
+  mfun <- function(p, o) suppressWarnings(stats::cor(
+    p, o, method = if (metric == "spearman") "spearman" else "pearson"))
+  obs_stat <- mfun(pred, obs)
+  if (!is.finite(obs_stat) || n < 4 || stats::sd(pred) < 1e-12) return(blank())
+  set.seed(seed)
+  bs <- vapply(seq_len(B), function(i) {
+    idx <- sample.int(n, n, replace = TRUE); mfun(pred[idx], obs[idx])
+  }, numeric(1))
+  ci <- stats::quantile(bs, c(.025, .975), na.rm = TRUE)
+  permute <- function() {
+    if (is.null(strata)) return(sample(obs))
+    o <- obs
+    for (g in unique(strata)) { ix <- which(strata == g); o[ix] <- sample(o[ix]) }
+    o
+  }
+  pn <- vapply(seq_len(P), function(i) mfun(pred, permute()), numeric(1))
+  perm_p <- (1 + sum(pn >= obs_stat, na.rm = TRUE)) / (1 + sum(is.finite(pn)))
+  z <- data.frame(round(ci[1], 3), round(ci[2], 3), round(perm_p, 4), B)
+  names(z) <- cn; z
+}
+
 # ── Read an already-built object from the PRODUCTION store ───────────────────
 # The corrected pipeline reuses production data-loading outputs (merged data,
 # per-outcome datasets, survey aggregates, GEE covariates) instead of

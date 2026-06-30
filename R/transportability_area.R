@@ -209,8 +209,14 @@ run_area_transport_loco <- function(pooled, recipe = AREA_TRANSPORT_RECIPE) {
     pp <- .tr_prep_X(tr, te, preds0); Xtr <- pp$Xtr; Xte <- pp$Xte
     ytr_fit <- ytr; level <- mean(ytr)
     if (isTRUE(recipe$center)) {
+      # (Issue 3) Center the held-out country on the TRAINING column means, never
+      # on its own (test) means: `colMeans(Xte)` would leak held-out information
+      # into its own features. NB group-centering train + pooled-mean centering
+      # test is an approximation; the principled transportable analogue is
+      # fit_predict_two_stage() in R/benchmark_models.R.
+      tr_means <- colMeans(Xtr)                        # pooled train means (pre-centering)
       Xtr <- .tr_center_by(Xtr, tr$country)
-      Xte <- sweep(Xte, 2, colMeans(Xte), "-")
+      Xte <- sweep(Xte, 2, tr_means, "-")
       for (g in unique(tr$country)) {
         idx <- tr$country == g; ytr_fit[idx] <- ytr[idx] - mean(ytr[idx])
       }
@@ -234,14 +240,24 @@ run_area_transport_loco <- function(pooled, recipe = AREA_TRANSPORT_RECIPE) {
     pr <- suppressWarnings(stats::cor(yte[ok], pred[ok]))
     sr <- suppressWarnings(stats::cor(yte[ok], pred[ok], method = "spearman"))
     cal <- tryCatch(stats::coef(stats::lm(yte[ok] ~ pred[ok]))[2], error = function(e) NA)
+    # (Issue 6) area-bootstrap CI + within-held-out-country permutation null on the
+    # transport correlation, so a reader can tell r ~ 0.30 from sampling noise.
+    cin <- if (exists("metric_ci_null"))
+      metric_ci_null(pred[ok], yte[ok], "pearson", seed = 101L)
+    else data.frame(pearson_ci_lo = NA_real_, pearson_ci_hi = NA_real_,
+                    pearson_perm_p = NA_real_, n_boot = 0L)
     metrics[[ho]] <- data.frame(
       outcome = pooled$outcome, held_out = ho, n_train = nrow(tr), n_test = sum(ok),
       n_pred = ncol(Xtr), n_selected = length(fp$vars),
-      pearson_r = round(pr, 3), spearman_r = round(sr, 3),
+      pearson_r = round(pr, 3),
+      pearson_ci_lo = cin$pearson_ci_lo, pearson_ci_hi = cin$pearson_ci_hi,
+      pearson_perm_p = cin$pearson_perm_p,
+      spearman_r = round(sr, 3),
       rmse_pp = round(sqrt(mean((yte[ok] - pred[ok])^2)) * 100, 2),
       mae_pp  = round(mean(abs(yte[ok] - pred[ok])) * 100, 2),
       nat_bias_pp = round((mean(pred[ok]) - mean(yte[ok])) * 100, 2),
-      calib_slope = round(as.numeric(cal), 2), stringsAsFactors = FALSE)
+      calib_slope = round(as.numeric(cal), 2), n_boot = cin$n_boot,
+      stringsAsFactors = FALSE)
   }
   list(
     metrics      = if (length(metrics)) dplyr::bind_rows(metrics) else NULL,
