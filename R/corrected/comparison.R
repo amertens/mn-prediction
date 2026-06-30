@@ -20,7 +20,8 @@ prod_cv_for <- function(country_label, outcome_tag) {
              scheme = "PRODUCTION cv_perf (leaky preprocessing, random CV)",
              honest = FALSE,
              auc = round(sel$auc[1], 4),
-             brier = if ("brier" %in% colnames(sel)) round(sel$brier[1], 4) else NA)
+             brier = if ("brier" %in% colnames(sel)) round(sel$brier[1], 4) else NA,
+             auc_ci_lo = NA_real_, auc_ci_hi = NA_real_)  # (Issue 6) no honest CI for the leaky path
 }
 
 build_methods_comparison <- function(slices_results) {
@@ -46,8 +47,10 @@ build_methods_comparison <- function(slices_results) {
   # CV honesty table: corrected schemes + production reference, side by side.
   cv_compare <- NULL
   if (!is.null(cv)) {
-    base <- cv[, c("country", "outcome", "scheme", "honest", "auc", "brier")]
-    if (!is.null(prodcv)) base <- rbind(base, prodcv[, colnames(base)])
+    cols <- intersect(c("country", "outcome", "scheme", "honest", "auc", "brier",
+                        "auc_ci_lo", "auc_ci_hi"), colnames(cv))   # (Issue 6) carry AUC CI
+    base <- cv[, cols]
+    if (!is.null(prodcv)) base <- rbind(base, prodcv[, intersect(cols, colnames(prodcv))])
     cv_compare <- base[order(base$country, base$outcome, -base$auc), ]
   }
 

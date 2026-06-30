@@ -123,6 +123,7 @@ fit_corrected_sl <- function(outcome_data, cc, oc, country_label,
     x$oof$Admin1  <- region_vec
     x$oof$country <- country_label
     x$oof$w       <- w_ind            # per-individual survey weight (Issue 2)
+    x$oof$cluster <- as.character(cluster_vec)  # design unit for AUC bootstrap (Issue 6)
     x
   }
   list(
@@ -140,10 +141,15 @@ extract_cv_perf_corrected <- function(slfit) {
   if (!is.null(slfit$error)) return(NULL)
   mk <- function(tag, honest, x) {
     m <- binary_metrics(x$oof$Y, x$oof$yhat_full)
+    cl <- if (!is.null(x$oof$cluster)) x$oof$cluster else x$oof$Admin2  # (Issue 6)
+    ci <- if (exists("auc_ci_cluster"))
+      auc_ci_cluster(x$oof$Y, x$oof$yhat_full, cl)
+    else c(auc_ci_lo = NA_real_, auc_ci_hi = NA_real_)
     data.frame(country = slfit$country, outcome = slfit$outcome,
                scheme = tag, honest = honest,
                top_learner = paste(sort(unique(x$chosen)), collapse = "+"),
-               m, stringsAsFactors = FALSE)
+               m, auc_ci_lo = ci[["auc_ci_lo"]], auc_ci_hi = ci[["auc_ci_hi"]],
+               stringsAsFactors = FALSE)
   }
   rbind(
     mk("cluster-block CV", TRUE,  slfit$honest_cluster),

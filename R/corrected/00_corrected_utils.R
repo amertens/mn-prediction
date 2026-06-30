@@ -43,10 +43,11 @@ metric_ci_null <- function(pred, obs, metric = c("pearson", "spearman"),
   pred <- pred[ok]; obs <- obs[ok]
   if (!is.null(strata)) strata <- strata[ok]
   n <- length(obs)
+  if (n < 4) return(blank())
   mfun <- function(p, o) suppressWarnings(stats::cor(
     p, o, method = if (metric == "spearman") "spearman" else "pearson"))
   obs_stat <- mfun(pred, obs)
-  if (!is.finite(obs_stat) || n < 4 || stats::sd(pred) < 1e-12) return(blank())
+  if (!is.finite(obs_stat) || stats::sd(pred) < 1e-12) return(blank())
   set.seed(seed)
   bs <- vapply(seq_len(B), function(i) {
     idx <- sample.int(n, n, replace = TRUE); mfun(pred[idx], obs[idx])
@@ -241,6 +242,25 @@ auc_manual <- function(y, p) {
   r <- rank(c(pos, neg))
   (sum(r[seq_along(pos)]) - length(pos) * (length(pos) + 1) / 2) /
     (length(pos) * length(neg))
+}
+
+# (Issue 6) Cluster-bootstrap CI for AUC: resample whole clusters (the survey
+# design unit) with replacement so the interval respects the within-cluster
+# dependence. Returns c(auc_ci_lo, auc_ci_hi).
+auc_ci_cluster <- function(y, p, cluster, B = 500L, seed = 303L) {
+  ok <- is.finite(y) & is.finite(p)
+  y <- y[ok]; p <- p[ok]; cluster <- as.character(cluster)[ok]
+  if (length(unique(y)) < 2 || length(y) < 8)
+    return(c(auc_ci_lo = NA_real_, auc_ci_hi = NA_real_))
+  cl <- split(seq_along(y), cluster); ucl <- names(cl)
+  set.seed(seed)
+  bs <- vapply(seq_len(B), function(i) {
+    samp <- unlist(cl[sample(ucl, length(ucl), replace = TRUE)], use.names = FALSE)
+    yy <- y[samp]; pp <- p[samp]
+    if (length(unique(yy)) < 2) NA_real_ else auc_manual(yy, pp)
+  }, numeric(1))
+  q <- stats::quantile(bs, c(.025, .975), na.rm = TRUE)
+  c(auc_ci_lo = round(unname(q[1]), 4), auc_ci_hi = round(unname(q[2]), 4))
 }
 
 binary_metrics <- function(y, p) {
