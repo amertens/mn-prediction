@@ -69,3 +69,4 @@ shap_kernel_run.out.err
 !/simplified subset/data/**
 # Office lock/temp files
 ~$*
+.DS_Store
