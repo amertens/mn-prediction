@@ -356,6 +356,12 @@ prune_predictor_cols <- function(cols, survey_year = NA_integer_) {
       drop <- c(drop, map[setdiff(idx, keep)])
     }
   }
+
+  # --- GEE covariate hygiene (opt-in, GEE_COVARIATE_HYGIENE=true) ---
+  # Cross-band _annual_* summaries over non-commensurable bands, plus static
+  # layers' identical per-year copies. See R/gee_band_semantics.R.
+  drop <- c(drop, prune_gee_covariates(cols, verbose = FALSE))
+
   unique(drop)
 }
 

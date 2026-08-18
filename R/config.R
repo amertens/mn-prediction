@@ -635,7 +635,21 @@ get_pipeline_params <- function(mode = Sys.getenv("PIPELINE_MODE", "fast")) {
     # lives in R/feature_engineering_constructs.R, unwired by design.
     normalize_method    = tolower(Sys.getenv("FE_NORMALIZE", "zscore")),
     use_outcome_bundles = tolower(Sys.getenv("FE_BUNDLES", "false")) %in%
-                            c("1", "true", "yes")
+                            c("1", "true", "yes"),
+
+    #   GEE_COVARIATE_HYGIENE=true -> drop the cross-band `_annual_*` summaries
+    #                          taken over NON-commensurable bands (soil depth
+    #                          means averaged with their stdevs, FLDAS averaging
+    #                          pressure with wind, land-cover class codes, ...)
+    #                          plus static layers' identical per-year copies.
+    #                          See R/gee_band_semantics.R. Recorded here so the
+    #                          setting is captured in `pipeline_params` and thus
+    #                          in the target hash for everything downstream of
+    #                          it -- an env var alone is invisible to {targets}.
+    #                          Area-level targets read the flag directly, so
+    #                          after changing it run:
+    #                            targets::tar_invalidate(matches("area_|loco"))
+    gee_covariate_hygiene = gee_hygiene_enabled()
   )
 
   if (mode == "fast") {

@@ -296,6 +296,17 @@ build_area_loco_dataset <- function(svy_admin2_list, gee_admin2_list) {
   cat(sprintf("[area_loco] %d common GEE variables across %d countries\n",
               length(common_vars), length(gee_admin2_list)))
 
+  # Optional covariate hygiene: drop cross-band _annual_* summaries over
+  # non-commensurable bands and static layers' per-year duplicates. Applied
+  # AFTER the intersection so the pruning is identical for every country.
+  # No-op unless GEE_COVARIATE_HYGIENE=true. See R/gee_band_semantics.R.
+  hy_drop <- prune_gee_covariates(common_vars)
+  if (length(hy_drop)) {
+    common_vars <- setdiff(common_vars, hy_drop)
+    cat(sprintf("[area_loco] %d GEE variables after covariate hygiene\n",
+                length(common_vars)))
+  }
+
   # Per-country Admin-2 centroid (lon/lat) lookup so spatial comparators
   # (spatial_coords / spatial_plus_soil) have coordinates to work with. Pulled
   # from the shared GADM cache via the same helper GWR uses; degrades

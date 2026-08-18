@@ -139,19 +139,81 @@ path and the LOCO pooling path is a live drift risk. Both now call one
 
 ---
 
-## 6. Cross-band summaries over non-commensurable bands — OPEN (documented)
+## 6. Cross-band summaries over non-commensurable bands — FIXED (opt-in)
 
-`.append_gee_zonal_cols()` emits `_annual_mean` / `_annual_sd` / `_annual_min` /
-`_annual_max` / `_annual_range` **across bands**, whether or not the bands are
-commensurable. For the iSDAsoil rasters that averages depth means together with
-their standard deviations; for FLDAS it averages distinct physical variables.
-The resulting columns are not physically meaningful, but they are in the shared
-cross-country vocabulary and are fed to the models for all countries.
+`.append_gee_zonal_cols()` emits five cross-band summaries
+(`_annual_mean` / `_sd` / `_min` / `_max` / `_range`) for every raster with <= 24
+bands. That is correct when the bands are a temporal series of one variable
+(`LST_Night_Monthly` -> annual mean night temperature). It is applied
+indiscriminately, so it also runs on rasters whose bands are different
+quantities. Classified from the actual band names in
+`data/Sierra_Leone_GEE_rasters/`:
 
-Not changed: removing them would alter every existing result. The legacy-parity
-extractor reproduces them deliberately, with the reason stated in
-`.parity_band_summaries()`, so a new country remains poolable. Worth revisiting
-as a covariate-hygiene pass.
+| Family | Bands | Verdict |
+|---|---|---|
+| `LST_Night_Monthly` | `2013_01_Mean` … `2013_12_Mean` | temporal — meaningful |
+| `WAPOR` | 36 dekadal NPP slices | temporal — meaningful |
+| iSDAsoil (x11) | `mean_0_20`, `mean_20_50`, `stdev_0_20`, `stdev_20_50` | location averaged with dispersion |
+| `TerraClimate` | `aet, def, pdsi, pet, pr, ro, …` | distinct variables |
+| `FLDAS` | `Evap_tavg, Psurf_f_tavg, Qair_f_tavg, …` | distinct variables |
+| `LST_Night_Annual_Mean` | `Mean`, `FilledProportion` | Kelvin (~290) averaged with a 0-1 proportion |
+| `Productivity` | `Gpp`, `Npp`, `Npp_QC` | averages a **quality-control flag** into the value |
+| `LandCoverType` / `LandCoverLayers` | `LC_Type1…5`, class codes | arithmetic on **categorical codes** |
+| `GPW_Demographic` | 77 age-sex count bins | a scaled total count |
+
+Consequences that reach reported results:
+
+- The summary is dominated by whichever band has the largest units.
+  `gee_fldas_..._annual_mean` = 3640.9 on Sierra Leone, which is surface pressure
+  (~98,000 Pa) / 27 — an elevation proxy wearing a climate label.
+- Some summaries are **exact duplicates** of a real band:
+  `gee_soilzinc_annual_max` is bit-for-bit identical to `gee_soilzinc_mean_0_20`
+  (likewise iron, potassium), and `gee_terraclimate_2012_annual_min` is identical
+  to `gee_terraclimate_2012_pdsi`.
+- Duplicates split variable importance and make the lasso's choice among
+  identical columns arbitrary, destabilising the per-fold selected-variable lists
+  in `transportability_area_selected_vars.csv` for reasons unrelated to the data.
+
+Scale (Sierra Leone): 543 Admin-2 `gee_` columns, **248 (46%) cross-band
+summaries**, **243 columns an exact copy of another**. In the 149-variable
+cross-country vocabulary, 62 (42%) are summaries.
+
+**Fix.** `R/gee_band_semantics.R` declares band semantics per family
+(`temporal` / `multivariate` / `categorical`) and prunes by NAME — deliberately
+not by value, since a value-based filter would drop different columns in
+different countries and reintroduce finding #1's country-dependent vocabulary.
+Wired into the three predictor-selection choke points: `prune_predictor_cols()`
+(individual), `build_area_loco_dataset()` and `assemble_area_transport()` (area),
+always applied *after* the intersection so pruning is identical for every
+country. An unclassified family keeps its summaries and is reported, so this can
+never silently delete a covariate. Diagnostics:
+`scripts/check_covariate_hygiene.R`.
+
+**Gated OFF by default** (`GEE_COVARIATE_HYGIENE=true` to enable) and recorded in
+`pipeline_params` so the setting is captured in the target hash rather than
+living in an invisible env var.
+
+**Measured effect** (`scripts/compare_covariate_hygiene.R`, area-level LOCO
+transport recipe, 4 countries, cross-country vocabulary 149 -> 87):
+
+| Outcome | LOCO Pearson r, v1 -> v2 | MAE (pp), v1 -> v2 |
+|---|---|---|
+| child_iron | 0.207 -> 0.192 (−0.015) | 22.9 -> **20.0** |
+| child_vitA | 0.066 -> 0.031 (−0.035) | 10.5 -> **9.7** |
+| women_iron | −0.119 -> −0.128 (−0.009) | 21.7 -> **21.3** |
+| women_vitA | 0.044 -> 0.050 (+0.006) | 2.29 -> 2.34 |
+
+Removing **42% of the covariates** moves mean LOCO rank correlation by −0.013 and
+improves absolute error in 3 of 4 outcomes. With only four held-out countries
+neither difference is statistically meaningful — which is the finding: **those 62
+columns carry essentially no information**. They can be dropped for
+interpretability and parsimony at no measurable cost, and since this project's
+documented dominant failure mode is a level/calibration offset (MAE) rather than
+ranking, the consistent MAE improvement is the more relevant direction.
+
+**Recommended default: on**, flipped as a deliberate one-line change *after* the
+Tanzania rebuild lands, so "Tanzania added" and "vocabulary changed" are not
+confounded in the same set of numbers.
 
 ---
 
