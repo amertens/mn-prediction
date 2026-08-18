@@ -266,6 +266,48 @@ merge_food_security <- function(merged_data, cc, hfid_path, ch_path) {
   country_key <- gsub(" ", "", cc$country)  # "Sierra Leone" -> "SierraLeone"
   cat(sprintf("[fsec] Merging food security data for %s\n", cc$country))
 
+  # ── Make this merge idempotent ──────────────────────────────────────────
+  # The per-country merge scripts (src/<Country>/2_GW_*_data_merge.R) now call
+  # merge_food_security() themselves, so the *_merged_dataset.rds files already
+  # carry fsec_ columns. Re-merging on top of them made dplyr::left_join()
+  # suffix the collisions to fsec_x.x / fsec_x.y, after which merge_by_admin()'s
+  # `target[, data_cols]` selected columns that no longer existed. Every country
+  # failed on rebuild -- Tanzania with "undefined columns selected", the other
+  # four with "All columns in a tibble must be vectors".
+  #
+  # Dropping the stale fsec_ columns first makes the function safe to re-run on
+  # its own output, which is what a {targets} rebuild does.
+  stale_fsec <- grep("^fsec_", colnames(merged_data), value = TRUE)
+  if (length(stale_fsec) > 0) {
+    merged_data <- merged_data[, setdiff(colnames(merged_data), stale_fsec),
+                               drop = FALSE]
+    cat(sprintf("  [fsec] Dropped %d pre-existing fsec_ column(s) before re-merging\n",
+                length(stale_fsec)))
+  }
+
+  # ── Set aside non-vector columns for the duration of the joins ───────────
+  # Gambia/Ghana/Sierra Leone/Malawi merged datasets carry an sf `geometry`
+  # column (sfc_POINT). dplyr::left_join() converts its inputs with as_tibble(),
+  # which rejects a list/matrix column outright ("All columns in a tibble must be
+  # vectors"), so every one of those countries failed here on rebuild. The joins
+  # below key on Admin1/Admin2 only and never touch geometry, so it is stashed
+  # and re-attached by row position afterwards.
+  is_nonvec <- vapply(merged_data, function(x) !is.null(dim(x)) || is.list(x),
+                      logical(1))
+  stashed <- NULL
+  if (any(is_nonvec)) {
+    if (inherits(merged_data, "sf")) merged_data <- sf::st_drop_geometry(merged_data)
+    is_nonvec <- vapply(merged_data, function(x) !is.null(dim(x)) || is.list(x),
+                        logical(1))
+    if (any(is_nonvec)) {
+      stashed <- merged_data[, is_nonvec, drop = FALSE]
+      merged_data <- merged_data[, !is_nonvec, drop = FALSE]
+    }
+    cat(sprintf("  [fsec] Set aside %d non-vector column(s) during the merge\n",
+                max(ncol(stashed), 0L)))
+  }
+  n_rows_in <- nrow(merged_data)
+
   n_before <- ncol(merged_data)
 
   # ── HFID merge ──────────────────────────────────────────────────────────
@@ -316,6 +358,22 @@ merge_food_security <- function(merged_data, cc, hfid_path, ch_path) {
   n_fsec <- sum(startsWith(colnames(merged_data), "fsec_"))
   cat(sprintf("  [fsec] Added %d food security columns (%d total fsec_ cols)\n",
               n_after - n_before, n_fsec))
+
+  # Re-attach the stashed non-vector columns. left_join() preserves the row order
+  # and count of its left-hand side (the merge keys are unique -- both merge_df
+  # builders summarise by key), so position-wise re-attachment is valid. Guarded
+  # anyway: if the row count moved, something upstream duplicated rows and the
+  # columns are dropped with a warning rather than silently misaligned.
+  if (!is.null(stashed)) {
+    if (nrow(merged_data) == n_rows_in) {
+      merged_data <- cbind(merged_data, stashed)
+    } else {
+      warning(sprintf(paste0("[fsec] row count changed during merge (%d -> %d); ",
+                             "dropping %d non-vector column(s) rather than ",
+                             "re-attaching them out of alignment"),
+                      n_rows_in, nrow(merged_data), ncol(stashed)))
+    }
+  }
 
   merged_data
 }

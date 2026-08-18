@@ -224,6 +224,33 @@ confounded in the same set of numbers.
 
 ---
 
+## 6b. merge_food_security() was not re-runnable — FIXED
+
+**Severity: high.** Found by a Tanzania-scoped smoke run before committing to the
+full rebuild; it was **not** Tanzania-specific. `merge_food_security()` failed for
+**all five countries** on re-run, i.e. the next `tar_make()` would have died about
+an hour in. Two independent causes:
+
+1. **Not idempotent.** The per-country merge scripts
+   (`src/<Country>/2_GW_*_data_merge.R`) now call `merge_food_security()`
+   themselves, so the `*_merged_dataset.rds` files already carry `fsec_` columns.
+   Re-merging made `dplyr::left_join()` suffix the collisions to `.x`/`.y`, after
+   which `merge_by_admin()`'s `target[, data_cols]` selected columns that no
+   longer existed (`undefined columns selected`). Fixed by dropping stale
+   `fsec_` columns before re-merging.
+2. **sf geometry column.** Gambia/Ghana/Sierra Leone/Malawi merged datasets carry
+   an `sfc_POINT` `geometry` column. `dplyr::left_join()` converts via
+   `as_tibble()`, which rejects list/matrix columns outright (`All columns in a
+   tibble must be vectors`). Fixed by stashing non-vector columns for the
+   duration of the joins and re-attaching by position, guarded on the row count.
+
+Why the cached targets hid it: `merged_fsec_*` was built when the raw RDS files
+did *not* yet contain `fsec_` columns, and nothing invalidated it when they
+started to. This is finding #2 (untracked inputs) producing a latent break rather
+than a wrong number.
+
+---
+
 ## 7. Reproducibility checks that came back clean
 
 - **No absolute paths or `setwd()`** in `R/`, `_targets.R` or `sensitivity/`
