@@ -31,6 +31,57 @@ UNIFORM_TRANSPORT_TAGS <- c("child_iron", "women_iron", "child_vitA", "women_vit
   NULL
 }
 
+#' Path of a country's legacy-parity GEE CSV.
+#'
+#' Keyed on the ISO3 `gadm_code`, NOT on `cc$country`: the config's display name
+#' ("Sierra Leone") differs from the config key and the CLI argument
+#' ("SierraLeone"), so a name-based path silently misses the file for any
+#' multi-word country. Written by scripts/build_gee_legacy_parity.R.
+legacy_parity_csv_path <- function(cc) {
+  here::here("data", "GEE",
+             paste0(cc$gadm_code, "_legacy_parity_admin2_gee.csv"))
+}
+
+#' Attach Earth-Engine-extracted admin-2 covariates under the LEGACY gee_* names
+#'
+#' Fallback for a country that has no local .tif exports in
+#' data/<Country>_GEE_rasters/. scripts/build_gee_legacy_parity.R writes
+#' data/GEE/<ISO3>_legacy_parity_admin2_gee.csv with exactly the column names
+#' .append_gee_zonal_cols() would have produced from rasters, so such a country
+#' joins the shared cross-country predictor vocabulary instead of silently
+#' contributing nothing (and collapsing every pooled intersection to zero).
+#'
+#' Values are matched by Admin2 name and returned in `base`'s row order, so the
+#' result lines up with the polygon order callers rely on.
+#'
+#' @param base data.frame with at least an Admin2 column, in polygon order
+#' @param cc Country config (needs gadm_code, country)
+#' @return `base` with gee_* columns appended, or `base` unchanged if no CSV
+.append_legacy_parity_cols <- function(base, cc) {
+  csv <- legacy_parity_csv_path(cc)
+  if (!file.exists(csv)) return(base)
+
+  parity <- tryCatch(utils::read.csv(csv, check.names = FALSE,
+                                     stringsAsFactors = FALSE),
+                     error = function(e) NULL)
+  if (is.null(parity) || !"Admin2" %in% names(parity)) {
+    warning(sprintf("[gee_parity] unreadable or Admin2-less CSV: %s", csv))
+    return(base)
+  }
+  gee_cols <- grep("^gee_", names(parity), value = TRUE)
+  if (!length(gee_cols)) return(base)
+
+  parity$Admin2 <- trimws(as.character(parity$Admin2))
+  parity <- parity[!duplicated(parity$Admin2), , drop = FALSE]
+  idx <- match(trimws(as.character(base$Admin2)), parity$Admin2)
+  for (v in gee_cols) base[[v]] <- parity[[v]][idx]
+
+  cat(sprintf("[gee_parity] %s: %d legacy-named GEE columns from %s (%d/%d areas matched)\n",
+              cc$country, length(gee_cols), basename(csv),
+              sum(!is.na(idx)), nrow(base)))
+  base
+}
+
 #' Append GEE raster zonal-mean columns to a base Admin-2 data frame
 #'
 #' Shared by extract_gee_admin2() (individual-level merge) and
@@ -170,16 +221,27 @@ extract_gee_admin2 <- function(cc) {
   all_polys$Admin2 <- all_polys$NAME_2
   all_polys$Admin1 <- all_polys$NAME_1
 
+  gee_admin2 <- data.frame(Admin1 = all_polys$Admin1, Admin2 = all_polys$Admin2)
   raster_dir <- .resolve_raster_dir(cc$raster_dir)
+
   if (is.null(raster_dir)) {
-    cat(sprintf("[extract_gee_admin2] No raster dir for %s\n", cc$country))
-    return(data.frame(Admin1 = all_polys$Admin1, Admin2 = all_polys$Admin2))
+    # No local rasters — fall back to the Earth-Engine legacy-parity CSV, which
+    # carries the same column names the raster path would have produced.
+    cat(sprintf("[extract_gee_admin2] No raster dir for %s — trying legacy-parity CSV\n",
+                cc$country))
+    gee_admin2 <- .append_legacy_parity_cols(gee_admin2, cc)
+    if (ncol(gee_admin2) == 2L)
+      warning(sprintf(paste0("[extract_gee_admin2] %s has neither GEE rasters nor a ",
+                             "legacy-parity CSV: it will contribute NO GEE predictors ",
+                             "and will empty the pooled/LOCO GEE intersection. Run ",
+                             "scripts/build_gee_legacy_parity.R %s."),
+                      cc$country, cc$country))
+    return(gee_admin2)
   }
 
   cat(sprintf("[extract_gee_admin2] %s: %d Admin-2 polygons\n",
               cc$country, nrow(all_polys)))
 
-  gee_admin2 <- data.frame(Admin1 = all_polys$Admin1, Admin2 = all_polys$Admin2)
   gee_admin2 <- .append_gee_zonal_cols(gee_admin2, all_polys, raster_dir)
 
   n_gee <- ncol(gee_admin2) - 2  # minus Admin1, Admin2
@@ -235,15 +297,21 @@ extract_area_covariates <- function(cc) {
   all_polys <- sf::st_as_sf(gadm_raw)
   all_polys$Admin2 <- all_polys$NAME_2
 
+  gee_admin2 <- data.frame(Admin2 = all_polys$Admin2)
   raster_dir <- .resolve_raster_dir(cc$raster_dir)
+
   if (is.null(raster_dir)) {
-    warning(sprintf("[extract_area_covariates] GEE raster directory not found: %s",
-                    cc$raster_dir))
-    return(list(gee_admin2 = data.frame(Admin2 = all_polys$Admin2),
-                polygons   = all_polys))
+    # Same fallback as extract_gee_admin2(): Earth-Engine covariates under the
+    # legacy column names, matched by Admin2 and returned in polygon order.
+    gee_admin2 <- .append_legacy_parity_cols(gee_admin2, cc)
+    if (ncol(gee_admin2) == 1L)
+      warning(sprintf(paste0("[extract_area_covariates] no GEE rasters (%s) and no ",
+                             "legacy-parity CSV for %s — the area model has no ",
+                             "covariates. Run scripts/build_gee_legacy_parity.R %s."),
+                      cc$raster_dir, cc$country, cc$country))
+    return(list(gee_admin2 = gee_admin2, polygons = all_polys))
   }
 
-  gee_admin2 <- data.frame(Admin2 = all_polys$Admin2)
   gee_admin2 <- .append_gee_zonal_cols(gee_admin2, all_polys, raster_dir)
   cat(sprintf("[extract_area_covariates] %s: %d GEE variables extracted\n",
               cc$country, ncol(gee_admin2) - 1))
@@ -320,18 +388,12 @@ compute_svy_admin2 <- function(outcome_data, cc, oc) {
       # 2026-06-23 (DC-H2): uniform BRINDA inflammation adjustment of RBP, so every
       # country's VAD outcome uses ONE method (R/brinda_adjustment.R), validated in
       # docs/dc_h2_brinda_validation.md. Replaces the prior Thurnham/raw RBP mix.
-      pop  <- if (grepl("^child", oc$tag)) "child" else "women"
-      cols <- brinda_rbp_cols(cc$country)[[pop]]
-      if (!is.null(cols) && all(cols %in% colnames(d))) {
-        adj_rbp <- brinda_adjust_rbp(d[[cols[1]]], d[[cols[2]]], d[[cols[3]]])
-        derived <- as.numeric(adj_rbp < 0.70)
-        cat(sprintf("  [svy_admin2] %s — %s: uniform BRINDA RBP<0.70 => %d/%d (%.1f%%) deficient\n",
-                    cc$country, oc$tag, sum(derived == 1, na.rm = TRUE),
-                    sum(!is.na(derived)), 100 * mean(derived, na.rm = TRUE)))
-      } else {
-        warning(sprintf("[svy_admin2] %s %s: BRINDA RBP/CRP/AGP cols missing (%s); using configured binary",
-                        cc$country, oc$tag, paste(cols, collapse = ",")))
-      }
+      # brinda_vad_binary() is the single source of truth, shared with
+      # apply_brinda_vita_binary(); it warns and returns NULL when a country's
+      # biomarker columns are unavailable, in which case the configured binary
+      # is kept.
+      newbin <- brinda_vad_binary(d, cc, oc, label = "[svy_admin2]")
+      if (!is.null(newbin)) derived <- as.numeric(newbin)
     } else if (!is.null(oc$continuous) && oc$continuous %in% colnames(d) && !is.null(oc$cutoff)) {
       # Non-VitA uniform outcomes (iron): threshold the configured continuous.
       derived <- apply_threshold(suppressWarnings(as.numeric(d[[oc$continuous]])),

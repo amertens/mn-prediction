@@ -447,15 +447,41 @@ for (country_name in names(all_country_configs)) {
     )
   ))
 
-  # Extract GEE raster zonal means for Admin-2 polygons (once per country)
+  # ── Track the legacy-parity GEE CSV so edits to it invalidate downstream ────
+  # A country with no data/<Country>_GEE_rasters/ gets its Admin-2 covariates
+  # from data/GEE/<ISO3>_legacy_parity_admin2_gee.csv instead (see
+  # .append_legacy_parity_cols in R/admin2_analysis.R). That file is read inside
+  # extract_gee_admin2(), so {targets} cannot see it — without this stamp, a
+  # freshly-written or corrected parity CSV would be ignored and the pipeline
+  # would keep serving a covariate-free cached snapshot. Same hazard the
+  # path_merged_* file targets above guard against.
+  #
+  # format = "file" is not usable here: the four raster countries have no such
+  # CSV and a missing file target is an error. Instead the stamp re-computes
+  # every run (cheap md5 of a ~200 KB CSV) and only invalidates downstream when
+  # the file's contents actually change.
+  parity_stamp_name <- paste0("gee_parity_stamp_", lc)
+  country_targets <- c(country_targets, list(
+    tar_target_raw(
+      parity_stamp_name,
+      substitute({
+        p <- legacy_parity_csv_path(cc_val)
+        if (file.exists(p)) unname(tools::md5sum(p)) else NA_character_
+      }, list(cc_val = cc)),
+      cue = tar_cue(mode = "always")
+    )
+  ))
+
+  # Extract GEE raster zonal means for Admin-2 polygons (once per country).
+  # Depends on the parity stamp so a new/updated parity CSV re-triggers it.
   gee_admin2_target_name <- paste0("gee_admin2_", tolower(country_name))
   country_targets <- c(country_targets, list(
     tar_target_raw(
       gee_admin2_target_name,
-      substitute(
-        extract_gee_admin2(cc_val),
-        list(cc_val = cc)
-      )
+      substitute({
+        force(parity_stamp_val)
+        extract_gee_admin2(cc_val)
+      }, list(cc_val = cc, parity_stamp_val = as.symbol(parity_stamp_name)))
     )
   ))
 
@@ -538,7 +564,15 @@ for (cc_name_area in names(all_country_configs)) {
   country_targets <- c(country_targets, list(
     tar_target_raw(
       area_cov_target,
-      substitute(extract_area_covariates(cc_val), list(cc_val = cc_area_local))
+      # Same untracked-input hazard as gee_admin2_*: extract_area_covariates()
+      # reads the legacy-parity CSV internally for countries with no rasters, so
+      # depend on that file's stamp explicitly.
+      substitute({
+        force(parity_stamp_val)
+        extract_area_covariates(cc_val)
+      }, list(cc_val = cc_area_local,
+              parity_stamp_val = as.symbol(paste0("gee_parity_stamp_",
+                                                  tolower(cc_name_area)))))
     )
   ))
 
@@ -1530,6 +1564,39 @@ corrected_targets <- c(corrected_targets, list(
                list(W = area_recipe_within_expr, TR = area_recipe_transport_expr)))))
 
 # ── Combine everything ──────────────────────────────────────────────────────
+# ── Aggregation-level national-prevalence sweep ─────────────────────────────
+# Refreshes with the pipeline: for each country x outcome, compares national-
+# prevalence accuracy when the model is fit at cluster / admin-1 / admin-2 level
+# (see R/aggregation_level_sweep.R). Depends on every outcome_data_* target, so
+# it re-runs whenever those change. Writes the summary CSV as a side effect.
+aggregation_targets <- list()
+if (length(all_country_configs) >= 1) {
+  od_syms <- list()
+  for (ck in names(all_country_configs)) {
+    # Skip countries whose merged dataset isn't built yet (e.g. Tanzania WIP) so
+    # this target doesn't depend on outcome_data_* targets that can't build.
+    if (!file.exists(all_country_configs[[ck]]$data_path)) next
+    for (tag in names(all_country_configs[[ck]]$outcomes)) {
+      sfx <- paste0(tolower(ck), "_", tag)
+      od_syms[[sfx]] <- as.symbol(paste0("outcome_data_", sfx))
+    }
+  }
+  od_list_expr <- as.call(c(list(as.symbol("list")), od_syms))
+  aggregation_targets <- list(
+    tar_target_raw(
+      "aggregation_level_national",
+      substitute({
+        res <- run_aggregation_level_sweep(od_list_val, get_country_configs())
+        dir.create(here::here("results", "sensitivity"),
+                   showWarnings = FALSE, recursive = TRUE)
+        if (nrow(res)) readr::write_csv(res, here::here(
+          "results", "sensitivity", "aggregation_level_national_summary.csv"))
+        res
+      }, list(od_list_val = od_list_expr))
+    )
+  )
+}
+
 c(static_targets, country_targets, area_comparison_targets, area_loco_targets,
   benchmark_targets, area_transport_targets, transport_targets, oos_targets,
-  summary_targets, corrected_targets)
+  summary_targets, corrected_targets, aggregation_targets)

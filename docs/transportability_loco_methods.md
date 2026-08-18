@@ -1,9 +1,9 @@
 # Transportability (LOCO) methods
 
 **Project:** Subnational micronutrient-deficiency prediction from proxy indicators
-**Countries:** Gambia (2018), Ghana (2017), Sierra Leone (2013), Malawi (2015–16)
+**Countries:** Gambia (2018), Ghana (2017), Sierra Leone (2013), Malawi (2015–16), Tanzania (TDHS 2009–10, vitamin A only — see §4)
 **Outcomes:** child & women iron (ferritin), vitamin A (RBP), folate, B12 (women)
-**Last updated:** 2026-06 (post folate-harmonization + grouplasso drop)
+**Last updated:** 2026-08-18 (Tanzania added as a fifth country; see §4)
 
 This document catalogs every method tried for the **leave-one-country-out (LOCO)** transportability evaluation — the test of whether a model trained on three countries can predict Admin-2 deficiency prevalence in the held-out fourth.
 
@@ -103,7 +103,102 @@ Median LOCO r by method (best → worst, abbreviated):
 
 ---
 
-## 4. Honest conclusion
+## 4. Adding a fifth country (Tanzania, TDHS 2009-10)
+
+Tanzania contributes **vitamin A only** (RBP-based VAD, women + children). Iron
+is excluded because TDHS 2010 assayed sTfR, not ferritin, so it is not
+comparable to the definition the other four use; iodine does not fit the
+individual-to-Admin-2 prevalence framework.
+
+Two things had to be true before it could enter the LOCO at all, and neither was
+true when the merged dataset was first built.
+
+### 4.1 The covariate vocabulary had to be reconciled
+
+Every pooled/LOCO builder takes a strict **intersection** of covariate names
+across countries. The four original countries' Admin-2 covariates are zonal
+means over local `.tif` exports, named after the **raster filename**
+(`gee_ndvi_2013`, `gee_soilzinc_mean_0_20`). Tanzania's came from the Earth
+Engine API, named after **EE bands** (`gee_a2_NDVI`,
+`gee_a2_SoilZinc_mean_0_20`). The two vocabularies overlap **0 of 149**.
+
+Switching Tanzania on by config alone would therefore have silently cut the
+area-level LOCO covariate set from **149 to 0**, and the individual-level pooled
+proxy set from **585 to 129** (its `gee_` block from 419 to **0**) — for every
+country, with no error raised. This is worth stating plainly because it is
+invisible in the outputs: the models still fit, and still report metrics.
+
+**Resolution.** `scripts/build_gee_legacy_parity.R` (built on
+`src/GEE/extract_gee_legacy_parity.R`) pulls the same EE assets and emits the
+**legacy** column names, so a country with no local rasters joins the existing
+vocabulary directly. `extract_gee_admin2()` / `extract_area_covariates()` fall
+back to it automatically, `_targets.R` tracks the CSV's checksum so a rewrite
+invalidates downstream, and `build_pooled_dataset()` now logs per-domain
+per-country covariate counts and warns when a domain contributes zero.
+
+**Validation is the load-bearing part.** The extractor was checked against Sierra
+Leone, which has both representations: each column must reproduce the
+raster-derived values at **r >= 0.9 AND a mean within 10%**. Rank agreement alone
+is not sufficient — a constant scale offset on one country is read by the pooled
+model as a genuine country difference, which is precisely the failure mode
+catalogued in section 3. The first version of the extractor passed only **22 of
+148** columns; the failures were three silent scale errors (a year-over-year
+delta band averaged into the base value, halving TRMM; a missing iSDAsoil
+`exp(x/10) - 1` back-transform; and mask-vs-zero semantics on WSF). After the
+fixes: **135/135 pass**
+(`results/sensitivity/gee_legacy_parity_validation_sierraleone.csv`).
+
+**Cost of admitting Tanzania**, to be reported rather than buried:
+
+| Set | Without Tanzania | With Tanzania |
+|---|---|---|
+| Area-level (Admin-2) LOCO GEE covariates | 149 | 135 |
+| Individual-level pooled `gee_` covariates | 419 (Admin-2 + cluster-buffer) | 135 (Admin-2 only) |
+
+A further consideration for the individual-level pool: rows are **not**
+country-weighted, and Tanzania's vitamin A sample (6,238 children) is five to
+thirteen times any other country's. In every LOCO fold holding out a small
+survey, Tanzania would supply roughly two-thirds of the training rows. A
+country-weighted sensitivity run is warranted before reading anything into the
+individual-level numbers.
+
+The 14 dropped Admin-2 variables are `gee_accessibility_2019` (EE asset
+corrupted server-side), the five `gee_esa_worldcereal_2021_*` summaries, seven of
+nine `gee_soiltotalcarbon_*`, and `gee_ndvi_2022` (beyond AVHRR CDR coverage).
+The 186 **cluster-buffer** variables come from an analyst EE Code Editor export
+that is not in the repo, and the `fpp_`/`tpp_` families cannot be identified from
+the column names alone, so Tanzania cannot reproduce them. That affects only the
+individual-level SuperLearner, which is the documented **sensitivity** analysis
+(`sensitivity/README.md`) — the **primary area-level SAE and its LOCO are
+unaffected**. Recovering the original export script would close the gap.
+
+### 4.2 The vitamin A outcome is NOT method-identical
+
+The other four countries use two-marker BRINDA (CRP + AGP) on raw RBP. TDHS 2010
+assayed **no AGP**, and CRP on only ~27% of the RBP sample. Tanzania had been
+falling through a warning path in `apply_brinda_vita_binary()` and silently
+keeping the DHS-supplied `rbpadcrp` instead.
+
+It now takes an explicit, declared path: a **CRP-only** BRINDA correction where
+CRP exists, falling back to the survey agency's own adjusted RBP where it does
+not, rather than leaving those rows raw and mixing corrected with uncorrected
+values in one outcome. `brinda_country_method()` reports what each country
+actually received, and the method is printed on every run.
+
+Harmonized prevalence: **child VAD 23.3%, women 7.2%** (previous configured
+binaries: 23.9% / 7.2%).
+
+**Carry into the manuscript:** Tanzania's vitamin A outcome is a *weaker*
+inflammation correction than the other four. Given that section 3's dominant
+failure mode is a level offset rather than a ranking failure, a residual level
+difference for Tanzania should be interpreted as partly methodological, not
+purely biological. Two further caveats compound this: TDHS 2010 has no
+micronutrient-subsample weight (the household weight is used, as for Gambia), and
+2010 sits four to eight years before the rest of the panel.
+
+---
+
+## 5. Honest conclusion
 
 Cross-country transport of **absolute** prevalence is **not deployable** — the dominant failure is a level/calibration offset driven by real biological differences and cross-survey biomarker comparability, neither of which covariate-based models can recover. Transport of the **spatial pattern** (rank) is modestly better, and best captured by geography/soil features. The defensible deliverable is therefore **within-country** area-level prediction (anchored on the held-out country's own survey), with cross-country results reported as rank-scale, interval-bounded, and explicitly caveated.
 

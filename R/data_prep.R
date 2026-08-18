@@ -379,10 +379,12 @@ build_outcome_dataset <- function(merged_data, cc, oc,
 
   d <- merged_data
 
-  # Filter to population
+  # Filter to population. The !is.na() guard matters: a bare `d[[col]] == val`
+  # comparison yields NA for missing flags, and `d[NA, ]` injects all-NA phantom
+  # rows rather than dropping them. Matches cluster_aggregation.R's filter.
   pop_col <- cc$child_flag
   if (!is.null(pop_col) && pop_col %in% colnames(d)) {
-    d <- d[d[[pop_col]] == oc$child_flag_val, ]
+    d <- d[!is.na(d[[pop_col]]) & d[[pop_col]] == oc$child_flag_val, , drop = FALSE]
   }
 
   # 2026-06-24: Gambia biomarker outcomes — the configured `gw_svy_weight` is

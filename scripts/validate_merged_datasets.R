@@ -23,7 +23,10 @@ countries <- list(
                      survey_year = 2013L),
   Malawi      = list(rds = "data/IPD/Malawi/Malawi_merged_dataset.rds",
                      gee_a2_csv = "data/GEE/Malawi_2016_admin2_gee.csv",
-                     survey_year = 2016L)
+                     survey_year = 2016L),
+  Tanzania    = list(rds = "data/IPD/Tanzania 2010/Tanzania_merged_dataset.rds",
+                     gee_a2_csv = "data/GEE/Tanzania_2010_admin2_gee.csv",
+                     survey_year = 2010L)
 )
 
 summarise_country <- function(cn, cfg) {

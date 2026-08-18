@@ -41,10 +41,11 @@ build_pooled_dataset <- function(all_merged, all_configs, outcome_tag) {
 
     d <- all_merged[[cn]]
 
-    # Filter to population
+    # Filter to population. !is.na() guard: `d[[col]] == val` is NA for missing
+    # flags and `d[NA, ]` injects all-NA phantom rows instead of dropping them.
     pop_col <- cc$child_flag
     if (!is.null(pop_col) && pop_col %in% colnames(d)) {
-      d <- d[d[[pop_col]] == oc$child_flag_val, ]
+      d <- d[!is.na(d[[pop_col]]) & d[[pop_col]] == oc$child_flag_val, , drop = FALSE]
     }
 
     # 2026-06-24 (DC-H2 #2): apply the uniform BRINDA VAD binary so the
@@ -115,6 +116,27 @@ build_pooled_dataset <- function(all_merged, all_configs, outcome_tag) {
   Xvars_common <- Reduce(intersect, country_proxy_cols)
   cat(sprintf("[pool] %s: %d common proxy predictors across %d countries\n",
               outcome_tag, length(Xvars_common), length(country_frames)))
+
+  # Per-domain audit. The intersection is unforgiving: ONE country missing a
+  # domain (or naming it differently) silently deletes that domain for every
+  # country. That is exactly how a new country extracted through the Earth
+  # Engine API — whose gee_ names differ from the legacy raster-derived ones —
+  # can wipe the entire GEE block out of the pooled model without any error.
+  # Print the per-country / per-prefix counts so the loss is visible in the log.
+  for (pfx in COMMON_DOMAIN_PREFIXES) {
+    per_ctry <- vapply(country_proxy_cols,
+                       function(v) sum(startsWith(v, pfx)), integer(1))
+    n_common <- sum(startsWith(Xvars_common, pfx))
+    cat(sprintf("  [pool:domain] %-7s common=%3d | per-country: %s\n",
+                pfx, n_common,
+                paste(sprintf("%s=%d", names(per_ctry), per_ctry), collapse = " ")))
+    if (n_common == 0 && any(per_ctry > 0)) {
+      warning(sprintf(paste0("[pool] %s: domain '%s' contributes 0 pooled predictors ",
+                             "even though %d/%d countries have it — column names ",
+                             "are not harmonized across countries."),
+                      outcome_tag, pfx, sum(per_ctry > 0), length(per_ctry)))
+    }
+  }
 
   if (length(Xvars_common) < 5) {
     warning(sprintf("Only %d common predictors — model may be unreliable",
