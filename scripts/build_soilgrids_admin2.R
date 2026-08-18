@@ -28,7 +28,11 @@ countries <- list(
   Gambia      = list(iso2 = "GM"),
   Ghana       = list(iso2 = "GH"),
   SierraLeone = list(iso2 = "SLE"),
-  Malawi      = list(iso2 = "MW")
+  Malawi      = list(iso2 = "MW"),
+  # Tanzania: use "TZA" so the GADM polygons here match those the merge step
+  # pulls via load_gadm_cached("TZA"), making the exact (Admin1, Admin2) soil
+  # join in 2_GW_Tanzania_data_merge.R line up without fuzzy matching.
+  Tanzania    = list(iso2 = "TZA")
 )
 
 cache_dir <- here("data", "external_cache")

@@ -48,7 +48,11 @@ COUNTRY_REGISTRY <- list(
   list(country = "Gambia",       iso3 = "GMB", years = 2019),
   list(country = "Ghana",        iso3 = "GHA", years = c(2014, 2017)),
   list(country = "Sierra Leone", iso3 = "SLE", years = 2013),
-  list(country = "Malawi",       iso3 = "MWI", years = 2015)
+  list(country = "Malawi",       iso3 = "MWI", years = 2015),
+  # Tanzania TDHS 2009-10. NOTE: needs rdhs configured (set_rdhs_config with your
+  # DHS account) + INLA. DHS columns are year-stamped (dhs2010_) so they feed
+  # WITHIN-country models only, not the cross-country LOCO common-vocabulary set.
+  list(country = "Tanzania",     iso3 = "TZA", years = 2010)
 )
 
 # Set this to a subset if you only want to re-run specific countries

@@ -96,7 +96,12 @@ get_country_configs <- function() {
         FLUNET = list(prefix = "flunet_"),
         GEE    = list(prefix = "gee_"),
         FSEC   = list(prefix = "fsec_"),
-        SOIL   = list(prefix = "soil_")
+        SOIL   = list(prefix = "soil_"),
+        ESPEN  = list(prefix = "espen_"),
+        SPAM   = list(prefix = "spam_"),
+        VAS    = list(prefix = "vas_"),
+        FAO    = list(prefix = "fao_"),
+        FPN    = list(prefix = "fpn_")
       ),
 
       # Patterns for outcome-leakage removal in gw_ predictors
@@ -225,7 +230,12 @@ get_country_configs <- function() {
         FLUNET  = list(prefix = "flunet_"),
         GEE     = list(prefix = "gee_"),
         FSEC    = list(prefix = "fsec_"),
-        SOIL    = list(prefix = "soil_")
+        SOIL    = list(prefix = "soil_"),
+        ESPEN   = list(prefix = "espen_"),
+        SPAM    = list(prefix = "spam_"),
+        VAS     = list(prefix = "vas_"),
+        FAO     = list(prefix = "fao_"),
+        FPN     = list(prefix = "fpn_")
       ),
 
       gw_exclude_patterns = c(
@@ -337,7 +347,12 @@ get_country_configs <- function() {
         MAP    = list(prefix = "MAP_"),
         GEE    = list(prefix = "gee_"),
         FSEC   = list(prefix = "fsec_"),
-        SOIL   = list(prefix = "soil_")
+        SOIL   = list(prefix = "soil_"),
+        ESPEN  = list(prefix = "espen_"),
+        SPAM   = list(prefix = "spam_"),
+        VAS    = list(prefix = "vas_"),
+        FAO    = list(prefix = "fao_"),
+        FPN    = list(prefix = "fpn_")
       ),
 
       gw_exclude_patterns = c(
@@ -473,12 +488,111 @@ get_country_configs <- function() {
         GEE    = list(prefix = "gee_"),
         WFP    = list(prefix = "wfp_"),
         FSEC   = list(prefix = "fsec_"),
-        SOIL   = list(prefix = "soil_")
+        SOIL   = list(prefix = "soil_"),
+        ESPEN  = list(prefix = "espen_"),
+        SPAM   = list(prefix = "spam_"),
+        VAS    = list(prefix = "vas_"),
+        FAO    = list(prefix = "fao_"),
+        FPN    = list(prefix = "fpn_")
       ),
 
       gw_exclude_patterns = c(
         "RBP", "rbp", "VAD", "Ferr", "ferr", "FeD", "IDA",
         "Brinda", "Thurn",
+        "Folate", "folate", "Fol", "B12", "b12", "Zinc", "zinc"
+      )
+    )
+
+    # ── Tanzania (TDHS 2009-10, DHS micronutrient module) ────────────────
+    # SCAFFOLD — outcome half only. Unlike the other four countries (which
+    # are standalone micronutrient surveys with analyst-prepped biomarker
+    # files), Tanzania is a DHS round: the biomarker data live in the OB
+    # ("other biomarkers") recode keyed by blood-sample bar code and must be
+    # linked to the PR recode (cluster, weight) and the GE GPS shapefile.
+    # That linkage is built in src/Tanzania/1_GW_Tanzania_data_clean.R.
+    #
+    # VITAMIN A ONLY. The TDHS 2010 OB module measured RBP (vit A), sTfR +
+    # CRP (iron), and urinary/salt iodine. It did NOT measure serum ferritin,
+    # so iron is NOT comparable to the ferritin-based definition used by the
+    # other countries and is intentionally omitted. Iodine does not fit the
+    # individual→admin-2 prevalence framework (population-median metric,
+    # single country, no LOCO) and is omitted. See README_TANZANIA_TODO.md.
+    #
+    # NOT RUNNABLE END-TO-END until the proxy covariate extractions exist:
+    # Tanzania_GEE_rasters/, SoilGrids, MAP, IHME, and the dhs2010_ admin-2
+    # aggregation. The merge step (2_GW_Tanzania_data_merge.R) and those
+    # extractions are the tracked remaining work.
+    , Tanzania = list(
+      country     = "Tanzania",
+      gadm_code   = "TZA",
+      survey_year = 2010L,
+      dhs_year    = 2010L,    # same survey (DHS micronutrient module)
+      data_path   = here::here("data", "IPD", "Tanzania 2010",
+                                "Tanzania_merged_dataset.rds"),
+      raster_dir  = here::here("data", "Tanzania_GEE_rasters"),
+
+      # Survey design columns (emitted by 1_GW_Tanzania_data_clean.R)
+      # NOTE: no micronutrient-subsample weight exists in TDHS 2010; gw_svy_weight
+      # is the household weight (HV005/1e6). The MN biomarkers were a subsample,
+      # so this is the known subsample-weight caveat (cf. Gambia). Document in
+      # the manuscript; revisit if a subsample weight is recoverable.
+      cluster_id    = "gw_cnum",
+      admin1_col    = "Admin1",
+      admin2_col    = "Admin2",
+      psu_col       = "gw_cnum",
+      weight_col    = "gw_svy_weight",
+      strata_col    = "gw_strata",
+      child_flag    = "gw_child_flag",
+
+      outcomes = list(
+        child_vitA = list(
+          tag            = "child_vitA",
+          label          = "Vitamin A (children)",
+          population     = "children",
+          child_flag_val = 1L,
+          continuous     = "gw_cRBPAdjCRP",   # CRP-adjusted RBP, µmol/L (OB: rbpadcrp)
+          binary         = "gw_cVAD",          # derived in clean: RBP < 0.70
+          cutoff         = 0.70,
+          cutoff_dir     = "less",
+          cutoff_scale   = "original"
+        ),
+        women_vitA = list(
+          tag            = "women_vitA",
+          label          = "Vitamin A (women)",
+          population     = "women",
+          child_flag_val = 0L,
+          continuous     = "gw_wRBPAdjCRP",
+          binary         = "gw_wVAD",
+          cutoff         = 0.70,
+          cutoff_dir     = "less",
+          cutoff_scale   = "original"
+        )
+        # No iron (sTfR not ferritin-comparable), folate, B12, zinc, or iodine.
+      ),
+
+      # Tanzania-specific DHS year prefix. Other domains follow the standard
+      # extraction scripts (none run yet — see README_TANZANIA_TODO.md).
+      domains = list(
+        GW     = list(prefix = "gw_"),
+        DHS    = list(prefix = "dhs2010_"),
+        IHME   = list(prefix = "ihme_"),
+        MAP    = list(prefix = "MAP_"),
+        GEE    = list(prefix = "gee_"),
+        WFP    = list(prefix = "wfp_", extra = "nearest_market_id"),
+        FSEC   = list(prefix = "fsec_"),
+        SOIL   = list(prefix = "soil_"),
+        LSMS   = list(prefix = "lsms_"),
+        ESPEN  = list(prefix = "espen_"),
+        SPAM   = list(prefix = "spam_"),
+        VAS    = list(prefix = "vas_"),
+        FAO    = list(prefix = "fao_"),
+        FPN    = list(prefix = "fpn_")
+      ),
+
+      gw_exclude_patterns = c(
+        "RBP", "rbp", "VAD", "stfr", "sTfR", "STFR", "CRP", "crp",
+        "iodine", "Iodine", "UIC", "uic",
+        "Ferr", "ferr", "FeD", "IDA", "Brinda", "Thurn",
         "Folate", "folate", "Fol", "B12", "b12", "Zinc", "zinc"
       )
     )

@@ -135,6 +135,64 @@ if (file.exists(soil_path)) {
   warning("SoilGrids CSV not found — run scripts/build_soilgrids_admin2.R Malawi")
 }
 
+#-------------------------------------------------------------------------------
+# ESPEN helminth / schistosomiasis Admin-2 predictors (iron pathway) — GUARDED
+# Built by scripts/build_espen_admin2.R (STH/SCH prevalence -> iron deficiency).
+#-------------------------------------------------------------------------------
+espen_path <- here("data/ESPEN/Malawi_espen_admin2.csv")
+if (file.exists(espen_path)) {
+  espen_df <- read.csv(espen_path, check.names = FALSE)
+  espen_df$Admin2 <- trimws(espen_df$Admin2)
+  if ("Admin1" %in% colnames(espen_df)) espen_df$Admin1 <- trimws(espen_df$Admin1)
+  espen_keys <- intersect(c("Admin1", "Admin2"), colnames(espen_df))
+  espen_vars <- setdiff(colnames(espen_df), espen_keys)
+  df <- df %>% dplyr::left_join(espen_df, by = espen_keys)
+  cat(sprintf("  ESPEN merge: %d espen_ columns added\n", length(espen_vars)))
+} else {
+  espen_vars <- character(0)
+  message("ESPEN CSV not found — run scripts/build_espen_admin2.R Malawi (optional domain)")
+}
+
+#-------------------------------------------------------------------------------
+# MapSPAM crop-composition Admin-2 predictors (dietary availability) — GUARDED
+# Built by scripts/build_mapspam_admin2.R (crop mix -> micronutrient availability).
+#-------------------------------------------------------------------------------
+spam_path <- here("data/MapSPAM/Malawi_spam_admin2.csv")
+if (file.exists(spam_path)) {
+  spam_df <- read.csv(spam_path, check.names = FALSE)
+  spam_df$Admin2 <- trimws(spam_df$Admin2)
+  if ("Admin1" %in% colnames(spam_df)) spam_df$Admin1 <- trimws(spam_df$Admin1)
+  spam_keys <- intersect(c("Admin1", "Admin2"), colnames(spam_df))
+  spam_vars <- setdiff(colnames(spam_df), spam_keys)
+  df <- df %>% dplyr::left_join(spam_df, by = spam_keys)
+  cat(sprintf("  MapSPAM merge: %d spam_ columns added\n", length(spam_vars)))
+} else {
+  spam_vars <- character(0)
+  message("MapSPAM CSV not found — run scripts/build_mapspam_admin2.R Malawi (optional domain)")
+}
+
+#-------------------------------------------------------------------------------
+# National causal-driver Admin-2 predictors (broadcast national value) — GUARDED
+#   vas_ Vitamin A supplementation      (scripts/build_vas_national.R)
+#   fao_ FAOSTAT food/nutrient supply   (scripts/build_faostat_supply.R)
+#   fpn_ Food Prices for Nutrition      (scripts/build_fpn_affordability.R)
+#-------------------------------------------------------------------------------
+for (.nd in list(list(v="vas", path=here("data/VAS/Malawi_vas_admin2.csv")),
+                 list(v="fao", path=here("data/FAOSTAT/Malawi_fao_admin2.csv")),
+                 list(v="fpn", path=here("data/FPN/Malawi_fpn_admin2.csv")))) {
+  assign(paste0(.nd$v, "_vars"), character(0))
+  if (file.exists(.nd$path)) {
+    .ndf <- read.csv(.nd$path, check.names = FALSE)
+    .ndf$Admin2 <- trimws(.ndf$Admin2)
+    if ("Admin1" %in% colnames(.ndf)) .ndf$Admin1 <- trimws(.ndf$Admin1)
+    .keys <- intersect(c("Admin1", "Admin2"), colnames(.ndf))
+    assign(paste0(.nd$v, "_vars"), setdiff(colnames(.ndf), .keys))
+    df <- df %>% dplyr::left_join(.ndf, by = .keys)
+    cat(sprintf("  %s merge: %d %s_ columns added\n", toupper(.nd$v),
+                length(setdiff(colnames(.ndf), .keys)), .nd$v))
+  } else message(sprintf("%s CSV not found — run its builder (optional national domain)", toupper(.nd$v)))
+}
+
 
 #-------------------------------------------------------------------------------
 # Food price
@@ -794,7 +852,12 @@ metadata <- list(
   #flunet_vars = flu_vars[flu_vars %in% colnames(df)],
   gee_vars = gee_vars[gee_vars %in% colnames(df)],
   fsec_vars = fsec_vars[fsec_vars %in% colnames(df)],
-  soil_vars = soil_vars[soil_vars %in% colnames(df)]
+  soil_vars = soil_vars[soil_vars %in% colnames(df)],
+  espen_vars = espen_vars[espen_vars %in% colnames(df)],
+  spam_vars = spam_vars[spam_vars %in% colnames(df)],
+  vas_vars = vas_vars[vas_vars %in% colnames(df)],
+  fao_vars = fao_vars[fao_vars %in% colnames(df)],
+  fpn_vars = fpn_vars[fpn_vars %in% colnames(df)]
 )
 
 

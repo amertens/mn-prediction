@@ -179,11 +179,16 @@ merge_ihme_admin1 <- function(df, admin1_csv, admin1_col = "Admin1",
 
   sim <- 1 - stringdist::stringdistmatrix(clean(df_a1), clean(ihme_a1),
                                           method = "jw")
-  best_idx <- apply(sim, 1L, which.max)
-  best_sim <- apply(sim, 1L, max)
+  # Robust to all-NA rows (e.g. an NA admin1 from GPS-unmatched clusters):
+  # max.col always returns a clean integer vector, unlike apply(which.max)
+  # which yields a list when a row is empty.
+  sim[is.na(sim)] <- -Inf
+  best_idx <- max.col(sim, ties.method = "first")
+  best_sim <- sim[cbind(seq_len(nrow(sim)), best_idx)]
+  best_sim[!is.finite(best_sim)] <- NA_real_
   lookup <- data.frame(
     .a1_key       = df_a1,
-    ihme_adm1_name = ifelse(best_sim >= min_similarity,
+    ihme_adm1_name = ifelse(!is.na(best_sim) & best_sim >= min_similarity,
                              ihme_a1[best_idx], NA_character_),
     a1_similarity = best_sim,
     stringsAsFactors = FALSE

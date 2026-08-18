@@ -131,6 +131,12 @@ ui <- page_navbar(
     mod_methods_ui("methods")
   ),
 
+  nav_panel(
+    title = "Methods comparison",
+    icon  = bsicons::bs_icon("clipboard2-check"),
+    mod_methods_comparison_ui("methods_comp")
+  ),
+
   nav_spacer(),
 
   nav_item(
@@ -179,6 +185,7 @@ server <- function(input, output, session) {
   mod_oos_civ_server("oos_civ")
   # mod_gbd_compare_server("gbd")   # GBD comparison hidden for now
   mod_methods_server("methods")
+  mod_methods_comparison_server("methods_comp")
 }
 
 shinyApp(ui, server)

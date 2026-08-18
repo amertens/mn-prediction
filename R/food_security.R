@@ -26,7 +26,8 @@ COUNTRY_SURVEY_YEARS <- list(
   Gambia         = 2018L,
   Ghana          = 2017L,
   SierraLeone    = 2013L,
-  Malawi         = 2016L
+  Malawi         = 2016L,
+  Tanzania       = 2010L   # TDHS 2009-10
 )
 
 # Mapping from our config country names to HFID ADMIN0 names
@@ -34,7 +35,10 @@ HFID_COUNTRY_MAP <- c(
   Gambia      = "Gambia",
   Ghana       = "Ghana",
   SierraLeone = "Sierra Leone",
-  Malawi      = "Malawi"
+  Malawi      = "Malawi",
+  # HFID Tanzania coverage starts 2011 (no 2010) — load_hfid_country's
+  # nearest-year fallback uses 2011, a 1-year gap from the 2010 survey.
+  Tanzania    = "Tanzania"
 )
 
 # Mapping from config country names to CH adm0_name
@@ -42,7 +46,7 @@ CH_COUNTRY_MAP <- c(
   Gambia      = "Gambia",
   Ghana       = "Ghana",
   SierraLeone = "Sierra Leone"
-  # Malawi not in CH
+  # Malawi and Tanzania not in Cadre Harmonisé (West/Central Africa only)
 )
 
 
@@ -292,6 +296,22 @@ merge_food_security <- function(merged_data, cc, hfid_path, ch_path) {
                                   source_name = "CH")
   }
 
+  # Drop fsec_ columns that came out entirely NA — indicators absent from this
+  # country/year's source coverage (e.g. HFID's early years carry only FCS, not
+  # IPC/rCSI or the rolling-window stats). An all-NA column carries no signal and
+  # only adds imputation burden, so keep the merged dataset honest.
+  fsec_cols <- grep("^fsec_", colnames(merged_data), value = TRUE)
+  if (length(fsec_cols) > 0) {
+    all_na <- fsec_cols[vapply(merged_data[fsec_cols],
+                               function(x) all(is.na(x)), logical(1))]
+    if (length(all_na) > 0) {
+      merged_data <- merged_data[, setdiff(colnames(merged_data), all_na), drop = FALSE]
+      cat(sprintf("  [fsec] Dropped %d all-NA fsec_ column(s): %s\n",
+                  length(all_na),
+                  paste(sub("^fsec_(hfid|ch)_", "", all_na), collapse = ", ")))
+    }
+  }
+
   n_after <- ncol(merged_data)
   n_fsec <- sum(startsWith(colnames(merged_data), "fsec_"))
   cat(sprintf("  [fsec] Added %d food security columns (%d total fsec_ cols)\n",
@@ -348,7 +368,11 @@ merge_by_admin <- function(target, source, admin1_col, admin2_col,
 
         colnames(merge_df)[1] <- admin2_col
         target <- dplyr::left_join(target, merge_df, by = admin2_col)
-        n_matched <- sum(!is.na(target[[data_cols[1]]]))
+        # Count rows that got ANY non-NA indicator, not just data_cols[1] — the
+        # first data column can itself be all-NA (e.g. HFID ipc_phase_fews),
+        # which would falsely report "0 rows got data" even when others merged.
+        got_any <- rowSums(!is.na(as.data.frame(target)[, data_cols, drop = FALSE])) > 0
+        n_matched <- sum(got_any)
         cat(sprintf("  [%s] Admin2 merge: %.0f%% name match, %d/%d rows got data\n",
                     source_name, match_rate * 100, n_matched, nrow(target)))
         return(target)
@@ -380,7 +404,8 @@ merge_by_admin <- function(target, source, admin1_col, admin2_col,
       merge_df <- source_a1[, c("merge_key", data_cols), drop = FALSE]
       colnames(merge_df)[1] <- admin1_col
       target <- dplyr::left_join(target, merge_df, by = admin1_col)
-      n_matched <- sum(!is.na(target[[data_cols[1]]]))
+      got_any <- rowSums(!is.na(as.data.frame(target)[, data_cols, drop = FALSE])) > 0
+      n_matched <- sum(got_any)
       cat(sprintf("  [%s] Admin1 merge: %d/%d target areas matched, %d/%d rows got data\n",
                   source_name, nrow(source_a1), length(target_a1),
                   n_matched, nrow(target)))
