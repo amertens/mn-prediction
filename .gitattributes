@@ -1,0 +1,59 @@
+# Line-ending policy.
+#
+# Without this file, git stores whatever line endings a tool happens to write.
+# Several editors and R itself write CRLF on Windows while other tooling writes
+# LF, so files flip back and forth and show up as fully-rewritten in `git diff`
+# even when nothing changed. Real examples from this repo before this file
+# existed: src/Ghana/2_GW_Ghana_data_merge.R showed 933 changed lines of which
+# only 64 were real, and _targets.yaml / mn-prediction.Rproj showed as fully
+# rewritten with zero content change. That churn buries real edits in review.
+#
+# `text=auto eol=lf` normalises every text file to LF in the repository. Working
+# copies are unaffected on Linux/macOS; on Windows, editors handle LF fine and R
+# reads it without issue.
+* text=auto eol=lf
+
+# Explicitly text, so git never guesses.
+*.R      text eol=lf
+*.Rmd    text eol=lf
+*.qmd    text eol=lf
+*.md     text eol=lf
+*.py     text eol=lf
+*.json   text eol=lf
+*.yaml   text eol=lf
+*.yml    text eol=lf
+*.txt    text eol=lf
+*.bib    text eol=lf
+*.html   text eol=lf
+*.Rproj  text eol=lf
+
+# PowerShell needs CRLF to run reliably on Windows.
+*.ps1    text eol=crlf
+
+# Data files: diff as text, but NEVER translate line endings. These CSVs contain
+# embedded CRLF inside quoted fields (e.g. metadata/dhs_survey_characteristics.csv
+# has a multi-line quoted value), and normalising would silently rewrite the DATA,
+# not just the line endings.
+*.csv    -text
+
+# Binary: never normalise, never diff as text. Serialised R objects in
+# particular are corrupted by line-ending translation.
+*.rds    binary
+*.RData  binary
+*.rdb    binary
+*.rdx    binary
+*.png    binary
+*.pdf    binary
+*.docx   binary
+*.xlsx   binary
+*.pptx   binary
+*.tif    binary
+*.tiff   binary
+*.zip    binary
+*.gz     binary
+*.shp    binary
+*.shx    binary
+*.dbf    binary
+*.prj    binary
+*.sbn    binary
+*.sbx    binary
