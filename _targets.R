@@ -485,18 +485,36 @@ for (country_name in names(all_country_configs)) {
     )
   ))
 
+  # ── Track the DHS clean inputs the external merge reads internally ─────────
+  # merge_external_predictors() calls load_dhs_admin2(), which reads
+  # data/DHS/clean/<country>_<year>_dhs_(custom_)admin2_wide.rds directly. Those
+  # reads are invisible to {targets}, so regenerating them (re-running
+  # src/DHS/DHS_admin2_aggregation.R) would otherwise leave merged_ext_* serving
+  # a stale cached result. Same md5 + always-cue pattern as gee_parity_stamp_*.
+  dhs_stamp_name <- paste0("dhs_stamp_", lc)
+  country_targets <- c(country_targets, list(
+    tar_target_raw(
+      dhs_stamp_name,
+      substitute(dhs_clean_stamp(cc_val), list(cc_val = cc)),
+      cue = tar_cue(mode = "always")
+    )
+  ))
+
   # Merge external predictors (CHIRPS, WorldPop, MAP, HarvestStat, etc.)
   # AND GEE Admin-2 zonal means into individual-level data.
   merged_ext_target_name <- paste0("merged_ext_", tolower(country_name))
   country_targets <- c(country_targets, list(
     tar_target_raw(
       merged_ext_target_name,
-      substitute(
-        merge_external_predictors(fsec_data, cc_val, cache_dir_val),
+      substitute({
+        force(dhs_stamp_val)
+        merge_external_predictors(fsec_data, cc_val, cache_dir_val)
+      },
         list(
           fsec_data     = as.symbol(fsec_target_name),
           cc_val        = cc,
-          cache_dir_val = here::here("data", "external_cache")
+          cache_dir_val = here::here("data", "external_cache"),
+          dhs_stamp_val = as.symbol(dhs_stamp_name)
         )
       )
     )

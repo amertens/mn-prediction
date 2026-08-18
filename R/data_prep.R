@@ -253,6 +253,48 @@ load_dhs_admin1 <- function(dhs_dir, country, year) {
 }
 
 
+#' Resolve the DHS survey year a country's merge will use.
+#'
+#' Mirrors the resolution in merge_external_predictors() exactly (config first,
+#' then the legacy hardcoded map) so the stamp below covers precisely the files
+#' that will actually be read.
+dhs_year_for <- function(cc) {
+  y <- cc$dhs_year
+  if (!is.null(y) && !is.na(y)) return(as.integer(y))
+  fallback <- c("Gambia" = 2019L, "Ghana" = 2014L,
+                "Sierra Leone" = 2013L, "Malawi" = 2015L)
+  unname(fallback[cc$country])
+}
+
+#' DHS clean files that merge_external_predictors() reads for one country.
+#'
+#' @return character vector of EXISTING paths (possibly empty)
+dhs_clean_inputs <- function(cc, dhs_dir = here::here("data", "DHS", "clean")) {
+  yr <- dhs_year_for(cc)
+  if (is.null(yr) || is.na(yr) || !dir.exists(dhs_dir)) return(character(0))
+  p <- file.path(dhs_dir, paste0(cc$country, "_", yr,
+                                 c("_dhs_admin2_wide.rds",
+                                   "_dhs_custom_admin2_wide.rds")))
+  p[file.exists(p)]
+}
+
+#' Content stamp for a country's DHS clean inputs.
+#'
+#' load_dhs_admin2() is called from INSIDE merge_external_predictors(), so
+#' {targets} cannot see those .rds files: regenerating them (e.g. re-running
+#' src/DHS/DHS_admin2_aggregation.R) would leave merged_ext_* serving a stale
+#' cached result forever. The dhs_stamp_* targets in _targets.R depend on this,
+#' so a changed file invalidates the merge. Same hazard and same remedy as
+#' path_merged_* and gee_parity_stamp_* -- see docs/pipeline_audit_2026-08.md #2.
+#'
+#' @return named character vector of md5 sums, or NA_character_ when absent
+dhs_clean_stamp <- function(cc, dhs_dir = here::here("data", "DHS", "clean")) {
+  f <- dhs_clean_inputs(cc, dhs_dir)
+  if (!length(f)) return(NA_character_)
+  stats::setNames(unname(tools::md5sum(f)), basename(f))
+}
+
+
 #' Load DHS admin-2 estimates for merging into the pipeline dataset
 #'
 #' Loads the pre-built wide .rds file produced by DHS_admin2_aggregation.R.

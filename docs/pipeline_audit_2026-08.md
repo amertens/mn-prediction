@@ -54,7 +54,7 @@ training rows. Worth a country-weighted sensitivity run.
 
 ---
 
-## 2. Untracked file inputs — PARTLY FIXED, mostly OPEN
+## 2. Untracked file inputs — PARTLY FIXED
 
 **Severity: high for reproducibility.** `{targets}` only re-runs a target when a
 *tracked* input changes. A `readRDS()` / `read.csv()` inside a function body is
@@ -68,16 +68,23 @@ explanatory comment at `_targets.R:407`). The same hazard applies elsewhere:
 |---|---|---|
 | `.append_legacy_parity_cols()` (`R/admin2_analysis.R`) | `data/GEE/<ISO3>_legacy_parity_admin2_gee.csv` | **FIXED** — `gee_parity_stamp_<country>` targets (md5, `cue = "always"`) now feed `gee_admin2_*` and `area_covariates_*` |
 | `.append_gee_zonal_cols()` | `data/<Country>_GEE_rasters/*.tif` | OPEN |
-| `load_dhs_admin1/2()` (`R/data_prep.R:212-285`) | `data/DHS/clean/*.rds` | OPEN |
+| `load_dhs_admin2()` via `merge_external_predictors()` | `data/DHS/clean/<country>_<year>_dhs_(custom_)admin2_wide.rds` | **FIXED** — `dhs_stamp_<country>` targets (md5, `cue = "always"`) now feed `merged_ext_*` |
 | `R/cluster_aggregation.R:45,102` | GEE CSV, merged RDS | OPEN |
 | `R/conceptual_ablation.R:19-38` | results CSVs | OPEN |
 | `R/external_data.R`, `R/oos_prediction.R` | `data/external_cache/*` | OPEN — these are regenerable caches, lower risk |
 
-Not fixed wholesale because each fix invalidates its target and everything
-downstream; doing all of them at once would force another full rebuild. The
-stamp pattern now in `_targets.R` (md5 + `cue = tar_cue(mode = "always")`) is the
-template — it works where `format = "file"` cannot, i.e. when the file is absent
-for some countries.
+The two highest-risk cases — files that are *regenerated* by other scripts in
+this repo, rather than fetched caches — are now fixed. Re-running
+`src/DHS/DHS_admin2_aggregation.R` used to leave `merged_ext_*` serving a stale
+result indefinitely; it now invalidates the merge.
+
+The remainder are left open deliberately: each fix invalidates its target and
+everything downstream, and `data/external_cache/*` is regenerable on demand, so
+the payoff is much lower. The stamp pattern in `_targets.R`
+(md5 + `cue = tar_cue(mode = "always")`) is the template — it works where
+`format = "file"` cannot, i.e. when the file is absent for some countries
+(Tanzania has no `_dhs_custom_admin2_wide.rds`, and only Tanzania has a
+legacy-parity CSV).
 
 ---
 
