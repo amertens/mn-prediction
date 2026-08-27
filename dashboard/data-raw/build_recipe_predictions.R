@@ -9,6 +9,11 @@
 suppressMessages({library(targets); library(glmnet)})
 tar_config_set(store = "_targets_full")
 source("R/corrected/00_corrected_utils.R"); source("R/corrected/area_recipe.R")
+# ar_full_coverage() predicts every polygon from area_covariates_*, which keeps
+# GADM's inland-water polygons and its repeated Admin-2 names on purpose (see
+# extract_area_covariates(): "consumers should filter with is_water_admin2()
+# before fitting"). This script is such a consumer.
+source("R/admin2_key_hygiene.R")
 cfgs <- local({ source("R/config.R", local = TRUE); get_country_configs() })
 meta <- tryCatch(readRDS("dashboard/data/metadata.rds"), error = function(e) NULL)
 # Registry KEYS, not display labels: get_country_configs() keys Sierra Leone as
@@ -56,12 +61,18 @@ for (co in COUNTRIES) {
       failed <- c(failed, sprintf("%s/%s: %s", label, ocn,
                   attr(fc, "err") %||% "returned NULL (too few surveyed areas?)")); next
     }
-    rows[[length(rows) + 1]] <- data.frame(
-      country = label, outcome = ocn, Admin2 = fc$Admin2,
-      pred_prev = fc$pred_prev, obs_prev = fc$direct_prev,
-      ci_lo = NA_real_, ci_hi = NA_real_, ci_width = NA_real_,
-      n_survey = fc$n_svy, who_class = classify_who(fc$pred_prev, ocn),
-      stringsAsFactors = FALSE)
+    layer <- clean_admin2_keys(
+      data.frame(
+        country = label, outcome = ocn, Admin2 = fc$Admin2,
+        pred_prev = fc$pred_prev, obs_prev = fc$direct_prev,
+        ci_lo = NA_real_, ci_hi = NA_real_, ci_width = NA_real_,
+        n_survey = fc$n_svy, stringsAsFactors = FALSE),
+      sprintf("recipe layer %s/%s", label, ocn))
+    # After the collapse, not before: dedupe_admin2_key() averages pred_prev
+    # across the polygons sharing a name, so a class derived beforehand would
+    # not match the value finally shown.
+    layer$who_class <- classify_who(layer$pred_prev, ocn)
+    rows[[length(rows) + 1]] <- layer
     n_ok <- n_ok + 1L
   }
   cat(sprintf("  %-14s %d/%d outcomes\n", label, n_ok, length(cc$outcomes)))

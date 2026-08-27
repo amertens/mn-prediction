@@ -18,6 +18,27 @@ suppressPackageStartupMessages({
 
 `%||%` <- function(a, b) if (is.null(a)) b else a
 
+# Admin-2 key hygiene: drop GADM inland-water polygons and collapse repeated
+# Admin-2 names. extract_gee_admin2() already applies this, which is why the
+# FH/BYM2 layers are clean, but extract_area_covariates() deliberately keeps one
+# row per polygon ("consumers should filter with is_water_admin2() before
+# fitting") — and the area/recipe layers built here are those consumers. Without
+# this the default map paints deficiency prevalence on Lake Malawi.
+source(here::here("R", "admin2_key_hygiene.R"))
+
+# Apply the standard treatment to a dashboard prediction layer, then recompute
+# the WHO class from the collapsed prevalence. dedupe_admin2_key() averages
+# numeric columns and takes the first value of everything else — taking the
+# first who_class would leave a label that disagrees with the averaged
+# pred_prev, so it is derived again here.
+clean_pred_layer <- function(d, oc, what) {
+  if (is.null(d) || !nrow(d)) return(d)
+  d <- clean_admin2_keys(d, what)
+  d$who_class <- vapply(as.numeric(d$pred_prev), classify_who, character(1),
+                        outcome = oc)
+  d
+}
+
 # ── Configuration ───────────────────────────────────────────────────────────
 TARGETS_DIR  <- here::here("_targets_full", "objects")
 DASHBOARD_DATA <- here::here("dashboard", "data")
@@ -221,16 +242,17 @@ for (ctry in countries) {
     if (is.null(ap) || !"area_pred_prev" %in% colnames(ap)) next
     hs <- if ("has_survey" %in% colnames(ap)) as.logical(ap$has_survey)
           else !is.na(ap$svy_prev)
-    area_rows[[paste(ctry, oc)]] <- data.frame(
-      country = country_labels[ctry], outcome = oc, Admin2 = ap$Admin2,
-      pred_prev = as.numeric(ap$area_pred_prev),
-      obs_prev = if ("svy_prev" %in% colnames(ap))
-                   ifelse(hs, ap$svy_prev, NA_real_) else NA_real_,
-      ci_lo = NA_real_, ci_hi = NA_real_, ci_width = NA_real_,
-      n_survey = if ("n_svy" %in% colnames(ap)) ap$n_svy else NA_integer_,
-      who_class = vapply(as.numeric(ap$area_pred_prev), classify_who,
-                         character(1), outcome = oc),
-      stringsAsFactors = FALSE)
+    area_rows[[paste(ctry, oc)]] <- clean_pred_layer(
+      data.frame(
+        country = country_labels[ctry], outcome = oc, Admin2 = ap$Admin2,
+        pred_prev = as.numeric(ap$area_pred_prev),
+        obs_prev = if ("svy_prev" %in% colnames(ap))
+                     ifelse(hs, ap$svy_prev, NA_real_) else NA_real_,
+        ci_lo = NA_real_, ci_hi = NA_real_, ci_width = NA_real_,
+        n_survey = if ("n_svy" %in% colnames(ap)) ap$n_svy else NA_integer_,
+        who_class = NA_character_,
+        stringsAsFactors = FALSE),
+      oc, sprintf("area layer %s/%s", ctry, oc))
   }
 }
 if (length(area_rows) > 0) {
@@ -387,6 +409,16 @@ for (ctry in countries) {
     if (!"Admin1" %in% colnames(sf2)) sf2$Admin1 <- sf2$NAME_1
     sf2 <- sf2[, c("Admin1", "Admin2", "geometry")]
     sf2$country <- country_labels[ctry]
+    # Drop GADM inland-water polygons (Malawi ships Lake Malawi as 8 separate
+    # Admin-2 features, one per bordering district, plus Lake Chilwa x3, Lake
+    # Chiuta and Lake Malombe). Removing the polygon rather than leaving it
+    # unpredicted is deliberate: an unpredicted lake renders as a grey "no data"
+    # district, which reads as a place we failed to model. Dropped, the basemap
+    # shows through and the lake looks like a lake.
+    n_before <- nrow(sf2)
+    sf2 <- sf2[!is_water_admin2(as.character(sf2$Admin2)), , drop = FALSE]
+    if (nrow(sf2) < n_before)
+      cat(sprintf("    dropped %d water-body polygon(s)\n", n_before - nrow(sf2)))
     # Simplify geometry to reduce file size (tolerance in degrees ≈ 100m at equator)
     sf2 <- sf::st_simplify(sf2, dTolerance = 0.001, preserveTopology = TRUE)
     admin2_boundaries[[ctry]] <- sf2
@@ -444,6 +476,11 @@ for (ctry in countries) {
                     drop = FALSE]
   cat(sprintf("    %s: deduplicated %d → %d rows\n",
               country_labels[ctry], nrow(ext), nrow(ext_dedup)))
+  # WorldPop bleeds across the shoreline, so the lake polygons carry a nonzero
+  # count (Lake Malawi ~1,959 people). Dropping them keeps the denominator on
+  # land; it moves Malawi's total by 0.05%.
+  ext_dedup <- drop_water_admin2(ext_dedup,
+                                 sprintf("population %s", country_labels[ctry]))
 
   pop_rows[[ctry]] <- data.frame(
     country = country_labels[ctry],

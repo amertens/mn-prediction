@@ -8,6 +8,7 @@ root <- "C:/Users/andre/OneDrive/Documents/mn-prediction"
 if (!dir.exists(file.path(root, "_targets_full"))) root <- getwd()
 S <- file.path(root, "_targets_full", "objects")
 DASH <- file.path(root, "dashboard", "data")
+source(file.path(root, "R", "admin2_key_hygiene.R"))
 
 countries <- c(gambia = "Gambia", ghana = "Ghana",
                sierraleone = "Sierra Leone", malawi = "Malawi")
@@ -46,16 +47,22 @@ for (low in names(countries)) {
       hs <- if ("has_survey" %in% colnames(ap)) as.logical(ap$has_survey) else !is.na(ap$svy_prev)
       ifelse(hs, ap$svy_prev, NA_real_)
     } else NA_real_
-    rows[[paste(low, oc)]] <- data.frame(
-      country   = unname(countries[low]),
-      outcome   = oc,
-      Admin2    = ap$Admin2,
-      pred_prev = pred,
-      obs_prev  = obs,
-      ci_lo     = NA_real_, ci_hi = NA_real_, ci_width = NA_real_,
-      n_survey  = if ("n_svy" %in% colnames(ap)) ap$n_svy else NA_integer_,
-      who_class = vapply(pred, classify_who, character(1), oc = oc),
-      stringsAsFactors = FALSE)
+    # Same water/duplicate-name treatment as section 1c of
+    # 01_prepare_dashboard_data.R — area_preds is one row per GADM polygon and
+    # so still carries the lake polygons and the repeated Admin-2 names.
+    layer <- clean_admin2_keys(
+      data.frame(
+        country   = unname(countries[low]),
+        outcome   = oc,
+        Admin2    = ap$Admin2,
+        pred_prev = pred,
+        obs_prev  = obs,
+        ci_lo     = NA_real_, ci_hi = NA_real_, ci_width = NA_real_,
+        n_survey  = if ("n_svy" %in% colnames(ap)) ap$n_svy else NA_integer_,
+        stringsAsFactors = FALSE),
+      sprintf("area layer %s/%s", low, oc))
+    layer$who_class <- vapply(layer$pred_prev, classify_who, character(1), oc = oc)
+    rows[[paste(low, oc)]] <- layer
   }
 }
 out <- do.call(rbind, rows)
