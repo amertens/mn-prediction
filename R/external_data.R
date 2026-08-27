@@ -67,6 +67,103 @@
   data.frame(Admin2 = admin2_names, stringsAsFactors = FALSE)
 }
 
+#' Match GADM admin names to a second source's admin names, case/whitespace-robust
+#'
+#' Exact-then-fuzzy matching of administrative unit names, used everywhere an
+#' external data source (WFP, ACLED, HarvestStat, ...) reports its own admin
+#' names that must be aligned to GADM's Admin2 (or Admin1) spine.
+#'
+#' 2026-08-27 fix: the previous exact-match step compared raw strings, so a
+#' source using a different case/whitespace convention than GADM (confirmed:
+#' WFP's Ghana/Malawi food-price CSVs report admin names in ALL CAPS, e.g.
+#' "ACCRA METROPOLIS", vs. GADM's title case "Accra") matched 0 units even
+#' though the names are the same place — silently zeroing that country's data
+#' for that source. `agrep()`'s fuzzy fallback doesn't reliably rescue this
+#' either: a pure-case difference can exceed its edit-distance budget on
+#' longer names. Normalizing (lowercase + collapsed whitespace) before both
+#' the exact and fuzzy match steps fixes this without weakening the matching
+#' anywhere it already worked (Sierra Leone, Gambia were unaffected either way).
+#'
+#' @param target_names Character vector of GADM names to find a match for
+#'   (the vector this function returns a name_map keyed by)
+#' @param source_names Character vector of the external source's admin names
+#' @param max_distance Passed to `agrep()`'s `max.distance` for the fuzzy pass
+#' @return Named character vector: target_names -> matched source_name (NA if
+#'   no match found). Note: if `target_names` has duplicates (e.g. GADM Admin2
+#'   names repeated because `match_target` was actually Admin1, broadcasting
+#'   one match to many Admin2 rows), only the LAST occurrence's result
+#'   survives in the returned name vector's implicit key — callers needing
+#'   the per-row (not per-unique-name) result should index by position, not
+#'   by name, when target_names has duplicates.
+.match_admin_names <- function(target_names, source_names, max_distance = 0.2) {
+  norm <- function(x) gsub("\\s+", " ", tolower(trimws(x)))
+  target_norm <- norm(target_names)
+  source_norm <- norm(source_names)
+
+  name_map <- setNames(rep(NA_character_, length(target_names)), target_names)
+
+  idx <- match(target_norm, source_norm)
+  matched <- !is.na(idx)
+  name_map[matched] <- source_names[idx[matched]]
+
+  unmatched_pos <- which(!matched)
+  for (i in unmatched_pos) {
+    fuzzy_idx <- agrep(target_norm[i], source_norm, max.distance = max_distance, ignore.case = TRUE)
+    if (length(fuzzy_idx) >= 1) {
+      best <- fuzzy_idx[which.min(abs(nchar(source_norm[fuzzy_idx]) - nchar(target_norm[i])))]
+      name_map[i] <- source_names[best]
+    }
+  }
+  name_map
+}
+
+#' Decide which of a source's admin columns actually matches which GADM level
+#'
+#' A source populating an "admin2" field is NOT proof it's admin2-granularity:
+#' confirmed for WFP's Malawi food-price data, whose `admin2` column holds
+#' values ("Balaka") that match GADM's *Admin1* names, not GADM's Admin2
+#' names (which for Malawi look like "Balaka Town", "Kasungu National Park" —
+#' a different, finer naming convention with extra water-body polygons). The
+#' old logic ("is admin2 non-empty for most rows?") would confidently pick
+#' "admin2" here and then match almost nothing. This instead tries every
+#' plausible (source column, GADM level) pairing and keeps whichever actually
+#' matches best, with a small preference for admin2-level granularity when
+#' its rate is close to the best (more informative if it's genuinely usable).
+#'
+#' @param raw data.frame with optional `admin1`/`admin2` character columns
+#' @param gadm_names Character vector of GADM Admin2 names
+#' @param gadm_admin1 Character vector of GADM Admin1 names (same length/order
+#'   as gadm_names, i.e. the Admin1 each Admin2 row belongs to)
+#' @return list(col = "admin1"|"admin2"|NA, level = "admin1"|"admin2"|NA, rate = numeric)
+.choose_wfp_admin_match <- function(raw, gadm_names, gadm_admin1) {
+  candidates <- list()
+  if ("admin2" %in% colnames(raw)) {
+    vals <- unique(trimws(raw$admin2)); vals <- vals[nchar(vals) > 0]
+    if (length(vals) > 0) {
+      m2 <- .match_admin_names(unique(gadm_names), vals)
+      candidates[["admin2_vs_admin2"]] <- list(col = "admin2", level = "admin2", rate = mean(!is.na(m2)))
+      m1 <- .match_admin_names(unique(gadm_admin1), vals)
+      candidates[["admin2_vs_admin1"]] <- list(col = "admin2", level = "admin1", rate = mean(!is.na(m1)))
+    }
+  }
+  if ("admin1" %in% colnames(raw)) {
+    vals <- unique(trimws(raw$admin1)); vals <- vals[nchar(vals) > 0]
+    if (length(vals) > 0) {
+      m <- .match_admin_names(unique(gadm_admin1), vals)
+      candidates[["admin1_vs_admin1"]] <- list(col = "admin1", level = "admin1", rate = mean(!is.na(m)))
+    }
+  }
+  if (length(candidates) == 0) return(list(col = NA_character_, level = NA_character_, rate = 0))
+
+  rates <- vapply(candidates, function(x) x$rate, numeric(1))
+  best <- candidates[[which.max(rates)]]
+  admin2_opt <- candidates[["admin2_vs_admin2"]]
+  if (!is.null(admin2_opt) && admin2_opt$rate >= 0.5 && admin2_opt$rate >= best$rate - 0.15) {
+    best <- admin2_opt
+  }
+  best
+}
+
 #' Safe zonal extraction: exact_extract with error handling
 #'
 #' @param raster A SpatRaster or RasterLayer
@@ -288,13 +385,53 @@ extract_worldpop <- function(admin2_sf, country_iso3, survey_year, cache_dir) {
 
 #' Extract VIIRS nighttime lights per Admin-2 polygon
 #'
-#' Uses the blackmarbler package to download annual VIIRS composites from
-#' NASA Earthdata and extract zonal statistics.
+#' Tries three sources in order, falling back as each fails:
+#'   1. EOG direct download of the annual VNP46A4 composite (no auth) --
+#'      2026-08-27: EOG now gates this behind an OAuth login (a plain HTTP
+#'      HEAD on the tile URL 302-redirects to eogauth.mines.edu), so this
+#'      currently always falls through; kept in case EOG opens the endpoint
+#'      back up or a cookie-based fetch is added later.
+#'   2. Reuse an already-downloaded CCNL (BNU/FGS/CCNL/v1) raster from a
+#'      prior GEE extraction run, cached per-country under
+#'      data/<Country>_GEE_rasters/CCNL_<year>_<Country>.tif. This is a
+#'      harmonized DMSP/VIIRS nighttime-lights composite; the cached files
+#'      are single-epoch (2013), so it is a best-effort proxy, not a
+#'      survey-year-matched extraction -- but it needs no network access or
+#'      credentials and works for every country that has a cached CCNL file.
+#'   3. blackmarbler::bm_raster() against NASA Black Marble VNP46A4, which
+#'      needs a valid (non-expired) NASA Earthdata bearer token.
+#'
+#' 2026-08-27 fix: previously, only Ghana ever got real ntl_* data. Two bugs
+#' compounded:
+#'   - This function returned an empty result immediately whenever
+#'     `bearer_token` was NULL/empty, which skipped methods 1-2 as well even
+#'     though neither needs a token. Fixed by only gating method 3 on the
+#'     token (methods 1-2 always run).
+#'   - Method 2's country match tested whether `country_iso3` (e.g. "GHA")
+#'     was a *substring* of the GEE raster directory name (e.g.
+#'     "Ghana_GEE rasters"). That happens to be true for Ghana ("gha" IS a
+#'     substring of "ghana") but false for Gambia ("gmb"), Sierra Leone
+#'     ("sle") and Malawi ("mwi") -- none of those ISO3 codes are substrings
+#'     of their country names -- so only Ghana ever matched and the other
+#'     three silently fell through to an empty result. Fixed by reading the
+#'     country name straight out of each CCNL filename (e.g.
+#'     "CCNL_2013_Sierra Leone.tif" -> "Sierra Leone") and comparing it,
+#'     normalized, against this country's `country` field from
+#'     get_country_configs() -- robust to the space-vs-underscore
+#'     inconsistency in the directory names themselves.
+#'   - Separately, the NASA_EARTHDATA_TOKEN in .Renviron expired 2026-05-26;
+#'     method 3 currently downloads an Earthdata-Login HTML page instead of
+#'     an .h5 tile for every country (visible as "[rast] cannot open this
+#'     file as a SpatRaster" below). That is a credential problem the user
+#'     needs to fix by generating a fresh token at
+#'     urs.earthdata.nasa.gov/profile -- not something this function can
+#'     work around.
 #'
 #' @param admin2_sf sf object of Admin-2 polygons
 #' @param country_iso3 ISO3 country code
 #' @param survey_year Integer survey year
-#' @param bearer_token NASA Earthdata bearer token (character). If NULL, skips.
+#' @param bearer_token NASA Earthdata bearer token (character). If NULL,
+#'   method 3 (blackmarbler) is skipped but methods 1-2 still run.
 #' @param cache_dir Directory for caching downloaded rasters
 #' @return data.frame with Admin2 + ntl_* columns
 extract_nightlights <- function(admin2_sf, country_iso3, survey_year,
@@ -304,8 +441,8 @@ extract_nightlights <- function(admin2_sf, country_iso3, survey_year,
   if (is.null(admin2_names)) admin2_names <- admin2_sf[[1]]
 
   if (is.null(bearer_token) || bearer_token == "") {
-    warning("[NTL] No NASA Earthdata bearer_token provided — skipping nightlights extraction")
-    return(.empty_result(admin2_names))
+    cat("[NTL] No NASA Earthdata bearer_token provided — method 3 (blackmarbler) will be skipped, but the no-auth-needed methods 1-2 still run\n")
+    bearer_token <- NULL
   }
 
   result <- tryCatch({
@@ -352,6 +489,13 @@ extract_nightlights <- function(admin2_sf, country_iso3, survey_year,
         r_global <- tryCatch(terra::rast(eog_avg_url), error = function(e) NULL)
 
         if (!is.null(r_global)) {
+          # bbox was previously referenced here without ever being defined in
+          # this function (an R-scoping accident: a variable of the same name
+          # exists in extract_soilgrids() but is not in scope here), so this
+          # branch always threw "object 'bbox' not found" and was silently
+          # swallowed by the tryCatch below. Fixed by computing it from
+          # admin2_sf, as intended.
+          bbox <- sf::st_bbox(admin2_sf)
           bbox_ext <- terra::ext(
             bbox["xmin"] - 0.5, bbox["xmax"] + 0.5,
             bbox["ymin"] - 0.5, bbox["ymax"] + 0.5
@@ -369,24 +513,45 @@ extract_nightlights <- function(admin2_sf, country_iso3, survey_year,
         NULL
       })
 
-      # Method 2: Use existing CCNL rasters from GEE directory
+      # Method 2: Use existing CCNL rasters from a prior GEE extraction run
       if (is.null(r_ntl)) {
         cat("[NTL] Trying existing CCNL raster from GEE directory...\n")
-        # Search for CCNL files in the GEE raster directories
+
+        # Normalize to letters-only, lowercase so "Sierra Leone",
+        # "Sierra_Leone" and "SIERRALEONE" all compare equal.
+        .norm_country <- function(x) tolower(gsub("[^a-zA-Z]", "", x))
+
+        # The country's full name (e.g. "Sierra Leone"), used to match the
+        # country token embedded in each CCNL filename -- see fix note above
+        # `extract_nightlights()` for why matching on `country_iso3` alone
+        # (as this used to) only ever worked for Ghana.
+        target_name <- tryCatch({
+          cfgs <- get_country_configs()
+          hit <- Filter(function(cc) identical(cc$gadm_code, country_iso3), cfgs)
+          if (length(hit) > 0) hit[[1]]$country else NA_character_
+        }, error = function(e) NA_character_)
+
         gee_dirs <- list.dirs(here::here("data"), recursive = FALSE)
         gee_dirs <- gee_dirs[grepl("GEE", gee_dirs, ignore.case = TRUE)]
 
         for (gd in gee_dirs) {
-          ccnl_files <- list.files(gd, pattern = "CCNL.*\\.tif$", full.names = TRUE,
+          if (!is.null(r_ntl)) break
+          ccnl_files <- list.files(gd, pattern = "^CCNL.*\\.tif$", full.names = TRUE,
                                    ignore.case = TRUE)
-          # Also check if the directory name matches our country
-          country_match <- grepl(gsub("_", ".", country_iso3), gd, ignore.case = TRUE) ||
-                           grepl(gsub("_", " ", gsub("GEE.*", "", basename(gd))),
-                                 admin2_sf$Admin1[1], ignore.case = TRUE)
-          if (length(ccnl_files) > 0 && country_match) {
-            cat(sprintf("[NTL] Found CCNL raster: %s\n", basename(ccnl_files[1])))
+          if (length(ccnl_files) == 0) next
+
+          for (f in ccnl_files) {
+            # "CCNL_2013_Sierra Leone.tif" -> "Sierra Leone"
+            file_country <- sub("\\.tif$", "", sub("^CCNL_[0-9]+_", "", basename(f)),
+                                ignore.case = TRUE)
+            matched <- (!is.na(target_name) &&
+                          .norm_country(file_country) == .norm_country(target_name)) ||
+                       .norm_country(file_country) == .norm_country(country_iso3)
+            if (!matched) next
+
+            cat(sprintf("[NTL] Found CCNL raster: %s\n", basename(f)))
             r_ntl <- tryCatch({
-              r <- terra::rast(ccnl_files[1])
+              r <- terra::rast(f)
               if (terra::nlyr(r) > 1) r <- r[[1]]
               terra::writeRaster(r, cached_file, overwrite = TRUE)
               r
@@ -1809,18 +1974,20 @@ extract_wfp_foodprices <- function(admin2_sf, country_name, survey_year,
     raw <- raw[order(raw$pricetype), ]
   }
 
-  # Aggregate: mean USD price per admin2 × commodity
-  # Use admin2 from WFP CSV; fall back to admin1 if admin2 is missing
-  admin_col <- if ("admin2" %in% colnames(raw) &&
-                   sum(nchar(trimws(raw$admin2)) > 0) > nrow(raw) / 2) {
-    "admin2"
-  } else if ("admin1" %in% colnames(raw)) {
-    cat("[WFP prices] admin2 sparse — using admin1 for aggregation\n")
-    "admin1"
-  } else {
-    cat("[WFP prices] No admin columns available\n")
+  # Aggregate: mean USD price per admin area × commodity. Which raw column to
+  # group by (admin_col) AND which GADM level it actually corresponds to
+  # (match_level) are decided together by .choose_wfp_admin_match() — a
+  # populated "admin2" column is not proof of admin2 granularity (confirmed:
+  # Malawi's WFP "admin2" values are actually GADM-Admin1-equivalent names).
+  admin_choice <- .choose_wfp_admin_match(raw, admin2_sf[["Admin2"]], admin2_sf[["Admin1"]])
+  admin_col   <- admin_choice$col
+  match_level <- admin_choice$level
+  if (is.na(admin_col)) {
+    cat("[WFP prices] No usable admin columns available\n")
     return(.empty_result(admin2_sf[["Admin2"]]))
   }
+  cat(sprintf("[WFP prices] Using raw '%s' column, matched at GADM %s level (match rate %.0f%%)\n",
+              admin_col, match_level, 100 * admin_choice$rate))
 
   # Remove rows with empty admin names
   raw <- raw[nchar(trimws(raw[[admin_col]])) > 0, ]
@@ -1856,36 +2023,19 @@ extract_wfp_foodprices <- function(admin2_sf, country_name, survey_year,
   cat(sprintf("[WFP prices] %d admin areas × %d commodities\n",
               nrow(wide), length(price_cols)))
 
-  # ── Match WFP admin names to GADM Admin2 names ──
+  # ── Match WFP admin names to GADM Admin2 names (case/whitespace-robust —
+  #    see .match_admin_names() for why: WFP's Ghana/Malawi CSVs use ALL CAPS
+  #    admin names that a raw exact-string match never caught) ──
   gadm_names <- admin2_sf[["Admin2"]]
   gadm_admin1 <- admin2_sf[["Admin1"]]
   wfp_names <- wide$wfp_admin
 
-  # Build name map: GADM name → WFP name
-  name_map <- setNames(rep(NA_character_, length(gadm_names)), gadm_names)
+  # Match at whichever GADM level .choose_wfp_admin_match() found actually
+  # corresponds to this column's values (see above -- not necessarily the
+  # level its name suggests).
+  match_target <- if (match_level == "admin1") gadm_admin1 else gadm_names
 
-  # If WFP uses admin1 aggregation, match via Admin1 instead
-  match_target <- if (admin_col == "admin1") gadm_admin1 else gadm_names
-
-  # Exact matches first
-  for (i in seq_along(match_target)) {
-    nm <- match_target[i]
-    if (nm %in% wfp_names) {
-      name_map[gadm_names[i]] <- nm
-    }
-  }
-
-  # Fuzzy matches for unmatched
-  unmatched <- gadm_names[is.na(name_map)]
-  for (nm in unique(match_target[gadm_names %in% unmatched])) {
-    fuzzy <- agrep(nm, wfp_names, max.distance = 0.2, value = TRUE)
-    if (length(fuzzy) >= 1) {
-      # Pick closest by string length
-      best <- fuzzy[which.min(abs(nchar(fuzzy) - nchar(nm)))]
-      idx <- which(match_target == nm & is.na(name_map))
-      name_map[gadm_names[idx]] <- best
-    }
-  }
+  name_map <- setNames(as.character(.match_admin_names(match_target, wfp_names)), gadm_names)
 
   n_matched <- sum(!is.na(name_map))
   cat(sprintf("[WFP prices] Matched %d/%d GADM Admin-2 units to WFP areas\n",
@@ -1903,6 +2053,176 @@ extract_wfp_foodprices <- function(admin2_sf, country_name, survey_year,
                   all.x = TRUE, sort = FALSE)
   result$.wfp_admin <- NULL
 
+  result
+}
+
+
+# =============================================================================
+# 11b. WFP Food Price Deviation (cross-country-poolable harmonized signal)
+# =============================================================================
+
+#' Extract harmonized, cross-country-comparable food-price deviation signals
+#'
+#' `extract_wfp_foodprices()` returns one column per commodity
+#' (`wfp_price_<commodity>`), which is NOT comparable across countries because
+#' each tracks a different local commodity basket. This function instead
+#' expresses each market x commodity's price relative to ITS OWN multi-year
+#' history -- a scale-free anomaly that IS comparable across countries, then
+#' averages across commodities to one number per Admin-2:
+#'   - `wfp_dev_price_spike_index`: mean |z-score| of the recent (survey_year-1
+#'     .. survey_year) price vs. that market x commodity's own long-run mean/sd.
+#'     Large values = this area is currently experiencing unusual price
+#'     spikes/drops relative to its own history, regardless of which
+#'     commodities it tracks.
+#'   - `wfp_dev_price_dispersion_index`: mean |z-score| of this area's price
+#'     vs. the national cross-market distribution for the same commodity at
+#'     the same time -- a market-integration / remoteness proxy (does this
+#'     area pay unusually more/less than the rest of the country right now).
+#'
+#' Column names are identical across countries by construction, so (unlike
+#' `wfp_price_*`) these ARE included in `COMMON_DOMAIN_PREFIXES` for
+#' cross-country LOCO pooling (transportability.R) -- no special-casing
+#' needed, since `Reduce(intersect, ...)` on column names naturally keeps only
+#' the genuinely shared columns and drops country-specific `wfp_price_*` ones.
+#'
+#' @param admin2_sf sf object with Admin-2 polygons (must have Admin2, Admin1)
+#' @param country_name Country name as used in config (e.g., "Gambia")
+#' @param survey_year Integer survey year
+#' @param price_dir Directory containing wfp_food_prices_*.csv files
+#' @param min_history_obs Minimum monthly observations required to trust a
+#'   market x commodity's baseline mean/sd (default 6)
+#' @param min_national_markets Minimum number of markets reporting a commodity
+#'   in a given year to trust the national dispersion baseline (default 3)
+#' @return data.frame with Admin2 + wfp_dev_price_spike_index +
+#'   wfp_dev_price_spike_signed + wfp_dev_price_dispersion_index
+extract_wfp_price_deviation <- function(admin2_sf, country_name, survey_year,
+                                        price_dir = here::here("data", "food_price"),
+                                        min_history_obs = 6L,
+                                        min_national_markets = 3L) {
+
+  country_codes <- c(
+    "Gambia"       = "gmb",
+    "Ghana"        = "gha",
+    "Sierra Leone" = "sle",
+    "Malawi"       = "mwi"
+  )
+  code <- country_codes[[country_name]]
+  if (is.null(code)) {
+    cat(sprintf("[WFP dev] No food price CSV mapping for '%s'\n", country_name))
+    return(.empty_result(admin2_sf[["Admin2"]]))
+  }
+
+  csv_path <- file.path(price_dir, paste0("wfp_food_prices_", code, ".csv"))
+  if (!file.exists(csv_path)) {
+    cat(sprintf("[WFP dev] File not found: %s\n", csv_path))
+    return(.empty_result(admin2_sf[["Admin2"]]))
+  }
+
+  raw <- utils::read.csv(csv_path, stringsAsFactors = FALSE)
+  raw <- raw[!grepl("^#", raw[[1]]), ]
+  raw$year <- as.integer(substr(raw$date, 1, 4))
+  raw$usdprice <- suppressWarnings(as.numeric(raw$usdprice))
+  raw <- raw[!is.na(raw$usdprice) & raw$usdprice > 0 & !is.na(raw$year), ]
+  if ("category" %in% colnames(raw)) {
+    raw <- raw[!grepl("non-food|miscellaneous", raw$category, ignore.case = TRUE), ]
+  }
+  if (nrow(raw) == 0) return(.empty_result(admin2_sf[["Admin2"]]))
+
+  # Same admin-level detection as extract_wfp_foodprices() -- see
+  # .choose_wfp_admin_match()'s docs for why a populated "admin2" column
+  # isn't proof of admin2 granularity (confirmed for Malawi).
+  admin_choice <- .choose_wfp_admin_match(raw, admin2_sf[["Admin2"]], admin2_sf[["Admin1"]])
+  admin_col   <- admin_choice$col
+  match_level <- admin_choice$level
+  if (is.na(admin_col)) {
+    cat("[WFP dev] No usable admin columns available\n")
+    return(.empty_result(admin2_sf[["Admin2"]]))
+  }
+  cat(sprintf("[WFP dev] Using raw '%s' column, matched at GADM %s level (match rate %.0f%%)\n",
+              admin_col, match_level, 100 * admin_choice$rate))
+  raw <- raw[nchar(trimws(raw[[admin_col]])) > 0, ]
+  if (nrow(raw) == 0) return(.empty_result(admin2_sf[["Admin2"]]))
+
+  raw$commodity_clean <- tolower(gsub("[^a-zA-Z0-9]+", "_", raw$commodity))
+  raw$wfp_admin <- raw[[admin_col]]
+
+  # ── Price-spike anomaly: recent period vs. this market x commodity's own
+  #    long-run mean/sd, using ALL available history (not just the survey
+  #    window) as the baseline. ──────────────────────────────────────────────
+  recent <- raw[raw$year >= (survey_year - 1L) & raw$year <= survey_year, ]
+  baseline <- stats::aggregate(
+    usdprice ~ wfp_admin + commodity_clean, data = raw,
+    FUN = function(x) c(mean = mean(x, na.rm = TRUE), sd = stats::sd(x, na.rm = TRUE), n = length(x))
+  )
+  baseline_mat <- as.data.frame(baseline$usdprice)
+  baseline <- data.frame(wfp_admin = baseline$wfp_admin, commodity_clean = baseline$commodity_clean,
+                         base_mean = baseline_mat$mean, base_sd = baseline_mat$sd, n_obs = baseline_mat$n)
+  baseline <- baseline[baseline$n_obs >= min_history_obs & is.finite(baseline$base_sd) & baseline$base_sd > 0, ]
+
+  recent_avg <- stats::aggregate(usdprice ~ wfp_admin + commodity_clean, data = recent, FUN = mean, na.rm = TRUE)
+  names(recent_avg)[names(recent_avg) == "usdprice"] <- "recent_mean"
+
+  spike <- merge(baseline, recent_avg, by = c("wfp_admin", "commodity_clean"))
+  if (nrow(spike) == 0) return(.empty_result(admin2_sf[["Admin2"]]))
+  spike$z <- (spike$recent_mean - spike$base_mean) / spike$base_sd
+
+  spike_by_admin <- stats::aggregate(
+    cbind(abs_z = abs(spike$z), signed_z = spike$z) ~ wfp_admin, data = spike, FUN = mean, na.rm = TRUE
+  )
+  names(spike_by_admin) <- c("wfp_admin", "wfp_dev_price_spike_index", "wfp_dev_price_spike_signed")
+
+  # ── Price dispersion: this market's price vs. the national cross-market
+  #    distribution for the same commodity in the same year. ─────────────────
+  natl <- stats::aggregate(
+    usdprice ~ year + commodity_clean, data = raw,
+    FUN = function(x) c(mean = mean(x, na.rm = TRUE), sd = stats::sd(x, na.rm = TRUE), n = length(x))
+  )
+  natl_mat <- as.data.frame(natl$usdprice)
+  natl <- data.frame(year = natl$year, commodity_clean = natl$commodity_clean,
+                     natl_mean = natl_mat$mean, natl_sd = natl_mat$sd, n_areas = natl_mat$n)
+  # n_areas here counts observations, not distinct markets; refine with a
+  # proper distinct-market count so the min_national_markets guard is honest.
+  n_distinct_tbl <- stats::aggregate(wfp_admin ~ year + commodity_clean, data = raw,
+                                     FUN = function(x) length(unique(x)))
+  names(n_distinct_tbl)[3] <- "n_markets"
+  natl <- merge(natl, n_distinct_tbl, by = c("year", "commodity_clean"))
+  natl <- natl[natl$n_markets >= min_national_markets & is.finite(natl$natl_sd) & natl$natl_sd > 0, ]
+
+  by_area <- stats::aggregate(usdprice ~ wfp_admin + year + commodity_clean, data = raw, FUN = mean, na.rm = TRUE)
+  names(by_area)[names(by_area) == "usdprice"] <- "area_mean"
+
+  disp <- merge(by_area, natl, by = c("year", "commodity_clean"))
+  if (nrow(disp) > 0) {
+    disp$area_z <- (disp$area_mean - disp$natl_mean) / disp$natl_sd
+    disp_by_admin <- stats::aggregate(area_z ~ wfp_admin, data = disp, FUN = function(x) mean(abs(x), na.rm = TRUE))
+    names(disp_by_admin) <- c("wfp_admin", "wfp_dev_price_dispersion_index")
+  } else {
+    disp_by_admin <- data.frame(wfp_admin = character(0), wfp_dev_price_dispersion_index = numeric(0))
+  }
+
+  feat <- merge(spike_by_admin, disp_by_admin, by = "wfp_admin", all = TRUE)
+  if (nrow(feat) == 0) return(.empty_result(admin2_sf[["Admin2"]]))
+
+  # ── Match WFP admin names to GADM Admin-2 names — same case/whitespace-
+  #    robust helper used by extract_wfp_foodprices(), applied to the SAME
+  #    real admin2_sf the rest of the extraction pipeline uses. ──
+  gadm_names <- admin2_sf[["Admin2"]]
+  gadm_admin1 <- admin2_sf[["Admin1"]]
+  wfp_names <- feat$wfp_admin
+  match_target <- if (match_level == "admin1") gadm_admin1 else gadm_names
+
+  name_map <- setNames(as.character(.match_admin_names(match_target, wfp_names)), gadm_names)
+  n_matched <- sum(!is.na(name_map))
+  cat(sprintf("[WFP dev] %s: matched %d/%d GADM Admin-2 units to WFP areas\n",
+              country_name, n_matched, length(gadm_names)))
+  if (n_matched == 0) return(.empty_result(gadm_names))
+
+  result <- data.frame(Admin2 = gadm_names, stringsAsFactors = FALSE)
+  result$.wfp_admin <- name_map[gadm_names]
+  dev_cols <- setdiff(colnames(feat), "wfp_admin")
+  result <- merge(result, feat[, c("wfp_admin", dev_cols), drop = FALSE],
+                  by.x = ".wfp_admin", by.y = "wfp_admin", all.x = TRUE, sort = FALSE)
+  result$.wfp_admin <- NULL
   result
 }
 
@@ -1982,7 +2302,7 @@ extract_all_external <- function(cc, survey_year, cache_dir = "data/external_cac
   # ── Call each extraction function with tryCatch ──────────────────────────
 
   # 1. CHIRPS rainfall
-  cat("\n--- [1/11] CHIRPS Rainfall ---\n")
+  cat("\n--- [1/12] CHIRPS Rainfall ---\n")
   chirps_df <- tryCatch(
     extract_chirps(admin2_sf, country_iso3, survey_year, cache_dir),
     error = function(e) {
@@ -1992,7 +2312,7 @@ extract_all_external <- function(cc, survey_year, cache_dir = "data/external_cac
   )
 
   # 2. WorldPop population density
-  cat("\n--- [2/11] WorldPop Population ---\n")
+  cat("\n--- [2/12] WorldPop Population ---\n")
   worldpop_df <- tryCatch(
     extract_worldpop(admin2_sf, country_iso3, survey_year, cache_dir),
     error = function(e) {
@@ -2002,7 +2322,7 @@ extract_all_external <- function(cc, survey_year, cache_dir = "data/external_cac
   )
 
   # 3. Nighttime lights
-  cat("\n--- [3/11] VIIRS Nighttime Lights ---\n")
+  cat("\n--- [3/12] VIIRS Nighttime Lights ---\n")
   ntl_df <- tryCatch(
     extract_nightlights(admin2_sf, country_iso3, survey_year, nasa_token, cache_dir),
     error = function(e) {
@@ -2012,7 +2332,7 @@ extract_all_external <- function(cc, survey_year, cache_dir = "data/external_cac
   )
 
   # 4. Malaria Atlas Project
-  cat("\n--- [4/11] Malaria Atlas Project ---\n")
+  cat("\n--- [4/12] Malaria Atlas Project ---\n")
   map_df <- tryCatch(
     extract_malaria_atlas(admin2_sf, survey_year, cache_dir, country_iso3 = country_iso3),
     error = function(e) {
@@ -2022,7 +2342,7 @@ extract_all_external <- function(cc, survey_year, cache_dir = "data/external_cac
   )
 
   # 5. SoilGrids
-  cat("\n--- [5/11] SoilGrids ---\n")
+  cat("\n--- [5/12] SoilGrids ---\n")
   soil_df <- tryCatch(
     extract_soilgrids(admin2_sf, cache_dir),
     error = function(e) {
@@ -2032,7 +2352,7 @@ extract_all_external <- function(cc, survey_year, cache_dir = "data/external_cac
   )
 
   # 6. Global Data Lab (Admin-1 level)
-  cat("\n--- [6/11] Global Data Lab ---\n")
+  cat("\n--- [6/12] Global Data Lab ---\n")
   gdl_df <- tryCatch(
     extract_gdl(country_iso3, admin1_names, survey_year),
     error = function(e) {
@@ -2042,7 +2362,7 @@ extract_all_external <- function(cc, survey_year, cache_dir = "data/external_cac
   )
 
   # 7. WFP HungerMap (Admin-1 level)
-  cat("\n--- [7/11] WFP HungerMap ---\n")
+  cat("\n--- [7/12] WFP HungerMap ---\n")
   wfp_df <- tryCatch(
     extract_wfp_hungermap(country_iso3, admin1_names, wfp_key),
     error = function(e) {
@@ -2052,7 +2372,7 @@ extract_all_external <- function(cc, survey_year, cache_dir = "data/external_cac
   )
 
   # 8. IPC/Cadre Harmonisé API
-  cat("\n--- [8/11] IPC/CH Food Security ---\n")
+  cat("\n--- [8/12] IPC/CH Food Security ---\n")
   ipc_df <- tryCatch(
     extract_ipc(country_iso3, admin2_sf, survey_year),
     error = function(e) {
@@ -2062,7 +2382,7 @@ extract_all_external <- function(cc, survey_year, cache_dir = "data/external_cac
   )
 
   # 9. ACLED Conflict Data
-  cat("\n--- [9/11] ACLED Conflict Events ---\n")
+  cat("\n--- [9/12] ACLED Conflict Events ---\n")
   acled_df <- tryCatch(
     extract_acled(admin2_sf, cc$country, survey_year),
     error = function(e) {
@@ -2072,7 +2392,7 @@ extract_all_external <- function(cc, survey_year, cache_dir = "data/external_cac
   )
 
   # 10. HarvestStat Africa Crop Statistics
-  cat("\n--- [10/11] HarvestStat Africa Crop Data ---\n")
+  cat("\n--- [10/12] HarvestStat Africa Crop Data ---\n")
   harvest_df <- tryCatch(
     extract_harveststat(admin2_sf, cc$country, survey_year, cache_dir),
     error = function(e) {
@@ -2082,11 +2402,21 @@ extract_all_external <- function(cc, survey_year, cache_dir = "data/external_cac
   )
 
   # 11. WFP Staple Food Prices
-  cat("\n--- [11/11] WFP Staple Food Prices ---\n")
+  cat("\n--- [11/12] WFP Staple Food Prices ---\n")
   foodprice_df <- tryCatch(
     extract_wfp_foodprices(admin2_sf, cc$country, survey_year),
     error = function(e) {
       warning(sprintf("WFP food prices extraction failed: %s", e$message))
+      .empty_result(admin2_names)
+    }
+  )
+
+  # 12. WFP Food Price Deviation (cross-country-poolable spike/dispersion index)
+  cat("\n--- [12/12] WFP Food Price Deviation ---\n")
+  pricedev_df <- tryCatch(
+    extract_wfp_price_deviation(admin2_sf, cc$country, survey_year),
+    error = function(e) {
+      warning(sprintf("WFP price deviation extraction failed: %s", e$message))
       .empty_result(admin2_names)
     }
   )
@@ -2103,7 +2433,7 @@ extract_all_external <- function(cc, survey_year, cache_dir = "data/external_cac
 
   # Join Admin-2 level data — deduplicate sources first to prevent cartesian joins
   admin2_sources <- list(chirps_df, worldpop_df, ntl_df, map_df, soil_df,
-                         ipc_df, acled_df, harvest_df, foodprice_df)
+                         ipc_df, acled_df, harvest_df, foodprice_df, pricedev_df)
   for (src_df in admin2_sources) {
     if (is.null(src_df) || !is.data.frame(src_df)) next
     if (!("Admin2" %in% colnames(src_df)) || ncol(src_df) <= 1) next

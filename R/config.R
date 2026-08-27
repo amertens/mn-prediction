@@ -503,13 +503,40 @@ get_country_configs <- function() {
       )
     )
 
+    # Tanzania (TDHS 2009-10) is DROPPED as of 2026-08-26 — see
+    # get_country_config_tanzania_archived_2010() below for why, and for the
+    # preserved config to restore once a replacement dataset is available.
+  )
+}
+
+#' ARCHIVED — Tanzania (TDHS 2009-10) country config. NOT called anywhere.
+#'
+#' Dropped from get_country_configs() on 2026-08-26 after a project
+#' collaborator (Omar), on the 2026-08 UC Davis / BMGF bi-weekly call,
+#' identified the TDHS 2010 dried-blood-spot RBP (vitamin-A) measurements as
+#' unreliable ("completely wrong... totally incorrect... not even internally
+#' consistent"), consistent with independent data-quality anomalies found in
+#' this pipeline (a unit-label error in `TZ61BIOMARKER.DOC`, and catastrophic
+#' national-level bias — 77-92 pp — when Tanzania was held out under
+#' leave-one-country-out evaluation). His recommendation was to wait for the
+#' Tanzania 2023 DHS round instead. This function preserves the exact config
+#' used for the 2010 round so it is trivial to compare against or adapt once
+#' 2023 data is accessible: copy the `Tanzania = list(...)` value below back
+#' into get_country_configs()'s returned list, updating survey_year/dhs_year,
+#' data_path, and any changed variable names for the new round. The upstream
+#' cleaning scripts (`src/Tanzania/`) are similarly archived, not deleted —
+#' see `archive/src/Tanzania/`.
+#' @return named list with one element, `Tanzania` (matching the shape of
+#'   every other entry in get_country_configs())
+get_country_config_tanzania_archived_2010 <- function() {
+  list(
     # ── Tanzania (TDHS 2009-10, DHS micronutrient module) ────────────────
     # SCAFFOLD — outcome half only. Unlike the other four countries (which
     # are standalone micronutrient surveys with analyst-prepped biomarker
     # files), Tanzania is a DHS round: the biomarker data live in the OB
     # ("other biomarkers") recode keyed by blood-sample bar code and must be
     # linked to the PR recode (cluster, weight) and the GE GPS shapefile.
-    # That linkage is built in src/Tanzania/1_GW_Tanzania_data_clean.R.
+    # That linkage is built in archive/src/Tanzania/1_GW_Tanzania_data_clean.R.
     #
     # VITAMIN A ONLY. The TDHS 2010 OB module measured RBP (vit A), sTfR +
     # CRP (iron), and urinary/salt iodine. It did NOT measure serum ferritin,
@@ -517,12 +544,7 @@ get_country_configs <- function() {
     # other countries and is intentionally omitted. Iodine does not fit the
     # individual→admin-2 prevalence framework (population-median metric,
     # single country, no LOCO) and is omitted. See README_TANZANIA_TODO.md.
-    #
-    # NOT RUNNABLE END-TO-END until the proxy covariate extractions exist:
-    # Tanzania_GEE_rasters/, SoilGrids, MAP, IHME, and the dhs2010_ admin-2
-    # aggregation. The merge step (2_GW_Tanzania_data_merge.R) and those
-    # extractions are the tracked remaining work.
-    , Tanzania = list(
+    Tanzania = list(
       country     = "Tanzania",
       gadm_code   = "TZA",
       survey_year = 2010L,
@@ -658,10 +680,10 @@ get_pipeline_params <- function(mode = Sys.getenv("PIPELINE_MODE", "fast")) {
     # check relative performance across outcomes, and debug visualisations.
     c(base, list(
       K        = 5L,        # CV folds (same — fewer folds barely saves time)
-      B_boot   = 20L,       # admin1 bootstrap
-      B_admin2 = 4L,        # admin2 individual SL bootstrap
+      B_boot   = 20L,       # LEGACY, see note below
       B_area   = 10L,       # area-level model bootstrap (already fast)
-      sl_stack = "fast",    # 3-learner stack: mean + glmnet + ranger
+      sl_stack = "fast",    # 5 learners: mean, lasso, enet, ranger, xgboost
+      sl_with_gp = FALSE,   # fast mode never included GP
       prescreen_pval = 0.2  # same prescreening threshold
     ))
   } else {
@@ -670,14 +692,46 @@ get_pipeline_params <- function(mode = Sys.getenv("PIPELINE_MODE", "fast")) {
     # bootstrap replicates, and all ablation domains.
     c(base, list(
       K        = 5L,
-      B_boot   = 200L,      # admin1 bootstrap
-      B_admin2 = 50L,       # admin2 individual SL bootstrap
+      B_boot   = 200L,      # LEGACY, see note below
       B_area   = 500L,      # area-level model bootstrap
-      sl_stack = "full",    # full stack with screener pipelines
+      sl_stack = "full",    # 12 learners: + ridge, 2 ranger, xgb_deep, 3 BART
+      sl_with_gp = FALSE,   # Gaussian process: see note below
       prescreen_pval = 0.2
     ))
   }
 }
+
+# ── What actually differs between fast and full ────────────────────────────
+# Verified against the code, not the comments, 2026-08:
+#
+#   sl_stack   5 learners (mean, lasso, elastic_net, ranger_main,
+#              xgb_conservative) vs 12 (adds ridge, ranger_low_mtry,
+#              ranger_deep, xgb_deep, bart_small/100/200).
+#              BART matters here: it is the learner that holds up on the rare
+#              outcomes (women's vitamin A and B12 sit at 1-3% prevalence)
+#              where the others collapse to the mean.
+#   sl_with_gp FALSE in both modes as of 2026-08. gaussianprocess used to be
+#              the 13th full-mode learner. kernlab::gausspr is O(n^3) in rows:
+#              measured at p = 140 it takes 0.2 s at n = 400, 1.0 s at n = 800
+#              and 9.4 s at n = 1600. The area-level targets (n = 30-370) never
+#              felt it, but the individual-level LOCO targets pool n = 10,011
+#              and 13,107, where that curve implies 8-18 h per target. Three of
+#              them ran 4.9 CPU-hours apiece without finishing before this was
+#              tracked down. The gp_sensitivity target refits one small
+#              country x outcome WITH the GP so the cost of dropping it is
+#              measured rather than assumed.
+#   B_area     10 vs 500 area-level bootstrap replicates
+#              (the only other live difference; R/admin2_analysis.R)
+#   K, prescreen_pval, conformal intervals, ablation domains: IDENTICAL.
+#
+# B_boot is retained only because R/bootstrap.R reads it, and that file is
+# preserved for reference and is NOT in the targets graph (see _targets.R:83) --
+# run_bootstrap_ci() has no call sites. Changing B_boot therefore has no effect
+# on a tar_make() run.
+#
+# B_admin2 was removed in 2026-08: it was documented as "admin2 individual SL
+# bootstrap, 4 vs 50" but had ZERO readers anywhere in the repo, so full mode
+# never ran the 50 replicates the setting implied.
 
 
 #' Outcome-specific predictor bundles (biology-driven feature selection)
