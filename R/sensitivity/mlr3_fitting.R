@@ -7,6 +7,28 @@
 # (admin1_analysis, conformal, diagnostics, transportability) work unchanged.
 # =============================================================================
 
+#' Learner ids from a library spec, for messages and provenance.
+#'
+#' A spec entry is either a bare string ("mean") or a list whose first element
+#' is the learner type and which may carry an `id`.
+sl_learner_ids <- function(library_spec) {
+  vapply(library_spec, function(x) {
+    if (is.character(x)) return(x[1])
+    if (!is.null(x$id)) return(as.character(x$id))
+    as.character(x[[1]])
+  }, character(1))
+}
+
+#' How many learners a given stack mode builds, without side effects.
+#'
+#' Used by the _targets.R startup banner so that message cannot drift from the
+#' stack it describes.
+sl_stack_size <- function(stack_mode) {
+  invisible(utils::capture.output(
+    L <- setup_mlr3_learners(list(sl_stack = stack_mode))))
+  length(L$library)
+}
+
 #' Set up the mlr3 SuperLearner learner library
 #'
 #' Returns a list of mlr3 learner specifications for use with
@@ -14,13 +36,26 @@
 #'
 #' @param params Pipeline parameters (from get_pipeline_params())
 #' @return list with library specs for continuous and binary tasks
-setup_mlr3_learners <- function(params) {
+setup_mlr3_learners <- function(params, with_gp = NULL) {
 
   stack_mode <- params$sl_stack %||% "fast"
 
-  if (stack_mode == "fast") {
-    cat("[mlr3_learners] Using FAST stack (5 learners)\n")
+  # Gaussian process is OFF by default in full mode as of 2026-08.
+  #
+  # kernlab::gausspr is O(n^3) in training rows and allocates an n x n
+  # kernel matrix. Measured on this machine at p = 140: 0.2 s at n = 400,
+  # 1.0 s at n = 800, 9.4 s at n = 1600 -- clean cubic scaling. The
+  # area-level targets (n = 30-370) are unaffected, but the individual-level
+  # LOCO targets pool n = 10,011 (child_vitA) and 13,107 (women_vitA), where
+  # the same curve implies 8-18 h per target across 5 held-out countries.
+  # Three such targets ran 4.9 CPU-hours each without finishing.
+  #
+  # Pass with_gp = TRUE (see the gp_sensitivity target) to put it back for a
+  # single small country x outcome, which is how we check that dropping it
+  # costs nothing rather than just assuming so.
+  if (is.null(with_gp)) with_gp <- isTRUE(params$sl_with_gp)
 
+  if (stack_mode == "fast") {
     # NOTE: BART excluded — its R6 model objects use external pointers that
     # don't survive targets/future serialization, causing predict() to return
     # degenerate (all-identical) values after save/load. This breaks domain
@@ -38,8 +73,6 @@ setup_mlr3_learners <- function(params) {
     )
 
   } else {
-    cat("[mlr3_learners] Using FULL stack (16 learners, evidence-based)\n")
-
     library_spec <- list(
       "mean",
 
@@ -76,12 +109,11 @@ setup_mlr3_learners <- function(params) {
       # BART excels at rare outcomes where other learners collapse to the mean.
       list("bart", ntree = 50, id = "bart_small"),
       list("bart", ntree = 100, id = "bart_100"),
-      list("bart", ntree = 200, id = "bart_large"),
+      list("bart", ntree = 200, id = "bart_large")
 
       # ── Gaussian process ──
-      # Effective for smooth spatial relationships. Can capture nonlinear
-      # patterns that tree models miss.
-      "gaussianprocess"
+      # Appended below when with_gp = TRUE, not listed here. See the note at the
+      # top of this function for why it is off by default.
 
       # ── Disabled learners (caused silent failures in full pipeline) ──
       # LightGBM and nnet passed individual serialization tests but caused
@@ -98,6 +130,14 @@ setup_mlr3_learners <- function(params) {
     )
   }
 
+  # Add the Gaussian process back only when explicitly asked for.
+  if (with_gp && stack_mode != "fast") {
+    library_spec <- c(library_spec, list("gaussianprocess"))
+    cat("[mlr3_learners] with_gp = TRUE - Gaussian process ADDED; this is O(n^3),",
+        "keep it to small n
+")
+  }
+
   # Optional: drop BART learners (dbarts MCMC can fatally crash the R process
   # — OOM in parallel workers and segfaults even single-process). Set
   # SL_NO_BART=1 for a reliable unattended run; the remaining stack is still
@@ -111,6 +151,15 @@ setup_mlr3_learners <- function(params) {
     cat(sprintf("[mlr3_learners] SL_NO_BART set — dropped %d BART learner(s) (%d -> %d)\n",
                 n0 - length(library_spec), n0, length(library_spec)))
   }
+
+  # Report the count from the spec itself rather than from a literal, and after
+  # any SL_NO_BART filtering. The two hardcoded numbers that used to sit in the
+  # branches above had drifted to "5" and "16" against actual stacks of 5 and
+  # 13, while _targets.R printed a third and fourth number ("3 learners" and
+  # "6-learner stack") for the same two stacks. Deriving it cannot drift.
+  cat(sprintf("[mlr3_learners] %s stack: %d learners (%s)\n",
+              toupper(stack_mode), length(library_spec),
+              paste(sl_learner_ids(library_spec), collapse = ", ")))
 
   list(library = library_spec, stack_mode = stack_mode)
 }
@@ -292,7 +341,27 @@ mlr3_SL_clustered <- function(d, Xvars, outcome, population,
   nzv_idx <- caret::nearZeroVar(cov)
   if (length(nzv_idx) > 0) cov <- cov[, -nzv_idx, drop = FALSE]
 
+  # Below this many raw predictors, skip BOTH washb_prescreen and step_corr
+  # (see their respective call sites for why) -- they exist to cut a large
+  # candidate pool down; on an already-small, deliberately-curated set they
+  # do more harm than good. Shared by both fixes so the threshold can't drift
+  # between them.
+  SMALL_P_SKIP_CORR_THRESHOLD <- 15L
+
   # Optional prescreening
+  # 2026-08-27 fix: washb_prescreen's job is to cut a large candidate pool
+  # down; on an already-small set (same threshold/rationale as the step_corr
+  # skip above) it can reduce to a single surviving predictor, which then
+  # crashes glmnet ("x should be a matrix with 2 or more columns") --
+  # reproduced with a 6-variable curated set where one fold's prescreen left
+  # exactly 1 column. Skip it below the same small-p threshold; there's
+  # nothing to screen out of a set that size that a human/algorithm didn't
+  # already choose deliberately.
+  if (prescreen && ncol(cov) <= SMALL_P_SKIP_CORR_THRESHOLD) {
+    cat(sprintf("  [mlr3_SL] p=%d <= %d: skipping washb_prescreen (same rationale as step_corr above)\n",
+                ncol(cov), SMALL_P_SKIP_CORR_THRESHOLD))
+    prescreen <- FALSE
+  }
   if (prescreen) {
     family_screen <- if (length(unique(Y[!is.na(Y)])) == 2) "binomial" else "gaussian"
 
@@ -333,10 +402,30 @@ mlr3_SL_clustered <- function(d, Xvars, outcome, population,
   # the outcome when prevalence is low.
   cor_threshold <- if (exists("prevalence") && prevalence < 0.10) 0.90 else 0.85
 
+  # 2026-08-27 fix: step_corr is tuned for the large-p regime (hundreds of
+  # candidates) this pipeline normally runs in, and applied UNCONDITIONALLY --
+  # it wasn't gated by `prescreen`, so even prescreen=FALSE couldn't disable
+  # it. On an already-small, hand-curated predictor set (confirmed with a
+  # 6-variable LOCO-selected set: two malaria variables correlated at r=0.99,
+  # both >0.8 with rainfall/MAP) it silently discards predictors kept
+  # *because* they're jointly informative despite being correlated, cutting
+  # LOCO AUC by ~0.03-0.06 for no benefit. Skip it below the same small-p
+  # threshold used for prescreen above -- there's nothing to protect against
+  # at this scale, since a human/algorithm already chose these variables
+  # deliberately.
+  skip_corr <- ncol(cov) <= SMALL_P_SKIP_CORR_THRESHOLD
+  if (skip_corr) {
+    cat(sprintf("  [mlr3_SL] p=%d <= %d: skipping step_corr (tuned for large-p screening, not a small curated set)\n",
+                ncol(cov), SMALL_P_SKIP_CORR_THRESHOLD))
+  }
+
   auto_recipe <- recipes::recipe(~ ., data = cov) %>%
     recipes::step_zv(recipes::all_predictors()) %>%
-    recipes::step_nzv(recipes::all_predictors()) %>%
-    recipes::step_corr(recipes::all_numeric(), threshold = cor_threshold) %>%
+    recipes::step_nzv(recipes::all_predictors())
+  if (!skip_corr) {
+    auto_recipe <- auto_recipe %>% recipes::step_corr(recipes::all_numeric(), threshold = cor_threshold)
+  }
+  auto_recipe <- auto_recipe %>%
     recipes::step_normalize(recipes::all_numeric()) %>%
     recipes::prep()
 
@@ -428,6 +517,16 @@ mlr3_SL_clustered <- function(d, Xvars, outcome, population,
   # splitting and excludes it from predictors automatically.
   fit_df <- mlr3_df  # cluster_id stays as a column
 
+  # 2026-08-27 fix: this call's internal CV (which LEARNS the ensemble
+  # weights) was never seeded -- only the separate honest-OOF resampling in
+  # mlr3_oof_predictions() below was. With a rich library and hundreds of
+  # predictors the resulting run-to-run noise is usually masked by averaging
+  # over many learners; with a small library/small p it isn't: confirmed the
+  # SAME data + SAME 3-learner library picked 100% weight on a DIFFERENT
+  # single learner on every unseeded re-run, swinging held-out AUC between
+  # 0.49 and 0.72. Same seed constant as mlr3_oof_predictions() for
+  # consistency between the two CV steps.
+  set.seed(5249L)
   t0 <- proc.time()
   mlr3_fit <- tryCatch({
     suppressWarnings(
