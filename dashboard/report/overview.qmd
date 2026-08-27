@@ -103,8 +103,10 @@ kable(cov, align = "lrrrr", booktabs = TRUE,
 #| fig-height: 4.2
 ggplot(grid, aes(x = country, y = label, fill = natl)) +
   geom_tile(colour = "white", linewidth = 0.6) +
+  # White only on the dark red end. At 0.45 the mid-orange cells got white text
+  # on a light background, which is unreadable in print.
   geom_text(aes(label = pct(natl, 0)), size = 2.9,
-            colour = ifelse(grid$natl > 0.45, "white", "grey15")) +
+            colour = ifelse(grid$natl > 0.70, "white", "grey15")) +
   scale_fill_gradientn(colours = c("#2c7bb6", "#abd9e9", "#ffffbf", "#fdae61", "#d7191c"),
                        labels = scales::percent, name = "Prevalence") +
   labs(x = NULL, y = NULL) +
