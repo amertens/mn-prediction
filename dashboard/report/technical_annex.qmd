@@ -1,0 +1,316 @@
+---
+title: "Subnational Micronutrient Deficiency"
+subtitle: "Technical annex"
+date: today
+format:
+  pdf:
+    toc: true
+    toc-depth: 2
+    number-sections: true
+    fig-width: 7
+    fig-height: 4.6
+    geometry: margin=2.2cm
+    colorlinks: true
+  html:
+    toc: true
+    toc-depth: 2
+    number-sections: true
+    embed-resources: true
+    theme: cosmo
+keep-md: true
+execute:
+  echo: false
+  warning: false
+  message: false
+---
+
+```{r setup}
+#| include: false
+# Static counterpart to the dashboard's Technical appendix: Model diagnostics,
+# Benchmarks, Resolution, Transportability and the importance views. Same
+# bundles the app reads, so the two cannot disagree.
+.owd <- setwd(here::here("dashboard"))
+suppressPackageStartupMessages(source("global.R"))
+setwd(.owd)
+suppressPackageStartupMessages({
+  library(ggplot2); library(dplyr); library(knitr); library(kableExtra)
+})
+theme_set(theme_minimal(base_size = 10))
+lab <- function(oc) unname(meta$outcome_labels[oc])
+pct <- function(x, d = 1) ifelse(is.finite(x), sprintf(paste0("%.", d, "f%%"), 100 * x), "--")
+num <- function(x, d = 2) ifelse(is.finite(x), sprintf(paste0("%.", d, "f"), x), "--")
+empty <- function(msg) { cat(sprintf("\n*%s*\n\n", msg)); invisible(NULL) }
+```
+
+# Scope
+
+`r SITE_SCOPE_HEADLINE`
+
+This annex holds the modelling diagnostics behind the country briefs: how well
+the models discriminate, whether their probabilities are calibrated, how they
+compare with simpler alternatives, and how far they transport to a country they
+were not trained on. It is the printed form of the dashboard's **Technical
+appendix**, for reviewers who want to check the machinery rather than the
+findings.
+
+Data build: `r data_build_time`.
+
+# How predictions are validated
+
+Two complementary designs:
+
+**Cluster-blocked cross-validation.** Individuals from the same survey cluster
+always land in the same fold, so the model is tested on people spatially
+separated from those it trained on. Without this, spatial autocorrelation makes
+performance look better than it is.
+
+**Leave-one-country-out (LOCO).** Train on three countries, test on the fourth.
+This estimates performance in a country with no biomarker data — the case that
+matters for scaling up, and the least flattering.
+
+# Discrimination and calibration
+
+```{r binary}
+#| results: asis
+b <- model_diag$binary
+if (is.null(b) || !nrow(b)) empty("Binary diagnostics not built.") else {
+  b$Outcome <- lab(b$outcome)
+  t <- b |>
+    transmute(Country = country, Outcome, N = n,
+              Prevalence = pct(prevalence), `ROC-AUC` = num(roc_auc),
+              `PR-AUC` = num(pr_auc), Brier = num(brier, 3),
+              `Brier skill` = num(brier_skill, 3)) |>
+    arrange(Country, Outcome)
+  print(kable(t, align = "llrrrrrr", booktabs = TRUE, longtable = TRUE,
+              caption = "Cluster-blocked cross-validated discrimination.") |>
+          kable_styling(latex_options = c("hold_position", "repeat_header"), font_size = 7.5))
+}
+```
+
+ROC-AUC runs from 0.5 (no better than chance) to 1.0. **PR-AUC is the more
+informative of the two when prevalence is low** — with a rare outcome, ROC-AUC
+can look high simply because the model correctly predicts the many non-events.
+Brier skill compares squared error against always predicting the overall
+prevalence: at or below zero, the model adds nothing beyond knowing the average.
+
+```{r roc}
+#| fig-cap: "ROC curves by country. The diagonal is chance."
+#| fig-height: 5.6
+r <- model_diag$roc
+if (!is.null(r) && nrow(r)) {
+  r$Outcome <- lab(r$outcome)
+  ggplot(r, aes(fpr, tpr, colour = Outcome)) +
+    geom_abline(slope = 1, intercept = 0, linetype = 2, colour = "grey60") +
+    geom_line(linewidth = 0.5) +
+    facet_wrap(~country) +
+    labs(x = "False positive rate", y = "True positive rate", colour = NULL) +
+    theme(legend.position = "bottom", legend.text = element_text(size = 6)) +
+    guides(colour = guide_legend(nrow = 3))
+} else ggplot() + theme_void()
+```
+
+```{r calib}
+#| fig-cap: "Calibration. Points on the diagonal mean that when the model says 30%, about 30% of people are deficient. Below the line means over-prediction."
+#| fig-height: 5.2
+cal <- model_diag$calibration
+if (!is.null(cal) && nrow(cal)) {
+  cal$Outcome <- lab(cal$outcome)
+  ggplot(cal, aes(mean_pred, mean_obs, colour = Outcome)) +
+    geom_abline(slope = 1, intercept = 0, linetype = 2, colour = "grey60") +
+    geom_point(size = 1.1, alpha = 0.8) +
+    geom_line(linewidth = 0.4, alpha = 0.7) +
+    facet_wrap(~country, scales = "free") +
+    scale_x_continuous(labels = scales::percent) +
+    scale_y_continuous(labels = scales::percent) +
+    labs(x = "Mean predicted", y = "Observed", colour = NULL) +
+    theme(legend.position = "bottom", legend.text = element_text(size = 6)) +
+    guides(colour = guide_legend(nrow = 3))
+} else ggplot() + theme_void()
+```
+
+# District-level accuracy
+
+```{r admin2err}
+#| results: asis
+e <- benchmarks_data$admin2_error
+if (is.null(e) || !nrow(e)) empty("District error table not built.") else {
+  t <- e |>
+    transmute(Country = country, Outcome = lab(outcome), Districts = n_admin2,
+              `MAE (pp)` = num(mae_pp), `RMSE (pp)` = num(rmse_pp),
+              `Correlation r` = num(pearson_r),
+              `Bias (pp)` = num(mean_bias_pp)) |>
+    arrange(Country, Outcome)
+  print(kable(t, align = "llrrrrr", booktabs = TRUE, longtable = TRUE,
+              caption = "Predicted vs surveyed district prevalence, within country.") |>
+          kable_styling(latex_options = c("hold_position", "repeat_header"), font_size = 7.5))
+}
+```
+
+Correlation is the measure that matters most here: it says whether the model
+**ranks** districts correctly, which is what targeting depends on. A negative
+value means the ordering is worse than useless for that combination.
+
+::: {.callout-important}
+## This table is not the estimator the briefs use
+
+These are the *individual-level SuperLearner* diagnostics, kept because they
+are the pipeline's long-running benchmark. The dashboard and the country briefs
+show the area-level recipe model instead, and the two can disagree sharply on
+the same cell.
+
+Sierra Leone child iron is the clearest case: it appears above with a
+correlation of 0.60, while the recipe model returns an identical estimate for
+all 14 districts and so has no district-level ranking at all. Both numbers are
+correct about their own model. **Where the two conflict, the briefs' figure is
+the one in use** — see the final section for the full list of combinations
+where the deployed estimator carries no district signal.
+:::
+
+# Method comparison
+
+```{r bench}
+#| results: asis
+ac <- benchmarks_data$area_comparison
+if (is.null(ac) || !nrow(ac)) empty("Area comparison not built.") else {
+  t <- ac |>
+    transmute(Country = country, Outcome = lab(outcome), Approach = approach,
+              Districts = n_admin2, `MAE (pp)` = num(mae_pp),
+              `Correlation r` = num(pearson_r)) |>
+    arrange(Country, Outcome, Approach)
+  print(kable(head(t, 60), align = "lllrrr", booktabs = TRUE, longtable = TRUE,
+              caption = "Individual-level versus area-level modelling, within country (first 60 rows).") |>
+          kable_styling(latex_options = c("hold_position", "repeat_header"), font_size = 7))
+}
+```
+
+The area-level approach is the primary one. Modelling district prevalence
+directly, rather than modelling individuals and averaging up, is the single
+largest gain in this project: almost every predictor is resolved at district
+level, so individual rows are pseudo-replicated and the honest district-ranking
+signal looks close to chance.
+
+# Transportability
+
+```{r transport-tab}
+#| results: asis
+at <- benchmarks_data$area_transport
+if (is.null(at) || !nrow(at)) empty("Area-transport metrics not built.") else {
+  t <- at |>
+    transmute(Outcome = lab(outcome), `Held out` = held_out,
+              `Train n` = n_train, `Test n` = n_test,
+              `Predictors kept` = n_selected,
+              `Correlation r` = num(pearson_r)) |>
+    arrange(Outcome, `Held out`)
+  print(kable(t, align = "llrrrr", booktabs = TRUE, longtable = TRUE,
+              caption = "Leave-one-country-out: train on three, predict the fourth.") |>
+          kable_styling(latex_options = c("hold_position", "repeat_header"), font_size = 7.5))
+}
+```
+
+```{r transport-scatter}
+#| fig-cap: "District-level transport. Each point is a district in the held-out country, its survey value against the prediction from a model that never saw that country."
+d <- transport_cal$adm2_area
+if (!is.null(d) && nrow(d)) {
+  d$Outcome <- lab(d$outcome)
+  ggplot(d, aes(true_prev, pred_prev, colour = Outcome)) +
+    geom_abline(slope = 1, intercept = 0, linetype = 2, colour = "grey55") +
+    geom_point(size = 0.8, alpha = 0.5) +
+    facet_wrap(~country, scales = "free") +
+    scale_x_continuous(labels = scales::percent) +
+    scale_y_continuous(labels = scales::percent) +
+    labs(x = "Survey-measured", y = "Predicted", colour = NULL) +
+    theme(legend.position = "bottom", legend.text = element_text(size = 6)) +
+    guides(colour = guide_legend(nrow = 3))
+} else ggplot() + theme_void()
+```
+
+**This is the weakest link and the most important one to read honestly.**
+Applying the model to a country with no biomarker survey is the use case that
+would let this scale, and it is where performance degrades most. Levels in
+particular do not transport — biomarker values are not comparable across
+surveys and laboratories, so a transported prediction should be scored on
+ranking and anchored to a known national figure.
+
+# What drives the predictions
+
+```{r ablation}
+#| fig-cap: "Predictor families by importance. Each family is permuted in turn; the bar is the resulting drop in ROC-AUC. Larger means the model relies on it more."
+#| fig-height: 5.4
+ab <- importance_data$ablation
+if (!is.null(ab) && nrow(ab)) {
+  base <- ab[ab$domain_removed == "none", c("country", "outcome", "auc")]
+  names(base)[3] <- "auc_base"
+  d <- merge(ab[ab$domain_removed != "none", ], base, by = c("country", "outcome"))
+  d$drop <- d$auc_base - d$auc
+  d$Outcome <- lab(d$outcome)
+  ggplot(d, aes(domain_removed, Outcome, fill = drop)) +
+    geom_tile(colour = "white", linewidth = 0.4) +
+    facet_wrap(~country, scales = "free_y") +
+    scale_fill_gradientn(colours = c("#f7f7f7", "#fdae61", "#d7191c"), name = "AUC drop") +
+    labs(x = NULL, y = NULL) +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 6),
+          axis.text.y = element_text(size = 6), panel.grid = element_blank())
+} else ggplot() + theme_void()
+```
+
+Permutation importance understates predictors that overlap: when two families
+carry the same information, removing either one alone changes little even
+though the information matters. Read near-zero cells as "redundant or
+uninformative", not as "irrelevant".
+
+# Resolution: district versus survey cluster
+
+```{r resolution}
+#| results: asis
+cr <- cluster_res$comparison
+if (is.null(cr) || !nrow(cr)) empty("Cluster-resolution comparison not built.") else {
+  t <- cr |>
+    transmute(Country = country, Outcome = lab(outcome),
+              `r (district)` = num(r_admin2), `r (cluster)` = num(r_cluster),
+              `MAE district` = num(mae_admin2), `MAE cluster` = num(mae_cluster)) |>
+    arrange(Country, Outcome)
+  print(kable(t, align = "llrrrr", booktabs = TRUE,
+              caption = "Modelling at district resolution versus at survey-cluster GPS buffers.") |>
+          kable_styling(latex_options = "hold_position", font_size = 7.5))
+}
+```
+
+# Known limitations
+
+`r GENERAL_CAVEAT`
+
+```{r nosignal-tech}
+#| results: asis
+PD <- pred_model_data(DEFAULT_PRED_MODEL)
+ns <- do.call(rbind, lapply(names(meta$countries), function(ck) {
+  cl <- unname(meta$countries[[ck]])
+  ocs <- intersect(names(meta$outcome_labels), unique(PD$outcome[PD$country == cl]))
+  do.call(rbind, lapply(ocs, function(oc) {
+    v <- PD$pred_prev[PD$country == cl & PD$outcome == oc]
+    v <- v[is.finite(v)]
+    if (!length(v) || has_district_signal(v)) return(NULL)
+    data.frame(Country = cl, Outcome = lab(oc), Estimate = pct(stats::median(v)),
+               Spread = sprintf("%.2f pp", 100 * diff(range(v))))
+  }))
+}))
+if (!is.null(ns) && nrow(ns)) {
+  cat(sprintf(paste("\n**No district-level signal in %d combinations.** The fit",
+    "reduces to an intercept and every district returns the same estimate.",
+    "These are legitimate null results, but any subnational figure for them is",
+    "the national figure repeated.\n\n"), nrow(ns)))
+  print(kable(ns, align = "llrr", booktabs = TRUE,
+              caption = "Combinations with no usable district variation") |>
+          kable_styling(latex_options = "hold_position", font_size = 8))
+}
+```
+
+Further caveats: surveys span 2013--2018 and different laboratories, so
+biomarker values are not perfectly comparable between countries. Each country
+contributes a single timepoint, so predictions assume the proxy--outcome
+relationship is stable over time. Population denominators carry their own
+modelling uncertainty. And Admin-2 sits below the resolution the surveys were
+designed to represent — many districts contain a single survey cluster, so the
+direct estimates the models are fitted against are themselves imprecise.
+
+The interactive version, including per-district explanations, is at
+<https://amertens.shinyapps.io/micronutrient-burden/>.

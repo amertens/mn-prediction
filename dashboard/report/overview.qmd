@@ -1,0 +1,202 @@
+---
+title: "Subnational Micronutrient Deficiency"
+subtitle: "Four-country overview"
+date: today
+format:
+  pdf:
+    toc: true
+    toc-depth: 2
+    number-sections: true
+    fig-width: 7
+    fig-height: 4.6
+    geometry: margin=2.2cm
+    colorlinks: true
+  html:
+    toc: true
+    toc-depth: 2
+    number-sections: true
+    embed-resources: true
+    theme: cosmo
+keep-md: true
+execute:
+  echo: false
+  warning: false
+  message: false
+---
+
+```{r setup}
+#| include: false
+.owd <- setwd(here::here("dashboard"))
+suppressPackageStartupMessages(source("global.R"))
+setwd(.owd)
+suppressPackageStartupMessages({
+  library(ggplot2); library(dplyr); library(knitr); library(kableExtra); library(sf)
+})
+theme_set(theme_minimal(base_size = 10))
+
+PD <- pred_model_data(DEFAULT_PRED_MODEL)
+CKS <- names(meta$countries)
+
+pct <- function(x, d = 1) ifelse(is.finite(x), sprintf(paste0("%.", d, "f%%"), 100 * x), "--")
+cnt <- function(x) ifelse(is.finite(x), formatC(round(x), big.mark = ",", format = "d"), "--")
+
+cell <- function(ck, oc) {
+  d <- get_country_admin2(ck, oc, admin2_bnds, PD, admin2_pop)
+  df <- as.data.frame(d)
+  df <- df[is.finite(df$pred_prev) & is.finite(df$population) & df$population > 0, ]
+  if (!nrow(df)) return(NULL)
+  a <- national_aggregate(d)
+  w <- df$population; b <- df$pred_prev * w
+  o <- order(df$pred_prev, decreasing = TRUE)
+  cx <- cumsum(w[o]) / sum(w); cy <- cumsum(b[o]) / sum(b)
+  list(natl = a$pred_prev_natl, affected = a$pop_at_risk_natl,
+       lift = stats::approx(c(0, cx), c(0, cy), xout = 0.2, rule = 2)$y / 0.2,
+       signal = has_district_signal(df$pred_prev),
+       spread = diff(range(df$pred_prev)),
+       n = nrow(df), n_surv = sum(!is.na(df$obs_prev)))
+}
+
+grid <- do.call(rbind, lapply(CKS, function(ck) {
+  cl <- unname(meta$countries[[ck]])
+  ocs <- intersect(names(meta$outcome_labels), unique(PD$outcome[PD$country == cl]))
+  do.call(rbind, lapply(ocs, function(oc) {
+    r <- cell(ck, oc); if (is.null(r)) return(NULL)
+    data.frame(country = cl, outcome = oc,
+               label = unname(meta$outcome_labels[oc]),
+               natl = r$natl, affected = r$affected, lift = r$lift,
+               signal = r$signal, spread = r$spread,
+               n = r$n, n_surv = r$n_surv, stringsAsFactors = FALSE)
+  }))
+}))
+```
+
+# What this covers
+
+`r SITE_SCOPE_HEADLINE` `r SITE_SCOPE_BODY`
+
+Estimated prevalence of micronutrient deficiency at district level across
+The Gambia, Ghana, Sierra Leone and Malawi — including districts never
+surveyed — so that limited programmes can be aimed where need is greatest.
+Country-by-country detail is in the individual briefs; this is the portfolio
+view.
+
+Data build: `r data_build_time`. Interactive version:
+<https://amertens.shinyapps.io/micronutrient-burden/>
+
+```{r coverage}
+cov <- grid |>
+  group_by(country) |>
+  summarise(Outcomes = n(),
+            Districts = max(n),
+            Surveyed = max(n_surv),
+            `With district signal` = sum(signal), .groups = "drop")
+names(cov)[1] <- "Country"
+kable(cov, align = "lrrrr", booktabs = TRUE,
+      caption = "Coverage. \"Surveyed\" counts districts with their own biomarker survey; the rest are estimated.") |>
+  kable_styling(latex_options = "hold_position", font_size = 9)
+```
+
+# Estimated prevalence, all countries
+
+```{r heat}
+#| fig-cap: "Estimated national prevalence by country and nutrient. Blank cells are combinations the country's survey did not measure."
+#| fig-height: 4.2
+ggplot(grid, aes(x = country, y = label, fill = natl)) +
+  geom_tile(colour = "white", linewidth = 0.6) +
+  geom_text(aes(label = pct(natl, 0)), size = 2.9,
+            colour = ifelse(grid$natl > 0.45, "white", "grey15")) +
+  scale_fill_gradientn(colours = c("#2c7bb6", "#abd9e9", "#ffffbf", "#fdae61", "#d7191c"),
+                       labels = scales::percent, name = "Prevalence") +
+  labs(x = NULL, y = NULL) +
+  theme(panel.grid = element_blank(), legend.position = "right")
+```
+
+```{r natl-table}
+tab <- grid |>
+  transmute(Country = country, Outcome = label,
+            Prevalence = pct(natl), `People affected` = cnt(affected),
+            `Targeting gain` = ifelse(signal, sprintf("%.1fx", lift), "--")) |>
+  arrange(Country, Outcome)
+# No literal "%" in a LaTeX caption: it starts a comment and swallows the
+# closing brace ("File ended while scanning use of \caption@xdblarg"). Worded
+# around it rather than escaped, so the caption reads the same in HTML.
+kable(tab, align = "llrrr", booktabs = TRUE, longtable = TRUE,
+      caption = "National estimates and the value of targeting. \"Targeting gain\" is how many more affected people you reach by using these estimates to pick the worst-affected fifth of the population, versus reaching the same share without district data.") |>
+  kable_styling(latex_options = c("hold_position", "repeat_header"), font_size = 8)
+```
+
+# Where targeting helps most
+
+```{r lift}
+#| fig-cap: "Targeting gain. A value near 1 means deficiency is spread evenly and a national approach does as well; higher means it is concentrated and district targeting pays. Outcomes with no district-level signal are omitted."
+#| fig-height: 4.4
+g <- grid[grid$signal, ]
+ggplot(g, aes(x = reorder(paste(country, "-", label), lift), y = lift, fill = country)) +
+  geom_col(width = 0.7) +
+  geom_hline(yintercept = 1, linetype = 2, colour = "grey40") +
+  coord_flip() +
+  labs(x = NULL, y = "Times more affected people reached, same programme size",
+       fill = NULL) +
+  theme(legend.position = "bottom", axis.text.y = element_text(size = 6.5))
+```
+
+# Where the estimates carry no district signal {#sec-nosignal}
+
+```{r nosignal}
+#| results: asis
+ns <- grid[!grid$signal, ]
+if (!nrow(ns)) {
+  cat("Every country and nutrient shown carries district-level variation.\n\n")
+} else {
+  cat(sprintf(paste(
+    "For **%d of the %d** country and nutrient combinations, the model returns",
+    "essentially the same estimate for every district. The routinely available",
+    "indicators carry nothing that separates districts for these. The national",
+    "figure stands; district ranking does not.\n\n"), nrow(ns), nrow(grid)))
+  t <- ns |> transmute(Country = country, Outcome = label,
+                       `National estimate` = pct(natl),
+                       `Spread across districts` = sprintf("%.2f pp", 100 * spread))
+  print(kable(t, align = "llrr", booktabs = TRUE,
+              caption = "Combinations with no usable district-level variation") |>
+          kable_styling(latex_options = "hold_position", font_size = 8))
+  cat("\n\nThese are a property of the models, not of the presentation. Treat any subnational number for them as the national figure repeated.\n\n")
+}
+```
+
+# How far the estimates travel between countries
+
+```{r transport}
+#| fig-cap: "Leave-one-country-out check: train on three countries, predict the fourth, and compare with its actual survey. Points on the diagonal transport well. This is the honest case for applying the model somewhere with no biomarker survey."
+tc <- transport_cal$nat_area
+if (!is.null(tc) && nrow(tc)) {
+  tc$label <- unname(meta$outcome_labels[tc$outcome])
+  ggplot(tc, aes(true_prev, pred_prev, colour = label)) +
+    geom_abline(slope = 1, intercept = 0, linetype = 2, colour = "grey55") +
+    geom_point(size = 2, alpha = 0.85) +
+    scale_x_continuous(labels = scales::percent) +
+    scale_y_continuous(labels = scales::percent) +
+    labs(x = "Survey-measured prevalence in the held-out country",
+         y = "Predicted from the other three", colour = NULL) +
+    theme(legend.position = "bottom", legend.text = element_text(size = 6.5)) +
+    guides(colour = guide_legend(nrow = 3))
+} else {
+  ggplot() + theme_void() + annotate("text", 0, 0, label = "Transport data not built")
+}
+```
+
+`r GENERAL_CAVEAT`
+
+# What to trust
+
+**Use the ranking more than the number.** Which districts are worst off is what
+holds up; the exact percentage is a planning figure.
+
+**Some nutrients are measured better than others.** Vitamin A in women and B12
+rest on weaker biomarkers, folate is often low-prevalence and harder to
+estimate precisely, and zinc thresholds are less standardised.
+
+**Districts without their own survey carry more risk**, and predictions
+transported to a country with no survey at all are the least reliable of
+all — see the previous section.
+
+**Check Section \ref{sec-nosignal} before quoting any district figure.**

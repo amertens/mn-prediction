@@ -15,6 +15,21 @@
 
 suppressPackageStartupMessages({library(here)})
 
+# quarto's R wrapper reports every failure as "Error running quarto CLI from R"
+# and then breaks while formatting it ("Could not evaluate cli {} expression:
+# `captions`"), so the actual cause never reaches the console. The real message
+# is in the xelatex .log. Print the interesting lines of it.
+show_latex_log <- function(stem) {
+  lg <- here::here("dashboard", "report", paste0(stem, ".log"))
+  if (!file.exists(lg)) { cat("    (no .log at", lg, ")\n"); return(invisible()) }
+  ln <- readLines(lg, warn = FALSE)
+  hit <- grep("^!|LaTeX Error|Undefined control|Emergency stop|File ended while", ln)
+  if (!length(hit)) { cat("    (.log has no error lines)\n"); return(invisible()) }
+  cat("    --- from", basename(lg), "---\n")
+  for (i in head(hit, 3)) cat(paste0("    ", ln[seq(i, min(i + 4, length(ln)))]), sep = "\n")
+  cat("    ---\n")
+}
+
 # Quarto ships inside RStudio and is not on PATH on this machine.
 if (!nzchar(Sys.getenv("QUARTO_PATH"))) {
   cand <- c(Sys.which("quarto"),
@@ -86,10 +101,13 @@ for (ck in countries) {
   }
   ok <- tryCatch({ render_once(); TRUE },
                  error = function(e) {
-                   cat("  render failed:", conditionMessage(e), "\n  retrying once...\n")
+                   cat("  render failed:", conditionMessage(e), "\n")
+                   show_latex_log("country_brief")
+                   cat("  retrying once...\n")
                    tryCatch({ Sys.sleep(2); render_once(); TRUE },
                             error = function(e2) {
-                              cat("  retry failed:", conditionMessage(e2), "\n"); FALSE })
+                              cat("  retry failed:", conditionMessage(e2), "\n")
+                              show_latex_log("country_brief"); FALSE })
                  })
   if (!ok) { failed <- c(failed, ck); next }
 
@@ -115,7 +133,47 @@ for (ck in countries) {
   tryCatch(write_csvs(ck), error = function(e) cat("    csv failed:", conditionMessage(e), "\n"))
 }
 
+# ── The two documents that are not per-country ─────────────────────────────
+# overview.qmd  — all four countries side by side (the portfolio view)
+# technical_annex.qmd — the printed form of the dashboard's Technical appendix
+if (!length(args)) {
+  for (doc in c("overview", "technical_annex")) {
+    cat(sprintf("\n== %s ==\n", doc))
+    src_qmd <- here::here("dashboard", "report", paste0(doc, ".qmd"))
+    if (!file.exists(src_qmd)) { cat("  missing:", src_qmd, "\n"); next }
+    ok <- tryCatch({
+      for (f in list.files(dirname(src_qmd),
+                           pattern = sprintf("^%s\\.(tex|log|aux)$", doc),
+                           full.names = TRUE)) unlink(f)
+      quarto::quarto_render(input = src_qmd, output_format = "all", quiet = FALSE)
+      TRUE
+    }, error = function(e) {
+      cat("  render failed:", conditionMessage(e), "\n"); show_latex_log(doc)
+      cat("  retrying once...\n")
+      tryCatch({ Sys.sleep(2)
+                 quarto::quarto_render(input = src_qmd, output_format = "all",
+                                       quiet = FALSE)
+                 TRUE },
+               error = function(e2) {
+                 cat("  retry failed:", conditionMessage(e2), "\n")
+                 show_latex_log(doc); FALSE })
+    })
+    if (!ok) { failed <- c(failed, doc); next }
+    for (nm in c("pdf", "html", "pdf.md")) {
+      src <- here::here("dashboard", "report", sprintf("%s.%s", doc, nm))
+      if (file.exists(src)) {
+        dst <- file.path(OUT, sprintf("%s.%s", doc, sub("^pdf\\.", "", nm)))
+        file.rename(src, dst)
+        cat(sprintf("    %-4s %s (%.0f KB)\n", sub("^pdf\\.", "", nm),
+                    basename(dst), file.size(dst) / 1024))
+      }
+    }
+    unlink(here::here("dashboard", "report", sprintf("%s.html.md", doc)))
+    unlink(here::here("dashboard", "report", sprintf("%s_files", doc)), recursive = TRUE)
+  }
+}
+
 if (length(failed)) {
   cat("\nFAILED:", paste(failed, collapse = ", "), "\n"); quit(status = 1)
 }
-cat(sprintf("\nDone. %d brief(s) in %s\n", length(countries), OUT))
+cat(sprintf("\nDone. Output in %s\n", OUT))
