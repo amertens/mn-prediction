@@ -71,14 +71,26 @@ write_csvs <- function(ck) {
 failed <- character(0)
 for (ck in countries) {
   cat(sprintf("\n== %s ==\n", ck))
-  ok <- tryCatch({
-    quarto::quarto_render(
-      input        = QMD,
-      output_format = "all",
-      execute_params = list(country = ck),
-      quiet        = FALSE)
-    TRUE
-  }, error = function(e) { cat("  render failed:", conditionMessage(e), "\n"); FALSE })
+  # Every country renders through the same country_brief.tex / .pdf /
+  # country_brief_files paths, so a slow cleanup from the previous one can leave
+  # a stale intermediate and xelatex fails on the next. Seen once in four.
+  # Worse, quarto's own error formatter breaks reporting it ("object 'captions'
+  # not found"), so the real cause never surfaces. Clear the intermediates and
+  # retry once before giving up.
+  render_once <- function() {
+    for (f in list.files(dirname(QMD), pattern = "^country_brief\\.(tex|pdf|html|log|aux|md)$",
+                         full.names = TRUE)) unlink(f)
+    unlink(file.path(dirname(QMD), "country_brief_files"), recursive = TRUE)
+    quarto::quarto_render(input = QMD, output_format = "all",
+                          execute_params = list(country = ck), quiet = FALSE)
+  }
+  ok <- tryCatch({ render_once(); TRUE },
+                 error = function(e) {
+                   cat("  render failed:", conditionMessage(e), "\n  retrying once...\n")
+                   tryCatch({ Sys.sleep(2); render_once(); TRUE },
+                            error = function(e2) {
+                              cat("  retry failed:", conditionMessage(e2), "\n"); FALSE })
+                 })
   if (!ok) { failed <- c(failed, ck); next }
 
   # quarto writes beside the .qmd; move the artefacts under out/ with a
