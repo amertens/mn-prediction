@@ -158,6 +158,22 @@ fit_bym2_country_outcome <- function(low, oc, deff = 1.5) {
   # design-based sampling variance D_i for surveyed districts
   mi <- match(train$Admin2, all_df$Admin2)
   p  <- pmin(pmax(train$svy_prev,1e-4),1-1e-4)
+  # NOTE — do not port the _build_fh_layer.R degenerate-SE guard here without
+  # re-measuring. The same single-PSU problem exists (survey::svymean returns
+  # SE ~ 1e-17 rather than 0, which a `D <= 0` test lets through), and adding
+  # `| D < 0.25 * D_srs` is the right fix for Fay-Herriot: FH stayed sane on 23
+  # of 24 country x outcome cells and its intervals tightened sensibly.
+  #
+  # In BYM2 it is not. D enters INLA as the precision multiplier 1/D below, not
+  # as a shrinkage weight, so inflating D for the single-PSU districts leaves
+  # the Gaussian likelihood too weakly informed and the fit collapses toward
+  # zero. Measured on this project's data, 2026-08-27: cells whose median
+  # district prediction sits more than 4x from the national survey figure went
+  # from 3 of 24 to 10 of 24, with Malawi women's vitamin A landing at 0.0018%
+  # against a 2.3% survey value and every ci_lo pinned at exactly 0.
+  #
+  # Reverted to the original guard. Fixing the single-PSU problem properly here
+  # means reworking how the likelihood is weighted, not rescaling D.
   D  <- if ("svy_prev_se" %in% names(train)) train$svy_prev_se^2 else rep(NA_real_, nrow(train))
   bad <- !is.finite(D) | D <= 0
   D[bad] <- p[bad]*(1-p[bad])/pmax(train$n_svy[bad]/deff, 1); D <- pmax(D, 1e-5)
