@@ -1,0 +1,284 @@
+---
+title: "Subnational Micronutrient Deficiency"
+subtitle: "Working estimates for program targeting"
+date: today
+params:
+  country: "ghana"
+format:
+  pdf:
+    toc: true
+    toc-depth: 2
+    number-sections: true
+    fig-width: 7
+    fig-height: 5.2
+    geometry: margin=2.2cm
+    colorlinks: true
+  html:
+    toc: true
+    toc-depth: 2
+    number-sections: true
+    embed-resources: true
+    theme: cosmo
+keep-md: true
+execute:
+  echo: false
+  warning: false
+  message: false
+---
+
+```{r setup}
+#| include: false
+# The dashboard's own loader. Sourcing it rather than re-reading the RDS files
+# means this brief shares the app's data, palette, thresholds, caveat text and
+# model registry — so the printed page cannot disagree with the screen.
+# global.R expects to run from dashboard/, hence the setwd dance.
+.here <- here::here("dashboard")
+.owd  <- setwd(.here)
+suppressPackageStartupMessages(source("global.R"))
+setwd(.owd)
+
+suppressPackageStartupMessages({
+  library(ggplot2); library(sf); library(dplyr); library(knitr); library(kableExtra)
+})
+theme_set(theme_minimal(base_size = 10))
+
+CK <- params$country
+CLAB <- unname(meta$countries[[CK]])
+PD <- pred_model_data(DEFAULT_PRED_MODEL)
+
+# Outcomes this country actually carries, in the registry's order.
+OCS <- intersect(names(meta$outcome_labels),
+                 unique(PD$outcome[PD$country == CLAB]))
+
+# One joined sf per outcome, reused by the maps and the tables.
+dat <- setNames(lapply(OCS, function(oc) {
+  d <- get_country_admin2(CK, oc, admin2_bnds, PD, admin2_pop)
+  attach_prevalence_range(d, CLAB, oc)
+}), OCS)
+
+pct  <- function(x, d = 1) ifelse(is.finite(x), sprintf(paste0("%.", d, "f%%"), 100 * x), "--")
+cnt  <- function(x) ifelse(is.finite(x), formatC(round(x), big.mark = ",", format = "d"), "--")
+
+# Share of the deficient population reached by treating the worst districts
+# covering `frac` of the population, versus reaching that share blind.
+targeting <- function(d, frac = 0.20) {
+  df <- as.data.frame(d)
+  df <- df[is.finite(df$pred_prev) & is.finite(df$population) & df$population > 0, ]
+  if (!nrow(df)) return(NULL)
+  w <- df$population; b <- df$pred_prev * w
+  o <- order(df$pred_prev, decreasing = TRUE)
+  cx <- cumsum(w[o]) / sum(w); cy <- cumsum(b[o]) / sum(b)
+  reach <- stats::approx(c(0, cx), c(0, cy), xout = frac, rule = 2)$y
+  list(reach = reach, lift = reach / frac, frac = frac,
+       curve = data.frame(pop = c(0, cx), burden = c(0, cy)))
+}
+```
+
+# What this is
+
+`r SITE_SCOPE_HEADLINE` `r SITE_SCOPE_BODY`
+
+This brief covers **`r CLAB`**. It maps the estimated prevalence of
+micronutrient deficiency at district level, including districts that were never
+surveyed, so that a limited program can be aimed where need is greatest.
+
+Read the percentages in bands, not to the decimal. The part that holds up is
+*which districts are worst off*; the exact figure is a planning number, and how
+firm it is varies by nutrient. Section \ref{sec-confidence} says where to be
+careful.
+
+Estimates come from the `r tolower(PRED_MODEL_INFO[[DEFAULT_PRED_MODEL]]$label)`
+model: `r PRED_MODEL_INFO[[DEFAULT_PRED_MODEL]]$blurb`
+Uncertainty ranges are drawn from the survey-blended small-area model.
+
+Data build: `r data_build_time`.
+
+# National picture
+
+```{r national}
+nat <- do.call(rbind, lapply(OCS, function(oc) {
+  a <- national_aggregate(dat[[oc]])
+  data.frame(Outcome = unname(meta$outcome_labels[oc]),
+             Estimated = pct(a$pred_prev_natl),
+             Affected = cnt(a$pop_at_risk_natl),
+             Of = cnt(a$pop_total),
+             stringsAsFactors = FALSE)
+}))
+names(nat) <- c("Outcome", "Estimated prevalence", "People affected", "Population")
+kable(nat, align = "lrrr", booktabs = TRUE,
+      caption = sprintf("Population-weighted national estimates, %s", CLAB)) |>
+  kable_styling(latex_options = c("hold_position"), font_size = 9)
+```
+
+Counts use the population of the group each biomarker describes (children 6--59
+months, or women 15--49), projected to the survey year.
+
+```{r signal-coverage}
+#| results: asis
+sig <- vapply(OCS, function(oc) has_district_signal(dat[[oc]]$pred_prev), logical(1))
+if (any(!sig)) cat(sprintf(paste(
+  "**%d of these %d outcomes carry district-level signal.** For the other %d --",
+  "%s -- the model returns the same figure for every district, so the national",
+  "number above is all there is. Those outcomes are marked in the sections",
+  "below and no map is drawn for them.\n\n"),
+  sum(sig), length(sig), sum(!sig),
+  # Not tolower(): it turns "Vitamin A deficiency" into "vitamin a deficiency".
+  paste(unname(meta$outcome_labels[OCS[!sig]]), collapse = "; ")))
+```
+
+# Is subnational targeting worth it? {#sec-targeting}
+
+```{r targeting-text}
+#| results: asis
+lead <- OCS[which.max(vapply(OCS, function(oc) {
+  t <- targeting(dat[[oc]]); if (is.null(t) || !is.finite(t$lift)) 0 else t$lift
+}, numeric(1)))]
+tg <- targeting(dat[[lead]])
+if (!is.null(tg)) cat(sprintf(paste(
+  "Taking **%s** as the example: reaching the worst-affected **%.0f%%** of",
+  "%s's population using these district estimates would cover about **%.0f%%**",
+  "of everyone affected. Reaching the same share of the population without",
+  "district data would cover roughly %.0f%%. That is a **%.1f-fold** gain for",
+  "the same program size.\n\n"),
+  tolower(meta$outcome_labels[lead]), 100 * tg$frac, CLAB,
+  100 * tg$reach, 100 * tg$frac, tg$lift))
+```
+
+```{r targeting-curve}
+#| fig-cap: "Burden concentration. The further the curve bows above the diagonal, the more targeting buys you. A straight diagonal means deficiency is spread evenly and a national approach is as good."
+curves <- do.call(rbind, lapply(OCS, function(oc) {
+  t <- targeting(dat[[oc]]); if (is.null(t)) return(NULL)
+  transform(t$curve, Outcome = unname(meta$outcome_labels[oc]))
+}))
+ggplot(curves, aes(pop, burden, colour = Outcome)) +
+  geom_abline(slope = 1, intercept = 0, linetype = 2, colour = "grey55") +
+  geom_line(linewidth = 0.7) +
+  # A hard expand of 0 clips the "100%" tick label at the panel edge.
+  scale_x_continuous(labels = scales::percent, expand = expansion(mult = c(0, 0.04))) +
+  scale_y_continuous(labels = scales::percent, expand = expansion(mult = c(0, 0.04))) +
+  labs(x = "Share of population reached, worst districts first",
+       y = "Share of affected people reached", colour = NULL) +
+  theme(legend.position = "bottom", legend.text = element_text(size = 7)) +
+  guides(colour = guide_legend(nrow = 3))
+```
+
+# Where deficiency is concentrated
+
+```{r maps}
+#| results: asis
+#| fig-width: 6.6
+#| fig-height: 5.0
+#| dev: png
+#| dpi: 200
+# Rasterised deliberately. Drawn as vectors, Ghana's 260 district polygons and
+# Malawi's 243 embed every vertex in the PDF and push it past 12 MB, which is
+# useless for the emailing this brief exists to support. At 200 dpi the maps
+# stay sharp in print and the file lands near 1 MB.
+for (oc in OCS) {
+  d <- dat[[oc]]
+  cat(sprintf("\n## %s\n\n", meta$outcome_labels[oc]))
+  cv <- biomarker_caveats[[oc]]
+  if (!is.null(cv)) cat(sprintf("*%s*\n\n", cv))
+  # A flat cell must not be drawn as a choropleth: identical values across every
+  # district produce a single-colour map with a one-tick legend, which looks
+  # like a rendering fault and reads as "no deficiency variation" rather than
+  # "no information". State it instead.
+  if (!has_district_signal(d$pred_prev)) {
+    v <- d$pred_prev[is.finite(d$pred_prev)]
+    cat(sprintf(paste(
+      "> **No district-level signal.** The model returns about %s for every",
+      "district, so there is no map to draw. The routinely available indicators",
+      "carry nothing that separates districts for this nutrient in %s. Use the",
+      "national figure above; do not rank districts on this outcome.\n\n"),
+      pct(stats::median(v)), CLAB))
+    next
+  }
+  p <- ggplot(d) +
+    geom_sf(aes(fill = pred_prev), colour = "white", linewidth = 0.08) +
+    geom_sf(data = d[!is.na(d$obs_prev), ], fill = NA,
+            colour = "grey15", linewidth = 0.35) +
+    scale_fill_gradientn(colours = c("#2c7bb6", "#abd9e9", "#ffffbf", "#fdae61", "#d7191c"),
+                         labels = scales::percent, na.value = "grey88",
+                         name = "Estimated\nprevalence") +
+    theme_void(base_size = 9) +
+    theme(legend.position = "right")
+  print(p)
+  cat("\n\nDistricts outlined in dark grey had their own survey; the rest are model estimates.\n\n")
+}
+```
+
+# Districts to look at first
+
+```{r top-districts}
+#| results: asis
+for (oc in OCS) {
+  df <- as.data.frame(dat[[oc]])
+  df <- df[is.finite(df$pred_prev), ]
+  if (!nrow(df)) next
+  # Ranking identical values puts whichever district sorted first at the top of
+  # a "worst affected" table. That is an artefact of sort order, not a finding.
+  if (!has_district_signal(df$pred_prev)) {
+    cat(sprintf(paste("\n\n**%s** -- omitted: every district returns the same",
+                      "estimate, so a ranking would be arbitrary.\n\n"),
+                meta$outcome_labels[oc]))
+    next
+  }
+  df <- df[order(-df$pred_prev), ][seq_len(min(10, nrow(df))), ]
+  out <- data.frame(
+    District = df$Admin2,
+    Estimated = pct(df$pred_prev),
+    Range = ifelse(is.finite(df$prev_lo) & is.finite(df$prev_hi),
+                   sprintf("%s - %s", pct(df$prev_lo, 0), pct(df$prev_hi, 0)), "--"),
+    Affected = cnt(df$pop_at_risk),
+    Class = ifelse(is.na(df$who_class), "--", df$who_class),
+    Survey = ifelse(is.na(df$obs_prev), "modelled", "surveyed"),
+    stringsAsFactors = FALSE)
+  names(out) <- c("District", "Estimated", "95% range", "People affected",
+                  "WHO class", "Source")
+  cat("\n\n")
+  print(kable(out, align = "lrrrll", booktabs = TRUE,
+              caption = sprintf("Highest estimated prevalence: %s",
+                                meta$outcome_labels[oc])) |>
+          kable_styling(latex_options = c("hold_position"), font_size = 8))
+  cat("\n\n")
+}
+```
+
+# What to trust {#sec-confidence}
+
+`r GENERAL_CAVEAT`
+
+**Some nutrients are measured better than others.** Vitamin A in women and B12
+rest on weaker biomarkers; the note under each map above says which.
+
+**Use the ranking more than the number.** Which districts are worst off is the
+part that holds up. The 95% ranges above show how much room there is around any
+single figure, and they cover uncertainty in the prevalence estimate only.
+
+**Districts without their own survey carry more risk.** In this country
+`r sum(vapply(OCS, function(oc) sum(!is.na(dat[[oc]]$obs_prev)), numeric(1))[1])`
+of `r nrow(dat[[OCS[1]]])` districts were surveyed directly; the rest are
+estimated from satellite, climate and geospatial indicators.
+
+# Method, in short
+
+Each district's prevalence is modelled directly from routinely available
+indicators — satellite imagery, climate reanalysis, modelled disease burden,
+food security and price data, and district-level survey indicators. No variable
+from the biomarker survey itself is used as a predictor, so the same model can
+be applied where no survey exists.
+
+Alternatives available in the interactive dashboard:
+
+```{r model-table}
+mt <- data.frame(
+  Model = vapply(names(PRED_MODEL_INFO), function(k) PRED_MODEL_INFO[[k]]$label, character(1)),
+  What  = vapply(names(PRED_MODEL_INFO), function(k) PRED_MODEL_INFO[[k]]$blurb, character(1)),
+  stringsAsFactors = FALSE)
+kable(mt, row.names = FALSE, booktabs = TRUE, caption = "Models offered") |>
+  column_spec(2, width = "10cm") |>
+  kable_styling(latex_options = c("hold_position"), font_size = 8)
+```
+
+The interactive version, with the full technical appendix, is at
+<https://amertens.shinyapps.io/micronutrient-burden/>.
