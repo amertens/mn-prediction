@@ -10,10 +10,53 @@
 # =============================================================================
 
 # Prefixes of domains expected to be present in ALL countries.
-# DHS, MICS, LSMS, WFP, FluNet vary by country and are excluded.
+# DHS, MICS, LSMS, FluNet vary by country and are excluded.
 # FSEC (food security) is included because HFID covers all countries;
 # CH-only columns will be dropped by the intersection step if not universal.
-COMMON_DOMAIN_PREFIXES <- c("ihme_", "MAP_", "gee_", "fsec_")
+# WFP is included even though `wfp_price_<commodity>` columns are country-
+# specific (different local commodity baskets) -- that's fine, because
+# Reduce(intersect, ...) on column NAMES below naturally drops those (no two
+# countries share a literal commodity column name) and keeps only the
+# genuinely common `wfp_dev_price_spike_index` / `wfp_dev_price_dispersion_index`
+# columns from extract_wfp_price_deviation() (external_data.R), which use
+# identical names everywhere by construction (a harmonized, scale-free
+# deviation from each market's own history -- see that function's docs for why
+# raw commodity prices aren't cross-country-comparable but this is).
+#
+# "dhsharm_" (R/dhs_harmonization.R's harmonize_dhs_admin2(), called below for
+# each country before the proxy-column scan) is the analogous fix for DHS
+# admin2-level survey indicators: raw columns are named `dhs<year>_<ind>_adm2`
+# with each country's own DHS survey year baked into the prefix, so they never
+# intersected across countries. harmonize_dhs_admin2() strips the year and
+# renames to a common `dhsharm_<ind>_adm2` -- see that file's header for why a
+# literal indicator crosswalk wasn't needed (DHS's own indicator codes / DHS
+# standard recode variables are already identical across countries/rounds) and
+# for the couple of indicators deliberately withheld (DHS_HARMONIZE_EXCLUDE).
+#
+# 2026-08-27: added "map2_accessibility_" -- extract_malaria_atlas()
+# (external_data.R) bulk-downloads every Malaria Atlas Project raster,
+# including the static Oxford/MAP accessibility surfaces (travel time to
+# cities 2015 -- Weiss et al. 2018's update of Nelson (2008), the best
+# available travel-time-to-market/city proxy; travel time to healthcare
+# 2020, motorized and walking; and their underlying friction surfaces).
+# Unlike the temporal Malaria__/Interventions__ families (whose dataset_id,
+# and hence column name, embeds a survey-year-dependent epoch and so can
+# legitimately differ by country), these are single-epoch static assets --
+# every country resolves to the exact same dataset_id regardless of its
+# survey year. Verified empirically against all 4 countries' merged_cache
+# .rds files: all 6 map2_accessibility_* columns are present under IDENTICAL
+# names in Gambia/Ghana/Malawi/SierraLeone, each 100% non-NA with genuine
+# per-Admin2 variation (not a degenerate constant fill). They were simply
+# never added to this list when extract_malaria_atlas() was introduced
+# (COMMON_DOMAIN_PREFIXES predates it) -- MAP_ here is the older, separately
+# curated MAP domain in each country's own config$domains, not this one.
+# (The full map2_ catalog is intentionally NOT added wholesale: the
+# Malaria__/Interventions__/Explorer__ temporal families are not guaranteed
+# static across countries the way the accessibility surfaces are, and
+# map_catalog_canonical_set.md flags that catalog as having grown well
+# beyond the pipeline's intended 43-layer canonical set.)
+COMMON_DOMAIN_PREFIXES <- c("ihme_", "MAP_", "gee_", "fsec_", "wfp_", "dhsharm_",
+                            "map2_accessibility_")
 
 
 #' Build a pooled multi-country dataset for one outcome
@@ -40,6 +83,12 @@ build_pooled_dataset <- function(all_merged, all_configs, outcome_tag) {
     }
 
     d <- all_merged[[cn]]
+
+    # Add dhsharm_<indicator>_adm2 aliases for the country's dhs<year>_ DHS
+    # admin2 columns, so the genuinely common DHS indicators are visible to
+    # the proxy-column scan below (see COMMON_DOMAIN_PREFIXES comment and
+    # R/dhs_harmonization.R). No-op if no dhs*_adm2 columns are present.
+    d <- harmonize_dhs_admin2(d)
 
     # Filter to population. !is.na() guard: `d[[col]] == val` is NA for missing
     # flags and `d[NA, ]` injects all-NA phantom rows instead of dropping them.
@@ -100,6 +149,29 @@ build_pooled_dataset <- function(all_merged, all_configs, outcome_tag) {
       d$pooled_cluster <- paste0(tolower(cn), "_", seq_len(nrow(d)))
     }
 
+    # Carry each country's own survey weight through, harmonized to one name.
+    # Not consumed by run_loco_cv()/mlr3_SL_clustered() today (2026-08-27
+    # audit: the individual-level SL is fit completely unweighted) -- added
+    # here, additively, so a weighted re-fit can be tested without having to
+    # re-derive per-row weights after the fact (pooled_cluster is a PSU id
+    # shared by multiple respondents, not a safe join key back to the source).
+    #
+    # Normalized to mean 1 WITHIN each country before stacking: raw weight
+    # columns are NOT on a common scale across countries -- confirmed Malawi's
+    # svy_weight is the raw DHS x1e6 convention (mean ~9.8e5) while Gambia/
+    # Ghana/SierraLeone's weight_col is already normalized (mean ~1). Pooling
+    # the raw values would let whichever country used the x1e6 convention
+    # swamp every LOCO training fold it appears in, purely from a units
+    # mismatch unrelated to actual sampling probability.
+    wcol <- cc$weight_col
+    if (!is.null(wcol) && wcol %in% colnames(d)) {
+      w_raw <- as.numeric(d[[wcol]])
+      w_mean <- mean(w_raw, na.rm = TRUE)
+      d$.sl_weight <- if (is.finite(w_mean) && w_mean > 0) w_raw / w_mean else NA_real_
+    } else {
+      d$.sl_weight <- NA_real_
+    }
+
     # Carry Admin1 for aggregation (rename if needed)
     if (cc$admin1_col %in% colnames(d)) {
       d$Admin1 <- d[[cc$admin1_col]]
@@ -145,7 +217,7 @@ build_pooled_dataset <- function(all_merged, all_configs, outcome_tag) {
 
   # Select common columns and stack
   keep_cols <- unique(c("Y_binary", "country", "pooled_cluster", "Admin1",
-                        Xvars_common))
+                        ".sl_weight", Xvars_common))
 
   stacked <- dplyr::bind_rows(lapply(country_frames, function(d) {
     d_sub <- d[, intersect(keep_cols, colnames(d)), drop = FALSE]

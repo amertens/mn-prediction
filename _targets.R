@@ -75,7 +75,37 @@ n_workers <- as.integer(Sys.getenv("TARGETS_WORKERS", "4"))
 
 # Set the future plan for tar_make_future(). On Windows, multisession spawns
 # socket-based R processes. Each needs ~2-4 GB for SL objects.
-future::plan(future::multisession, workers = n_workers)
+#
+# GUARD AGAINST NESTED PARALLELISM. tar_make_future() re-sources THIS FILE in
+# every worker so each one can see the pipeline definition. Unguarded, each of
+# the N workers then executes the line below and tries to spawn N workers of its
+# own -- N x N processes. At N = 8 that crashed the run within minutes with
+#   "callr subprocess failed: could not start R ... has crashed or was killed".
+#
+# Nothing inside the targets graph uses the future plan (the only future code in
+# R/ is the dead legacy R/bootstrap.R), so sequential workers cost nothing.
+#
+# ORDER MATTERS, and getting it wrong does not look like an error. The first
+# version of this guard called Sys.setenv() AFTER future::plan(), so the workers
+# were spawned while MN_TARGETS_WORKER was still unset: every one re-sourced this
+# file, took the parent branch, and began building its own cluster. The run then
+# deadlocked with three targets stuck "dispatched" for half an hour -- including
+# pipeline_params, which takes milliseconds -- while the master burned a full
+# core busy-polling futures that would never resolve. Export FIRST, plan second.
+#
+# Two independent signals, because environment inheritance is the fragile part:
+#   1. MN_TARGETS_WORKER, exported before the cluster exists.
+#   2. commandArgs(), which in any parallel/parallelly PSOCK worker contains the
+#      .workRSOCK entry point. This holds even if the variable is not inherited.
+.mn_is_worker <- identical(Sys.getenv("MN_TARGETS_WORKER"), "1") ||
+  any(grepl("workRSOCK", commandArgs(), fixed = TRUE))
+
+if (.mn_is_worker) {
+  future::plan(future::sequential)
+} else {
+  Sys.setenv(MN_TARGETS_WORKER = "1")   # inherited by the workers spawned below
+  future::plan(future::multisession, workers = n_workers)
+}
 options(future.globals.maxSize = 3 * 1024^3)  # 3 GB — SL objects are large
 
 # ── Note: Bootstrap replaced by conformal prediction intervals ────────────
@@ -99,8 +129,35 @@ tar_option_set(
   # Increase memory limit for SL fitting
   memory = "transient",
   garbage_collection = TRUE,
+  # Keep target data OUT of the master process.
+  #
+  # These default to "main", which routes every dependency and every result
+  # THROUGH the coordinating process: it reads each input from the store to ship
+  # to a worker, and receives each result to write back. With SuperLearner
+  # objects that is hundreds of MB per target, and the 2026-08 full run drove the
+  # callr master to 12.2 GB before the machine died with std::bad_alloc -- while
+  # the six workers together held only 7.1 GB.
+  #
+  # With "worker", the master exchanges only metadata; workers read and write the
+  # store directly. Safe here because every worker is a local process sharing the
+  # same filesystem. Neither option participates in a target's hash, so flipping
+  # them does not invalidate anything already built.
+  storage = "worker",
+  retrieval = "worker",
   # Error handling: workspace for debugging
-  workspace_on_error = TRUE
+  workspace_on_error = TRUE,
+  # Fail-fast interactively, keep going for long batch runs.
+  #
+  # The default "stop" aborts the ENTIRE run on the first failed target. That is
+  # right at the console, but wrong for a multi-hour rebuild: on 2026-08-23 a
+  # single worker was killed by the host application hanging, and the whole run
+  # ended eight minutes in with 25 of 853 targets built. With "continue",
+  # targets skips only that target's downstream dependents and builds everything
+  # else, then reports the failures at the end -- which scripts/run_full_mode.R
+  # already enumerates, so nothing is hidden.
+  #
+  # Off by default; scripts/run_full_mode.R opts in via TARGETS_ERROR_MODE.
+  error = Sys.getenv("TARGETS_ERROR_MODE", "stop")
 )
 
 # ── Source all function files in R/ ──────────────────────────────────────────
@@ -118,10 +175,16 @@ message(sprintf(
          "  Run with: targets::tar_make_future(workers = %d)\n"),
   toupper(pipeline_mode),
   n_workers,
-  if (pipeline_mode == "fast")
-    "Minimal SL stack (3 learners), conformal CIs. ~5-10 min with parallelism."
-  else
-    "Evidence-based 6-learner stack, conformal CIs. ~30-60 min with parallelism.",
+  # Derived, not hardcoded: this banner used to claim 3 and 6 learners while
+  # setup_mlr3_learners() claimed 5 and 16, against real stacks of 5 and 13.
+  sprintf(paste0("SL stack: %d learners, conformal CIs. Area-level bootstrap ",
+                 "B = %d.%s"),
+          tryCatch(sl_stack_size(pipeline_mode), error = function(e) NA_integer_),
+          tryCatch(get_pipeline_params(pipeline_mode)$B_area,
+                   error = function(e) NA_integer_),
+          if (pipeline_mode == "fast")
+            " Fast mode: for checking the pipeline runs, not for reporting."
+          else " Full mode: publication settings."),
   if (pipeline_mode == "fast") "full" else "fast",
   n_workers
 ))
@@ -380,6 +443,27 @@ make_outcome_targets <- function(country_name, outcome_name, cc, oc, params) {
 all_country_configs <- get_country_configs()
 params              <- get_pipeline_params(pipeline_mode)
 
+# ── Which countries actually declare a given outcome ────────────────────────
+# Several pooled/LOCO blocks build a target name per country per outcome, e.g.
+# svy_admin2_<country>_<outcome>. A country that does not carry that outcome has
+# no such target, and naming it makes tar_make() die partway through with
+# "object svy_admin2_tanzania_women_iron not found".
+#
+# This was latent while all four original countries shared all four outcomes.
+# Adding Tanzania (vitamin A only) exposed it, and one block had already grown a
+# HARDCODED availability map that nobody updated when Tanzania arrived. Derive
+# it from the configs instead so adding a country cannot reintroduce the bug.
+#
+# Returns lowercase names, matching the target-name convention.
+countries_declaring_outcome <- function(otag, configs = all_country_configs) {
+  keep <- Filter(function(cc_name) {
+    tags <- vapply(configs[[cc_name]]$outcomes,
+                   function(o) o$tag %||% "", character(1))
+    otag %in% tags
+  }, names(configs))
+  tolower(keep)
+}
+
 # ── Static targets (shared across all outcomes) ─────────────────────────────
 static_targets <- list(
 
@@ -388,7 +472,12 @@ static_targets <- list(
   tar_target(pipeline_params, get_pipeline_params(pipeline_mode)),
 
   # SL learner stacks (shared across all outcomes)
-  tar_target(sl_learners, setup_mlr3_learners(pipeline_params))
+  tar_target(sl_learners, setup_mlr3_learners(pipeline_params)),
+
+  # Same stack PLUS the Gaussian process, for the gp_sensitivity check only.
+  # Never use this for a large-n target: gausspr is O(n^3). See
+  # R/sensitivity/gp_sensitivity.R for the measured scaling.
+  tar_target(sl_learners_gp, setup_mlr3_learners(pipeline_params, with_gp = TRUE))
 )
 
 # ── Per-country targets ─────────────────────────────────────────────────────
@@ -527,6 +616,23 @@ for (country_name in names(all_country_configs)) {
       merged_target_name,
       substitute({
         d <- ext_data
+        # Reassign respondents whose displaced cluster GPS landed inside a GADM
+        # water polygon back to the nearest LAND district, BEFORE the gee_ merge
+        # (a lake polygon has no usable covariates) and before any aggregation.
+        # These are lakeside communities moved by the DHS/MICS confidentiality
+        # displacement, not people living on a lake -- see snap_water_to_land()
+        # in R/admin2_key_hygiene.R for the measured distances.
+        if (exists("snap_water_to_land") && !is.null(cc_val$gadm_code)) {
+          a2 <- cc_val$admin2_col
+          if (all(c(a2, "lon", "lat") %in% names(d)) &&
+              any(is_water_admin2(as.character(d[[a2]])))) {
+            tmp <- d; names(tmp)[names(tmp) == a2] <- "Admin2"
+            tmp <- snap_water_to_land(tmp, cc_val$gadm_code,
+                                      what = sprintf("merged %s", cc_val$country))
+            d[[a2]] <- tmp$Admin2
+            if ("Admin1" %in% names(d) && "Admin1" %in% names(tmp)) d$Admin1 <- tmp$Admin1
+          }
+        }
         gee <- gee_admin2_data
         if (!is.null(gee) && is.data.frame(gee) && nrow(gee) > 0) {
           # Only merge gee_ columns (not Admin1/Admin2 which already exist)
@@ -566,6 +672,54 @@ for (country_name in names(all_country_configs)) {
     country_targets <- c(country_targets, outcome_targets)
   }
 }
+
+# ── Gaussian-process sensitivity ────────────────────────────────────────────
+#
+# gaussianprocess was dropped from the default full stack in 2026-08 on COMPUTE
+# grounds (O(n^3); see R/config.R and R/sensitivity/gp_sensitivity.R). That is a
+# statement about cost, not about accuracy, so it gets checked rather than
+# assumed: refit one country x outcome WITH the GP and compare held-out
+# performance against the production fit.
+#
+# Ghana x child_iron deliberately: it is the headline model in the deck, and at
+# n = 1,165 the GP costs seconds rather than the 8-18 h it would cost on the
+# pooled LOCO targets (n = 10,011 and 13,107). If the GP does not earn its place
+# on the headline model at trivial cost, dropping it everywhere is justified.
+gp_sens_targets <- local({
+  cn <- "Ghana"; otag <- "child_iron"
+  cfg <- all_country_configs[[cn]]
+  if (is.null(cfg) || is.null(cfg$outcomes[[otag]])) {
+    message("[gp_sensitivity] ", cn, " x ", otag, " not configured - skipping")
+    list()
+  } else {
+    sfx <- paste0(tolower(cn), "_", otag)
+    list(
+      tar_target_raw(
+        paste0("sl_fit_gp_", sfx),
+        substitute(
+          fit_mlr3_models(outcome_data, cc_val, oc_val, sl_learners_gp, params_val),
+          list(
+            outcome_data = as.symbol(paste0("outcome_data_", sfx)),
+            cc_val       = cfg,
+            oc_val       = cfg$outcomes[[otag]],
+            params_val   = params
+          )
+        )
+      ),
+      tar_target_raw(
+        "gp_sensitivity",
+        substitute(
+          compare_gp_sensitivity(fit_no_gp, fit_with_gp, label_val),
+          list(
+            fit_no_gp    = as.symbol(paste0("sl_fit_", sfx)),
+            fit_with_gp  = as.symbol(paste0("sl_fit_gp_", sfx)),
+            label_val    = paste(cn, otag, sep = " x ")
+          )
+        )
+      )
+    )
+  }
+})
 
 # ── Area-level model: ALL country × outcome combinations ──────────────────
 # Expensive GEE raster extraction + area-level elastic net. Produces
@@ -718,6 +872,29 @@ area_comparison_targets <- c(area_comparison_targets, list(
       rows <- lapply(comps, function(x) x$comparison)
       rows <- Filter(Negate(is.null), rows)
       result <- dplyr::bind_rows(rows)
+
+      # Blank the correlations for country x outcome cells with no detectable
+      # signal. `signal` comes from add_reliability_columns() (R/area_reliability.R)
+      # and is FALSE when even the OPTIMISTIC bound on r_max is below 0.15 --
+      # i.e. the entire between-district spread in the survey estimate is
+      # explainable by sampling noise, so there is nothing for any model to
+      # predict. Printing r = -0.04 for such a cell reads as a model failure
+      # when it is a data limit. The raw values are kept in *_raw columns so
+      # nothing is lost.
+      if ("signal" %in% names(result)) {
+        drop <- !is.na(result$signal) & !result$signal
+        if (any(drop)) {
+          for (v in intersect(c("pearson_r", "r_share"), names(result))) {
+            result[[paste0(v, "_raw")]] <- result[[v]]
+            result[[v]][drop] <- NA_real_
+          }
+          message(sprintf(paste0("[area_comparison_all] %d of %d rows have no ",
+                                 "detectable signal (r_max ~ 0); correlations ",
+                                 "blanked, raw values kept in *_raw"),
+                          sum(drop), nrow(result)))
+        }
+      }
+
       write.csv(result, here::here("results", "tables", "area_comparison_all.csv"),
                 row.names = FALSE)
       result
@@ -731,18 +908,46 @@ area_loco_targets <- list()
 if (length(all_country_configs) >= 2) {
   shared_outcomes <- c("child_vitA", "women_vitA", "child_iron", "women_iron")
 
+  # Which countries actually DECLARE a given outcome.
+  #
+  # These four tags are "shared" across the original four countries, but a newly
+  # added country need not carry all of them -- Tanzania has only the two
+  # vitamin A outcomes. Referencing svy_admin2_tanzania_women_iron then names a
+  # target that was never created, and tar_make() dies with
+  # "object svy_admin2_tanzania_women_iron not found" partway through the run.
+  # This was latent until Tanzania was added; filter rather than assume.
+  countries_with_outcome <- function(otag) {
+    Filter(function(cc_name) {
+      tags <- vapply(all_country_configs[[cc_name]]$outcomes,
+                     function(o) o$tag %||% "", character(1))
+      otag %in% tags
+    }, names(all_country_configs))
+  }
+
   for (otag in shared_outcomes) {
+    loco_countries <- countries_with_outcome(otag)
+    if (length(loco_countries) < 2) {
+      message(sprintf("[area_loco] %s: only %d country/countries declare it - skipping",
+                      otag, length(loco_countries)))
+      next
+    }
+    if (length(loco_countries) < length(all_country_configs))
+      message(sprintf("[area_loco] %s: pooling %d of %d countries (no outcome in: %s)",
+                      otag, length(loco_countries), length(all_country_configs),
+                      paste(setdiff(names(all_country_configs), loco_countries),
+                            collapse = ", ")))
+
     # Build area LOCO dataset: pool svy_admin2 and gee_admin2 across countries
-    loco_svy_syms <- lapply(names(all_country_configs), function(cc_name) {
+    loco_svy_syms <- lapply(loco_countries, function(cc_name) {
       as.symbol(paste0("svy_admin2_", tolower(cc_name), "_", otag))
     })
-    names(loco_svy_syms) <- names(all_country_configs)
+    names(loco_svy_syms) <- loco_countries
     loco_svy_expr <- as.call(c(list(as.symbol("list")), loco_svy_syms))
 
-    loco_gee_syms <- lapply(names(all_country_configs), function(cc_name) {
+    loco_gee_syms <- lapply(loco_countries, function(cc_name) {
       as.symbol(paste0("gee_admin2_", tolower(cc_name)))
     })
-    names(loco_gee_syms) <- names(all_country_configs)
+    names(loco_gee_syms) <- loco_countries
     loco_gee_expr <- as.call(c(list(as.symbol("list")), loco_gee_syms))
 
     area_loco_targets <- c(area_loco_targets, list(
@@ -759,9 +964,15 @@ if (length(all_country_configs) >= 2) {
     ))
   }
 
-  # Combined area LOCO summary
-  area_loco_names <- paste0("area_loco_", shared_outcomes)
-  area_loco_syms <- setNames(lapply(area_loco_names, as.symbol), shared_outcomes)
+  # Combined area LOCO summary.
+  # Only over outcomes a target was actually CREATED for -- an outcome skipped
+  # above (fewer than two countries declare it) has no area_loco_<tag> target,
+  # and naming it here would reintroduce the same "object not found" failure one
+  # level up.
+  built_loco <- Filter(function(otag) length(countries_with_outcome(otag)) >= 2,
+                       shared_outcomes)
+  area_loco_names <- paste0("area_loco_", built_loco)
+  area_loco_syms <- setNames(lapply(area_loco_names, as.symbol), built_loco)
   area_loco_list_expr <- as.call(c(list(as.symbol("list")), area_loco_syms))
 
   area_loco_targets <- c(area_loco_targets, list(
@@ -828,11 +1039,18 @@ if (length(all_country_configs) >= 2) {
     )
   ))
 
-  # Per-outcome benchmark target.
+  # Per-outcome benchmark target. Restricted to countries that declare the
+  # outcome, for the same reason as the LOCO blocks.
   for (otag in bench_outcomes) {
+    cc_b <- intersect(countries_declaring_outcome(otag), cc_lower_b)
+    if (length(cc_b) < 2) {
+      message(sprintf("[benchmarks] %s: only %d country/countries declare it - skipping",
+                      otag, length(cc_b)))
+      next
+    }
     svy_syms_b <- setNames(
-      lapply(cc_lower_b, function(c) as.symbol(paste0("svy_admin2_", c, "_", otag))),
-      cc_label_b)
+      lapply(cc_b, function(c) as.symbol(paste0("svy_admin2_", c, "_", otag))),
+      cc_label_b[match(cc_b, cc_lower_b)])
     svy_expr_b <- as.call(c(list(as.symbol("list")), svy_syms_b))
 
     benchmark_targets <- c(benchmark_targets, list(
@@ -861,8 +1079,12 @@ if (length(all_country_configs) >= 2) {
   }
 
   # Combined benchmarks rollup with CSV save.
-  bench_names <- paste0("benchmarks_", bench_outcomes)
-  bench_syms <- setNames(lapply(bench_names, as.symbol), bench_outcomes)
+  # Only outcomes a benchmarks_<tag> target was actually created for.
+  built_bench <- Filter(
+    function(t) length(intersect(countries_declaring_outcome(t), cc_lower_b)) >= 2,
+    bench_outcomes)
+  bench_names <- paste0("benchmarks_", built_bench)
+  bench_syms <- setNames(lapply(bench_names, as.symbol), built_bench)
   bench_list_expr <- as.call(c(list(as.symbol("list")), bench_syms))
 
   benchmark_targets <- c(benchmark_targets, list(
@@ -902,14 +1124,12 @@ if (length(all_country_configs) >= 2) {
   # from Gambia. Other outcomes are 4-country. Determined from the targets
   # manifest at session start (archive/sandbox/00_setup.R load_pooled() also handles
   # this case).
-  outcome_countries <- list(
-    child_vitA   = cc_lower_b,
-    women_vitA   = cc_lower_b,
-    child_iron   = cc_lower_b,
-    women_iron   = cc_lower_b,
-    women_b12    = setdiff(cc_lower_b, "gambia"),
-    women_folate = setdiff(cc_lower_b, "gambia")
-  )
+  # Derived from the configs, not hardcoded. The previous literal map asserted
+  # child_iron and women_iron were available in every country, which stopped
+  # being true when Tanzania (vitamin A only) was added.
+  outcome_countries <- setNames(
+    lapply(sl_outcomes, function(t) intersect(countries_declaring_outcome(t), cc_lower_b)),
+    sl_outcomes)
   for (otag in sl_outcomes) {
     avail <- outcome_countries[[otag]]
     if (length(avail) < 2) next  # Need >=2 countries for LOCO.
@@ -1010,10 +1230,29 @@ if (length(all_country_configs) >= 2) {
     )
   ))
 
+  # Same filter as the area_loco block: a country that does not declare an
+  # outcome has no svy_admin2_<country>_<outcome> target to reference.
+  countries_with_outcome_t <- function(otag) {
+    keep <- Filter(function(cc_name) {
+      tags <- vapply(all_country_configs[[cc_name]]$outcomes,
+                     function(o) o$tag %||% "", character(1))
+      otag %in% tags
+    }, names(all_country_configs))
+    tolower(keep)
+  }
+
+  built_transport <- character(0)
   for (otag in shared_outcomes_t) {
+    cc_t <- countries_with_outcome_t(otag)
+    if (length(cc_t) < 2) {
+      message(sprintf("[area_transport] %s: only %d country/countries declare it - skipping",
+                      otag, length(cc_t)))
+      next
+    }
+    built_transport <- c(built_transport, otag)
     svy_syms_t <- setNames(
-      lapply(cc_lower_t, function(cn) as.symbol(paste0("svy_admin2_", cn, "_", otag))),
-      cc_lower_t)
+      lapply(cc_t, function(cn) as.symbol(paste0("svy_admin2_", cn, "_", otag))),
+      cc_t)
     svy_expr_t <- as.call(c(list(as.symbol("list")), svy_syms_t))
     area_transport_targets <- c(area_transport_targets, list(
       tar_target_raw(
@@ -1026,8 +1265,8 @@ if (length(all_country_configs) >= 2) {
     ))
   }
 
-  at_names <- paste0("area_transport_", shared_outcomes_t)
-  at_syms  <- setNames(lapply(at_names, as.symbol), shared_outcomes_t)
+  at_names <- paste0("area_transport_", built_transport)
+  at_syms  <- setNames(lapply(at_names, as.symbol), built_transport)
   at_list_expr <- as.call(c(list(as.symbol("list")), at_syms))
   area_transport_targets <- c(area_transport_targets, list(
     tar_target_raw(
@@ -1157,6 +1396,67 @@ if (length(all_country_configs) >= 2) {
       substitute(
         summarize_transportability(loco_list_val),
         list(loco_list_val = loco_gee_list_expr)
+      )
+    )
+  ))
+
+  # ── Best-model LOCO: a small, LOCO-optimized, scientifically curated
+  #    predictor set (R/transportability_best_model.R), instead of the full
+  #    common pool (above) or a raw domain filter (GEE-only). The selection
+  #    itself -- dedup near-duplicate buffer/month/year variants, add PCA
+  #    components for large domains, rank by cross-country (not
+  #    within-country) bivariate strength, greedy stepwise search -- runs
+  #    ONCE (not per outcome) since it's optimized jointly across all 4
+  #    shared outcomes; every outcome's LOCO run below reuses that one
+  #    selection. See that file's header for the investigation (WFP price-
+  #    matching fix, food-security path fix, and two mlr3_SL_clustered fixes
+  #    in R/sensitivity/mlr3_fitting.R) that produced this.
+  transport_targets <- c(transport_targets, list(
+    tar_target_raw(
+      "best_model_selection",
+      substitute({
+        all_merged <- merged_list_val
+        build_best_transportable_predictors(all_merged, get_country_configs())
+      }, list(merged_list_val = merged_list_expr))
+    )
+  ))
+
+  for (otag in outcome_tags) {
+    pooled_best_name <- paste0("pooled_best_", otag)
+    transport_targets <- c(transport_targets, list(
+      tar_target_raw(
+        pooled_best_name,
+        substitute({
+          all_merged <- merged_list_val
+          build_pooled_best_model(all_merged, get_country_configs(), otag_val,
+                                  best_model_selection$selected_vars)
+        }, list(merged_list_val = merged_list_expr, otag_val = otag))
+      )
+    ))
+
+    loco_best_name <- paste0("loco_best_", otag)
+    transport_targets <- c(transport_targets, list(
+      tar_target_raw(
+        loco_best_name,
+        substitute(
+          run_loco_best_model(pooled_data, sl_learners, pipeline_params),
+          list(pooled_data = as.symbol(pooled_best_name))
+        )
+      )
+    ))
+  }
+
+  # Combined best-model transportability summary
+  loco_best_target_names <- paste0("loco_best_", outcome_tags)
+  loco_best_syms <- setNames(lapply(loco_best_target_names, as.symbol), outcome_tags)
+  loco_best_list_expr <- as.call(c(list(as.symbol("list")), loco_best_syms))
+
+  transport_targets <- c(transport_targets, list(
+    tar_target_raw(
+      "transportability_best_summary",
+      substitute(
+        summarize_transportability(loco_list_val),
+        list(loco_list_val = loco_best_list_expr)
       )
     )
   ))
@@ -1617,4 +1917,4 @@ if (length(all_country_configs) >= 1) {
 
 c(static_targets, country_targets, area_comparison_targets, area_loco_targets,
   benchmark_targets, area_transport_targets, transport_targets, oos_targets,
-  summary_targets, corrected_targets, aggregation_targets)
+  summary_targets, corrected_targets, aggregation_targets, gp_sens_targets)
