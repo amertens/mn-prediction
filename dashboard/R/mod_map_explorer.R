@@ -22,59 +22,49 @@ mod_map_explorer_ui <- function(id) {
 
       uiOutput(ns("outcome_caveat")),
 
-      radioButtons(ns("admin_level"), "Geographic level",
-                   choices = c("Admin 2 (district)" = "admin2",
-                               "Admin 1 (region)"  = "admin1"),
+      radioButtons(ns("admin_level"), "Level",
+                   choices = c("District" = "admin2", "Region" = "admin1"),
                    selected = "admin2", inline = TRUE),
 
-      radioButtons(ns("pred_model"), "Prediction model",
-                   choices = c("Area-level SAE — HAL (all districts)" = "area",
-                               "SL → BYM2 SAE (all districts, spatial intervals)" = "bym2",
-                               "Fay-Herriot SAE (all districts, with intervals)" = "fh",
-                               "Individual SuperLearner — sensitivity (surveyed districts)" = "sl"),
-                   selected = "area"),
+      # Grouped so the four everyday views sit apart from the two that only
+      # mean something to an analyst.
+      selectInput(ns("layer"), "What to show",
+                  choices = list(
+                    "Deficiency" = c(
+                      "Estimated prevalence"          = "pred_prev",
+                      "Survey-measured prevalence"    = "obs_prev",
+                      "WHO severity class"            = "who_class"),
+                    "People" = c(
+                      "Number of people affected"     = "pop_at_risk"),
+                    "How firm is the number" = c(
+                      "Width of the 95% range"        = "ci_width",
+                      "Could the severity class change?" = "misclass"),
+                    "Model checks" = c(
+                      "Estimate minus survey (pp)"    = "diff_prev",
+                      "Error when borrowed from other countries (pp)" = "loco_diff")),
+                  selected = "pred_prev"),
+
+      # The model choice is a statistical judgement, not a program one, so it
+      # starts closed on a sensible default rather than asking every reader to
+      # make it. DEFAULT_PRED_MODEL lives in global.R and is shared with the
+      # district profiles, so both tabs open on the same estimator.
       tags$details(
-        style = "font-size:0.82em; color:#555; margin-top:-2px; margin-bottom:6px;",
-        tags$summary("How are these predictions built?"),
-        tags$ul(
-          style = "padding-left:1.1em; margin-bottom:0;",
-          tags$li(strong("Area-level SAE (HAL): "),
-                  "predicts every district's prevalence from satellite and ",
-                  "geospatial indicators using a Highly Adaptive Lasso. Full ",
-                  "coverage; point estimates only (no per-district interval)."),
-          tags$li(strong("SL → BYM2 SAE: "),
-                  "feeds the area-level SuperLearner's prediction into a ",
-                  "Bayesian spatial (BYM2) small-area model that borrows ",
-                  "strength from neighbouring districts. Full coverage with a ",
-                  "95% credible interval for every district — tighter and ",
-                  "better-calibrated than Fay-Herriot, narrow where surveyed ",
-                  "and wider (but spatially informed) where not."),
-          tags$li(strong("Fay-Herriot SAE: "),
-                  "a small-area model that blends each district's survey ",
-                  "estimate (where one exists) with the indicator-based ",
-                  "prediction. Full coverage with a 95% interval for every ",
-                  "district — narrow where a survey exists, wide where it does not."),
-          tags$li(strong("Individual SuperLearner (sensitivity): "),
-                  "a person-level machine-learning ensemble, averaged up to ",
-                  "the surveyed districts. Retained as a sensitivity analysis ",
-                  "— the area-level SAE models above are the primary analysis. ",
-                  "Covers surveyed districts only, with conformal intervals.")
+        style = "margin:2px 0 8px;",
+        tags$summary(style = "cursor:pointer; font-size:0.86em; color:#2c7bb6;",
+                     "Advanced: choose a different model"),
+        div(
+          style = "padding:6px 0 0 2px;",
+          radioButtons(ns("pred_model"), NULL,
+                       choices  = pred_model_choices(),
+                       selected = DEFAULT_PRED_MODEL),
+          pred_model_help()
         )
       ),
 
-      radioButtons(ns("layer"), "Display layer",
-                   choices = c("Predicted prevalence" = "pred_prev",
-                               "Survey-observed prevalence (where available)" = "obs_prev",
-                               "Modeled − survey difference (pp)" = "diff_prev",
-                               "Transportability error: held-out country (pp)" = "loco_diff",
-                               "Confidence interval width" = "ci_width",
-                               "Population affected (count)" = "pop_at_risk",
-                               "WHO public health classification" = "who_class",
-                               "WHO-class certainty (misclassification risk)" = "misclass"),
-                   selected = "pred_prev"),
-
       hr(),
 
+      uiOutput(ns("no_signal")),
+      uiOutput(ns("layer_unavailable")),
       htmlOutput(ns("headline")),
 
       hr(),
@@ -109,20 +99,42 @@ mod_map_explorer_server <- function(id) {
   moduleServer(id, function(input, output, session) {
     ns <- session$ns
 
-    # Which prediction source feeds the map: individual SuperLearner (surveyed
-    # districts only) or the full-coverage area-level SAE model. Falls back to
-    # SuperLearner if the area bundle is not present.
-    pred_df <- reactive({
-      m <- input$pred_model %||% "area"
-      if (m == "bym2" && exists("admin2_bym2_pred") && !is.null(admin2_bym2_pred)) {
-        admin2_bym2_pred
-      } else if (m == "fh" && exists("admin2_fh_pred") && !is.null(admin2_fh_pred)) {
-        admin2_fh_pred
-      } else if (m == "area" && exists("admin2_area_pred") && !is.null(admin2_area_pred)) {
-        admin2_area_pred
-      } else {
-        admin2_pred
-      }
+    # Which table feeds the map. Resolved in global.R so every tab that shows a
+    # prevalence resolves it the same way.
+    pred_df <- reactive(pred_model_data(input$pred_model %||% DEFAULT_PRED_MODEL))
+
+    # The two "how firm is the number" views need a 95% range, and the default
+    # model does not carry one yet. Say so plainly and name the model that does,
+    # rather than drawing an empty map.
+    output$layer_unavailable <- renderUI({
+      needs_ci <- (input$layer %||% "") %in% c("ci_width", "misclass")
+      if (!needs_ci || pred_model_has_ci(input$pred_model)) return(NULL)
+      div(class = "alert alert-warning",
+          style = "font-size:0.82em; padding:8px 10px; margin:6px 0 0;",
+          bsicons::bs_icon("exclamation-triangle"), " ",
+          "This view needs a 95% range, which the recommended model does not ",
+          "produce yet. Open ", strong("Advanced"), " above and pick a model ",
+          "with uncertainty ranges to see it.")
+    })
+
+    # Some country x outcome combinations come back the same in every district:
+    # the model found nothing to separate them. The map then looks like a map
+    # but is a single flat colour, which reads as "no variation in deficiency"
+    # rather than "no information". Say which it is.
+    output$no_signal <- renderUI({
+      df <- tryCatch(map_data(), error = function(e) NULL)
+      if (is.null(df) || !nrow(df)) return(NULL)
+      if (has_district_signal(df$pred_prev)) return(NULL)
+      v <- df$pred_prev[is.finite(df$pred_prev)]
+      div(class = "alert alert-secondary",
+          style = "font-size:0.82em; padding:8px 10px; margin:6px 0 0;",
+          bsicons::bs_icon("dash-circle"), " ",
+          strong("No district-level signal for this combination. "),
+          sprintf("Every district returns about %s, so the map is one flat colour. ",
+                  fmt_pct(stats::median(v))),
+          "The routinely available indicators carry nothing that separates ",
+          "districts for this nutrient here. Use the national figure and do ",
+          "not rank districts on it.")
     })
 
     # Offer the Admin-3 (chiefdom) level only for countries that have an
@@ -207,11 +219,12 @@ mod_map_explorer_server <- function(id) {
             tags$br(),
             tags$span(
               style = "font-size: 0.82em; color: #777;",
-              switch(input$pred_model %||% "area",
-                sl = "Counts cover surveyed districts only — switch to an all-district model above.",
-                bym2 = "Counts cover all districts (SL → BYM2 spatial model, with credible intervals).",
-                fh = "Counts cover all districts (Fay-Herriot model, with intervals).",
-                "Counts cover all districts (area-level HAL model; point estimates, no interval)."))
+              if ((input$pred_model %||% DEFAULT_PRED_MODEL) == "sl")
+                "Covers surveyed districts only — pick an all-district model under Advanced."
+              else
+                sprintf("Covers every district. Model: %s.",
+                        tolower(PRED_MODEL_INFO[[input$pred_model %||%
+                                                 DEFAULT_PRED_MODEL]]$label)))
           )
         },
         if (!is.na(natl$ci_lo_natl)) {

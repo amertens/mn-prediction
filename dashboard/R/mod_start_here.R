@@ -10,6 +10,11 @@ mod_start_here_ui <- function(id) {
   layout_columns(
     col_widths = 12,
 
+    # The single number worth leading with. It comes from the Decision value
+    # tab's targeting analysis, which was five tabs in and doing the persuading
+    # where nobody arriving would see it.
+    uiOutput(ns("hero")),
+
     card(
       card_header("What this dashboard shows"),
       card_body(
@@ -70,27 +75,88 @@ mod_start_here_ui <- function(id) {
     ),
 
     card(
-      card_header("What to trust — and what not to"),
+      card_header("What to trust, and what not to"),
       card_body(
         tags$ul(
           tags$li(GENERAL_CAVEAT),
-          tags$li(strong("Biomarker caveats vary by nutrient "),
-                  "(e.g. vitamin A in women, B12) — see the note under the outcome ",
-                  "selector and the Methods tab."),
-          tags$li(strong("In development: "), "preliminary results for internal ",
-                  "review; not for citation or external distribution.")
+          tags$li(strong("Some nutrients are measured better than others. "),
+                  "Vitamin A in women and B12 rest on weaker biomarkers. The ",
+                  "note under the outcome selector says which, and the Methods ",
+                  "tab explains why."),
+          # Was a repeat of the old "not for citation" banner. That framing is
+          # gone from the header, and leaving it here would have been the one
+          # place the app still told people not to use it.
+          tags$li(strong("Use the ranking more than the number. "),
+                  "These are working estimates. Which districts are worst off ",
+                  "is the part that holds up; the exact percentage is a planning ",
+                  "figure, and how firm it is varies a lot by country and ",
+                  "nutrient. Decision value shows where it holds and where it ",
+                  "does not.")
         )
       )
     )
   )
 }
 
-mod_start_here_server <- function(id) {
+#' @param go_to optional callback, `function(tab, country, outcome)`, supplied by
+#'   the app server. When present the worked example gets buttons that switch
+#'   tabs with the country and outcome already set, instead of telling the
+#'   reader to go and find them.
+mod_start_here_server <- function(id, go_to = NULL) {
   moduleServer(id, function(input, output, session) {
+    ns <- session$ns
+
+    # Share of a country's deficient population you reach by treating the
+    # highest-prevalence districts covering `frac` of the population, versus
+    # reaching the same share without knowing where deficiency is concentrated.
+    targeting_gain <- function(ck, oc, frac = 0.20) {
+      tryCatch({
+        pd <- pred_model_data(DEFAULT_PRED_MODEL)
+        df <- as.data.frame(get_country_admin2(ck, oc, admin2_bnds, pd, admin2_pop))
+        df <- df[is.finite(df$pred_prev) & is.finite(df$population) & df$population > 0, ]
+        if (!nrow(df)) return(NULL)
+        w <- df$population; burden <- df$pred_prev * w
+        ord <- order(df$pred_prev, decreasing = TRUE)
+        cx <- cumsum(w[ord]) / sum(w); cy <- cumsum(burden[ord]) / sum(burden)
+        reach <- stats::approx(c(0, cx), c(0, cy), xout = frac, rule = 2)$y
+        list(reach = reach, lift = reach / frac, frac = frac)
+      }, error = function(e) NULL)
+    }
+
+    output$hero <- renderUI({
+      g <- targeting_gain("ghana", "women_iron")
+      if (is.null(g) || !is.finite(g$lift)) return(NULL)
+      div(
+        class = "card",
+        style = "border-left:5px solid #2c7bb6; margin-bottom:1em;",
+        div(
+          class = "card-body",
+          style = "padding:14px 18px;",
+          div(style = "font-size:2.1em; font-weight:700; color:#2c7bb6; line-height:1.1;",
+              sprintf("%.1f×", g$lift)),
+          p(style = "margin:6px 0 0; font-size:1.02em;",
+            "more deficient women reached, for the same program size."),
+          p(style = "margin:4px 0 0; color:#555; font-size:0.9em;",
+            sprintf(paste("Reaching the worst-affected %.0f%% of Ghana's population",
+                          "using these district estimates covers about %.0f%% of all",
+                          "women with iron deficiency. Without district data you",
+                          "would reach roughly %.0f%%."),
+                    100 * g$frac, 100 * g$reach, 100 * g$frac)),
+          p(style = "margin:8px 0 0; color:#777; font-size:0.82em;",
+            "Ghana, iron deficiency in women. The gain varies by country and ",
+            "nutrient, and is much smaller for some. Decision value has the rest.")
+        )
+      )
+    })
+
+    # Wire the worked example's buttons, when the app supplied a handler.
+    if (!is.null(go_to)) {
+      observeEvent(input$go_map, go_to("Map explorer", "ghana", "women_iron"))
+      observeEvent(input$go_decision, go_to("Decision value", "ghana", "women_iron"))
+    }
 
     output$ghana_example <- renderUI({
-      pd <- if (exists("admin2_area_pred") && !is.null(admin2_area_pred))
-              admin2_area_pred else admin2_pred
+      pd <- pred_model_data(DEFAULT_PRED_MODEL)
       ck <- "ghana"; oc <- "women_iron"
 
       natl <- tryCatch({
@@ -126,13 +192,22 @@ mod_start_here_server <- function(id) {
           "national average would mask."),
         if (!is.null(targ)) p(
           "If a program could only reach the worst ", strong("20%"),
-          " of the population, using the model to pick those districts would reach about ",
+          " of the population, using these estimates to pick those districts would reach about ",
           strong(pct(targ$reach20)), " of all deficient women — roughly ",
           strong(sprintf("%.1f×", targ$lift)),
-          " more than reaching 20% without subnational data."),
-        p(em("Open the Map explorer (Ghana, iron in women) and the Decision value ",
-             "tab to explore this interactively."),
-          style = "color:#555;")
+          " more than reaching 20% without district-level data."),
+        div(
+          style = "margin-top:10px;",
+          # shiny::icon(), not bsicons::bs_icon() — actionButton validates its
+          # icon argument and rejects a raw SVG.
+          actionButton(ns("go_map"), "See this on the map",
+                       icon = shiny::icon("map"),
+                       class = "btn-sm btn-primary"),
+          actionButton(ns("go_decision"), "See the full targeting analysis",
+                       icon = shiny::icon("bullseye"),
+                       class = "btn-sm btn-outline-primary",
+                       style = "margin-left:6px;")
+        )
       )
     })
   })

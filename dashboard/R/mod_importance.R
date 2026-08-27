@@ -1,82 +1,33 @@
 # =============================================================================
 # Module: Predictor Importance
 # =============================================================================
-# Surfaces three views of which factors drive predicted prevalence:
-#   (1) Domain ablation heatmap — AUC drop when each conceptual domain is
+# Three views of what drives a predicted prevalence, ordered so the one a
+# program decision actually turns on comes first:
+#   (1) Per-district SHAP factors — why THIS district's estimate is where it is,
+#       and the panel to sense-check against local knowledge.
+#   (2) Domain ablation heatmap — AUC drop when each predictor family is
 #       permuted, by country × outcome.
-#   (2) Top single-variable importance ranking — the predictors that lose
-#       the most AUC when individually shuffled.
-#   (3) Per-district top SHAP factors — for a specific district, which
-#       predictors push the prediction up or down.
+#   (3) Top single-variable importance — the predictors that lose the most AUC
+#       when individually shuffled.
+#
+# (1) used to be last. It is the only one framed around a place rather than
+# around the model, so it now leads.
 
 mod_importance_ui <- function(id) {
   ns <- NS(id)
 
   navset_card_tab(
 
+    # "Why is this district high?" comes first. It used to be third, behind two
+    # panels about the model rather than about a place.
     nav_panel(
-      title = "Domain importance heatmap",
-      icon = bsicons::bs_icon("grid-3x3"),
-      div(
-        p("Domain importance is measured by permutation: each thematic ",
-          "group of predictors (Climate, Food Security, Demographics, etc.) ",
-          "is shuffled in turn, and we measure the resulting drop in model ",
-          "performance (ROC-AUC). Larger drops indicate the domain ",
-          "contributes more signal."),
-        plotlyOutput(ns("ablation_heatmap"), height = "550px"),
-        methods_note(
-          "The heatmap shows, for each country × outcome model, the AUC drop ",
-          "when each thematic predictor domain is removed (permuted). Darker ",
-          "cells indicate domains that the model relies on more heavily for ",
-          "that specific outcome and country. ",
-          tags$br(), tags$br(),
-          "This is a population-level importance measure, not an explanation ",
-          "of any single district's prediction. For per-district explanations ",
-          "see the “District factors” sub-tab. Domains with near-zero drops ",
-          "are either redundant (their signal is captured by other domains) ",
-          "or genuinely uninformative for the outcome. ",
-          tags$br(), tags$br(),
-          "Permutation importance can also understate correlated predictors: if ",
-          "two domains carry overlapping information, removing either one alone ",
-          "may not hurt performance much, even when the combined signal matters."
-        )
-      )
-    ),
-
-    nav_panel(
-      title = "Top variables",
-      icon = bsicons::bs_icon("list-ol"),
-      div(
-        layout_columns(
-          col_widths = c(6, 6),
-          selectInput(ns("var_country"), "Country",
-                      choices = country_choices, selected = "ghana"),
-          selectInput(ns("var_outcome"), "Outcome",
-                      choices = outcome_choices, selected = "women_iron")
-        ),
-        plotlyOutput(ns("varimp_plot"), height = "500px"),
-        methods_note(
-          "Single-variable permutation importance: each individual predictor ",
-          "is shuffled three times, the model re-predicts, and we compute the ",
-          "average AUC drop. Larger bars indicate predictors the model relies ",
-          "on more heavily. The top 30 variables are shown. ",
-          tags$br(), tags$br(),
-          "Variable names follow these prefixes: ", tags$code("chirps_*"),
-          " (rainfall), ", tags$code("gee_*"), " (satellite-derived), ",
-          tags$code("MAP_*"), " (Malaria Atlas Project), ",
-          tags$code("worldpop_*"), " (population), ",
-          tags$code("wfp_*"), " (food security or food prices), ",
-          tags$code("dhs*_*"), " (DHS Admin-2 indicators), ",
-          tags$code("ihme_*"), " (IHME modeled health indicators), ",
-          tags$code("soil_*"), " (soil properties)."
-        )
-      )
-    ),
-
-    nav_panel(
-      title = "District factors",
+      title = "Why a district is high",
       icon = bsicons::bs_icon("crosshair"),
       div(
+        p("Pick a district to see which conditions pushed its estimate up or ",
+          "down: malaria burden, rainfall, soil, food prices, and so on. ",
+          "Read it as the model showing its working, and check it against what ",
+          "you know about the place."),
         layout_columns(
           col_widths = c(4, 4, 4),
           selectInput(ns("shap_country"), "Country",
@@ -87,24 +38,75 @@ mod_importance_ui <- function(id) {
         ),
         plotlyOutput(ns("shap_plot"), height = "450px"),
         methods_note(
-          "SHAP (SHapley Additive exPlanations) values quantify how much ",
-          "each predictor contributes to a single district's prediction. ",
-          "Positive values (red) indicate predictors that push the prediction ",
-          "above the model's average; negative values (blue) push it below. ",
+          "Bars are SHAP values: each predictor's contribution to this ",
+          "district's estimate. Red pushes the estimate above the country ",
+          "average, blue pulls it below, and bar length is how much. ",
           tags$br(), tags$br(),
-          "These attributions are model-agnostic: they use sampling SHAP ",
-          "(Monte-Carlo Shapley values) computed against the full SuperLearner ",
-          "ensemble's own predictions, so they reflect the whole fitted model ",
-          "(including the BART learner that often dominates the ensemble), not ",
-          "any single base learner. To bound computation, SHAP is estimated for ",
-          "each outcome's most important predictors over a sample of ",
-          "individuals per district. ",
+          "They are computed against the fitted ensemble's own predictions ",
+          "using sampling (Monte-Carlo) Shapley values, so they reflect the ",
+          "whole model rather than one component. To keep computation ",
+          "manageable, they cover each outcome's most important predictors over ",
+          "a sample of individuals per district. ",
           tags$br(), tags$br(),
-          "These per-district explanations are particularly useful for ",
-          "ground-truthing model predictions: if the “top factors” for a ",
-          "district align with what local health officials know about the ",
-          "area, that supports the model. If they do not, that prompts ",
-          "further investigation."
+          "This is the most useful panel for sense-checking. If a district's ",
+          "top factors match what local health staff know about the area, that ",
+          "is a point in the model's favor. If they do not, the estimate is ",
+          "worth questioning."
+        )
+      )
+    ),
+
+    nav_panel(
+      title = "Which data sources matter",
+      icon = bsicons::bs_icon("grid-3x3"),
+      div(
+        p("How much each family of predictors contributes, by country and ",
+          "nutrient. Each family is scrambled in turn and we measure how much ",
+          "worse the model gets. Darker cells mean the model leans on that ",
+          "family more."),
+        plotlyOutput(ns("ablation_heatmap"), height = "550px"),
+        methods_note(
+          "Cells show the drop in ROC-AUC when a thematic group of predictors ",
+          "is permuted, for each country × outcome model. ",
+          tags$br(), tags$br(),
+          "This describes the model overall, not any one district — for that, ",
+          "use the first panel. A near-zero cell means the family is either ",
+          "uninformative for that outcome or redundant with another family. ",
+          tags$br(), tags$br(),
+          "The measure understates predictors that overlap: when two families ",
+          "carry the same information, removing either alone changes little, ",
+          "even though the information itself matters."
+        )
+      )
+    ),
+
+    nav_panel(
+      title = "Individual predictors",
+      icon = bsicons::bs_icon("list-ol"),
+      div(
+        p("The thirty predictors the model relies on most, for one country and ",
+          "nutrient."),
+        layout_columns(
+          col_widths = c(6, 6),
+          selectInput(ns("var_country"), "Country",
+                      choices = country_choices, selected = "ghana"),
+          selectInput(ns("var_outcome"), "Outcome",
+                      choices = outcome_choices, selected = "women_iron")
+        ),
+        plotlyOutput(ns("varimp_plot"), height = "500px"),
+        methods_note(
+          "Each predictor is scrambled three times, the model re-predicts, and ",
+          "the bar is the average drop in ROC-AUC. Longer bars mean heavier ",
+          "reliance. ",
+          tags$br(), tags$br(),
+          "Name prefixes: ", tags$code("chirps_*"), " rainfall, ",
+          tags$code("gee_*"), " satellite-derived, ",
+          tags$code("MAP_*"), " Malaria Atlas Project, ",
+          tags$code("worldpop_*"), " population, ",
+          tags$code("wfp_*"), " food security and food prices, ",
+          tags$code("dhs*_*"), " DHS district indicators, ",
+          tags$code("ihme_*"), " IHME modeled health indicators, ",
+          tags$code("soil_*"), " soil properties."
         )
       )
     )

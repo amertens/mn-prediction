@@ -11,6 +11,7 @@ source("global.R")
 
 ui <- page_navbar(
   title = "Micronutrient Burden",
+  id = "main_nav",
   theme = bs_theme(
     version = 5,
     bootswatch = "cosmo",
@@ -20,20 +21,8 @@ ui <- page_navbar(
   fillable = c("Map explorer"),
   underline = TRUE,
 
-  # Shown on every tab: in-development banner + a faint fixed watermark.
-  header = tagList(
-    tags$style(HTML(
-      ".indev-watermark{position:fixed;bottom:10px;right:12px;z-index:1030;
-       font-weight:700;font-size:12px;letter-spacing:1px;color:rgba(200,0,0,0.33);
-       border:2px solid rgba(200,0,0,0.28);border-radius:5px;padding:2px 8px;
-       transform:rotate(-4deg);pointer-events:none;background:rgba(255,255,255,0.45);}")),
-    div(class = "alert alert-warning",
-        style = "margin:0 0 10px;border-radius:0;text-align:center;font-size:0.88em;padding:6px 10px;",
-        bsicons::bs_icon("cone-striped"), " ",
-        strong("In development"),
-        " — preliminary results for internal review; not for citation or external distribution."),
-    div(class = "indev-watermark", "IN DEVELOPMENT")
-  ),
+  # Same banner as app.R — defined in global.R so the two cannot drift.
+  header = site_banner,
 
   nav_panel(title = "Start here", icon = bsicons::bs_icon("signpost-2"),
             mod_start_here_ui("start")),
@@ -47,7 +36,8 @@ ui <- page_navbar(
             mod_decision_value_ui("decision")),
   nav_panel(title = "Scenarios", icon = bsicons::bs_icon("sliders"),
             mod_scenarios_ui("scenarios")),
-  nav_panel(title = "Importance", icon = bsicons::bs_icon("bar-chart-line"),
+  nav_panel(title = "What drives the estimate",
+            icon = bsicons::bs_icon("bar-chart-line"),
             mod_importance_ui("importance")),
   nav_panel(title = "Methods", icon = bsicons::bs_icon("info-circle"),
             mod_methods_ui("methods")),
@@ -69,7 +59,20 @@ ui <- page_navbar(
 )
 
 server <- function(input, output, session) {
-  mod_start_here_server("start")
+  go_to <- function(tab, country = NULL, outcome = NULL) {
+    if (!is.null(country)) {
+      updateSelectInput(session, "map-country",         selected = country)
+      updateSelectInput(session, "district-country",    selected = country)
+      updateSelectInput(session, "decision-ta_country", selected = country)
+    }
+    if (!is.null(outcome)) {
+      updateSelectInput(session, "map-outcome",         selected = outcome)
+      updateSelectInput(session, "decision-ta_outcome", selected = outcome)
+    }
+    nav_select("main_nav", tab)
+  }
+
+  mod_start_here_server("start", go_to = go_to)
   mod_map_explorer_server("map")
   mod_district_profile_server("district")
   mod_national_burden_server("burden")

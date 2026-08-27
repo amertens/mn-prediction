@@ -171,6 +171,152 @@ for (f in list.files("R", pattern = "\\.R$", full.names = TRUE)) {
 country_choices <- setNames(names(meta$countries), meta$countries)
 outcome_choices <- setNames(names(meta$outcome_labels), meta$outcome_labels)
 
+# ── Which model produces the numbers, defined once ─────────────────────────
+# Every tab reads DEFAULT_PRED_MODEL, so the same district cannot show one
+# figure on the map and a different one on its profile page.
+#
+# The default is the district prevalence model (`recipe`).
+# docs/AREA_LEVEL_RECIPE_SPEC.md settles this: modelling each district's
+# prevalence directly beats modelling individual people and averaging up
+# (district-ranking correlation 0.06 -> 0.5-0.8 on the outcomes that carry
+# signal). The same spec is explicit that the small-area models are there for
+# uncertainty ranges, not for the level -- the covariates rank districts well
+# but do not pin down how high prevalence is, and shrinking the level toward
+# the covariate mean makes absolute error worse. So Fay-Herriot and BYM2 stay
+# available, and stay off by default.
+DEFAULT_PRED_MODEL <- "recipe"
+
+PRED_MODEL_INFO <- list(
+  recipe = list(
+    label = "Recommended (all districts)",
+    blurb = paste("Estimates each district's prevalence directly from satellite,",
+                  "climate and geospatial indicators. Best at telling you which",
+                  "districts are worst off. Read the percentage as a planning",
+                  "figure rather than a measurement. No uncertainty range yet.")),
+  bym2 = list(
+    label = "Uncertainty ranges, spatially smoothed",
+    blurb = paste("Adds a 95% range to every district by borrowing information",
+                  "from its neighbours. Narrow where a survey exists, wider",
+                  "where none does. Use it to see how firm a number is.")),
+  fh = list(
+    label = "Uncertainty ranges, blended with the survey",
+    blurb = paste("Blends each district's own survey result, where there is one,",
+                  "with the indicator-based estimate, and gives every district a",
+                  "95% range. Ranges run wider than the spatial model's.")),
+  area = list(
+    label = "Alternative fit, for comparison",
+    blurb = paste("A different machine-learning fit over the same indicators.",
+                  "Kept so you can check whether a district's standing depends",
+                  "on the method. Point estimates only.")),
+  sl = list(
+    label = "Person-level fit (surveyed districts only)",
+    blurb = paste("Models individual people and averages up to the district.",
+                  "Covers only districts that were surveyed, so most of the map",
+                  "is blank. Kept as a sensitivity check."))
+)
+
+# Which layers actually carry an interval — the map's confidence views and the
+# district profile's error bars need this, and two layers have none.
+PRED_MODEL_HAS_CI <- c(recipe = FALSE, bym2 = TRUE, fh = TRUE,
+                       area = FALSE, sl = TRUE)
+
+#' The prediction table behind a model key, falling back to the person-level
+#' table if that layer was not built.
+pred_model_data <- function(key) {
+  d <- switch(key %||% DEFAULT_PRED_MODEL,
+              recipe = admin2_recipe_pred, bym2 = admin2_bym2_pred,
+              fh     = admin2_fh_pred,     area = admin2_area_pred,
+              sl     = admin2_pred,        NULL)
+  if (is.null(d)) admin2_pred else d
+}
+
+#' Named choices for a model selector, in the order given, dropping any layer
+#' that was not built so the app never offers an empty option.
+pred_model_choices <- function(keys = names(PRED_MODEL_INFO)) {
+  keys <- Filter(function(k) {
+    d <- switch(k, recipe = admin2_recipe_pred, bym2 = admin2_bym2_pred,
+                fh = admin2_fh_pred, area = admin2_area_pred, sl = admin2_pred)
+    !is.null(d) && nrow(d) > 0
+  }, keys)
+  setNames(keys, vapply(keys, function(k) PRED_MODEL_INFO[[k]]$label, character(1)))
+}
+
+pred_model_has_ci <- function(key) {
+  isTRUE(unname(PRED_MODEL_HAS_CI[key %||% DEFAULT_PRED_MODEL]))
+}
+
+#' Does this country x outcome actually vary between districts?
+#'
+#' For some cells the model finds no district-level signal and every district
+#' comes back with the same number -- the near-null pre-filter drops every
+#' candidate predictor and the fit reduces to an intercept. Measured on the
+#' 2026-08-27 build, 4 of 24 cells are exactly constant (Ghana women's vitamin A
+#' is 1.53% in all 260 districts; Sierra Leone child vitamin A 11.93% in all 14)
+#' and 2 more vary by under a percentage point.
+#'
+#' That is a legitimate result -- it says the proxies carry nothing for this
+#' nutrient here -- but a choropleth drawn over it implies variation that is not
+#' there, and a "worst districts" table becomes an arbitrary ordering of
+#' identical values. Callers should say so instead of drawing the map.
+#'
+#' @param prev numeric vector of district estimates
+#' @param min_spread minimum max-min, as a proportion, to count as informative
+#' @return TRUE if the estimates carry usable district-level variation
+has_district_signal <- function(prev, min_spread = 0.01) {
+  v <- prev[is.finite(prev)]
+  length(unique(round(v, 6))) > 2 && diff(range(v)) >= min_spread
+}
+
+#' Give a district table a 95% range when its own model does not carry one.
+#'
+#' The recommended model produces a level but no interval yet. Rather than
+#' present its numbers as though they were exact, borrow the spatial model's
+#' interval WIDTH for the same district and centre it on the recommended
+#' estimate. This is the split docs/AREA_LEVEL_RECIPE_SPEC.md prescribes: the
+#' covariates rank districts, the small-area layer supplies the uncertainty.
+#'
+#' Districts with no interval get NA, and callers must cope with that.
+#'
+#' Fay-Herriot is the source rather than BYM2. Both are sane as rebuilt on
+#' 2026-08-27 -- FH sits 4x or further from the national survey figure on 1 of
+#' 24 country x outcome cells, BYM2 on 2 -- but FH is the marginally cleaner of
+#' the two and its intervals are narrower (mean width 14.8 pp against 22.9),
+#' so it is the less generous choice and the one that fails more quietly.
+#'
+#' @param df data.frame with Admin2 and pred_prev
+#' @param country_label display label ("Ghana"), matching the layer's `country`
+#' @param oc outcome tag
+#' @return `df` with prev_lo / prev_hi added
+attach_prevalence_range <- function(df, country_label, oc) {
+  df$prev_lo <- NA_real_; df$prev_hi <- NA_real_
+  src <- admin2_fh_pred %||% admin2_bym2_pred
+  if (is.null(src)) return(df)
+  s <- src[src$country == country_label & src$outcome == oc, , drop = FALSE]
+  if (!nrow(s) || !all(c("ci_lo", "ci_hi", "pred_prev") %in% names(s))) return(df)
+  s <- s[!duplicated(s$Admin2), ]
+  i <- match(df$Admin2, s$Admin2)
+  lo_gap <- s$pred_prev[i] - s$ci_lo[i]
+  hi_gap <- s$ci_hi[i]  - s$pred_prev[i]
+  df$prev_lo <- pmax(0, df$pred_prev - lo_gap)
+  df$prev_hi <- pmin(1, df$pred_prev + hi_gap)
+  df
+}
+
+#' The "how these are built" note, shared by the map and the district profiles
+#' so the two cannot drift apart.
+pred_model_help <- function(keys = names(PRED_MODEL_INFO)) {
+  keys <- intersect(keys, names(PRED_MODEL_INFO))
+  tags$details(
+    style = "font-size:0.82em; color:#555; margin:-2px 0 6px;",
+    tags$summary("What do these options mean?"),
+    tags$ul(
+      style = "padding-left:1.1em; margin-bottom:0;",
+      lapply(keys, function(k) tags$li(
+        strong(PRED_MODEL_INFO[[k]]$label, ": "), PRED_MODEL_INFO[[k]]$blurb))
+    )
+  )
+}
+
 # Color palette for WHO public health classes (color-blind safe)
 who_colors <- c(
   "Low"      = "#2c7bb6",  # blue
@@ -206,6 +352,32 @@ GENERAL_CAVEAT <- paste(
   "values are not perfectly comparable across countries. Predictions transported",
   "to a country with no survey are the least reliable and may be no better than",
   "chance for some outcomes — see the Transportability and Decision value tabs."
+)
+
+# ── Site banner ────────────────────────────────────────────────────────────
+# This used to read "not for citation or external distribution" on every page.
+# The app is served without a login, so that was either untrue or an instruction
+# nobody could follow — and a caveat people learn to scroll past is worse than
+# none, because it takes the real warnings down with it. What replaces it says
+# what the estimates will and will not carry, which is the thing a reader
+# actually needs before using a number.
+# Held as plain strings, not just as HTML, because the PDF/HTML review reports
+# in dashboard/report/ print the same wording. One source, so the app and the
+# printed brief cannot end up saying different things about what these numbers
+# will carry.
+SITE_SCOPE_HEADLINE <- "Preliminary working estimates, not official statistics."
+SITE_SCOPE_BODY <- paste(
+  "Reliable enough to rank districts by need, but not precise enough to quote",
+  "as a measured prevalence.")
+SITE_SCOPE_POINTER <- "Decision value shows where they are solid enough to act on."
+
+site_banner <- div(
+  class = "alert alert-info",
+  style = paste("margin:0 0 10px;border-radius:0;text-align:center;",
+                "font-size:0.88em;padding:6px 12px;"),
+  bsicons::bs_icon("info-circle"), " ",
+  strong(SITE_SCOPE_HEADLINE), " ", SITE_SCOPE_BODY,
+  tags$span(style = "color:#4a6b7c;", " ", SITE_SCOPE_POINTER)
 )
 
 # ── Shared popover content (used by both the internal and public apps) ──────

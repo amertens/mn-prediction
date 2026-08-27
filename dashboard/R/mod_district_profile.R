@@ -22,11 +22,20 @@ mod_district_profile_ui <- function(id) {
                                "National (whole country)" = "national"),
                    selected = "district", inline = TRUE),
 
-      radioButtons(ns("dp_model"), "Prediction model",
-                   choices = c("Fay-Herriot SAE (all districts, with intervals)" = "fh",
-                               "Area-level SAE — HAL (all districts)" = "area",
-                               "Individual SuperLearner (surveyed districts)" = "sl"),
-                   selected = "fh"),
+      # Opens on DEFAULT_PRED_MODEL, the same estimator the map uses, so a
+      # district does not change value when you click through from the map.
+      tags$details(
+        style = "margin:2px 0 8px;",
+        tags$summary(style = "cursor:pointer; font-size:0.86em; color:#2c7bb6;",
+                     "Advanced: choose a different model"),
+        div(
+          style = "padding:6px 0 0 2px;",
+          radioButtons(ns("dp_model"), NULL,
+                       choices  = pred_model_choices(),
+                       selected = DEFAULT_PRED_MODEL),
+          pred_model_help()
+        )
+      ),
 
       uiOutput(ns("district_picker")),
 
@@ -91,17 +100,8 @@ mod_district_profile_server <- function(id) {
   moduleServer(id, function(input, output, session) {
     ns <- session$ns
 
-    # Selected prediction source (mirrors the Map explorer's model toggle).
-    dp_pred <- reactive({
-      m <- input$dp_model %||% "fh"
-      if (m == "fh" && exists("admin2_fh_pred") && !is.null(admin2_fh_pred)) {
-        admin2_fh_pred
-      } else if (m == "area" && exists("admin2_area_pred") && !is.null(admin2_area_pred)) {
-        admin2_area_pred
-      } else {
-        admin2_pred
-      }
-    })
+    # Same resolver as the Map explorer, from global.R.
+    dp_pred <- reactive(pred_model_data(input$dp_model %||% DEFAULT_PRED_MODEL))
 
     # Dynamic district picker
     output$district_picker <- renderUI({

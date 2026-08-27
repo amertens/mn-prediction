@@ -1,13 +1,15 @@
 # =============================================================================
 # Module: Scenario Projections
 # =============================================================================
-# Two scenario modes:
-#   (A) Coverage: hypothetical intervention reaches a fraction of districts
-#       at a given coverage and effect size. Recompute prevalence post-
-#       intervention.
-#   (B) Sensitivity: scale prevalence in all districts by a user-defined
-#       proportional shift (e.g., simulating a climate shock or food price
-#       change). This is illustrative — flagged as such in the methods note.
+# Two modes, deliberately not presented as equals:
+#   (A) Program coverage — an intervention reaches a fraction of districts at a
+#       given coverage and effect size, and prevalence is recomputed. Effect
+#       sizes come from published evaluations. Cases averted is reported with a
+#       range carried through from each district's 95% prevalence interval.
+#   (B) What-if explorer — scale prevalence by a shift the user picks. Nothing
+#       here estimates how large that shift should be, so the panel carries a
+#       standing warning above its controls rather than a note below the table.
+#       The two modes used to look identical, which made (B) read as a forecast.
 
 # Literature-default effect sizes by outcome
 # Sources: Lancet Maternal & Child Nutrition Series; WHO/UNICEF program reviews
@@ -46,7 +48,7 @@ mod_scenarios_ui <- function(id) {
     id = ns("scenario_mode"),
 
     nav_panel(
-      title = "Coverage scenario",
+      title = "Program coverage (evidence-based)",
       icon = bsicons::bs_icon("bullseye"),
 
       layout_sidebar(
@@ -117,16 +119,19 @@ mod_scenarios_ui <- function(id) {
                 "by coverage; cases averted is the difference in expected cases ",
                 "(prevalence × population) between before and after. ",
                 tags$br(), tags$br(),
-                "Default coverage and effect sizes are drawn from published evaluations ",
+                "Default coverage and effect sizes come from published evaluations ",
                 "of similar interventions (Lancet Maternal & Child Nutrition series; ",
-                "WHO/UNICEF program reviews). They are starting points only — ",
-                "users should adjust based on the specific intervention design ",
-                "and local implementation context. The model assumes no spillover ",
-                "to non-targeted districts and constant effect across the targeted ",
-                "set — both simplifications. The 95% conformal CI from the underlying ",
-                "model is preserved as a baseline uncertainty band; intervention ",
-                "uncertainty (in coverage and effect size) is not propagated and ",
-                "would widen the post-intervention interval substantially."
+                "WHO/UNICEF program reviews). Treat them as starting points and ",
+                "adjust for the intervention you actually have in mind. The ",
+                "arithmetic also assumes no spillover into non-targeted districts ",
+                "and the same effect in every targeted district, neither of which ",
+                "holds exactly. ",
+                tags$br(), tags$br(),
+                "The range shown next to cases averted comes from each district's ",
+                "95% prevalence range. It does not include uncertainty in coverage ",
+                "or effect size, which are applied as fixed numbers, so the real ",
+                "spread around any figure here is wider than the range suggests. ",
+                "Read the counts as an order of magnitude."
               )
             )
           )
@@ -135,13 +140,30 @@ mod_scenarios_ui <- function(id) {
     ),
 
     nav_panel(
-      title = "Sensitivity scenario",
+      title = "What-if explorer (illustrative)",
       icon = bsicons::bs_icon("graph-down-arrow"),
+
+      # This panel used to look identical to the evidence-based one next to it:
+      # same layout, same controls, same confident-looking case counts. The
+      # numbers here come from no fitted dose-response, so the warning is
+      # permanent and sits above the controls rather than in a methods note
+      # below the table.
+      div(
+        class = "alert alert-warning",
+        style = "margin:10px 12px 0; font-size:0.88em;",
+        bsicons::bs_icon("exclamation-triangle-fill"), " ",
+        strong("These numbers are a thought experiment, not a forecast."),
+        " They show what would follow ", em("if"), " you assumed a given shift ",
+        "in prevalence. The size of that shift is yours to choose — nothing ",
+        "here estimates how much a drought or a price rise actually moves ",
+        "deficiency. Use it to explore direction and rough scale, and do not ",
+        "quote the case counts."
+      ),
 
       layout_sidebar(
         sidebar = sidebar(
           width = 320,
-          title = "Sensitivity parameters",
+          title = "What-if parameters",
 
           selectInput(ns("sens_country"), "Country",
                       choices = country_choices,
@@ -255,8 +277,12 @@ mod_scenarios_server <- function(id) {
     # Reactive: baseline data
     base_data <- reactive({
       req(input$country, input$outcome)
-      get_country_admin2(input$country, input$outcome,
-                          admin2_bnds, admin2_pred, admin2_pop)
+      # Was pinned to the person-level table, which covers surveyed districts
+      # only — so scenarios silently ignored most of the country. Now the same
+      # estimator the rest of the app opens on, plus a 95% range per district.
+      df <- get_country_admin2(input$country, input$outcome, admin2_bnds,
+                               pred_model_data(DEFAULT_PRED_MODEL), admin2_pop)
+      attach_prevalence_range(df, meta$countries[[input$country]], input$outcome)
     })
 
     # Reactive: scenario data
@@ -297,6 +323,16 @@ mod_scenarios_server <- function(id) {
       df$pop_reached <- ifelse(df$is_target,
                                 df$population * cov, 0)
       df$cases_averted <- df$pop_at_risk - df$pop_at_risk_after
+
+      # Push the district's 95% range through the same arithmetic, so the
+      # headline can be a range instead of a single confident-looking count.
+      # Averted = prevalence x population x coverage x effect in a targeted
+      # district, and zero elsewhere. This carries uncertainty in the PREVALENCE
+      # only — the effect size is still a fixed number, and the note under the
+      # table says so.
+      averted_frac <- ifelse(df$is_target, cov * eff, 0)
+      df$cases_averted_lo <- df$prev_lo * df$population * averted_frac
+      df$cases_averted_hi <- df$prev_hi * df$population * averted_frac
 
       df
     })
@@ -372,6 +408,20 @@ mod_scenarios_server <- function(id) {
         p(strong("Cases averted: "),
           tags$span(style = "color: #1a9850; font-weight: bold;",
                     fmt_count(averted))),
+        local({
+          lo <- sum(df_clean$cases_averted_lo, na.rm = TRUE)
+          hi <- sum(df_clean$cases_averted_hi, na.rm = TRUE)
+          if (!is.finite(lo) || !is.finite(hi) || hi <= 0) return(NULL)
+          tagList(
+            p(style = "margin:-6px 0 4px 0; color:#555; font-size:0.86em;",
+              sprintf("Range if prevalence is at the low or high end of its 95%% interval: %s to %s.",
+                      fmt_count(lo), fmt_count(hi))),
+            p(style = "margin:0 0 8px 0; color:#8a6d3b; font-size:0.8em;",
+              bsicons::bs_icon("exclamation-triangle"), " ",
+              "That range covers uncertainty in the prevalence estimates only. ",
+              "The effect size is applied as a fixed number, so the true spread ",
+              "is wider than shown."))
+        }),
         p(strong("Population reached: "), fmt_count(pop_reached)),
         p(strong("Districts targeted: "), n_target)
       )
