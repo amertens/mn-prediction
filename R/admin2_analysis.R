@@ -19,6 +19,13 @@
 # Malawi women (whose survey VAD was unadjusted) onto the adjusted biomarker.
 UNIFORM_TRANSPORT_TAGS <- c("child_iron", "women_iron", "child_vitA", "women_vitA")
 
+# Country-name spellings that appear in raster FILENAMES but differ from the
+# `country` field in R/config.R (underscores, apostrophes, alternative forms).
+# Used by .append_gee_zonal_cols() to strip the country out of derived variable
+# names; the config display names are added automatically.
+.GEE_NAME_STRIP_EXTRA <- c("Sierra_Leone", "Sierra Leone", "Cote_dIvoire",
+                           "Cote d'Ivoire", "CoteDIvoire", "Tanzania")
+
 
 #' Resolve a country's GEE raster directory (handles space/underscore variants)
 #'
@@ -56,8 +63,14 @@ legacy_parity_csv_path <- function(cc) {
 #'
 #' @param base data.frame with at least an Admin2 column, in polygon order
 #' @param cc Country config (needs gadm_code, country)
+#' @param only_missing when TRUE, add only the gee_* columns `base` does not
+#'   already have. A country can hold BOTH local rasters and a legacy-parity CSV
+#'   (Tanzania now does: rasters supply accessibility / LST / TerraClimate /
+#'   land cover, the CSV supplies soil chemistry, nightlights and population).
+#'   Without this the raster path would silently discard everything the CSV
+#'   contributed and shrink that country's vocabulary instead of growing it.
 #' @return `base` with gee_* columns appended, or `base` unchanged if no CSV
-.append_legacy_parity_cols <- function(base, cc) {
+.append_legacy_parity_cols <- function(base, cc, only_missing = FALSE) {
   csv <- legacy_parity_csv_path(cc)
   if (!file.exists(csv)) return(base)
 
@@ -69,6 +82,7 @@ legacy_parity_csv_path <- function(cc) {
     return(base)
   }
   gee_cols <- grep("^gee_", names(parity), value = TRUE)
+  if (only_missing) gee_cols <- setdiff(gee_cols, names(base))
   if (!length(gee_cols)) return(base)
 
   parity$Admin2 <- trimws(as.character(parity$Admin2))
@@ -113,8 +127,18 @@ legacy_parity_csv_path <- function(cc) {
     base <- tools::file_path_sans_ext(basename(tif))
     # Strip country name for cross-country variable-name consistency
     base_clean <- base
-    for (cname in c("Gambia", "Ghana", "Sierra_Leone", "Sierra Leone",
-                    "Malawi", "Cote_dIvoire", "Cote d'Ivoire")) {
+    # Strip the country name so the derived variable name is identical across
+    # countries -- the pooled/LOCO models intersect covariates by EXACT NAME, so
+    # a country missing from this list gets `_tanzania_` (say) baked into every
+    # one of its column names and silently drops out of the shared vocabulary.
+    # Driven off the configs rather than a hand-maintained literal, so adding a
+    # country to R/config.R cannot leave this behind. `.GEE_NAME_STRIP_EXTRA`
+    # covers spellings that differ from the config's display name.
+    .strip_names <- tryCatch(
+      unique(c(vapply(get_country_configs(), function(x) x$country, character(1)),
+               .GEE_NAME_STRIP_EXTRA)),
+      error = function(e) .GEE_NAME_STRIP_EXTRA)
+    for (cname in .strip_names) {
       base_clean <- gsub(paste0("_?", gsub("[' ]", ".", cname), "_?"), "_", base_clean)
     }
     base_varname <- paste0("gee_", tolower(gsub("[^A-Za-z0-9]+", "_", base_clean)))
@@ -236,7 +260,11 @@ extract_gee_admin2 <- function(cc) {
                              "and will empty the pooled/LOCO GEE intersection. Run ",
                              "scripts/build_gee_legacy_parity.R %s."),
                       cc$country, cc$country))
-    return(gee_admin2)
+    # The dedup below sits on the raster path only; a country arriving here
+    # (no raster_dir -- Tanzania) would otherwise skip it and ship duplicated
+    # and lake-valued Admin-2 keys downstream.
+    return(clean_admin2_keys(gee_admin2,
+                             sprintf("gee_admin2 %s (legacy path)", cc$country)))
   }
 
   cat(sprintf("[extract_gee_admin2] %s: %d Admin-2 polygons\n",
@@ -244,24 +272,19 @@ extract_gee_admin2 <- function(cc) {
 
   gee_admin2 <- .append_gee_zonal_cols(gee_admin2, all_polys, raster_dir)
 
+  # A country can have BOTH rasters and a legacy-parity CSV; take the union so
+  # partial raster coverage supplements the CSV instead of replacing it.
+  gee_admin2 <- .append_legacy_parity_cols(gee_admin2, cc, only_missing = TRUE)
+
   n_gee <- ncol(gee_admin2) - 2  # minus Admin1, Admin2
   cat(sprintf("[extract_gee_admin2] %s: %d GEE variables extracted\n", cc$country, n_gee))
 
-  # Deduplicate Admin2 names (e.g., "Lake Malawi" appears multiple times)
-  dup_names <- gee_admin2$Admin2[duplicated(gee_admin2$Admin2)]
-  if (length(dup_names) > 0) {
-    cat(sprintf("[extract_gee_admin2] Deduplicating %d duplicate Admin2 names\n",
-                length(unique(dup_names))))
-    num_cols <- names(gee_admin2)[sapply(gee_admin2, is.numeric)]
-    gee_admin2 <- gee_admin2 |>
-      dplyr::group_by(Admin2) |>
-      dplyr::summarise(
-        Admin1 = dplyr::first(Admin1),
-        dplyr::across(dplyr::all_of(num_cols), ~ mean(.x, na.rm = TRUE)),
-        .groups = "drop"
-      ) |>
-      as.data.frame()
-  }
+  # Drop GADM water-body polygons and collapse repeated Admin-2 names. (This
+  # used to be an inline dedup here; it is now shared with the legacy-CSV path
+  # above and with extract_area_covariates(), and it additionally removes the
+  # lake polygons whose zonal statistics are NDVI and soil chemistry of open
+  # water -- see R/admin2_key_hygiene.R.)
+  gee_admin2 <- clean_admin2_keys(gee_admin2, sprintf("gee_admin2 %s", cc$country))
 
   gee_admin2
 }
@@ -313,8 +336,18 @@ extract_area_covariates <- function(cc) {
   }
 
   gee_admin2 <- .append_gee_zonal_cols(gee_admin2, all_polys, raster_dir)
+  gee_admin2 <- .append_legacy_parity_cols(gee_admin2, cc, only_missing = TRUE)
   cat(sprintf("[extract_area_covariates] %s: %d GEE variables extracted\n",
               cc$country, ncol(gee_admin2) - 1))
+
+  # NOTE: unlike gee_admin2, this table is intentionally NOT deduplicated -- it
+  # must stay in polygon order so the area model can map predictions back onto
+  # `polygons`. Water bodies are flagged rather than dropped here for the same
+  # reason; consumers should filter with is_water_admin2() before FITTING.
+  if (any(is_water_admin2(as.character(gee_admin2$Admin2))))
+    cat(sprintf(paste0("[extract_area_covariates] %s: %d water-body polygon(s) present; ",
+                       "filter with is_water_admin2() before fitting\n"),
+                cc$country, sum(is_water_admin2(as.character(gee_admin2$Admin2)))))
 
   list(gee_admin2 = gee_admin2, polygons = all_polys)
 }
@@ -410,11 +443,27 @@ compute_svy_admin2 <- function(outcome_data, cc, oc) {
   if (!is.null(cc$strata_col)) svy_cols <- c(svy_cols, cc$strata_col)
   svy_cols <- unique(svy_cols[svy_cols %in% colnames(d)])
 
+  # 2026-08-27 fix (critical-review audit): !is.na(oc$binary) and
+  # !is.na(admin2_col) used to ALSO be filtered here, before
+  # as_survey_design() ever saw the data. Those are DOMAIN filters (the
+  # outcome's subpopulation, e.g. "has a valid biomarker read"), not a
+  # data-quality drop -- filtering before the design is declared shrinks the
+  # design's own PSU/stratum bookkeeping to just the rows that happen to
+  # survive, so a stratum that genuinely has 2 PSUs in the full sample -- one
+  # of which has zero children with a valid read for THIS outcome -- looks to
+  # the design like it has only 1 PSU there, incorrectly triggering
+  # lonely-PSU handling for a stratum that isn't actually lonely, and
+  # understating/misstating that stratum's contribution to the variance.
+  # The textbook-correct approach (domain estimation, e.g. Lohr's Sampling)
+  # is to declare the design on the widest sample with a valid weight, then
+  # restrict to the domain via subset()/filter() on the design object itself
+  # -- which is what happens below, after as_survey_design(). A missing
+  # WEIGHT is different in kind: as_survey_design() cannot accept an NA
+  # weight at all, so those rows are genuinely unusable and still need to be
+  # dropped before the design is declared, not treated as a domain.
   svy_df <- d %>%
     dplyr::select(dplyr::all_of(svy_cols)) %>%
-    dplyr::filter(!is.na(.data[[oc$binary]]),
-                  !is.na(.data[[cc$admin2_col]]),
-                  !is.na(.data[[cc$weight_col]])) %>%
+    dplyr::filter(!is.na(.data[[cc$weight_col]])) %>%
     dplyr::mutate(
       dplyr::across(dplyr::all_of(cc$psu_col), as.factor),
       !!oc$binary := as.numeric(.data[[oc$binary]]),
@@ -443,6 +492,14 @@ compute_svy_admin2 <- function(outcome_data, cc, oc) {
     )
   }
 
+  # Restrict to the outcome's domain (subpopulation) HERE, after the design
+  # is declared on the full weighted sample -- srvyr::filter() on a tbl_svy
+  # calls survey::subset.survey.design() under the hood, which is the
+  # variance-correct way to estimate over a subpopulation (see fix note
+  # above svy_df). Do NOT replace this with a plain row filter on svy_df.
+  svy_des <- svy_des %>%
+    srvyr::filter(!is.na(.data[[oc$binary]]), !is.na(.data[[cc$admin2_col]]))
+
   # Some Admin2 areas have too few clusters for survey_mean to compute SEs.
   # Compute per-group safely: first get simple counts, then try survey_mean.
   svy_admin2 <- tryCatch({
@@ -463,11 +520,16 @@ compute_svy_admin2 <- function(outcome_data, cc, oc) {
     # Fallback: compute per Admin2 area individually, skipping failures
     cat(sprintf("  [svy_admin2] Grouped survey_mean failed (%s), computing per-area...\n",
                 conditionMessage(e)))
-    admin2_vals <- unique(svy_df[[cc$admin2_col]])
-    admin2_vals <- admin2_vals[!is.na(admin2_vals)]
+    # svy_df no longer pre-filters the outcome/admin2 domain (see fix note
+    # above) -- apply it explicitly here. Guard with !is.na() before ==: for
+    # a row with admin2 == NA, `svy_df[[admin2_col]] == a2` is NA rather than
+    # FALSE, and indexing a data.frame with an NA logical injects a phantom
+    # all-NA row instead of dropping it.
+    svy_df_domain <- svy_df[!is.na(svy_df[[oc$binary]]) & !is.na(svy_df[[cc$admin2_col]]), ]
+    admin2_vals <- unique(svy_df_domain[[cc$admin2_col]])
 
     results <- lapply(admin2_vals, function(a2) {
-      sub <- svy_df[svy_df[[cc$admin2_col]] == a2, ]
+      sub <- svy_df_domain[!is.na(svy_df_domain[[cc$admin2_col]]) & svy_df_domain[[cc$admin2_col]] == a2, ]
       n_clusters <- length(unique(sub[[cc$psu_col]]))
       n_obs <- nrow(sub)
 
@@ -520,6 +582,28 @@ compute_svy_admin2 <- function(outcome_data, cc, oc) {
     out$svy_ci_width <- out$svy_prev_upp - out$svy_prev_low
     out
   })
+
+  # GADM water bodies reach the SURVEY side too, not just the covariates:
+  # "Lake Malawi" carries n_svy 21-33 and "Lake Victoria" n_svy 60-110, i.e.
+  # respondents geocoded onto a lake. Those rows were being used to fit the
+  # area-level models and were being mapped. See R/admin2_key_hygiene.R.
+  svy_admin2 <- drop_water_admin2(
+    svy_admin2, sprintf("svy_admin2 %s %s", cc$country, oc$tag))
+
+  # Attach the DESIGN-BASED national prevalence: the survey-weighted mean over
+  # all respondents, ignoring district entirely. This is the estimate the
+  # sampling design actually supports, and it is the benchmarking target for
+  # fit_area_level_model(). Carried as an attribute (two numbers) rather than a
+  # separate target so it cannot drift out of sync with this table.
+  if (exists("national_design_based")) {
+    nd <- tryCatch(national_design_based(outcome_data, cc, oc),
+                   error = function(e) NULL)
+    if (!is.null(nd)) {
+      attr(svy_admin2, "national_design_based") <- nd
+      cat(sprintf("  [svy_admin2] %s %s: design-based national = %.1f%% (n=%d)\n",
+                  cc$country, oc$tag, 100 * nd$prev, nd$n))
+    }
+  }
 
   svy_admin2
 }
@@ -786,13 +870,72 @@ fit_area_level_model <- function(svy_admin2, area_cov, cc, oc, params) {
     area_preds$ci_width  <- area_preds$ci_hi - area_preds$ci_lo
   }
 
+  # ── Benchmark the map to the design-based national prevalence ─────────────
+  # These surveys are designed and weighted for a NATIONAL estimate; Admin-2 is
+  # an unplanned domain. So the survey's own national figure is the trustworthy
+  # quantity and the model's job is to disaggregate it, not re-estimate it.
+  #
+  # Measured on this project's data: the model's population-weighted aggregate
+  # sits 4.3 pp from the design-based national estimate, and the survey's OWN
+  # district estimates aggregate 4.5 pp away from it -- so most of that drift is
+  # inherited from the direct estimates, not created by the covariate model.
+  #
+  # The correction is a single shift on the logit scale, which is strictly
+  # monotone: the district RANKING is preserved exactly (verified: mean rank
+  # change 0.0000), so only the level moves -- which is the component the model
+  # is bad at. Expect district MAE against the direct estimates to rise slightly
+  # (9.99 -> 10.55 pp); that is the direct estimates being internally
+  # inconsistent with the national figure, not the benchmarking misbehaving.
+  #
+  # ON BY DEFAULT. The design-based national prevalence is the estimate these
+  # surveys are built to deliver; a published map should total to it. Set
+  # AREA_BENCHMARK_NATIONAL=false to reproduce the older unbenchmarked output.
+  # The unbenchmarked vector is always retained as area_pred_prev_unbenchmarked
+  # so both are available downstream.
+  bench_info <- NULL
+  if (isTRUE(as.logical(Sys.getenv("AREA_BENCHMARK_NATIONAL", "true"))) &&
+      exists("benchmark_area_predictions")) {
+    nd <- attr(svy_admin2, "national_design_based")   # set by compute_svy_admin2()
+    if (is.null(nd))
+      warning("AREA_BENCHMARK_NATIONAL is on but svy_admin2 carries no ",
+              "national_design_based attribute; skipping benchmarking")
+    if (!is.null(nd)) {
+      w <- .area_population_weights(gee_admin2, area_preds$Admin2)
+      b <- benchmark_area_predictions(area_preds$area_pred_prev, nd$prev, w)
+      area_preds$area_pred_prev_unbenchmarked <- area_preds$area_pred_prev
+      area_preds$area_pred_prev <- b$pred
+      bench_info <- c(b[c("delta", "before", "after", "method")],
+                      list(target = nd$prev, n_individuals = nd$n))
+      cat(sprintf(paste0("[area_model] benchmarked to design-based national ",
+                         "%.1f%%: aggregate %.1f%% -> %.1f%% (logit shift %.3f)\n"),
+                  100 * nd$prev, 100 * b$before, 100 * b$after, b$delta))
+    }
+  }
+
   list(
     area_preds  = area_preds,
     loo_summary = loo_summary,
     polygons    = all_polys,
     fit_area    = fit_area,
-    gee_vars    = valid_vars[keep_final]
+    gee_vars    = valid_vars[keep_final],
+    benchmark   = bench_info
   )
+}
+
+#' Population weights for aggregating Admin-2 predictions.
+#'
+#' An unweighted mean over districts is a mean over POLYGONS, not people, and
+#' differs from the design-based national prevalence by several percentage
+#' points here. Falls back to equal weights with a warning.
+.area_population_weights <- function(gee_admin2, admin2) {
+  if (is.null(gee_admin2) || !"Admin2" %in% names(gee_admin2)) return(NULL)
+  for (v in c("gee_ghspop", "gee_gpw_demographic_annual_mean", "gee_popdensity")) {
+    if (!v %in% names(gee_admin2)) next
+    w <- suppressWarnings(as.numeric(gee_admin2[[v]]))[match(admin2, gee_admin2$Admin2)]
+    if (sum(is.finite(w)) >= max(5, 0.5 * length(admin2))) return(w)
+  }
+  warning("no Admin-2 population proxy found; benchmarking with equal weights")
+  NULL
 }
 
 

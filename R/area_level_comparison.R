@@ -232,7 +232,7 @@ fit_area_sl <- function(svy_admin2, gee_admin2, outcome_type = "binomial",
 #' @param outcome Outcome tag
 #' @return Data.frame with error metrics for each approach
 compare_admin2_approaches <- function(sl_admin2, area_mse, area_nll,
-                                       svy_admin2, country, outcome) {
+                                       svy_admin2, country, outcome, cc = NULL) {
   rows <- list()
 
   # Helper to compute metrics
@@ -252,7 +252,8 @@ compare_admin2_approaches <- function(sl_admin2, area_mse, area_nll,
       n_admin2 = nrow(merged),
       mae_pp = round(mean(abs(merged$svy_prev - merged$pred)) * 100, 2),
       rmse_pp = round(sqrt(mean((merged$svy_prev - merged$pred)^2)) * 100, 2),
-      pearson_r = round(cor(merged$svy_prev, merged$pred), 3),
+      # constant predictions (the null row) legitimately give NA, not a warning
+      pearson_r = round(suppressWarnings(cor(merged$svy_prev, merged$pred)), 3),
       mean_bias_pp = round(mean(merged$pred - merged$svy_prev) * 100, 2),
       stringsAsFactors = FALSE
     )
@@ -273,8 +274,82 @@ compare_admin2_approaches <- function(sl_admin2, area_mse, area_nll,
     rows[["area_nll"]] <- compute_err(area_nll$area_preds, "area_pred", "Area SL (NLL)")
   }
 
+  # ── Benchmarks the table needs in order to be readable ───────────────────
+  # Without these two rows there is no way to tell whether the GEE block is
+  # contributing anything. In the sandbox bake-off a covariate-free lon/lat
+  # smoother OUT-SCORED the production recipe in several country x outcome
+  # cells, which only became visible once these rows existed.
+  svy_ok <- svy_admin2[is.finite(svy_admin2$svy_prev), , drop = FALSE]
+  if (nrow(svy_ok) >= 5) {
+    # (1) national mean painted on every district -- what a programme has
+    #     without any model at all
+    nat <- stats::weighted.mean(svy_ok$svy_prev,
+                                pmax(svy_ok$n_svy %||% rep(1, nrow(svy_ok)), 1))
+    rows[["null_mean"]] <- compute_err(
+      data.frame(Admin2 = svy_ok$Admin2, pred = nat, stringsAsFactors = FALSE),
+      "pred", "National mean (null)")
+
+    # (2) leave-one-out spatial smoother on district centroids, no covariates
+    if (!is.null(cc) && !is.null(cc$gadm_code) && requireNamespace("mgcv", quietly = TRUE)) {
+      ctr <- tryCatch(
+        sf::st_drop_geometry(load_admin2_centroids(cc$gadm_code))[, c("Admin2", "lon", "lat")],
+        error = function(e) NULL)
+      if (!is.null(ctr)) {
+        sp <- dplyr::inner_join(svy_ok, ctr, by = "Admin2")
+        sp <- sp[is.finite(sp$lon) & is.finite(sp$lat), , drop = FALSE]
+        if (nrow(sp) >= 20) {
+          y <- stats::qlogis(pmin(pmax(sp$svy_prev, 0.005), 0.995))
+          oof <- rep(NA_real_, nrow(sp))
+          kk <- min(20L, max(5L, floor(nrow(sp) / 4)))
+          for (i in seq_len(nrow(sp))) {
+            g <- tryCatch(mgcv::gam(y[-i] ~ s(lon, lat, k = kk),
+                                    data = sp[-i, , drop = FALSE],
+                                    weights = pmax(sp$n_svy[-i], 1), method = "REML"),
+                          error = function(e) NULL)
+            if (!is.null(g))
+              oof[i] <- stats::plogis(as.numeric(
+                stats::predict(g, newdata = sp[i, , drop = FALSE])))
+          }
+          if (sum(is.finite(oof)) >= 10)
+            rows[["spatial_only"]] <- compute_err(
+              data.frame(Admin2 = sp$Admin2, pred = oof, stringsAsFactors = FALSE),
+              "pred", "Spatial only (no covariates)")
+        }
+      }
+    }
+  }
+
   if (length(rows) == 0) return(NULL)
-  dplyr::bind_rows(rows)
+  out <- dplyr::bind_rows(rows)
+  # r_max / r_share: is a Pearson r of 0.30 near the ceiling or far from it?
+  if (exists("add_reliability_columns")) out <- add_reliability_columns(out, svy_admin2)
+
+  # ── Report the LEVEL and the PATTERN as separate columns ─────────────────
+  # A single RMSE hides which of the two failed. On these data a 40 pp national
+  # level miss can sit alongside a perfectly usable district ranking, and the
+  # benchmarking step (R/benchmark_area.R) fixes the first without touching the
+  # second -- so they have to be visible separately for anyone to see that.
+  nd <- attr(svy_admin2, "national_design_based")
+  if (!is.null(nd) && is.finite(nd$prev)) {
+    out$national_design_pp <- round(100 * nd$prev, 2)
+    # national error of each approach, weighted by survey n as a population
+    # proxy (a true population weight is better; see .area_population_weights)
+    lvl <- vapply(out$approach, function(ap) {
+      src <- switch(ap,
+        "Individual SL" = if (!is.null(sl_admin2)) sl_admin2 else NULL,
+        "Area SL (MSE)" = if (!is.null(area_mse)) area_mse$area_preds else NULL,
+        "Area SL (NLL)" = if (!is.null(area_nll)) area_nll$area_preds else NULL,
+        NULL)
+      if (is.null(src)) return(NA_real_)
+      col <- if ("sl_prev" %in% names(src)) "sl_prev" else "area_pred"
+      m <- merge(src[, c("Admin2", col)],
+                 svy_admin2[, c("Admin2", "n_svy")], by = "Admin2")
+      if (!nrow(m)) return(NA_real_)
+      100 * (stats::weighted.mean(m[[col]], pmax(m$n_svy, 1), na.rm = TRUE) - nd$prev)
+    }, numeric(1))
+    out$national_err_pp <- round(lvl, 2)
+  }
+  out
 }
 
 
@@ -535,7 +610,7 @@ run_area_comparison <- function(svy_admin2, sl_admin2, gee_admin2, cc, oc) {
 
   # Compare all three approaches
   comparison <- compare_admin2_approaches(
-    sl_admin2, area_mse, area_nll, svy_admin2, cc$country, oc$tag
+    sl_admin2, area_mse, area_nll, svy_admin2, cc$country, oc$tag, cc = cc
   )
 
   list(

@@ -81,8 +81,22 @@ fit_fh_country_outcome <- function(low, oc, k = 3L, deff = 1.5) {
   Ztr <- zmat(train); Zall <- zmat(all_df)
 
   # design-based sampling variance D_i
+  #
+  # Most Admin-2 areas contain a single PSU, so survey::svymean cannot form a
+  # between-cluster variance and returns SE ~ 1e-17 rather than 0. A `D <= 0`
+  # guard does not catch that: 1e-17 is finite and positive, survives, and is
+  # then floored at 1e-5 -- an implied SE of 0.32 pp for a district measured on
+  # six children. The EBLUP weight gamma = A/(A+D) goes to ~1 and Fay-Herriot
+  # hands back the raw direct estimate for exactly the districts that most need
+  # shrinking. Measured on this project's data: mean gamma 0.71 as coded vs 0.26
+  # with a real sampling variance, and 29% of districts got gamma > 0.95.
+  #
+  # So treat any SE that is implausibly small relative to p(1-p)/n as degenerate
+  # too, not just SE <= 0.
   p <- pmin(pmax(train$svy_prev,1e-4),1-1e-4); D <- train$svy_prev_se^2
-  bad <- !is.finite(D) | D<=0; D[bad] <- p[bad]*(1-p[bad])/pmax(train$n_svy[bad]/deff,1); D <- pmax(D,1e-5)
+  D_srs <- p*(1-p)/pmax(train$n_svy/deff, 1)
+  bad <- !is.finite(D) | D <= 0 | D < 0.25 * D_srs
+  D[bad] <- D_srs[bad]; D <- pmax(D, 1e-5)
 
   # area-level regression (synthetic predictor)
   fit <- tryCatch(stats::lm(stats::reformulate(colnames(Ztr), "y"),

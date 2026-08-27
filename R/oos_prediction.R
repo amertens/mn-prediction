@@ -23,8 +23,26 @@ canonicalize_gee_varname <- function(filename) {
   # Remove file extension
   base <- tools::file_path_sans_ext(basename(filename))
 
-  # Country names to strip (order matters — longer first)
+  # Country names to strip (order matters — longer first).
+  #
+  # DERIVED FROM THE CONFIGS FIRST, then unioned with the static list below.
+  # This list used to be static only, and it silently omitted Tanzania when
+  # Tanzania was added as the fifth country: its rasters canonicalised to
+  # "gee_accessibility_tanzania_2015" instead of "gee_accessibility_2015", so
+  # they matched nothing. Because predict_oos_pooled() intersects covariates by
+  # exact name across ALL countries, that one country dropped the shared GEE
+  # block to zero for everyone and the pooled model failed with the entirely
+  # unhelpful "invalid subscript type list".
+  #
+  # Deriving from get_country_configs() means adding a country to the config is
+  # sufficient; nobody has to remember to edit this vector too.
+  cfg_countries <- tryCatch({
+    cn <- names(get_country_configs())
+    unique(c(cn, gsub("[^A-Za-z]", "", cn), gsub(" ", "_", cn)))
+  }, error = function(e) character(0))
+
   country_patterns <- c(
+    cfg_countries,
     "Cote_dIvoire", "Cote_d_Ivoire", "CotedIvoire",
     "Sierra_Leone", "Sierra Leone", "SierraLeone",
     "Gambia", "Ghana", "Malawi", "Nigeria", "Senegal",
@@ -355,6 +373,47 @@ predict_oos_country <- function(area_model, oos_gee, outcome_tag, alpha = 0.1) {
 #'
 #' @param svy_admin2_list Named list of svy_admin2 data.frames (one per country)
 #' @param country_configs Country configs for surveyed countries
+#' Legacy raster path: derive Admin-2 zonal means from each country's GeoTIFFs.
+#'
+#' Retained ONLY as the fallback for when the zonal CSVs are not yet in a single
+#' vocabulary (see R/gee_zonal_load.R). Once
+#' `scripts/refresh_gee_coverage.R --run --rebuild` has been run, the zonal path
+#' is used instead and this becomes dead weight that can be deleted.
+.oos_gee_from_rasters <- function(country_configs) {
+  all_gee <- list()
+  for (cn in names(country_configs)) {
+    cc <- country_configs[[cn]]
+    rdir <- cc$raster_dir
+    if (!dir.exists(rdir)) {
+      alt <- gsub("_GEE_rasters$", "_GEE rasters", rdir)
+      if (dir.exists(alt)) rdir <- alt
+    }
+    if (!dir.exists(rdir)) next
+
+    gadm_raw <- tryCatch(
+      geodata::gadm(cc$gadm_code, level = 2, path = here::here("data", "gadm")),
+      error = function(e) NULL)
+    if (is.null(gadm_raw)) next
+    gadm <- sf::st_as_sf(gadm_raw)
+    gadm$Admin2 <- gadm$NAME_2
+
+    tif_files <- sort(list.files(rdir, pattern = "[.]tif$", full.names = TRUE))
+    gee_df <- data.frame(Admin2 = gadm$Admin2)
+    for (tif in tif_files) {
+      varname <- canonicalize_gee_varname(tif)
+      r <- tryCatch(terra::rast(tif), error = function(e) NULL)
+      if (is.null(r)) next
+      if (terra::nlyr(r) > 1) r <- r[[1]]
+      vals <- tryCatch(exactextractr::exact_extract(r, gadm, fun = "mean"),
+                       error = function(e) rep(NA_real_, nrow(gadm)))
+      if (!varname %in% colnames(gee_df)) gee_df[[varname]] <- vals
+    }
+    all_gee[[cn]] <- gee_df
+  }
+  all_gee
+}
+
+
 #' @param oos_gadm_code GADM ISO3 code for target country
 #' @param oos_raster_dir Path to GEE rasters for target country
 #' @param oc Outcome config
@@ -367,6 +426,11 @@ predict_oos_pooled <- function(svy_admin2_list, country_configs,
                                 oc, params,
                                 ext_cache_dir = here::here("data", "external_cache"),
                                 oos_country_name = NULL,
+                                # Survey-equivalent year for the target country,
+                                # used to locate its zonal CSV. CIV has no survey;
+                                # its rasters are dominated by 2017/2018, so the
+                                # analyst treated it as a ~2018 country.
+                                oos_zonal_year = 2018L,
                                 align = c("none", "coral")) {
   align <- match.arg(align)
 
@@ -386,40 +450,40 @@ predict_oos_pooled <- function(svy_admin2_list, country_configs,
   cat(sprintf("[oos_pooled] Pooled %d Admin2 areas from %d countries\n",
               nrow(pooled_svy), length(unique(pooled_svy$source_country))))
 
-  # 2. Extract GEE for all surveyed countries' polygons
-  all_gee <- list()
-  for (cn in names(country_configs)) {
-    cc <- country_configs[[cn]]
-    rdir <- cc$raster_dir
-    if (!dir.exists(rdir)) {
-      alt <- gsub("_GEE_rasters$", "_GEE rasters", rdir)
-      if (dir.exists(alt)) rdir <- alt
-    }
-    if (!dir.exists(rdir)) next
-
-    gadm_raw <- tryCatch(
-      geodata::gadm(cc$gadm_code, level = 2, path = here::here("data", "gadm")),
-      error = function(e) NULL
-    )
-    if (is.null(gadm_raw)) next
-    gadm <- sf::st_as_sf(gadm_raw)
-    gadm$Admin2 <- gadm$NAME_2
-
-    tif_files <- sort(list.files(rdir, pattern = "\\.tif$", full.names = TRUE))
-    gee_df <- data.frame(Admin2 = gadm$Admin2)
-    for (tif in tif_files) {
-      varname <- canonicalize_gee_varname(tif)
-      r <- tryCatch(terra::rast(tif), error = function(e) NULL)
-      if (is.null(r)) next
-      if (terra::nlyr(r) > 1) r <- r[[1]]
-      vals <- tryCatch(exactextractr::exact_extract(r, gadm, fun = "mean"),
-                        error = function(e) rep(NA_real_, nrow(gadm)))
-      if (!varname %in% colnames(gee_df)) {
-        gee_df[[varname]] <- vals
-      }
-    }
-    all_gee[[cn]] <- gee_df
+  # 2. Admin-2 GEE covariates for every surveyed country.
+  #
+  # ZONAL CSVs FIRST, rasters as fallback. Historically this function re-derived
+  # zonal means from each country's GeoTIFFs while the area-level and LOCO models
+  # read the pre-computed CSVs in data/GEE/. Two paths meant two vocabularies,
+  # and since the pooled model intersects covariates by EXACT NAME, one country
+  # naming things differently drops the shared block to zero for everyone --
+  # which is exactly what Tanzania did.
+  #
+  # The fallback is ALL-OR-NOTHING (see gee_zonal_available()). Mixing zonal and
+  # raster columns in one design matrix would be worse than either alone.
+  # The TARGET country is included in this check, not just the training ones.
+  # Training from zonal CSVs while predicting from rasters would line the model
+  # up against a different vocabulary than it was fitted on -- columns would
+  # either fail to match or, worse, match by coincidence of name.
+  .oos_cfg <- list(survey_year = oos_zonal_year, gadm_code = oos_gadm_code,
+                   raster_dir = oos_raster_dir)
+  .check <- country_configs[intersect(names(country_configs), names(svy_admin2_list))]
+  if (!is.null(oos_country_name) && !is.null(oos_zonal_year)) {
+    .check[[oos_country_name]] <- .oos_cfg
   }
+  .zonal <- tryCatch(gee_zonal_available(.check),
+                     error = function(e) list(ok = FALSE, reason = conditionMessage(e)))
+
+  all_gee <- list()
+  if (isTRUE(.zonal$ok)) {
+    cat("[oos_pooled] covariate source: ZONAL CSVs (data/GEE/*_admin2_gee.csv)\n")
+    all_gee <- .zonal$data[setdiff(names(.zonal$data), oos_country_name %||% "")]
+  } else {
+    cat(sprintf("[oos_pooled] covariate source: RASTERS - zonal CSVs unusable: %s\n",
+                .zonal$reason %||% "unknown"))
+    all_gee <- .oos_gee_from_rasters(country_configs)
+  }
+
 
   # Find common GEE variables across all countries
   gee_var_lists <- lapply(all_gee, function(df) setdiff(colnames(df), "Admin2"))
@@ -475,10 +539,25 @@ predict_oos_pooled <- function(svy_admin2_list, country_configs,
   }
 
   # 4. Fit pooled glmnet
-  valid_vars <- common_gee[sapply(common_gee, function(v) {
+  # vapply, not sapply, and an explicit empty check.
+  #
+  # sapply() over a zero-length vector returns list(), and `common_gee[list()]`
+  # raises "invalid subscript type 'list'" -- which is what this function did for
+  # months whenever the cross-country covariate intersection came up empty,
+  # reporting a subscript error instead of the actual problem. vapply() returns
+  # logical(0) in that case, and the check below names the real cause.
+  if (!length(common_gee)) {
+    stop("predict_oos_pooled: no GEE covariates are shared across all ",
+         length(country_configs), " countries, so there is nothing to train on. ",
+         "This usually means one country's rasters were extracted with a ",
+         "different layer set or a different naming convention. Run ",
+         "`Rscript scripts/refresh_gee_coverage.R` for a per-country coverage ",
+         "report.")
+  }
+  valid_vars <- common_gee[vapply(common_gee, function(v) {
     x <- train_df[[v]]
     sum(!is.na(x)) > 2 && length(unique(x[!is.na(x)])) > 1
-  })]
+  }, logical(1))]
 
   X_train <- as.matrix(train_df[, valid_vars])
   Y_train <- train_df$svy_prev
@@ -525,7 +604,13 @@ predict_oos_pooled <- function(svy_admin2_list, country_configs,
                      align = align)   # "coral" triggers covariate-shift alignment in predict_oos_country()
 
   # 5. Extract GEE for target country and merge external predictors
-  oos_gee <- extract_gee_for_country(oos_gadm_code, oos_raster_dir)
+  # Target-country covariates from the SAME source the model was trained on.
+  oos_gee <- if (isTRUE(.zonal$ok) && !is.null(oos_country_name) &&
+                 !is.null(.zonal$data[[oos_country_name]])) {
+    .zonal$data[[oos_country_name]]
+  } else {
+    extract_gee_for_country(oos_gadm_code, oos_raster_dir)
+  }
 
   # Also load cached external predictors for the target country
   if (!is.null(oos_country_name) && !is.null(ext_cache_dir)) {
