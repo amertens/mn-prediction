@@ -39,13 +39,13 @@ small set of full-panel Micronutrient Surveys co-designed on the DHS frame.
 
 | Country–Year | Biomarkers | Population | Representativeness | Confidence |
 |---|---|---|---|---|
-| **Tanzania 2010 (TDHS, NUT5)** | Vitamin A (RBP), iron (ferritin), iodine | Children 6–59mo + WRA | National micronutrient subsample | High |
+| **Tanzania 2010 (TDHS, NUT5)** | Vitamin A (RBP), iron (ferritin), iodine | Children 6–59mo + WRA | National micronutrient subsample | **Invalid — DO NOT USE** (Omar, 2026-08 call: DBS RBP "completely wrong... totally incorrect"; wait for TDHS 2023) |
 | **Malawi 2015–16 (MDHS / MNS, FR319)** | Ferritin, sTfR, RBP, zinc, B12, folate, iodine | PSC, SAC 5–14, WRA, men 20–55 | National + region (admin-1); 105/850 clusters | High *(already in panel)* |
 | **Cambodia 2014 (CDHS-linked MNS)** | Ferritin, sTfR, folate, B12, RBP (+CRP/AGP) | 792 children + 720 women | National subsample (n=1,512) | High |
 | **Uganda 2000–01 (FR128)** | Serum retinol (HPLC) | Children 6–59mo + WRA | National subsample | High |
-| **Uganda 2006 / 2011 / 2016** | RBP (DBS) — vitamin A only | Children + WRA | National subsamples | High |
+| **Uganda 2006 / 2011 / 2016** | RBP (DBS) — vitamin A only | Children + WRA | National subsamples | **2016 invalid — DO NOT USE** (Omar, 2026-08 call: DHS itself flags this round; use the 2021/22 Uganda panel survey's serum RBP instead — contact Mariena Jeffers for access) |
 | **Zimbabwe DHS (~2010–11)** | RBP (DBS) — vitamin A only | Children + WRA | National subsample | Medium (exact round not pinned) |
-| **Rwanda RDHS 2019–20** | Micronutrient module (biomarkers) | — | National (World Bank microdata) | Medium |
+| **Rwanda RDHS 2019–20** | Micronutrient module (biomarkers) | — | National (World Bank microdata) | Medium — but Omar (2026-08 call) validated it as usable ("when they do the work, it works"), despite being a DHS annex/non-standard release rather than the standard biomarker recode |
 
 **Access:** DHS Program — free registration + per-project dataset request at
 dhsprogram.com. Biomarker values are often in a **separate biomarker recode

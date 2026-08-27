@@ -4,6 +4,27 @@ Files retired from the active tree during the 2026-06-25 repo cleanup. Nothing
 here was deleted — everything was **moved** (reversible) and the directory
 structure is mirrored, so any file can be restored to its original path.
 
+## 2026-08-26 — Tanzania (TDHS 2010) dropped
+
+`src/Tanzania/*` moved to `archive/src/Tanzania/*`, and the `Tanzania` entry
+was removed from `get_country_configs()` in `R/config.R` (preserved, unused,
+as `get_country_config_tanzania_archived_2010()` in the same file — see the
+comment on that function for the full rationale and the restore procedure).
+
+**Reason:** on the 2026-08 UC Davis / BMGF bi-weekly call, project
+collaborator Omar flagged the TDHS 2010 dried-blood-spot RBP (vitamin-A)
+measurements as unreliable ("completely wrong... totally incorrect... not
+even internally consistent"), independent of and consistent with data-quality
+anomalies already found in this pipeline (a unit-label error in the survey's
+own `TZ61BIOMARKER.DOC`, and a 77-92 percentage-point national-level bias
+when Tanzania was held out under leave-one-country-out evaluation). His
+recommendation was to use the Tanzania 2023 DHS round instead once its data
+is accessible, rather than the 2010 round.
+
+To restore: `git mv archive/src/Tanzania src/Tanzania`, then move
+`get_country_config_tanzania_archived_2010()`'s returned `Tanzania = list(...)`
+back into `get_country_configs()`'s returned list in `R/config.R`.
+
 **Nothing in this archive is referenced by the production pipeline (`_targets.R`),
 the corrected pipeline (`_targets_corrected.R`), or the deployed dashboard.** This
 was confirmed by a repo-wide reference grep before moving each file.

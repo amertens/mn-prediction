@@ -57,7 +57,7 @@ range but does not fix the admin-2 resolution gap.
 - **Access:** direct request to PI **Reina Engle-Stone (UC Davis)**; well-documented in published papers. **[BRINDA]**
   - Contact via UC Davis Dept. of Nutrition: https://nutrition.ucdavis.edu/
 
-### 5. Tanzania — TDHS 2010 micronutrient subsample (NUT5)
+### 5. Tanzania — TDHS 2010 micronutrient subsample (NUT5) — **DO NOT USE, see below**
 - **Country-year:** Tanzania, 2010
 - **Biomarkers:** vitamin A (RBP), iron (serum ferritin), urinary iodine
 - **Populations:** children 6–59 mo + women of reproductive age (national subsample)
@@ -66,6 +66,14 @@ range but does not fix the admin-2 resolution gap.
   - NUT5 report: https://dhsprogram.com/pubs/pdf/NUT5/NUT5.pdf
   - DHS data request: https://dhsprogram.com/data/
 - **Notes:** easiest access (DHS) but a narrower panel (no zinc/folate/B12).
+- **2026-08 UPDATE (Omar, UC Davis/BMGF bi-weekly call):** the TDHS 2010 RBP
+  measurement is **dried-blood-spot (DBS)** and, per Omar, "completely wrong...
+  totally incorrect... not even internally consistent." Do not use this round.
+  TDHS **2023** already has data (report not yet public — worth waiting a few
+  weeks and following up with Omar/DHS). See `R/config.R`'s
+  `get_country_config_tanzania_archived_2010()` for the full archival note and
+  independent corroborating evidence (a unit-label error in `TZ61BIOMARKER.DOC`
+  and a 77–92pp national-level LOCO bias).
 
 ---
 
@@ -77,13 +85,13 @@ surveys co-designed on the DHS frame.
 
 | Country-year | Biomarkers | Population | Access + URL |
 |---|---|---|---|
-| **Tanzania 2010 (NUT5)** | RBP, ferritin, iodine | children 6–59mo, WRA | DHS Program — https://dhsprogram.com/pubs/pdf/NUT5/NUT5.pdf |
+| **Tanzania 2010 (NUT5)** | RBP, ferritin, iodine | children 6–59mo, WRA | **DO NOT USE** — DBS RBP confirmed invalid by Omar (2026-08 call). Wait for TDHS 2023 instead. |
 | **Cambodia 2014 (CDHS-linked MNS)** | ferritin, sTfR, folate, B12, RBP, CRP/AGP | 792 children + 720 women | DHS Program; method paper https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4924189/ |
 | **Malawi 2015–16 (MDHS / MNS, FR319)** | ferritin, sTfR, RBP, zinc, B12, folate, iodine | PSC, SAC, WRA, men | *already in panel* — https://dhsprogram.com/pubs/pdf/FR319/FR319.m.final.pdf |
 | **Uganda 2000–01 (FR128)** | serum retinol (HPLC) | children 6–59mo, WRA | DHS Program — https://www.dhsprogram.com/pubs/pdf/FR128/FR128.pdf |
-| **Uganda 2006 / 2011 / 2016** | RBP (DBS) — vitamin A only | children, WRA | DHS Program (vitamin-A subsample) |
-| **Zimbabwe DHS (~2010–11)** | RBP (DBS) — vitamin A only | children, WRA | DHS Program *(exact round to confirm)* |
-| **Rwanda RDHS 2019–20** | micronutrient module (confirm biomarker list) | — | World Bank microdata https://microdata.worldbank.org/index.php/catalog/4065 |
+| **Uganda 2006 / 2011 / 2016** | RBP (DBS) — vitamin A only | children, WRA | **DO NOT USE 2016** — Omar confirmed DBS-based RBP is invalid (DHS itself flags the 2016 round). Instead use the **Uganda panel survey (2021/2022)**, which has serum RBP — contact **Mariena Jeffers** for that data (not on the standard DHS portal). |
+| **Zimbabwe DHS (~2010–11)** | RBP (DBS) — vitamin A only | children, WRA | DHS Program *(exact round to confirm; same DBS-reliability question as Tanzania/Uganda — verify with Omar before use)* |
+| **Rwanda RDHS 2019–20** | micronutrient module (confirm biomarker list) | — | World Bank microdata https://microdata.worldbank.org/index.php/catalog/4065 — data is a DHS **annex** (non-standard supplementary release), not the standard biomarker recode, but Omar validated it as usable ("when they do the work, it works"). |
 
 **DHS access mechanics:** free account at https://dhsprogram.com → per-project
 dataset request. Biomarker values are usually in a **separate biomarker recode

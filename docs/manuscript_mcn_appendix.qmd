@@ -48,6 +48,21 @@ different year and with a partly different biomarker panel:
 - Sierra Leone, 2013 (Sierra Leone Micronutrient Survey).
 - Malawi, 2015 to 2016 (Malawi Micronutrient Survey).
 
+We initially added a fifth country, Tanzania (2009-2010 Tanzania DHS,
+vitamin A only, via the obstetric/biomarker module rather than a dedicated
+micronutrient survey), but withdrew it before finalising this appendix. A
+project collaborator identified the survey's dried-blood-spot RBP
+measurements as unreliable, consistent with a unit-label error found in the
+survey's own biomarker documentation (`TZ61BIOMARKER.DOC`) and a 77-92
+percentage-point national-level bias observed when Tanzania was held out
+under leave-one-country-out evaluation during a supplementary analysis. See
+`archive/src/Tanzania/` and `R/config.R`'s
+`get_country_config_tanzania_archived_2010()` for the preserved cleaning
+scripts and configuration, and the project's archive manifest for the full
+rationale. We plan to revisit Tanzania via the 2023 DHS round, which we
+understand uses serum rather than dried-blood-spot vitamin-A assessment,
+once its data become accessible.
+
 Within each survey, biomarkers were extracted for women of reproductive age (15
 to 49 years) and for children 6 to 59 months, where measured. One to two surveys
 additionally measured adult men. Each survey is nationally representative but
@@ -205,6 +220,28 @@ map's WHO classification, are separate from these individual cut-points and
 follow the standard prevalence bands (for example, for iron, prevalence
 thresholds at 5%, 20%, and 40%; for vitamin A, at 2%, 10%, and 20%).
 
+**Historical note — Tanzania's RBP units (archived).** During the withdrawn
+Tanzania inclusion (S1.1), we traced an apparent unit inconsistency in that
+survey's RBP field: `TZ61BIOMARKER.DOC` states the field is already in
+µmol/L, but the raw values (median ≈ 26-27) are roughly 15-20× too large to
+be a physiologically plausible µmol/L serum RBP concentration (normal range
+≈ 1-3 µmol/L). Dividing by the RBP4 molar mass (≈ 21.2 kDa) brought the
+values into range (median 1.04 µmol/L in children, 1.40 µmol/L in women),
+and we take the `.DOC`'s unit label to be a copy-paste error in a boilerplate
+template shared across DHS survey rounds. Independent confirmation: the DHS
+Program's own published report for this survey (*DHS Further Analysis
+Report NUT5, "Micronutrients: Results of the 2010 Tanzania Demographic and
+Health Survey"*, dhsprogram.com/pubs/pdf/NUT5/NUT5.pdf) gives Tanzania-specific
+RBP cut-points of 0.825 µmol/L (children) and 1.24 µmol/L (women), rather
+than the generic 0.70 µmol/L cut-point used above; scoring the
+molar-mass-converted values against those cut-points reproduced the
+published national prevalence almost exactly (31.4% vs. published 33% in
+children, 35.3% vs. published ~37% in women), which is strong evidence the
+21.2 kDa conversion was correct. This confirms the *unit conversion* was
+right; it does not bear on the separate, larger data-quality concern (S1.1)
+that led us to withdraw the round entirely. We preserve this note in case a
+future Tanzania round needs the same RBP-unit check.
+
 ## S4.2 Inflammation adjustment
 
 Ferritin (and, to a lesser extent, retinol-binding protein) rises with acute and
@@ -260,7 +297,7 @@ data.frame(
            "L1 (median), weights = survey n",
            "Beta likelihood (mean + precision)",
            "MSE on DAG adjustment set"),
-  Implementation = c("mlr3superlearner (6 learners), survey-weighted aggregation",
+  Implementation = c("mlr3superlearner (5 learners fast mode / 12 full mode, + class-weighted variants for rare outcomes), survey-weighted aggregation",
                      "mlr3superlearner on admin-2 aggregates",
                      "lm / cv.glmnet",
                      "sae::eblupFH (REML)",
@@ -280,15 +317,34 @@ data.frame(
 
 ## S5.2 Individual-level SuperLearner
 
-The individual-level SuperLearner combines six base learners: a mean (intercept)
-learner, penalised generalised linear models (lasso, ridge, and elastic-net via
-glmnet), a ranger random forest, gradient-boosted trees (XGBoost, depth 4,
-learning rate 0.05, subsample 0.8), and dropout BART. For binary outcomes with
-prevalence below 15%, class-weighted XGBoost and ranger learners are added to
-counter class imbalance. Cross-validation folds are formed at the survey-cluster
-(primary sampling unit) level so that individuals in the same cluster are never
-split across folds. To produce an admin-2 map, person-level predictions are
-averaged within each district using survey weights.
+The individual-level SuperLearner is run in one of two modes with a shared
+implementation (`R/sensitivity/mlr3_fitting.R`), so the learner count is
+derived from the library specification at fit time rather than hard-coded.
+**Fast mode** (beta-testing / iteration) uses 5 base learners: a mean
+(intercept) learner, penalised lasso and elastic-net (glmnet), a ranger
+random forest, and gradient-boosted trees (XGBoost). **Full mode**
+(publication analysis) uses 12: the fast-mode set plus a ridge penalty
+(glmnet, alpha = 0), two additional ranger configurations (`ranger_low_mtry`,
+`ranger_deep`, num.trees = 1000), a deeper XGBoost (`xgb_deep`), and three
+Bayesian Additive Regression Trees (BART) learners at increasing tree counts
+(50, 100, and 200 trees) — BART is the learner that holds up on the rarest
+outcomes (women's vitamin A and B12, at 1 to 3% prevalence), where the other
+learners collapse toward the mean. A Gaussian process (`kernlab::gausspr`)
+was evaluated as a 13th full-mode learner but is not included in either
+mode as of the 2026-08 rebuild: a controlled sensitivity check refitting
+Ghana child iron with and without it in the candidate library found it
+received effectively zero ensemble weight (identical binary AUC to 16
+decimal places) while being $O(n^3)$ in rows — costly enough that it made
+the largest pooled LOCO fits (10,011 and 13,107 rows) impractical to
+complete (main text Results). For binary outcomes with prevalence below
+15%, a class-weighted XGBoost and a class-weighted ranger are appended to
+the candidate library at fit time in both modes, so a rare outcome carries
+7 learners in fast mode and 15 in full mode; this augmentation is a property
+of the outcome's prevalence, not of the mode setting. Cross-validation folds
+are formed at the survey-cluster (primary sampling unit) level so that
+individuals in the same cluster are never split across folds. To produce an
+admin-2 map, person-level predictions are averaged within each district
+using survey weights.
 
 ## S5.3 Area-level SuperLearner
 
@@ -297,9 +353,14 @@ the unit of analysis: one row per district, the target being survey-weighted
 district prevalence and the predictors being the polygon-aggregated covariates.
 Both a mean-squared-error loss and an approximate negative-log-likelihood loss
 were evaluated. Because the covariates are resolved at the district level, the
-effective sample size for this fit is the number of polygons (14 to 87 per
+effective sample size for this fit is the number of polygons (14 to 90 per
 country), which is the source of the area-level overfitting reported in the main
-text.
+text. Two uninformed baselines — a national-mean null and a covariate-free
+spatial-only smoother on admin-2 centroid coordinates — were added to this
+comparison in the 2026-08 methods review (S8) so that "better than the
+alternatives" could be distinguished from "better than doing nothing"; neither
+area-level SuperLearner loss variant clears the national-mean null on median
+MAE (main text Results).
 
 ## S5.4 Frequentist baselines
 
@@ -447,6 +508,35 @@ as sensitivity analyses rather than headline results:
 - **All-methods comparison on a representative outcome.** Every method and
   SuperLearner library variant was run on child iron deficiency, the
   best-transporting outcome, under both within-country and transport evaluation.
+- **Reliability ceiling and uninformed baselines (2026-08 methods review).**
+  Because a median admin-2 district contributes only 6 to 36 biomarker
+  measurements, a design-based sampling-noise decomposition was used to
+  estimate, per country-outcome cell, the maximum Pearson r any model could
+  achieve ($r_{\max} = \sqrt{1 - E[V_\text{sampling}]/\mathrm{Var}(p_\text{obs})}$);
+  a national-mean null and a covariate-free spatial-only smoother were added
+  to the area-level comparison as the uninformed floor. This is reported as a
+  primary result in the main text, not a sensitivity check, because it
+  materially changes which approach is judged the strongest.
+- **Gaussian-process learner necessity.** The candidate 13th full-mode learner
+  (a Gaussian process) was refit against a held-out cell (Ghana child iron)
+  with and without it in the library; it received zero ensemble weight at
+  substantial ($O(n^3)$) computational cost and was dropped from the stack.
+- **Pre-resampling variable-selection audit.** The area-level prevalence
+  recipe's covariate pre-filter and its LOCO comparator ranking were
+  originally derived once on the full dataset before splitting into
+  resampling folds. Re-deriving the pre-filter honestly inside each fold, and
+  separating comparator selection from comparator evaluation, reduced the
+  recipe's apparent Spearman gain by 0.16 (admin-2) to 0.30 (admin-1) and its
+  best LOCO comparator's correlation from 0.305 to 0.117; the corrected,
+  audited numbers are reported as primary in the main text (S6-style
+  correction, though implemented outside the P1-P8 pipeline proper).
+- **Tanzania (withdrawn).** A fifth country, Tanzania (vitamin A only via the
+  2010 TDHS), was added and evaluated in a supplementary analysis before
+  being withdrawn (S1.1). Holding it out under leave-one-country-out
+  evaluation produced degenerate predictions and 77-92 percentage-point
+  national-level bias, an order of magnitude larger than any other cell —
+  one of the anomalies, alongside a project collaborator's independent
+  data-quality warning, that led to the withdrawal.
 
 # S9. Reproducibility
 
@@ -457,7 +547,11 @@ the manuscript and the dashboard. Stage 1 cleaning scripts regenerate the merged
 per-country analytic tables from the raw sources. The corrected methods write
 their canonical outputs to `results/tables/corrected/`. Pipeline definitions and
 code are available in the project repository; the deepest data lineage is in
-`docs/data_sources_appendix.qmd`.
+`docs/data_sources_appendix.qmd`. The full 2026-08 methods-review audit that
+produced the reliability-ceiling estimator, the uninformed baselines, and the
+pre-resampling variable-selection correction (S8) is documented in
+`sandbox_parsimony/FINDINGS.md`, with its underlying scripts and output CSVs
+in the same directory.
 
 # References
 

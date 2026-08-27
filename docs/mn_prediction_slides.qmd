@@ -289,33 +289,54 @@ if (!is.null(diagnostics_all) && !is.null(diagnostics_all$binary_metrics)) {
 
 ## Key Performance Findings
 
+::: {.callout-important appearance="minimal"}
+**Rebuilt 2026-08-25** (full mode, 12-learner stack, 5 countries, 898 targets,
+0 errors). The previous numbers on this slide came from an earlier run and do
+not reproduce.
+:::
+
 :::: {.columns}
 ::: {.column width="50%"}
-**Best-performing models:**
+**Across all 26 binary country x outcome cells**
 
-- **Ghana child iron:** AUC = 0.828 (208 events)
-- **Malawi women iron:** AUC = 0.795 (60 events)
-- **Ghana women folate:** AUC = 0.775
-- **Ghana women B12:** AUC = 0.855 (40 events)
-- **Malawi child/women zinc:** AUC = 0.77--0.79
+- Median AUC **0.592** (range 0.448--0.767)
+- Only **6 of 26** reach AUC $\ge$ 0.70; **2 of 26** reach 0.75
+- One cell falls **below chance** (Malawi child zinc, 0.448)
+- Median continuous $r$ = **0.152** (25 cells)
 
-**Caution --- rare outcomes:**
+**Highest AUCs (all rare outcomes)**
 
-- women_vitA AUCs > 0.90 are inflated (< 20 events)
-- Sierra Leone AUC = 0.5 traced to mean-learner dominance; **fixed** --- child_vitA 0.67, child_iron 0.77, women_vitA 0.67, women_iron 0.72
+| Cell | AUC | events |
+|---|---|---|
+| Malawi women vitA | 0.767 | 11 |
+| Sierra Leone women B12 | 0.752 | 4 |
+| Malawi women B12 | 0.747 | 23 |
+| Ghana women vitA | 0.745 | 15 |
+| Ghana child iron | 0.702 | 278 |
 :::
 ::: {.column width="50%"}
-**Cross-country patterns:**
+**Performance is highest where events are fewest**
 
-- Vitamin A in women: highest AUC but fewest events
-- Iron deficiency: most robust models (adequate events across countries)
-- Folate/B12/zinc: available only in subset of countries
-- Sierra Leone: most challenging (fewer clusters, lower prevalence)
-- Malawi: best overall coverage (8 outcomes including zinc)
+$r$(AUC, log events) = **-0.551**
+(95% CI -0.773 to -0.208, $p$ = 0.0035, n = 26)
+
+| Event tertile | median events | median AUC |
+|---|---|---|
+| Few | 23 | 0.737 |
+| Middle | 105 | 0.594 |
+| Many | 504 | **0.539** |
+
+This is the signature of small-sample optimism, not signal. Every cell with
+enough events to estimate AUC precisely sits near chance. The previously
+headlined "Ghana child iron 0.828" is now **0.702**; "Ghana women B12 0.855"
+is now **0.698**.
+
+**Read the many-events tertile as the honest estimate of discrimination.**
 :::
 ::::
 
 ---
+
 
 ## Evaluating Models for Rare Outcomes
 
@@ -430,14 +451,14 @@ if (length(vi_files) > 0) {
 
 ## Variable Importance: Key Patterns
 
-**Ghana child iron** (AUC = 0.828):
+**Ghana child iron** (AUC = 0.702, rebuilt 2026-08-25):
 
 - Rainfall (TRMM April, CHIRPS April) --- seasonal precipitation patterns
 - Land cover (ESA WorldCereal) --- agricultural land use
 - Soil nitrogen, soil iron --- geochemical correlates
 - MICS indicators, GDL subnational HDI
 
-**Ghana women B12** (AUC = 0.855):
+**Ghana women B12** (AUC = 0.698, rebuilt 2026-08-25):
 
 - Rainfall (TRMM July, CHIRPS July) --- wet season patterns
 - MAP insecticide-treated net access
@@ -593,7 +614,7 @@ if (length(oos_list) > 0) {
 1. **Multi-country framework** --- same pipeline, predictors, and evaluation across 4 countries
 2. **Proxy-only design** --- answers the policy question: can we estimate burden without new surveys?
 3. **Diverse predictor ensemble** --- 13+ data sources spanning climate, population, agriculture, health, socioeconomic domains
-4. **Data-adaptive ensemble** --- 16-learner SL with NNLS weights; no learner hard-coded
+4. **Data-adaptive ensemble** --- 12-learner SL with NNLS weights; no learner hard-coded
 5. **Conformal prediction intervals** --- distribution-free coverage guarantees
 6. **Transportability testing** --- LOCO provides honest cross-country assessment
 7. **Reproducible `{targets}` pipeline** --- cached, dependency-tracked; ~540 targets
@@ -619,7 +640,7 @@ if (length(oos_list) > 0) {
 |---|---|
 | Scientific Advisory Board | Established |
 | Multi-country pipeline (4 countries) | Complete |
-| Full learner stack (16 learners + BART) | Complete |
+| Full learner stack (12 learners incl. 3 BART sizes) | Complete |
 | Conformal prediction intervals | Complete |
 | 13+ external predictor sources | Complete |
 | LOCO transportability (4 outcomes) | Complete |
@@ -639,8 +660,8 @@ if (length(oos_list) > 0) {
 ::: {.column width="50%"}
 **Immediate:**
 
-- Download additional CIV external predictors
-- Deduplicate .x/.y merge columns
+- Re-run the pipeline: the review fixes change model inputs
+- Residualise the VMNIS outcome out-of-fold and re-score
 - Prepare Phase 2 report to Gates Foundation
 :::
 ::: {.column width="50%"}
@@ -650,26 +671,425 @@ if (length(oos_list) > 0) {
 - Additional countries beyond current 4 + CIV
 - Integrate into DInA prioritization framework
 - Interactive Shiny dashboard with leaflet maps
-- Survey weight integration for design-consistent estimates
+- Harmonise survey weight scales across countries
+- Expand the VMNIS national panel beyond vitamin A
 :::
 ::::
+
+---
+
+# Methods Review 2026-08 {background-color="#7a2020"}
+
+## What the review changed
+
+::: {.callout-important appearance="minimal"}
+A systematic re-audit of the area-level and LOCO models (`sandbox_parsimony/FINDINGS.md`,
+24 sections, 34 result tables) found **four data bugs, three inflated performance numbers,
+and one clear modelling win**. Several previously reported results do not survive; they are
+corrected here rather than quietly dropped.
+:::
+
+**Data integrity**
+
+- GADM **water bodies used as prediction units** — `Lake Malawi` (n=21–33) and `Lake Victoria`
+  (n=60–110) appear in the *survey* tables. Respondents geocoded onto lakes.
+- **Duplicate Admin-2 names** cause silent cartesian joins (inflated one table 256 → 29,183 rows).
+- **Fay–Herriot ignored its own sampling variance** — single-PSU districts return SE ≈ 1e-17,
+  which passed a `D <= 0` guard. The EBLUP kept ~71% of the raw direct estimate, not ~26%.
+- **Survey weights sit on inconsistent scales** — Malawi median 790,000, Ghana 0.98. Harmless for
+  weighted means, fatal anywhere weights act as precision.
+
+---
+
+## The outcome is noise-dominated, and nothing said so
+
+A ceiling is now reported next to every correlation:
+
+$$\lambda = 1 - \frac{E[V_\text{sampling}]}{\mathrm{Var}(p_\text{obs})}, \qquad r_{\max} = \sqrt{\lambda}$$
+
+A median Admin-2 district contributes **6–36 biomarker measurements**.
+
+| cell | published CV r | r_max | % of ceiling |
+|---|---|---|---|
+| Ghana child iron | 0.609 | 0.672 | **77–91%** — saturated |
+| Gambia women iron | 0.538 | 0.706 | 68–76% |
+| Malawi child iron | 0.038 | 0.199 | 7–19% — real headroom |
+| Ghana / Malawi women vit A | −0.039 / 0.176 | **0.00** | nothing to predict |
+
+::: {.callout-note appearance="minimal"}
+Two very different situations were being presented identically. Cells whose ceiling is
+indistinguishable from zero are now blanked in the results tables, not reported as model failures.
+:::
+
+---
+
+## Three published numbers do not survive
+
+| claim | published | honest | why |
+|---|---|---|---|
+| `spatial_plus_soil` leads LOCO | rho = 0.305 | **rho = 0.117** | its 8 soil features were ranked by LOCO r on the *same* outcomes and held-out countries |
+| adaptive variable selection helps | — | no reliable gain | selecting once on all data inflates rho by **+0.30** (Admin-1), **+0.16** (Admin-2) |
+| an Admin-1 layer would roughly double accuracy | proposed | **rejected** | ceiling doubles but achieved rho *halves* (0.064 vs 0.137) — 16–32 regions is too few to fit on |
+
+::: {.callout-warning appearance="minimal"}
+Any variable-selection step must sit **inside** the resampling loop. Selection done first is the
+single largest source of optimism found in this review — larger than every genuine modelling
+difference combined.
+:::
+
+---
+
+## The clear win: parsimony plus geography
+
+**16 a-priori variables + longitude/latitude in a random forest** beat the 237–487-predictor
+production recipe in **14 of 16** country × outcome cells (paired delta-Spearman **+0.063**, t = 4.9).
+
+:::: {.columns}
+::: {.column width="55%"}
+| model | rho | r / r_max |
+|---|---|---|
+| **curated 16 + lon/lat, RF** | **0.374** | 0.58 |
+| 20 cluster reps + lon/lat, RF | 0.362 | 0.60 |
+| *spatial only, no covariates* | 0.347 | 0.53 |
+| production (top-30 screen, enet) | 0.310 | 0.49 |
+| ridge on all 237–487 | 0.230 | 0.32 |
+:::
+::: {.column width="45%"}
+**18 predictors, not 237.**
+
+A covariate-free lon/lat smoother already out-scores the production recipe — geography must be
+**in** the model, not treated as an alternative to it.
+
+Ridge on the full pool is the **worst** covariate model: pool redundancy is actively harmful when
+nothing selects against it.
+:::
+::::
+
+---
+
+## Level and pattern are different problems
+
+LOCO transports the **spatial pattern** modestly and the **level** not at all.
+
+- Best pattern transfer: train on the within-country z-score, rho 0.154 → **0.261**
+- Level: the best LOCO model misses national prevalence by **5.4 pp** on average and by a factor
+  of **2–3** on iron (Malawi child iron 10.6% actual → 28.4% predicted)
+
+**Fix — national benchmarking, now default-on.** A logit-scale shift solved so the
+population-weighted aggregate equals the design-based national estimate:
+
+| | before | after |
+|---|---|---|
+| national error | 4.33 pp | **0.00 pp** |
+| district Spearman change | — | **0.0000** (strictly monotone) |
+
+::: {.callout-note appearance="minimal"}
+The survey's *own* district estimates aggregate **4.50 pp** away from the national figure the same
+survey produces. Most of the model drift is inherited from the direct estimates, not created by the
+model — these surveys are powered for national, and Admin-2 is an unplanned domain.
+:::
+
+---
+
+## Absolute accuracy: honest framing
+
+Against the comparator a programme already has — paint the national mean on every district:
+
+| | model | national-mean map |
+|---|---|---|
+| WHO severity band correct | 60.2% | 53.6% |
+| MAE | 13.9 pp | 15.4 pp |
+| worst-20% districts recovered | 27.1% | 20% (random) |
+
+::: {.callout-warning appearance="minimal"}
+A targeting lift of **1.36x**. The map beats doing nothing, but not by much. It is useful for
+*ranking* districts within the better-measured outcomes, and should not be quoted as a district
+prevalence estimate.
+:::
+
+---
+
+## A national model from national data (VMNIS)
+
+The full WHO VMNIS dump holds **187 countries** (the project extract had 8).
+Vitamin A in preschool children: **528 surveys, 70 countries**.
+
+Leave-one-**country**-out, World Bank covariates, no benchmarking:
+
+| model | MAE | Pearson |
+|---|---|---|
+| random forest | **11.6 pp** | 0.187 overall, 0.648 for vitamin A |
+| global mean (null) | 13.1 pp | — |
+
+**Read against the ceiling.** Repeat national surveys of the *same* country disagree by ~1.1 on the
+logit scale, so r_max = 0.66 for vitamin A — the model sits at **98% of achievable**.
+
+Modelling survey heterogeneity explicitly (inflammation adjustment, biomarker, sample size)
+**raises the ceiling 0.505 → 0.633** and cuts MAE 12.20 → **11.04 pp**: about a quarter of the
+apparently unexplainable variance is *survey method*, not real change.
+
+---
+
+## What predicts nationally
+
+:::: {.columns}
+::: {.column width="50%"}
+| rank | variable |
+|---|---|
+| 1 | under-5 mortality |
+| 2 | electricity access |
+| 3 | food production index |
+| 4 | life expectancy |
+| 5 | health expenditure per capita |
+| **20** | **undernourishment prevalence** |
+:::
+::: {.column width="50%"}
+Panels split along interpretable lines:
+
+- **Vitamin A** → child-health composite
+- **Folate** → the food system
+- **Zinc** → infrastructure
+
+**Calorie sufficiency is not micronutrient sufficiency** — the headline food-security indicator
+ranks *last* of 20.
+:::
+::::
+
+::: {.callout-note appearance="minimal"}
+At Admin-2 the top variable was *soil zinc*, ranking first for vitamin A, B12 and folate, where it
+has no mechanism. Much of that covariate signal is geography wearing a covariate label. The
+national predictors are mechanistically far more defensible.
+:::
+
+---
+
+## Negative results worth keeping
+
+Four principled ideas tested that **did not** work, recorded so they are not retried:
+
+| idea | result |
+|---|---|
+| binomial likelihood on survey counts | loses to Gaussian-on-logit at 30–170 districts |
+| binomial GAM with a spatial field | rho 0.298 vs 0.354 for a plain spatial smoother |
+| modelling the district biomarker **SD** | worse — that SD is estimated from ~13 people |
+| hierarchical individual-biomarker model | MAE 15.5 pp vs 10.8 pp for the indicator route |
+
+::: {.callout-note appearance="minimal"}
+At this sample size **model machinery is not the binding constraint**. Predictor selection, getting
+geography into the model, and being honest about the ceiling are what move the numbers.
+:::
+
+---
+
+# Full Rebuild 2026-08 {background-color="#1f4d2e"}
+
+## What this rebuild was
+
+::: {.callout-note appearance="minimal"}
+Full mode, 12-learner stack, GEE covariate hygiene on, 4 countries.
+A fifth country (Tanzania, vitamin A only, TDHS 2010) was added and then
+withdrawn after a project collaborator flagged its dried-blood-spot RBP
+measurements as unreliable, consistent with data-quality anomalies found
+independently in this pipeline. See `archive/ARCHIVE_MANIFEST.md`.
+:::
+
+Two changes since the last published numbers:
+
+1. **Gaussian process dropped** from the full stack. It is $O(n^3)$ and made the
+   pooled LOCO targets (n = 10,011 and 13,107) effectively non-terminating.
+2. **Two baselines added** to the area-level comparison --- a national-mean null
+   and a spatial-smoothing-only model --- so "better than the alternatives" can
+   be separated from "better than nothing".
+
+Point 2 is what changed the interpretation.
+
+---
+
+## Dropping the Gaussian process cost nothing
+
+Measured directly rather than assumed: the `gp_sensitivity` target refits
+**Ghana x child iron** with the GP restored and compares held-out performance.
+
+| Model | without GP | with GP | difference |
+|---|---|---|---|
+| Binary (AUC) | 0.701550371878371 | 0.701550371878371 | **0.0000** |
+| Continuous ($r$) | 0.2488 | 0.2540 | +0.0052 |
+
+The binary result is identical to 16 decimal places --- the GP received **zero
+weight** in the ensemble. A learner that contributes nothing while dominating
+runtime is a pure cost.
+
+::: {.callout-tip appearance="minimal"}
+The check is retained as a pipeline target, so the decision stays testable rather
+than becoming folklore.
+:::
+
+---
+
+## The area-level models do not beat doing nothing
+
+Median across 26 country x outcome cells, Admin-2:
+
+| Approach | n | median $r$ | median MAE | $r$ / $r_{max}$ |
+|---|---|---|---|---|
+| Individual SL | 26 | **0.506** | 8.55 pp | **0.89** |
+| Spatial only (no covariates) | 20 | 0.236 | 9.98 pp | 0.77 |
+| Area SL (NLL) | 26 | 0.134 | 9.84 pp | 0.33 |
+| Area SL (MSE) | 26 | 0.121 | 9.31 pp | 0.34 |
+| **National mean (null)** | 26 | --- | **9.55 pp** | --- |
+
+Two readings that only became visible once the baselines existed:
+
+- **Neither area-level model beats the null.** MAE 9.31 and 9.84 pp against
+  9.55 pp for predicting the national mean everywhere.
+- **Spatial smoothing alone beats both.** At Admin-2, the covariates add
+  nothing beyond "nearby districts are similar".
+
+Only the individual-level model clearly earns its place.
+
+---
+
+## The ceiling, not the learner, is binding
+
+Correcting for attenuation: with sampling variance $V$ and observed
+between-district variance $\mathrm{Var}(p_{obs})$,
+
+$$\lambda = 1 - \frac{E[V]}{\mathrm{Var}(p_{obs})}, \qquad r_{max} = \sqrt{\lambda}$$
+
+- Median $r_{max}$ across cells: **0.221** (range 0--0.773)
+- **4 of 26** cells have no detectable signal at all ($\lambda \le 0$)
+- **19 of 124** approach-rows are flagged `signal = FALSE`
+
+A perfect model would score $r \approx 0.22$ on the median cell. Individual SL
+reaches **89%** of that. The gap between 0.506 and 1.0 is not modelling headroom
+--- it is sampling noise in the target.
+
+::: {.callout-warning appearance="minimal"}
+Five cells show $r$ / $r_{max} \ge 1$. That is not superhuman performance; it
+means the ceiling is itself estimated with error and should be read as an
+interval, not a point.
+:::
+
+---
+
+## National prevalence: the models do work here
+
+| Metric | Value |
+|---|---|
+| Cells | 26 |
+| Median absolute error | **0.66 pp** |
+| Median relative error | 6.2% |
+| Predictions inside the survey's 95% CI | **26 of 26** |
+
+Aggregating noisy district predictions to national level averages the noise away.
+The same models that discriminate poorly *between* districts recover the national
+total accurately.
+
+**This is the deliverable that survives scrutiny.** Sub-national maps should be
+presented as uncertainty-aware and provisional; national estimates are solid.
+
+---
+
+## Transportability remains the hard problem
+
+Leave-one-country-out, median across held-out cells:
+
+| Outcome | cells | Spearman | RMSE | national bias |
+|---|---|---|---|---|
+| child iron | 4 | 0.216 | 23.0 pp | -12.7 pp |
+| child vitA | 5 | 0.266 | 24.9 pp | +14.0 pp |
+| women iron | 4 | 0.273 | 21.9 pp | -0.3 pp |
+| women vitA | 5 | 0.172 | 23.0 pp | +18.3 pp |
+
+Across 21 benchmarked methods the best LOCO MAE is **10.8 pp** (penalized
+regression) against **12.3 pp** for the null --- a 1.5 pp gain with pattern
+correlation of essentially zero ($r$ = 0.02).
+
+The methods with the best *pattern* correlation are the spatial ones
+(`spatial_plus_soil` $r$ = 0.300) but they have *worse* level accuracy
+(MAE 13.0 pp). **Level and pattern trade off, and neither is good.**
+
+Report Spearman and national bias separately --- a single AUC hides which failed.
+
+---
+
+## Where the signal actually is
+
+Median AUC drop when a predictor domain is removed (26 cells, vs the `none`
+baseline):
+
+| Domain removed | cells | median AUC drop |
+|---|---|---|
+| HIV/AIDS | 10 | 0.125 |
+| Infant & child mortality | 12 | 0.125 |
+| Survey indicators | 6 | 0.124 |
+| **Environment** | 26 | **0.046** |
+| **Climate** | 26 | **0.029** |
+| Infectious disease | 25 | 0.013 |
+| Everything else | --- | $<$ 0.01 |
+
+::: {.callout-important appearance="minimal"}
+The three largest drops are **survey-derived** domains, present in only 6--12 of
+26 cells. They are not available for a proxy-only prediction model and cannot be
+used for the intended use case. Among the proxy domains that exist everywhere,
+Environment and Climate carry nearly all the signal --- and they are worth
+0.046 and 0.029 AUC.
+:::
+
+**Calibration** is poor: median slope **0.506** (IQR 0.04--0.74), i.e.
+predictions are systematically over-extreme and need shrinkage before use.
+
+---
+
+## What would actually move performance
+
+Ranked by expected value, given the above:
+
+1. **Raise the ceiling, not the model.** $r_{max}$ = 0.22 caps everything at
+   Admin-2. Pooling survey rounds, modelling at Admin-1 where the design
+   supports it, or borrowing strength across outcomes attacks the binding
+   constraint. More learners do not.
+2. **Calibrate before publishing** any district-level number (slope 0.506).
+3. **Treat national estimates as the headline deliverable** and sub-national maps
+   as exploratory, until the ceiling improves.
+4. **Vet new countries before onboarding them.** Tanzania (vitamin A, TDHS 2010)
+   was added then withdrawn after a data-quality flag on its dried-blood-spot RBP
+   assay; `scripts/refresh_gee_coverage.R --run --rebuild` remains available for
+   closing covariate gaps in whatever country replaces it.
 
 ---
 
 ## Summary
 
 ::: {.callout-note appearance="minimal"}
-This pipeline estimates Admin-1 and national prevalence of 5 micronutrient deficiencies across
-4 African countries using ~900--1,100 proxy predictors from 13+ external sources and a 16-learner
-SuperLearner ensemble. Best within-country performance: **Ghana child iron AUC = 0.828**; iron
-deficiency models most robust across countries. Domain ablation shows no single predictor theme
-dominates --- climate, environmental, and health domains collectively drive prediction.
-LOCO transportability is moderate (AUC 0.47--0.73 across 4 outcomes), confirming country-specific patterns.
-Out-of-sample prediction for Cote d'Ivoire uses weighted conformal intervals for honest
-uncertainty under covariate shift.
+This pipeline estimates **Admin-2** and national prevalence of five micronutrient
+deficiencies across **four** African countries (Gambia, Ghana, Sierra Leone,
+Malawi) from proxy predictors in 13+ external sources, using a
+12-learner SuperLearner ensemble. Rebuilt in full mode 2026-08: [N] targets,
+0 errors. (A fifth country, Tanzania, was added and then withdrawn --- see
+Full Rebuild slide.)
+
+**What works.** National prevalence is recovered accurately: all **[X] of [X]**
+country x outcome predictions fall inside the survey's own 95% CI, median
+absolute error **[X] pp** ([X]% relative).
+
+**What does not.** Sub-national discrimination is weak. Median AUC across the [N]
+binary cells is **[X]**; AUC correlates *negatively* with the number of events
+($r$ = **[X]**, $p$ = **[X]**), so the high values sit in cells too small to
+measure. In the well-powered tertile median AUC is **[X]**. At Admin-2 the
+area-level models do **not** beat a national-mean null (MAE **[X]** vs **[X]** pp),
+and a spatial-smoothing-only model beats both covariate models ($r$ **[X]** vs
+**[X]**).
+
+**Why.** The Admin-2 outcome is noise-dominated. The median reliability ceiling
+is $r_{max}$ = **[X]** --- surveys were not powered at this resolution, so most
+of the between-district variance is sampling error. The individual-level model
+already captures **[X]%** of that ceiling; the binding constraint is the data, not
+the learner.
 :::
 
 ---
+
 
 ## Discussion & Feedback {background-color="#1a3a5c"}
 

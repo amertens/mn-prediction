@@ -77,7 +77,8 @@ targets::tar_make()
 
 | Parameter | Value |
 |-----------|-------|
-| SL stack | 5 learners (mean + lasso + elastic net + ranger + xgboost) |
+| SL stack | **5 learners** (mean, lasso, elastic net, ranger, xgboost) |
+| Area-level bootstrap | B = 10 |
 | CV folds | 5 |
 | Uncertainty | Split + locally-adaptive conformal intervals |
 | Approximate runtime | 10-30 minutes |
@@ -100,10 +101,50 @@ PIPELINE_MODE=full Rscript -e 'targets::tar_make()'
 
 | Parameter | Value |
 |-----------|-------|
-| SL stack | ~16 learners (glmnet ×3, ranger ×3, xgboost ×2, BART ×3, Gaussian process, + class-weighted variants for rare outcomes) |
+| SL stack | **13 learners** (glmnet ×3, ranger ×3, xgboost ×2, BART ×3, Gaussian process) |
+| Area-level bootstrap | B = 500 |
 | CV folds | 5 |
 | Uncertainty | Split + locally-adaptive conformal intervals |
 | Approximate runtime | 2-4 hours |
+
+### What actually differs between the modes
+
+Verified against the code (2026-08); the numbers in this table used to disagree
+with the ones the pipeline printed at startup.
+
+| | fast | full |
+|---|---|---|
+| SL learners | **5** | **13** |
+| Area-level bootstrap (`B_area`) | 10 | 500 |
+| CV folds (`K`) | 5 | 5 |
+| Prescreening p-value | 0.2 | 0.2 |
+| Conformal intervals | same | same |
+| Domain ablation | same | same |
+
+Those are the *only* two live differences. Full mode adds ridge, two extra
+random-forest configurations, a deeper XGBoost, three BART sizes and a Gaussian
+process — BART being the one that holds up on the rare outcomes (women's
+vitamin A and B12 sit at 1–3% prevalence) where the other learners collapse
+toward the mean.
+
+**Class-weighted learners are not a mode setting.** For any binary outcome with
+prevalence below 15%, `fit_mlr3_models()` appends a weighted XGBoost and a
+weighted ranger at fit time, in *both* modes — so a rare outcome gets 7 learners
+in fast mode and 15 in full. This was previously listed as a full-mode feature,
+which it is not.
+
+**`B_boot` does nothing.** Its only reader is `run_bootstrap_ci()` in
+`R/bootstrap.R`, which has no call sites and is preserved for reference outside
+the `targets` graph. Changing it has no effect on a `tar_make()` run.
+
+**`B_admin2` was removed** (2026-08). It was documented as controlling an
+"admin2 individual SL bootstrap" at 4 vs 50 replicates but had zero readers
+anywhere in the repository, so full mode never ran them.
+
+**Runtime.** The figures above assume a warm cache. A rebuild that invalidates
+the GEE extraction or the SuperLearner fits takes substantially longer — plan
+for hours, not minutes, and launch it detached (`scripts/run_pipeline_rerun.R`)
+rather than from a session that may exit.
 
 ### Switching between modes
 
