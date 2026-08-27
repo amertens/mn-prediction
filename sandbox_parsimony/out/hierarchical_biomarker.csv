@@ -1,0 +1,55 @@
+"cell","route","n","mae_pp","pearson","spearman"
+"gambia child_vitA","indicator (production)",30,9.16,0.458,0.552
+"gambia child_vitA","two-step mean + pooled SD",30,10.4,0.443,0.481
+"gambia child_vitA","hierarchical individual",30,18.91,0.242,0.257
+"gambia women_vitA","indicator (production)",30,3.14,0.363,0.463
+"gambia women_vitA","two-step mean + pooled SD",30,6.64,0.406,0.406
+"gambia women_vitA","hierarchical individual",30,14.15,0.034,0.174
+"gambia child_iron","indicator (production)",30,12.31,0.233,0.227
+"gambia child_iron","two-step mean + pooled SD",30,20.96,0.243,0.281
+"gambia child_iron","hierarchical individual",30,29.11,-0.043,-0.065
+"gambia women_iron","indicator (production)",30,10.01,0.583,0.646
+"gambia women_iron","two-step mean + pooled SD",30,18.39,0.477,0.566
+"gambia women_iron","hierarchical individual",30,26.66,0.073,0.018
+"ghana child_vitA","indicator (production)",75,10.52,0.169,0.101
+"ghana child_vitA","two-step mean + pooled SD",75,9.72,0.328,0.278
+"ghana child_vitA","hierarchical individual",75,12.62,0.24,0.203
+"ghana women_vitA","indicator (production)",75,2.38,-0.098,-0.101
+"ghana women_vitA","two-step mean + pooled SD",75,3.84,0.158,0.209
+"ghana women_vitA","hierarchical individual",75,6.66,0.095,0.166
+"ghana child_iron","indicator (production)",75,13.74,0.396,0.536
+"ghana child_iron","two-step mean + pooled SD",75,13.29,0.4,0.487
+"ghana child_iron","hierarchical individual",75,12.84,0.464,0.475
+"ghana women_iron","indicator (production)",75,6.67,0.167,0.275
+"ghana women_iron","two-step mean + pooled SD",75,6.42,0.424,0.444
+"ghana women_iron","hierarchical individual",75,7.72,0.375,0.42
+"ghana women_folate","indicator (production)",75,24.21,0.319,0.179
+"ghana women_folate","two-step mean + pooled SD",75,23.29,0.337,0.2
+"ghana women_folate","hierarchical individual",75,22.8,0.336,0.275
+"ghana women_b12","indicator (production)",75,9.94,0.438,0.192
+"ghana women_b12","two-step mean + pooled SD",75,9.4,0.505,0.318
+"ghana women_b12","hierarchical individual",75,11.26,0.309,0.209
+"malawi child_vitA","indicator (production)",86,8.35,-0.009,0.162
+"malawi child_vitA","two-step mean + pooled SD",86,14.82,0,0
+"malawi child_vitA","hierarchical individual",86,17.23,0.018,-0.002
+"malawi women_vitA","indicator (production)",86,2.3,-0.063,0.054
+"malawi women_vitA","two-step mean + pooled SD",86,3.64,0.061,0.119
+"malawi women_vitA","hierarchical individual",86,4.6,0.346,0.021
+"malawi child_iron","indicator (production)",86,9.16,0.064,0.014
+"malawi child_iron","two-step mean + pooled SD",86,11.68,0.304,0.223
+"malawi child_iron","hierarchical individual",86,13.26,0.302,0.225
+"malawi women_iron","indicator (production)",86,8.71,0.109,0.109
+"malawi women_iron","two-step mean + pooled SD",86,11,0.166,0.13
+"malawi women_iron","hierarchical individual",86,12.93,0.2,0.2
+"malawi women_folate","indicator (production)",86,16.07,0.351,0.369
+"malawi women_folate","two-step mean + pooled SD",86,14.35,0.467,0.439
+"malawi women_folate","hierarchical individual",86,16.68,0.338,0.358
+"malawi women_b12","indicator (production)",86,3.5,0.27,0.321
+"malawi women_b12","two-step mean + pooled SD",86,3.81,0.322,0.373
+"malawi women_b12","hierarchical individual",86,4.82,0.4,0.434
+"malawi child_zinc","indicator (production)",86,20.84,-0.017,-0.049
+"malawi child_zinc","two-step mean + pooled SD",86,21,0.053,0.047
+"malawi child_zinc","hierarchical individual",86,23.18,-0.048,-0.062
+"malawi women_zinc","indicator (production)",86,23.97,-0.002,-0.002
+"malawi women_zinc","two-step mean + pooled SD",86,23.85,-0.055,0.017
+"malawi women_zinc","hierarchical individual",86,23.7,0.038,0.056

@@ -1,0 +1,13 @@
+"outcome","country","n","cv_pearson","cv_spearman","cv_rmse_pp","lambda_d15","r_max_d15","r_max_d15_hi","pct_of_ceiling","pct_of_ceiling_optimistic"
+"child_vitA","gambia",30,0.426,0.472,12,0.451,0.671,0.823,63,52
+"child_vitA","ghana",75,0.282,0.217,14.01,0.001,0.03,0.498,NA,57
+"child_vitA","malawi",87,0.092,0.219,13.93,0,0,0.569,NA,16
+"child_iron","gambia",30,0.087,0.098,17.41,0.319,0.565,0.753,15,12
+"child_iron","ghana",75,0.609,0.55,14.59,0.451,0.672,0.79,91,77
+"child_iron","malawi",87,0.038,0.014,12.21,0.039,0.199,0.54,19,7
+"women_vitA","gambia",30,0.043,0.352,6.12,0.076,0.275,0.64,16,7
+"women_vitA","ghana",75,-0.039,0.093,8.58,0,0,0.055,NA,NA
+"women_vitA","malawi",87,0.176,0.111,5.66,0,0,0,NA,NA
+"women_iron","gambia",30,0.538,0.598,13.99,0.499,0.706,0.796,76,68
+"women_iron","ghana",75,0.225,0.34,9.43,0,0,0.33,NA,68
+"women_iron","malawi",87,-0.006,0.058,14.8,0,0,0.492,NA,-1

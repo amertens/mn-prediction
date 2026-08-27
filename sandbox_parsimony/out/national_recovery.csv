@@ -1,0 +1,61 @@
+"outcome","held_out","model","n_districts","national_design_pp","national_pred_pp","error_pp","abs_error_pp","rel_error"
+"child_vitA","gambia","PROD enet30",30,17.3,13.8,-3.4,3.4,-0.2
+"child_vitA","gambia","centered_own ridge",30,17.3,6.1,-11.1,11.1,-0.65
+"child_vitA","gambia","zscore ridge",30,17.3,8.9,-8.3,8.3,-0.48
+"child_vitA","gambia","spatial_tps",30,17.3,9.6,-7.7,7.7,-0.45
+"child_vitA","gambia","train-country mean",30,17.3,12.3,-5,5,-0.29
+"child_vitA","ghana","PROD enet30",75,13.2,9.1,-4.1,4.1,-0.31
+"child_vitA","ghana","centered_own ridge",75,13.2,4.6,-8.6,8.6,-0.65
+"child_vitA","ghana","zscore ridge",75,13.2,10.6,-2.6,2.6,-0.19
+"child_vitA","ghana","spatial_tps",75,13.2,34.1,21,21,1.59
+"child_vitA","ghana","train-country mean",75,13.2,14.5,1.3,1.3,0.1
+"child_vitA","malawi","PROD enet30",86,10.3,2.9,-7.4,7.4,-0.72
+"child_vitA","malawi","centered_own ridge",86,10.3,13.5,3.2,3.2,0.31
+"child_vitA","malawi","zscore ridge",86,10.3,14.7,4.4,4.4,0.42
+"child_vitA","malawi","spatial_tps",86,10.3,4.6,-5.7,5.7,-0.55
+"child_vitA","malawi","train-country mean",86,10.3,17.2,6.9,6.9,0.67
+"child_iron","gambia","PROD enet30",30,37.5,21.9,-15.6,15.6,-0.42
+"child_iron","gambia","centered_own ridge",30,37.5,19.1,-18.4,18.4,-0.49
+"child_iron","gambia","zscore ridge",30,37.5,24.8,-12.8,12.8,-0.34
+"child_iron","gambia","spatial_tps",30,37.5,0.9,-36.6,36.6,-0.97
+"child_iron","gambia","train-country mean",30,37.5,22.4,-15.1,15.1,-0.4
+"child_iron","ghana","PROD enet30",75,20.2,24.6,4.4,4.4,0.22
+"child_iron","ghana","centered_own ridge",75,20.2,23.1,2.9,2.9,0.15
+"child_iron","ghana","zscore ridge",75,20.2,28.4,8.2,8.2,0.41
+"child_iron","ghana","spatial_tps",75,20.2,59,38.8,38.8,1.92
+"child_iron","ghana","train-country mean",75,20.2,41,20.8,20.8,1.03
+"child_iron","malawi","PROD enet30",86,10.6,11.5,1,1,0.09
+"child_iron","malawi","centered_own ridge",86,10.6,36,25.4,25.4,2.41
+"child_iron","malawi","zscore ridge",86,10.6,28.4,17.8,17.8,1.69
+"child_iron","malawi","spatial_tps",86,10.6,0,-10.5,10.5,-1
+"child_iron","malawi","train-country mean",86,10.6,41.7,31.2,31.2,2.95
+"women_iron","gambia","PROD enet30",30,28.2,19.3,-8.9,8.9,-0.32
+"women_iron","gambia","centered_own ridge",30,28.2,8.9,-19.3,19.3,-0.68
+"women_iron","gambia","zscore ridge",30,28.2,10.6,-17.6,17.6,-0.62
+"women_iron","gambia","spatial_tps",30,28.2,0.1,-28.1,28.1,-1
+"women_iron","gambia","train-country mean",30,28.2,15.1,-13.1,13.1,-0.46
+"women_iron","ghana","PROD enet30",75,7.6,15.4,7.8,7.8,1.03
+"women_iron","ghana","centered_own ridge",75,7.6,47.1,39.6,39.6,5.22
+"women_iron","ghana","zscore ridge",75,7.6,19,11.4,11.4,1.5
+"women_iron","ghana","spatial_tps",75,7.6,54.7,47.2,47.2,6.23
+"women_iron","ghana","train-country mean",75,7.6,35.6,28,28,3.7
+"women_iron","malawi","PROD enet30",86,7.7,17,9.3,9.3,1.2
+"women_iron","malawi","centered_own ridge",86,7.7,13,5.2,5.2,0.68
+"women_iron","malawi","zscore ridge",86,7.7,17.5,9.7,9.7,1.26
+"women_iron","malawi","spatial_tps",86,7.7,0,-7.7,7.7,-1
+"women_iron","malawi","train-country mean",86,7.7,32.2,24.4,24.4,3.16
+"women_vitA","gambia","PROD enet30",30,1.7,0.8,-0.9,0.9,-0.54
+"women_vitA","gambia","centered_own ridge",30,1.7,0.8,-0.9,0.9,-0.54
+"women_vitA","gambia","zscore ridge",30,1.7,1,-0.7,0.7,-0.41
+"women_vitA","gambia","spatial_tps",30,1.7,0.7,-1,1,-0.59
+"women_vitA","gambia","train-country mean",30,1.7,1.5,-0.2,0.2,-0.14
+"women_vitA","ghana","PROD enet30",75,1.2,1,-0.2,0.2,-0.13
+"women_vitA","ghana","centered_own ridge",75,1.2,10.3,9.1,9.1,7.93
+"women_vitA","ghana","zscore ridge",75,1.2,1.7,0.5,0.5,0.45
+"women_vitA","ghana","spatial_tps",75,1.2,12.9,11.7,11.7,10.15
+"women_vitA","ghana","train-country mean",75,1.2,2.1,1,1,0.83
+"women_vitA","malawi","PROD enet30",86,2.3,0.9,-1.4,1.4,-0.6
+"women_vitA","malawi","centered_own ridge",86,2.3,1,-1.3,1.3,-0.56
+"women_vitA","malawi","zscore ridge",86,2.3,1.6,-0.7,0.7,-0.3
+"women_vitA","malawi","spatial_tps",86,2.3,1,-1.3,1.3,-0.57
+"women_vitA","malawi","train-country mean",86,2.3,2.1,-0.2,0.2,-0.09

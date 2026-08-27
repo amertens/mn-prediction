@@ -1,0 +1,5 @@
+"country","n_surveyed","n_unsurveyed","max_abs_smd","n_smd_gt_025","n_vars","worst_variable","worst_smd"
+"gambia",30,7,0.96,8,18,"gee_ndvi",-0.96
+"ghana",75,185,0.33,1,18,"gee_soilzinc_mean_0_20",-0.33
+"sierraleone",14,0,NA,NA,NA,"(nearly all surveyed)",NA
+"malawi",86,153,0.24,0,18,"gee_soiltotalcarbon_mean_0_20",-0.24

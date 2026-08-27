@@ -1,0 +1,3 @@
+"panel","source","target","n","n_countries","n_cov_pool","n_cov_used","mae_pp","pearson","spearman","folds_identified"
+"Vitamin A / Preschool-age children","both","raw outcome (control)",35,26,1598,60,15.76,0.396,0.406,0
+"Vitamin A / Preschool-age children","both","standardised outcome",35,26,1598,60,15.76,0.396,0.406,0

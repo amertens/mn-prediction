@@ -1,0 +1,306 @@
+Warning message:
+package 'dplyr' was built under R version 4.4.3 
+
+
+==============================================================================
+1. Admin-2 outcome reliability (deff = 1.5, 95% bootstrap band)
+==============================================================================
+                     cell n_areas median_n pct_n_lt_25 mean_prev_pp sd_obs_pp
+      women_vitA tanzania     168     44.5          18          7.4      8.50
+ women_folate sierraleone      14     47.0           0         80.8     10.60
+      child_vitA tanzania     167     31.0          38         22.4     15.67
+        women_iron gambia      30     25.5          50         51.5     16.53
+        women_zinc malawi      97      9.0          99         64.5     24.96
+         child_iron ghana      75     14.0          87         21.3     18.55
+        child_vitA gambia      30     22.0          57         18.8     13.48
+        child_zinc malawi      97     12.0          88         57.6     23.32
+       women_folate ghana      75      6.0         100         53.6     29.42
+      women_folate malawi      97      9.0         100         21.2     20.90
+        child_iron gambia      30     22.0          57         63.8     15.55
+          women_b12 ghana      75      6.0         100          9.5     16.51
+        women_vitA gambia      30     25.5          50          3.5      4.91
+        child_iron malawi      97     12.0          88         19.8     14.96
+   women_iron sierraleone      14     54.0           7         17.4      6.89
+         child_vitA ghana      75     14.0          87         13.5     11.53
+   child_iron sierraleone      14     36.0          14          5.9      4.81
+        child_vitA malawi      97     12.0          88          8.1     10.67
+   child_vitA sierraleone      14     36.0          14         11.2      5.84
+         women_b12 malawi      97      9.0          99          2.7      5.77
+    women_b12 sierraleone      14     47.0           0          0.4      0.71
+         women_iron ghana      75     12.0          93         13.0     11.83
+        women_iron malawi      97      8.0         100         17.2     16.47
+         women_vitA ghana      75     12.0          93          1.6      4.16
+        women_vitA malawi      97      9.0          99          1.4      4.37
+   women_vitA sierraleone      14     54.0           7          1.3      1.58
+ sd_samp_pp_d15            lambda r_max_d15 r_max_d15_hi
+           5.37 0.60 [0.39, 0.71]     0.775        0.844
+           6.72 0.60 [0.00, 0.74]     0.773        0.859
+          10.06 0.59 [0.45, 0.69]     0.766        0.832
+          11.70 0.50 [0.20, 0.63]     0.706        0.796
+          17.81 0.49 [0.34, 0.61]     0.701        0.780
+          13.75 0.45 [0.13, 0.62]     0.672        0.790
+           9.99 0.45 [0.00, 0.68]     0.671        0.823
+          17.30 0.45 [0.24, 0.60]     0.670        0.777
+          22.92 0.39 [0.08, 0.57]     0.627        0.755
+          16.72 0.36 [0.00, 0.58]     0.600        0.762
+          12.83 0.32 [0.00, 0.57]     0.565        0.753
+          15.36 0.14 [0.00, 0.62]     0.367        0.787
+           4.72 0.08 [0.00, 0.41]     0.275        0.640
+          14.67 0.04 [0.00, 0.29]     0.199        0.540
+           6.80 0.03 [0.00, 0.39]     0.167        0.623
+          11.53 0.00 [0.00, 0.25]     0.030        0.498
+           5.68 0.00 [0.00, 0.07]     0.000        0.269
+          10.96 0.00 [0.00, 0.32]     0.000        0.569
+           6.55 0.00 [0.00, 0.17]     0.000        0.416
+           6.86 0.00 [0.00, 0.00]     0.000        0.000
+           0.92 0.00 [0.00, 0.01]     0.000        0.085
+          13.78 0.00 [0.00, 0.11]     0.000        0.330
+          17.05 0.00 [0.00, 0.24]     0.000        0.492
+           4.85 0.00 [0.00, 0.00]     0.000        0.055
+           5.60 0.00 [0.00, 0.00]     0.000        0.000
+           1.84 0.00 [0.00, 0.19]     0.000        0.439
+
+
+==============================================================================
+2. Published within-country CV r as a share of the achievable ceiling
+==============================================================================
+    outcome country  n cv_pearson r_max_d15 r_max_d15_hi pct_of_ceiling
+ child_vitA  gambia 30      0.426     0.671        0.823             63
+ child_vitA   ghana 75      0.282     0.030        0.498             NA
+ child_vitA  malawi 87      0.092     0.000        0.569             NA
+ child_iron  gambia 30      0.087     0.565        0.753             15
+ child_iron   ghana 75      0.609     0.672        0.790             91
+ child_iron  malawi 87      0.038     0.199        0.540             19
+ women_vitA  gambia 30      0.043     0.275        0.640             16
+ women_vitA   ghana 75     -0.039     0.000        0.055             NA
+ women_vitA  malawi 87      0.176     0.000        0.000             NA
+ women_iron  gambia 30      0.538     0.706        0.796             76
+ women_iron   ghana 75      0.225     0.000        0.330             NA
+ women_iron  malawi 87     -0.006     0.000        0.492             NA
+ pct_of_ceiling_optimistic
+                        52
+                        57
+                        16
+                        12
+                        77
+                         7
+                         7
+                        NA
+                        NA
+                        68
+                        68
+                        -1
+
+
+==============================================================================
+3. Fay-Herriot shrinkage weight: as coded vs. with a real sampling variance
+==============================================================================
+ cells mean_gamma_as_coded mean_gamma_correct pct_no_shrinkage_as_coded
+    26               0.709              0.259                        29
+ pct_no_shrinkage_correct
+                        0
+
+gamma near 1 = the EBLUP just returns the raw direct estimate.
+
+
+==============================================================================
+4. Within-country bake-off (repeated 5-fold CV, mean over 16 cells)
+==============================================================================
+                  model cells    rho      r r_share rmse_pp med_fold_sd
+        curated16_rf_xy    16  0.276  0.272    0.69   13.28       0.046
+     decorr20_rf_sstack    16  0.271  0.271    0.73   13.47       0.064
+         decorr20_rf_xy    16  0.265  0.273    0.74   13.24       0.062
+           spatial_only    16  0.260  0.252    0.73   13.35       0.066
+            decorr20_rf    16  0.258  0.266    0.72   13.31       0.064
+ curated16_ridge_sstack    16  0.253  0.245    0.66   13.70       0.072
+     curated16_ridge_xy    16  0.223  0.223    0.71   13.51       0.074
+     PROD enet_screen30    16  0.215  0.217    0.60   13.84       0.069
+        curated16_ridge    16  0.206  0.208    0.66   13.53       0.071
+         binom_screen30    16  0.205  0.209    0.57   13.08       0.072
+        curated16_binom    16  0.199  0.193    0.52   12.96       0.083
+        domainPC2_ridge    16  0.197  0.197    0.60   13.87       0.076
+ decorr40screen12_binom    16  0.192  0.193    0.60   13.27       0.058
+         domainPC1_enet    16  0.192  0.193    0.56   13.79       0.078
+        binom_ridge_all    16  0.186  0.178    0.54   13.03       0.066
+  decorr40screen12_enet    16  0.186  0.194    0.61   13.92       0.065
+         curated16_enet    16  0.171  0.178    0.57   13.62       0.085
+          decorr20_enet    16  0.139  0.134    0.49   14.00       0.092
+         PROD ridge_all    16  0.132  0.127    0.50   13.81       0.078
+              null_mean    16 -0.218 -0.235   -0.49   13.75       0.076
+
+
+==============================================================================
+4b. Same, restricted to cells with detectable signal (r_max >= 0.35)
+==============================================================================
+                  model cells    rho      r r_share rmse_pp
+        curated16_rf_xy     8  0.374  0.376    0.58   16.26
+         decorr20_rf_xy     8  0.362  0.394    0.60   16.12
+     decorr20_rf_sstack     8  0.359  0.390    0.60   16.36
+            decorr20_rf     8  0.356  0.385    0.59   16.23
+           spatial_only     8  0.347  0.341    0.53   16.51
+     curated16_ridge_xy     8  0.320  0.330    0.51   16.76
+        curated16_ridge     8  0.318  0.323    0.50   16.74
+ curated16_ridge_sstack     8  0.318  0.322    0.50   16.95
+        domainPC2_ridge     8  0.315  0.316    0.49   16.90
+     PROD enet_screen30     8  0.310  0.320    0.49   17.16
+         curated16_enet     8  0.307  0.311    0.48   16.85
+        curated16_binom     8  0.305  0.301    0.47   15.94
+         binom_screen30     8  0.296  0.310    0.48   16.16
+         domainPC1_enet     8  0.288  0.298    0.46   16.84
+  decorr40screen12_enet     8  0.285  0.272    0.42   17.38
+ decorr40screen12_binom     8  0.282  0.280    0.43   16.43
+        binom_ridge_all     8  0.259  0.246    0.38   16.30
+         PROD ridge_all     8  0.230  0.209    0.32   17.22
+          decorr20_enet     8  0.225  0.206    0.32   17.50
+              null_mean     8 -0.246 -0.256   -0.39   17.56
+
+
+==============================================================================
+4c. Binomial GAM (counts + spatial field) vs the rest, on its 10 cells
+==============================================================================
+                  model cells    rho      r rmse_pp
+        curated16_rf_xy    10  0.360  0.355   15.05
+     decorr20_rf_sstack    10  0.357  0.374   15.15
+         decorr20_rf_xy    10  0.356  0.379   14.94
+           spatial_only    10  0.354  0.346   15.18
+            decorr20_rf    10  0.350  0.370   15.04
+     curated16_ridge_xy    10  0.333  0.334   15.38
+ curated16_ridge_sstack    10  0.329  0.320   15.62
+        curated16_ridge    10  0.318  0.320   15.39
+   gam_decorr12_spatial    10  0.298  0.304   17.68
+     PROD enet_screen30    10  0.296  0.306   15.85
+        domainPC2_ridge    10  0.294  0.303   15.59
+         curated16_enet    10  0.289  0.288   15.51
+        curated16_binom    10  0.286  0.272   14.78
+  decorr40screen12_enet    10  0.279  0.287   15.95
+         binom_screen30    10  0.278  0.294   14.91
+ decorr40screen12_binom    10  0.276  0.284   15.15
+         domainPC1_enet    10  0.272  0.284   15.51
+        binom_ridge_all    10  0.266  0.248   14.93
+    gam_curated_spatial    10  0.264  0.262   22.73
+            gam_curated    10  0.252  0.249   22.72
+           gam_decorr12    10  0.244  0.251   17.88
+         PROD ridge_all    10  0.241  0.223   15.79
+     gam_d40s12_spatial    10  0.240  0.266   18.08
+          decorr20_enet    10  0.228  0.226   16.05
+       gam_spatial_only    10  0.184  0.194   15.40
+   gam_decorr20_spatial    10  0.179  0.189   27.50
+              null_mean    10 -0.232 -0.248   16.05
+
+
+==============================================================================
+5. LOCO bake-off (4 outcomes x 4 held-out countries, as in benchmarks_all.csv)
+==============================================================================
+                variant          anchor cells   rho rho_sd rmse_pp
+       zscore ridge_all oracle_national    16 0.261  0.242    15.5
+        zscore screen30 oracle_national    16 0.190  0.287    16.5
+ centered_own ridge_all oracle_national    16 0.187  0.260    14.1
+    centered_own enet30 oracle_national    16 0.175  0.235    16.5
+  centered_own decorr20 oracle_national    16 0.163  0.125    10.2
+            PROD enet30 oracle_national    16 0.154  0.298    11.0
+       zscore curated16 oracle_national    16 0.148  0.307    14.9
+         PROD ridge_all oracle_national    16 0.140  0.259    11.7
+     spatial + decorr20 oracle_national    16 0.113  0.230    14.8
+            spatial_tps oracle_national    16 0.106  0.326    11.1
+        zscore decorr20 oracle_national    16 0.091  0.293    15.6
+       zscore ridge_all      train_mean    16 0.261  0.242    17.8
+        zscore screen30      train_mean    16 0.190  0.287    18.6
+ centered_own ridge_all      train_mean    16 0.187  0.260    19.7
+    centered_own enet30      train_mean    16 0.175  0.235    21.9
+  centered_own decorr20      train_mean    16 0.163  0.125    15.5
+            PROD enet30      train_mean    16 0.154  0.298    14.5
+       zscore curated16      train_mean    16 0.148  0.307    18.2
+         PROD ridge_all      train_mean    16 0.140  0.259    16.1
+     spatial + decorr20      train_mean    16 0.113  0.230    20.1
+            spatial_tps      train_mean    16 0.106  0.326    16.5
+        zscore decorr20      train_mean    16 0.091  0.293    18.6
+ pattern_rmse_pp abs_level_bias_pp
+            14.5               5.2
+            15.6               5.1
+            11.6               5.6
+            11.6               8.0
+            10.0               1.7
+            10.7               2.1
+            14.0               4.6
+            10.9               2.6
+            14.6               2.1
+            10.9               2.0
+            14.7               4.8
+            13.0               8.7
+            14.0               8.7
+            11.8              13.1
+            11.8              15.4
+             9.9               9.5
+            10.0               8.9
+            13.3               9.1
+            10.8               9.2
+            14.1              12.1
+            10.5              11.5
+            13.9               9.0
+
+
+==============================================================================
+5b. What a known national anchor buys, per cell (best model each way)
+==============================================================================
+    outcome    held_out oracle_national train_mean rmse_pp_saved
+ child_iron      gambia            12.9       45.0          32.1
+ women_iron      gambia            11.4       18.0           6.6
+ child_vitA       ghana            10.6       13.1           2.5
+ women_iron       ghana            10.5       11.8           1.3
+ child_vitA      gambia            12.6       13.4           0.8
+ child_vitA sierraleone             5.8        6.4           0.6
+ women_iron      malawi            16.2       16.7           0.5
+ child_iron sierraleone             4.3        4.7           0.4
+ women_iron sierraleone             6.8        7.1           0.3
+ women_vitA      gambia             4.9        5.2           0.3
+ women_vitA sierraleone             1.4        1.6           0.2
+ child_vitA      malawi            10.6       10.7           0.1
+ women_vitA       ghana             4.0        4.1           0.1
+ women_vitA      malawi             4.3        4.4           0.1
+ child_iron      malawi            15.3       15.3           0.0
+ child_iron       ghana            16.0       15.7          -0.3
+
+
+==============================================================================
+6. Response scale: logit (production) vs raw prevalence, LOCO
+==============================================================================
+                  model continuous  logit gain_from_raw_scale
+            spatial_tps      0.274  0.106               0.168
+        curated16_ridge     -0.020 -0.089               0.069
+ centered_own ridge_all      0.248  0.187               0.061
+              ridge_all      0.191  0.140               0.051
+            PROD enet30      0.202  0.154               0.048
+  centered_own decorr20      0.150  0.163              -0.013
+
+
+==============================================================================
+7. Cost of pooling with a country whose GEE extraction is incomplete
+==============================================================================
+    outcome               pool n_pred_pool cells   rho rmse_pp
+ child_vitA  four_country_pool         366    20 0.134    14.2
+ child_vitA with_tanzania_pool         237    20 0.095    15.2
+ women_vitA  four_country_pool         366    20 0.034     4.0
+ women_vitA with_tanzania_pool         237    20 0.018     4.0
+
+
+==============================================================================
+8. GEE_COVARIATE_HYGIENE on vs off (paired on the same cells)
+==============================================================================
+   eval         model cells rho_off rho_on rmse_pp_off rmse_pp_on rho_gain
+   loco decorr20_enet    16   0.133  0.052       24.49      25.02   -0.081
+   loco enet_screen30    16   0.212  0.228       30.85      26.25    0.016
+   loco     ridge_all    16   0.222  0.238       29.15      29.71    0.016
+ within decorr20_enet    12   0.160  0.155       16.80      16.64   -0.005
+ within enet_screen30    12   0.264  0.276       16.55      16.48    0.012
+ within     ridge_all    12   0.162  0.177       16.52      16.41    0.015
+
+
+==============================================================================
+9. Join sanity (Moran I on covariates should be well above 0)
+==============================================================================
+  country cells moran_cov moran_outcome
+   gambia     4     0.497         0.289
+    ghana     6     0.725         0.216
+   malawi     8     0.376         0.085
+ tanzania     2     0.569         0.064
+

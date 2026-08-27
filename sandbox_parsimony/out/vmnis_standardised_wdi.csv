@@ -1,0 +1,7 @@
+"panel","source","target","n","n_countries","n_cov_pool","n_cov_used","mae_pp","pearson","spearman","folds_identified"
+"Vitamin A / Preschool-age children","wdi","raw outcome (control)",115,69,18,23,12.46,0.592,0.6,69
+"Vitamin A / Preschool-age children","wdi","standardised outcome",115,69,18,23,10.81,0.514,0.639,69
+"Zinc / Preschool-age children","wdi","raw outcome (control)",41,30,18,20,15.9,0.062,0.147,0
+"Zinc / Preschool-age children","wdi","standardised outcome",41,30,18,20,15.9,0.062,0.147,0
+"Folate / Non-pregnant women (NPW)","wdi","raw outcome (control)",32,28,18,23,16.5,0.54,0.503,0
+"Folate / Non-pregnant women (NPW)","wdi","standardised outcome",32,28,18,23,16.5,0.54,0.503,0

@@ -1,0 +1,4 @@
+"panel","source","model","n_cov_pool","n_cov_used","n_surveys","n_countries","mean_prev_pp","mae_pp","rmse_pp","pearson","spearman"
+"Vitamin A | Preschool-age children","panel","null",1580,150,36,27,39.9,19.31,23.54,-0.859,-0.85
+"Vitamin A | Preschool-age children","panel","ridge",1580,150,36,27,39.9,18.8,23.17,0.211,0.251
+"Vitamin A | Preschool-age children","panel","rf",1580,150,36,27,39.9,20.18,25.63,-0.027,0.003

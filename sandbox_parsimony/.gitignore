@@ -1,0 +1,9 @@
+# Rebuildable caches (00_assemble.R regenerates these from _targets_full/)
+out/*.rds
+# Run logs and mid-run checkpoints
+out/*_log.txt
+out/*_partial.csv
+# Large downloaded rasters (23_travel_time.R re-fetches on demand)
+out/_geodata/
+out/_tz_access_cache/
+out/vmnis_national_slim.rds

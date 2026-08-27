@@ -1,0 +1,379 @@
+"country","outcome","level","model","n_units","n_pred","cv","r_max","pearson","spearman","rmse_pp","mae_pp"
+"gambia","child_vitA","Admin2","null_mean",30,501,"5-fold x10",0.671,-0.2,-0.19,13.56,11.06
+"gambia","child_vitA","Admin2","curated_xy",30,501,"5-fold x10",0.671,0.481,0.557,11.97,9.26
+"gambia","child_vitA","Admin2","curated_ridge",30,501,"5-fold x10",0.671,0.473,0.435,11.92,10.06
+"gambia","child_vitA","Admin2","decorr20_xy",30,501,"5-fold x10",0.671,0.516,0.536,11.82,9.32
+"gambia","child_vitA","Admin2","adaptive_top10_xy",30,501,"5-fold x10",0.671,0.443,0.49,12.49,9.93
+"gambia","child_vitA","Admin2","adaptive_top20_xy",30,501,"5-fold x10",0.671,0.45,0.498,12.45,9.9
+"gambia","child_vitA","Admin2","adaptive_lasso_xy",30,501,"5-fold x10",0.671,0.425,0.442,12.5,10.04
+"gambia","child_vitA","Admin2","adaptive_top20_ridge",30,501,"5-fold x10",0.671,0.441,0.467,12.34,9.99
+"gambia","child_vitA","Admin2","LEAKY_top20_xy",30,501,"5-fold x10",0.671,0.494,0.524,12.04,9.59
+"gambia","women_vitA","Admin2","null_mean",30,501,"5-fold x10",0.275,-0.299,-0.258,5.07,3.7
+"gambia","women_vitA","Admin2","curated_xy",30,501,"5-fold x10",0.275,0.276,0.362,4.85,3.22
+"gambia","women_vitA","Admin2","curated_ridge",30,501,"5-fold x10",0.275,0.293,0.35,5.02,3.34
+"gambia","women_vitA","Admin2","decorr20_xy",30,501,"5-fold x10",0.275,0.338,0.378,4.84,3.23
+"gambia","women_vitA","Admin2","adaptive_top10_xy",30,501,"5-fold x10",0.275,0.325,0.364,4.79,3.21
+"gambia","women_vitA","Admin2","adaptive_top20_xy",30,501,"5-fold x10",0.275,0.351,0.376,4.77,3.18
+"gambia","women_vitA","Admin2","adaptive_lasso_xy",30,501,"5-fold x10",0.275,0.317,0.374,4.82,3.19
+"gambia","women_vitA","Admin2","adaptive_top20_ridge",30,501,"5-fold x10",0.275,0.184,0.374,5.77,3.62
+"gambia","women_vitA","Admin2","LEAKY_top20_xy",30,501,"5-fold x10",0.275,0.621,0.536,4.38,2.91
+"gambia","child_iron","Admin2","null_mean",30,501,"5-fold x10",0.565,-0.246,-0.231,16.41,14.02
+"gambia","child_iron","Admin2","curated_xy",30,501,"5-fold x10",0.565,0.271,0.263,15.75,11.96
+"gambia","child_iron","Admin2","curated_ridge",30,501,"5-fold x10",0.565,0.26,0.325,15.57,12.69
+"gambia","child_iron","Admin2","decorr20_xy",30,501,"5-fold x10",0.565,0.291,0.294,15.59,12.48
+"gambia","child_iron","Admin2","adaptive_top10_xy",30,501,"5-fold x10",0.565,0.235,0.253,16.73,13.36
+"gambia","child_iron","Admin2","adaptive_top20_xy",30,501,"5-fold x10",0.565,0.241,0.253,16.57,13.33
+"gambia","child_iron","Admin2","adaptive_lasso_xy",30,501,"5-fold x10",0.565,0.288,0.302,15.79,12.56
+"gambia","child_iron","Admin2","adaptive_top20_ridge",30,501,"5-fold x10",0.565,0.191,0.212,16.79,13.45
+"gambia","child_iron","Admin2","LEAKY_top20_xy",30,501,"5-fold x10",0.565,0.286,0.297,16.03,12.83
+"gambia","women_iron","Admin2","null_mean",30,501,"5-fold x10",0.712,-0.218,-0.269,17.54,13.65
+"gambia","women_iron","Admin2","curated_xy",30,501,"5-fold x10",0.712,0.598,0.679,13.17,9.49
+"gambia","women_iron","Admin2","curated_ridge",30,501,"5-fold x10",0.712,0.579,0.657,14.06,10.55
+"gambia","women_iron","Admin2","decorr20_xy",30,501,"5-fold x10",0.712,0.638,0.648,12.9,9.87
+"gambia","women_iron","Admin2","adaptive_top10_xy",30,501,"5-fold x10",0.712,0.57,0.578,13.52,10.34
+"gambia","women_iron","Admin2","adaptive_top20_xy",30,501,"5-fold x10",0.712,0.576,0.57,13.45,10.28
+"gambia","women_iron","Admin2","adaptive_lasso_xy",30,501,"5-fold x10",0.712,0.56,0.593,13.59,10.29
+"gambia","women_iron","Admin2","adaptive_top20_ridge",30,501,"5-fold x10",0.712,0.538,0.586,14.18,10.77
+"gambia","women_iron","Admin2","LEAKY_top20_xy",30,501,"5-fold x10",0.712,0.619,0.602,13.04,9.86
+"ghana","child_vitA","Admin1","null_mean",16,625,"LOO",0.66,-0.73,-0.856,7.38,6.04
+"ghana","child_vitA","Admin1","curated_xy",16,625,"LOO",0.66,0.478,0.397,5.99,5.01
+"ghana","child_vitA","Admin1","curated_ridge",16,625,"LOO",0.66,0.168,0.215,6.75,5.61
+"ghana","child_vitA","Admin1","decorr20_xy",16,625,"LOO",0.66,0.176,0.076,6.79,5.69
+"ghana","child_vitA","Admin1","adaptive_top10_xy",16,625,"LOO",0.66,0.196,0.156,7.17,5.77
+"ghana","child_vitA","Admin1","adaptive_top20_xy",16,625,"LOO",0.66,0.344,0.276,6.49,5.4
+"ghana","child_vitA","Admin1","adaptive_lasso_xy",16,625,"LOO",0.66,0.335,0.376,6.52,5.36
+"ghana","child_vitA","Admin1","adaptive_top20_ridge",16,625,"LOO",0.66,-0.279,-0.429,7.68,6.71
+"ghana","child_vitA","Admin1","LEAKY_top20_xy",16,625,"LOO",0.66,0.421,0.309,6.27,5.27
+"ghana","women_vitA","Admin1","null_mean",16,625,"LOO",0,-0.801,-0.863,1.59,1.35
+"ghana","women_vitA","Admin1","curated_xy",16,625,"LOO",0,0.694,0.623,1.17,0.96
+"ghana","women_vitA","Admin1","curated_ridge",16,625,"LOO",0,0.285,0.402,1.44,1.26
+"ghana","women_vitA","Admin1","decorr20_xy",16,625,"LOO",0,0.481,0.439,1.36,1.17
+"ghana","women_vitA","Admin1","adaptive_top10_xy",16,625,"LOO",0,0.711,0.568,1.08,0.92
+"ghana","women_vitA","Admin1","adaptive_top20_xy",16,625,"LOO",0,0.691,0.519,1.11,0.96
+"ghana","women_vitA","Admin1","adaptive_lasso_xy",16,625,"LOO",0,0.591,0.513,1.22,1.05
+"ghana","women_vitA","Admin1","adaptive_top20_ridge",16,625,"LOO",0,0.784,0.513,1.04,0.95
+"ghana","women_vitA","Admin1","LEAKY_top20_xy",16,625,"LOO",0,0.765,0.617,1.02,0.85
+"ghana","child_iron","Admin1","null_mean",16,625,"LOO",0.909,-0.857,-0.806,15.55,12.54
+"ghana","child_iron","Admin1","curated_xy",16,625,"LOO",0.909,0.514,0.54,12.1,9.53
+"ghana","child_iron","Admin1","curated_ridge",16,625,"LOO",0.909,0.272,0.361,13.55,9.91
+"ghana","child_iron","Admin1","decorr20_xy",16,625,"LOO",0.909,0.446,0.53,12.6,9.43
+"ghana","child_iron","Admin1","adaptive_top10_xy",16,625,"LOO",0.909,0.627,0.764,11.29,8.88
+"ghana","child_iron","Admin1","adaptive_top20_xy",16,625,"LOO",0.909,0.586,0.686,11.72,9.18
+"ghana","child_iron","Admin1","adaptive_lasso_xy",16,625,"LOO",0.909,0.672,0.546,10.45,8.33
+"ghana","child_iron","Admin1","adaptive_top20_ridge",16,625,"LOO",0.909,0.477,0.649,12.63,9.33
+"ghana","child_iron","Admin1","LEAKY_top20_xy",16,625,"LOO",0.909,0.679,0.758,10.41,8.11
+"ghana","women_iron","Admin1","null_mean",16,625,"LOO",0.692,-0.828,-0.748,5.83,4.68
+"ghana","women_iron","Admin1","curated_xy",16,625,"LOO",0.692,0.512,0.519,4.78,3.49
+"ghana","women_iron","Admin1","curated_ridge",16,625,"LOO",0.692,-0.304,-0.389,5.66,4.73
+"ghana","women_iron","Admin1","decorr20_xy",16,625,"LOO",0.692,0.474,0.612,4.85,3.57
+"ghana","women_iron","Admin1","adaptive_top10_xy",16,625,"LOO",0.692,0.578,0.561,4.51,3.47
+"ghana","women_iron","Admin1","adaptive_top20_xy",16,625,"LOO",0.692,0.256,0.328,5.17,4.17
+"ghana","women_iron","Admin1","adaptive_lasso_xy",16,625,"LOO",0.692,0.385,0.502,4.92,3.84
+"ghana","women_iron","Admin1","adaptive_top20_ridge",16,625,"LOO",0.692,0.024,0.041,5.59,4.74
+"ghana","women_iron","Admin1","LEAKY_top20_xy",16,625,"LOO",0.692,0.536,0.592,4.57,3.7
+"ghana","women_folate","Admin1","null_mean",16,625,"LOO",0.913,-0.764,-0.871,25.42,18.54
+"ghana","women_folate","Admin1","curated_xy",16,625,"LOO",0.913,0.127,0.074,24.88,20.09
+"ghana","women_folate","Admin1","curated_ridge",16,625,"LOO",0.913,-0.506,-0.803,26.04,19.46
+"ghana","women_folate","Admin1","decorr20_xy",16,625,"LOO",0.913,0.218,0.256,24.16,17.96
+"ghana","women_folate","Admin1","adaptive_top10_xy",16,625,"LOO",0.913,0.275,0.3,23.87,17.24
+"ghana","women_folate","Admin1","adaptive_top20_xy",16,625,"LOO",0.913,0.424,0.509,22.5,16.25
+"ghana","women_folate","Admin1","adaptive_lasso_xy",16,625,"LOO",0.913,0.475,0.521,21.81,17.49
+"ghana","women_folate","Admin1","adaptive_top20_ridge",16,625,"LOO",0.913,0.23,0.094,25.6,18.99
+"ghana","women_folate","Admin1","LEAKY_top20_xy",16,625,"LOO",0.913,0.761,0.753,18.69,13.28
+"ghana","women_b12","Admin1","null_mean",16,625,"LOO",0.809,-0.821,-0.685,11.5,7.7
+"ghana","women_b12","Admin1","curated_xy",16,625,"LOO",0.809,-0.181,-0.209,12.26,7.38
+"ghana","women_b12","Admin1","curated_ridge",16,625,"LOO",0.809,-0.315,-0.651,11.81,6.62
+"ghana","women_b12","Admin1","decorr20_xy",16,625,"LOO",0.809,-0.277,-0.298,12.08,6.89
+"ghana","women_b12","Admin1","adaptive_top10_xy",16,625,"LOO",0.809,-0.27,-0.341,13.45,8.35
+"ghana","women_b12","Admin1","adaptive_top20_xy",16,625,"LOO",0.809,-0.19,-0.058,13.11,7.69
+"ghana","women_b12","Admin1","adaptive_lasso_xy",16,625,"LOO",0.809,-0.164,-0.019,12.39,7.64
+"ghana","women_b12","Admin1","adaptive_top20_ridge",16,625,"LOO",0.809,-0.255,-0.586,12.54,7.6
+"ghana","women_b12","Admin1","LEAKY_top20_xy",16,625,"LOO",0.809,0.555,0.285,10.33,6.27
+"ghana","child_vitA","Admin2","null_mean",75,625,"5-fold x10",0.03,-0.214,-0.193,11.73,9.76
+"ghana","child_vitA","Admin2","curated_xy",75,625,"5-fold x10",0.03,0.286,0.189,11.97,9.95
+"ghana","child_vitA","Admin2","curated_ridge",75,625,"5-fold x10",0.03,0.214,0.199,11.88,9.67
+"ghana","child_vitA","Admin2","decorr20_xy",75,625,"5-fold x10",0.03,0.315,0.239,11.79,9.65
+"ghana","child_vitA","Admin2","adaptive_top10_xy",75,625,"5-fold x10",0.03,0.255,0.188,12.26,9.73
+"ghana","child_vitA","Admin2","adaptive_top20_xy",75,625,"5-fold x10",0.03,0.261,0.178,12.19,9.78
+"ghana","child_vitA","Admin2","adaptive_lasso_xy",75,625,"5-fold x10",0.03,0.289,0.204,11.95,9.73
+"ghana","child_vitA","Admin2","adaptive_top20_ridge",75,625,"5-fold x10",0.03,0.209,0.239,12.44,9.71
+"ghana","child_vitA","Admin2","LEAKY_top20_xy",75,625,"5-fold x10",0.03,0.352,0.276,11.59,9.25
+"ghana","women_vitA","Admin2","null_mean",75,625,"5-fold x10",0,-0.242,-0.24,4.21,2.7
+"ghana","women_vitA","Admin2","curated_xy",75,625,"5-fold x10",0,-0.101,-0.104,4.28,2.3
+"ghana","women_vitA","Admin2","curated_ridge",75,625,"5-fold x10",0,-0.154,-0.125,4.23,2.2
+"ghana","women_vitA","Admin2","decorr20_xy",75,625,"5-fold x10",0,-0.133,-0.116,4.29,2.32
+"ghana","women_vitA","Admin2","adaptive_top10_xy",75,625,"5-fold x10",0,-0.076,-0.019,4.34,2.38
+"ghana","women_vitA","Admin2","adaptive_top20_xy",75,625,"5-fold x10",0,-0.079,-0.008,4.31,2.34
+"ghana","women_vitA","Admin2","adaptive_lasso_xy",75,625,"5-fold x10",0,-0.068,-0.044,4.3,2.36
+"ghana","women_vitA","Admin2","adaptive_top20_ridge",75,625,"5-fold x10",0,-0.024,-0.004,4.23,2.23
+"ghana","women_vitA","Admin2","LEAKY_top20_xy",75,625,"5-fold x10",0,-0.011,0.138,4.27,2.3
+"ghana","child_iron","Admin2","null_mean",75,625,"5-fold x10",0.672,-0.235,-0.211,19,15.52
+"ghana","child_iron","Admin2","curated_xy",75,625,"5-fold x10",0.672,0.527,0.546,16.37,12.65
+"ghana","child_iron","Admin2","curated_ridge",75,625,"5-fold x10",0.672,0.504,0.457,16.4,12.37
+"ghana","child_iron","Admin2","decorr20_xy",75,625,"5-fold x10",0.672,0.542,0.509,16.14,12.7
+"ghana","child_iron","Admin2","adaptive_top10_xy",75,625,"5-fold x10",0.672,0.577,0.546,15.93,12.41
+"ghana","child_iron","Admin2","adaptive_top20_xy",75,625,"5-fold x10",0.672,0.575,0.54,15.94,12.44
+"ghana","child_iron","Admin2","adaptive_lasso_xy",75,625,"5-fold x10",0.672,0.586,0.52,15.74,12.56
+"ghana","child_iron","Admin2","adaptive_top20_ridge",75,625,"5-fold x10",0.672,0.6,0.536,15.2,12.2
+"ghana","child_iron","Admin2","LEAKY_top20_xy",75,625,"5-fold x10",0.672,0.598,0.584,15.51,12
+"ghana","women_iron","Admin2","null_mean",75,625,"5-fold x10",0,-0.198,-0.184,9.36,6.95
+"ghana","women_iron","Admin2","curated_xy",75,625,"5-fold x10",0,0.277,0.351,9.45,6.37
+"ghana","women_iron","Admin2","curated_ridge",75,625,"5-fold x10",0,-0.075,-0.075,9.95,7.13
+"ghana","women_iron","Admin2","decorr20_xy",75,625,"5-fold x10",0,0.412,0.45,9.14,6.22
+"ghana","women_iron","Admin2","adaptive_top10_xy",75,625,"5-fold x10",0,0.39,0.314,8.96,6.25
+"ghana","women_iron","Admin2","adaptive_top20_xy",75,625,"5-fold x10",0,0.409,0.334,8.91,6.2
+"ghana","women_iron","Admin2","adaptive_lasso_xy",75,625,"5-fold x10",0,0.393,0.329,9,6.31
+"ghana","women_iron","Admin2","adaptive_top20_ridge",75,625,"5-fold x10",0,0.292,0.214,9.28,6.58
+"ghana","women_iron","Admin2","LEAKY_top20_xy",75,625,"5-fold x10",0,0.569,0.47,8.22,5.75
+"ghana","women_folate","Admin2","null_mean",75,625,"5-fold x10",0.627,-0.194,-0.183,29.57,25.18
+"ghana","women_folate","Admin2","curated_xy",75,625,"5-fold x10",0.627,0.369,0.287,28.41,23.5
+"ghana","women_folate","Admin2","curated_ridge",75,625,"5-fold x10",0.627,0.426,0.371,28.05,22.34
+"ghana","women_folate","Admin2","decorr20_xy",75,625,"5-fold x10",0.627,0.35,0.264,28.52,23.48
+"ghana","women_folate","Admin2","adaptive_top10_xy",75,625,"5-fold x10",0.627,0.268,0.217,30.98,25.37
+"ghana","women_folate","Admin2","adaptive_top20_xy",75,625,"5-fold x10",0.627,0.268,0.201,30.67,25.32
+"ghana","women_folate","Admin2","adaptive_lasso_xy",75,625,"5-fold x10",0.627,0.317,0.235,29.65,24.5
+"ghana","women_folate","Admin2","adaptive_top20_ridge",75,625,"5-fold x10",0.627,0.229,0.156,31.4,25.76
+"ghana","women_folate","Admin2","LEAKY_top20_xy",75,625,"5-fold x10",0.627,0.306,0.231,29.84,24.4
+"ghana","women_b12","Admin2","null_mean",75,625,"5-fold x10",0.367,-0.173,-0.19,16.59,11.77
+"ghana","women_b12","Admin2","curated_xy",75,625,"5-fold x10",0.367,0.385,0.177,16.55,9.91
+"ghana","women_b12","Admin2","curated_ridge",75,625,"5-fold x10",0.367,-0.005,-0.059,17.85,10.2
+"ghana","women_b12","Admin2","decorr20_xy",75,625,"5-fold x10",0.367,0.374,0.298,16.8,9.7
+"ghana","women_b12","Admin2","adaptive_top10_xy",75,625,"5-fold x10",0.367,0.169,0.214,17.79,10.39
+"ghana","women_b12","Admin2","adaptive_top20_xy",75,625,"5-fold x10",0.367,0.23,0.238,17.1,10.07
+"ghana","women_b12","Admin2","adaptive_lasso_xy",75,625,"5-fold x10",0.367,0.263,0.266,16.95,9.93
+"ghana","women_b12","Admin2","adaptive_top20_ridge",75,625,"5-fold x10",0.367,0.249,0.22,17.22,9.85
+"ghana","women_b12","Admin2","LEAKY_top20_xy",75,625,"5-fold x10",0.367,0.259,0.308,16.82,9.69
+"sierraleone","child_vitA","Admin2","null_mean",14,617,"LOO",0,-0.946,-0.947,6.1,4.96
+"sierraleone","child_vitA","Admin2","curated_xy",14,617,"LOO",0,-0.153,-0.134,6.06,5.26
+"sierraleone","child_vitA","Admin2","curated_ridge",14,617,"LOO",0,-0.716,-0.934,6.26,5.06
+"sierraleone","child_vitA","Admin2","decorr20_xy",14,617,"LOO",0,0.139,0.051,5.64,4.81
+"sierraleone","child_vitA","Admin2","adaptive_top10_xy",14,617,"LOO",0,-0.124,-0.103,6.51,5.55
+"sierraleone","child_vitA","Admin2","adaptive_top20_xy",14,617,"LOO",0,-0.178,-0.134,6.63,5.55
+"sierraleone","child_vitA","Admin2","adaptive_lasso_xy",14,617,"LOO",0,-0.368,-0.473,7.16,6.42
+"sierraleone","child_vitA","Admin2","adaptive_top20_ridge",14,617,"LOO",0,0.04,-0.108,6.25,5.08
+"sierraleone","child_vitA","Admin2","LEAKY_top20_xy",14,617,"LOO",0,0.428,0.473,5.15,4.48
+"sierraleone","women_vitA","Admin2","null_mean",14,617,"LOO",0,-0.944,-0.862,1.65,1.36
+"sierraleone","women_vitA","Admin2","curated_xy",14,617,"LOO",0,-0.655,-0.737,1.77,1.48
+"sierraleone","women_vitA","Admin2","curated_ridge",14,617,"LOO",0,-0.858,-0.842,1.6,1.29
+"sierraleone","women_vitA","Admin2","decorr20_xy",14,617,"LOO",0,-0.657,-0.7,1.72,1.42
+"sierraleone","women_vitA","Admin2","adaptive_top10_xy",14,617,"LOO",0,-0.612,-0.75,2.02,1.78
+"sierraleone","women_vitA","Admin2","adaptive_top20_xy",14,617,"LOO",0,-0.623,-0.755,1.95,1.7
+"sierraleone","women_vitA","Admin2","adaptive_lasso_xy",14,617,"LOO",0,-0.703,-0.812,1.81,1.51
+"sierraleone","women_vitA","Admin2","adaptive_top20_ridge",14,617,"LOO",0,-0.602,-0.75,1.83,1.52
+"sierraleone","women_vitA","Admin2","LEAKY_top20_xy",14,617,"LOO",0,-0.193,-0.135,1.67,1.37
+"sierraleone","child_iron","Admin2","null_mean",14,617,"LOO",0,-0.95,-0.987,4.98,4.06
+"sierraleone","child_iron","Admin2","curated_xy",14,617,"LOO",0,-0.078,-0.033,5.17,3.94
+"sierraleone","child_iron","Admin2","curated_ridge",14,617,"LOO",0,-0.455,-0.925,5.48,4.33
+"sierraleone","child_iron","Admin2","decorr20_xy",14,617,"LOO",0,-0.076,-0.147,5.22,3.87
+"sierraleone","child_iron","Admin2","adaptive_top10_xy",14,617,"LOO",0,-0.06,0.033,5.36,4.23
+"sierraleone","child_iron","Admin2","adaptive_top20_xy",14,617,"LOO",0,-0.182,-0.108,5.67,4.58
+"sierraleone","child_iron","Admin2","adaptive_lasso_xy",14,617,"LOO",0,-0.082,0.077,5.32,4.11
+"sierraleone","child_iron","Admin2","adaptive_top20_ridge",14,617,"LOO",0,-0.409,-0.481,6.07,4.69
+"sierraleone","child_iron","Admin2","LEAKY_top20_xy",14,617,"LOO",0,0.271,0.341,4.75,3.64
+"sierraleone","women_iron","Admin2","null_mean",14,617,"LOO",0.707,-0.959,-0.938,7.11,5.44
+"sierraleone","women_iron","Admin2","curated_xy",14,617,"LOO",0.707,-0.5,-0.323,7.96,5.87
+"sierraleone","women_iron","Admin2","curated_ridge",14,617,"LOO",0.707,-0.87,-0.943,7.22,5.45
+"sierraleone","women_iron","Admin2","decorr20_xy",14,617,"LOO",0.707,-0.611,-0.459,7.97,6.01
+"sierraleone","women_iron","Admin2","adaptive_top10_xy",14,617,"LOO",0.707,-0.563,-0.415,8.41,6.42
+"sierraleone","women_iron","Admin2","adaptive_top20_xy",14,617,"LOO",0.707,-0.424,-0.248,8.08,6.09
+"sierraleone","women_iron","Admin2","adaptive_lasso_xy",14,617,"LOO",0.707,-0.556,-0.42,8.23,6.27
+"sierraleone","women_iron","Admin2","adaptive_top20_ridge",14,617,"LOO",0.707,-0.189,-0.13,7.77,6.09
+"sierraleone","women_iron","Admin2","LEAKY_top20_xy",14,617,"LOO",0.707,-0.177,-0.046,7.57,5.47
+"sierraleone","women_folate","Admin2","null_mean",14,617,"LOO",0.773,-0.958,-0.956,10.98,9.45
+"sierraleone","women_folate","Admin2","curated_xy",14,617,"LOO",0.773,-0.094,-0.077,11.5,9.15
+"sierraleone","women_folate","Admin2","curated_ridge",14,617,"LOO",0.773,0.16,-0.442,16.21,11.93
+"sierraleone","women_folate","Admin2","decorr20_xy",14,617,"LOO",0.773,-0.188,-0.121,11.44,8.91
+"sierraleone","women_folate","Admin2","adaptive_top10_xy",14,617,"LOO",0.773,-0.322,-0.152,13.32,11.2
+"sierraleone","women_folate","Admin2","adaptive_top20_xy",14,617,"LOO",0.773,-0.288,-0.095,13.03,10.66
+"sierraleone","women_folate","Admin2","adaptive_lasso_xy",14,617,"LOO",0.773,-0.079,0.081,11.74,8.85
+"sierraleone","women_folate","Admin2","adaptive_top20_ridge",14,617,"LOO",0.773,-0.354,-0.116,13.21,10.35
+"sierraleone","women_folate","Admin2","LEAKY_top20_xy",14,617,"LOO",0.773,0.375,0.284,9.53,7.11
+"sierraleone","women_b12","Admin2","null_mean",14,617,"LOO",0,-0.957,-0.783,0.77,0.74
+"sierraleone","women_b12","Admin2","curated_xy",14,617,"LOO",0,0.243,0.44,0.74,0.72
+"sierraleone","women_b12","Admin2","curated_ridge",14,617,"LOO",0,-0.959,-0.783,0.8,0.78
+"sierraleone","women_b12","Admin2","decorr20_xy",14,617,"LOO",0,0.225,0.173,0.74,0.72
+"sierraleone","women_b12","Admin2","adaptive_top10_xy",14,617,"LOO",0,0.433,0.41,0.69,0.66
+"sierraleone","women_b12","Admin2","adaptive_top20_xy",14,617,"LOO",0,0.263,0.308,0.73,0.69
+"sierraleone","women_b12","Admin2","adaptive_lasso_xy",14,617,"LOO",0,0.374,0.581,0.71,0.66
+"sierraleone","women_b12","Admin2","adaptive_top20_ridge",14,617,"LOO",0,0.349,0.242,0.75,0.72
+"sierraleone","women_b12","Admin2","LEAKY_top20_xy",14,617,"LOO",0,0.506,0.418,0.68,0.63
+"malawi","child_vitA","Admin1","null_mean",27,621,"LOO",0.388,-0.88,-0.933,7.13,5.85
+"malawi","child_vitA","Admin1","curated_xy",27,621,"LOO",0.388,0.039,-0.019,7.51,6.01
+"malawi","child_vitA","Admin1","curated_ridge",27,621,"LOO",0.388,-0.24,-0.551,7.39,5.68
+"malawi","child_vitA","Admin1","decorr20_xy",27,621,"LOO",0.388,0.159,0.044,7.26,5.57
+"malawi","child_vitA","Admin1","adaptive_top10_xy",27,621,"LOO",0.388,-0.141,-0.18,7.99,6.67
+"malawi","child_vitA","Admin1","adaptive_top20_xy",27,621,"LOO",0.388,-0.061,-0.177,7.74,6.58
+"malawi","child_vitA","Admin1","adaptive_lasso_xy",27,621,"LOO",0.388,0.011,-0.033,7.54,6.13
+"malawi","child_vitA","Admin1","adaptive_top20_ridge",27,621,"LOO",0.388,-0.098,-0.148,7.95,6.54
+"malawi","child_vitA","Admin1","LEAKY_top20_xy",27,621,"LOO",0.388,0.385,0.378,6.69,5.68
+"malawi","women_vitA","Admin1","null_mean",27,621,"LOO",0,-0.945,-0.863,2.78,2.38
+"malawi","women_vitA","Admin1","curated_xy",27,621,"LOO",0,-0.183,-0.087,2.84,2.3
+"malawi","women_vitA","Admin1","curated_ridge",27,621,"LOO",0,-0.455,-0.559,2.85,2.25
+"malawi","women_vitA","Admin1","decorr20_xy",27,621,"LOO",0,0.028,0.16,2.79,2.21
+"malawi","women_vitA","Admin1","adaptive_top10_xy",27,621,"LOO",0,0.071,0.113,2.78,2.18
+"malawi","women_vitA","Admin1","adaptive_top20_xy",27,621,"LOO",0,0.286,0.259,2.61,2.01
+"malawi","women_vitA","Admin1","adaptive_lasso_xy",27,621,"LOO",0,-0.147,-0.062,2.88,2.3
+"malawi","women_vitA","Admin1","adaptive_top20_ridge",27,621,"LOO",0,0.083,0.004,2.79,2.14
+"malawi","women_vitA","Admin1","LEAKY_top20_xy",27,621,"LOO",0,0.467,0.433,2.44,1.88
+"malawi","child_iron","Admin1","null_mean",27,621,"LOO",0.483,-0.804,-0.916,8.21,6.27
+"malawi","child_iron","Admin1","curated_xy",27,621,"LOO",0.483,-0.627,-0.596,9.75,6.73
+"malawi","child_iron","Admin1","curated_ridge",27,621,"LOO",0.483,-0.822,-0.942,8.69,5.92
+"malawi","child_iron","Admin1","decorr20_xy",27,621,"LOO",0.483,-0.405,-0.408,9.08,6.4
+"malawi","child_iron","Admin1","adaptive_top10_xy",27,621,"LOO",0.483,0.185,0.19,8.37,5.98
+"malawi","child_iron","Admin1","adaptive_top20_xy",27,621,"LOO",0.483,0.214,0.126,8.28,5.74
+"malawi","child_iron","Admin1","adaptive_lasso_xy",27,621,"LOO",0.483,0.192,0.211,8.13,5.57
+"malawi","child_iron","Admin1","adaptive_top20_ridge",27,621,"LOO",0.483,0.233,-0.032,8.34,5.83
+"malawi","child_iron","Admin1","LEAKY_top20_xy",27,621,"LOO",0.483,0.41,0.432,7.81,5.19
+"malawi","women_iron","Admin1","null_mean",27,621,"LOO",0,-0.852,-0.95,5.02,3.61
+"malawi","women_iron","Admin1","curated_xy",27,621,"LOO",0,0.004,0.114,5.14,3.81
+"malawi","women_iron","Admin1","curated_ridge",27,621,"LOO",0,-0.829,-0.843,5.14,3.87
+"malawi","women_iron","Admin1","decorr20_xy",27,621,"LOO",0,-0.173,-0.008,5.38,3.88
+"malawi","women_iron","Admin1","adaptive_top10_xy",27,621,"LOO",0,-0.155,-0.069,5.67,4.13
+"malawi","women_iron","Admin1","adaptive_top20_xy",27,621,"LOO",0,-0.12,0,5.64,4.23
+"malawi","women_iron","Admin1","adaptive_lasso_xy",27,621,"LOO",0,-0.066,0.079,5.19,3.82
+"malawi","women_iron","Admin1","adaptive_top20_ridge",27,621,"LOO",0,-0.111,0.021,5.42,3.91
+"malawi","women_iron","Admin1","LEAKY_top20_xy",27,621,"LOO",0,0.355,0.324,4.59,3.51
+"malawi","women_folate","Admin1","null_mean",27,621,"LOO",0.838,-0.905,-0.907,16.31,13.13
+"malawi","women_folate","Admin1","curated_xy",27,621,"LOO",0.838,0.262,0.293,16.16,12.1
+"malawi","women_folate","Admin1","curated_ridge",27,621,"LOO",0.838,-0.184,-0.122,17.41,13.38
+"malawi","women_folate","Admin1","decorr20_xy",27,621,"LOO",0.838,0.12,0.122,16.79,12.6
+"malawi","women_folate","Admin1","adaptive_top10_xy",27,621,"LOO",0.838,-0.146,-0.156,19.23,15.6
+"malawi","women_folate","Admin1","adaptive_top20_xy",27,621,"LOO",0.838,0.041,-0.109,18.14,14.84
+"malawi","women_folate","Admin1","adaptive_lasso_xy",27,621,"LOO",0.838,0.277,0.031,16.07,13.44
+"malawi","women_folate","Admin1","adaptive_top20_ridge",27,621,"LOO",0.838,0.18,0.015,17.05,13.27
+"malawi","women_folate","Admin1","LEAKY_top20_xy",27,621,"LOO",0.838,0.528,0.39,13.89,10.89
+"malawi","women_b12","Admin1","null_mean",27,621,"LOO",0.354,-0.938,-0.833,4.21,3.4
+"malawi","women_b12","Admin1","curated_xy",27,621,"LOO",0.354,0.244,0.328,4.11,2.71
+"malawi","women_b12","Admin1","curated_ridge",27,621,"LOO",0.354,0.128,0.18,4.25,2.95
+"malawi","women_b12","Admin1","decorr20_xy",27,621,"LOO",0.354,0.387,0.46,3.96,2.49
+"malawi","women_b12","Admin1","adaptive_top10_xy",27,621,"LOO",0.354,0.29,0.327,4,2.57
+"malawi","women_b12","Admin1","adaptive_top20_xy",27,621,"LOO",0.354,0.291,0.377,4.01,2.62
+"malawi","women_b12","Admin1","adaptive_lasso_xy",27,621,"LOO",0.354,0.228,0.346,4.1,2.55
+"malawi","women_b12","Admin1","adaptive_top20_ridge",27,621,"LOO",0.354,0.343,0.462,3.96,2.52
+"malawi","women_b12","Admin1","LEAKY_top20_xy",27,621,"LOO",0.354,0.345,0.471,3.91,2.51
+"malawi","child_zinc","Admin1","null_mean",27,621,"LOO",0.666,-0.9,-0.933,14.74,12.36
+"malawi","child_zinc","Admin1","curated_xy",27,621,"LOO",0.666,-0.12,-0.103,15.64,13.47
+"malawi","child_zinc","Admin1","curated_ridge",27,621,"LOO",0.666,-0.736,-0.876,14.94,12.52
+"malawi","child_zinc","Admin1","decorr20_xy",27,621,"LOO",0.666,-0.39,-0.337,16.5,13.68
+"malawi","child_zinc","Admin1","adaptive_top10_xy",27,621,"LOO",0.666,-0.109,-0.074,17.89,14.52
+"malawi","child_zinc","Admin1","adaptive_top20_xy",27,621,"LOO",0.666,-0.097,-0.047,17.66,14.45
+"malawi","child_zinc","Admin1","adaptive_lasso_xy",27,621,"LOO",0.666,-0.24,-0.258,16.06,13.26
+"malawi","child_zinc","Admin1","adaptive_top20_ridge",27,621,"LOO",0.666,-0.261,-0.303,16.72,13.9
+"malawi","child_zinc","Admin1","LEAKY_top20_xy",27,621,"LOO",0.666,0.215,0.242,15.06,12.21
+"malawi","women_zinc","Admin1","null_mean",27,621,"LOO",0.743,-0.915,-0.956,17.2,14.21
+"malawi","women_zinc","Admin1","curated_xy",27,621,"LOO",0.743,-0.174,-0.173,18.32,15.81
+"malawi","women_zinc","Admin1","curated_ridge",27,621,"LOO",0.743,-0.21,-0.726,17.25,14.37
+"malawi","women_zinc","Admin1","decorr20_xy",27,621,"LOO",0.743,-0.236,-0.211,18.33,15
+"malawi","women_zinc","Admin1","adaptive_top10_xy",27,621,"LOO",0.743,-0.243,-0.256,21.76,18.79
+"malawi","women_zinc","Admin1","adaptive_top20_xy",27,621,"LOO",0.743,-0.213,-0.226,20.99,18.13
+"malawi","women_zinc","Admin1","adaptive_lasso_xy",27,621,"LOO",0.743,0.062,0.06,17.63,14.77
+"malawi","women_zinc","Admin1","adaptive_top20_ridge",27,621,"LOO",0.743,-0.321,-0.3,20.35,16.6
+"malawi","women_zinc","Admin1","LEAKY_top20_xy",27,621,"LOO",0.743,0.209,0.248,17.23,14.47
+"malawi","child_vitA","Admin2","null_mean",86,621,"5-fold x10",0,-0.219,-0.189,11.19,8.59
+"malawi","child_vitA","Admin2","curated_xy",86,621,"5-fold x10",0,0.044,0.138,12.12,8.38
+"malawi","child_vitA","Admin2","curated_ridge",86,621,"5-fold x10",0,-0.153,-0.194,12,8.43
+"malawi","child_vitA","Admin2","decorr20_xy",86,621,"5-fold x10",0,0.049,0.121,12.08,8.3
+"malawi","child_vitA","Admin2","adaptive_top10_xy",86,621,"5-fold x10",0,0.098,0.164,12.02,8.24
+"malawi","child_vitA","Admin2","adaptive_top20_xy",86,621,"5-fold x10",0,0.102,0.194,11.98,8.13
+"malawi","child_vitA","Admin2","adaptive_lasso_xy",86,621,"5-fold x10",0,0.078,0.166,12.08,8.29
+"malawi","child_vitA","Admin2","adaptive_top20_ridge",86,621,"5-fold x10",0,0.107,0.16,11.77,8.19
+"malawi","child_vitA","Admin2","LEAKY_top20_xy",86,621,"5-fold x10",0,0.204,0.349,11.58,7.64
+"malawi","women_vitA","Admin2","null_mean",86,621,"5-fold x10",0,-0.185,-0.183,4.62,2.69
+"malawi","women_vitA","Admin2","curated_xy",86,621,"5-fold x10",0,-0.081,-0.034,4.7,2.31
+"malawi","women_vitA","Admin2","curated_ridge",86,621,"5-fold x10",0,-0.179,-0.162,4.67,2.18
+"malawi","women_vitA","Admin2","decorr20_xy",86,621,"5-fold x10",0,-0.069,0.009,4.69,2.31
+"malawi","women_vitA","Admin2","adaptive_top10_xy",86,621,"5-fold x10",0,-0.042,-0.024,4.75,2.39
+"malawi","women_vitA","Admin2","adaptive_top20_xy",86,621,"5-fold x10",0,-0.011,-0.017,4.72,2.36
+"malawi","women_vitA","Admin2","adaptive_lasso_xy",86,621,"5-fold x10",0,-0.09,-0.009,4.74,2.32
+"malawi","women_vitA","Admin2","adaptive_top20_ridge",86,621,"5-fold x10",0,0.015,0.026,4.66,2.21
+"malawi","women_vitA","Admin2","LEAKY_top20_xy",86,621,"5-fold x10",0,0.141,0.12,4.6,2.25
+"malawi","child_iron","Admin2","null_mean",86,621,"5-fold x10",0,-0.163,-0.158,11.02,8.49
+"malawi","child_iron","Admin2","curated_xy",86,621,"5-fold x10",0,0.072,0.013,12.25,9.17
+"malawi","child_iron","Admin2","curated_ridge",86,621,"5-fold x10",0,0.152,-0.058,12.05,8.89
+"malawi","child_iron","Admin2","decorr20_xy",86,621,"5-fold x10",0,0.082,0.008,12.22,9.03
+"malawi","child_iron","Admin2","adaptive_top10_xy",86,621,"5-fold x10",0,0.193,0.062,11.88,8.93
+"malawi","child_iron","Admin2","adaptive_top20_xy",86,621,"5-fold x10",0,0.209,0.056,11.82,8.91
+"malawi","child_iron","Admin2","adaptive_lasso_xy",86,621,"5-fold x10",0,0.085,0.017,12.14,9.11
+"malawi","child_iron","Admin2","adaptive_top20_ridge",86,621,"5-fold x10",0,0.31,0.043,11.54,8.62
+"malawi","child_iron","Admin2","LEAKY_top20_xy",86,621,"5-fold x10",0,0.271,0.074,11.56,8.68
+"malawi","women_iron","Admin2","null_mean",86,621,"5-fold x10",0.202,-0.203,-0.192,13.04,9.25
+"malawi","women_iron","Admin2","curated_xy",86,621,"5-fold x10",0.202,0.098,0.097,13.72,8.77
+"malawi","women_iron","Admin2","curated_ridge",86,621,"5-fold x10",0.202,0.119,0.088,13.92,8.81
+"malawi","women_iron","Admin2","decorr20_xy",86,621,"5-fold x10",0.202,0.147,0.198,13.63,8.52
+"malawi","women_iron","Admin2","adaptive_top10_xy",86,621,"5-fold x10",0.202,-0.013,-0.017,14.19,9.26
+"malawi","women_iron","Admin2","adaptive_top20_xy",86,621,"5-fold x10",0.202,0.003,0.02,14.11,9.1
+"malawi","women_iron","Admin2","adaptive_lasso_xy",86,621,"5-fold x10",0.202,0.006,0.027,13.99,9.07
+"malawi","women_iron","Admin2","adaptive_top20_ridge",86,621,"5-fold x10",0.202,-0.04,-0.028,15.2,9.67
+"malawi","women_iron","Admin2","LEAKY_top20_xy",86,621,"5-fold x10",0.202,0.175,0.16,13.48,8.51
+"malawi","women_folate","Admin2","null_mean",86,621,"5-fold x10",0.576,-0.192,-0.184,21.12,17.42
+"malawi","women_folate","Admin2","curated_xy",86,621,"5-fold x10",0.576,0.308,0.323,22.12,16
+"malawi","women_folate","Admin2","curated_ridge",86,621,"5-fold x10",0.576,0.175,0.211,23.28,17
+"malawi","women_folate","Admin2","decorr20_xy",86,621,"5-fold x10",0.576,0.352,0.377,21.77,15.8
+"malawi","women_folate","Admin2","adaptive_top10_xy",86,621,"5-fold x10",0.576,0.373,0.328,21.44,15.56
+"malawi","women_folate","Admin2","adaptive_top20_xy",86,621,"5-fold x10",0.576,0.352,0.33,21.75,15.54
+"malawi","women_folate","Admin2","adaptive_lasso_xy",86,621,"5-fold x10",0.576,0.355,0.311,21.35,15.73
+"malawi","women_folate","Admin2","adaptive_top20_ridge",86,621,"5-fold x10",0.576,0.247,0.224,22.96,16.72
+"malawi","women_folate","Admin2","LEAKY_top20_xy",86,621,"5-fold x10",0.576,0.433,0.399,20.57,14.65
+"malawi","women_b12","Admin2","null_mean",86,621,"5-fold x10",0,-0.206,-0.19,6.08,4.67
+"malawi","women_b12","Admin2","curated_xy",86,621,"5-fold x10",0,0.222,0.306,6.11,3.54
+"malawi","women_b12","Admin2","curated_ridge",86,621,"5-fold x10",0,0.347,0.377,6.12,3.52
+"malawi","women_b12","Admin2","decorr20_xy",86,621,"5-fold x10",0,0.201,0.343,6.12,3.56
+"malawi","women_b12","Admin2","adaptive_top10_xy",86,621,"5-fold x10",0,0.011,0.183,6.39,3.83
+"malawi","women_b12","Admin2","adaptive_top20_xy",86,621,"5-fold x10",0,0.022,0.2,6.37,3.81
+"malawi","women_b12","Admin2","adaptive_lasso_xy",86,621,"5-fold x10",0,0.146,0.286,6.17,3.6
+"malawi","women_b12","Admin2","adaptive_top20_ridge",86,621,"5-fold x10",0,0.089,0.182,6.23,3.66
+"malawi","women_b12","Admin2","LEAKY_top20_xy",86,621,"5-fold x10",0,0.094,0.311,6.25,3.69
+"malawi","child_zinc","Admin2","null_mean",86,621,"5-fold x10",0.674,-0.158,-0.141,24.32,20.24
+"malawi","child_zinc","Admin2","curated_xy",86,621,"5-fold x10",0.674,-0.081,-0.079,26.48,21.53
+"malawi","child_zinc","Admin2","curated_ridge",86,621,"5-fold x10",0.674,-0.216,-0.201,24.78,20.45
+"malawi","child_zinc","Admin2","decorr20_xy",86,621,"5-fold x10",0.674,-0.106,-0.117,26.72,21.96
+"malawi","child_zinc","Admin2","adaptive_top10_xy",86,621,"5-fold x10",0.674,-0.037,-0.036,27.64,22.72
+"malawi","child_zinc","Admin2","adaptive_top20_xy",86,621,"5-fold x10",0.674,-0.035,-0.049,27.39,22.54
+"malawi","child_zinc","Admin2","adaptive_lasso_xy",86,621,"5-fold x10",0.674,-0.115,-0.15,27.06,22.53
+"malawi","child_zinc","Admin2","adaptive_top20_ridge",86,621,"5-fold x10",0.674,-0.188,-0.196,25.89,21.37
+"malawi","child_zinc","Admin2","LEAKY_top20_xy",86,621,"5-fold x10",0.674,0.109,0.094,25.66,21.42
+"malawi","women_zinc","Admin2","null_mean",86,621,"5-fold x10",0.707,-0.16,-0.144,26.08,22.97
+"malawi","women_zinc","Admin2","curated_xy",86,621,"5-fold x10",0.707,-0.049,-0.068,29.56,24.63
+"malawi","women_zinc","Admin2","curated_ridge",86,621,"5-fold x10",0.707,-0.18,-0.191,27.33,23.23
+"malawi","women_zinc","Admin2","decorr20_xy",86,621,"5-fold x10",0.707,-0.062,-0.08,29.63,24.7
+"malawi","women_zinc","Admin2","adaptive_top10_xy",86,621,"5-fold x10",0.707,-0.004,-0.018,30.65,25.27
+"malawi","women_zinc","Admin2","adaptive_top20_xy",86,621,"5-fold x10",0.707,0,-0.017,30.3,24.93
+"malawi","women_zinc","Admin2","adaptive_lasso_xy",86,621,"5-fold x10",0.707,0.026,0.031,29.12,24.29
+"malawi","women_zinc","Admin2","adaptive_top20_ridge",86,621,"5-fold x10",0.707,-0.12,-0.114,28.31,23.65
+"malawi","women_zinc","Admin2","LEAKY_top20_xy",86,621,"5-fold x10",0.707,0.075,0.052,29.16,23.93
+"tanzania","child_vitA","Admin1","null_mean",31,377,"LOO",0.887,-0.942,-0.952,8.55,6.65
+"tanzania","child_vitA","Admin1","curated_xy",31,377,"LOO",0.887,-0.472,-0.54,9.41,7.31
+"tanzania","child_vitA","Admin1","curated_ridge",31,377,"LOO",0.887,-0.924,-0.958,8.63,6.61
+"tanzania","child_vitA","Admin1","decorr20_xy",31,377,"LOO",0.887,-0.563,-0.54,9.61,7.54
+"tanzania","child_vitA","Admin1","adaptive_top10_xy",31,377,"LOO",0.887,-0.542,-0.488,10.56,8.3
+"tanzania","child_vitA","Admin1","adaptive_top20_xy",31,377,"LOO",0.887,-0.552,-0.508,10.45,8.21
+"tanzania","child_vitA","Admin1","adaptive_lasso_xy",31,377,"LOO",0.887,-0.457,-0.396,9.82,7.25
+"tanzania","child_vitA","Admin1","adaptive_top20_ridge",31,377,"LOO",0.887,-0.795,-0.938,8.92,6.77
+"tanzania","child_vitA","Admin1","LEAKY_top20_xy",31,377,"LOO",0.887,0.012,0.034,8.66,6.81
+"tanzania","women_vitA","Admin1","null_mean",31,377,"LOO",0.792,-0.954,-0.976,3.4,2.7
+"tanzania","women_vitA","Admin1","curated_xy",31,377,"LOO",0.792,-0.168,-0.144,3.66,2.84
+"tanzania","women_vitA","Admin1","curated_ridge",31,377,"LOO",0.792,-0.508,-0.887,3.55,2.8
+"tanzania","women_vitA","Admin1","decorr20_xy",31,377,"LOO",0.792,-0.351,-0.388,3.74,2.96
+"tanzania","women_vitA","Admin1","adaptive_top10_xy",31,377,"LOO",0.792,-0.612,-0.482,4.42,3.34
+"tanzania","women_vitA","Admin1","adaptive_top20_xy",31,377,"LOO",0.792,-0.618,-0.579,4.46,3.47
+"tanzania","women_vitA","Admin1","adaptive_lasso_xy",31,377,"LOO",0.792,-0.091,-0.002,3.63,2.7
+"tanzania","women_vitA","Admin1","adaptive_top20_ridge",31,377,"LOO",0.792,-0.473,-0.732,3.82,2.87
+"tanzania","women_vitA","Admin1","LEAKY_top20_xy",31,377,"LOO",0.792,-0.196,-0.122,3.72,2.85
+"tanzania","child_vitA","Admin2","null_mean",162,377,"5-fold x10",0.748,-0.124,-0.12,15.44,12.48
+"tanzania","child_vitA","Admin2","curated_xy",162,377,"5-fold x10",0.748,0.023,0.028,16.52,12.72
+"tanzania","child_vitA","Admin2","curated_ridge",162,377,"5-fold x10",0.748,-0.119,-0.121,15.8,12.21
+"tanzania","child_vitA","Admin2","decorr20_xy",162,377,"5-fold x10",0.748,-0.021,-0.048,16.69,12.95
+"tanzania","child_vitA","Admin2","adaptive_top10_xy",162,377,"5-fold x10",0.748,-0.011,-0.033,17.08,13.4
+"tanzania","child_vitA","Admin2","adaptive_top20_xy",162,377,"5-fold x10",0.748,-0.038,-0.058,17.13,13.5
+"tanzania","child_vitA","Admin2","adaptive_lasso_xy",162,377,"5-fold x10",0.748,0.02,0.006,16.67,12.97
+"tanzania","child_vitA","Admin2","adaptive_top20_ridge",162,377,"5-fold x10",0.748,-0.037,-0.067,16.16,12.67
+"tanzania","child_vitA","Admin2","LEAKY_top20_xy",162,377,"5-fold x10",0.748,0.027,0.014,16.84,13.16
+"tanzania","women_vitA","Admin2","null_mean",163,377,"5-fold x10",0.769,-0.114,-0.117,8.55,5.85
+"tanzania","women_vitA","Admin2","curated_xy",163,377,"5-fold x10",0.769,0.029,0.022,9.08,5.72
+"tanzania","women_vitA","Admin2","curated_ridge",163,377,"5-fold x10",0.769,-0.044,-0.117,8.98,5.67
+"tanzania","women_vitA","Admin2","decorr20_xy",163,377,"5-fold x10",0.769,0.095,0.111,8.97,5.56
+"tanzania","women_vitA","Admin2","adaptive_top10_xy",163,377,"5-fold x10",0.769,0.036,0.059,9.09,5.71
+"tanzania","women_vitA","Admin2","adaptive_top20_xy",163,377,"5-fold x10",0.769,0.034,0.057,9.09,5.68
+"tanzania","women_vitA","Admin2","adaptive_lasso_xy",163,377,"5-fold x10",0.769,0.108,0.079,8.96,5.67
+"tanzania","women_vitA","Admin2","adaptive_top20_ridge",163,377,"5-fold x10",0.769,-0.032,-0.027,9.06,5.69
+"tanzania","women_vitA","Admin2","LEAKY_top20_xy",163,377,"5-fold x10",0.769,0.131,0.142,8.9,5.53
