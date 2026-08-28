@@ -16,7 +16,10 @@
 # Run:
 #   Rscript scripts/compare_covariate_hygiene.R
 #
-# Writes results/sensitivity/covariate_hygiene_comparison.csv
+# Writes results/sensitivity/covariate_hygiene_comparison_<scheme>.csv, tagged with a
+# `scheme` column. The original 2026-08-18 covariate_hygiene_comparison.csv is a
+# frozen baseline (results/tables/frozen_2026-08/) and is never overwritten;
+# override the scheme with HYGIENE_SCHEME if you need a second run side by side.
 # =============================================================================
 
 suppressPackageStartupMessages({
@@ -28,6 +31,14 @@ source(here("R", "area_level_comparison.R"))
 source(here("R", "transportability_area.R"))
 
 OUTCOMES <- c("child_vitA", "women_vitA", "child_iron", "women_iron")
+
+# Additive-results convention: every run is tagged and lands in its own file, so
+# no previously published comparison is regenerated in place.
+SCHEME   <- Sys.getenv("HYGIENE_SCHEME", "ws2b_2026-08")
+OUT_PATH <- here("results", "sensitivity",
+                 sprintf("covariate_hygiene_comparison_%s.csv", SCHEME))
+if (basename(OUT_PATH) == "covariate_hygiene_comparison.csv")
+  stop("Refusing to overwrite the frozen 2026-08-18 baseline. Pick a scheme id.")
 
 read_target <- function(nm) tryCatch(targets::tar_read_raw(nm), error = function(e) NULL)
 
@@ -71,6 +82,7 @@ run_variant <- function(otag, hygiene) {
   m$variant     <- if (hygiene) "v2_hygiene" else "v1_current"
   m$outcome     <- otag
   m$n_predictors <- length(pool$predictors)
+  m$scheme      <- SCHEME
   m
 }
 
@@ -88,7 +100,7 @@ Sys.unsetenv("GEE_COVARIATE_HYGIENE")
 if (!length(rows)) stop("No comparable results produced.")
 all <- dplyr::bind_rows(rows)
 
-out <- here("results", "sensitivity", "covariate_hygiene_comparison.csv")
+out <- OUT_PATH
 dir.create(dirname(out), showWarnings = FALSE, recursive = TRUE)
 readr::write_csv(all, out)
 
