@@ -25,11 +25,6 @@ detail is in `docs/findings/`.
 - **Harmonized outcomes.** One WHO cut-point per outcome and one
   inflammation-adjustment protocol per biomarker, so a cross-country comparison
   compares prevalences and not definitions.
-- **Reproducibility.** Frozen baseline tables with an md5 manifest, a regression
-  gate that classifies every table as unchanged, new scheme rows or a changed
-  baseline, an assay-lineage gate that halts the pipeline when a modelled
-  outcome has no recorded measurement provenance, and md5 stamps on untracked
-  file inputs.
 
 ## Findings
 
@@ -52,9 +47,9 @@ level, which is what a deployment without local data would have to do.
 
 Three metrics, each answering a different question:
 
-- **Pearson r** asks whether the map gets the *shape* right, meaning whether it
-  ranks districts correctly. Correlation is unchanged by a constant shift, so it
-  says nothing about level.
+- **Pearson r** measures the *relative ranking*: whether the map puts districts
+  in the right order. Correlation is unchanged by a constant shift, so it says
+  nothing about the absolute level.
 - **r_share** rescales that correlation by the reliability ceiling, the
   correlation attainable if the model were perfect and only sampling noise in
   the survey estimates stood in the way. The ceiling for these cells is 0.305,
@@ -62,9 +57,10 @@ Three metrics, each answering a different question:
   Without this, a low correlation looks like a modelling failure when it is
   often a data limit.
 - **RMSE** and **level bias** together separate the two ways a map goes wrong.
-  RMSE is total error and absorbs both a wrong shape and a wrong height. Level
-  bias isolates the height. A model with modest RMSE and large level bias has the
-  pattern roughly right and sits at the wrong altitude.
+  RMSE is total error and absorbs both a wrong ranking and a wrong absolute
+  level. Level bias isolates the absolute level. A model with modest RMSE and
+  large level bias ranks districts about right and places all of them too high or
+  too low.
 
 | Model | What it is | Pearson r | r_share | RMSE (pp) | Level bias (pp) |
 |---|---|---|---|---|---|
@@ -86,9 +82,10 @@ others either.
 
 The ordering rewards a design choice as much as a model. The z-scored variants
 standardise the outcome inside each country, which removes between-country level
-and spread from the target and leaves the model fitting shape alone. That is why
-they lead on Pearson r while their level bias stays ordinary. They are a useful
-upper bound on how much pattern is learnable, not a deployable recipe.
+and spread from the target and leaves the model fitting relative rankings alone.
+That is why they lead on Pearson r while their level bias stays ordinary. They
+bound how much of the relative ranking is learnable, and they are not a
+deployable recipe.
 
 Among the variants that keep the full problem, the parsimonious production recipe
 and the covariate-free spline land within 0.008 of each other, and the production
@@ -112,7 +109,7 @@ falls below using no soil features at all.
 The two tables come from separate experiments whose ceilings differ, 0.205 here
 against 0.305 above. Read each within itself. No model family in the pool
 changes the conclusion: proxies alone cannot place an unsurveyed country's map
-at the right height.
+at the right absolute level.
 
 ### The residual error is a country intercept, not a covariate failure
 
@@ -124,19 +121,20 @@ training pool sits between 0.523 and 2.669 times the held-out country's level.
 Raw child ferritin medians span a factor of 6.30 across the four countries. A
 single uniform BRINDA CRP+AGP protocol leaves a factor of 4.85 and moves the
 mean absolute national bias by about one percentage point on a bias of fifteen.
-It does sharpen the transported spatial pattern: child iron Pearson rises from
+It does sharpen the transported relative rankings: child iron Pearson rises from
 0.1808 to 0.3097, women iron from -0.1865 to 0.0207. The pipeline offers it as a
 scheme on those grounds.
 
-Harmonizing measurement buys pattern. It does not buy level.
+Harmonizing measurement improves the relative rankings. It does not correct the
+absolute level.
 
 ### Anchoring to a national estimate is the effective remedy
 
 A national anchor is a known country-level prevalence figure that fixes the
-height of a transported map. One constant shift on the logit scale makes the
-map's weighted aggregate equal the anchor. The shift is monotone, so district
-ranking survives untouched: it moves level without inventing spatial signal. It
-attacks precisely the error term above.
+absolute level of a transported map. One constant shift on the logit scale makes
+the map's weighted aggregate equal the anchor. The shift is monotone, so the
+relative ranking of districts survives untouched: it corrects the absolute level
+without inventing spatial signal. It attacks precisely the error term above.
 
 | Anchor | Absolute national bias | MAE | RMSE |
 |---|---|---|---|
@@ -228,7 +226,7 @@ are not independent.
 Calibrating a transported map on k of the target country's own districts lowers
 the mean held-out error, barely moves the median, and cuts the upper tail
 sharply. It rescues the catastrophic fold, where the map lands at the wrong
-height, and leaves the typical fold alone. A location-only correction should do
+absolute level, and leaves the typical fold alone. A location-only correction should do
 exactly that. No k in the tested grid reaches within-country model error.
 
 ## Conclusions
@@ -236,9 +234,10 @@ exactly that. No k in the tested grid reaches within-country model error.
 1. **Predicting subnational deficiency in a country with no survey is not
    supported.** Transport discrimination sits near chance once selection is
    honest, and a new country's biomarker level is unpredictable for iron.
-2. **The obstacle is height, not shape.** The transported map has roughly the
-   right pattern and the wrong level, and that level is a country intercept no
-   covariate in this pool supplies.
+2. **The obstacle is absolute level, not relative ranking.** The transported map
+   ranks districts roughly correctly and places all of them at the wrong
+   absolute level, which is a country intercept no covariate in this pool
+   supplies.
 3. **Anchoring is the one intervention that addresses it.** One parameter buys
    about a third of the transport error and leaves ranking untouched.
 4. **The anchor does not exist.** No current national iron estimate covers these
@@ -259,7 +258,7 @@ exactly that. No k in the tested grid reaches within-country model error.
 **Highest value.**
 
 - **Acquire a usable national anchor.** This is the single highest-value action
-  available. It converts a correctly shaped map into a usable one, it costs a
+  available. It converts a correctly ranked map into a usable one, it costs a
   data request instead of a modelling programme, and it is missing for the
   outcome that needs it most. Candidates are a GBD extract, a current national
   survey figure, or a commissioned national estimate.
