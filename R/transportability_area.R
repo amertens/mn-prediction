@@ -122,7 +122,17 @@ assemble_area_transport <- function(svy_admin2_list, cov_list, outcome = NA) {
       stringsAsFactors = FALSE
     )
     sv <- sv[is.finite(sv$svy_prev), , drop = FALSE]
+    # This join is keyed on the Admin-2 name because build_admin2_covariates()
+    # does not carry Admin1. Both sides are unique by name today, so it cannot
+    # multiply rows, but that is a property of the inputs rather than of the
+    # join. Assert it instead of relying on it: a duplicated key here would
+    # silently inflate a country's contribution to the pooled fit, which is the
+    # failure this migration found elsewhere. See R/admin2_key_hygiene.R.
+    assert_unique_admin2(sv, sprintf("%s survey area table", cn))
+    assert_unique_admin2(cov_list[[cn]], sprintf("%s covariate area table", cn))
+    n_before <- nrow(sv)
     d <- dplyr::inner_join(sv, cov_list[[cn]], by = "Admin2")
+    d <- warn_if_join_multiplied(n_before, d, sprintf("%s area transport join", cn))
     if (nrow(d) == 0) next
     d$country <- cn
     frames[[cn]] <- d

@@ -30,9 +30,67 @@
 # takes.
 # =============================================================================
 
+# =============================================================================
+# 2026-08-28: the join key is now Admin1 + Admin2, not Admin2 alone.
+#
+# WHAT WAS WRONG. Malawi's GADM Admin-2 layer has 256 polygons under 243
+# distinct names but 256 distinct (Admin1, Admin2) pairs: 13 water polygons plus
+# four genuine same-name districts in different regions (TA Lundu in Blantyre and
+# Chikwawa, TA Ngabu in Chikwawa and Nsanje, TA Pemba in Dedza and Salima, TA
+# Malemia in Nsanje and Zomba). Three of the four are surveyed.
+#
+# Two distinct failures followed, both measured before this change:
+#
+#   a) dedupe_admin2_key() AVERAGED each same-name pair into one covariate row,
+#      so respondents in TA Lundu, Chikwawa were joined to covariates that were
+#      half from TA Lundu, Blantyre.
+#   b) build_area_loco_dataset()'s centroid left_join(by = "Admin2") MULTIPLIED
+#      rows against the un-deduped GADM table. Malawi's 87 surveyed districts
+#      became 90 pooled rows. Those three districts carried double weight in
+#      every area-level fit, and one copy of each pair carried the wrong region's
+#      centroid, which corrupts the spatial comparators specifically.
+#
+# WHY A PAIR KEY IS SAFE HERE. Every one of Malawi's 89 surveyed
+# (Admin1, Admin2) pairs matches a GADM pair exactly, and Gambia, Ghana and
+# Sierra Leone have no name collisions at all (37, 260 and 14 polygons, all
+# uniquely named). So the pair key changes nothing for three countries and
+# separates three districts in the fourth.
+#
+# FALLBACK. Every helper below degrades to the name-only behaviour when Admin1
+# is missing on either side, so a table that never carried Admin1 is unaffected.
+# =============================================================================
+
 #' Names GADM uses for inland water polygons.
 #' Deliberately anchored so a real district called e.g. "Lakeside" is not caught.
 ADMIN2_WATER_PATTERN <- "^Lake |^Water|^Lac |^Sea$|Reservoir"
+
+#' The canonical Admin-2 join key.
+#'
+#' Admin1 + Admin2 where Admin1 is available, Admin2 alone otherwise. The
+#' separator is chosen not to occur in an administrative name.
+#'
+#' @param d data.frame with Admin2 and optionally Admin1
+#' @return character vector of keys
+admin2_key <- function(d) {
+  if (is.null(d) || !"Admin2" %in% names(d)) return(character(0))
+  a2 <- as.character(d$Admin2)
+  if (!"Admin1" %in% names(d)) return(a2)
+  a1 <- as.character(d$Admin1)
+  ifelse(is.na(a1) | !nzchar(a1), a2, paste(a1, a2, sep = "||"))
+}
+
+#' Can two tables be joined on the pair key?
+#'
+#' TRUE only when BOTH carry a usable Admin1. Used to decide per join rather
+#' than globally, so a partially migrated pipeline stays correct.
+can_pair_join <- function(x, y) {
+  ok <- function(d) !is.null(d) && "Admin1" %in% names(d) &&
+    any(!is.na(d$Admin1) & nzchar(as.character(d$Admin1)))
+  ok(x) && ok(y)
+}
+
+#' The join-by vector for an Admin-2 join: the pair when both sides support it.
+admin2_join_by <- function(x, y) if (can_pair_join(x, y)) c("Admin1", "Admin2") else "Admin2"
 
 #' Rows whose Admin-2 name denotes a water body rather than a district.
 is_water_admin2 <- function(x) grepl(ADMIN2_WATER_PATTERN, x, ignore.case = TRUE)
@@ -63,19 +121,34 @@ drop_water_admin2 <- function(d, what = "table") {
 #' @param what label for the log line
 dedupe_admin2_key <- function(d, what = "table") {
   if (is.null(d) || !"Admin2" %in% names(d)) return(d)
-  if (!any(duplicated(d$Admin2))) return(d)
-  dup <- unique(d$Admin2[duplicated(d$Admin2)])
-  cat(sprintf("[admin2_hygiene] %s: collapsing %d duplicated Admin-2 name(s): %s\n",
-              what, length(dup), paste(utils::head(dup, 6), collapse = ", ")))
+
+  # Collapse on the PAIR when Admin1 is available. Two same-named districts in
+  # different regions are different districts and averaging them was the bug
+  # this migration fixes; what remains to collapse is genuine multi-part
+  # geometry, where the same district appears more than once within one region.
+  key <- admin2_key(d)
+  if (!any(duplicated(key))) return(d)
+
+  by_pair <- "Admin1" %in% names(d)
+  dupk <- unique(key[duplicated(key)])
+  cat(sprintf("[admin2_hygiene] %s: collapsing %d duplicated %s: %s\n",
+              what, length(dupk),
+              if (by_pair) "(Admin1, Admin2) key(s)" else "Admin-2 name(s)",
+              paste(utils::head(dupk, 6), collapse = ", ")))
+
+  d$.a2key <- key
+  grp <- ".a2key"
   num <- names(d)[vapply(d, is.numeric, logical(1))]
-  oth <- setdiff(names(d), c("Admin2", num))
+  oth <- setdiff(names(d), c(grp, num))
   out <- d |>
-    dplyr::group_by(Admin2) |>
+    dplyr::group_by(.data[[grp]]) |>
     dplyr::summarise(
       dplyr::across(dplyr::all_of(oth), dplyr::first),
       dplyr::across(dplyr::all_of(num), ~ mean(.x, na.rm = TRUE)),
       .groups = "drop") |>
     as.data.frame()
+  out[[grp]] <- NULL
+  d$.a2key <- NULL
   out[, intersect(names(d), names(out)), drop = FALSE]
 }
 
@@ -166,10 +239,75 @@ snap_water_to_land <- function(d, gadm_code, max_km = 12, what = "table") {
 #' table looks perfectly normal. Fail loudly instead.
 assert_unique_admin2 <- function(d, what = "table") {
   if (is.null(d) || !"Admin2" %in% names(d)) return(invisible(d))
-  if (any(duplicated(d$Admin2)))
+  key <- admin2_key(d)
+  if (any(duplicated(key)))
     stop(sprintf("%s has %d duplicated Admin-2 key(s) (%s) - run clean_admin2_keys() first",
-                 what, sum(duplicated(d$Admin2)),
-                 paste(utils::head(unique(d$Admin2[duplicated(d$Admin2)]), 5),
-                       collapse = ", ")))
+                 what, sum(duplicated(key)),
+                 paste(utils::head(unique(key[duplicated(key)]), 5), collapse = ", ")))
   invisible(d)
+}
+
+#' Report survey rows that a pair-keyed join dropped but a name join would keep.
+#'
+#' A pair join is only correct when both sides agree on Admin1. They can
+#' disagree while a store is PARTIALLY rebuilt: the name-only dedupe kept
+#' whichever region came first, so Malawi's stored covariate table labels
+#' TA Lundu as Blantyre and TA Malemia as Nsanje, while the survey observed both
+#' in Chikwawa and Zomba respectively. Once the survey side gains Admin1 and the
+#' covariate side has not yet been rebuilt, those districts stop matching.
+#'
+#' Dropping them is the safe failure (better an absent district than one wearing
+#' another region's covariates), but it must not be silent, because a quietly
+#' shorter table looks entirely normal. This says so and names the districts.
+#'
+#' @param x the left (survey) table
+#' @param y the right (covariate) table
+#' @param by the join key actually used
+#' @param what label for the message
+#' @return invisible character vector of the affected Admin-2 names
+report_pair_join_losses <- function(x, y, by, what = "join") {
+  if (!identical(by, c("Admin1", "Admin2"))) return(invisible(character(0)))
+  if (is.null(x) || is.null(y)) return(invisible(character(0)))
+  xk <- admin2_key(x); yk <- admin2_key(y)
+  lost <- !(xk %in% yk)
+  if (!any(lost)) return(invisible(character(0)))
+  # Of the lost rows, which would have matched on the NAME alone? Those are the
+  # Admin1 disagreements, i.e. the stale-table case rather than a genuinely
+  # absent district.
+  nm <- as.character(x$Admin2)[lost]
+  rescuable <- nm[nm %in% as.character(y$Admin2)]
+  if (length(rescuable))
+    warning(sprintf(paste0("[admin2_hygiene] %s: %d district(s) dropped by the ",
+                           "(Admin1, Admin2) join that WOULD match on the name ",
+                           "alone: %s. The two sides disagree on Admin1, which ",
+                           "usually means one of them predates the join-key ",
+                           "migration. Rebuild the covariate targets."),
+                    what, length(rescuable),
+                    paste(utils::head(rescuable, 6), collapse = ", ")), call. = FALSE)
+  invisible(rescuable)
+}
+
+#' Warn, rather than stop, when a join has multiplied rows.
+#'
+#' Used at join sites where failing hard would take down a whole pipeline run
+#' for a defect that is worth surfacing but not worth aborting on. Row
+#' multiplication from a duplicated key is silent and the resulting table looks
+#' entirely normal, which is how Malawi's 87 surveyed districts became 90 pooled
+#' rows unnoticed.
+#'
+#' @param before row count before the join
+#' @param after data.frame after the join
+#' @param what label for the message
+#' @return `after`, unchanged
+warn_if_join_multiplied <- function(before, after, what = "join") {
+  if (is.null(after)) return(after)
+  if (nrow(after) > before) {
+    key <- admin2_key(after)
+    dupk <- unique(key[duplicated(key)])
+    warning(sprintf(paste0("[admin2_hygiene] %s multiplied rows: %d -> %d. ",
+                           "Duplicated key(s): %s"),
+                    what, before, nrow(after),
+                    paste(utils::head(dupk, 5), collapse = ", ")), call. = FALSE)
+  }
+  after
 }

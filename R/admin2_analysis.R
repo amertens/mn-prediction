@@ -590,6 +590,43 @@ compute_svy_admin2 <- function(outcome_data, cc, oc) {
   svy_admin2 <- drop_water_admin2(
     svy_admin2, sprintf("svy_admin2 %s %s", cc$country, oc$tag))
 
+  # Carry Admin1 so downstream joins can key on (Admin1, Admin2).
+  #
+  # The survey side does not need the pair to be correct on its own: within each
+  # of the four countries the survey's Admin-2 names are already unique (Malawi
+  # has 89 names for 89 pairs). The GADM side is where names repeat, and joining
+  # a unique survey table to a non-unique GADM table on the name alone is what
+  # multiplied Malawi's 87 surveyed districts into 90 pooled rows. See
+  # R/admin2_key_hygiene.R.
+  #
+  # Attached by lookup rather than by regrouping the survey_mean above, so the
+  # prevalences and standard errors are byte-identical to before; the only
+  # change is an added column. If a survey ever does contain a genuine
+  # within-country name collision the lookup stops being one-to-one, and this
+  # warns rather than silently picking one region.
+  if (!is.null(cc$admin1_col) && cc$admin1_col %in% colnames(d) &&
+      nrow(svy_admin2) > 0 && !"Admin1" %in% names(svy_admin2)) {
+    map <- unique(data.frame(
+      Admin2 = as.character(d[[cc$admin2_col]]),
+      Admin1 = as.character(d[[cc$admin1_col]]),
+      stringsAsFactors = FALSE))
+    map <- map[!is.na(map$Admin2) & nzchar(map$Admin2), , drop = FALSE]
+    if (any(duplicated(map$Admin2))) {
+      coll <- unique(map$Admin2[duplicated(map$Admin2)])
+      warning(sprintf(paste0("[svy_admin2] %s %s: %d Admin-2 name(s) span more ",
+                             "than one Admin1 within the survey (%s); Admin1 is ",
+                             "left off rather than guessed"),
+                      cc$country, oc$tag, length(coll),
+                      paste(utils::head(coll, 5), collapse = ", ")), call. = FALSE)
+    } else {
+      svy_admin2$Admin1 <- map$Admin1[match(as.character(svy_admin2$Admin2),
+                                            map$Admin2)]
+      svy_admin2 <- svy_admin2[, c("Admin1",
+                                   setdiff(names(svy_admin2), "Admin1")),
+                               drop = FALSE]
+    }
+  }
+
   # Attach the DESIGN-BASED national prevalence: the survey-weighted mean over
   # all respondents, ignoring district entirely. This is the estimate the
   # sampling design actually supports, and it is the benchmarking target for

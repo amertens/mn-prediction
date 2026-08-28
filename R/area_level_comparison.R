@@ -405,16 +405,37 @@ build_area_loco_dataset <- function(svy_admin2_list, gee_admin2_list) {
     gee <- gee_admin2_list[[ctry]]
     if (is.null(svy) || is.null(gee) || nrow(svy) == 0) next
 
-    merged <- dplyr::inner_join(
-      svy |> dplyr::select(Admin2, svy_prev, dplyr::any_of("n_svy")),
-      gee |> dplyr::select(Admin2, dplyr::all_of(common_vars)),
-      by = "Admin2"
-    ) |>
+    # Join on (Admin1, Admin2) where both sides carry Admin1, on the name alone
+    # otherwise. GADM Admin-2 names are not unique -- Malawi has four same-named
+    # district pairs in different regions -- so a name-only join against a GADM
+    # -derived table multiplies rows silently. See R/admin2_key_hygiene.R.
+    svy_sel <- svy |> dplyr::select(dplyr::any_of("Admin1"), Admin2, svy_prev,
+                                    dplyr::any_of("n_svy"))
+    gee_sel <- gee |> dplyr::select(dplyr::any_of("Admin1"), Admin2,
+                                    dplyr::all_of(common_vars))
+    by_sg <- admin2_join_by(svy_sel, gee_sel)
+
+    n_before <- nrow(svy_sel)
+    report_pair_join_losses(svy_sel, gee_sel, by_sg,
+                            sprintf("%s survey-to-GEE join", ctry))
+    merged <- dplyr::inner_join(svy_sel, gee_sel, by = by_sg) |>
       dplyr::filter(!is.na(svy_prev), is.finite(svy_prev)) |>
       dplyr::mutate(country = ctry)
+    merged <- warn_if_join_multiplied(
+      n_before, merged, sprintf("%s survey-to-GEE join", ctry))
 
     ctr <- centroids_for(ctry)
-    if (!is.null(ctr)) merged <- dplyr::left_join(merged, ctr, by = "Admin2")
+    if (!is.null(ctr)) {
+      by_ctr <- admin2_join_by(merged, ctr)
+      # When the pair key is unavailable the centroid table must be collapsed
+      # first: it comes straight from GADM and carries the duplicates.
+      if (identical(by_ctr, "Admin2"))
+        ctr <- dedupe_admin2_key(ctr, sprintf("%s centroids", ctry))
+      n_before <- nrow(merged)
+      merged <- dplyr::left_join(merged, ctr, by = by_ctr)
+      merged <- warn_if_join_multiplied(
+        n_before, merged, sprintf("%s centroid join", ctry))
+    }
 
     pooled[[ctry]] <- merged
   }
