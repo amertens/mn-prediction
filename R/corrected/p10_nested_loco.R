@@ -278,18 +278,23 @@ nested_select_features <- function(all_merged, all_configs, train_countries,
     !grepl("bart", type, ignore.case = TRUE)
   }, sl_learners$library)
 
-  # The full stack's `ranger_low_mtry` hard-codes mtry = 8
-  # (R/sensitivity/mlr3_fitting.R:53). ranger raises "mtry can not be larger
-  # than number of variables in data" and exits, which takes the whole
-  # SuperLearner fit down rather than just that learner. A nested selection
-  # routinely returns fewer than 8 predictors, so without this filter 28 of 32
-  # cells return no metrics at all.
+  # The full stack's `ranger_low_mtry` hard-codes mtry = 8 (see
+  # setup_mlr3_learners(), R/sensitivity/mlr3_fitting.R). ranger raises "mtry
+  # can not be larger than number of variables in data" and exits, which takes
+  # the whole SuperLearner fit down rather than just that learner. A nested
+  # selection routinely returns fewer than 8 predictors, so without this filter
+  # 28 of 32 cells return no metrics at all.
   #
   # Dropped rather than clamped: silently rewriting mtry would change what the
   # learner is while keeping its id, and the point of this scorer is to be the
   # published estimator. Filtering mirrors how run_loco_cv() drops BART
-  # (R/transportability.R:278). This is a local guard; the same defect affects
-  # the production loco_best_* targets, which is reported separately.
+  # (R/transportability.R:199).
+  #
+  # mlr3_SL_clustered() now applies the same rule itself, via
+  # sl_filter_learners_for_p(), so this guard is belt-and-braces. Kept because
+  # it filters on the NOMINAL predictor count while the one inside filters on
+  # the post-recipe count (imputation indicators can push the latter back to 8
+  # or above); dropping it would move WS1 numbers mid-comparison.
   n_p <- length(scored)
   dropped_mtry <- Filter(function(x)
     is.list(x) && !is.null(x[["mtry"]]) && x[["mtry"]] > n_p, lib)
