@@ -1460,6 +1460,41 @@ if (length(all_country_configs) >= 2) {
       )
     )
   ))
+
+  # ── WS1: selection-honest transport numbers (P10) ────────────────────────
+  # `best_model_selection` above chooses its predictors by scoring candidates
+  # on the same leave-one-country-out folds the selected set is then reported
+  # on, so the reported number is not out-of-sample with respect to the
+  # selection. run_nested_loco() reruns the entire selection procedure per
+  # outer fold using only the training countries, and reports both schemes
+  # side by side. See R/corrected/p10_nested_loco.R.
+  #
+  # The glm scorer runs here because it is cheap and matches the metric the
+  # search itself optimises. The SuperLearner scorer, which is what a claim
+  # about the published numbers has to be made on, is driven from
+  # scripts/run_nested_loco.R with NESTED_SCORERS=glm,sl so that a multi-hour
+  # fit is an explicit choice rather than a side effect of building the
+  # pipeline.
+  transport_targets <- c(transport_targets, list(
+    tar_target_raw(
+      "nested_loco_result",
+      substitute({
+        all_merged <- merged_list_val
+        run_nested_loco(
+          all_merged, get_country_configs(),
+          outcomes = if (identical(pipeline_params$analysis_profile, "smoke"))
+                       "child_iron" else NESTED_LOCO_OUTCOMES,
+          seed = pipeline_params$seed,
+          country_weighted_also = TRUE,
+          scorers = "glm")
+      }, list(merged_list_val = merged_list_expr))
+    ),
+    tar_target_raw(
+      "nested_loco_tables",
+      quote(write_nested_loco_tables(nested_loco_result)),
+      format = "file"
+    )
+  ))
 }
 
 

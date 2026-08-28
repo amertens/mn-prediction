@@ -671,8 +671,23 @@ get_pipeline_params <- function(mode = Sys.getenv("PIPELINE_MODE", "fast")) {
     #                          Area-level targets read the flag directly, so
     #                          after changing it run:
     #                            targets::tar_invalidate(matches("area_|loco"))
-    gee_covariate_hygiene = gee_hygiene_enabled()
+    gee_covariate_hygiene = gee_hygiene_enabled(),
+
+    #   ANALYSIS_PROFILE=smoke -> restrict the 2026-08 analysis-extension
+    #                          workstreams (nested LOCO, level decomposition,
+    #                          distributional default, cluster MBG, subsample)
+    #                          to one representative outcome and one country
+    #                          pair, for development. "full" runs the whole
+    #                          grid. This does NOT change PIPELINE_MODE, which
+    #                          still controls the SL stack and bootstrap counts;
+    #                          the two are independent and both are recorded
+    #                          here so each enters the target hash.
+    analysis_profile = tolower(Sys.getenv("ANALYSIS_PROFILE", "full"))
   )
+
+  if (!base$analysis_profile %in% c("smoke", "full"))
+    stop("ANALYSIS_PROFILE must be 'smoke' or 'full', got '",
+         base$analysis_profile, "'", call. = FALSE)
 
   if (mode == "fast") {
     # ── Fast / beta-testing mode ────────────────────────────────────────

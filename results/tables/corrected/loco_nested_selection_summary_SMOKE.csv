@@ -1,0 +1,11 @@
+weighting,metric,n_folds,folds_nested_better,mean_original,mean_nested,mean_delta,median_delta,min_delta,max_delta,lower_better
+equal_country,auc,2,0,0.6155,0.5625,-0.053,-0.053,-0.0555,-0.0505,FALSE
+equal_country,brier,2,1,0.2349,0.2561,0.0213,0.0213,-0.0139,0.0565,TRUE
+equal_country,calib_slope,2,1,0.9365,0.4825,-0.454,-0.454,-1.1373,0.2293,FALSE
+equal_country,n_scored,2,1,4,3.5,-0.5,-0.5,-2,1,FALSE
+equal_country,null_brier_train,2,1,0.2524,0.2499,-0.0025,-0.0025,-0.0152,0.0102,FALSE
+equal_row,auc,2,0,0.6098,0.5515,-0.0583,-0.0583,-0.0717,-0.0449,FALSE
+equal_row,brier,2,1,0.2298,0.2595,0.0297,0.0297,-0.0081,0.0674,TRUE
+equal_row,calib_slope,2,1,1.3281,0.4174,-0.9107,-0.9107,-1.9537,0.1323,FALSE
+equal_row,n_scored,2,1,4,3.5,-0.5,-0.5,-2,1,FALSE
+equal_row,null_brier_train,2,1,0.2524,0.2499,-0.0025,-0.0025,-0.0152,0.0102,FALSE
