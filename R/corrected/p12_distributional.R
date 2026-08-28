@@ -184,7 +184,14 @@ run_distributional_cell <- function(merged, area_cov, svy, cc, oc, seed = 12345L
 
   w <- suppressWarnings(as.numeric(d[[cc$weight_col]]))
   w[!is.finite(w) | w <= 0] <- 1
-  ind <- data.frame(Admin2 = as.character(d[[cc$admin2_col]]),
+  # Admin1 is carried so districts can be matched on the (Admin1, Admin2) pair.
+  # Malawi has three surveyed districts whose name is shared with a district in
+  # another region, and matching on the name alone silently takes whichever row
+  # comes first. See R/admin2_key_hygiene.R.
+  ind <- data.frame(Admin1 = if (!is.null(cc$admin1_col) &&
+                                 cc$admin1_col %in% colnames(d))
+                              as.character(d[[cc$admin1_col]]) else NA_character_,
+                    Admin2 = as.character(d[[cc$admin2_col]]),
                     cont = suppressWarnings(as.numeric(val)), wt = w,
                     stringsAsFactors = FALSE)
   ind <- ind[is.finite(ind$cont) & ind$cont > 0 &
@@ -196,18 +203,37 @@ run_distributional_cell <- function(merged, area_cov, svy, cc, oc, seed = 12345L
 
   cov_names <- intersect(DIST_COVARIATE_PATTERNS, names(area_cov))
   if (length(cov_names) < 3) return(NULL)
-  acov <- area_cov[, c("Admin2", cov_names), drop = FALSE]
-  acov$Admin2 <- as.character(acov$Admin2)
-  for (k in cov_names) acov[[k]] <- suppressWarnings(as.numeric(acov[[k]]))
+  # area_cov is area_covariates_*$gee_admin2, which is kept in polygon order and
+  # NOT deduplicated: Malawi has 256 polygons under 243 names. Taking the first
+  # match by name silently picks one of two same-named districts in different
+  # regions. area_covariate_lookup() drops water polygons and collapses on the
+  # (Admin1, Admin2) pair. See R/admin2_key_hygiene.R.
+  acov <- area_covariate_lookup(area_cov, cov_names,
+                                sprintf("%s %s area covariates", cc$country, oc$tag))
+  if (is.null(acov)) return(NULL)
+  cov_names <- intersect(cov_names, names(acov))
+  if (length(cov_names) < 3) return(NULL)
 
   sv <- as.data.frame(svy); sv$Admin2 <- as.character(sv$Admin2)
-  areas <- sort(unique(ind$Admin2))
-  areas <- areas[areas %in% acov$Admin2 & areas %in% sv$Admin2]
-  if (length(areas) < 8) return(NULL)
 
-  A   <- acov[match(areas, acov$Admin2), , drop = FALSE]
-  sv  <- sv[match(areas, sv$Admin2), , drop = FALSE]
-  ind <- ind[ind$Admin2 %in% areas, , drop = FALSE]
+  # Match districts on the pair key wherever all three tables carry Admin1, and
+  # fall back to the name only where one of them does not. `areas` stays a
+  # display label; `area_keys` is what the matching uses.
+  ind$.k  <- admin2_key(ind)
+  acov$.k <- admin2_key(acov)
+  sv$.k   <- admin2_key(sv)
+  use_pair <- all(c(any(!is.na(ind$Admin1)), "Admin1" %in% names(acov),
+                    "Admin1" %in% names(sv)))
+  if (!use_pair) { ind$.k <- ind$Admin2; acov$.k <- acov$Admin2; sv$.k <- sv$Admin2 }
+
+  area_keys <- sort(unique(ind$.k))
+  area_keys <- area_keys[area_keys %in% acov$.k & area_keys %in% sv$.k]
+  if (length(area_keys) < 8) return(NULL)
+
+  A   <- acov[match(area_keys, acov$.k), , drop = FALSE]
+  sv  <- sv[match(area_keys, sv$.k), , drop = FALSE]
+  ind <- ind[ind$.k %in% area_keys, , drop = FALSE]
+  areas <- A$Admin2
   X   <- as.matrix(A[, cov_names, drop = FALSE])
 
   # Individual-level out-of-fold predictions, one per scheme.
@@ -216,15 +242,15 @@ run_distributional_cell <- function(merged, area_cov, svy, cc, oc, seed = 12345L
   train_prev <- rep(NA_real_, nrow(ind))
   thr_log <- log(bio$threshold)
 
-  for (i in seq_along(areas)) {
-    te_rows <- which(ind$Admin2 == areas[i])
-    tr_rows <- which(ind$Admin2 != areas[i])
+  for (i in seq_along(area_keys)) {
+    te_rows <- which(ind$.k == area_keys[i])
+    tr_rows <- which(ind$.k != area_keys[i])
     if (!length(te_rows) || length(tr_rows) < 50) next
     itr <- ind[tr_rows, , drop = FALSE]; ite <- ind[te_rows, , drop = FALSE]
     if (length(unique(itr$def)) < 2) next
 
-    P <- .dist_prep(X[match(itr$Admin2, areas), , drop = FALSE],
-                    X[match(ite$Admin2, areas), , drop = FALSE])
+    P <- .dist_prep(X[match(itr$.k, area_keys), , drop = FALSE],
+                    X[match(ite$.k, area_keys), , drop = FALSE])
 
     fb <- .dist_ridge(P$tr, itr$def, "binomial", itr$wt, seed)
     if (!is.null(fb))
@@ -244,8 +270,8 @@ run_distributional_cell <- function(merged, area_cov, svy, cc, oc, seed = 12345L
 
   # Area aggregation happens AFTER the individual fit, which is the ordering the
   # prototype identified as the dominant lever.
-  .area <- function(p) vapply(areas, function(a) {
-    k <- ind$Admin2 == a & is.finite(p)
+  .area <- function(p) vapply(area_keys, function(a) {
+    k <- ind$.k == a & is.finite(p)
     if (!any(k)) NA_real_ else stats::weighted.mean(p[k], ind$wt[k])
   }, numeric(1))
 
@@ -266,7 +292,7 @@ run_distributional_cell <- function(merged, area_cov, svy, cc, oc, seed = 12345L
     m$harmonized_marker <- bio$harmonized
     m$threshold         <- bio$threshold
     m$national_prev     <- stats::weighted.mean(ind$def, ind$wt)
-    m$n_areas_total     <- length(areas)
+    m$n_areas_total     <- length(area_keys)
     m$seed              <- seed
     # r_share is the correlation read against what sampling noise permits.
     m <- add_reliability_columns(m, sv[evalable, , drop = FALSE])

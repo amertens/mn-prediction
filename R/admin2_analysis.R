@@ -319,8 +319,19 @@ extract_area_covariates <- function(cc) {
   }
   all_polys <- sf::st_as_sf(gadm_raw)
   all_polys$Admin2 <- all_polys$NAME_2
+  if ("NAME_1" %in% names(all_polys)) all_polys$Admin1 <- all_polys$NAME_1
 
-  gee_admin2 <- data.frame(Admin2 = all_polys$Admin2)
+  # Admin1 is carried alongside Admin2 so consumers can key on the PAIR. This
+  # table stays in polygon order and is deliberately NOT deduplicated (see the
+  # note at the end of this function), which means its Admin-2 names are not
+  # unique: Malawi has 256 polygons under 243 names. A consumer that joins it on
+  # the name alone multiplies rows, which is what gave WS5 and WS6 107 Malawi
+  # clusters for 103 real ones. With Admin1 present they can join on the pair.
+  gee_admin2 <- if ("Admin1" %in% names(all_polys))
+    data.frame(Admin1 = as.character(all_polys$Admin1),
+               Admin2 = as.character(all_polys$Admin2),
+               stringsAsFactors = FALSE)
+  else data.frame(Admin2 = as.character(all_polys$Admin2), stringsAsFactors = FALSE)
   raster_dir <- .resolve_raster_dir(cc$raster_dir)
 
   if (is.null(raster_dir)) {
@@ -338,7 +349,8 @@ extract_area_covariates <- function(cc) {
   gee_admin2 <- .append_gee_zonal_cols(gee_admin2, all_polys, raster_dir)
   gee_admin2 <- .append_legacy_parity_cols(gee_admin2, cc, only_missing = TRUE)
   cat(sprintf("[extract_area_covariates] %s: %d GEE variables extracted\n",
-              cc$country, ncol(gee_admin2) - 1))
+              cc$country,
+              ncol(gee_admin2) - sum(c("Admin1", "Admin2") %in% names(gee_admin2))))
 
   # NOTE: unlike gee_admin2, this table is intentionally NOT deduplicated -- it
   # must stay in polygon order so the area model can map predictions back onto

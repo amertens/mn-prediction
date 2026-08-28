@@ -92,8 +92,13 @@ build_cluster_dataset <- function(merged, cc, oc, value, threshold) {
         !is.na(d[[cc$cluster_id]]) & !is.na(d[[cc$admin2_col]])
   if (sum(ok) < 100) return(NULL)
 
+  # Admin1 is carried so the covariate join can key on the PAIR: the area
+  # covariate table is not deduplicated and its Admin-2 names are not unique.
+  a1 <- if (!is.null(cc$admin1_col) && cc$admin1_col %in% colnames(d))
+    as.character(d[[cc$admin1_col]])[ok] else NA_character_
   ind <- data.frame(
     cluster = as.character(d[[cc$cluster_id]])[ok],
+    Admin1  = a1,
     Admin2  = as.character(d[[cc$admin2_col]])[ok],
     lon = lon[ok], lat = lat[ok], w = w[ok],
     def = as.integer(v[ok] < threshold),
@@ -104,6 +109,7 @@ build_cluster_dataset <- function(merged, cc, oc, value, threshold) {
   cl <- ind |>
     dplyr::group_by(.data$cluster) |>
     dplyr::summarise(
+      Admin1 = .data$Admin1[1],
       Admin2 = .data$Admin2[1],
       lon = stats::median(.data$lon), lat = stats::median(.data$lat),
       n = dplyr::n(),

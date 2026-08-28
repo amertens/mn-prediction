@@ -73,8 +73,16 @@ read_target <- function(nm) tryCatch(targets::tar_read_raw(nm), error = function
   ok <- is.finite(y) & y > 0 & !is.na(a)
   if (sum(ok) < 30) return(NULL)
   ly <- log(y[ok]); w <- w[ok]; a <- a[ok]
-  agg <- data.frame(Admin2 = a, ly = ly, w = w, stringsAsFactors = FALSE) |>
-    dplyr::group_by(.data$Admin2) |>
+  # Admin1 is carried because gee_admin2_* is now keyed on the (Admin1, Admin2)
+  # PAIR and therefore has duplicated NAMES where two districts share one
+  # (Malawi: 243 rows, 239 distinct names). A name-only join against it
+  # multiplies rows; before the join-key migration it could not, because that
+  # table was name-deduplicated. See R/admin2_key_hygiene.R.
+  a1 <- if (!is.null(cc$admin1_col) && cc$admin1_col %in% colnames(d))
+    as.character(d[[cc$admin1_col]])[ok] else NA_character_
+  agg <- data.frame(Admin1 = a1, Admin2 = a, ly = ly, w = w,
+                    stringsAsFactors = FALSE) |>
+    dplyr::group_by(.data$Admin1, .data$Admin2) |>
     dplyr::summarise(svy_prev = stats::weighted.mean(.data$ly, .data$w),
                      n_svy = dplyr::n(), .groups = "drop") |>
     as.data.frame()

@@ -1,7 +1,7 @@
 metric,n_folds,folds_v2_better,mean_delta,median_delta,min_delta,max_delta,lower_better
-abs_nat_bias_pp,16,11,-1.8219,-0.27,-18.91,4.32,TRUE
-mae_pp,16,9,-1.3125,-0.22,-12.91,0.81,TRUE
-n_selected,16,6,-1,0,-6,7,FALSE
-pearson_r,15,9,0.0159,0.004,-0.143,0.188,FALSE
-rmse_pp,16,12,-1.5562,-0.405,-13.39,0.38,TRUE
-spearman_r,15,6,-0.0125,-0.011,-0.153,0.11,FALSE
+abs_nat_bias_pp,16,6,-1.3194,0.07,-18.98,2.52,TRUE
+mae_pp,16,6,-0.8594,0.025,-13.02,2.83,TRUE
+n_selected,16,6,-0.4375,0,-5,9,FALSE
+pearson_r,16,7,-0.0301,-0.003,-0.27,0.195,FALSE
+rmse_pp,16,8,-0.9025,-0.015,-13.48,4.3,TRUE
+spearman_r,16,6,-0.0211,-0.0225,-0.207,0.124,FALSE

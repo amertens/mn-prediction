@@ -247,6 +247,36 @@ assert_unique_admin2 <- function(d, what = "table") {
   invisible(d)
 }
 
+#' A district-level covariate lookup that is safe to join against.
+#'
+#' `area_covariates_*$gee_admin2` is deliberately kept in POLYGON order and not
+#' deduplicated, so the area model can map predictions back onto `polygons`.
+#' That makes its Admin-2 names non-unique (Malawi: 256 polygons, 243 names),
+#' and every consumer that joined it on the name alone multiplied rows. WS5 and
+#' WS6 got 107 Malawi clusters for 103 real ones this way, with four clusters
+#' double-weighted and one copy carrying another region's covariates.
+#'
+#' This returns the same table reduced to one row per district: water polygons
+#' dropped, then collapsed on the pair key where Admin1 is available. Use it
+#' instead of joining `gee_admin2` directly.
+#'
+#' @param area_cov a `area_covariates_*$gee_admin2` table
+#' @param covs covariate columns to keep
+#' @param what label for the log lines
+#' @return data.frame with the key column(s) and `covs`, one row per district
+area_covariate_lookup <- function(area_cov, covs, what = "area covariates") {
+  if (is.null(area_cov) || !"Admin2" %in% names(area_cov)) return(NULL)
+  keep <- intersect(covs, names(area_cov))
+  key <- intersect(c("Admin1", "Admin2"), names(area_cov))
+  d <- area_cov[, c(key, keep), drop = FALSE]
+  d$Admin2 <- as.character(d$Admin2)
+  if ("Admin1" %in% names(d)) d$Admin1 <- as.character(d$Admin1)
+  for (k in keep) d[[k]] <- suppressWarnings(as.numeric(d[[k]]))
+  d <- clean_admin2_keys(d, what)
+  assert_unique_admin2(d, what)
+  d
+}
+
 #' Report survey rows that a pair-keyed join dropped but a name join would keep.
 #'
 #' A pair join is only correct when both sides agree on Admin1. They can

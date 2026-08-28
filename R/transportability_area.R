@@ -91,17 +91,29 @@ build_admin2_covariates <- function(gee_admin2, merged) {
   }))
   names(gee_df) <- unique(stems)
   gee_df$Admin2 <- as.character(gee_admin2$Admin2)
+  # Since the join-key migration, gee_admin2 is unique on the (Admin1, Admin2)
+  # PAIR and therefore has duplicated NAMES where two districts share one
+  # (Malawi: 243 rows, 239 distinct names). Joining on the name alone multiplies
+  # rows; it could not before, because that table used to be name-deduplicated.
+  # See R/admin2_key_hygiene.R.
+  if ("Admin1" %in% names(gee_admin2))
+    gee_df$Admin1 <- as.character(gee_admin2$Admin1)
 
   dom_cols <- grep(AREA_TRANSPORT_DOMAINS, names(merged), value = TRUE)
   agg <- data.frame(Admin2 = as.character(merged$Admin2))
+  if ("Admin1" %in% names(merged)) agg$Admin1 <- as.character(merged$Admin1)
   for (c in dom_cols) agg[[c]] <- .tr_as_num(merged[[c]])
+  grp <- intersect(c("Admin1", "Admin2"), names(agg))
   agg <- agg |>
-    dplyr::group_by(Admin2) |>
+    dplyr::group_by(dplyr::across(dplyr::all_of(grp))) |>
     dplyr::summarise(dplyr::across(dplyr::everything(), ~ mean(.x, na.rm = TRUE)),
                      .groups = "drop") |>
     as.data.frame()
 
-  dplyr::full_join(gee_df, agg, by = "Admin2")
+  by_cov <- admin2_join_by(gee_df, agg)
+  n_before <- max(nrow(gee_df), nrow(agg))
+  out <- dplyr::full_join(gee_df, agg, by = by_cov)
+  warn_if_join_multiplied(n_before, out, "build_admin2_covariates")
 }
 
 #' Assemble the pooled multi-country Admin-2 dataset for one outcome
@@ -116,22 +128,25 @@ assemble_area_transport <- function(svy_admin2_list, cov_list, outcome = NA) {
     s <- svy_admin2_list[[cn]]
     if (is.null(s) || !any(is.finite(s$svy_prev))) next
     sv <- data.frame(
+      Admin1   = if ("Admin1" %in% names(s)) as.character(s$Admin1) else NA_character_,
       Admin2   = as.character(s$Admin2),
       svy_prev = s$svy_prev,
       n_svy    = if ("n_svy" %in% names(s)) s$n_svy else NA_real_,
       stringsAsFactors = FALSE
     )
     sv <- sv[is.finite(sv$svy_prev), , drop = FALSE]
-    # This join is keyed on the Admin-2 name because build_admin2_covariates()
-    # does not carry Admin1. Both sides are unique by name today, so it cannot
-    # multiply rows, but that is a property of the inputs rather than of the
-    # join. Assert it instead of relying on it: a duplicated key here would
-    # silently inflate a country's contribution to the pooled fit, which is the
-    # failure this migration found elsewhere. See R/admin2_key_hygiene.R.
+    # Keyed on (Admin1, Admin2) where both sides carry Admin1. Since the
+    # join-key migration the covariate table is unique on the PAIR and has
+    # duplicated NAMES where two districts share one, so a name-only join here
+    # would multiply rows. Both sides are asserted unique on the key actually
+    # used, rather than that being assumed. See R/admin2_key_hygiene.R.
     assert_unique_admin2(sv, sprintf("%s survey area table", cn))
     assert_unique_admin2(cov_list[[cn]], sprintf("%s covariate area table", cn))
+    by_at <- admin2_join_by(sv, cov_list[[cn]])
+    report_pair_join_losses(sv, cov_list[[cn]], by_at,
+                            sprintf("%s area transport join", cn))
     n_before <- nrow(sv)
-    d <- dplyr::inner_join(sv, cov_list[[cn]], by = "Admin2")
+    d <- dplyr::inner_join(sv, cov_list[[cn]], by = by_at)
     d <- warn_if_join_multiplied(n_before, d, sprintf("%s area transport join", cn))
     if (nrow(d) == 0) next
     d$country <- cn
@@ -139,7 +154,7 @@ assemble_area_transport <- function(svy_admin2_list, cov_list, outcome = NA) {
   }
   if (length(frames) < 2) return(NULL)
   covnames <- function(df) {
-    cv <- setdiff(names(df), c("Admin2", "svy_prev", "n_svy", "country"))
+    cv <- setdiff(names(df), c("Admin1", "Admin2", "svy_prev", "n_svy", "country"))
     cv[sapply(cv, function(c) any(is.finite(df[[c]])))]
   }
   common <- Reduce(intersect, lapply(frames, covnames))
@@ -148,7 +163,8 @@ assemble_area_transport <- function(svy_admin2_list, cov_list, outcome = NA) {
   # GEE_COVARIATE_HYGIENE=false to keep the unpruned set.
   common <- setdiff(common, prune_gee_covariates(common))
   pooled <- dplyr::bind_rows(lapply(frames, function(df)
-    df[, c("country", "Admin2", "svy_prev", "n_svy", common), drop = FALSE]))
+    df[, c("country", intersect("Admin1", names(df)), "Admin2",
+           "svy_prev", "n_svy", common), drop = FALSE]))
   list(data = pooled, predictors = common,
        countries = names(frames), outcome = outcome)
 }

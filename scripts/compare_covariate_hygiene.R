@@ -25,10 +25,10 @@
 suppressPackageStartupMessages({
   library(here); library(dplyr); library(readr)
 })
-source(here("R", "config.R"))
-source(here("R", "gee_band_semantics.R"))
-source(here("R", "area_level_comparison.R"))
-source(here("R", "transportability_area.R"))
+# tar_source() rather than a hand-listed set: build_area_loco_dataset() now
+# calls the Admin-2 key helpers (admin2_join_by, warn_if_join_multiplied,
+# report_pair_join_losses), and a partial source list silently loses them.
+targets::tar_source(here("R"))
 
 OUTCOMES <- c("child_vitA", "women_vitA", "child_iron", "women_iron")
 

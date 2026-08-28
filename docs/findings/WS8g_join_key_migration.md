@@ -76,6 +76,36 @@ that used `build_area_loco_dataset()` inherited it: the WS2b hygiene comparison,
 the WS3 uniform-BRINDA LOCO, the WS7 anchored transport, and the WS6
 calibration learning curve.
 
+### Failure 3: the same defect again, in the cluster covariate join
+
+Found while implementing the fix for failures 1 and 2, by looking for every
+consumer of a GADM-derived table rather than only the one that had already
+broken.
+
+`area_covariates_*$gee_admin2` is a SECOND covariate table, distinct from
+`gee_admin2_*`. It is deliberately kept in polygon order and deliberately NOT
+deduplicated, so the area model can map predictions back onto `polygons`. For
+Malawi that means 256 rows, 13 of them duplicated names and 13 of them water
+polygons, and it carried no Admin1 column at all.
+
+WS4, WS5 and WS6 all join it onto district or cluster data by Admin-2 name.
+Measured on Malawi child vitamin A:
+
+```
+clusters BEFORE covariate join: 103
+clusters AFTER  covariate join: 107
+multiplied clusters: 4 -> districts: TA Malemia, TA Lundu, TA Pemba
+```
+
+So the WS5 and WS6 results committed earlier on this branch carry four
+double-weighted Malawi clusters, one copy of each holding another region's
+covariates. WS4 uses `match()` rather than a join, so it did not multiply rows,
+but it silently took whichever same-named district came first.
+
+The fix is `area_covariate_lookup()`, which drops water polygons and collapses
+on the pair key, plus carrying Admin1 into `extract_area_covariates()` and into
+`build_cluster_dataset()` so the pair is available to join on.
+
 ## What changed
 
 `R/admin2_key_hygiene.R`:

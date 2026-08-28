@@ -55,9 +55,11 @@ for (cn in countries) {
   if (is.null(merged) || is.null(acov) || is.null(acov$gee_admin2)) next
   area_cov <- acov$gee_admin2
   covs <- intersect(cluster_mbg_covariates(), names(area_cov))
-  ac <- area_cov[, c("Admin2", covs), drop = FALSE]
-  ac$Admin2 <- as.character(ac$Admin2)
-  for (k in covs) ac[[k]] <- suppressWarnings(as.numeric(ac[[k]]))
+  # area_covariates_*$gee_admin2 is kept in polygon order and NOT deduplicated,
+  # so its Admin-2 names are not unique. Joining it on the name alone multiplied
+  # Malawi's 103 clusters into 107. area_covariate_lookup() drops water polygons
+  # and collapses on the pair key. See R/admin2_key_hygiene.R.
+  ac <- area_covariate_lookup(area_cov, covs, sprintf("%s area covariates", cn))
 
   for (otag in OUTCOMES) {
     oc <- cc$outcomes[[otag]]
@@ -68,7 +70,10 @@ for (cn in countries) {
     if (is.null(bio)) next
     cl <- build_cluster_dataset(merged, cc, oc, bio$value, bio$threshold)
     if (is.null(cl)) next
-    cl <- dplyr::left_join(cl, ac, by = "Admin2")
+    by_cov <- admin2_join_by(cl, ac)
+    n_cl <- nrow(cl)
+    cl <- dplyr::left_join(cl, ac, by = by_cov)
+    cl <- warn_if_join_multiplied(n_cl, cl, sprintf("%s cluster-covariate join", cn))
     cluster_cache[[paste(cn, otag)]] <- list(cl = cl, svy = svy, cc = cc, oc = oc)
 
     t0 <- Sys.time()
