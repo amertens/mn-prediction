@@ -30,15 +30,32 @@ detail is in `docs/findings/`.
 
 ### Cross-country transport is close to chance
 
-**Individual level.** Selection reruns inside each fold, so it sees only the
-training countries. Over 16 folds:
+**Individual level.** The production predictor set comes from a three-step search
+over roughly 590 pooled candidates: rank each candidate by its own cross-country
+transport strength, collapse near-duplicate variants of the same construct, then
+add predictors greedily for as long as leave-one-country-out AUC improves. It
+settles on five variables: soil calcium variability, November rainfall, malaria
+incidence, a vegetation principal component, and MAP parasite rate. A small,
+interpretable set of that kind is the natural thing to report.
 
-| Scorer | Mean LOCO AUC |
-|---|---|
-| SuperLearner | 0.5214 |
-| glm | 0.5380 |
+Scoring it on the same folds the search consulted gives the first column below.
+Rerunning the entire search inside each fold, so it sees only the three training
+countries, gives the second. Both columns use the same estimator on the same 16
+folds, so the gap between them is the search, not the model.
 
-Four of the 16 SuperLearner folds fall below 0.5.
+| Scorer | Search sees every fold | Search nested in the fold |
+|---|---|---|
+| SuperLearner | 0.5977 | 0.5214 |
+| glm | 0.6199 | 0.5380 |
+
+Nesting the search costs about 0.08 AUC and it costs it almost everywhere:
+the nested arm is worse in 15 of the 16 folds under either scorer, and four of
+its SuperLearner folds fall below 0.5.
+
+The five variables are not the problem. The search that found them ranked
+candidates on the same folds it was later scored on, so most of the apparent
+transport signal is a property of the search rather than of the predictors. Any
+selection procedure run this way will produce a set that looks transportable.
 
 **Area level.** Eleven model families predict district prevalence from the proxy
 covariates, trained on three countries and scored on the fourth, over the same
