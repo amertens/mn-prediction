@@ -36,23 +36,68 @@ Every number below is read from a produced CSV and cited with its file.
 
 ### Cross-country transport is close to chance
 
-Predictor selection, rerun inside each outer fold so it sees only the training
-countries, over 16 folds:
+**At individual level.** Predictor selection, rerun inside each outer fold so it
+sees only the training countries, over 16 folds:
 
 | Scorer | Mean LOCO AUC |
 |---|---|
 | SuperLearner | 0.5214 |
 | glm | 0.5380 |
 
-Four of 16 SuperLearner folds fall below 0.5. The eight-SoilGrids spatial model
-behaves the same way: selecting its features inside the fold gives mean Pearson
-r of 0.1426, while a covariate-free spatial smoother on the same cells reaches
-0.2861. Honest selection of soil covariates performs worse than using none.
+Four of 16 SuperLearner folds fall below 0.5.
+(source: `results/tables/corrected/loco_nested_selection_summary.csv`)
 
-The practical reading is that this pipeline cannot place an unsurveyed country's
-subnational map on the right footing from proxies alone.
-(source: `results/tables/corrected/loco_nested_selection_summary.csv`,
-`results/tables/frozen_2026-08/sandbox_parsimony_out/spatial_plus_soil_rescored.csv`)
+**At area level.** Eleven model families scored on the same 16 outcome-by-holdout
+cells, placed using the training countries' mean rather than the held-out
+country's own national value. `r_max` is the correlation sampling noise alone
+permits on these cells, and `r_share` is the fraction of it achieved:
+
+| Variant | Pearson r | r_share | RMSE (pp) | Abs. level bias (pp) |
+|---|---|---|---|---|
+| ridge, all predictors, z-scored | 0.2242 | 0.735 | 17.81 | 8.73 |
+| decorrelated 20, country-centred | 0.1715 | 0.562 | 15.48 | 9.53 |
+| ridge, all predictors, country-centred | 0.1694 | 0.555 | 19.70 | 13.13 |
+| elastic net, top 30, country-centred | 0.1439 | 0.472 | 21.93 | 15.43 |
+| curated 16-variable set | 0.1349 | 0.442 | 18.17 | 9.08 |
+| correlation-screened top 30 | 0.1345 | 0.441 | 18.57 | 8.67 |
+| **production parsimonious recipe (elastic net, top 30)** | **0.1228** | **0.403** | **14.51** | **8.90** |
+| **covariate-free spatial spline** | **0.1151** | **0.377** | **16.53** | **11.52** |
+| decorrelated 20, z-scored | 0.1031 | 0.338 | 18.56 | 8.98 |
+| production ridge | 0.0964 | 0.316 | 16.13 | 9.20 |
+| spatial spline plus decorrelated 20 | 0.0936 | 0.307 | 20.05 | 12.12 |
+
+Every family sits between a third and three quarters of the attainable ceiling,
+and the ceiling itself is 0.305. The parsimonious production recipe and the
+covariate-free spatial spline land mid-table and are indistinguishable from each
+other, and adding covariates to the spatial spline moves it down rather than up.
+The best performer on correlation, ridge on all predictors, is also the least
+parsimonious, and its advantage does not carry into RMSE.
+(source: `results/tables/corrected/loco_transport_bakeoff.csv`, rows with
+`source_file = sandbox_parsimony_out/loco_headline.csv`)
+
+**Selection honesty accounts for much of the apparent signal.** The
+eight-SoilGrids spatial model, re-scored with its features chosen inside the
+fold rather than once across all folds:
+
+| Variant | Pearson r | Spearman | RMSE (pp) |
+|---|---|---|---|
+| features locked from a full-data ranking | 0.3324 | 0.3164 | 18.26 |
+| covariate-free spatial spline, same cells | 0.2861 | 0.2739 | 16.50 |
+| features selected inside each fold | 0.1426 | 0.1170 | 18.24 |
+
+Choosing the soil features honestly more than halves the correlation, and lands
+below using no soil features at all.
+(source: `results/tables/corrected/loco_transport_bakeoff.csv`, rows with
+`source_file = sandbox_parsimony_out/spatial_plus_soil_rescored.csv`)
+
+These are separate experiments with different reliability ceilings, 0.205 here
+against 0.305 above, so the two tables should be read within themselves rather
+than against each other. The consolidated file carries every variant from all
+four transport experiments, at both anchor settings.
+
+The practical reading across all of it is that this pipeline cannot place an
+unsurveyed country's subnational map on the right footing from proxies alone,
+and that no model family in the pool changes that.
 
 ### The residual error is a country intercept, not a covariate failure
 
