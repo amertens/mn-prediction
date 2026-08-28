@@ -1,0 +1,25 @@
+country,outcome,population,configured_continuous,configured_binary,cutoff,cutoff_scale,uniform_cutoff_applied,adjustment_harmonized_today,harmonized_method_today,uniform_raw_marker,uniform_crp,uniform_agp,uniform_method
+Gambia,child_vitA,children,gw_cRBPAdjThurn,gw_cVAD_Thurn,0.7,original,TRUE,TRUE,BRINDA CRP+AGP,gw_cRBP,gw_cCRP,gw_cAGP,BRINDA CRP+AGP
+Gambia,women_vitA,women,gw_wRBPAdjThurn,gw_wVAD_Thurn,0.7,original,TRUE,TRUE,BRINDA CRP+AGP,gw_wRBP,gw_wCRP,gw_wAGP,BRINDA CRP+AGP
+Gambia,child_iron,children,gw_LogFerAdj,gw_cIDA_Brinda,2.4849066497880004,log,TRUE,FALSE,NA,gw_cFER,gw_cCRP,gw_cAGP,BRINDA CRP+AGP
+Gambia,women_iron,women,gw_LogFerAdj,gw_wIDA_Brinda,2.70805020110221,log,TRUE,FALSE,NA,gw_wFER,gw_wCRP,gw_wAGP,BRINDA CRP+AGP
+Ghana,child_vitA,children,gw_cRBPAdjThurn,gw_cVADAdjThurn,0.7,original,TRUE,TRUE,BRINDA CRP+AGP,gw_cRBP,gw_cCRP,gw_cAGP,BRINDA CRP+AGP
+Ghana,women_vitA,women,gw_wRBPAdjThurn,gw_wVADAdjThurn,0.7,original,TRUE,TRUE,BRINDA CRP+AGP,gw_wRBP,gw_wCRP,gw_wAGP,BRINDA CRP+AGP
+Ghana,child_iron,children,gw_cFerrAdjThurn,gw_cIDAdjThurn,12,original,TRUE,FALSE,NA,gw_cFerr,gw_cCRP,gw_cAGP,BRINDA CRP+AGP
+Ghana,women_iron,women,gw_wFerrAdjThurn,gw_wIDA_Thurn,15,original,TRUE,FALSE,NA,gw_wFerr,gw_wCRP,gw_wAGP,BRINDA CRP+AGP
+Ghana,women_folate,women,gw_wFolate,gw_wFolateDef,10,original,FALSE,FALSE,NA,NA,NA,NA,not applicable (no inflammation adjustment defined)
+Ghana,women_b12,women,gw_wB12,gw_wB12Def,148,original,FALSE,FALSE,NA,NA,NA,NA,not applicable (no inflammation adjustment defined)
+Sierra Leone,child_vitA,children,gw_cRBPAdj,gw_cVAD,0.7,original,TRUE,TRUE,BRINDA CRP+AGP,gw_cRBP,gw_cCRP,gw_cAGP,BRINDA CRP+AGP
+Sierra Leone,women_vitA,women,gw_wRBPAdj,gw_wVAD,0.7,original,TRUE,TRUE,BRINDA CRP+AGP,gw_wRBP,gw_wCRP,gw_wAGP,BRINDA CRP+AGP
+Sierra Leone,child_iron,children,gw_cFerrAdj,gw_cIDA,12,original,TRUE,FALSE,NA,gw_cFerritin,gw_cCRP,gw_cAGP,BRINDA CRP+AGP
+Sierra Leone,women_iron,women,gw_wFerAdjBR1,gw_wIDA,15,original,TRUE,FALSE,NA,gw_wFerritin,gw_wCRP,gw_wAGP,BRINDA CRP+AGP
+Sierra Leone,women_folate,women,gw_wFolate,gw_wFolDef,10,original,FALSE,FALSE,NA,NA,NA,NA,not applicable (no inflammation adjustment defined)
+Sierra Leone,women_b12,women,gw_B12,gw_wB12DefWHO,148,original,FALSE,FALSE,NA,NA,NA,NA,not applicable (no inflammation adjustment defined)
+Malawi,child_vitA,children,rbp,vitA_def,0.7,original,TRUE,TRUE,BRINDA CRP+AGP,rbp,crp,agp,BRINDA CRP+AGP
+Malawi,women_vitA,women,rbp,vitA_def,0.7,original,TRUE,TRUE,BRINDA CRP+AGP,rbp,crp,agp,BRINDA CRP+AGP
+Malawi,child_iron,children,sf_reg,iron_def,12,original,TRUE,FALSE,NA,fer,crp,agp,BRINDA CRP+AGP
+Malawi,women_iron,women,sf_reg,iron_def,15,original,TRUE,FALSE,NA,fer,crp,agp,BRINDA CRP+AGP
+Malawi,women_folate,women,fol_nmol,folate_def,10,original,FALSE,FALSE,NA,NA,NA,NA,not applicable (no inflammation adjustment defined)
+Malawi,women_b12,women,vitb12,b12_def,148,original,FALSE,FALSE,NA,NA,NA,NA,not applicable (no inflammation adjustment defined)
+Malawi,child_zinc,children,zn_gdl,zinc_def,65,original,FALSE,FALSE,NA,NA,NA,NA,not applicable (no inflammation adjustment defined)
+Malawi,women_zinc,women,zn_gdl,zinc_def,66,original,FALSE,FALSE,NA,NA,NA,NA,not applicable (no inflammation adjustment defined)

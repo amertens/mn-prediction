@@ -477,7 +477,36 @@ static_targets <- list(
   # Same stack PLUS the Gaussian process, for the gp_sensitivity check only.
   # Never use this for a large-n target: gausspr is O(n^3). See
   # R/sensitivity/gp_sensitivity.R for the measured scaling.
-  tar_target(sl_learners_gp, setup_mlr3_learners(pipeline_params, with_gp = TRUE))
+  tar_target(sl_learners_gp, setup_mlr3_learners(pipeline_params, with_gp = TRUE)),
+
+  # ── WS3: assay lineage gate ───────────────────────────────────────────────
+  # metadata/assay_lineage.csv is not a {targets} file target, so it gets the
+  # same md5 + always-cue stamp as gee_parity_stamp_* and dhs_stamp_*: without
+  # it {targets} cannot see that the file changed and would keep a stale check.
+  tar_target(
+    assay_lineage_stamp,
+    {
+      p <- here::here("metadata", "assay_lineage.csv")
+      if (file.exists(p)) unname(tools::md5sum(p)) else NA_character_
+    },
+    cue = tar_cue(mode = "always")
+  ),
+
+  # Fails the pipeline when a modeled outcome has no lineage row. UNKNOWN is an
+  # acceptable value in a row; a missing row is not, because it means an outcome
+  # is being modelled whose measurement basis nobody has written down.
+  tar_target(
+    assay_lineage_check,
+    {
+      force(assay_lineage_stamp)
+      v <- validate_assay_lineage()
+      if (!isTRUE(v$ok))
+        stop("assay lineage incomplete. Missing rows: ",
+             paste(v$missing, collapse = ", "),
+             ". Run scripts/build_assay_lineage.R.", call. = FALSE)
+      v
+    }
+  )
 )
 
 # ── Per-country targets ─────────────────────────────────────────────────────

@@ -1,0 +1,17 @@
+outcome,held_out,n_train,n_test,n_pred,n_selected,pearson_r,pearson_ci_lo,pearson_ci_hi,pearson_perm_p,spearman_r,rmse_pp,mae_pp,nat_bias_pp,calib_slope,n_boot,scheme
+child_iron,Gambia,179,30,30,8,0.489,0.155,0.725,0.007,0.462,47.69,45.73,-45.73,1.49,1000,configured
+child_iron,Ghana,134,75,30,11,0.461,0.268,0.635,0.001,0.424,17.52,13.99,4.06,0.64,1000,configured
+child_iron,SierraLeone,195,14,30,10,-0.152,-0.482,0.541,0.6723,0.138,12.46,7.82,4.92,-0.07,1000,configured
+child_iron,Malawi,119,90,30,14,-0.003,-0.233,0.207,0.5195,-0.03,17.24,13.95,5.64,-0.01,1000,configured
+child_iron,Gambia,179,30,30,11,0.538,0.297,0.733,0.003,0.519,42.78,40.79,-40.79,1.58,1000,uniform_brinda
+child_iron,Ghana,134,75,30,13,0.46,0.256,0.634,0.001,0.414,19.32,15.72,-5.05,0.77,1000,uniform_brinda
+child_iron,SierraLeone,195,14,30,10,0.262,-0.102,0.695,0.1848,0.349,6.06,5.17,2.42,0.26,1000,uniform_brinda
+child_iron,Malawi,119,90,30,15,0,-0.252,0.247,0.5025,0.033,19.74,15.98,8.9,0,1000,uniform_brinda
+women_iron,Gambia,179,30,30,6,-0.053,-0.411,0.285,0.6104,-0.029,44.82,41.77,-41.77,-2.81,1000,configured
+women_iron,Ghana,134,75,30,11,0.3,0.053,0.485,0.007,0.26,18.17,15.33,13.39,0.41,1000,configured
+women_iron,SierraLeone,195,14,30,11,-0.105,-0.701,0.232,0.6344,-0.336,19.02,15.08,-4.59,-0.04,1000,configured
+women_iron,Malawi,119,90,30,13,-0.039,-0.219,0.18,0.6523,0.047,18.71,13.84,-4.57,-0.12,1000,configured
+women_iron,Gambia,179,30,30,1,0.665,0.464,0.824,0.001,0.672,41.98,38.71,-38.71,115.04,1000,uniform_brinda
+women_iron,Ghana,134,75,30,11,0.058,-0.181,0.297,0.3207,0.135,19.76,16.43,8.26,0.09,1000,uniform_brinda
+women_iron,SierraLeone,195,14,30,10,-0.123,-0.755,0.254,0.6743,-0.446,19.73,14.63,1.06,-0.05,1000,uniform_brinda
+women_iron,Malawi,119,90,30,17,0.099,-0.093,0.312,0.1708,0.115,20.97,15.41,-10.26,0.23,1000,uniform_brinda

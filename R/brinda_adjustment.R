@@ -139,6 +139,192 @@ brinda_country_method <- function(country) {
   if (is.null(spec$child$agp)) "BRINDA CRP-only" else "BRINDA CRP+AGP"
 }
 
+# =============================================================================
+# WS3 (2026-08): uniform inflammation adjustment for FERRITIN.
+#
+# Vitamin A was harmonized in DC-H2: apply_brinda_vita_binary() overwrites every
+# country's VAD binary with one BRINDA CRP+AGP definition, and
+# brinda_country_method() now returns "BRINDA CRP+AGP" for all four active
+# countries. Iron was not. UNIFORM_TRANSPORT_TAGS (R/admin2_analysis.R:20)
+# applies a uniform CUTOFF to iron, but it applies it to each country's own
+# configured continuous column, and those are adjusted four different ways:
+#
+#   Gambia        gw_LogFerAdj       log-scale, survey-agency adjustment
+#   Ghana         gw_*FerrAdjThurn   Thurnham
+#   Sierra Leone  gw_cFerrAdj (children) / gw_wFerAdjBR1 (women)
+#   Malawi        sf_reg             regression-adjusted serum ferritin
+#
+# A uniform cutoff on non-uniform adjustments is not a uniform outcome. Since
+# the dominant LOCO failure mode is a national LEVEL offset, and raw child
+# ferritin medians run from 11.3 (Gambia) to 71.4 (Sierra Leone) while Sierra
+# Leone's children also carry far the highest CRP, adjustment heterogeneity is a
+# candidate explanation that has to be measured rather than assumed.
+#
+# These functions are ADDITIVE. Nothing below is called from the production
+# path; they are driven from scripts/run_uniform_brinda.R under the
+# `uniform_brinda` scheme so the configured outcomes are unchanged.
+# =============================================================================
+
+#' BRINDA-adjust ferritin for inflammation (iron).
+#'
+#' Same regression correction as brinda_adjust_rbp(), with the sign reversed.
+#' Inflammation RAISES ferritin (it is an acute-phase reactant), so the
+#' coefficients are clamped to >= 0 and the correction lowers the adjusted
+#' value. In brinda_adjust_rbp() inflammation depresses RBP, the coefficients
+#' are clamped to <= 0, and the correction raises it. Clamping in the wrong
+#' direction would let collinearity manufacture or erase deficiency, so the two
+#' clamps are not interchangeable.
+#'
+#' @param fer,crp,agp numeric vectors (ferritin ug/L; CRP mg/L; AGP g/L), same
+#'   length, one population group.
+#' @param min_n minimum complete cases to fit the regression (else return raw).
+#' @return numeric vector of inflammation-adjusted ferritin (raw where markers NA)
+brinda_adjust_ferritin <- function(fer, crp, agp = NULL, min_n = 30L) {
+  fer <- suppressWarnings(as.numeric(fer))
+  crp <- suppressWarnings(as.numeric(crp))
+  crp_only <- is.null(agp)
+  agp <- if (crp_only) rep(NA_real_, length(fer)) else suppressWarnings(as.numeric(agp))
+  adj <- fer
+  ok <- is.finite(fer) & is.finite(crp) & fer > 0 & crp > 0
+  if (!crp_only) ok <- ok & is.finite(agp) & agp > 0
+  if (sum(ok) < min_n) return(adj)
+  lfer <- log(fer[ok]); lcrp <- log(crp[ok])
+  crp_ref <- as.numeric(stats::quantile(crp[ok], 0.10, na.rm = TRUE))
+  if (crp_only) {
+    b <- tryCatch(stats::coef(stats::lm(lfer ~ lcrp)),
+                  error = function(e) c(`(Intercept)` = NA, lcrp = 0))
+    bC <- max(unname(b["lcrp"]), 0, na.rm = TRUE)
+    corr <- bC * pmax(lcrp - log(crp_ref), 0)
+  } else {
+    lagp <- log(agp[ok])
+    agp_ref <- as.numeric(stats::quantile(agp[ok], 0.10, na.rm = TRUE))
+    b <- tryCatch(stats::coef(stats::lm(lfer ~ lcrp + lagp)),
+                  error = function(e) c(`(Intercept)` = NA, lcrp = 0, lagp = 0))
+    bC <- max(unname(b["lcrp"]), 0, na.rm = TRUE)
+    bA <- max(unname(b["lagp"]), 0, na.rm = TRUE)
+    corr <- bC * pmax(lcrp - log(crp_ref), 0) + bA * pmax(lagp - log(agp_ref), 0)
+  }
+  adj[ok] <- exp(lfer - corr)
+  adj
+}
+
+#' Per-country RAW ferritin / CRP / AGP column map.
+#'
+#' Raw, not the survey-adjusted columns the configs point at: the whole point of
+#' the uniform scheme is to re-derive the adjustment from the same starting
+#' point everywhere. Units verified as ferritin ug/L, CRP mg/L, AGP g/L across
+#' all four countries.
+#'
+#' Malawi stores one biomarker column per marker for both populations and splits
+#' by its `population` text column, so child and women entries are identical.
+brinda_ferritin_cols <- function(country) {
+  switch(country,
+    "Gambia"       = list(child = list(fer = "gw_cFER",      crp = "gw_cCRP", agp = "gw_cAGP"),
+                          women = list(fer = "gw_wFER",      crp = "gw_wCRP", agp = "gw_wAGP")),
+    "Ghana"        = list(child = list(fer = "gw_cFerr",     crp = "gw_cCRP", agp = "gw_cAGP"),
+                          women = list(fer = "gw_wFerr",     crp = "gw_wCRP", agp = "gw_wAGP")),
+    "Sierra Leone" = list(child = list(fer = "gw_cFerritin", crp = "gw_cCRP", agp = "gw_cAGP"),
+                          women = list(fer = "gw_wFerritin", crp = "gw_wCRP", agp = "gw_wAGP")),
+    "Malawi"       = list(child = list(fer = "fer", crp = "crp", agp = "agp"),
+                          women = list(fer = "fer", crp = "crp", agp = "agp")),
+    NULL)
+}
+
+#' Which inflammation adjustment does a country's IRON outcome actually get?
+#'
+#' The analogue of brinda_country_method() for iron. Unlike vitamin A, the
+#' configured iron columns are not harmonized, so this reports the configured
+#' column rather than a single method name.
+brinda_iron_method <- function(country, population = "child") {
+  spec <- brinda_ferritin_cols(country)
+  if (is.null(spec)) return("configured (no uniform ferritin map)")
+  if (is.null(spec[[population]]$agp)) "BRINDA CRP-only" else "BRINDA CRP+AGP"
+}
+
+#' Derive the uniform iron-deficiency binary from BRINDA-adjusted ferritin.
+#'
+#' `d` must already be filtered to ONE population. Cutoffs are the WHO values
+#' the configs already use: 12 ug/L in children, 15 ug/L in women.
+#'
+#' @return integer 0/1 vector, or NULL when the country's raw columns are absent
+#'   (caller keeps the configured binary rather than silently substituting).
+brinda_id_binary <- function(d, cc, oc, label = "") {
+  pop  <- if (grepl("^child", oc$tag)) "child" else "women"
+  spec <- brinda_ferritin_cols(cc$country)[[pop]]
+  if (is.null(spec)) {
+    warning(sprintf("[brinda-fe]%s %s: no raw ferritin/CRP/AGP map; keeping configured binary",
+                    label, cc$country))
+    return(NULL)
+  }
+  need <- unname(unlist(spec[intersect(names(spec), c("fer", "crp", "agp"))]))
+  if (!all(need %in% colnames(d))) {
+    warning(sprintf("[brinda-fe]%s %s %s: missing column(s) %s; keeping configured binary",
+                    label, cc$country, oc$tag, paste(setdiff(need, colnames(d)), collapse = ", ")))
+    return(NULL)
+  }
+  cutoff <- if (pop == "child") 12 else 15
+  adj <- brinda_adjust_ferritin(d[[spec$fer]], d[[spec$crp]],
+                                if (is.null(spec$agp)) NULL else d[[spec$agp]])
+  newbin <- as.integer(adj < cutoff)
+  cat(sprintf("  [brinda-fe]%s %s %s: ID = %s ferritin<%g (%d/%d = %.1f%%)\n",
+              label, cc$country, oc$tag, brinda_iron_method(cc$country, pop), cutoff,
+              sum(newbin == 1, na.rm = TRUE), sum(!is.na(newbin)),
+              100 * mean(newbin, na.rm = TRUE)))
+  list(binary = newbin, adjusted = adj, cutoff = cutoff)
+}
+
+#' Enumerate, per country and outcome, exactly which adjustment is applied.
+#'
+#' Reads the configs rather than asserting from memory, so the table cannot
+#' drift from the code. `configured_*` describes what the pipeline uses today;
+#' `uniform_*` describes what the uniform_brinda scheme would use instead.
+#'
+#' @param configs get_country_configs() output
+#' @return data.frame, one row per country x outcome
+adjustment_inventory <- function(configs = get_country_configs()) {
+  rows <- list()
+  for (cn in names(configs)) {
+    cc <- configs[[cn]]
+    for (on in names(cc$outcomes)) {
+      oc  <- cc$outcomes[[on]]
+      pop <- if (grepl("^child", oc$tag)) "child" else "women"
+      is_vita <- grepl("vitA", oc$tag, ignore.case = TRUE)
+      is_iron <- grepl("iron", oc$tag, ignore.case = TRUE)
+
+      rbp_spec <- brinda_rbp_cols(cc$country)[[pop]]
+      fer_spec <- brinda_ferritin_cols(cc$country)[[pop]]
+
+      rows[[length(rows) + 1L]] <- data.frame(
+        country              = cc$country,
+        outcome              = oc$tag,
+        population           = oc$population,
+        configured_continuous = oc$continuous %||% NA_character_,
+        configured_binary     = oc$binary %||% NA_character_,
+        cutoff                = oc$cutoff %||% NA_real_,
+        cutoff_scale          = oc$cutoff_scale %||% NA_character_,
+        uniform_cutoff_applied = oc$tag %in% UNIFORM_TRANSPORT_TAGS,
+        # Vitamin A is already re-derived at runtime; iron is not.
+        adjustment_harmonized_today = is_vita,
+        harmonized_method_today = if (is_vita) brinda_country_method(cc$country) else NA_character_,
+        uniform_raw_marker   = if (is_vita) (rbp_spec$rbp %||% NA_character_)
+                               else if (is_iron) (fer_spec$fer %||% NA_character_)
+                               else NA_character_,
+        uniform_crp          = if (is_vita) (rbp_spec$crp %||% NA_character_)
+                               else if (is_iron) (fer_spec$crp %||% NA_character_)
+                               else NA_character_,
+        uniform_agp          = if (is_vita) (rbp_spec$agp %||% NA_character_)
+                               else if (is_iron) (fer_spec$agp %||% NA_character_)
+                               else NA_character_,
+        uniform_method       = if (is_vita) brinda_country_method(cc$country)
+                               else if (is_iron) brinda_iron_method(cc$country, pop)
+                               else "not applicable (no inflammation adjustment defined)",
+        stringsAsFactors = FALSE
+      )
+    }
+  }
+  do.call(rbind, rows)
+}
+
 #' Per-country raw RBP / CRP / AGP column map for the uniform VitA transport
 #' outcome (gw_ countries split by sex via gw_child_flag; Malawi by the
 #' `population` text column).
