@@ -374,7 +374,8 @@ build_area_loco_dataset <- function(svy_admin2_list, gee_admin2_list) {
   # Optional covariate hygiene: drop cross-band _annual_* summaries over
   # non-commensurable bands and static layers' per-year duplicates. Applied
   # AFTER the intersection so the pruning is identical for every country.
-  # No-op unless GEE_COVARIATE_HYGIENE=true. See R/gee_band_semantics.R.
+  # Active by default; set GEE_COVARIATE_HYGIENE=false to keep the unpruned set.
+  # See R/gee_band_semantics.R and docs/findings/WS2b_hygiene_flip.md.
   hy_drop <- prune_gee_covariates(common_vars)
   if (length(hy_drop)) {
     common_vars <- setdiff(common_vars, hy_drop)

@@ -51,9 +51,10 @@
 # countries, which would make the cross-country vocabulary country-dependent and
 # reintroduce the silent-intersection-collapse failure this pipeline already had.
 #
-# Gated behind GEE_COVARIATE_HYGIENE (default OFF) so the change is opt-in and
-# can be evaluated against the current behaviour — see
-# scripts/compare_covariate_hygiene.R.
+# Gated behind GEE_COVARIATE_HYGIENE, which defaulted OFF while the change was
+# being evaluated and defaults ON as of 2026-08-27 (WS2b). Set it to false to
+# restore the unpruned set. Evidence for the flip:
+# scripts/compare_covariate_hygiene.R and docs/findings/WS2b_hygiene_flip.md.
 # =============================================================================
 
 #' Band semantics per raster family.
@@ -103,9 +104,21 @@ GEE_BAND_SEMANTICS <- list(
 #' whose suffix is stripped (`soilzinc`).
 GEE_STATIC_FAMILIES <- "^soil[a-z]+(_|$)"
 
-#' Is covariate hygiene enabled? Off by default; set GEE_COVARIATE_HYGIENE=true.
+#' Is covariate hygiene enabled? ON by default since WS2b; set
+#' GEE_COVARIATE_HYGIENE=false to restore the unpruned v1 covariate set.
+#'
+#' Flipped 2026-08-27. Across 16 paired leave-one-country-out folds the pruned
+#' set lowered RMSE in 12, with a worst case of +0.380 pp and a best case of
+#' -13.390 pp, and lowered absolute national bias in 11. Correlation metrics were
+#' ambiguous in both directions and did not drive the decision. The pruned
+#' columns are cross-band summaries over non-commensurable bands, which are not
+#' physical quantities whatever their predictive behaviour. Full table and source
+#' maps: docs/findings/WS2b_hygiene_flip.md.
+#'
+#' Read at CALL time rather than captured in a target, so after changing this run:
+#'   targets::tar_invalidate(matches("area_|loco"))
 gee_hygiene_enabled <- function() {
-  isTRUE(tolower(Sys.getenv("GEE_COVARIATE_HYGIENE", "false")) %in%
+  isTRUE(tolower(Sys.getenv("GEE_COVARIATE_HYGIENE", "true")) %in%
            c("1", "true", "yes"))
 }
 

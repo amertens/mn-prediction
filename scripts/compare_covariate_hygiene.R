@@ -61,7 +61,7 @@ build_pool <- function(otag) {
   }
   if (length(svy) < 2) return(NULL)
   # build_area_loco_dataset() applies the hygiene pruning internally (it is a
-  # no-op when GEE_COVARIATE_HYGIENE is unset), so toggling the env var around
+  # no-op when GEE_COVARIATE_HYGIENE=false), so toggling the env var around
   # this call is what produces v1 vs v2.
   p <- build_area_loco_dataset(svy, gee[names(svy)])
   d <- p$pooled_data

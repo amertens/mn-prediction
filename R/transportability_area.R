@@ -134,7 +134,8 @@ assemble_area_transport <- function(svy_admin2_list, cov_list, outcome = NA) {
   }
   common <- Reduce(intersect, lapply(frames, covnames))
   # Optional covariate hygiene, applied after the intersection so every country
-  # is pruned identically. No-op unless GEE_COVARIATE_HYGIENE=true.
+  # is pruned identically. Active by default since WS2b; set
+  # GEE_COVARIATE_HYGIENE=false to keep the unpruned set.
   common <- setdiff(common, prune_gee_covariates(common))
   pooled <- dplyr::bind_rows(lapply(frames, function(df)
     df[, c("country", "Admin2", "svy_prev", "n_svy", common), drop = FALSE]))
