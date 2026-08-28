@@ -1,0 +1,4 @@
+artifact,source,access_method,url,retrieved_by,version_or_date,license
+results/external/vmnis_national.csv,WHO VMNIS,"local long-format extract, no machine endpoint reachable",https://www.who.int/data/nutrition/nlis/info/vitamin-and-mineral-nutrition-information-system,scripts/pull_vmnis_validation.R,2026-06-26,WHO VMNIS terms of use
+"results/external/stevens2022_psc.csv, results/external/stevens2022_npw.csv","Stevens et al. 2022, Lancet Global Health",publication supplementary data,https://www.thelancet.com/journals/langlo/article/PIIS2214-109X(22)00367-9/fulltext,scripts/pull_stevens2022.R,2026-06-26,See publication
+metadata/anchors/national_anchors.csv,derived,scripts/build_anchors.R,NA,scripts/build_anchors.R,2026-08-27,inherits from the sources above
