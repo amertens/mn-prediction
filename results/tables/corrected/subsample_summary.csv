@@ -1,7 +1,7 @@
 stratum,strategy,n_rows,mean_rmse_pp,mean_mae_pp,mean_districts
-has_clusters,direct_or_national,2000,5.197,3.211,32.6
-has_clusters,spatial_cv,2000,10.044,7.711,32.6
-has_clusters,model_cv,1945,10.151,7.815,31.7
-zero_clusters,spatial_cv,1655,10.513,8.496,11.3
-zero_clusters,model_cv,1582,10.943,8.928,11.1
-zero_clusters,direct_or_national,1655,11.225,9.343,11.3
+has_clusters,direct_or_national,2000,5.183,3.202,32.5
+has_clusters,spatial_cv,2000,10.034,7.722,32.5
+has_clusters,model_cv,1941,10.149,7.816,31.6
+zero_clusters,spatial_cv,1656,10.627,8.548,11.5
+zero_clusters,model_cv,1585,11.012,8.975,11.3
+zero_clusters,direct_or_national,1656,11.288,9.381,11.5

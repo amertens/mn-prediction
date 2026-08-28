@@ -200,11 +200,23 @@ individuals.
 ### Covariates do not help at cluster level
 
 A point-referenced spatial model on the survey GPS coordinates, held out one
-district at a time so the smoother must extrapolate to an unsurveyed location,
-ranks both covariate arms below simply giving a district the national average.
-Adding covariates to the spatial smoother makes it worse than the smoother
-alone. Spatial borrowing beats the national-mean null in about half the cells,
-by a fraction of a percentage point of MAE.
+district at a time so the smoother must extrapolate to an unsurveyed location.
+Over the 21 cells whose ceiling exceeds zero:
+
+| Arm | MAE (pp) | RMSE (pp) |
+|---|---|---|
+| Matern field | 9.939 | 12.581 |
+| spatial spline, no covariates | 10.087 | 12.659 |
+| national average (the null) | 10.599 | 13.017 |
+| covariates only | 13.897 | 18.786 |
+| spatial spline plus covariates | 15.128 | 20.731 |
+
+Both covariate arms rank below simply giving a district the national average,
+and adding covariates to the spatial smoother costs it 5 pp of MAE. Spatial
+borrowing beats the null in 13 of 24 cells, by 0.48 pp of MAE on average.
+
+The Matern field posts the best error but a mean correlation of 0.0055, and it
+produced hundreds of near-singular fits. It is reported and not recommended.
 
 ### The distributional estimator helps only in the tail
 
@@ -226,12 +238,12 @@ fraction, scored against each country's full survey under district-level
 cross-validation:
 
 - Where a district keeps even a few clusters, the direct survey estimate beats
-  the model by about 5 percentage points of RMSE. The model wins a tenth of
-  replicates.
-- Where a district keeps none, the model beats the national average by 0.6 to
-  0.7 pp, and a spatial smoother edges out a covariate model.
-- The mean overstates that gain. The median is a quarter of it, and 56 percent
-  of replicates favour the model at all.
+  the model by 4.91 pp of RMSE. The model wins 10.7 percent of replicates.
+- Where a district keeps none, the covariate model beats the national average by
+  0.58 pp and a spatial smoother by 0.66 pp. The smoother beats the covariate
+  model by a further 0.21 pp.
+- The mean overstates that gain. The median is 0.18 pp, roughly a quarter of the
+  mean, and only 56.7 percent of replicates favour the model at all.
 - The gain grows as more of the survey is kept, and turns negative for the
   lowest-prevalence outcome.
 
@@ -240,11 +252,16 @@ are not independent.
 
 ### Sentinel calibration is insurance, not improvement
 
-Calibrating a transported map on k of the target country's own districts lowers
-the mean held-out error, barely moves the median, and cuts the upper tail
-sharply. It rescues the catastrophic fold, where the map lands at the wrong
-absolute level, and leaves the typical fold alone. A location-only correction should do
-exactly that. No k in the tested grid reaches within-country model error.
+Calibrating a transported map on k of the target country's own districts moves
+the mean held-out RMSE from 16.48 pp at k = 0 to 13.82 pp at k = 5, then flat.
+The median barely moves at all, 14.71 to 14.50, and is higher at k = 20 than at
+k = 0. What changes is the upper tail: the 97.5th percentile falls from 48.21 pp
+to 26.38 pp.
+
+Sentinel calibration rescues the catastrophic fold, where the map lands at the
+wrong absolute level, and leaves the typical fold alone. A location-only
+correction should do exactly that. No k in the tested grid reaches the
+within-country model error of 12.66 pp.
 
 ## Conclusions
 
@@ -344,8 +361,3 @@ exactly that. No k in the tested grid reaches within-country model error.
 - **Seasonality and interview timing** as a confounder: each survey window is
   short, interview month shows no association with outcomes, and timing is
   nearly collinear with district. Closed question.
-
----
-
-The cluster spatial model and subsample figures are being refreshed. Their
-conclusions are stable; the decimals may move slightly.
