@@ -278,6 +278,30 @@ nested_select_features <- function(all_merged, all_configs, train_countries,
     !grepl("bart", type, ignore.case = TRUE)
   }, sl_learners$library)
 
+  # The full stack's `ranger_low_mtry` hard-codes mtry = 8
+  # (R/sensitivity/mlr3_fitting.R:53). ranger raises "mtry can not be larger
+  # than number of variables in data" and exits, which takes the whole
+  # SuperLearner fit down rather than just that learner. A nested selection
+  # routinely returns fewer than 8 predictors, so without this filter 28 of 32
+  # cells return no metrics at all.
+  #
+  # Dropped rather than clamped: silently rewriting mtry would change what the
+  # learner is while keeping its id, and the point of this scorer is to be the
+  # published estimator. Filtering mirrors how run_loco_cv() drops BART
+  # (R/transportability.R:278). This is a local guard; the same defect affects
+  # the production loco_best_* targets, which is reported separately.
+  n_p <- length(scored)
+  dropped_mtry <- Filter(function(x)
+    is.list(x) && !is.null(x[["mtry"]]) && x[["mtry"]] > n_p, lib)
+  if (length(dropped_mtry)) {
+    lib <- Filter(function(x)
+      !(is.list(x) && !is.null(x[["mtry"]]) && x[["mtry"]] > n_p), lib)
+    cat(sprintf("    [nested_loco] p=%d: dropped %d learner(s) whose mtry exceeds p: %s\n",
+                n_p, length(dropped_mtry),
+                paste(vapply(dropped_mtry, function(x) x[["id"]] %||% x[[1]],
+                             character(1)), collapse = ", ")))
+  }
+
   fit <- tryCatch(
     mlr3_SL_clustered(d = tr, Xvars = scored, outcome = "Y_binary",
                       population = "pooled", id = "pooled_cluster",
@@ -312,7 +336,12 @@ nested_select_features <- function(all_merged, all_configs, train_countries,
     calib_intercept = unname(calib[1]), calib_slope = unname(calib[2]),
     calib_scale = "logit",
     n_selected = length(vars), n_scored = length(scored),
-    note = NA_character_, stringsAsFactors = FALSE
+    note = NA_character_,
+    sl_learners_used = length(lib),
+    sl_learners_dropped = if (length(dropped_mtry))
+      paste(vapply(dropped_mtry, function(x) x[["id"]] %||% x[[1]], character(1)),
+            collapse = "|") else NA_character_,
+    stringsAsFactors = FALSE
   )
 }
 
