@@ -1,0 +1,6 @@
+stratum,comparison,n_replicates,mean_delta_pp,median_delta_pp,pct_replicates_a_better
+has_clusters,model_cv minus direct_or_national,1945,4.8922,3.9533,11.3
+has_clusters,spatial_cv minus direct_or_national,2000,4.8475,4.2597,5.2
+zero_clusters,model_cv minus direct_or_national,1582,-0.5955,-0.123,57.3
+zero_clusters,spatial_cv minus direct_or_national,1655,-0.7113,-0.1642,56.1
+zero_clusters,spatial_cv minus model_cv,1582,-0.1886,-0.2382,55.8
