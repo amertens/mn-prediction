@@ -19,6 +19,55 @@ sl_learner_ids <- function(library_spec) {
   }, character(1))
 }
 
+#' Drop learners whose hyper-parameters are undefined for this many predictors.
+#'
+#' `mtry` is a COUNT of predictors sampled per split, so a learner carrying an
+#' explicit mtry > p simply cannot be fit: ranger raises "mtry can not be larger
+#' than number of variables in data. Ranger will EXIT now." mlr3superlearner
+#' builds the whole library inside one call, so that single learner's error
+#' takes the ENTIRE SuperLearner fit down -- the caller gets a NULL fit and NA
+#' metrics, not an ensemble with one learner missing. The full stack's
+#' `ranger_low_mtry` hard-codes mtry = 8, while the best-model transportability
+#' path (build_best_transportable_predictors() -> run_loco_best_model() ->
+#' run_loco_cv()) is built precisely on curated sets of ~4-7 predictors, so
+#' every `loco_best_*` target hit this.
+#'
+#' Dropped rather than clamped to min(mtry, p): rewriting the value changes what
+#' the learner IS while keeping its id -- `ranger_low_mtry` at mtry = p is plain
+#' bagging, the opposite of low-mtry and a duplicate of `ranger_main` -- so any
+#' number attributed to that id would stop meaning what it says. Mirrors how
+#' run_loco_cv() drops BART variants (R/transportability.R:199).
+#'
+#' @param library_spec List of learner specs, or NULL for mlr3superlearner's
+#'   own default library (returned unchanged).
+#' @param p Number of predictors the learners will actually see.
+#' @param context Label for the log line.
+#' @return `library_spec` with the unfittable learners removed.
+sl_filter_learners_for_p <- function(library_spec, p, context = "mlr3_SL") {
+  if (is.null(library_spec) || length(library_spec) == 0 ||
+      length(p) != 1 || !is.finite(p)) return(library_spec)
+
+  too_wide <- vapply(library_spec, function(x) {
+    is.list(x) && is.numeric(x[["mtry"]]) && length(x[["mtry"]]) == 1L &&
+      x[["mtry"]] > p
+  }, logical(1))
+  if (!any(too_wide)) return(library_spec)
+
+  dropped <- sl_learner_ids(library_spec[too_wide])
+  kept <- library_spec[!too_wide]
+  if (length(kept) == 0) {
+    # Cannot happen with any stack defined below ("mean" carries no mtry), but
+    # handing mlr3superlearner an empty library would be worse than letting it
+    # fail with its own message.
+    cat(sprintf("  [%s] p=%d: every learner declares mtry > p; library left unfiltered\n",
+                context, p))
+    return(library_spec)
+  }
+  cat(sprintf("  [%s] p=%d: dropped %d learner(s) whose mtry exceeds p: %s\n",
+              context, p, length(dropped), paste(dropped, collapse = ", ")))
+  kept
+}
+
 #' How many learners a given stack mode builds, without side effects.
 #'
 #' Used by the _targets.R startup banner so that message cannot drift from the
@@ -480,6 +529,12 @@ mlr3_SL_clustered <- function(d, Xvars, outcome, population,
     }
   }
 
+  # ── Drop learners that cannot be fit at this predictor count ──────────
+  # Uses the POST-recipe count: NZV, washb_prescreen and step_corr can shrink
+  # the set well below what the caller passed in, and the shrunken set is what
+  # the learners actually see.
+  mlr3_library <- sl_filter_learners_for_p(mlr3_library, length(covars))
+
   # ── Build mlr3 data frame ──
   mlr3_df <- data.frame(Y = Y, cov)
   mlr3_df$cluster_id <- id_vec
@@ -541,6 +596,18 @@ mlr3_SL_clustered <- function(d, Xvars, outcome, population,
     )
   }, error = function(e) {
     cat(sprintf("  [mlr3_SL] FAILED: %s\n", e$message))
+    # One learner erroring aborts the WHOLE ensemble: mlr3superlearner builds
+    # the library inside a single call, so there is no per-learner recovery
+    # point short of reimplementing its CV loop. Print the fit's shape and the
+    # library that was handed to it, so the next failure is diagnosable from
+    # the log rather than surfacing only as NA metric rows downstream.
+    # Learners that cannot be fit at this p are kept out up front by
+    # sl_filter_learners_for_p().
+    cat(sprintf("  [mlr3_SL] Fit context: n=%d, p=%d, learners: %s\n",
+                nrow(fit_df), length(covars),
+                if (length(mlr3_library))
+                  paste(sl_learner_ids(mlr3_library), collapse = ", ")
+                else "<mlr3superlearner default>"))
     NULL
   })
   elapsed <- (proc.time() - t0)["elapsed"]

@@ -22,6 +22,10 @@
 # 2026-08-27 skips washb_prescreen/step_corr below SMALL_P_SKIP_CORR_THRESHOLD
 # predictors (mlr3_fitting.R) -- both are tuned for the large-p regime and
 # actively discarded signal from an already-small, deliberately-chosen set.
+# As of 2026-08-28 it also drops learners whose hard-coded mtry exceeds the
+# predictor count (sl_filter_learners_for_p()); until then `ranger_low_mtry`'s
+# mtry = 8 aborted the ENTIRE ensemble for any set smaller than that, which is
+# why no loco_best_* target had ever produced metrics.
 #
 # Context for two specific findings from the investigation that produced this
 # file (kept here since they explain design choices below):
