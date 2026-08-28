@@ -7,7 +7,7 @@ extraction of covariates at cluster points, estimated at 8 to 20 hours. That was
 dropped before any Earth Engine time was spent, on three pieces of evidence
 already in the repository:
 
-1. `sandbox_parsimony/FINDINGS.md` section 12 measured the reliability ceiling by
+1. `sandbox_parsimony/FINDINGS.md` section 12 measured the noise ceiling by
    spatial level: Admin-1 `r_max` 0.59, Admin-2 0.31, cluster 0.22. Going finer
    lowers the achievable correlation, because units get noisier faster than they
    multiply. That is a sampling-noise fact no covariate improvement touches.
@@ -50,7 +50,7 @@ Scope: all 24 country-outcome cells, no skips
 
 ## Result
 
-Restricted to the 21 cells whose reliability ceiling is distinguishable from
+Restricted to the 21 cells whose noise ceiling is distinguishable from
 zero (source: same file, grouped by `arm`):
 
 | Arm | Mean Pearson | Mean MAE (pp) | Mean RMSE (pp) | Mean `r_share` |

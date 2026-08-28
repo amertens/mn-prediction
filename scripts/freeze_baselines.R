@@ -64,7 +64,7 @@ BASELINES <- do.call(rbind, list(
           "results/tables/sl_prescreened_main.csv",
           "results/tables/single_var_importance.csv")),
 
-  .spec("tables", "within-country reliability ceiling",
+  .spec("tables", "within-country noise ceiling",
         "results/tables/transportability_within_country_ceiling.csv"),
 
   .spec("tables", "calibration and discrimination diagnostics",

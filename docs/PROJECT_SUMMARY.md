@@ -17,7 +17,7 @@ detail is in `docs/findings/`.
   and under leave-one-country-out (LOCO) transport.
 - **A leakage-free evaluation layer.** Spatially blocked cross-validation,
   out-of-fold calibration, design-aware Admin-2 error metrics, split-conformal
-  and design-based intervals, out-of-support trust flags, and a reliability
+  and design-based intervals, out-of-support trust flags, and a noise
   ceiling that says how much correlation sampling noise permits.
 - **Selection nested inside the folds.** Predictor selection sees only the
   training countries, so a reported transport number is out of sample with
@@ -67,7 +67,7 @@ Three metrics, each answering a different question:
 - **Pearson r** measures the *relative ranking*: whether the map puts districts
   in the right order. Correlation is unchanged by a constant shift, so it says
   nothing about the absolute level.
-- **r_share** rescales that correlation by the reliability ceiling, the
+- **r_share** rescales that correlation by the noise ceiling, the
   correlation attainable if the model were perfect and only sampling noise in
   the survey estimates stood in the way. The ceiling for these cells is 0.305,
   so a model at r = 0.15 has captured about half of what the data permits.
@@ -188,7 +188,7 @@ country's iron level.
 
 ### Admin-2 is finer than these surveys can resolve
 
-The reliability ceiling falls as the unit gets finer: 0.59 at Admin-1, 0.31 at
+The noise ceiling falls as the unit gets finer: 0.59 at Admin-1, 0.31 at
 Admin-2, 0.22 at cluster level. The median district contributes few biomarker
 measurements, and in three of the four countries it holds a single survey
 cluster.
@@ -302,7 +302,7 @@ within-country model error of 12.66 pp.
 
 **Worth doing.**
 
-- **Publish at Admin-1 alongside Admin-2.** The reliability ceiling nearly
+- **Publish at Admin-1 alongside Admin-2.** The noise ceiling nearly
   doubles at Admin-1. A more reliable estimate of a coarser unit is a real
   product, and the Admin-2 map should carry its reliability on its face.
 - **Run one or two national case studies** on the survey-design question, with

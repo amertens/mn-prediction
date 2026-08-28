@@ -13,7 +13,15 @@
 # useless one look identical.
 #
 #   lambda = (Var(p) - E[sampling variance]) / Var(p)     reliability
-#   r_max  = sqrt(lambda)                                 ceiling on Pearson r
+#   r_max  = sqrt(lambda)                                 NOISE CEILING on Pearson r
+#
+# NAMING. r_max is referred to as the NOISE CEILING in the docs, which is the
+# term this quantity carries in the encoding-model literature. The statistics
+# are Spearman's 1904 correction for attenuation: a model is scored against a
+# noisy estimate of district prevalence, so even a model that predicted the
+# truth exactly could only correlate sqrt(lambda) with the yardstick. The
+# function and column names below keep `reliability` and `r_max` because five
+# committed result tables depend on them.
 #
 # NOTE ON DESIGN EFFECTS. `svy_prev_se` cannot be used to estimate deff at this
 # resolution: most districts hold a single PSU, so survey::svymean cannot form a

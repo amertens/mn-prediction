@@ -7,7 +7,7 @@
 # WHY A CONSOLIDATED TABLE NEEDS CARE
 # -----------------------------------
 # The source files were produced by separate experiments and do NOT share a
-# reliability ceiling: loco_headline r_max 0.305, loco_bakeoff and loco_spatial
+# noise ceiling: loco_headline r_max 0.305, loco_bakeoff and loco_spatial
 # 0.361, spatial_plus_soil_rescored 0.205. A raw Pearson r is therefore not
 # comparable across files. Two things are carried so it can be read honestly:
 #

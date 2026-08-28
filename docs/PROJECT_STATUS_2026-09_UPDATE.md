@@ -119,7 +119,7 @@ far worse than not anchoring. The method is sound and the input is missing.
 ### 6. Covariates hurt at cluster level
 
 A point-referenced spatial model on the existing cluster coordinates, evaluated
-leave-one-Admin-2-out over the 21 cells with a real reliability ceiling
+leave-one-Admin-2-out over the 21 cells with a real noise ceiling
 (source: `results/tables/corrected/cluster_mbg_within_country.csv`):
 
 | Arm | MAE (pp) | RMSE (pp) |
@@ -236,7 +236,7 @@ credentials exist.
 
 - **Displacement-integrated Earth Engine extraction at cluster points.**
   Dropped before any Earth Engine time was spent. `FINDINGS.md` section 12
-  measured the reliability ceiling falling as the spatial level gets finer
+  measured the noise ceiling falling as the spatial level gets finer
   (Admin-1 0.59, Admin-2 0.31, cluster 0.22), and the covariate arms it would
   have improved lose to a covariate-free smoother by about 5 pp of MAE
   (section 6 above).

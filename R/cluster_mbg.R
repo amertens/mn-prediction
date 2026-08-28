@@ -16,7 +16,7 @@
 # The original plan gated this on a displacement-integrated Earth Engine
 # extraction of covariates at cluster points. That was dropped, on evidence:
 #
-#   * sandbox_parsimony/FINDINGS.md section 12 measured the reliability ceiling
+#   * sandbox_parsimony/FINDINGS.md section 12 measured the noise ceiling
 #     by spatial level and found it FALLS going finer (Admin-1 0.59, Admin-2
 #     0.31, cluster 0.22). Finer units are noisier faster than they multiply.
 #   * results/cluster_vs_admin2_comparison.csv has cluster-level correlation

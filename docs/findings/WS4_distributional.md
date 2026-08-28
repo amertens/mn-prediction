@@ -43,7 +43,7 @@ script writes one when a cell has to be dropped, and never imputes.
 
 ## Result
 
-Twenty-one of the 24 cells carry a reliability ceiling distinguishable from
+Twenty-one of the 24 cells carry a noise ceiling distinguishable from
 zero. The other three have no predictable between-district variation at all, so
 a correlation computed on them is noise; the headline is therefore read on the
 21 (source: `results/tables/corrected/distributional_paired_signal.csv`,
@@ -139,7 +139,7 @@ later is a selection rather than a re-run.
   are missing or non-positive are set to 1, which is recorded in the code.
 - *Evaluation restriction.* Areas with fewer than 8 biomarker reads are dropped
   from the EVALUATION only, never from training, matching the prototype's
-  `MIN_NSVY`. The reliability ceiling is computed on the same evaluation subset
+  `MIN_NSVY`. The noise ceiling is computed on the same evaluation subset
   the correlation is computed on.
 - *Signal restriction.* The 21-cell headline excludes 3 cells whose ceiling is
   indistinguishable from zero. The flag uses the optimistic upper bound, so a

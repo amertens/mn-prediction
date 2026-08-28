@@ -117,7 +117,7 @@ paired <- out |>
 readr::write_csv(paired, here("results", "tables", "corrected",
                               sprintf("distributional_paired%s.csv", suffix)))
 
-# A cell whose reliability ceiling is indistinguishable from zero has no
+# A cell whose noise ceiling is indistinguishable from zero has no
 # predictable between-district variation at all (R/area_reliability.R:98), so a
 # correlation computed on it is noise and averaging it into a recommendation
 # would be misleading. The `signal` flag uses the OPTIMISTIC upper bound, so a

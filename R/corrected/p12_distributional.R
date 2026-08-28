@@ -24,7 +24,7 @@
 # discrimination metrics. This runs every country and every outcome that has a
 # continuous biomarker, and scores both arms on the four families the corrected
 # methods layer reports: discrimination, calibration, Brier skill, and Admin-2
-# correlation read against the reliability ceiling.
+# correlation read against the noise ceiling.
 #
 # Both arms produce an individual-level predicted probability, which is what
 # makes AUC and Brier comparable between them:
