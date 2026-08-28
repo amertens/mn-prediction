@@ -1,0 +1,13 @@
+"outcome","dev","held_out","n_areas","MAE_raw","MAE_grad","MAE_natl","bias_raw","bias_grad","bias_natl","spearman","borrow_top","true_top","grad_train","grad_target","sign_ok"
+"women_iron","human_modification_index","Gambia",30,27.71,26.37,13.18,-27.49,-26.05,-5.94,NA,0.106,0.226,-0.045,0.214,FALSE
+"women_iron","human_modification_index","Ghana",75,20.14,12.31,6.49,19.62,10.67,0.51,0.176,0.173,0.101,0.04,-0.033,FALSE
+"women_iron","human_modification_index","Malawi",87,27.63,12.79,9.04,26.17,8.06,0.47,0.022,0.164,0.127,0.046,-0.06,FALSE
+"women_iron","human_modification_index","Sierra Leone",14,7.69,10.97,9.79,-5.18,-0.24,-1.51,-0.165,0.175,0.093,0.026,-0.053,FALSE
+"women_vitA","human_modification_index","Gambia",30,3.43,3.42,3.59,-2.04,-2.12,-0.99,NA,0.014,0.009,0.003,0.037,TRUE
+"women_vitA","human_modification_index","Ghana",75,1.85,1.81,2.62,-1.09,-1.18,-0.11,0.238,0.01,0.017,0.017,0.001,TRUE
+"women_vitA","human_modification_index","Malawi",87,8.34,2.58,2.65,7.01,-0.32,-0.24,-0.066,0.012,0.01,0.017,0.004,TRUE
+"women_vitA","human_modification_index","Sierra Leone",14,1.29,1.22,1.26,-1.28,-0.17,0.19,NA,0.011,0.013,0.015,0.005,TRUE
+"child_iron","human_modification_index","Gambia",30,16.02,26.67,12.34,-11.47,-26.67,-0.43,0.58,0.152,0.349,0.017,0.11,TRUE
+"child_iron","human_modification_index","Ghana",75,19.99,12.9,13.18,16.31,1.47,2.61,0.437,0.226,0.203,-0.019,0.098,FALSE
+"child_iron","human_modification_index","Malawi",87,12.16,19.73,8.54,8.07,17.68,-0.44,0.003,0.247,0.14,0.06,-0.049,FALSE
+"child_iron","human_modification_index","Sierra Leone",14,6.08,10.77,9.74,-5.54,2.42,-1.46,-0.378,0.242,0.067,0.022,-0.019,FALSE
