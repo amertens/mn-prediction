@@ -52,24 +52,55 @@ get_country_admin2 <- function(ctry_key, oc_key,
 
   pop_subset <- admin2_pop[admin2_pop$country == ctry_label, , drop = FALSE]
 
-  # Standardize Admin2 names for joining (trim whitespace, drop NAs)
+  # Standardize keys for joining (trim whitespace, drop NAs)
   bnd$Admin2 <- trimws(bnd$Admin2)
+  if ("Admin1" %in% names(bnd)) bnd$Admin1 <- trimws(as.character(bnd$Admin1))
 
-  # Join predictions by Admin2 (deduplicate first to be safe)
-  pred_subset <- pred_subset[!duplicated(pred_subset$Admin2), , drop = FALSE]
-  pop_subset  <- pop_subset[!duplicated(pop_subset$Admin2), , drop = FALSE]
+  # JOIN ON THE (Admin1, Admin2) PAIR WHERE BOTH SIDES CARRY IT.
+  #
+  # GADM admin-2 names are not unique within a country: Malawi has 243
+  # polygons under 239 names -- TA Lundu, TA Malemia, TA Ngabu and TA Pemba
+  # each name two genuinely different districts in different regions. The old
+  # code joined on the name alone and, worse, called
+  #   pred_subset[!duplicated(pred_subset$Admin2), ]
+  # "to be safe", which DISCARDED the second district of each pair and painted
+  # both polygons with the first one's prevalence and population. That is a
+  # silent wrong answer on the map, not a safety measure.
+  #
+  # Deduplication is still needed, but on the KEY that actually identifies a
+  # district. Where a side lacks Admin1 we fall back to the name and warn, so a
+  # regenerated data file that drops the column is visible rather than silent.
+  key_of <- function(d) {
+    if ("Admin1" %in% names(d) &&
+        any(!is.na(d$Admin1) & nzchar(as.character(d$Admin1))))
+      paste(trimws(as.character(d$Admin1)), trimws(as.character(d$Admin2)),
+            sep = "")
+    else trimws(as.character(d$Admin2))
+  }
+  pair_ok <- function(d) "Admin1" %in% names(d) &&
+    any(!is.na(d$Admin1) & nzchar(as.character(d$Admin1)))
 
-  joined <- merge(bnd, pred_subset[, c("Admin2", "pred_prev", "obs_prev",
+  by_pred <- if (pair_ok(bnd) && pair_ok(pred_subset)) c("Admin1", "Admin2") else "Admin2"
+  by_pop  <- if (pair_ok(bnd) && pair_ok(pop_subset))  c("Admin1", "Admin2") else "Admin2"
+  if (!identical(by_pred, c("Admin1", "Admin2")) && anyDuplicated(bnd$Admin2))
+    warning(sprintf(paste0("[dashboard] %s: predictions lack Admin1 and this ",
+                           "country has duplicate Admin-2 names; the map will ",
+                           "paint same-named districts identically."), ctry_label))
+
+  pred_subset <- pred_subset[!duplicated(key_of(pred_subset)), , drop = FALSE]
+  pop_subset  <- pop_subset[!duplicated(key_of(pop_subset)), , drop = FALSE]
+
+  joined <- merge(bnd, pred_subset[, c(by_pred, "pred_prev", "obs_prev",
                                         "ci_lo", "ci_hi", "ci_width",
                                         "n_survey", "who_class")],
-                  by = "Admin2", all.x = TRUE, sort = FALSE)
+                  by = by_pred, all.x = TRUE, sort = FALSE)
 
-  pop_cols <- intersect(c("Admin2", "population", "population_2023",
+  pop_cols <- intersect(c(by_pop, "population", "population_2023",
                           "pop_child", "pop_women",
                           "pop_child_2023", "pop_women_2023"),
                         colnames(pop_subset))
   joined <- merge(joined, pop_subset[, pop_cols],
-                  by = "Admin2", all.x = TRUE, sort = FALSE)
+                  by = by_pop, all.x = TRUE, sort = FALSE)
 
   # Pick the subgroup-specific population matching the outcome.
   # Outcomes starting with "child_" use child population; "women_" use women.
@@ -110,8 +141,11 @@ get_country_admin2 <- function(ctry_key, oc_key,
     lp <- loco_pred[loco_pred$country == ctry_key &
                       loco_pred$outcome == oc_key, , drop = FALSE]
     if (nrow(lp) > 0) {
-      lp <- lp[!duplicated(lp$Admin2), , drop = FALSE]
-      idx <- match(trimws(joined$Admin2), trimws(lp$Admin2))
+      # Same pair-key reasoning as the prediction join above: matching on the
+      # name alone assigns one district's transported prevalence to both
+      # members of a duplicate-named pair.
+      lp <- lp[!duplicated(key_of(lp)), , drop = FALSE]
+      idx <- match(key_of(joined), key_of(lp))
       joined$loco_pred_prev <- lp$loco_modeled_prev[idx]
       joined$loco_survey_prev <- lp$loco_survey_prev[idx]
       joined$loco_diff <- joined$loco_pred_prev - joined$loco_survey_prev

@@ -39,11 +39,18 @@ fit_area_sl <- function(svy_admin2, gee_admin2, outcome_type = "binomial",
     )
   }
 
-  # Merge survey prevalence with GEE covariates
+  # Merge survey prevalence with GEE covariates on the PAIR key where both
+  # sides carry Admin1. On Admin2 alone this join FANS OUT: Malawi's covariate
+  # table has 243 rows under 239 distinct names, so 87 surveyed districts
+  # became 90 training rows, three of them duplicate districts sharing one
+  # survey value. That inflated every "Area SL" row in the comparison table
+  # and made it non-comparable with the individual-level rows (scored on 87).
+  by_tr <- admin2_join_by(svy_admin2, gee_admin2)
   train_df <- dplyr::inner_join(
-    svy_admin2 |> dplyr::select(Admin2, svy_prev, dplyr::any_of("n_svy")),
+    svy_admin2 |> dplyr::select(dplyr::all_of(by_tr), svy_prev,
+                                dplyr::any_of("n_svy")),
     gee_admin2,
-    by = "Admin2"
+    by = by_tr
   ) |>
     dplyr::filter(!is.na(svy_prev), is.finite(svy_prev))
 
@@ -210,6 +217,9 @@ fit_area_sl <- function(svy_admin2, gee_admin2, outcome_type = "binomial",
     svy_prev = train_df$svy_prev,
     stringsAsFactors = FALSE
   )
+  # Carry Admin1 so compute_err() can score on the pair key too.
+  if ("Admin1" %in% names(train_df))
+    area_preds$Admin1 <- as.character(train_df$Admin1)
 
   list(
     area_preds = area_preds,
@@ -232,15 +242,24 @@ fit_area_sl <- function(svy_admin2, gee_admin2, outcome_type = "binomial",
 #' @param outcome Outcome tag
 #' @return Data.frame with error metrics for each approach
 compare_admin2_approaches <- function(sl_admin2, area_mse, area_nll,
-                                       svy_admin2, country, outcome, cc = NULL) {
+                                       svy_admin2, country, outcome, cc = NULL,
+                                       mrp_admin2 = NULL, area_wsl = NULL,
+                                       area_uwsl = NULL, area_lit = NULL,
+                                       area_scr = NULL, area_opt = NULL) {
   rows <- list()
 
   # Helper to compute metrics
   compute_err <- function(pred_df, pred_col, label) {
+    # Join on the PAIR key when both sides carry Admin1. On Admin2 alone,
+    # Malawi's duplicate district names were counted once per polygon against
+    # a shared survey value -- 90 scored rows for 87 surveyed districts, which
+    # also made these rows non-comparable with the individual-level rows
+    # (scored on 87). See admin2_join_by() in R/admin2_key_hygiene.R.
+    by <- admin2_join_by(svy_admin2, pred_df)
     merged <- dplyr::inner_join(
-      svy_admin2 |> dplyr::select(Admin2, svy_prev),
-      pred_df |> dplyr::select(Admin2, pred = dplyr::all_of(pred_col)),
-      by = "Admin2"
+      svy_admin2 |> dplyr::select(dplyr::all_of(by), svy_prev),
+      pred_df |> dplyr::select(dplyr::all_of(by), pred = dplyr::all_of(pred_col)),
+      by = by
     ) |> dplyr::filter(!is.na(svy_prev), !is.na(pred))
 
     if (nrow(merged) < 3) return(NULL)
@@ -274,6 +293,35 @@ compare_admin2_approaches <- function(sl_admin2, area_mse, area_nll,
     rows[["area_nll"]] <- compute_err(area_nll$area_preds, "area_pred", "Area SL (NLL)")
   }
 
+  # Multilevel regression and poststratification. Reported IN-SAMPLE like the
+  # SL rows above, so the comparison is like-for-like; the honest out-of-sample
+  # number for every method in this table is the block-CV one reported by the
+  # corrected-methods analysis. MRP poststratifies to a design-weight-derived
+  # frame, not a census frame -- see R/mrp.R for what that does and does not buy.
+  if (!is.null(mrp_admin2) && nrow(mrp_admin2) > 0) {
+    rows[["mrp"]] <- compute_err(mrp_admin2, "mrp_prev", "MRP")
+  }
+
+  # Out-of-fold by region, so these two are NOT comparable like-for-like with
+  # the in-sample SL rows above; the label says so rather than leaving a reader
+  # to assume every row was scored the same way.
+  if (!is.null(area_wsl) && !is.null(area_wsl$area_preds))
+    rows[["area_wsl"]] <- compute_err(area_wsl$area_preds, "area_pred_oof",
+                                      "Area wSL, precision-weighted (OOF)")
+  if (!is.null(area_uwsl) && !is.null(area_uwsl$area_preds))
+    rows[["area_uwsl"]] <- compute_err(area_uwsl$area_preds, "area_pred_oof",
+                                       "Area wSL, unweighted (OOF)")
+  if (!is.null(area_lit) && !is.null(area_lit$area_preds))
+    rows[["area_lit"]] <- compute_err(area_lit$area_preds, "area_pred_oof",
+                                      "Area wSL, literature covariates (OOF)")
+  if (!is.null(area_scr) && !is.null(area_scr$area_preds))
+    rows[["area_scr"]] <- compute_err(area_scr$area_preds, "area_pred_oof",
+                                      "Area wSL, prescreen in-fold (OOF)")
+  # The label carries the warning: an upper bound, not an accuracy estimate.
+  if (!is.null(area_opt) && !is.null(area_opt$area_preds))
+    rows[["area_opt"]] <- compute_err(area_opt$area_preds, "area_pred_oof",
+                                      "Area wSL, prescreen on ALL data (OPTIMISTIC)")
+
   # ── Benchmarks the table needs in order to be readable ───────────────────
   # Without these two rows there is no way to tell whether the GEE block is
   # contributing anything. In the sandbox bake-off a covariate-free lon/lat
@@ -291,11 +339,19 @@ compare_admin2_approaches <- function(sl_admin2, area_mse, area_nll,
 
     # (2) leave-one-out spatial smoother on district centroids, no covariates
     if (!is.null(cc) && !is.null(cc$gadm_code) && requireNamespace("mgcv", quietly = TRUE)) {
-      ctr <- tryCatch(
-        sf::st_drop_geometry(load_admin2_centroids(cc$gadm_code))[, c("Admin2", "lon", "lat")],
-        error = function(e) NULL)
+      # Keep Admin1: load_admin2_centroids() returns it, and dropping it here
+      # forced the join below onto Admin2 alone. Against Malawi's centroid
+      # table (one row per polygon, 243 rows under 239 names) that fanned 87
+      # surveyed districts to 90 -- so this arm was scored on 90 rows while
+      # every other arm in the same table was scored on 87. The other centroid
+      # consumer in this file (see by_ctr below) already pair-joins.
+      ctr <- tryCatch({
+        cen <- sf::st_drop_geometry(load_admin2_centroids(cc$gadm_code))
+        cen[, intersect(c("Admin1", "Admin2", "lon", "lat"), names(cen)),
+            drop = FALSE]
+      }, error = function(e) NULL)
       if (!is.null(ctr)) {
-        sp <- dplyr::inner_join(svy_ok, ctr, by = "Admin2")
+        sp <- dplyr::inner_join(svy_ok, ctr, by = admin2_join_by(svy_ok, ctr))
         sp <- sp[is.finite(sp$lon) & is.finite(sp$lat), , drop = FALSE]
         if (nrow(sp) >= 20) {
           y <- stats::qlogis(pmin(pmax(sp$svy_prev, 0.005), 0.995))
@@ -310,10 +366,16 @@ compare_admin2_approaches <- function(sl_admin2, area_mse, area_nll,
               oof[i] <- stats::plogis(as.numeric(
                 stats::predict(g, newdata = sp[i, , drop = FALSE])))
           }
-          if (sum(is.finite(oof)) >= 10)
+          if (sum(is.finite(oof)) >= 10) {
+            sp_pred <- data.frame(Admin2 = sp$Admin2, pred = oof,
+                                  stringsAsFactors = FALSE)
+            # Carry Admin1 through to scoring too, or compute_err() falls back
+            # to the name-only join and re-introduces the fan-out this arm was
+            # just fixed for.
+            if ("Admin1" %in% names(sp)) sp_pred$Admin1 <- as.character(sp$Admin1)
             rows[["spatial_only"]] <- compute_err(
-              data.frame(Admin2 = sp$Admin2, pred = oof, stringsAsFactors = FALSE),
-              "pred", "Spatial only (no covariates)")
+              sp_pred, "pred", "Spatial only (no covariates)")
+          }
         }
       }
     }
@@ -608,7 +670,8 @@ run_area_loco <- function(pooled, sl_library = NULL) {
 #' @param cc Country config
 #' @param oc Outcome config
 #' @return List with area_mse, area_nll, comparison
-run_area_comparison <- function(svy_admin2, sl_admin2, gee_admin2, cc, oc) {
+run_area_comparison <- function(svy_admin2, sl_admin2, gee_admin2, cc, oc,
+                                outcome_data = NULL) {
 
   cat(sprintf("\n[area_comparison] %s — %s\n", cc$country, oc$tag))
 
@@ -630,14 +693,51 @@ run_area_comparison <- function(svy_admin2, sl_admin2, gee_admin2, cc, oc) {
     }
   )
 
-  # Compare all three approaches
+  # Precision-weighted ensemble, with its unweighted twin alongside it. Both are
+  # reported so the weighting effect is visible in the pipeline's own output
+  # rather than resting on the offline ablation that motivated it (median r
+  # 0.098 -> 0.224 there). Metrics from these two are OUT OF FOLD by region,
+  # unlike the in-sample SL rows above -- the comparison column records which.
+  .wsl <- function(...) tryCatch(fit_area_weighted_sl(svy_admin2, gee_admin2, ...),
+                                 error = function(e) { cat("  wSL failed: ", e$message, "\n"); NULL })
+  area_w   <- .wsl(weighted = TRUE)
+  area_uw  <- .wsl(weighted = FALSE)
+  # Hypothesis-driven covariates: a small set chosen from the nutrition
+  # literature (metadata/covariates/literature_covariates.csv) rather than by
+  # correlation with this data. Answers "does a theory-led model do as well as a
+  # data-led one" -- a question the all-covariates arms cannot address.
+  area_lit <- .wsl(weighted = TRUE, covariate_set = "literature")
+  # Honest screening: covariates re-selected inside every training fold.
+  area_scr <- .wsl(weighted = TRUE, screen = "in_fold")
+  # OPTIMISTIC screening: selected ONCE on all areas, then cross-validated, so
+  # the held-out areas helped pick the covariates. Reported to MEASURE the
+  # optimism that protocol buys, never as an accuracy estimate. The gap between
+  # this row and the in-fold row is the size of the bias in this data.
+  area_opt <- .wsl(weighted = TRUE, screen = "all_data")
+
+  # MRP. Needs the individual-level rows, so it is skipped (not failed) when the
+  # caller has no outcome_data to hand -- that keeps this function usable from
+  # the older call sites that only pass area-level inputs.
+  mrp_admin2 <- if (is.null(outcome_data)) NULL else tryCatch(
+    fit_mrp_admin2(outcome_data, cc, oc, area_cov = gee_admin2,
+                   svy_admin2 = svy_admin2),
+    error = function(e) { cat(sprintf("  MRP failed: %s\n", e$message)); NULL })
+
   comparison <- compare_admin2_approaches(
-    sl_admin2, area_mse, area_nll, svy_admin2, cc$country, oc$tag, cc = cc
+    sl_admin2, area_mse, area_nll, svy_admin2, cc$country, oc$tag, cc = cc,
+    mrp_admin2 = mrp_admin2, area_wsl = area_w, area_uwsl = area_uw,
+    area_lit = area_lit, area_scr = area_scr, area_opt = area_opt
   )
 
   list(
     area_mse = area_mse,
     area_nll = area_nll,
+    mrp = mrp_admin2,
+    area_wsl = area_w,
+    area_uwsl = area_uw,
+    area_lit = area_lit,
+    area_scr = area_scr,
+    area_opt = area_opt,
     comparison = comparison
   )
 }

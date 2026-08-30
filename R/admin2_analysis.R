@@ -246,6 +246,17 @@ extract_gee_admin2 <- function(cc) {
   all_polys$Admin1 <- all_polys$NAME_1
 
   gee_admin2 <- data.frame(Admin1 = all_polys$Admin1, Admin2 = all_polys$Admin2)
+
+  # Harmonised vocabulary (COVARIATE_VOCAB=harmonized): return the canonical
+  # covariate set INSTEAD of the raster gee_* columns. Returning instead of
+  # alongside is deliberate -- carrying both would let a downstream intersection
+  # mix two vocabularies in one design matrix.
+  if (harmonized_vocab_active(cc$country)) {
+    gee_admin2 <- append_harmonized_admin2(gee_admin2, cc$country, shared_only = FALSE)
+    return(clean_admin2_keys(gee_admin2,
+                             sprintf("gee_admin2 %s (harmonised)", cc$country)))
+  }
+
   raster_dir <- .resolve_raster_dir(cc$raster_dir)
 
   if (is.null(raster_dir)) {
@@ -332,6 +343,16 @@ extract_area_covariates <- function(cc) {
                Admin2 = as.character(all_polys$Admin2),
                stringsAsFactors = FALSE)
   else data.frame(Admin2 = as.character(all_polys$Admin2), stringsAsFactors = FALSE)
+
+  # Harmonised vocabulary — see extract_gee_admin2(). This table must stay in
+  # polygon order and must NOT be deduplicated (the prediction-to-map step
+  # depends on both), which is why append_harmonized_admin2() matches rather
+  # than joins.
+  if (harmonized_vocab_active(cc$country)) {
+    gee_admin2 <- append_harmonized_admin2(gee_admin2, cc$country, shared_only = FALSE)
+    return(list(gee_admin2 = gee_admin2, polygons = all_polys))
+  }
+
   raster_dir <- .resolve_raster_dir(cc$raster_dir)
 
   if (is.null(raster_dir)) {
@@ -412,6 +433,51 @@ aggregate_admin2_sl <- function(sl_fit, outcome_data, cc, oc) {
 }
 
 
+#' Resolve the uniform, cross-country-comparable binary outcome.
+#'
+#' For the harmonized transportability outcomes the survey's own binary is
+#' replaced by one derived from the adjusted continuous biomarker plus a uniform
+#' WHO cutoff, so every country uses the SAME definition (ferritin < 12/15 = ID,
+#' BRINDA-adjusted RBP < 0.70 = VAD). Returns NULL when no derivation applies,
+#' in which case the configured survey binary stands.
+#'
+#' Shared by compute_svy_admin2() and fit_mrp_admin2() ON PURPOSE. When MRP
+#' resolved the outcome independently it silently modelled a different quantity
+#' from the one svy_admin2 measures -- for Gambia child iron, IDA (weighted mean
+#' 0.375) against iron deficiency (district mean 0.638) -- which showed up as a
+#' 22 pp MAE that looked like poor model performance rather than a definition
+#' mismatch. Any new consumer of the outcome must call this too.
+#'
+#' @param d individual-level data frame
+#' @param cc,oc country and outcome configs
+#' @param label prefix for the log line
+#' @return numeric 0/1 vector, or NULL if the configured binary should stand
+resolve_uniform_outcome <- function(d, cc, oc, label = "[outcome]") {
+  if (is.null(oc$tag) || !(oc$tag %in% UNIFORM_TRANSPORT_TAGS) || is.null(oc$binary))
+    return(NULL)
+
+  if (grepl("vitA", oc$tag, ignore.case = TRUE)) {
+    # 2026-06-23 (DC-H2): uniform BRINDA inflammation adjustment of RBP, so every
+    # country's VAD outcome uses ONE method (R/brinda_adjustment.R), validated in
+    # docs/dc_h2_brinda_validation.md. brinda_vad_binary() is the single source
+    # of truth; it warns and returns NULL when a country's biomarker columns are
+    # unavailable, in which case the configured binary is kept.
+    newbin <- brinda_vad_binary(d, cc, oc, label = label)
+    return(if (is.null(newbin)) NULL else as.numeric(newbin))
+  }
+
+  if (!is.null(oc$continuous) && oc$continuous %in% colnames(d) && !is.null(oc$cutoff)) {
+    derived <- apply_threshold(suppressWarnings(as.numeric(d[[oc$continuous]])),
+                               oc$cutoff, oc$cutoff_dir %||% "less")
+    cat(sprintf("  %s %s — %s: uniform outcome %s %s %g => %d/%d (%.1f%%) deficient\n",
+                label, cc$country, oc$tag, oc$continuous, oc$cutoff_dir %||% "less",
+                oc$cutoff, sum(derived == 1, na.rm = TRUE), sum(!is.na(derived)),
+                100 * mean(derived, na.rm = TRUE)))
+    return(derived)
+  }
+  NULL
+}
+
 #' Compute survey-weighted Admin2 prevalence
 #'
 #' @param outcome_data Output from build_outcome_dataset()
@@ -427,28 +493,8 @@ compute_svy_admin2 <- function(outcome_data, cc, oc) {
   # cutoff, so every country uses the SAME definition (e.g. ferritin < 12/15 =
   # ID, RBP < 0.70 = VAD). Falls back to the survey binary if the continuous
   # column is unavailable. Downstream survey weighting is unchanged.
-  if (!is.null(oc$tag) && oc$tag %in% UNIFORM_TRANSPORT_TAGS && !is.null(oc$binary)) {
-    derived <- NULL
-    if (grepl("vitA", oc$tag, ignore.case = TRUE)) {
-      # 2026-06-23 (DC-H2): uniform BRINDA inflammation adjustment of RBP, so every
-      # country's VAD outcome uses ONE method (R/brinda_adjustment.R), validated in
-      # docs/dc_h2_brinda_validation.md. Replaces the prior Thurnham/raw RBP mix.
-      # brinda_vad_binary() is the single source of truth, shared with
-      # apply_brinda_vita_binary(); it warns and returns NULL when a country's
-      # biomarker columns are unavailable, in which case the configured binary
-      # is kept.
-      newbin <- brinda_vad_binary(d, cc, oc, label = "[svy_admin2]")
-      if (!is.null(newbin)) derived <- as.numeric(newbin)
-    } else if (!is.null(oc$continuous) && oc$continuous %in% colnames(d) && !is.null(oc$cutoff)) {
-      # Non-VitA uniform outcomes (iron): threshold the configured continuous.
-      derived <- apply_threshold(suppressWarnings(as.numeric(d[[oc$continuous]])),
-                                 oc$cutoff, oc$cutoff_dir %||% "less")
-      cat(sprintf("  [svy_admin2] %s — %s: uniform outcome %s %s %g => %d/%d (%.1f%%) deficient\n",
-                  cc$country, oc$tag, oc$continuous, oc$cutoff_dir %||% "less", oc$cutoff,
-                  sum(derived == 1, na.rm = TRUE), sum(!is.na(derived)), 100 * mean(derived, na.rm = TRUE)))
-    }
-    if (!is.null(derived)) { d[[oc$binary]] <- derived; outcome_data$data <- d }
-  }
+  derived <- resolve_uniform_outcome(d, cc, oc, label = "[svy_admin2]")
+  if (!is.null(derived)) { d[[oc$binary]] <- derived; outcome_data$data <- d }
 
   svy_cols <- c(cc$psu_col, cc$weight_col, cc$admin2_col,
                 cc$admin1_col, oc$binary)
@@ -651,6 +697,20 @@ compute_svy_admin2 <- function(outcome_data, cc, oc) {
       attr(svy_admin2, "national_design_based") <- nd
       cat(sprintf("  [svy_admin2] %s %s: design-based national = %.1f%% (n=%d)\n",
                   cc$country, oc$tag, 100 * nd$prev, nd$n))
+    }
+  }
+
+  # Same idea one level down: the design-based prevalence per REGION. Carried
+  # as an attribute for the same reason -- it must not drift out of sync with
+  # the district table it will be used to anchor. r_max is 0.664 at admin-1
+  # against 0.132 at admin-2, so these are the most reliable spatial estimates
+  # these surveys support.
+  if (exists("admin1_design_based")) {
+    a1 <- tryCatch(admin1_design_based(outcome_data, cc, oc), error = function(e) NULL)
+    if (!is.null(a1) && nrow(a1) >= 2) {
+      attr(svy_admin2, "admin1_design_based") <- a1
+      cat(sprintf("  [svy_admin2] %s %s: %d admin-1 regions (median n = %.0f)\n",
+                  cc$country, oc$tag, nrow(a1), stats::median(a1$n)))
     }
   }
 
@@ -878,15 +938,37 @@ fit_area_level_model <- function(svy_admin2, area_cov, cc, oc, params) {
 
   yhat_all <- pmin(pmax(predict_hal_safe(fit_area, X_all_s), 0), 1)
 
+  # Carry Admin1 so every downstream consumer can join on the PAIR key.
+  # Without it this frame was joined on Admin2 alone, and GADM admin-2 names
+  # are not unique within a country: Malawi has 256 polygons under 243 names
+  # (see the note at extract_area_covariates()). Name-only joining gave both
+  # "TA Lundu" districts the same survey value and made compare_admin2_
+  # approaches() score Malawi on 90 rows for 87 surveyed districts, while the
+  # individual-level rows scored 87 -- so the two were not comparable.
   area_preds <- data.frame(
+    Admin1         = if ("Admin1" %in% names(gee_admin2))
+                       as.character(gee_admin2$Admin1) else NA_character_,
     Admin2         = gee_admin2$Admin2,
     area_pred_prev = yhat_all,
-    has_survey     = gee_admin2$Admin2 %in% surveyed_names
-  ) %>%
+    stringsAsFactors = FALSE
+  )
+  # has_survey must use the same key as the join below, or an unsurveyed
+  # district sharing a name with a surveyed one is mislabelled as surveyed.
+  by_svy <- admin2_join_by(area_preds, svy_admin2)
+  area_preds$has_survey <- if (identical(by_svy, c("Admin1", "Admin2")))
+    paste(area_preds$Admin1, area_preds$Admin2, sep = "||") %in%
+      paste(svy_admin2$Admin1, svy_admin2$Admin2, sep = "||")
+  else area_preds$Admin2 %in% surveyed_names
+
+  area_preds <- area_preds %>%
     dplyr::left_join(
-      svy_admin2 %>% dplyr::select(Admin2, svy_prev, svy_prev_se, n_svy),
-      by = "Admin2"
+      svy_admin2 %>% dplyr::select(dplyr::any_of(c("Admin1", "Admin2")),
+                                   svy_prev, svy_prev_se, n_svy),
+      by = by_svy
     )
+  if (!identical(by_svy, c("Admin1", "Admin2")))
+    warning("[area_model] area_preds joined to svy_admin2 on Admin2 alone; ",
+            "duplicate Admin-2 names will be scored against a shared survey value")
 
   # Bootstrap CIs
   B_AREA <- params$B_area
@@ -949,15 +1031,53 @@ fit_area_level_model <- function(svy_admin2, area_cov, cc, oc, params) {
       warning("AREA_BENCHMARK_NATIONAL is on but svy_admin2 carries no ",
               "national_design_based attribute; skipping benchmarking")
     if (!is.null(nd)) {
-      w <- .area_population_weights(gee_admin2, area_preds$Admin2)
-      b <- benchmark_area_predictions(area_preds$area_pred_prev, nd$prev, w)
+      w <- .area_population_weights(gee_admin2, area_preds$Admin2,
+                                    areas_km2 = .admin2_areas_km2(all_polys))
       area_preds$area_pred_prev_unbenchmarked <- area_preds$area_pred_prev
-      area_preds$area_pred_prev <- b$pred
-      bench_info <- c(b[c("delta", "before", "after", "method")],
-                      list(target = nd$prev, n_individuals = nd$n))
-      cat(sprintf(paste0("[area_model] benchmarked to design-based national ",
-                         "%.1f%%: aggregate %.1f%% -> %.1f%% (logit shift %.3f)\n"),
-                  100 * nd$prev, 100 * b$before, 100 * b$after, b$delta))
+
+      # ── Admin-1 anchoring (default) ───────────────────────────────────────
+      # Anchoring each REGION to its own design-based total, instead of shifting
+      # the whole country by one number, beat national benchmarking in 22 of 24
+      # country x outcome cells on MAE, 21 of 24 on absolute bias and 20 of 24
+      # on correlation, and lifted median r_share from 0.64 to 1.01 -- i.e. to
+      # the noise ceiling (scripts/covariates/08_admin1_arms.R,
+      # results/tables/admin1_arms.csv). The regional estimates are worth
+      # trusting: r_max is 0.664 at admin-1 against 0.132 at admin-2.
+      #
+      # Targets are used HARD, not shrunk toward the national figure: shrinkage
+      # was tested and was uniformly worse (median r 0.348 vs 0.400, MAE 9.18 vs
+      # 8.75 pp) because it compresses genuine between-region variation. Thin
+      # regions are protected by the min_n fallback instead, which is a sharper
+      # instrument than shrinking every region.
+      a1t <- if (isTRUE(as.logical(Sys.getenv("AREA_BENCHMARK_ADMIN1", "true"))))
+        attr(svy_admin2, "admin1_design_based") else NULL   # set by compute_svy_admin2()
+
+      if (!is.null(a1t) && nrow(a1t) >= 2 &&
+          any(c("Admin1") %in% names(gee_admin2))) {
+        a1t$target <- a1t$prev
+        map <- unique(gee_admin2[, c("Admin2", "Admin1")])
+        # w is NULL when no population proxy resolved. data.frame() errors on a
+        # NULL column ("differing number of rows: n, 0") rather than dropping
+        # it, so build the table only when there is something to put in it and
+        # let the benchmarker fall back to equal weights otherwise.
+        pw  <- if (is.null(w)) NULL else
+          data.frame(Admin2 = area_preds$Admin2, pop = w)
+        adj <- benchmark_admin2_to_admin1(
+          area_preds[, c("Admin2", "area_pred_prev")], "area_pred_prev",
+          a1t, national = nd$prev, admin1_map = map, pop = pw)
+        area_preds$area_pred_prev <- adj$area_pred_prev
+        bench_info <- list(method = "admin1_logit_shift",
+                           target = nd$prev, n_individuals = nd$n,
+                           regions = attr(adj, "benchmark_a1"))
+      } else {
+        b <- benchmark_area_predictions(area_preds$area_pred_prev, nd$prev, w)
+        area_preds$area_pred_prev <- b$pred
+        bench_info <- c(b[c("delta", "before", "after", "method")],
+                        list(target = nd$prev, n_individuals = nd$n))
+        cat(sprintf(paste0("[area_model] benchmarked to design-based national ",
+                           "%.1f%%: aggregate %.1f%% -> %.1f%% (logit shift %.3f)\n"),
+                    100 * nd$prev, 100 * b$before, 100 * b$after, b$delta))
+      }
     }
   }
 
@@ -971,17 +1091,90 @@ fit_area_level_model <- function(svy_admin2, area_cov, cc, oc, params) {
   )
 }
 
+#' Admin-2 polygon areas in km2, named by Admin2.
+#'
+#' Areas come from the same GADM polygons the model predicts onto, so they are
+#' guaranteed to align with the prediction rows. Duplicated Admin-2 names (Malawi
+#' has several) are summed, matching how the covariate tables collapse them.
+.admin2_areas_km2 <- function(all_polys) {
+  if (is.null(all_polys) || !inherits(all_polys, "sf") ||
+      !"Admin2" %in% names(all_polys)) return(NULL)
+  a <- tryCatch({
+    # Equal-area projection: st_area on lon/lat is computed on the ellipsoid and
+    # is fine, but World Mollweide keeps this stable if a CRS is ever missing.
+    g <- sf::st_transform(all_polys, "ESRI:54009")
+    as.numeric(sf::st_area(g)) / 1e6
+  }, error = function(e) tryCatch(as.numeric(sf::st_area(all_polys)) / 1e6,
+                                  error = function(e2) NULL))
+  if (is.null(a) || !any(is.finite(a))) return(NULL)
+  tapply(a, trimws(as.character(all_polys$Admin2)), sum, na.rm = TRUE)
+}
+
 #' Population weights for aggregating Admin-2 predictions.
 #'
 #' An unweighted mean over districts is a mean over POLYGONS, not people, and
 #' differs from the design-based national prevalence by several percentage
 #' points here. Falls back to equal weights with a warning.
-.area_population_weights <- function(gee_admin2, admin2) {
+.area_population_weights <- function(gee_admin2, admin2, areas_km2 = NULL) {
   if (is.null(gee_admin2) || !"Admin2" %in% names(gee_admin2)) return(NULL)
-  for (v in c("gee_ghspop", "gee_gpw_demographic_annual_mean", "gee_popdensity")) {
+  # BOTH vocabularies. The canonical names must be listed here or the harmonised
+  # run silently falls through to equal district weights -- which benchmarks to
+  # an unweighted mean over POLYGONS rather than over people, a different
+  # quantity from the design-based national prevalence. That is what happened on
+  # the first harmonised launch (2026-08-29): every country hit the fallback.
+  #
+  # Counts before densities: a density is only proportional to population if
+  # districts are equal-area, which they are not. The density entries are kept
+  # as a last-resort proxy, matching the original behaviour.
+  candidates <- c(
+    "ghs_pop",                              # harmonised: GHSL population count
+    "gee_ghspop",                           # legacy
+    "gee_gpw_demographic_annual_mean",      # legacy
+    "popdens_y2020", "popdens_y2015", "popdens_y2010",  # harmonised (density)
+    "gee_popdensity")                       # legacy (density)
+  for (v in candidates) {
     if (!v %in% names(gee_admin2)) next
     w <- suppressWarnings(as.numeric(gee_admin2[[v]]))[match(admin2, gee_admin2$Admin2)]
-    if (sum(is.finite(w)) >= max(5, 0.5 * length(admin2))) return(w)
+    if (sum(is.finite(w)) >= max(5, 0.5 * length(admin2))) {
+      # A negative weight is meaningless and, left alone, benchmark_area_
+      # predictions() silently zeroes it -- dropping that district from the
+      # aggregate rather than down-weighting it. Ghana's raster export carries
+      # small negative values (min -7), presumably resampling artefacts, so
+      # clamp and say so rather than let districts vanish from the target.
+      n_neg <- sum(is.finite(w) & w < 0)
+      if (n_neg) {
+        cat(sprintf("  [area_model] '%s': %d negative value(s) clamped to 0\n", v, n_neg))
+        w[is.finite(w) & w < 0] <- 0
+      }
+      # DENSITY -> COUNT. Every candidate here is a zonal MEAN (people per
+      # cell), not a district total, so it is proportional to population only
+      # if districts are equal-area. They are nowhere near it: district area
+      # varies by 111x (Gambia), 585x (Malawi), 151x (Sierra Leone) and 4,927x
+      # (Ghana). Measured 2026-08-29, the mean-density proxy correlates only
+      # 0.23-0.69 with a count proxy, and aggregating the SAME predictions under
+      # the two weightings differs by 1.9 / 0.3 / 20.0 / 3.2 pp respectively.
+      #
+      # That matters because benchmarking solves for the logit shift that makes
+      # the population-weighted aggregate equal the design-based national
+      # prevalence: a wrong weight puts every district prediction on the wrong
+      # shift. Sierra Leone's 20 pp gap is not a rounding detail.
+      #
+      # Multiplying by polygon area recovers a count proxy. When areas are
+      # unavailable the density proxy is returned unchanged, with a warning, so
+      # the behaviour degrades to the historical one rather than failing.
+      if (!is.null(areas_km2)) {
+        a <- areas_km2[match(admin2, names(areas_km2))]
+        if (sum(is.finite(a) & a > 0) >= max(5, 0.5 * length(admin2))) {
+          w <- w * a
+          cat(sprintf("  [area_model] population weights from '%s' x polygon area (count proxy)\n", v))
+          return(w)
+        }
+      }
+      warning(sprintf(paste0("population weights from '%s' are a zonal MEAN with no ",
+                             "polygon areas to convert them to counts; districts are ",
+                             "not equal-area, so this weights by density"), v))
+      return(w)
+    }
   }
   warning("no Admin-2 population proxy found; benchmarking with equal weights")
   NULL

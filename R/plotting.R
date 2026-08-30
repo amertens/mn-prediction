@@ -52,10 +52,14 @@ plot_admin2_coverage <- function(area_model_result, oc, cc) {
   polys <- area_model_result$polygons
   preds <- area_model_result$area_preds
 
+  # Pair key where available: joining 256 Malawi polygons to 256 predictions
+  # on Admin2 alone is a many-to-many join (dplyr warned), which paints
+  # same-named districts with each other's prediction and inflates the frame.
   map_data <- polys %>%
     dplyr::left_join(
-      preds %>% dplyr::select(Admin2, area_pred_prev, has_survey),
-      by = "Admin2"
+      preds %>% dplyr::select(dplyr::any_of(c("Admin1", "Admin2")),
+                              area_pred_prev, has_survey),
+      by = admin2_join_by(polys, preds)
     )
 
   p <- ggplot2::ggplot(map_data) +

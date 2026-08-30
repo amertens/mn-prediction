@@ -159,12 +159,17 @@ for (ctry in countries) {
       svy_n_col <- intersect(c("n_svy", "n", "n_obs", "n_indiv"),
                               colnames(svy_obs))[1]
       svy_keep <- data.frame(
+        Admin1 = if ("Admin1" %in% colnames(svy_obs)) as.character(svy_obs$Admin1)
+                 else NA_character_,
         Admin2 = svy_obs$Admin2,
         obs_prev = if (!is.na(svy_pred_col)) svy_obs[[svy_pred_col]] else NA_real_,
         n_survey = if (!is.na(svy_n_col)) svy_obs[[svy_n_col]] else NA_integer_,
         stringsAsFactors = FALSE
       )
-      df <- left_join(df, svy_keep, by = "Admin2")
+      # Pair-join where both sides carry Admin1; see the note on the area layer.
+      by_svy <- admin2_join_by(df, svy_keep)
+      if (identical(by_svy, "Admin2")) svy_keep$Admin1 <- NULL
+      df <- left_join(df, svy_keep, by = by_svy)
     } else {
       df$obs_prev <- NA_real_
       df$n_survey <- NA_integer_
@@ -184,15 +189,22 @@ for (ctry in countries) {
       ci_lo_col <- intersect(c("ci_lo", "lower", "lo"), colnames(a2_ci))[1]
       ci_hi_col <- intersect(c("ci_hi", "upper", "hi"), colnames(a2_ci))[1]
       a2_keep <- data.frame(
+        Admin1 = if ("Admin1" %in% colnames(a2_ci)) as.character(a2_ci$Admin1)
+                 else NA_character_,
         Admin2 = a2_ci$Admin2,
         ci_lo = if (!is.na(ci_lo_col)) a2_ci[[ci_lo_col]] else NA_real_,
         ci_hi = if (!is.na(ci_hi_col)) a2_ci[[ci_hi_col]] else NA_real_,
         stringsAsFactors = FALSE
       )
       a2_keep$ci_width <- a2_keep$ci_hi - a2_keep$ci_lo
+      # Resolve the key and prune BEFORE the pipe: computing it inside the
+      # left_join() argument list left the mutation of a2_keep racing lazy
+      # argument evaluation.
+      by_ci <- admin2_join_by(df, a2_keep)
+      if (identical(by_ci, "Admin2")) a2_keep$Admin1 <- NULL
       df <- df |>
         select(-ci_lo, -ci_hi, -ci_width) |>
-        left_join(a2_keep, by = "Admin2")     # district-level, no broadcast
+        left_join(a2_keep, by = by_ci)        # district-level, no broadcast
     } else if (!is.null(conf_ci) && !is.null(conf_ci$admin1_ci) &&
                nrow(conf_ci$admin1_ci) > 0 && !all(is.na(df$Admin1))) {
       a1_ci <- conf_ci$admin1_ci
@@ -244,7 +256,18 @@ for (ctry in countries) {
           else !is.na(ap$svy_prev)
     area_rows[[paste(ctry, oc)]] <- clean_pred_layer(
       data.frame(
-        country = country_labels[ctry], outcome = oc, Admin2 = ap$Admin2,
+        country = country_labels[ctry], outcome = oc,
+        # CARRY Admin1. Without it clean_admin2_keys() falls back to the
+        # name-only key and AVERAGES same-named districts in different regions
+        # -- exactly what dedupe_admin2_key()'s own comment calls "the bug this
+        # migration fixed". Malawi has 243 polygons under 239 names, so the
+        # dashboard layer collapsed to 239 rows and the map explorer painted
+        # TA Lundu / TA Malemia / TA Ngabu / TA Pemba (four genuinely distinct
+        # district pairs) with one shared prediction each. admin2_boundaries.rds
+        # already carries Admin1, so the map can join on the pair once this does.
+        Admin1 = if ("Admin1" %in% colnames(ap)) as.character(ap$Admin1)
+                 else NA_character_,
+        Admin2 = ap$Admin2,
         pred_prev = as.numeric(ap$area_pred_prev),
         obs_prev = if ("svy_prev" %in% colnames(ap))
                      ifelse(hs, ap$svy_prev, NA_real_) else NA_real_,
