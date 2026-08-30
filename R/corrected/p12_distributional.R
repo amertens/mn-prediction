@@ -11,7 +11,7 @@
 # from the threshold.
 #
 # The prototype (sensitivity/10_distributional_vs_binary_prototype.R, one
-# country, three cells, documented in docs/exploratory_distributional_prototype.md)
+# country, three cells, documented in archive/docs/exploratory_distributional_prototype.md)
 # found the gain concentrates where the cut-point sits off the median: for
 # Ghana women's iron at 12.3 percent prevalence it roughly tripled the area-level
 # correlation, and for mid-prevalence cells it was a wash. That is the expected
@@ -55,7 +55,7 @@
 # =============================================================================
 
 #' Covariate set. Deliberately the prototype's fixed a-priori eight, so the
-#' comparison against docs/exploratory_distributional_prototype.md is
+#' comparison against archive/docs/exploratory_distributional_prototype.md is
 #' like-for-like and the two arms differ only in how the outcome is modelled.
 #' Widening it would confound "distributional beats binary" with "more
 #' covariates beat fewer".

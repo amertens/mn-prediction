@@ -808,7 +808,7 @@ spatial-only and spatial + soil predict best on the two countries with
 enough admin-2 polygons (Ghana and Malawi) but are unstable on the
 small (n = 14) Sierra Leone CV split. The conclusion is consistent
 across outcomes (see Methods §Estimation strategies and the exploratory
-findings logs, `docs/exploratory_loco_findings.md`): non-linear ensembles help
+findings logs, `archive/docs/exploratory_loco_findings.md`): non-linear ensembles help
 within-country, parsimonious linear models with soil micronutrient features
 help out-of-country.
 

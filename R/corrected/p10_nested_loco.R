@@ -365,7 +365,7 @@ nested_select_features <- function(all_merged, all_configs, train_countries,
 #' @param seed Integer seed
 #' @param country_weighted_also Logical, additionally score every cell with
 #'   equal-country weights on the training rows. Applies to the glm scorer only;
-#'   mlr3_SL_clustered() has no weight role (see docs/PROJECT_STATUS_2026-08_UPDATE.md
+#'   mlr3_SL_clustered() has no weight role (see archive/docs/PROJECT_STATUS_2026-08_UPDATE.md
 #'   section 6), so the SuperLearner rows are equal-row weighted by construction.
 #' @param scorers Character vector, any of "glm" and "sl". The glm scorer runs
 #'   the full grid cheaply and matches the selection search's own metric. The

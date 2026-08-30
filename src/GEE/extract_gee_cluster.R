@@ -5,7 +5,7 @@
 # files used by extract_gee_admin2.R — but the zonal geometry is a small BUFFER
 # around each survey cluster's GPS centroid instead of the Admin-2 polygon.
 # This recovers within-district covariate variation that the Admin-2 aggregation
-# throws away (see docs/ghana_geostat_pilot.md).
+# throws away (see archive/docs/ghana_geostat_pilot.md).
 #
 # Output columns are prefixed `gee_cl_` (one row per cluster x raster band).
 # Buffer radius: 2 km urban / 5 km rural by default (robust whether the EA GPS

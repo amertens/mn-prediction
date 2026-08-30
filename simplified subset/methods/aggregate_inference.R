@@ -2,7 +2,7 @@
 # aggregate_inference.R
 # -----------------------------------------------------------------------------
 # The cheap, defensible pieces of "loss-based inference for the aggregate target"
-# (see docs/METHODS_TODO_IMPLEMENTATION_PLAN.md, To-do 3c deep dive):
+# (see archive/docs/METHODS_TODO_IMPLEMENTATION_PLAN.md, To-do 3c deep dive):
 #
 #   Option A. Cross-validated aggregate error with bootstrap CIs:
 #             (i)  per-area CV error (RMSE pp), area-resampling bootstrap stratified

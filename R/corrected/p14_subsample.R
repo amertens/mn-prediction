@@ -4,7 +4,7 @@
 #
 # WHY THIS IS A REBUILD
 # ---------------------
-# docs/PROJECT_STATUS_2026-08_UPDATE.md section 5 reports this project's
+# archive/docs/PROJECT_STATUS_2026-08_UPDATE.md section 5 reports this project's
 # flagship result: simulate a reduced survey budget, and ask whether a
 # covariate model can recover the subnational accuracy the cut clusters would
 # have provided. Its stated conclusions are that for any district retaining even

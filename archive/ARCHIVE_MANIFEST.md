@@ -4,6 +4,49 @@ Files retired from the active tree during the 2026-06-25 repo cleanup. Nothing
 here was deleted — everything was **moved** (reversible) and the directory
 structure is mirrored, so any file can be restored to its original path.
 
+## 2026-08-30 — superseded status, review and exploratory notes
+
+28 Markdown files moved from `docs/` (and `CLEANUP_REPORT.md` from the root)
+to `archive/docs/`. Nothing was deleted; every file is recoverable with
+`git mv archive/docs/<file> docs/<file>`.
+
+**Reason:** `docs/` held 46 Markdown files, most of them point-in-time session
+records rather than reference material, which made the directory hard to
+navigate for the two things it now needs to support — running the analysis
+pipeline and generating the slides and manuscript. Three categories moved:
+
+- **Superseded status and review snapshots.** `PROJECT_STATUS_2026-06`,
+  `PROJECT_STATUS_2026-08_UPDATE`, `PROJECT_STATUS_2026-09_UPDATE`,
+  `PROJECT_SUMMARY`, `REVIEW_AND_ROADMAP_2026-06`, `REVIEW_NOTES`,
+  `CRITICAL_REVIEW`, `CLEANUP_REPORT`, and three dated `pipeline_review_*`
+  files. Each describes a state the repository has since moved past.
+- **Completed one-off work plans.** `CORRECTED_PIPELINE_PATCH_PLAN`,
+  `CORRECTED_PIPELINE_RUN`, `CORRECTED_PIPELINE_RESULTS`,
+  `METHODS_TODO_IMPLEMENTATION_PLAN`, `DIAGNOSTICS_CHANGELOG`,
+  `SHAP_KERNEL_RUN`, `audit_analysis_code`, `audit_data_cleaning`.
+- **Exploratory findings now folded into the manuscript.**
+  `EXPLORATORY_ANALYSES`, the five `exploratory_*` notes,
+  `calibration_ladder_and_mimi_divergence`, `ghana_geostat_pilot`,
+  `gee_admin3_audit_findings`.
+
+Seven of these are still cited from live code as breadcrumbs
+(`R/corrected/p7_area.R`, `p10_nested_loco.R`, `p12_distributional.R`,
+`p14_subsample.R`, `src/GEE/extract_gee_cluster.R`,
+`docs/manuscript_mcn.qmd`, `simplified subset/methods/aggregate_inference.R`).
+Those references were repointed to `archive/docs/` in the same commit, so no
+comment now names a path that does not exist.
+
+**Kept in `docs/`** — the 19 files that are reference material rather than
+history: data acquisition (`API_DATA_SOURCES`, `manual_data_downloads`,
+`biomarker_survey_acquisition`, `micronutrient_survey_candidates`,
+`gee_landscape_new_domains`, `ra_new_data_sources_specs`, `RA_data_roadmap`,
+`RA_tasks_temporal_alignment`), methods specifications
+(`METHODS_CORRECTED`, `AREA_LEVEL_RECIPE_SPEC`, `methods_mrp`,
+`transportability_loco_methods`, `feature_engineering_and_sae_notes`),
+standing critiques (`survey_weighting_critique`, `dc_h2_brinda_validation`,
+`pipeline_audit_2026-08`), `add_new_country`, `LITERATURE_REVIEW`, and the
+live `DASHBOARD_ROADMAP`.
+
 ## 2026-08-26 — Tanzania (TDHS 2010) dropped
 
 `src/Tanzania/*` moved to `archive/src/Tanzania/*`, and the `Tanzania` entry
