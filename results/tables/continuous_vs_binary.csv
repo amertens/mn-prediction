@@ -1,0 +1,111 @@
+country,outcome,arm,n_areas,prev_pct,mae_pp,rmse_pp,r
+Gambia,child_vitA,1 binary (direct),30,19.78,8.74,11.05,0.569
+Gambia,child_vitA,2 continuous -> prevalence,30,19.78,12.89,15.73,0.579
+Gambia,child_vitA,"3 continuous, oracle SD",30,19.78,11.95,14.45,0.687
+Gambia,child_vitA,4 conversion ceiling (true mean),30,19.78,9.66,11.47,0.856
+Gambia,child_vitA,5 null (train mean),30,19.78,10.79,13.3,NA
+Gambia,women_vitA,1 binary (direct),30,2.5,3.78,5.16,0.288
+Gambia,women_vitA,2 continuous -> prevalence,30,2.5,4.38,6.11,0.647
+Gambia,women_vitA,"3 continuous, oracle SD",30,2.5,3.98,6.5,0.692
+Gambia,women_vitA,4 conversion ceiling (true mean),30,2.5,3.24,4.09,0.673
+Gambia,women_vitA,5 null (train mean),30,2.5,3.59,4.93,NA
+Gambia,child_iron,1 binary (direct),30,42.61,12.39,15.57,0.275
+Gambia,child_iron,2 continuous -> prevalence,30,42.61,23.25,27.74,0.005
+Gambia,child_iron,"3 continuous, oracle SD",30,42.61,23.42,27.93,0.208
+Gambia,child_iron,4 conversion ceiling (true mean),30,42.61,19.14,21.2,0.822
+Gambia,child_iron,5 null (train mean),30,42.61,13.57,15.98,NA
+Gambia,women_iron,1 binary (direct),30,30.68,11.87,14.72,0.465
+Gambia,women_iron,2 continuous -> prevalence,30,30.68,16.34,18.68,0.537
+Gambia,women_iron,"3 continuous, oracle SD",30,30.68,16.6,18.77,0.528
+Gambia,women_iron,4 conversion ceiling (true mean),30,30.68,14.92,16.11,0.898
+Gambia,women_iron,5 null (train mean),30,30.68,13.18,17.14,NA
+Ghana,child_vitA,1 binary (direct),71,14.97,9.82,12.12,0.243
+Ghana,child_vitA,2 continuous -> prevalence,71,14.97,13.35,16.59,0.277
+Ghana,child_vitA,"3 continuous, oracle SD",71,14.97,12.26,15.24,0.446
+Ghana,child_vitA,4 conversion ceiling (true mean),71,14.97,10.51,12.55,0.759
+Ghana,child_vitA,5 null (train mean),71,14.97,9.36,11.4,NA
+Ghana,women_vitA,1 binary (direct),72,1.53,5.06,5.48,0.15
+Ghana,women_vitA,2 continuous -> prevalence,72,1.53,3.02,4.65,0.021
+Ghana,women_vitA,"3 continuous, oracle SD",72,1.53,2.76,5,0.158
+Ghana,women_vitA,4 conversion ceiling (true mean),72,1.53,1.79,3.32,0.615
+Ghana,women_vitA,5 null (train mean),72,1.53,2.7,4.2,NA
+Ghana,child_iron,1 binary (direct),71,23.85,12.88,16.38,0.491
+Ghana,child_iron,2 continuous -> prevalence,71,23.85,11.57,14.83,0.556
+Ghana,child_iron,"3 continuous, oracle SD",71,23.85,9.89,13.32,0.666
+Ghana,child_iron,4 conversion ceiling (true mean),71,23.85,5.81,7.6,0.905
+Ghana,child_iron,5 null (train mean),71,23.85,14.79,17.99,NA
+Ghana,women_iron,1 binary (direct),72,8.41,6.99,8.65,0.127
+Ghana,women_iron,2 continuous -> prevalence,72,8.41,8.24,10.15,0.311
+Ghana,women_iron,"3 continuous, oracle SD",72,8.41,6.81,8.87,0.583
+Ghana,women_iron,4 conversion ceiling (true mean),72,8.41,5.79,7.78,0.701
+Ghana,women_iron,5 null (train mean),72,8.41,6.32,7.94,NA
+Ghana,women_folate,1 binary (direct),52,55.84,20.47,24.48,0.124
+Ghana,women_folate,2 continuous -> prevalence,52,55.84,22.02,26.67,0.176
+Ghana,women_folate,"3 continuous, oracle SD",52,55.84,21.24,25.63,0.237
+Ghana,women_folate,4 conversion ceiling (true mean),52,55.84,9.72,11.4,0.91
+Ghana,women_folate,5 null (train mean),52,55.84,20.06,23.82,NA
+Ghana,women_b12,1 binary (direct),51,7.79,12.65,14.7,0.184
+Ghana,women_b12,2 continuous -> prevalence,51,7.79,10.27,12.93,0.166
+Ghana,women_b12,"3 continuous, oracle SD",51,7.79,8.12,10,0.587
+Ghana,women_b12,4 conversion ceiling (true mean),51,7.79,5.2,6.48,0.841
+Ghana,women_b12,5 null (train mean),51,7.79,9.77,11.92,NA
+SierraLeone,child_vitA,1 binary (direct),14,12.19,8.77,13.02,0.134
+SierraLeone,child_vitA,2 continuous -> prevalence,14,12.19,9.21,10.33,-0.101
+SierraLeone,child_vitA,"3 continuous, oracle SD",14,12.19,7.98,9.21,0.458
+SierraLeone,child_vitA,4 conversion ceiling (true mean),14,12.19,8.9,9.83,0.608
+SierraLeone,child_vitA,5 null (train mean),14,12.19,4.63,5.71,NA
+SierraLeone,women_vitA,1 binary (direct),14,1.49,1.44,1.81,-0.049
+SierraLeone,women_vitA,2 continuous -> prevalence,14,1.49,1.48,1.72,0.067
+SierraLeone,women_vitA,"3 continuous, oracle SD",14,1.49,1.31,1.76,0.479
+SierraLeone,women_vitA,4 conversion ceiling (true mean),14,1.49,1.41,1.77,0.213
+SierraLeone,women_vitA,5 null (train mean),14,1.49,1.26,1.54,NA
+SierraLeone,child_iron,1 binary (direct),14,5.25,4.6,5.35,-0.124
+SierraLeone,child_iron,2 continuous -> prevalence,14,5.25,4.04,4.73,0.353
+SierraLeone,child_iron,"3 continuous, oracle SD",14,5.25,3.14,3.76,0.638
+SierraLeone,child_iron,4 conversion ceiling (true mean),14,5.25,2.42,3.58,0.648
+SierraLeone,child_iron,5 null (train mean),14,5.25,3.8,4.69,NA
+SierraLeone,women_iron,1 binary (direct),14,9.6,7,10.14,0.02
+SierraLeone,women_iron,2 continuous -> prevalence,14,9.6,10.46,11.56,-0.034
+SierraLeone,women_iron,"3 continuous, oracle SD",14,9.6,9.22,10.02,0.366
+SierraLeone,women_iron,4 conversion ceiling (true mean),14,9.6,8.2,9.41,0.61
+SierraLeone,women_iron,5 null (train mean),14,9.6,5.13,6.74,NA
+SierraLeone,women_folate,1 binary (direct),14,79.24,14.92,16.25,-0.436
+SierraLeone,women_folate,2 continuous -> prevalence,14,79.24,10.62,14.19,-0.297
+SierraLeone,women_folate,"3 continuous, oracle SD",14,79.24,9.47,12.51,0.127
+SierraLeone,women_folate,4 conversion ceiling (true mean),14,79.24,6.54,8.2,0.857
+SierraLeone,women_folate,5 null (train mean),14,79.24,8.85,10.33,NA
+SierraLeone,women_b12,1 binary (direct),14,0.61,7.67,25.51,0.346
+SierraLeone,women_b12,2 continuous -> prevalence,14,0.61,0.53,0.73,-0.025
+SierraLeone,women_b12,"3 continuous, oracle SD",14,0.61,0.5,0.71,0.159
+SierraLeone,women_b12,4 conversion ceiling (true mean),14,0.61,0.64,0.96,-0.085
+SierraLeone,women_b12,5 null (train mean),14,0.61,0.68,0.71,NA
+Malawi,child_vitA,1 binary (direct),83,9.17,8.89,11.17,0.22
+Malawi,child_vitA,2 continuous -> prevalence,83,9.17,21.81,23.37,0.158
+Malawi,child_vitA,"3 continuous, oracle SD",83,9.17,20.05,21.56,0.45
+Malawi,child_vitA,4 conversion ceiling (true mean),83,9.17,17.66,20.55,0.525
+Malawi,child_vitA,5 null (train mean),83,9.17,8.05,10.19,NA
+Malawi,women_vitA,1 binary (direct),79,1.23,3.35,4.93,-0.138
+Malawi,women_vitA,2 continuous -> prevalence,79,1.23,3.28,4.4,-0.058
+Malawi,women_vitA,"3 continuous, oracle SD",79,1.23,2.3,3.43,0.595
+Malawi,women_vitA,4 conversion ceiling (true mean),79,1.23,2.05,3.51,0.481
+Malawi,women_vitA,5 null (train mean),79,1.23,2.37,3.97,NA
+Malawi,child_iron,1 binary (direct),83,9.64,9.86,12.17,0.065
+Malawi,child_iron,2 continuous -> prevalence,83,9.64,16,18.23,0.176
+Malawi,child_iron,"3 continuous, oracle SD",83,9.64,15.37,17.55,0.335
+Malawi,child_iron,4 conversion ceiling (true mean),83,9.64,10.35,12.6,0.793
+Malawi,child_iron,5 null (train mean),83,9.64,8.14,10.83,NA
+Malawi,women_iron,1 binary (direct),75,9.95,10.38,13.36,0.261
+Malawi,women_iron,2 continuous -> prevalence,75,9.95,12.36,14.85,0.338
+Malawi,women_iron,"3 continuous, oracle SD",75,9.95,10.21,13.14,0.527
+Malawi,women_iron,4 conversion ceiling (true mean),75,9.95,8.63,11.14,0.756
+Malawi,women_iron,5 null (train mean),75,9.95,8.6,12.77,NA
+Malawi,women_folate,1 binary (direct),80,20.13,18.95,22.4,0.244
+Malawi,women_folate,2 continuous -> prevalence,80,20.13,17.25,22.12,0.212
+Malawi,women_folate,"3 continuous, oracle SD",80,20.13,16.91,22.26,0.207
+Malawi,women_folate,4 conversion ceiling (true mean),80,20.13,8.08,10.44,0.87
+Malawi,women_folate,5 null (train mean),80,20.13,17,20.87,NA
+Malawi,women_b12,1 binary (direct),80,2.86,6.38,7.6,0.232
+Malawi,women_b12,2 continuous -> prevalence,80,2.86,5.27,7.36,0.245
+Malawi,women_b12,"3 continuous, oracle SD",80,2.86,4.85,6.8,0.417
+Malawi,women_b12,4 conversion ceiling (true mean),80,2.86,4.18,6.4,0.531
+Malawi,women_b12,5 null (train mean),80,2.86,4.69,6.18,NA

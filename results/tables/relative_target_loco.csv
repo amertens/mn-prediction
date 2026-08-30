@@ -1,0 +1,65 @@
+outcome,held_out,arm,n_test,r,mae_pp,bias_pp
+child_iron,Gambia,1 absolute,30,0.518,39.54,-39.54
+child_iron,Gambia,2 relative + true anchor,30,0.289,22.06,-21.01
+child_iron,Gambia,3 relative + blind anchor,30,0.311,46.63,-46.63
+child_iron,Gambia,4 anchor only,30,NA,26.68,-26.27
+child_iron,Ghana,1 absolute,75,0.529,14.69,9.28
+child_iron,Ghana,2 relative + true anchor,75,0.315,25.64,22.44
+child_iron,Ghana,3 relative + blind anchor,75,0.312,20.56,15.74
+child_iron,Ghana,4 anchor only,75,NA,14.43,-1.14
+child_iron,SierraLeone,1 absolute,14,0.081,23.99,23.99
+child_iron,SierraLeone,2 relative + true anchor,14,0.117,3.82,-0.15
+child_iron,SierraLeone,3 relative + blind anchor,14,0.128,14.35,14.35
+child_iron,SierraLeone,4 anchor only,14,NA,3.8,-0.79
+child_iron,Malawi,1 absolute,87,0.195,16.9,-16.02
+child_iron,Malawi,2 relative + true anchor,87,0.171,13.21,-10.53
+child_iron,Malawi,3 relative + blind anchor,87,0.169,11.78,1.5
+child_iron,Malawi,4 anchor only,87,NA,12.95,-10.02
+child_vitA,Gambia,1 absolute,30,0.548,9.8,0.32
+child_vitA,Gambia,2 relative + true anchor,30,0.221,13.43,9.63
+child_vitA,Gambia,3 relative + blind anchor,30,0.217,10.63,1.22
+child_vitA,Gambia,4 anchor only,30,NA,10.67,-1.5
+child_vitA,Ghana,1 absolute,75,0.387,9.83,5.37
+child_vitA,Ghana,2 relative + true anchor,75,0.383,8.71,1.86
+child_vitA,Ghana,3 relative + blind anchor,75,0.383,8.63,0.52
+child_vitA,Ghana,4 anchor only,75,NA,9.48,-0.35
+child_vitA,SierraLeone,1 absolute,14,-0.199,7.67,6.38
+child_vitA,SierraLeone,2 relative + true anchor,14,-0.256,7.03,5.34
+child_vitA,SierraLeone,3 relative + blind anchor,14,-0.256,7.38,5.91
+child_vitA,SierraLeone,4 anchor only,14,NA,4.6,0.8
+child_vitA,Malawi,1 absolute,87,0.081,9.71,4.04
+child_vitA,Malawi,2 relative + true anchor,87,0.177,12.39,8.96
+child_vitA,Malawi,3 relative + blind anchor,87,0.18,16.87,14.88
+child_vitA,Malawi,4 anchor only,87,NA,8.69,1.49
+women_iron,Gambia,1 absolute,30,0.157,24.87,-24.87
+women_iron,Gambia,2 relative + true anchor,30,0.114,16,7.3
+women_iron,Gambia,3 relative + blind anchor,30,0.095,27.2,-27.2
+women_iron,Gambia,4 anchor only,30,NA,23.27,-23.27
+women_iron,Ghana,1 absolute,75,0.388,16.46,15.33
+women_iron,Ghana,2 relative + true anchor,75,0.347,10.01,4.99
+women_iron,Ghana,3 relative + blind anchor,75,0.351,16.12,15.11
+women_iron,Ghana,4 anchor only,75,NA,10.01,-5.4
+women_iron,SierraLeone,1 absolute,14,-0.252,10.73,7.06
+women_iron,SierraLeone,2 relative + true anchor,14,-0.314,7.72,1.77
+women_iron,SierraLeone,3 relative + blind anchor,14,-0.317,8.8,4.26
+women_iron,SierraLeone,4 anchor only,14,NA,8.6,-7.83
+women_iron,Malawi,1 absolute,87,0.05,16.19,8.79
+women_iron,Malawi,2 relative + true anchor,87,0.012,15.23,5.25
+women_iron,Malawi,3 relative + blind anchor,87,0.016,20.68,15.49
+women_iron,Malawi,4 anchor only,87,NA,14.09,-9.01
+women_vitA,Gambia,1 absolute,30,0.505,7.11,6.19
+women_vitA,Gambia,2 relative + true anchor,30,0.527,6.87,6.42
+women_vitA,Gambia,3 relative + blind anchor,30,0.527,6.78,6.31
+women_vitA,Gambia,4 anchor only,30,NA,3.46,-1.79
+women_vitA,Ghana,1 absolute,75,0.194,3.5,1.38
+women_vitA,Ghana,2 relative + true anchor,75,0.28,3.23,0.96
+women_vitA,Ghana,3 relative + blind anchor,75,0.279,4.38,2.77
+women_vitA,Ghana,4 anchor only,75,NA,2.4,-0.46
+women_vitA,SierraLeone,1 absolute,14,-0.02,2.33,2.08
+women_vitA,SierraLeone,2 relative + true anchor,14,-0.118,2.65,2.42
+women_vitA,SierraLeone,3 relative + blind anchor,14,-0.118,3.25,3.11
+women_vitA,SierraLeone,4 anchor only,14,NA,1.25,0.13
+women_vitA,Malawi,1 absolute,87,0.053,2.68,-0.1
+women_vitA,Malawi,2 relative + true anchor,87,-0.025,5.01,2.9
+women_vitA,Malawi,3 relative + blind anchor,87,-0.024,3.71,1.17
+women_vitA,Malawi,4 anchor only,87,NA,3.23,0.57
