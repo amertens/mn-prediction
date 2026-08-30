@@ -287,8 +287,9 @@ country effect — and seven outcome-adjacent DHS indicators excluded as leakage
 supplementation is targeted *by* measured deficiency).
 
 The result is a common-vocabulary set of **294 predictors** shared by all four
-countries, spanning 19 providers and 11 conceptual domains, replacing the
-152-variable set used in earlier analyses. The intersection step itself is not
+countries, replacing the 152-variable set used in earlier analyses; the source
+registry documenting these inputs lists 23 providers across 12 thematic
+domains. The intersection step itself is not
 the binding constraint: 322 canonical variables exist for a typical country and
 294 are common to all four, with 208 present in all five ingested countries.
 

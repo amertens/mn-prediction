@@ -1107,7 +1107,7 @@ the learner.
 Three things, in descending order of how much they moved the numbers:
 
 1. **Covariate harmonisation.** 294 predictors shared by all four countries,
-   from 19 providers and 11 domains, replacing two parallel naming vocabularies
+   drawn from a registry of 23 providers, replacing two parallel vocabularies
    whose intersection was near zero.
 2. **Nine join-key defects fixed.** GADM Admin-2 names are not unique within a
    country --- Malawi has 256 polygons under 243 names --- and nine consumers
