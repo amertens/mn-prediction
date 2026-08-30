@@ -38,13 +38,20 @@ for (lname in names(layers)) {
   if (length(w))
     fails <- c(fails, sprintf("%s layer contains water polygons: %s",
                               lname, paste(w, collapse = ", ")))
-  k <- paste(d$country, d$outcome, d$Admin2)
+  paired <- "Admin1" %in% names(d) &&
+    any(!is.na(d$Admin1) & nzchar(as.character(d$Admin1)))
+  k <- if (paired) paste(d$country, d$outcome, d$Admin1, d$Admin2)
+       else paste(d$country, d$outcome, d$Admin2)
   if (any(duplicated(k))) {
     dk <- unique(d$Admin2[duplicated(k)])
-    fails <- c(fails, sprintf("%s layer has %d duplicated country/outcome/Admin2 key(s): %s",
-                              lname, sum(duplicated(k)), paste(utils::head(dk, 6), collapse = ", ")))
+    fails <- c(fails, sprintf("%s layer has %d duplicated %s key(s): %s", lname,
+                              sum(duplicated(k)),
+                              if (paired) "country/outcome/Admin1/Admin2"
+                              else "country/outcome/Admin2",
+                              paste(utils::head(dk, 6), collapse = ", ")))
   }
-  cat(sprintf("  %-7s water=%d duplicate-keys=%d\n", lname, length(w), sum(duplicated(k))))
+  cat(sprintf("  %-7s water=%d duplicate-keys=%d key=%s\n", lname, length(w),
+              sum(duplicated(k)), if (paired) "pair" else "name-only"))
 }
 for (nm in c("boundaries", "population")) {
   obj <- if (nm == "boundaries") do.call(rbind, lapply(admin2_bnds, function(b)
