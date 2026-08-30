@@ -81,18 +81,13 @@ say("outdated before the run: %s of %d", n_out, length(all_names))
 # and the callr master (itself only ~0.25 GB now that storage/retrieval are
 # set to "worker"). Cap at 6: past that the store I/O contends and the memory
 # risk outweighs the throughput.
+# The detached launcher cannot pass this in -- Win32_Process::Create does not
+# inherit the calling shell's environment -- so the value for a run lives here.
+# Sized against MEASURED worker commit (6.5-7.6 GB), not the 3.5 GB budget the
+# previous autosizer assumed, which was roughly 2x optimistic. Set TARGETS_WORKERS
+# to override for a foreground run.
 n_workers <- as.integer(Sys.getenv("TARGETS_WORKERS", NA))
-if (is.na(n_workers)) {
-  cores <- max(1L, parallel::detectCores(logical = TRUE) - 2L)
-  free_gb <- tryCatch({
-    x <- system2("wmic", c("OS", "get", "FreePhysicalMemory"), stdout = TRUE)
-    as.numeric(gsub("[^0-9]", "", paste(x, collapse = ""))) / 1024^2  # KB -> GB
-  }, error = function(e) NA_real_)
-  by_ram <- if (is.finite(free_gb)) max(1L, floor((free_gb - 2) / 3.5)) else 2L
-  n_workers <- max(1L, min(cores, by_ram, 6L))
-  say("free memory %s GB -> %d worker(s); cores allow %d",
-      ifelse(is.finite(free_gb), sprintf("%.1f", free_gb), "?"), n_workers, cores)
-}
+if (is.na(n_workers) || n_workers < 1L) n_workers <- 2L
 Sys.setenv(TARGETS_WORKERS = n_workers)   # _targets.R reads this for its plan
 say("dispatching with tar_make_future(workers = %d)", n_workers)
 

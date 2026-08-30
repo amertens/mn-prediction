@@ -53,10 +53,13 @@ defaults <- c(
   # benchmarking in 22 of 24 cells; see results/tables/admin1_arms.csv.
   AREA_BENCHMARK_ADMIN1  = "true",
   # Cote d'Ivoire external validation: 2.51 CPU-h and the 41-minute critical
-  # path. Off for iteration runs, on for the reported one.
-  RUN_CIV_VALIDATION     = "false",
-  # Permutation-importance replicates; a diagnostic, not a reported estimate.
-  VARIMP_N_PERM          = "2")
+  # path. Off for iteration runs, ON for the reported one -- which this is.
+  RUN_CIV_VALIDATION     = "true",
+  # Permutation-importance replicates. Raised from 2 for the reported run: at
+  # 2 replicates the estimates are dominated by refit noise (266 of 720 drops
+  # were <= 0, and eighteen different variables took first rank across 24
+  # cells), which is reported as a finding rather than as importance.
+  VARIMP_N_PERM          = "3")
 for (k in names(defaults))
   if (!nzchar(Sys.getenv(k))) do.call(Sys.setenv, setNames(list(defaults[[k]]), k))
 
