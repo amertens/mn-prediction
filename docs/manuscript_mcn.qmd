@@ -61,29 +61,29 @@ abstract: |
 
   **Results:** Individual-level prediction aggregated to admin-2 was the only
   approach that clearly outperformed the national-mean null (median Pearson r
-  0.506 vs. a null MAE of 9.55 percentage points, reaching 8.55 pp; 89% of the
+  0.516 vs. a null MAE of 9.55 percentage points, reaching 8.55 pp; 92% of the
   estimated reliability ceiling). Neither area-level SuperLearner variant
   beat the null (MAE 9.31–9.84 pp vs. 9.55 pp), and a covariate-free spatial
-  smoother outperformed both (r 0.236 vs. 0.12–0.13). The reliability ceiling
-  itself was low (median r_max 0.221; 4 of 26 country–outcome cells had no
+  smoother outperformed both (r 0.393 vs. 0.16–0.22). The reliability ceiling
+  itself was low (median r_max 0.098; 4 of 24 country–outcome cells had no
   detectable signal above sampling noise), indicating that admin-2 is finer
   than these surveys were powered to resolve, not that the models under-fit.
   Cross-country (LOCO) transport remained the hardest problem: median Spearman
-  ρ was 0.10–0.30 across outcomes and the SuperLearner ensemble matched or beat
-  the best of 21 comparator methods on only 1 of 18 evaluable holdouts; a
-  penalised regression achieved the lowest LOCO MAE (10.8 pp) but with
-  near-zero pattern correlation, while spatial-only methods achieved the best
-  pattern correlation (r up to 0.30) but worse absolute error — level and
-  pattern transported by different methods and neither transported well.
-  By contrast, national-level aggregation was accurate throughout: predicted
-  national prevalence fell within the survey's own 95% confidence interval for
-  all 26 country–outcome combinations (median absolute error 0.66 percentage
-  points, 6.2% relative). Among predictor domains available for a proxy-only
-  model (i.e., excluding survey items unavailable outside a biomarker survey),
-  environment and climate variables carried the most transportable signal
-  (median AUC contribution 0.046 and 0.029), while calibration of binary
-  classifiers remained poor (median slope 0.51) and required post-hoc
-  correction.
+  ρ was 0.06–0.30 across outcomes and the SuperLearner ensemble matched or beat
+  the best of 21 comparator methods on 0 of 16 evaluable holdouts; a
+  penalised regression achieved the lowest LOCO MAE (10.6 pp, vs. 11.1 pp for
+  the null) but with near-zero pattern correlation, while spatial-only methods
+  achieved the best pattern correlation (r up to 0.28) but worse absolute
+  error — level and pattern transported by different methods and neither
+  transported well. By contrast, national-level aggregation was accurate
+  throughout: predicted national prevalence fell within the survey's own 95%
+  confidence interval for all 24 country–outcome combinations (median absolute
+  error 0.74 percentage points, 8.6% relative). Among predictor domains
+  available for a proxy-only model (i.e., excluding survey items unavailable
+  outside a biomarker survey), environment and climate variables carried the
+  most transportable signal (median AUC contribution 0.043 and 0.034), while
+  calibration of binary classifiers remained poor (median slope 0.44) and
+  required post-hoc correction.
 
   **Conclusions:** Admin-2 prediction of micronutrient deficiency from proxy
   indicators is constrained primarily by the reliability of the admin-2
@@ -217,8 +217,7 @@ leave-one-country-out evaluation during a supplementary analysis). We plan to
 revisit Tanzania once the 2023 DHS round, which uses serum rather than
 dried-blood-spot measurement, becomes accessible. Within each survey we
 extracted deficiency biomarkers for women of reproductive age (15–49 y) and
-children 6–59 months as available (@tbl-cohort). Pooled across all five
-countries, the admin-2 dataset comprises 372 administrative units.
+children 6–59 months as available (@tbl-cohort).
 
 ```{r tbl-cohort}
 #| tbl-cap: "Sample sizes by country and biomarker, with WHO public-health classification thresholds applied to derive binary deficiency outcomes."
@@ -248,7 +247,7 @@ appropriate clustered variance estimation. Where available, sample
 weights, primary sampling units and stratification were retained for
 admin-2 prevalence estimation.
 
-## Predictors
+## Predictors {#sec-predictors}
 
 Two predictor sets were assembled. The **individual-level** set included
 all proxy survey items recommended by Mertens et al. (under review) — a
@@ -259,14 +258,39 @@ interventions). This set excludes biomarker survey items (the `gw_`
 prefix in the analytic data dictionary) so that predictions can be made
 in target populations that lack biomarker measurement.
 
-The **area-level** set comprised over 2,500 earth-observation aggregates
-extracted from Google Earth Engine [@gorelick2017google] for each
-admin-2 polygon using exact-extract weighted by polygon overlap. Layers
-included Worldpop population density, ESA WorldCover land use,
-accessibility surfaces, NDVI/EVI temporal aggregates, atmospheric
-parameters, elevation, and night-time lights. Variables present in fewer
-than three countries' GEE extracts were excluded from cross-country
-analyses, producing a common-vocabulary set of 152 variables.
+The **area-level** set was assembled from every source available at admin-2
+resolution, not from earth observation alone: Google Earth Engine aggregates
+[@gorelick2017google] extracted for each admin-2 polygon by exact-extract
+weighted by polygon overlap (population density, ESA WorldCover land use,
+accessibility surfaces, NDVI/EVI temporal aggregates, atmospheric parameters,
+elevation, night-time lights), together with DHS and MICS admin-2 indicator
+aggregates, SoilGrids and iSDAsoil soil chemistry, MapSPAM crop shares, ESPEN
+helminth prevalence, Malaria Atlas Project surfaces, IHME modelled disease
+burden, WFP food prices and food-security indicators.
+
+Harmonisation proceeded in four documented stages, recorded in
+`metadata/covariates/` so each decision is auditable: raw provider columns were
+mapped onto canonical names; near-duplicate variants of one construct (month
+climatologies, buffer radii, soil depth summaries, year stamps) were collapsed;
+values were converted to canonical units; and variables that could not be
+reconciled across countries were excluded with a stated reason. Of Ghana's 755
+raw admin-2 columns, 301 were dropped as not being quantities at all — cross-band
+summaries averaged over non-commensurable bands, categorical land-cover class
+codes whose zonal mean is meaningless, quality-assurance bands, and population
+columns in which the provider had replicated five-year epochs across intervening
+years. A further 40 were excluded for cross-country irreconcilability, including
+twelve whose medians ranged from 742 to 23,784 across countries with maxima to
+$2.45\times10^7$ — a defective export rather than a scale factor, and one that had
+been inside the previous common-vocabulary set and was therefore manufacturing a
+country effect — and seven outcome-adjacent DHS indicators excluded as leakage
+(anaemia is the downstream consequence of iron deficiency; nutrient-specific
+supplementation is targeted *by* measured deficiency).
+
+The result is a common-vocabulary set of **294 predictors** shared by all four
+countries, spanning 19 providers and 11 conceptual domains, replacing the
+152-variable set used in earlier analyses. The intersection step itself is not
+the binding constraint: 322 canonical variables exist for a typical country and
+294 are common to all four, with 208 present in all five ingested countries.
 
 ## Estimation strategies
 
@@ -424,14 +448,14 @@ Under genuinely out-of-fold evaluation, within-country admin-2 ranking was
 modest, and only one of the five compared approaches clearly beat a
 national-mean null (@tbl-area-comparison). Aggregating the individual-level
 SuperLearner's out-of-fold predictions to admin-2 was the strongest approach
-(median Pearson r 0.506 across 26 country–outcome cells; median MAE 8.55 pp,
-89% of the reliability ceiling defined below). Neither area-level
+(median Pearson r 0.516 across 24 country–outcome cells; median MAE 8.55 pp,
+92% of the reliability ceiling defined below). Neither area-level
 SuperLearner variant, fit directly on the admin-2 polygons, beat the null:
-median r 0.121 (MSE loss) and 0.134 (NLL loss), with median MAE of 9.31 and
+median r 0.16 (MSE loss) and 0.215 (NLL loss), with median MAE of 9.31 and
 9.84 pp respectively — worse than the 9.55 pp a country-mean-everywhere null
 achieves by construction. A covariate-free spatial-only smoother on admin-2
 centroid coordinates outperformed both area-level covariate models on rank
-correlation (median r 0.236, 20 evaluable cells) while remaining close to the
+correlation (median r 0.393, 18 evaluable cells) while remaining close to the
 null on absolute error (MAE 9.98 pp), indicating that at admin-2 the
 area-level covariates add essentially nothing beyond "nearby districts are
 similar."
@@ -475,17 +499,20 @@ aggregation propagates this shrinkage to area-level means.
 
 The comparison above is bounded by how much of the observed between-district
 variance is real signal rather than survey sampling noise. Estimating this
-ceiling directly (Methods) gives a median $r_{\max}$ of **0.221** across the
-26 country–outcome cells (range 0–0.773), and **4 of 26** cells have no
+ceiling directly (Methods) gives a median $r_{\max}$ of **0.098** across the
+24 country–outcome cells (range 0–0.773), and **4 of 24** cells have no
 detectable signal above sampling noise at all ($\lambda \le 0$) — these are
 outcomes for which no model, however well specified, could do better than
-chance at admin-2. Against this ceiling, the individual-level SuperLearner's
-median r of 0.506 represents **89%** of the achievable r_max on the median
-cell; the gap between an r of 0.51 and a theoretical r of 1.0 is therefore
-mostly sampling noise in the target, not unexploited model headroom. A small
-number of cells (5 of 26) show r ≥ r_max, which is not superhuman performance
-but reflects that r_max is itself estimated with error and should be read as
-an interval rather than a point value. We report r_max alongside every
+chance at admin-2. Against this ceiling, the median per-cell ratio of
+individual-level SuperLearner r to that cell's own r_max (r_share) is
+**0.92**; the gap between the median achieved correlation and a theoretical
+r of 1.0 is therefore mostly sampling noise in the target, not unexploited
+model headroom. Fully **12 of 24** cells show r ≥ r_max — not superhuman
+performance, but a sign that r_max is itself estimated with substantial
+uncertainty at this sample size (as few as 14 areal units per country) and
+should be read as an interval, not a point value; we use it to flag cells
+whose ceiling is poorly determined rather than to rescale reported
+correlations. We report r_max alongside every
 admin-2 correlation in @tbl-area-comparison so that a cell with weak apparent
 performance can be distinguished from a cell with weak *achievable*
 performance.
@@ -606,9 +633,9 @@ in the remaining three countries' training data.
 
 National-level aggregation is consistently and substantially more accurate
 than admin-2. Predicted national prevalence fell within the survey's own 95%
-confidence interval for all **26 of 26** country–outcome combinations
-(@tbl-national-estimates), with a median absolute difference of **0.66**
-percentage points (median relative difference **6.2%**). Aggregating noisy
+confidence interval for all **24 of 24** country–outcome combinations
+(@tbl-national-estimates), with a median absolute difference of **0.74**
+percentage points (median relative difference **8.6%**). Aggregating noisy
 district-level predictions to the national total averages out much of the
 admin-2 sampling noise quantified in @sec-ceiling: the same models that
 discriminate weakly *between* districts recover the national aggregate
@@ -707,7 +734,7 @@ if (!is.null(natl_est)) {
 ## Benchmark comparison against canonical methods
 
 Twenty-one comparator methods were evaluated alongside the prescreened
-SuperLearner ensemble (`sl_prescreened`) across the 18 LOCO
+SuperLearner ensemble (`sl_prescreened`) across the 16 LOCO
 outcome–holdout cells, spanning frequentist regressions (OLS/GLM,
 quasi-binomial, beta regression, penalised/elastic-net), Bayesian SAE
 (Fay–Herriot, BYM2), covariate-invariance and transportability-aware methods
@@ -717,19 +744,19 @@ ensemble of the above), and two spatial methods with no or minimal
 covariates (a coordinate-only smoother, `spatial_coords`, and a smoother
 plus the eight most-transportable soil covariates, `spatial_plus_soil`)
 (@tbl-benchmarks). The prescreened SuperLearner ensemble matched or exceeded
-the best of these 21 comparators on only **1 of 18** evaluable holdouts (by
-Pearson r), and had the lowest median Pearson r (0.042) of any method whose
-median clears zero. The two spatial methods led on rank correlation
-(`spatial_plus_soil` median r = 0.30, `spatial_coords` r = 0.23), consistent
-with the admin-2 spatial-only result above (r = 0.24) — geography, not the
+the best of these 21 comparators on **0 of 16** evaluable holdouts (by
+Pearson r), and had the lowest median Pearson r (0.001) of any comparator
+method. The two spatial methods led on rank correlation
+(`spatial_plus_soil` median r = 0.28, `spatial_coords` r = 0.27), consistent
+with the admin-2 spatial-only result above (r = 0.39) — geography, not the
 covariate ensemble, carries most of the transportable ranking signal. On
 absolute error, however, a plain penalised regression had the lowest median
-LOCO MAE (10.8 pp) — better than the national-mean null itself (12.3 pp) —
-despite a near-zero median Pearson r (0.05), while the spatial methods'
-better ranking came with *worse* absolute error (MAE 12.5–13.0 pp). Level and
-pattern are therefore transported best by different methods, and neither is
-transported well by any single method, including the SuperLearner ensemble.
-As noted in Methods, we treat `spatial_plus_soil`'s apparent lead with
+LOCO MAE (10.6 pp) — only modestly better than the national-mean null itself
+(11.1 pp) — despite a near-zero median Pearson r (0.09), while the spatial
+methods' better ranking came with *worse* absolute error (MAE 11.6–13.1 pp).
+Level and pattern are therefore transported best by different methods, and
+neither is transported well by any single method, including the SuperLearner
+ensemble. As noted in Methods, we treat `spatial_plus_soil`'s apparent lead with
 caution: it was originally selected using LOCO correlations computed on the
 same held-out countries it is evaluated against here, and a leakage-corrected
 re-derivation drops its correlation from 0.305 to 0.117 (@sec-recipe-audit) —
@@ -787,23 +814,150 @@ help out-of-country.
 
 ## Predictor domain contributions and learner-stack composition
 
-For a proxy-only model — one usable in a country without a concurrent
-biomarker survey — the informative predictor domains are necessarily a
-subset of everything in the individual-level SuperLearner's inputs, because
-several of the largest single-domain contributions come from survey items
-that themselves require a biomarker survey to collect. Ranking the 26
-country–outcome cells' binary AUC drop when each predictor domain is
-removed, the three largest median drops are HIV/AIDS indicators (0.125),
-infant-and-child-mortality indicators (0.125), and other survey-derived
-indicators (0.124) — present in only 6–12 of 26 cells and unusable for the
-intended proxy-only deployment. Among domains available in every country
-without a concurrent survey, environment (median AUC drop 0.046) and climate
-(0.029) carried nearly all of the remaining signal; infectious-disease
-layers contributed a further 0.013, and every other domain contributed under
-0.01. Calibration of the binary classifiers was poor before post-hoc
-correction (median slope 0.51, IQR 0.04–0.74), consistent with @tbl-calibration
+Domain ablation — refitting with each predictor domain removed and recording the
+change in binary AUC — initially appeared to show large contributions, with mean
+drops of 0.10–0.15 attributed to survey indicators, infant-and-child-mortality,
+HIV/AIDS and agriculture. Those figures are artifacts and we report the
+diagnosis rather than the numbers. In two cells — Ghana women's vitamin A (1.5%
+prevalence) and Malawi women's B12 (2.3%) — removing *any* domain, including a
+domain consisting of a single variable, collapsed AUC from 0.889 and 0.911 to
+exactly 0.500. That is the ensemble failing to fit at all once a predictor is
+withdrawn, not information being lost, and it is the same rare-outcome fragility
+that appears elsewhere in these results. Those two cells contribute 35 of 332
+ablation rows at losses of 0.39–0.41 and inflate every domain's mean.
+
+Excluding them, domain removal costs almost nothing. The median AUC drop is
+0.029 for environment (57 variables), 0.004 for climate (21), and $\le$ 0.001
+for every other domain; **141 of 332 domain removals improved AUC**. At the
+single-variable level, **266 of 720 permutation importance drops were $\le 0$**,
+the median top-five drop was 0.008 AUC, and eighteen different variables took
+first rank across the 24 cells — no predictor is consistently important. SHAP
+attributions agree, with top contributions of approximately 0.004 on the
+probability scale.
+
+Calibration of the binary classifiers was poor before post-hoc
+correction (median slope 0.44, IQR 0.10–0.76), consistent with @tbl-calibration
 below — predictions are systematically over-extreme relative to observed risk
 and require shrinkage before use.
+
+## Is any predictor associated with the outcomes? {#sec-fdr}
+
+The preceding results — models that barely beat a national-mean null, matched by
+a covariate-free spatial smoother — raise a blunter question than importance
+ranking can answer: is any predictor associated with district prevalence at all?
+
+We tested every harmonised predictor against district prevalence in every cell
+(7,104 predictor $\times$ cell tests) under two nulls. The naive correlation test
+treats districts as independent. Because they are not — two smooth surfaces
+correlate by construction — we also used a restricted permutation that shuffles
+the outcome *within* admin-1 regions, holding the regional pattern fixed and
+asking what a predictor adds on top of geography.
+
+Under the naive test 1,209 tests (17.0%) reached $p<0.05$ against 355 expected by
+chance, a 3.4-fold enrichment, and 310 survived Benjamini–Hochberg control across
+all cells. Under the spatially restricted null the enrichment fell to 1.5-fold
+(519 tests, 7.3%) and **no predictor survived FDR control in any cell**, either
+within-cell or globally. The strongest associations are mechanistically
+plausible and still fail multiplicity: Gambian women's iron against women's
+secondary education ($r=-0.76$, $p_{\text{perm}}=0.002$, $q=0.20$) and Gambian
+women's vitamin A against 2019 precipitation ($r=-0.64$).
+
+Penalised regression gives the same answer from the multivariable side. Elastic
+net with cross-validated $\lambda_{1\text{se}}$ retained a median of **zero**
+predictors, with **13 of 18 cells retaining none** and mean deviance explained of
+0.063. Every cell that retained predictors was an iron outcome except one
+(Ghana child vitamin A); Malawi retained nothing across all eight of its
+outcomes despite having the largest district sample (87).
+
+These two analyses should be read narrowly. The restricted permutation is
+deliberately conservative and does not test the same quantity as the
+leave-one-region-out models, which predict held-out regions and therefore draw
+on between-region variation. The honest summary is that between-region
+association exists but is confounded with spatial smoothness, while within
+region — beyond what geography already supplies — we cannot demonstrate signal.
+That is precisely why a covariate-free spatial smoother matches the full
+294-predictor set at admin-2, and the two findings have one explanation.
+
+## Does the geographic unit change the answer? {#sec-resolution}
+
+If the binding constraint is the precision of the district target rather than
+the modelling, then coarsening the unit should help: admin-1 regions pool more
+respondents, so the target is measured better, even though far fewer units
+remain. We tested this by running the same three arms — a training-mean null, a
+covariate-free spatial smoother, and the covariate ensemble — through identical
+leave-one-unit-out folds at both resolutions, holding learner, screening,
+weighting and scoring fixed so that only the unit changes.
+
+At admin-2 the covariate ensemble and the spatial smoother are barely
+distinguishable (mean $r$ 0.156 vs 0.137), and the smoother has the lower mean
+absolute error (9.39 vs 10.51 pp); covariates beat geography in only 6 of 24
+cells. At admin-1 the ensemble roughly triples its rank correlation and pulls
+clearly ahead (0.437 vs 0.209, 7 of 14 cells). Only Ghana (16 regions) and
+Malawi (27) are estimable at admin-1; The Gambia (6 regions) and Sierra Leone
+(4) fall below any reasonable threshold for leave-one-out estimation and are
+reported as not estimable rather than dropped silently.
+
+A hybrid that selects the unit **a priori from the number of regions** — admin-1
+where a country has at least eight, admin-2 otherwise, a rule that depends only
+on how a country is subdivided and never on performance — reaches mean $r$ 0.304
+and 7.25 pp across all 24 cells, roughly double the admin-2-everywhere
+correlation while retaining all four countries. Selecting the unit by which
+performed better would be selection on the test data, of exactly the kind
+quantified in @sec-fdr.
+
+The most programmatically legible form of this result classifies districts into
+the WHO public-health categories for child vitamin A. At admin-2 the covariate
+model assigns the correct category 33% of the time against **32% for assigning
+every district the national prevalence** — no better than the null. At admin-1
+the same comparison is 56% against 35%. The admin-1 figure reproduces the 56%
+reported in an earlier project presentation.
+
+We attach two cautions. The largest admin-1 gains occur on the rarest outcomes,
+where admin-2 districts contain 0–2 cases and admin-1 regions are the first unit
+at which cases accumulate; much of the advantage is therefore a sample-size
+effect rather than evidence that covariates are more informative at that scale.
+And on absolute error rather than ranking, covariates beat geography in only 7
+of 14 admin-1 cells.
+
+## Modelling the biomarker rather than the binary {#sec-continuous}
+
+Every district outcome above is a prevalence — the share of respondents below a
+cutoff — and dichotomising discards information, most severely when the outcome
+is rare. We therefore tested modelling the district mean of the log biomarker
+and converting to prevalence afterwards, against the binary model, in 22 cells
+under identical leave-one-region-out folds, covariates and learner stack.
+
+Converting a *predicted* mean gave a mean absolute error of 10.80 pp against
+9.40 pp for the binary model, with a marginally better rank correlation (0.196
+vs 0.168). Neither beat a national-mean null (8.06 pp), which the binary model
+beat in 4 of 22 cells and the continuous model in 2.
+
+The informative arm is a third one, which converts the *observed* district mean
+through the same transformation and therefore performs no prediction at all.
+It achieves 7.49 pp and $r = 0.672$, beating every other arm including the null
+and beating the binary model in 14 of 22 cells. The mean-to-prevalence
+conversion is therefore not the limitation: a well-predicted district mean would
+convert to prevalence more accurately than anything the current models produce.
+The deficit lies entirely in predicting the mean, which fails for the same
+reason prevalence prediction fails — in 9 of 22 cells the root-mean-square error
+of the predicted district mean exceeded the between-district standard deviation.
+A fourth arm using each district's own within-district standard deviation rather
+than a pooled one raised rank correlation from 0.196 to 0.434; that arm uses
+held-out information and is reported only as a bound, but it indicates that
+within-district spread carries information a single pooled standard deviation
+discards.
+
+Stratifying by prevalence supports the motivating intuition with one
+qualification. For outcomes below 5% prevalence the continuous route reduced
+mean absolute error from 4.61 to 2.99 pp, while for mid-range and common
+outcomes it was worse (8.77 to 11.86 pp and 15.25 to 16.84 pp). That average is
+dominated by a single cell: Sierra Leone women's B12, at 0.61% prevalence, where
+the binary model produced a 7.67 pp error — implausible for an outcome of that
+magnitude — against 0.53 pp for the continuous route. Excluding it, the
+continuous approach wins three of the remaining five rare cells by modest
+margins. We therefore regard modelling the continuous biomarker as worthwhile
+specifically for rare outcomes, where the binary model can fail badly, and not
+as a general replacement.
 
 We also directly tested whether the full-mode SuperLearner's 13th candidate
 learner, a Gaussian process (`kernlab::gausspr`), was worth its
@@ -821,13 +975,13 @@ learner on assumption alone.
 
 For binary deficiency classifiers, several diagnostic flags emerged
 (@tbl-calibration). The Brier skill score was negative — indicating
-predictions worse than the no-skill baseline — for 13 of 26
+predictions worse than the no-skill baseline — for 12 of 24
 country–outcome combinations, though in most the deficit was small (Brier
-skill > −0.04 for 10 of the 13). Post-hoc Platt recalibration (see Methods) eliminated the
-negative values entirely: all 26 calibrated classifiers achieved
+skill > −0.04 for 9 of the 12). Post-hoc Platt recalibration (see Methods) eliminated the
+negative values entirely: all 24 calibrated classifiers achieved
 non-negative Brier skill. Calibration slopes were
 strongly inverted
-(< 0) for 5 of 26 models — in Gambia, Ghana (×2), Sierra Leone, and Malawi —
+(< 0) for 5 of 24 models — in Gambia, Ghana (×2), Sierra Leone, and Malawi —
 particularly at very low prevalence (vitamin A in women, vitamin B12 in
 women) where AUC remained high (> 0.7 for two of the five: Ghana women's
 vitamin A 0.75, Sierra Leone women's B12 0.75) but Brier skill was near zero.
@@ -954,9 +1108,11 @@ precision, per district, to support fine-grained prediction, and this — not
 model choice — is the binding constraint. A median admin-2 district
 contributes 6–36 biomarker measurements; once sampling noise is subtracted
 from the observed between-district variance, the median reliability ceiling
-across 26 country–outcome cells is r_max = 0.221, and 4 of 26 cells have no
-detectable signal above noise at all. Individual-level prediction aggregated
-to admin-2 (median r 0.506) already reaches 89% of that ceiling; fitting an
+across 24 country–outcome cells is r_max = 0.098, and 4 of 24 cells have no
+detectable signal above noise at all (and, reflecting how uncertain that
+ceiling itself is at this sample size, half of all cells show r ≥ r_max).
+Individual-level prediction aggregated
+to admin-2 (median r 0.516, median r_share 0.92) already reaches most of that ceiling; fitting an
 ensemble *directly at the admin-2 level* does not clear it, and does not even
 clear a national-mean null (median MAE 9.3–9.8 pp vs. 9.55 pp for the null),
 while a covariate-free spatial smoother beats both covariate-based
@@ -970,7 +1126,7 @@ can be expected to exceed the noise ceiling of the target it is fit to.
 
 Second, national-level aggregation is the deliverable that works. Predicted
 national prevalence fell inside the survey's own 95% confidence interval for
-all 26 country–outcome combinations (median absolute error 0.66 pp),
+all 24 country–outcome combinations (median absolute error 0.74 pp),
 because aggregating many noisy district predictions averages the district-level
 sampling noise away. We treat this, rather than the admin-2 map, as the
 result best supported by the present evidence for near-term programmatic use.
@@ -978,10 +1134,10 @@ result best supported by the present evidence for near-term programmatic use.
 Third, cross-country transportability remains limited and is the harder
 problem admin-2 model choice does not solve. Across the 16 outcome–holdout
 combinations evaluable, the SuperLearner ensemble matched or beat the best
-of 21 comparator methods on only 1 holdout, spatial methods (coordinates
+of 21 comparator methods on 0 holdouts, spatial methods (coordinates
 alone, or coordinates plus soil covariates) led on rank correlation (median
-r 0.23–0.30) but not on absolute error, and a plain penalised regression had
-the lowest median MAE (10.8 pp, versus 12.3 pp for a null) despite
+r 0.27–0.28) but not on absolute error, and a plain penalised regression had
+the lowest median MAE (10.6 pp, versus 11.1 pp for a null) despite
 near-zero rank correlation — level and pattern transport by different
 methods, and neither transports well by any single one.
 
@@ -993,10 +1149,30 @@ spatial-coordinates-only model matched or beat the ensemble on the large
 majority of LOCO splits. Bayesian SAE comparators (Fay–Herriot, BYM2)
 provided modest additional calibration gains but did not substantially shift
 the ranking. Among the predictor domains available without a concurrent
-biomarker survey, environment and climate carried nearly all of the
-transportable signal that exists (median AUC contribution 0.046 and 0.029),
-consistent with geography, not the specific covariate ensemble, being the
-main source of transportable information.
+biomarker survey, environment (median AUC contribution 0.029) is the only one
+whose contribution is distinguishable from zero; climate contributes 0.004 and
+every other domain $\le$ 0.001, consistent with geography, not the specific
+covariate ensemble, being the main source of transportable information.
+
+A fifth finding, added after peer review, explains the preceding four rather
+than adding to them. Testing every harmonised predictor against district
+prevalence under a null that respects spatial autocorrelation, **no predictor
+survives false-discovery-rate control in any of the 24 cells**, and penalised
+regression at a cross-validated penalty retains a median of zero predictors,
+with 13 of 18 cells retaining none (@sec-fdr). Between-region association
+exists but is confounded with spatial smoothness; within region, beyond what
+geography already supplies, we cannot demonstrate signal. This is the same
+result as the covariate-free spatial smoother matching the full 294-predictor
+set, seen from the association side rather than the prediction side.
+
+We also quantify how much apparent accuracy is manufactured by covariate
+selection. Two otherwise identical pipelines, both cross-validated by holding
+out whole regions and differing only in whether the covariate screen saw the
+held-out regions, differ by a mean of **+0.182** in rank correlation, positive
+in all 20 measurable cells and reaching +0.51 — enough to turn cells with zero
+or negative real skill into apparently respectable ones. Analyses that screen
+predictors on all data before cross-validating, a common practice, should be
+read with that magnitude in mind.
 
 ## The aggregation problem and "fit at the unit of deliverable"
 
@@ -1043,16 +1219,16 @@ This suggests that ensemble methods should be benchmarked against
 parsimonious alternatives — including distribution-appropriate ones, not
 only linear-Gaussian baselines — whenever the test set is small or the
 target population is meaningfully outside the training distribution. Full
-mode of our pipeline (the 12-learner SuperLearner across 372 admin-2 units
-and five outcomes) took approximately 10 hours end to end (2026-08 rebuild:
-898 targets, 0 errors); a single comparator model such as beta regression
-fits in seconds. Across the 18 LOCO cells evaluated in @tbl-benchmarks, that
-cost was justified on only 1.
+mode of our pipeline (the 12-learner SuperLearner across 206 admin-2 units
+and five outcomes) took several hours end to end (2026-08 rebuild: 831
+targets, 0 errors); a single comparator model such as beta regression
+fits in seconds. Across the 16 LOCO cells evaluated in @tbl-benchmarks, that
+cost was justified on none.
 
 ## Implications for programming
 
 The national-level estimates in this study are, on present evidence, the
-most defensible deliverable for programming: 26 of 26 country–outcome
+most defensible deliverable for programming: 24 of 24 country–outcome
 national predictions fell inside the survey's own confidence interval.
 Admin-2 deficiency maps derived from the same models are, at best,
 interpretable as *relative ranking* tools within a country with biomarker
@@ -1097,10 +1273,28 @@ an approximation, and we separately note that DHS sample weights were found
 to sit on inconsistent numeric scales across countries in our cohort (e.g.
 a median in the hundreds of thousands in one survey against below 1 in
 another), which is immaterial for weighted means but would bias any
-downstream use of the weights as a precision measure. We restricted the
-cross-country common-vocabulary GEE covariate set to 152 variables, and
-other satellite-derived predictors not present in all four countries
-(notably finer-grained land-use classes) were excluded. Finally,
+downstream use of the weights as a precision measure. The cross-country
+common-vocabulary covariate set is 294 variables assembled from every admin-2
+source available (@sec-predictors); predictors not present in all four
+countries were excluded, and three domains — food security, food prices and
+accessibility — contribute nothing to the pooled models because no single
+column name is common to all four, a limitation of the strict-intersection
+policy rather than of the underlying data.
+
+Three further limitations arise from analyses added after peer review. First,
+inflammation adjustment is harmonised across countries for vitamin A but not
+for iron, which retains each survey's native adjustment (Thurnham, BRINDA
+regression, or a log-scale regression correction); the raw components for a
+uniform adjustment exist in all four surveys, and harmonising them did not
+alter cross-country transport in our testing, but the asymmetry remains.
+Second, several biomarkers collected in these surveys are unused, most
+consequentially soluble transferrin receptor, which is available in all four
+countries and is substantially less inflammation-sensitive than ferritin.
+Third, all outcomes are modelled as binaries at a cutoff; for the rarest
+outcomes this discards most of the available information — Malawi women's
+vitamin A comprises 11 events in 836 respondents — and we show elsewhere that
+the same outcome behaves very differently at admin-1, where cases accumulate.
+Finally,
 our raw binary classifiers' calibration diagnostics
 flagged roughly half of country–outcome cells with a calibration slope well
 below 1 (median 0.51 before correction); post-hoc recalibration corrects
@@ -1207,7 +1401,7 @@ pooling survey rounds within a country, modelling at admin-1 where the
 survey design actually supports it, or borrowing strength across the
 biologically-correlated outcomes above — rather than adding learners to the
 ensemble, since @sec-ceiling shows the individual-level model already
-captures 89% of what the current data can support. The most
+captures most of what the current data can support. The most
 consequential validation step remains to re-run the entire methodology on
 anaemia (haemoglobin), which is measured in nearly every sub-Saharan African
 DHS at large sample size: a trusted, abundant outcome would separate
@@ -1221,9 +1415,11 @@ Within countries with biomarker data, admin-2 spatial discrimination is
 constrained primarily by the reliability of the admin-2 target itself:
 surveys designed for national estimation yield too few biomarker
 measurements per district to support fine-grained prediction, and a median
-reliability ceiling of r_max = 0.221 bounds what any admin-2 model could
-achieve. Individual-level SuperLearner prediction aggregated to admin-2
-already reaches 89% of that ceiling and is the strongest tested approach;
+reliability ceiling of r_max = 0.098 bounds what any admin-2 model could
+achieve, though this estimate is itself uncertain enough at the available
+sample size that half of all cells exceed it. Individual-level SuperLearner
+prediction aggregated to admin-2 already reaches most of that ceiling
+(median r_share 0.92) and is the strongest tested approach;
 fitting an ensemble directly on admin-2 aggregates does not clear the
 ceiling and does not outperform a national-mean null, and a covariate-free
 spatial smoother outperforms both covariate-based area-level models on rank
@@ -1231,7 +1427,7 @@ correlation. National-level aggregation, by contrast, is accurate throughout
 (24 of 24 country–outcome predictions within the survey's 95% CI) and is the
 deliverable best supported by the present evidence. Across countries,
 transportability remains limited — the SuperLearner ensemble matched or beat
-the best of 21 comparator methods on only 1 of 16 LOCO holdouts, and level
+the best of 21 comparator methods on 0 of 16 LOCO holdouts, and level
 and pattern transported via different methods, neither well. We recommend that within-country
 performance always be reported alongside an explicit reliability ceiling and
 a national-mean/spatial-only null (not only out-of-fold, rather than

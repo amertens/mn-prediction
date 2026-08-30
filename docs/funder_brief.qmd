@@ -1,0 +1,158 @@
+---
+title: "What the Proxy Predictor Set Can Deliver"
+subtitle: "Out-of-sample accuracy for micronutrient deficiency prediction across four African countries"
+author: "Andrew N. Mertens, University of California, Berkeley"
+date: today
+format:
+  html:
+    theme: cosmo
+    toc: true
+    toc-depth: 2
+    fig-width: 9
+    fig-align: center
+    embed-resources: true
+    code-fold: false
+execute:
+  echo: false
+  warning: false
+  message: false
+---
+
+```{r setup}
+library(here); library(dplyr); library(readr); library(knitr)
+source(here("R", "plot_forest.R"))
+
+nat  <- read_csv(here("results","tables","national_estimates_all.csv"), show_col_types = FALSE)
+dec  <- read_csv(here("results","tables","corrected","decision_value.csv"), show_col_types = FALSE)
+tr   <- read_csv(here("results","tables","transportability_area_loco_metrics.csv"), show_col_types = FALSE)
+wi   <- read_csv(here("results","tables","corrected","area_recipe_within.csv"), show_col_types = FALSE)
+cmp  <- read_csv(here("results","tables","area_comparison_all.csv"), show_col_types = FALSE)
+
+n_inside <- sum(nat$pred_prev >= nat$obs_lo & nat$pred_prev <= nat$obs_hi)
+mae_nat  <- mean(abs(nat$pred_prev - nat$obs_prev)) * 100
+lift_max <- max(dec$lift_vs_no_targeting)
+n_lift   <- sum(dec$lift_vs_no_targeting > 1)
+tr_ok    <- sum(tr$pearson_perm_p < 0.05, na.rm = TRUE)
+tr_n     <- sum(!is.na(tr$pearson_r))
+```
+
+## Summary
+
+Four national biomarker surveys, **294 harmonised proxy predictors**, **554 districts**,
+**24 country–outcome combinations**. Every interval below is a bootstrap or
+design-based confidence interval on out-of-sample performance — nothing here is
+an in-sample fit.
+
+| | |
+|:--|:--|
+| **`r n_inside`/`r nrow(nat)`** | predicted national prevalences fall inside the survey's own 95% CI |
+| **`r sprintf("%.2f pp", mae_nat)`** | mean absolute error on national prevalence |
+| **`r sprintf("%.2f×", lift_max)`** | best targeting lift; above 1.0× in `r n_lift` of `r nrow(dec)` combinations |
+| **`r tr_ok`/`r tr_n`** | district rankings transport to a country the model never saw |
+
+## National prevalence recovery
+
+The strongest result in the programme, and the one that has survived every
+change to the pipeline.
+
+```{r fig-national}
+#| fig-height: 8
+forest_national()
+```
+
+## Targeting value
+
+If a programme could reach only the top 20% of districts, how many more true
+deficiency cases would the model's ranking find than no targeting?
+
+```{r fig-targeting}
+#| fig-height: 8
+forest_targeting()
+```
+
+## Transport to an unseen country
+
+The hardest test: train on three countries, predict district prevalence in a
+fourth using no biomarker data from it.
+
+```{r fig-transport}
+#| fig-height: 6
+forest_transport()
+```
+
+## Within-country district ranking
+
+The most demanding resolution, and the results are correspondingly mixed.
+
+```{r fig-within}
+#| fig-height: 8
+forest_within()
+```
+
+## The design choice that pays
+
+The model supplies the *ranking*; the design-based survey supplies the *level*.
+Combining them beats either alone across all 24 combinations.
+
+```{r tbl-anchor}
+kable(table_anchor_arms(), align = "lrrrr")
+```
+
+## What this brief does not claim
+
+These are the strongest results in the programme, selected to show where the
+proxy predictor set carries usable information. Four limits belong beside them.
+
+**National prevalence is recovered far better than district prevalence.** The
+national result is the robust one. District maps should be read as rankings
+rather than as absolute prevalence.
+
+**Absolute levels do not transport across borders even where rankings do**,
+with national bias reaching 42 pp in the worst case. This is why the anchoring
+step above matters: it is not a refinement, it is what makes a transported
+district map interpretable at all.
+
+**A covariate-free spatial smoother matches or beats the covariate models at
+district level.** Across 24 combinations the smoother reaches a mean rank
+correlation of 0.30 against 0.19 for the best honest covariate model, so
+district-scale gains come substantially from geography rather than from the
+proxy variables themselves. The covariate models pull clearly ahead only at
+admin-1 (0.44 vs 0.21).
+
+**No individual predictor is demonstrably associated with district prevalence
+once spatial structure is accounted for.** Testing all 294 predictors in all 24
+combinations — 7,104 tests — under a null that shuffles the outcome within
+regions, **no predictor survives false-discovery-rate control in any
+combination**, and penalised regression at a cross-validated penalty retains a
+median of zero predictors (13 of 18 combinations retain none). Between-region
+association exists but is confounded with geography. This is the same finding
+as the spatial smoother matching the full covariate set, seen from the
+association side, and it is why the district-level results in this brief should
+be read as *rankings anchored to survey totals* rather than as evidence that
+particular proxies drive deficiency.
+
+**Covariate selection inflates apparent accuracy.** Screening predictors on all
+data before cross-validating adds a mean of **+0.18** to the rank correlation,
+positive in 20 of 20 measurable cells and up to +0.51 — enough to turn cells
+with zero real skill into respectable-looking ones. All figures in this brief
+screen inside the cross-validation fold.
+
+```{r tbl-approaches}
+cmp %>%
+  filter(!is.na(pearson_r)) %>%
+  group_by(Approach = approach) %>%
+  summarise(Cells = n(), `Mean r` = round(mean(pearson_r), 3),
+            `MAE (pp)` = round(mean(mae_pp), 2), .groups = "drop") %>%
+  arrange(desc(`Mean r`)) %>%
+  kable(align = "lrrr",
+        caption = paste("All approaches. MRP and the SL rows are scored",
+                        "IN-SAMPLE and are not comparable with the",
+                        "out-of-fold (OOF) rows; the labels say which."))
+```
+
+---
+
+*Proxy modelling for vitamin and mineral deficiencies — Ghana, Sierra Leone,
+Malawi, The Gambia. With funding support from the Gates Foundation. All
+intervals are out-of-sample: 1,000-replicate bootstrap for correlations,
+design-based for survey prevalence.*

@@ -290,19 +290,19 @@ if (!is.null(diagnostics_all) && !is.null(diagnostics_all$binary_metrics)) {
 ## Key Performance Findings
 
 ::: {.callout-important appearance="minimal"}
-**Rebuilt 2026-08-25** (full mode, 12-learner stack, 5 countries, 898 targets,
-0 errors). The previous numbers on this slide came from an earlier run and do
-not reproduce.
+**Rebuilt 2026-08** (full mode, 12-learner stack, 4 countries, 831 targets,
+0 errors). A fifth country, Tanzania, was added and then withdrawn (see
+Full Rebuild slide); the numbers below reflect the four-country pipeline.
 :::
 
 :::: {.columns}
 ::: {.column width="50%"}
-**Across all 26 binary country x outcome cells**
+**Across all 24 binary country x outcome cells**
 
-- Median AUC **0.592** (range 0.448--0.767)
-- Only **6 of 26** reach AUC $\ge$ 0.70; **2 of 26** reach 0.75
+- Median AUC **0.594** (range 0.448--0.767)
+- Only **6 of 24** reach AUC $\ge$ 0.70; **2 of 24** reach 0.75
 - One cell falls **below chance** (Malawi child zinc, 0.448)
-- Median continuous $r$ = **0.152** (25 cells)
+- Median continuous $r$ = **0.163** (23 cells)
 
 **Highest AUCs (all rare outcomes)**
 
@@ -312,24 +312,22 @@ not reproduce.
 | Sierra Leone women B12 | 0.752 | 4 |
 | Malawi women B12 | 0.747 | 23 |
 | Ghana women vitA | 0.745 | 15 |
-| Ghana child iron | 0.702 | 278 |
+| Gambia women vitA | 0.737 | 38 |
 :::
 ::: {.column width="50%"}
 **Performance is highest where events are fewest**
 
-$r$(AUC, log events) = **-0.551**
-(95% CI -0.773 to -0.208, $p$ = 0.0035, n = 26)
+$r$(AUC, log events) = **-0.521**
+(95% CI -0.764 to -0.149, $p$ = 0.009, n = 24)
 
 | Event tertile | median events | median AUC |
 |---|---|---|
-| Few | 23 | 0.737 |
-| Middle | 105 | 0.594 |
-| Many | 504 | **0.539** |
+| Few | 19 | 0.741 |
+| Middle | 93 | 0.592 |
+| Many | 431 | **0.562** |
 
 This is the signature of small-sample optimism, not signal. Every cell with
-enough events to estimate AUC precisely sits near chance. The previously
-headlined "Ghana child iron 0.828" is now **0.702**; "Ghana women B12 0.855"
-is now **0.698**.
+enough events to estimate AUC precisely sits near chance.
 
 **Read the many-events tertile as the honest estimate of discrimination.**
 :::
@@ -451,14 +449,14 @@ if (length(vi_files) > 0) {
 
 ## Variable Importance: Key Patterns
 
-**Ghana child iron** (AUC = 0.702, rebuilt 2026-08-25):
+**Ghana child iron** (AUC = 0.702, rebuilt 2026-08):
 
 - Rainfall (TRMM April, CHIRPS April) --- seasonal precipitation patterns
 - Land cover (ESA WorldCereal) --- agricultural land use
 - Soil nitrogen, soil iron --- geochemical correlates
 - MICS indicators, GDL subnational HDI
 
-**Ghana women B12** (AUC = 0.698, rebuilt 2026-08-25):
+**Ghana women B12** (AUC = 0.698, rebuilt 2026-08):
 
 - Rainfall (TRMM July, CHIRPS July) --- wet season patterns
 - MAP insecticide-treated net access
@@ -928,15 +926,15 @@ than becoming folklore.
 
 ## The area-level models do not beat doing nothing
 
-Median across 26 country x outcome cells, Admin-2:
+Median across 24 country x outcome cells, Admin-2:
 
 | Approach | n | median $r$ | median MAE | $r$ / $r_{max}$ |
 |---|---|---|---|---|
-| Individual SL | 26 | **0.506** | 8.55 pp | **0.89** |
-| Spatial only (no covariates) | 20 | 0.236 | 9.98 pp | 0.77 |
-| Area SL (NLL) | 26 | 0.134 | 9.84 pp | 0.33 |
-| Area SL (MSE) | 26 | 0.121 | 9.31 pp | 0.34 |
-| **National mean (null)** | 26 | --- | **9.55 pp** | --- |
+| Individual SL | 24 | **0.516** | 8.55 pp | **0.92** |
+| Spatial only (no covariates) | 18 | 0.393 | 9.98 pp | 0.78 |
+| Area SL (NLL) | 24 | 0.215 | 9.84 pp | 0.44 |
+| Area SL (MSE) | 24 | 0.160 | 9.31 pp | 0.48 |
+| **National mean (null)** | 24 | --- | **9.55 pp** | --- |
 
 Two readings that only became visible once the baselines existed:
 
@@ -956,18 +954,20 @@ between-district variance $\mathrm{Var}(p_{obs})$,
 
 $$\lambda = 1 - \frac{E[V]}{\mathrm{Var}(p_{obs})}, \qquad r_{max} = \sqrt{\lambda}$$
 
-- Median $r_{max}$ across cells: **0.221** (range 0--0.773)
-- **4 of 26** cells have no detectable signal at all ($\lambda \le 0$)
-- **19 of 124** approach-rows are flagged `signal = FALSE`
+- Median $r_{max}$ across cells: **0.098** (range 0--0.773)
+- **4 of 24** cells have no detectable signal at all ($\lambda \le 0$)
+- **19 of 114** approach-rows are flagged `signal = FALSE`
 
-A perfect model would score $r \approx 0.22$ on the median cell. Individual SL
-reaches **89%** of that. The gap between 0.506 and 1.0 is not modelling headroom
---- it is sampling noise in the target.
+A perfect model would score $r \approx 0.10$ on the median cell. Individual SL's
+median r_share (r divided by that cell's own r_max) is **0.92**. The gap between
+achieved r and a theoretical 1.0 is not modelling headroom --- it is sampling
+noise in the target.
 
 ::: {.callout-warning appearance="minimal"}
-Five cells show $r$ / $r_{max} \ge 1$. That is not superhuman performance; it
-means the ceiling is itself estimated with error and should be read as an
-interval, not a point.
+**12 of 24** cells show $r$ / $r_{max} \ge 1$ for the individual-level model ---
+half of them. That is not superhuman performance; it means the ceiling itself
+is estimated with substantial error at this sample size (as few as 14 areal
+units per country) and should be read as an interval, not a point.
 :::
 
 ---
@@ -976,10 +976,10 @@ interval, not a point.
 
 | Metric | Value |
 |---|---|
-| Cells | 26 |
-| Median absolute error | **0.66 pp** |
-| Median relative error | 6.2% |
-| Predictions inside the survey's 95% CI | **26 of 26** |
+| Cells | 24 |
+| Median absolute error | **0.74 pp** |
+| Median relative error | 8.6% |
+| Predictions inside the survey's 95% CI | **24 of 24** |
 
 Aggregating noisy district predictions to national level averages the noise away.
 The same models that discriminate poorly *between* districts recover the national
@@ -997,17 +997,17 @@ Leave-one-country-out, median across held-out cells:
 | Outcome | cells | Spearman | RMSE | national bias |
 |---|---|---|---|---|
 | child iron | 4 | 0.216 | 23.0 pp | -12.7 pp |
-| child vitA | 5 | 0.266 | 24.9 pp | +14.0 pp |
+| child vitA | 4 | 0.167 | 11.7 pp | -4.8 pp |
 | women iron | 4 | 0.273 | 21.9 pp | -0.3 pp |
-| women vitA | 5 | 0.172 | 23.0 pp | +18.3 pp |
+| women vitA | 4 | 0.021 | 4.1 pp | -0.5 pp |
 
-Across 21 benchmarked methods the best LOCO MAE is **10.8 pp** (penalized
-regression) against **12.3 pp** for the null --- a 1.5 pp gain with pattern
-correlation of essentially zero ($r$ = 0.02).
+Across 21 benchmarked methods the best LOCO MAE is **10.6 pp** (penalized
+regression) against **11.1 pp** for the null --- a modest gain with pattern
+correlation near zero ($r$ = 0.09).
 
 The methods with the best *pattern* correlation are the spatial ones
-(`spatial_plus_soil` $r$ = 0.300) but they have *worse* level accuracy
-(MAE 13.0 pp). **Level and pattern trade off, and neither is good.**
+(`spatial_plus_soil` $r$ = 0.284) but they have *worse* level accuracy
+(MAE 13.1 pp). **Level and pattern trade off, and neither is good.**
 
 Report Spearman and national bias separately --- a single AUC hides which failed.
 
@@ -1015,28 +1015,28 @@ Report Spearman and national bias separately --- a single AUC hides which failed
 
 ## Where the signal actually is
 
-Median AUC drop when a predictor domain is removed (26 cells, vs the `none`
+Median AUC drop when a predictor domain is removed (24 cells, vs the `none`
 baseline):
 
 | Domain removed | cells | median AUC drop |
 |---|---|---|
+| Infant & child mortality | 11 | 0.246 |
 | HIV/AIDS | 10 | 0.125 |
-| Infant & child mortality | 12 | 0.125 |
 | Survey indicators | 6 | 0.124 |
-| **Environment** | 26 | **0.046** |
-| **Climate** | 26 | **0.029** |
-| Infectious disease | 25 | 0.013 |
+| **Environment** | 24 | **0.043** |
+| **Climate** | 24 | **0.034** |
+| Infectious disease | 23 | 0.020 |
 | Everything else | --- | $<$ 0.01 |
 
 ::: {.callout-important appearance="minimal"}
-The three largest drops are **survey-derived** domains, present in only 6--12 of
-26 cells. They are not available for a proxy-only prediction model and cannot be
+The three largest drops are **survey-derived** domains, present in only 6--11 of
+24 cells. They are not available for a proxy-only prediction model and cannot be
 used for the intended use case. Among the proxy domains that exist everywhere,
 Environment and Climate carry nearly all the signal --- and they are worth
-0.046 and 0.029 AUC.
+0.043 and 0.034 AUC.
 :::
 
-**Calibration** is poor: median slope **0.506** (IQR 0.04--0.74), i.e.
+**Calibration** is poor: median slope **0.44** (IQR 0.10--0.76), i.e.
 predictions are systematically over-extreme and need shrinkage before use.
 
 ---
@@ -1045,11 +1045,12 @@ predictions are systematically over-extreme and need shrinkage before use.
 
 Ranked by expected value, given the above:
 
-1. **Raise the ceiling, not the model.** $r_{max}$ = 0.22 caps everything at
-   Admin-2. Pooling survey rounds, modelling at Admin-1 where the design
+1. **Raise the ceiling, not the model.** $r_{max}$ = 0.10 caps everything at
+   Admin-2 (and is itself noisy enough that half of cells exceed it). Pooling
+   survey rounds, modelling at Admin-1 where the design
    supports it, or borrowing strength across outcomes attacks the binding
    constraint. More learners do not.
-2. **Calibrate before publishing** any district-level number (slope 0.506).
+2. **Calibrate before publishing** any district-level number (slope 0.44).
 3. **Treat national estimates as the headline deliverable** and sub-national maps
    as exploratory, until the ceiling improves.
 4. **Vet new countries before onboarding them.** Tanzania (vitamin A, TDHS 2010)
@@ -1065,26 +1066,27 @@ Ranked by expected value, given the above:
 This pipeline estimates **Admin-2** and national prevalence of five micronutrient
 deficiencies across **four** African countries (Gambia, Ghana, Sierra Leone,
 Malawi) from proxy predictors in 13+ external sources, using a
-12-learner SuperLearner ensemble. Rebuilt in full mode 2026-08: [N] targets,
+12-learner SuperLearner ensemble. Rebuilt in full mode 2026-08: 831 targets,
 0 errors. (A fifth country, Tanzania, was added and then withdrawn --- see
 Full Rebuild slide.)
 
-**What works.** National prevalence is recovered accurately: all **[X] of [X]**
+**What works.** National prevalence is recovered accurately: all **24 of 24**
 country x outcome predictions fall inside the survey's own 95% CI, median
-absolute error **[X] pp** ([X]% relative).
+absolute error **0.74 pp** (8.6% relative).
 
-**What does not.** Sub-national discrimination is weak. Median AUC across the [N]
-binary cells is **[X]**; AUC correlates *negatively* with the number of events
-($r$ = **[X]**, $p$ = **[X]**), so the high values sit in cells too small to
-measure. In the well-powered tertile median AUC is **[X]**. At Admin-2 the
-area-level models do **not** beat a national-mean null (MAE **[X]** vs **[X]** pp),
-and a spatial-smoothing-only model beats both covariate models ($r$ **[X]** vs
-**[X]**).
+**What does not.** Sub-national discrimination is weak. Median AUC across the 24
+binary cells is **0.594**; AUC correlates *negatively* with the number of events
+($r$ = **-0.521**, $p$ = **0.009**), so the high values sit in cells too small to
+measure. In the well-powered tertile median AUC is **0.562**. At Admin-2 the
+area-level models do **not** beat a national-mean null (MAE **9.3--9.8** vs **9.55** pp),
+and a spatial-smoothing-only model beats both covariate models ($r$ **0.39** vs
+**0.16--0.22**).
 
-**Why.** The Admin-2 outcome is noise-dominated. The median reliability ceiling
-is $r_{max}$ = **[X]** --- surveys were not powered at this resolution, so most
-of the between-district variance is sampling error. The individual-level model
-already captures **[X]%** of that ceiling; the binding constraint is the data, not
+**Why.** The Admin-2 outcome is noise-dominated, and the ceiling itself is highly
+uncertain at this sample size. The median reliability ceiling
+is $r_{max}$ = **0.098** --- half of all cells exceed it, which is a sign of
+estimation noise in the ceiling, not superhuman models. The individual-level model
+already captures most of it (median r_share **92%**); the binding constraint is the data, not
 the learner.
 :::
 
@@ -1097,3 +1099,492 @@ the learner.
 - Preferred visualization of uncertainty?
 - Suggestions for stakeholder engagement?
 - Priority micronutrients or countries for expansion?
+
+# Covariate Rebuild & Honest Baselines 2026-08-30 {background-color="#0F6E66"}
+
+## What this round actually changed
+
+Three things, in descending order of how much they moved the numbers:
+
+1. **Covariate harmonisation.** 294 predictors shared by all four countries,
+   from 19 providers and 11 domains, replacing two parallel naming vocabularies
+   whose intersection was near zero.
+2. **Nine join-key defects fixed.** GADM Admin-2 names are not unique within a
+   country --- Malawi has 256 polygons under 243 names --- and nine consumers
+   joined on the name alone.
+3. **Two honest baselines added** to every comparison: a national-mean null and
+   a covariate-free spatial smoother.
+
+::: {.callout-note appearance="minimal"}
+Point 2 changed row counts, not conclusions. Malawi's area approaches had been
+scored on 90 rows against 87 surveyed districts, so they were not comparable
+with the individual-level rows in the same table. Every arm now scores on 87.
+:::
+
+---
+
+## Selecting covariates on all the data inflates accuracy by +0.18
+
+Two otherwise identical pipelines. Both cross-validated by leaving out whole
+regions. The **only** difference is whether the covariate screen saw the
+held-out regions.
+
+| | mean $r$ | positive in |
+|---|---|---|
+| Screen inside each fold (honest) | 0.187 | --- |
+| Screen on all data, then cross-validate | 0.369 | --- |
+| **Difference** | **+0.182** | **20 / 20 cells** |
+
+The gap is largest exactly where true signal is weakest:
+
+| Cell | in-fold | screened on all data |
+|---|---|---|
+| Sierra Leone, women vitamin A | 0.00 | **0.51** |
+| Ghana, women B12 | −0.12 | **0.27** |
+| Malawi, women zinc | −0.11 | **0.22** |
+
+Three cells with zero or negative real skill become respectable-looking.
+
+---
+
+## A covariate-free spatial smoother matches 294 covariates
+
+Mean rank correlation across 24 Admin-2 cells, all honestly cross-validated:
+
+| Approach | mean $r$ |
+|---|---|
+| Spatial smoother, **no covariates** | **0.304** |
+| Area wSL, prescreen in-fold | 0.187 |
+| Area wSL, literature covariates (46) | 0.147 |
+| Area wSL, precision-weighted (294) | 0.145 |
+
+At Admin-2, geography carries the signal. The covariates add little on top of
+knowing where a district is.
+
+---
+
+## But at Admin-1 the covariates clearly win
+
+Same three arms, same leave-one-unit-out loop, same countries. Only the
+geographic unit changes.
+
+| | covariates | spatial only |
+|---|---|---|
+| **Admin-2** (24 cells) | $r$ = 0.156 | $r$ = 0.137 |
+| **Admin-1** (14 cells) | $r$ = **0.437** | $r$ = 0.209 |
+
+::: {.callout-warning appearance="minimal"}
+The largest Admin-1 gains are on the **rarest** outcomes --- Malawi women's
+vitamin A is 1.3% prevalence, 11 cases in 836. Across 87 districts that is
+0--2 cases each. Much of the Admin-1 advantage is a sample-size effect, which
+is a real finding but a different claim from "covariates work better there".
+:::
+
+---
+
+## A hybrid, with the level chosen before looking at performance
+
+Rule fixed in advance: use Admin-1 where a country has at least 8 regions,
+otherwise Admin-2. It depends only on how a country is subdivided.
+
+| Country | regions | level used |
+|---|---|---|
+| The Gambia | 6 | Admin-2 |
+| Sierra Leone | 4 | Admin-2 |
+| Ghana | 16 | **Admin-1** |
+| Malawi | 27 | **Admin-1** |
+
+Pooled over all 24 cells: **$r$ = 0.304, MAE 7.25 pp** --- double the
+Admin-2-everywhere correlation, while still covering all four countries.
+
+Choosing the level by *which scored better* would be selection on the test
+data, which is the very bias measured two slides ago.
+
+---
+
+## Rank transports across borders. Level does not.
+
+Leave-one-country-out, Admin-2:
+
+- **7 of 15** cells reach significance on rank correlation against a
+  permutation null, up to $r$ = 0.55
+- Mean absolute national bias **10.6 pp**, worst case **42 pp**
+
+```{r}
+#| fig-height: 4.6
+source(here::here("R", "plot_forest.R"))
+forest_transport()
+```
+
+---
+
+## Which is why anchoring to regional totals is the design that pays
+
+The model supplies the ranking; the design-based survey supplies the level.
+
+```{r}
+knitr::kable(table_anchor_arms(), align = "lrrrr")
+```
+
+Anchoring more than doubles rank correlation and cuts bias from 3.60 to
+1.49 pp --- better in 20 of 24 cells. National anchoring buys almost nothing
+(+0.006).
+
+---
+
+## National prevalence is where the models genuinely work
+
+```{r}
+#| fig-height: 5
+forest_national()
+```
+
+All 24 predictions fall inside the survey's own 95% CI; mean absolute error
+1.05 pp.
+
+---
+
+## Data we hold and do not use
+
+| Opportunity | Where | Size |
+|---|---|---|
+| **sTfR** --- body iron stores, less inflammation-sensitive | **all four countries** | full biomarker sample |
+| School-age children (5--14 y), `vitA_def` + `iron_def` already derived | Malawi | 758 |
+| Men | Malawi | 219 |
+| Urinary iodine | Gambia, Sierra Leone | 1,383 / 1,422 |
+| RBC folate (long-term status) | Malawi | 797 |
+
+sTfR is the most promising: the cross-country failure lives in raw ferritin,
+so an iron outcome that leans less on ferritin attacks the problem directly.
+
+---
+
+## One inconsistency worth fixing before publication
+
+**Vitamin A is BRINDA-harmonised across all four countries. Iron is not.**
+
+| Country | iron adjustment used |
+|---|---|
+| The Gambia | `gw_LogFerAdj` (log scale) |
+| Ghana | `gw_cFerrAdjThurn` (Thurnham) |
+| Sierra Leone | `gw_wFerAdjBR1` (BRINDA regression) |
+| Malawi | `sf_reg` (regression-adjusted) |
+
+The raw ingredients for a uniform BRINDA adjustment (marker, CRP, AGP) exist in
+all four. Harmonising it does **not** fix transport --- that was tested, and the
+offset is in raw ferritin --- but harmonising one outcome and not the other is
+hard to defend in review.
+
+---
+
+## Where this leaves the programme
+
+**Defensible now**
+
+- National prevalence, within survey error, in every cell
+- District *rankings*, anchored to design-based regional totals
+- Targeting value: above 1.0x lift in 23 of 24 combinations
+
+**Not defensible**
+
+- Absolute district prevalence from covariates alone
+- Any accuracy figure whose covariates were screened on all the data
+
+**Most promising next**
+
+- sTfR-based iron outcomes across all four countries
+- Continuous biomarkers rather than binaries, especially for rare outcomes
+- Malawi's school-age children as a fifth population
+
+---
+
+## Variable importance: what the ablations actually say
+
+Two headline numbers from the domain ablation are **artifacts**, and finding
+that is the result.
+
+| Domain removed | mean AUC lost |
+|---|---|
+| Survey Indicators | 0.152 |
+| Infant & Child Mortality | 0.121 |
+| HIV/AIDS | 0.117 |
+| Agriculture | 0.114 |
+
+Removing **one** HIV/AIDS variable cannot cost 0.12 AUC. It doesn't.
+
+---
+
+## Two degenerate cells were driving every domain
+
+In **Ghana women's vitamin A** (1.5% prevalence) and **Malawi women's B12**
+(2.3%), removing *any* domain --- including a single variable --- collapses AUC
+from 0.89 / 0.91 to **exactly 0.500**.
+
+That is the model failing to fit at all, not information being lost. Those two
+cells supply 35 rows at a loss of ~0.39--0.41 and drag every domain's mean
+upward.
+
+::: {.callout-important appearance="minimal"}
+Both are rare outcomes. Removing even one predictor destabilises the fit
+entirely --- the same rare-outcome fragility that shows up in the Admin-1
+comparison.
+:::
+
+---
+
+## Excluding those two cells, domain removal costs nothing
+
+| Domain removed | variables | **median** AUC lost |
+|---|---|---|
+| Environment | 57 | **0.029** |
+| Climate | 21 | 0.004 |
+| Survey Indicators | 3 | 0.001 |
+| Infectious Disease | 12 | 0.001 |
+| Infrastructure | 2 | 0.001 |
+| Water & Sanitation | 10 | 0.001 |
+
+- **141 of 332** domain removals *improve* AUC
+- **266 of 720** single-variable permutation drops are $\le 0$
+- Median top-5 permutation drop: **0.008 AUC**
+
+Only Environment --- 57 variables --- has a median cost distinguishable from
+zero.
+
+---
+
+## No variable is consistently important
+
+Across 24 country x outcome cells, the variable ranked **first** by permutation
+importance is:
+
+| Top-ranked variable | cells (of 24) |
+|---|---|
+| `dhs2014_AN_ANEM_W_ANY` | 3 |
+| `dhs2015_CH_VACC_C_DP1_adm2` | 2 |
+| every other variable | 1 |
+
+Eighteen different variables take first place across 24 cells. With
+`VARIMP_N_PERM = 2` the permutation estimates are themselves noisy, so this is
+close to what a null would produce.
+
+::: {.callout-note appearance="minimal"}
+SHAP tells the same story: the top-ranked contributions are
+`mean_abs_shap` ~ 0.004 on the probability scale --- a 0.4 percentage-point
+influence per district.
+:::
+
+---
+
+## So: is anything associated with the outcomes at all?
+
+Bivariate association between every harmonised predictor and district
+prevalence, ~296 predictors x 24 cells, with two nulls:
+
+- **Naive** correlation test --- treats districts as independent
+- **Restricted permutation** --- shuffles the outcome *within* Admin-1 regions,
+  holding the regional pattern fixed, so a covariate must explain
+  district-level deviation on top of geography
+
+The gap between the two is the spatial-confounding correction. Malawi women's
+B12: **48** predictors significant naively, **15** under the restricted null.
+
+*(Full FDR results and the penalised-regression retained sets follow.)*
+
+---
+
+## Nothing survives FDR once space is accounted for
+
+7,104 tests: ~296 harmonised predictors x 24 country x outcome cells.
+
+| Test | significant | of 7,104 |
+|---|---|---|
+| Naive $p < 0.05$ | 1,209 | 17.0% |
+| Naive, BH within cell | 476 | 6.7% |
+| Naive, BH across all cells | 310 | 4.4% |
+| **Restricted permutation $p < 0.05$** | **519** | **7.3%** |
+| **Restricted, BH within cell** | **0** | **0.00%** |
+| **Restricted, BH across all cells** | **0** | **0.00%** |
+
+Expected by chance at $p<0.05$: **355**.
+
+Naive testing gives 3.4x enrichment over chance. The spatially-restricted null
+gives **1.5x** --- and after FDR correction, **not one predictor survives, in
+any cell**.
+
+---
+
+## What that does and does not mean
+
+::: {.callout-warning appearance="minimal"}
+The restricted permutation holds the **regional** pattern fixed and asks what a
+covariate adds *on top of geography*. It is deliberately conservative, and it is
+not the same target as the LORO models, which predict held-out **regions**.
+:::
+
+Read together:
+
+- **Between-region** association exists --- 310 predictors survive global BH on
+  the naive test --- but is confounded with spatial smoothness
+- **Within-region**, beyond what geography already gives you: **nothing**
+
+Which is exactly why a covariate-free spatial smoother matches 294 covariates.
+Two results, one explanation.
+
+The strongest single associations are mechanistically sensible and still fail
+multiplicity: Gambia women's iron vs women's secondary education
+$r = -0.76$ ($p_{perm} = 0.002$, $q = 0.20$); Gambia women's vitamin A vs 2019
+precipitation $r = -0.64$.
+
+---
+
+## Penalised regression agrees: mostly nothing is retained
+
+Elastic net ($\alpha = 0.5$), CV-selected $\lambda_{1se}$, per cell:
+
+| | |
+|---|---|
+| Median predictors retained | **0** |
+| Cells retaining **nothing** | **13 of 18** |
+| Mean deviance explained | 0.063 |
+
+| Country | outcomes with $>0$ retained |
+|---|---|
+| Gambia | child iron (3), women iron (9) |
+| Ghana | child vitA (3), child iron (16), women iron (15) |
+| **Malawi** | **none --- 0 of 8, on 87 districts** |
+
+At the looser $\lambda_{min}$ the median rises to 8.5 predictors and deviance
+explained to 0.255 --- but that is the penalty CV rejects.
+
+---
+
+## The signal, where it exists, is iron
+
+Every cell retaining predictors under $\lambda_{1se}$ is an **iron** outcome,
+bar one. Vitamin A, folate, B12 and zinc retain nothing anywhere.
+
+That is consistent across four independent lines of evidence:
+
+1. Iron cells dominate the significant LOCO transport correlations (7 of 15)
+2. Iron cells dominate the significant within-country correlations (8 of 24)
+3. Iron is the only outcome family the penalised regression keeps
+4. Malawi --- largest district sample, most outcomes --- retains **nothing**
+
+::: {.callout-note appearance="minimal"}
+Malawi retaining zero predictors across all eight outcomes on 87 districts is
+the single most informative number here. It is not a power problem.
+:::
+
+---
+
+## Model the biomarker, or the binary?
+
+Every outcome here is a prevalence: the share below a cutoff. Dichotomising
+discards information, most of it when the outcome is rare. We tested modelling
+the district **mean of the log biomarker** and converting afterwards.
+
+22 cells, leave-one-region-out, same covariates and stack:
+
+| Arm | MAE (pp) | RMSE (pp) | rank $r$ |
+|---|---|---|---|
+| 1 binary (direct) | 9.40 | 12.36 | 0.168 |
+| 2 continuous $\rightarrow$ prevalence | 10.80 | 13.08 | 0.196 |
+| 3 continuous, oracle SD | 9.92 | 12.20 | 0.434 |
+| **4 conversion ceiling (true mean)** | **7.49** | **9.11** | **0.672** |
+| 5 null (train mean) | 8.06 | 10.14 | --- |
+
+---
+
+## The conversion is not the problem. Predicting the mean is.
+
+Arm 4 feeds the **true** district mean through the same conversion --- no
+prediction at all. It reaches MAE 7.49 and $r$ = 0.672, beating every other arm
+**including the null**, and beats the binary arm in 14 of 22 cells.
+
+::: {.callout-important appearance="minimal"}
+So the mean-to-prevalence step is sound. A district mean predicted well would
+convert to prevalence better than anything we currently produce. The entire
+deficit is in predicting the mean --- which fails for the same reason
+everything else does.
+:::
+
+District-mean prediction on the continuous scale, $r$ ranges **--0.68 to +0.69**.
+In 9 of 22 cells the RMSE of the predicted mean *exceeds* the between-district
+SD --- worse than predicting the overall mean.
+
+---
+
+## Rarity: the hypothesis holds, with one caveat
+
+| Prevalence band | cells | binary MAE | continuous MAE |
+|---|---|---|---|
+| **rare (<5%)** | 6 | 4.61 | **2.99** |
+| mid (5--20%) | 10 | 8.77 | 11.86 |
+| common (>20%) | 6 | 15.25 | 16.84 |
+
+Continuous cuts error by 35% where the outcome is rare, and is worse elsewhere.
+
+::: {.callout-warning appearance="minimal"}
+**One cell dominates that average.** Sierra Leone women's B12 (0.61%
+prevalence): binary MAE **7.67 pp** --- a nonsensical error on a 0.6% outcome ---
+against **0.53** for continuous. Excluding it, continuous wins 3 of the
+remaining 5 rare cells by modest margins.
+:::
+
+Neither arm reliably beats the null: binary in 4 of 22 cells, continuous in 2.
+
+---
+
+## What the continuous route is and is not worth
+
+**Worth doing**
+
+- For **rare outcomes**, where the binary model can produce absurd errors
+- Because the conversion ceiling shows real headroom ($r$ = 0.672)
+- Because the oracle-SD arm ($r$ = 0.434 vs 0.196) shows the within-district
+  spread carries information a single pooled SD discards
+
+**Not a fix**
+
+- It does not rescue ranking: 0.196 vs 0.168 overall
+- It is *worse* on absolute error for mid and common outcomes
+- It leaves the binding constraint untouched --- the district mean is no easier
+  to predict from these covariates than the prevalence is
+
+---
+
+## WHO risk categories: the policy-legible version
+
+Classifying each district into the WHO public-health categories
+(None / Mild / Moderate / Severe) for child vitamin A:
+
+| Level | units | covariates exact | **null exact** | covariates within-1 | null within-1 |
+|---|---|---|---|---|---|
+| **Admin-2** | 206 | 33% | **32%** | 69% | 63% |
+| **Admin-1** | 43 | **56%** | 35% | 95% | 91% |
+
+::: {.callout-important appearance="minimal"}
+At Admin-2 the covariate model classifies risk categories **no better than
+assigning every district the national prevalence** --- 33% against 32%. At
+Admin-1 the gap is real: 56% against 35%.
+:::
+
+The 2026 Ghana deck reported 56% exact at Admin-1, which reproduces exactly.
+Its Admin-2 figures (44% full model / 31% proxies-only) are consistent with the
+31--33% seen here for a proxy-only model.
+
+---
+
+## Resolution result, confirmed on the rebuilt covariates
+
+Re-run against the restored `area_covariates_*` targets --- identical to the
+first pass, so the numbers are not an artifact of the fallback path:
+
+| | covariates | spatial only | beats spatial |
+|---|---|---|---|
+| **Admin-2** (24 cells) | $r$ = 0.156 | $r$ = 0.137 | 6 / 24 |
+| **Admin-1** (14 cells) | $r$ = **0.437** | $r$ = 0.209 | 7 / 14 |
+| **Hybrid** (24 cells) | $r$ = **0.304**, MAE 7.25 pp | $r$ = 0.140, MAE 7.30 pp | 10 / 24 |
+
+Gambia (6 regions) and Sierra Leone (4) are **not estimable** at Admin-1 and
+fall back to Admin-2 under the a-priori rule.
