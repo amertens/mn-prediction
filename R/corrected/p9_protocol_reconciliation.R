@@ -133,7 +133,7 @@ reconcile_protocols <- function(slfit, outcome_data, svy_admin2, gee_admin2,
   cw <- unique(data.frame(Admin2 = as.character(d[[a2c]]),
                           Admin1 = as.character(d[[a1c]]), stringsAsFactors = FALSE))
   cw <- cw[!is.na(cw$Admin2) & !is.na(cw$Admin1), , drop = FALSE]
-  gcols <- if (!is.null(gee_admin2)) grep("^gee_", colnames(gee_admin2), value = TRUE) else character(0)
+  gcols <- if (!is.null(gee_admin2)) area_covariate_cols(gee_admin2) else character(0)
   if (length(gcols) < 2 || nrow(cw) == 0) return(res)
 
   area <- merge(merge(sv, cw, by = "Admin2"),

@@ -29,8 +29,7 @@ area_partial_pooling_corrected <- function(slfit, svy_admin2, gee_admin2,
   if (!"n_svy" %in% colnames(sv)) return(NULL)
 
   # join area covariates on Admin2 (single country; key conceptually country+Admin2)
-  gee_cols <- if (!is.null(gee_admin2)) grep("^gee_", colnames(gee_admin2),
-                                             value = TRUE) else character(0)
+  gee_cols <- if (!is.null(gee_admin2)) area_covariate_cols(gee_admin2) else character(0)
   area <- sv
   if (length(gee_cols) > 0) {
     g <- gee_admin2[, c("Admin2", gee_cols), drop = FALSE]

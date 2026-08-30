@@ -1298,7 +1298,15 @@ fit_predict_spatial_plus_h6 <- function(train, test, vars,
 # comparator alongside the primary prescreened-SuperLearner (METHOD 20).
 #
 # The eight features (from sandbox/results/13_univariate_loco.csv top-8):
+#
+# Both vocabularies are listed and the caller intersects with what is present,
+# so the same locked feature set resolves under COVARIATE_VOCAB=legacy and
+# COVARIATE_VOCAB=harmonized. Seven of the eight have canonical equivalents;
+# `gee_soilaluminium_annual_min` does not, because under harmonisation the
+# iSDAsoil `_annual_*` columns are dropped as summaries over non-commensurable
+# bands (they average depth means together with their standard deviations).
 .SPATIAL_PLUS_SOIL_DEFAULT_VARS <- c(
+  # legacy (raster) vocabulary
   "gee_soilaluminium_annual_min",
   "gee_soilaluminium_stdev_20_50",
   "gee_soilcalcium_stdev_0_20",
@@ -1306,7 +1314,15 @@ fit_predict_spatial_plus_h6 <- function(train, test, vars,
   "gee_soilmagnesium_stdev_0_20",
   "gee_soilcalcium_stdev_20_50",
   "gee_soiltotalcarbon_mean_0_20",
-  "gee_soilzinc_mean_20_50"
+  "gee_soilzinc_mean_20_50",
+  # harmonised (canonical) vocabulary
+  "soil_aluminium_stdev_20_50",
+  "soil_calcium_stdev_0_20",
+  "soil_aluminium_stdev_0_20",
+  "soil_magnesium_stdev_0_20",
+  "soil_calcium_stdev_20_50",
+  "soil_totalcarbon_mean_0_20",
+  "soil_zinc_mean_20_50"
 )
 fit_predict_spatial_plus_soil <- function(train, test, vars,
                                             soil_vars = .SPATIAL_PLUS_SOIL_DEFAULT_VARS,

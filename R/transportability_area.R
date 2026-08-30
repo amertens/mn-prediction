@@ -82,7 +82,7 @@ harmonize_gee_names <- function(x) {
 #' @param merged     per-country merged cluster-level data.frame (has Admin2)
 #' @return data.frame keyed on Admin2 with harmonized proxy covariates
 build_admin2_covariates <- function(gee_admin2, merged) {
-  gee_cols <- grep("^gee_", names(gee_admin2), value = TRUE)
+  gee_cols <- area_covariate_cols(gee_admin2)
   stems <- harmonize_gee_names(gee_cols)
   gmat <- sapply(gee_cols, function(c) .tr_as_num(gee_admin2[[c]]))
   gee_df <- as.data.frame(sapply(unique(stems), function(s) {

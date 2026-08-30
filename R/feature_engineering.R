@@ -57,7 +57,7 @@
 #' @return data.frame keyed on Admin2 with fe_* columns
 engineer_admin2_features <- function(gee_admin2, survey_year = NA_integer_,
                                      max_groups = 400L) {
-  gcols <- grep("^gee_", names(gee_admin2), value = TRUE)
+  gcols <- area_covariate_cols(gee_admin2)
   out <- data.frame(Admin2 = as.character(gee_admin2$Admin2), stringsAsFactors = FALSE)
 
   # ---- 1. anomalies / trend from year groups ----
@@ -107,8 +107,8 @@ engineer_admin2_features <- function(gee_admin2, survey_year = NA_integer_,
   }
 
   # ---- 3. soil x crop interactions ----
-  soil_cols <- grep("^gee_soil.*mean", gcols, value = TRUE)
-  crop_cols <- grep("worldcereal.*(annual_mean|annual_max)", gcols, value = TRUE)
+  soil_cols <- intersect(area_soil_cols(gee_admin2), gcols)
+  crop_cols <- intersect(area_crop_cols(gee_admin2), gcols)
   if (length(soil_cols) && length(crop_cols)) {
     crop <- .fe_num(gee_admin2[[crop_cols[1]]])
     cropz <- (crop - mean(crop, na.rm = TRUE)) / sd(crop, na.rm = TRUE)

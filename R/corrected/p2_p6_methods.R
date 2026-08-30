@@ -196,7 +196,8 @@ trust_flags_corrected <- function(slfit, svy_admin2, gee_admin2,
                                   interval_obj = NULL) {
   if (!is.null(slfit$error)) return(NULL)
   if (is.null(gee_admin2) || !"Admin2" %in% colnames(gee_admin2)) return(NULL)
-  gee_cols <- grep("^gee_", colnames(gee_admin2), value = TRUE)
+  # Vocabulary-agnostic: a hardcoded ^gee_ returns zero under the harmonised set.
+  gee_cols <- area_covariate_cols(gee_admin2)
   if (length(gee_cols) < 3) return(NULL)
   # use a compact, well-behaved covariate subset
   G <- gee_admin2[, c("Admin2", gee_cols), drop = FALSE]

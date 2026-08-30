@@ -29,7 +29,10 @@
 # =============================================================================
 
 # ---- regime covariate-domain patterns --------------------------------------
-AR_UNIVERSAL_PREFIX <- "^gee_"
+# Regime selection now goes through area_covariate_cols(); see
+# R/covariates/covariate_selection.R for why "universal" is defined by global
+# availability rather than by a name prefix.
+AR_UNIVERSAL_PREFIX <- "^gee_"   # retained for reference; no longer used for selection
 AR_ENRICH_PREFIX    <- "^MAP_|^map2|^map_|^ihme_"
 
 #' Build the one-row-per-Admin2 area frame (svy_prev, n_svy, Admin1, covariates).
@@ -41,7 +44,7 @@ ar_build_frame <- function(outcome_data, svy_admin2, gee_admin2, cc, oc,
   if (!"n_svy" %in% colnames(svy_admin2)) return(NULL)
   sv <- as.data.frame(svy_admin2); sv$Admin2 <- as.character(sv$Admin2)
   gee <- as.data.frame(gee_admin2); gee$Admin2 <- as.character(gee$Admin2)
-  gcols <- grep(AR_UNIVERSAL_PREFIX, colnames(gee), value = TRUE)
+  gcols <- area_covariate_cols(gee, regime = "universal")
   area <- merge(sv, gee[, c("Admin2", gcols)], by = "Admin2", sort = FALSE)
 
   # Admin1 crosswalk + (enriched) MAP/IHME aggregated to Admin2, from the
@@ -87,7 +90,7 @@ ar_prefilter <- function(X, prev, drop = 0.70) ar_prefilter_target(X, .ar_il(pre
 # ---- (c) opt-in variants: domain map, late fusion, distributional ----------
 .ar_domain <- function(cn) {
   d <- rep("other", length(cn))
-  d[grepl("gee_soil", cn)] <- "soil"
+  d[grepl("^(gee_)?soil", cn)] <- "soil"
   d[grepl("precip|chirps|tavg|lst|temp|tmax|tmin|prec|fldas", cn, ignore.case = TRUE)] <- "climate"
   d[grepl("ndvi|evi|fpar|lai|grassland|cropland|landcover|vegetation", cn, ignore.case = TRUE)] <- "veg"
   d[grepl("elevation|srtm|slope|terrain", cn, ignore.case = TRUE)] <- "terrain"

@@ -580,7 +580,7 @@ build_pooled_gee_only <- function(all_merged, all_configs, outcome_tag) {
   if (is.null(pooled) || nrow(pooled$data) == 0) return(pooled)
 
   # Restrict to GEE variables only
-  gee_vars <- grep("^gee_", pooled$Xvars_common, value = TRUE)
+  gee_vars <- pooled$Xvars_common[is_area_covariate_name(pooled$Xvars_common)]
   cat(sprintf("[pool_gee] %d GEE variables out of %d total common predictors\n",
               length(gee_vars), length(pooled$Xvars_common)))
 
