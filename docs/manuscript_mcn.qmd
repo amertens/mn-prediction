@@ -561,7 +561,13 @@ for iron and folate in Malawi, and was absent for zinc.
 
 ```{r tbl-area-recipe}
 #| tbl-cap: "Area-level recipe within-country performance (binomial loss, enriched features), district- and region-block cross-validation. Pearson r with area-bootstrap 95% CI and permutation-null p; calibration slope. From results/tables/corrected/area_recipe_within.csv."
-.arp <- "results/tables/corrected/area_recipe_within.csv"
+# here::here(), not a bare relative path. Quarto renders with the working
+# directory at docs/, so "results/tables/..." resolved to docs/results/... which
+# does not exist -- file.exists() was always FALSE, the chunk emitted nothing,
+# and the table rendered empty behind a live @tbl-area-recipe cross-reference.
+# Quarto's only complaint was "FloatRefTarget with no content", which is easy to
+# scroll past. Every other chunk in this file already uses here::here().
+.arp <- here::here("results", "tables", "corrected", "area_recipe_within.csv")
 if (file.exists(.arp)) {
   read.csv(.arp) %>%
     transmute(Country = country, Outcome = outcome, Scheme = scheme, n = n_area,
@@ -570,6 +576,9 @@ if (file.exists(.arp)) {
               `perm p` = round(pearson_perm_p, 3), Slope = round(calib_slope, 2)) %>%
     arrange(Country, Outcome, desc(Scheme)) %>%
     kable(booktabs = TRUE)
+} else {
+  stop("area_recipe_within.csv not found at ", .arp,
+       " -- @tbl-area-recipe would render empty")
 }
 ```
 
