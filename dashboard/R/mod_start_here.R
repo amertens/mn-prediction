@@ -91,7 +91,28 @@ mod_start_here_ui <- function(id) {
                   "is the part that holds up; the exact percentage is a planning ",
                   "figure, and how firm it is varies a lot by country and ",
                   "nutrient. Decision value shows where it holds and where it ",
-                  "does not.")
+                  "does not."),
+          # Added 2026-08-30. The district maps are anchored to design-based
+          # regional totals, and that anchoring is what makes them usable --
+          # it more than doubles rank correlation (0.170 -> 0.406) and cuts
+          # mean absolute bias from 3.6 to 1.5 pp, better in 20 of 24 cells.
+          # Saying so is more honest than presenting the map as if the
+          # covariates alone produced it.
+          tags$li(strong("The survey sets the level; the model sets the pattern. "),
+                  "District estimates are anchored to each region's ",
+                  "design-based survey total. That anchoring is doing much of ",
+                  "the work: without it the same model's district ranking is ",
+                  "less than half as accurate. Predictions for a country with ",
+                  "no survey of its own inherit the pattern but not the level, ",
+                  "and should be read as a ranking only."),
+          tags$li(strong("Geography explains most of the district pattern. "),
+                  "A model using only where a district is -- no proxy ",
+                  "variables at all -- matches the full 294-predictor model at ",
+                  "district level. Tested individually against district ",
+                  "prevalence, no single proxy survives multiple-comparison ",
+                  "correction once spatial structure is accounted for. The ",
+                  "proxies earn their place at region level, not district ",
+                  "level.")
         )
       )
     )

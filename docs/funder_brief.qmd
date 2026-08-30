@@ -137,6 +137,15 @@ positive in 20 of 20 measurable cells and up to +0.51 — enough to turn cells
 with zero real skill into respectable-looking ones. All figures in this brief
 screen inside the cross-validation fold.
 
+**At district level the model does not beat a national average on risk
+classification.** Assigning each district to a WHO public-health category
+(None / Mild / Moderate / Severe) for child vitamin A, the covariate model is
+correct 33% of the time against **32% for giving every district the national
+prevalence**. At region level the same comparison is 56% against 35%. This is
+the clearest statement of where the proxy set does and does not earn its place,
+and it is why the hybrid design — regions where a country has enough of them,
+districts otherwise — is our recommended product.
+
 ```{r tbl-approaches}
 cmp %>%
   filter(!is.na(pearson_r)) %>%
