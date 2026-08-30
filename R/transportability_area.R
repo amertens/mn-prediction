@@ -37,7 +37,9 @@ AREA_TRANSPORT_RECIPE <- list(
   screen_K = 30,             # correlation prescreen: keep top-K candidate predictors
   center   = FALSE,          # centering did not help on the harmonized/full set
   weight   = TRUE,           # weight Admin-2 units by survey n
-  scale    = "logit",
+  scale    = "logit",        # raw did not replicate on this covariate set; see
+                             # the note above .tr_fwd()
+  target   = "level",        # "level" | "zscore"; see run_area_transport_loco()
   lambda   = "lambda.min",   # lambda.1se over-shrinks small folds to the null
   seed     = 12345           # fixes cv.glmnet folds for reproducible maps
 )
@@ -45,7 +47,8 @@ AREA_TRANSPORT_RECIPE <- list(
 # Maximum-performance (less parsimonious) alternative: ridge on all predictors.
 AREA_TRANSPORT_RECIPE_RIDGE <- list(
   model = "ridge", alpha = 0, screen_K = NULL, center = FALSE,
-  weight = TRUE, scale = "logit", lambda = "lambda.min", seed = 12345
+  weight = TRUE, scale = "logit", target = "level",
+  lambda = "lambda.min", seed = 12345
 )
 
 # Domains treated as universal, non-survey proxies (present in all countries).
@@ -56,6 +59,41 @@ AREA_TRANSPORT_DOMAINS <- "^(ihme_|MAP_|fsec_)"
 
 .tr_logit  <- function(p) stats::qlogis(pmin(pmax(p, 0.005), 0.995))
 .tr_ilogit <- stats::plogis
+
+# ── RESPONSE SCALE ───────────────────────────────────────────────────────────
+# `recipe$scale` used to be documentation only: .tr_logit() was applied
+# unconditionally, so every recipe fitted on the logit scale whatever it said.
+#
+# That default is costly here. The clamp at 0.005 maps every district observed
+# at exactly 0% onto logit = -5.3, and on the current data that is not a rare
+# edge case: 84% of Ghana's districts for women's vitamin A, 87% of Malawi's,
+# 77% of Malawi's for B12 -- eight of 24 country x outcome cells have more than
+# 40% of districts pinned at that single extreme value, which the fit then
+# chases. Measured in archive/sandbox_parsimony (see docs/parsimony_findings.md
+# section 7), moving to the raw prevalence scale is worth +0.048 to +0.168 LOCO
+# Spearman depending on the model, and helps five of six variants tested.
+#
+# MEASURED ON THIS COVARIATE SET (2026-08-30, scripts/covariates/17_scale_target_geo.R)
+# THE SCALE CHANGE DID NOT REPLICATE. Across the four shared outcomes the raw
+# scale scored -0.020 mean Spearman against the logit baseline, better in only
+# 2 of 4, where the sandbox had reported +0.048 for this same recipe. The
+# sandbox result stands for the models it was measured on -- its largest gain
+# was +0.168 for a spatial spline, which is not this recipe -- but it does not
+# carry over to the elastic net on 294 harmonised predictors. The default
+# therefore stays "logit"; "raw" is available and worth revisiting for the
+# spatial models, where the clamp does the most damage.
+#
+# The dispatcher itself is kept regardless, because `recipe$scale` previously
+# did nothing at all: .tr_logit() was applied unconditionally, so a recipe
+# could declare a scale it did not use.
+.tr_fwd <- function(p, scale = "raw") {
+  switch(scale, logit = .tr_logit(p), raw = as.numeric(p),
+         stop("unknown response scale: ", scale))
+}
+.tr_inv <- function(z, scale = "raw") {
+  switch(scale, logit = .tr_ilogit(z), raw = pmin(pmax(as.numeric(z), 0), 1),
+         stop("unknown response scale: ", scale))
+}
 
 .tr_as_num <- function(v) {
   if (inherits(v, "haven_labelled")) return(as.double(unclass(v)))
@@ -233,11 +271,59 @@ run_area_transport_loco <- function(pooled, recipe = AREA_TRANSPORT_RECIPE) {
   for (ho in pooled$countries) {
     tr <- d[d$country != ho, ]; te <- d[d$country == ho, ]
     if (nrow(tr) < 10 || nrow(te) < 4) next
-    ytr <- .tr_logit(tr$svy_prev); yte <- te$svy_prev
+    scale <- recipe$scale %||% "raw"
+    target <- recipe$target %||% "level"
+    ytr <- .tr_fwd(tr$svy_prev, scale); yte <- te$svy_prev
     w <- if (isTRUE(recipe$weight)) pmax(tr$n_svy, 1, na.rm = TRUE) else NULL
 
     pp <- .tr_prep_X(tr, te, preds0); Xtr <- pp$Xtr; Xte <- pp$Xte
     ytr_fit <- ytr; level <- mean(ytr)
+
+    # ── target = "zscore" ────────────────────────────────────────────────────
+    # Fit the WITHIN-COUNTRY z-score of the transformed prevalence, so both the
+    # between-country level and the between-country spread are structurally
+    # unlearnable and the model can only carry spatial PATTERN. The level and
+    # spread are then restored from an anchor at prediction time.
+    #
+    # This is the variant that works. Subtracting the country mean alone
+    # ("centered_own") was tested twice -- in archive/sandbox_parsimony and
+    # again here on 2026-08-30 -- and is mediocre both times, because it leaves
+    # the between-country SPREAD in the target. Dividing by it as well takes
+    # LOCO rho from 0.154 (production) to 0.261, better in 11 of 16 cells and
+    # the only variant positive on all four outcomes
+    # (docs/parsimony_findings.md section 6).
+    #
+    # The anchor is honest about what it needs: the held-out country's own
+    # national prevalence supplies the level -- realistic, since a national
+    # figure exists where a district survey does not -- and the mean of the
+    # training countries' within-country SDs supplies the spread, which uses
+    # nothing from the held-out country.
+    #
+    # READ THE TWO METRIC FAMILIES SEPARATELY. Rescaling by a positive scalar
+    # and adding a constant cannot change the ORDER of the predictions, so the
+    # rank gain (mean Spearman +0.053 over the logit/level baseline, better in
+    # 3 of 4 outcomes, measured 2026-08-30) comes entirely from fitting a
+    # different target and is a genuine model improvement. The much larger
+    # error and bias gains (MAE 13.84 -> 10.02 pp, |bias| 10.20 -> 5.93 pp) come
+    # mostly from being handed the held-out country's national level, which is
+    # an assumption about deployment rather than a modelling win. Quoting the
+    # MAE improvement as though the covariates produced it would repeat the
+    # error the anchor-only arm in scripts/covariates/14_relative_target.R
+    # exists to prevent.
+    z_sd <- NA_real_
+    if (identical(target, "zscore")) {
+      sds <- c()
+      for (g in unique(tr$country)) {
+        idx <- tr$country == g
+        mg <- mean(ytr[idx]); sg <- stats::sd(ytr[idx])
+        if (!is.finite(sg) || sg <= 0) sg <- 1
+        ytr_fit[idx] <- (ytr[idx] - mg) / sg
+        sds <- c(sds, sg)
+      }
+      z_sd <- mean(sds, na.rm = TRUE)
+      level <- .tr_fwd(stats::weighted.mean(te$svy_prev, pmax(te$n_svy, 1),
+                                            na.rm = TRUE), scale)
+    }
     if (isTRUE(recipe$center)) {
       # (Issue 3) Center the held-out country on the TRAINING column means, never
       # on its own (test) means: `colMeans(Xte)` would leak held-out information
@@ -256,9 +342,10 @@ run_area_transport_loco <- function(pooled, recipe = AREA_TRANSPORT_RECIPE) {
       Xtr <- Xtr[, sel, drop = FALSE]; Xte <- Xte[, sel, drop = FALSE]
     }
     fp <- .tr_fit_predict(Xtr, ytr_fit, Xte, recipe, w)
-    plogit <- fp$pred
-    if (isTRUE(recipe$center)) plogit <- plogit + level
-    pred <- pmin(pmax(.tr_ilogit(plogit), 0), 1)
+    yhat <- fp$pred
+    if (identical(target, "zscore")) yhat <- yhat * z_sd + level
+    else if (isTRUE(recipe$center)) yhat <- yhat + level
+    pred <- pmin(pmax(.tr_inv(yhat, scale), 0), 1)
 
     ok <- is.finite(pred) & is.finite(yte)
     if (sum(ok) < 4) next

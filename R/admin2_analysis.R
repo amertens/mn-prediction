@@ -382,7 +382,49 @@ extract_area_covariates <- function(cc) {
                        "filter with is_water_admin2() before fitting\n"),
                 cc$country, sum(is_water_admin2(as.character(gee_admin2$Admin2)))))
 
+  gee_admin2 <- .append_geo_coords(gee_admin2, all_polys, cc)
   list(gee_admin2 = gee_admin2, polygons = all_polys)
+}
+
+#' Attach district coordinates as ordinary covariates (`geo_lon`, `geo_lat`).
+#'
+#' WHY THESE ARE COVARIATES AND NOT METADATA.
+#' A covariate-free smoother on district coordinates matches the full
+#' 294-predictor set at admin-2, and a curated 16-variable set *plus*
+#' coordinates beats the 237-487-predictor recipe in 14 of 16 cells
+#' (docs/parsimony_findings.md section 5). Geography was nonetheless excluded
+#' from the covariate scan: `lon`/`lat` are listed in AREA_NON_COVARIATE_COLS,
+#' so no covariate model could ever use them. Excluding the one signal that
+#' demonstrably works is not defensible, so they are added here under `geo_`
+#' names that the covariate scan accepts, leaving the bare `lon`/`lat`
+#' exclusion in place for the join/plot machinery that relies on it.
+#'
+#' SOURCE: the GADM polygon centroid, for every district.
+#' Survey cluster coordinates were the alternative and were measured against it
+#' (2026-08-30): the two disagree by a median of 6.5-12.9 km per country, up to
+#' 62 km. More decisively, survey coordinates exist only for SURVEYED districts
+#' -- 87 of 253 in Malawi -- so using them would leave the covariate missing on
+#' exactly the districts the model exists to predict, or force a mixed
+#' definition that is measured one way where there is a survey and another way
+#' where there is not. The polygon centroid is the same quantity everywhere.
+#' The survey-derived centroid is used only if GADM polygons are unavailable.
+.append_geo_coords <- function(gee_admin2, all_polys, cc) {
+  if (is.null(gee_admin2) || !nrow(gee_admin2)) return(gee_admin2)
+  if (all(c("geo_lon", "geo_lat") %in% names(gee_admin2))) return(gee_admin2)
+  xy <- tryCatch({
+    ctr <- suppressWarnings(sf::st_centroid(sf::st_geometry(all_polys)))
+    sf::st_coordinates(ctr)
+  }, error = function(e) NULL)
+  if (is.null(xy) || nrow(xy) != nrow(gee_admin2)) {
+    warning(sprintf("[geo_coords] %s: could not derive polygon centroids; ",
+                    cc$country), "geo_lon/geo_lat not added")
+    return(gee_admin2)
+  }
+  gee_admin2$geo_lon <- as.numeric(xy[, 1])
+  gee_admin2$geo_lat <- as.numeric(xy[, 2])
+  cat(sprintf("[geo_coords] %s: added geo_lon/geo_lat for %d polygons\n",
+              cc$country, nrow(gee_admin2)))
+  gee_admin2
 }
 
 #' Aggregate individual-level SL predictions to Admin2 prevalence
