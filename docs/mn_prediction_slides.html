@@ -3551,6 +3551,91 @@ Full LOCO for all 4 outcomes currently running.</code></pre>
 </tbody>
 </table>
 <p>Gambia (6 regions) and Sierra Leone (4) are <strong>not estimable</strong> at Admin-1 and fall back to Admin-2 under the a-priori rule.</p>
+</section>
+<section id="what-should-the-model-carry-across-a-border" class="slide level2">
+<h2>What should the model carry across a border?</h2>
+<p>District ranking transports; the absolute level does not. So stop asking the model to carry the level. Two versions of that idea, opposite answers:</p>
+<table class="caption-top">
+<thead>
+<tr class="header">
+<th>target</th>
+<th>Spearman</th>
+<th>MAE (pp)</th>
+<th>|bias| (pp)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>level (baseline)</td>
+<td>0.146</td>
+<td>13.8</td>
+<td>10.2</td>
+</tr>
+<tr class="even">
+<td>deviation from national mean</td>
+<td><em>worse</em></td>
+<td>—</td>
+<td>—</td>
+</tr>
+<tr class="odd">
+<td><strong>within-country z-score</strong></td>
+<td><strong>0.199</strong></td>
+<td><strong>10.0</strong></td>
+<td><strong>5.9</strong></td>
+</tr>
+</tbody>
+</table>
+<p>Removing the country <strong>mean</strong> alone fails — it leaves the between-country <strong>spread</strong> in the target. Removing both is what works: +0.053 Spearman, better in 3 of 4 outcomes.</p>
+<div class="callout callout-warning no-icon callout-style-simple">
+<div class="callout-body">
+<div class="callout-content">
+<p><strong>Do not quote the two gains together.</strong> A positive rescale plus an offset cannot reorder predictions, so the rank gain is a real modelling improvement. The larger error and bias gains come mostly from the <strong>anchor</strong> — the held-out country’s national prevalence — which is a deployment assumption, not evidence the covariates improved.</p>
+</div>
+</div>
+</div>
+</section>
+<section id="two-changes-that-did-not-replicate" class="slide level2">
+<h2>Two changes that did not replicate</h2>
+<p>Reported because the negative result is the useful part.</p>
+<table class="caption-top">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>change</th>
+<th>expected</th>
+<th>measured</th>
+<th>better in</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>raw prevalence scale (drop the logit clamp)</td>
+<td>+0.048</td>
+<td><strong>–0.020</strong></td>
+<td>2 / 4</td>
+</tr>
+<tr class="even">
+<td>district coordinates as predictors</td>
+<td>+0.063</td>
+<td><strong>0.000</strong></td>
+<td>1 / 4</td>
+</tr>
+</tbody>
+</table>
+<p>The raw-scale result had a strong prior: <strong>8 of 24 cells have &gt;40% of districts observed at exactly 0%</strong>, every one clamped to logit = –5.3. It still did not help this recipe. The earlier gain was largest for a <em>spatial spline</em>, which is a different model.</p>
+<p>Coordinates fail for a mechanical reason: with a top-30 correlation prescreen over 294 predictors, two coordinate columns rarely survive selection. The earlier gain came from a curated 16-variable set where coordinates were a large share of the model.</p>
+<div class="callout callout-note no-icon callout-style-simple">
+<div class="callout-body">
+<div class="callout-content">
+<p>Both are kept in the code as options — and the scale dispatcher fixed a real defect, since <code>recipe$scale</code> previously did nothing at all.</p>
+</div>
+</div>
+</div>
 
 </section></section>
     </div>

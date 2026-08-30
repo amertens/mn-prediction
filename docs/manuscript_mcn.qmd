@@ -959,6 +959,50 @@ margins. We therefore regard modelling the continuous biomarker as worthwhile
 specifically for rare outcomes, where the binary model can fail badly, and not
 as a general replacement.
 
+## What the model should be asked to carry across a border {#sec-zscore}
+
+Since district ranking transports but the absolute level does not, a natural
+step is to stop asking the model to carry the level at all. We tested two
+versions of that idea and they gave opposite answers, which is itself
+instructive.
+
+Fitting each district's deviation from its own country's national prevalence —
+removing the level but leaving the between-country spread in the target —
+does not help. Rank correlation fell from 0.201 to 0.140, and the apparent
+improvement in absolute error was entirely attributable to being handed the
+held-out country's national prevalence: an arm that predicts that national
+figure for every district, using no covariates whatsoever, achieved a lower
+mean absolute error (9.85 pp) and lower bias (5.68 pp) than any covariate arm,
+and the deviation model beat it in only 4 of 16 cells.
+
+Removing the between-country *spread* as well is what works. Fitting the
+within-country z-score of the transformed prevalence makes both level and
+spread structurally unlearnable, so the model can carry only spatial pattern;
+both are restored at prediction time from an anchor. Across the four shared
+outcomes this raised mean Spearman correlation from 0.146 to 0.199 (+0.053,
+better in 3 of 4 outcomes), and reduced mean absolute error from 13.8 to 10.0
+pp and mean absolute national bias from 10.2 to 5.9 pp.
+
+Those two families of improvement have different standing and should not be
+quoted together. Rescaling by a positive constant and adding an offset cannot
+reorder predictions, so the rank gain follows from fitting a different target
+and is a property of the model. The larger error and bias gains follow mostly
+from the anchor, which requires the held-out country's national prevalence —
+a realistic requirement, since a national figure typically exists where
+district-level biomarker data does not, but an assumption about deployment
+rather than evidence that the covariates improved.
+
+Two further changes suggested by the same exploratory work did not replicate on
+the harmonised covariate set and we report them as negative results. Fitting on
+the raw prevalence scale rather than the clamped logit scale, which had been
+expected to help because 8 of 24 cells have more than 40% of districts observed
+at exactly zero prevalence, gave −0.020 mean Spearman (better in 2 of 4).
+Adding district centroid coordinates to the predictor set gave 0.000 (better in
+1 of 4); with a top-30 correlation prescreen over 294 predictors, two
+coordinate columns rarely survive selection, whereas the exploratory result had
+come from a curated 16-variable set in which coordinates were a large share of
+the model.
+
 We also directly tested whether the full-mode SuperLearner's 13th candidate
 learner, a Gaussian process (`kernlab::gausspr`), was worth its
 $O(n^3)$ computational cost, which made the largest pooled LOCO fits

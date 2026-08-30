@@ -1588,3 +1588,54 @@ first pass, so the numbers are not an artifact of the fallback path:
 
 Gambia (6 regions) and Sierra Leone (4) are **not estimable** at Admin-1 and
 fall back to Admin-2 under the a-priori rule.
+
+---
+
+## What should the model carry across a border?
+
+District ranking transports; the absolute level does not. So stop asking the
+model to carry the level. Two versions of that idea, opposite answers:
+
+| target | Spearman | MAE (pp) | \|bias\| (pp) |
+|---|---|---|---|
+| level (baseline) | 0.146 | 13.8 | 10.2 |
+| deviation from national mean | *worse* | --- | --- |
+| **within-country z-score** | **0.199** | **10.0** | **5.9** |
+
+Removing the country **mean** alone fails --- it leaves the between-country
+**spread** in the target. Removing both is what works: +0.053 Spearman, better
+in 3 of 4 outcomes.
+
+::: {.callout-warning appearance="minimal"}
+**Do not quote the two gains together.** A positive rescale plus an offset
+cannot reorder predictions, so the rank gain is a real modelling improvement.
+The larger error and bias gains come mostly from the **anchor** --- the
+held-out country's national prevalence --- which is a deployment assumption,
+not evidence the covariates improved.
+:::
+
+---
+
+## Two changes that did not replicate
+
+Reported because the negative result is the useful part.
+
+| change | expected | measured | better in |
+|---|---|---|---|
+| raw prevalence scale (drop the logit clamp) | +0.048 | **--0.020** | 2 / 4 |
+| district coordinates as predictors | +0.063 | **0.000** | 1 / 4 |
+
+The raw-scale result had a strong prior: **8 of 24 cells have >40% of districts
+observed at exactly 0%**, every one clamped to logit = --5.3. It still did not
+help this recipe. The earlier gain was largest for a *spatial spline*, which is
+a different model.
+
+Coordinates fail for a mechanical reason: with a top-30 correlation prescreen
+over 294 predictors, two coordinate columns rarely survive selection. The
+earlier gain came from a curated 16-variable set where coordinates were a large
+share of the model.
+
+::: {.callout-note appearance="minimal"}
+Both are kept in the code as options --- and the scale dispatcher fixed a real
+defect, since `recipe$scale` previously did nothing at all.
+:::
