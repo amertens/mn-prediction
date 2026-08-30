@@ -1,0 +1,8 @@
+source_id,kind,path_template,key_cols,enabled,expensive,notes
+gee,targets_or_live,_targets_full::gee_admin2_{key},Admin1;Admin2,TRUE,TRUE,Earth-observation zonal means. Read from the built targets store when present; otherwise extracted live via extract_gee_admin2().
+alphaearth,csv,data/AlphaEarth/{code}_alphaearth_admin2.csv,Admin1;Admin2,TRUE,TRUE,AlphaEarth Foundations 64-dim embedding (stage 1).
+soilgrids,csv,data/SoilGrids/{country}_soilgrids_admin2.csv,Admin1;Admin2,TRUE,TRUE,SoilGrids/ISRIC properties at 0-5 cm.
+mapspam,csv,data/MapSPAM/{country}_spam_admin2.csv,Admin1;Admin2,TRUE,TRUE,MapSPAM crop production and crop-mix shares.
+espen,csv,data/ESPEN/{country}_espen_admin2.csv,Admin1;Admin2,TRUE,TRUE,ESPEN helminth/NTD prevalence. Portal download is manual; absent files are skipped.
+dhs,rds,data/DHS/clean/{dhs_name}_{dhs_year}_dhs_admin2_wide.rds,Admin2,TRUE,FALSE,DHS admin-2 indicator aggregates. Year-stamped prefixes are harmonised away by rule 50.
+dhs_custom,rds,data/DHS/clean/{dhs_name}_{dhs_year}_dhs_custom_admin2_wide.rds,Admin2,TRUE,FALSE,"90 additional DHS admin-2 indicators with ZERO overlap with the standard file: anthropometry, WASH, education, ANC, immunisation, morbidity, wealth. Reviewed for outcome-adjacency in metadata/covariates/dhs_leakage_review.csv."

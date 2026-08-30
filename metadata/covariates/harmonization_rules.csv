@@ -1,0 +1,44 @@
+order,match_regex,action,canonical,collapse,reason
+10,(_qc|_npp_qc|_assessment|_data_density_indicator|_change_confidence|filledproportion)$,drop,,,Quality/metadata band - not a measurement
+11,discrete_classification,drop,,,Categorical class code - a zonal mean of codes is not a quantity
+12,forest_type$,drop,,,Categorical forest-type class code
+13,^landcovertype,drop,,,Categorical MODIS land-cover class codes; zonal mean meaningless. Reinstate as per-class fractions.
+14,^esa_worldcereal,drop,,,Band masked outside cropland so the zonal mean returns a class code; tile ids are country-specific
+15,^ghsl_smod,drop,,,Ordinal settlement class code; zonal mean not interpretable
+16,^gpw_demographic,drop,,,Mean/sd collapse over 77 age-sex COUNT bins; neither a rate nor commensurable
+17,^fldas,drop,,,Mean/sd collapse over 28 incommensurable bands; dominated by surface pressure
+18,^atmosphere,drop,,,Mean/sd collapse over incommensurable optical bands; also absent for Tanzania
+19,^lst_night_[0-9]{4}_annual_mean,drop,,,Mixes Kelvin with a 0-1 filled-proportion band
+20,^(terraclimate|soil[a-z]+|productivity|ghsbuilts|landcoverlayers)(_.*)?_annual_(mean|sd|min|max|range)$,drop,,,Cross-band summary over non-commensurable bands
+30,^alphaearth_(A[0-9]{2})$,keep,aef_\1,none,AlphaEarth Foundations embedding dimension (2017 vintage all countries)
+31,^ndvi_([0-9]{4})$,keep,ndvi_y\1,none,AVHRR NDVI - common calendar window across countries
+32,^ndvi_mean_anomaly_[0-9]{4}$,keep,ndvi_anomaly_t0,latest,FEWS NET growing-season NDVI anomaly
+33,^popdensity_(2010|2015|2020)$,keep,popdens_y\1,none,GPW UN-adjusted population density at its published 5-year epochs
+34,^trmm_([0-9]{4})$,keep,precip_y\1,none,TRMM monthly precipitation averaged to annual - common calendar window
+35,^terraclimate_[0-9]{4}_([a-z]+)$,keep,tclim_\1_t0,latest,TerraClimate per-band water-balance/temperature variable
+36,^lst_night_[0-9]{4}_monthly_[0-9]{4}_([0-9]{2})_mean$,keep,lst_night_m\1_t0,mean,Night LST monthly climatology (averaged over available years)
+37,^lst_night_[0-9]{4}_monthly_annual_(mean|sd|min|max|range)$,keep,lst_night_annual_\1_t0,mean,Night LST annual summary over a genuine 12-month series
+38,^landcoverlayers_[0-9]{4}(_[0-9]{4})?_([a-z_]+)_coverfraction$,keep,lcover_\2_frac_t0,latest,Copernicus per-class cover fraction
+39,^landcoverlayers_([a-z_]+)_coverfraction$,keep,lcover_\1_frac_t0,latest,Copernicus per-class cover fraction (unstamped export)
+40,^productivity_([0-9]{4}_)*[0-9]{2}_[0-9]{2}_(gpp|npp)$,keep,npp_\2_t0,latest,MODIS annual GPP/NPP
+41,^lai[0-9]+days_[0-9]{4}$,keep,lai_t0,latest,MODIS leaf area index
+42,^dailyevi_[0-9]{4}$,keep,evi_t0,latest,MODIS enhanced vegetation index
+43,^wapor_[0-9]{4}_annual_(mean|sd)$,keep,wapor_\1_t0,latest,FAO WaPOR dekadal NPP annual summary
+44,^wapor_[0-9]{4}$,keep,wapor_mean_t0,latest,FAO WaPOR annual mean (Earth Engine export emits a single band)
+45,^aerosoloptical_[0-9]{4}$,keep,aod_t0,latest,MODIS aerosol optical depth
+46,^soil([a-z]+)_([0-9]{4}_)?(mean|stdev)_([0-9]+)_([0-9]+)$,keep,soil_\1_\3_\4_\5,latest,iSDAsoil property by depth (year-stamped copies of a static layer are collapsed)
+47,^ghsbuilts_[0-9]{4}_built_surface_nres$,keep,built_surface_nres,latest,GHSL non-residential built surface
+48,^ghsbuilts_[0-9]{4}_built_surface$,keep,built_surface,latest,GHSL built surface
+49,^ghsbuilts_[0-9]{4}$,keep,built_surface,latest,GHSL built surface (Earth Engine export emits a single band)
+50,^ghspop_[0-9]{4}$,keep,ghs_pop,latest,GHSL population count
+51,^ccnl_[0-9]{4}$,keep,ntl_ccnl,latest,Consistent corrected night-time lights
+52,^wsf_[0-9]{4}$,keep,wsf,latest,World Settlement Footprint
+53,^elevation_[0-9]{4}$,keep,elevation,latest,SRTM elevation
+54,^accessibility_[0-9]{4}$,keep,access_healthcare_min,latest,Travel time to healthcare
+55,^globalhumanmodification_[0-9]{4}$,keep,human_modification,latest,Global human modification index
+56,^gpw_grasslands_[0-9]{4}$,keep,grassland_frac,latest,Global Pasture Watch grassland fraction
+60,^dhs[0-9]{4}_(.+)_adm2$,keep,dhs_\1,none,DHS admin-2 indicator - survey-year prefix stripped so the same indicator matches across countries
+61,^soil_(ph|organic_carbon|nitrogen|clay|sand|silt|cec)$,keep,soilgrids_\1,none,SoilGrids/ISRIC property (distinct from the iSDAsoil block)
+62,^spam_(prod|share|parea)_([a-z]+)$,keep,spam_\1_\2,none,MapSPAM crop production and production share
+63,^espen_(.+)$,keep,espen_\1,none,ESPEN helminth/NTD survey aggregate
+70,^popdensity_[0-9]{4}$,drop,,,GPW v4.11 publishes 5-year epochs; the export replicated each epoch across the intervening years so 11 of 14 annual columns were exact duplicates. Only the epoch years are kept.

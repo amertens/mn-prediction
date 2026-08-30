@@ -1,0 +1,19 @@
+check,what,status,detail
+1-no-unmatched,every raw column is classified,PASS,0 unmatched
+2-no-family-collision,canonical fed by one family per country,PASS,
+3-latest-unambiguous,collapse='latest' has a unique winner,PASS,
+4-none-is-1to1,collapse='none' maps 1:1,PASS,
+5-exclusions-honoured,excluded variables absent from output,PASS,
+6-documented,every predictor has a dictionary row,PASS,0 undocumented
+6b-domain-assigned,every predictor has family + domain,PASS,"0 without family, 0 without domain"
+7-unique-keys,one row per country x admin-2,PASS,0 duplicate keys
+8-no-dead-columns,no all-NA or zero-variance predictors,PASS,"0 all-NA, 0 constant"
+9-no-duplicate-columns,no two predictors are value-identical,PASS,
+10-values-reproduce,canonical values re-derive from raw + declared units,PASS,"1176 of 1176 (country, variable) pairs re-derive exactly"
+11a-lst-celsius,night LST is in a plausible Celsius range,PASS,range 9.3 to 26.3 C over 15 columns
+11b-ndvi-scaled,"NDVI lies in [-1, 1]",PASS,range -0.022 to 0.390 over 8 years
+11c-cover-fractions,"cover fractions lie in [0, 100]",PASS,range 0.00 to 100.00
+11d-aef-unit-norm,AlphaEarth vectors are unit length,PASS,"64 dims, max |norm-1| = 1.11e-16"
+12-conversions-worked,no declared conversion leaves a >20x spread gap,PASS,
+13-shared-really-shared,no shipped predictor is all-NA in a country,PASS,0 predictors empty in >=1 country
+13b-coverage-agrees,coverage.csv matches the shipped columns,PASS,0 listed but not shipped

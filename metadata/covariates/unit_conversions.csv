@@ -1,0 +1,18 @@
+canonical_regex,country,multiply,add,canonical_unit,reason
+^ndvi_y,ALL,0.0001,0,NDVI index,AVHRR NDVI stored as DN in every export
+^npp_,Gambia;Ghana;Malawi;SierraLeone,0.0001,0,kg C/m2/yr,Raster export kept raw DN; MOD17 scale factor is 1e-4
+^npp_,Tanzania,1,0,kg C/m2/yr,Earth Engine path already applied the scale factor
+^lai_,Gambia;Ghana;Malawi;SierraLeone,0.1,0,m2/m2,Raster export kept raw DN; MOD15 scale factor is 0.1
+^lai_,Tanzania,1,0,m2/m2,Earth Engine path already applied the scale factor
+^lst_night_annual_(sd|range)_,Tanzania,1,0,degC,Dispersion statistics are unchanged by an additive Kelvin-to-Celsius shift; the offset must not be applied to them
+^lst_night_,Tanzania,1,-273.15,degC,Tanzania values are Kelvin (~292); the other four are already degC
+^tclim_(aet|def|pet|ro|soil|srad|tmmn|tmmx)_,ALL,0.1,0,per TerraClimate band,TerraClimate scale factor 0.1
+^tclim_(pdsi|vpd|vs)_,ALL,0.01,0,per TerraClimate band,TerraClimate scale factor 0.01
+^tclim_vap_,ALL,0.001,0,kPa,TerraClimate scale factor 0.001
+^wapor_,Gambia;Ghana;Malawi;SierraLeone,0.001,0,gC/m2/day,WaPOR L1_NPP_D scale factor 0.001 not applied in the raster export
+^wapor_,Tanzania,1,0,gC/m2/day,Earth Engine path already applied the scale factor
+^soilgrids_ph$,ALL,0.1,0,pH,SoilGrids v2 ships pH as pH x 10 (observed 49-69 = pH 4.9-6.9)
+^soilgrids_nitrogen$,ALL,0.01,0,g/kg,SoilGrids v2 nitrogen is cg/kg
+^soilgrids_organic_carbon$,ALL,0.1,0,g/kg,SoilGrids v2 organic carbon is dg/kg
+^soilgrids_(clay|sand|silt)$,ALL,0.1,0,percent,SoilGrids v2 texture fractions are g/kg
+^soilgrids_cec$,ALL,0.1,0,cmol(c)/kg,SoilGrids v2 CEC is mmol(c)/kg

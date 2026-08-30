@@ -1,0 +1,35 @@
+test,variable,scope,value,status,detail
+cross_source,pH,all,NA,SKIP,absent (soil_ph_mean_0_20 / soilgrids_ph)
+cross_source,nitrogen,all,NA,SKIP,absent (soil_nitrogen_mean_0_20 / soilgrids_nitrogen)
+cross_source,organic carbon,Gambia,0.846,PASS,Spearman soil_totalcarbon_mean_0_20 vs soilgrids_organic_carbon
+cross_source,organic carbon,Ghana,0.424,WEAK,Spearman soil_totalcarbon_mean_0_20 vs soilgrids_organic_carbon
+cross_source,organic carbon,Malawi,0.272,WEAK,Spearman soil_totalcarbon_mean_0_20 vs soilgrids_organic_carbon
+cross_source,organic carbon,SierraLeone,-0.27,FAIL,Spearman soil_totalcarbon_mean_0_20 vs soilgrids_organic_carbon
+cross_source,CEC,Gambia,-0.358,FAIL,Spearman soil_cec_mean_0_20 vs soilgrids_cec
+cross_source,CEC,Ghana,0.311,WEAK,Spearman soil_cec_mean_0_20 vs soilgrids_cec
+cross_source,CEC,Malawi,0.437,WEAK,Spearman soil_cec_mean_0_20 vs soilgrids_cec
+cross_source,CEC,SierraLeone,0.402,WEAK,Spearman soil_cec_mean_0_20 vs soilgrids_cec
+bounds,NDVI index,8 cols,0,PASS,observed -0.0221 to 0.39; allowed -1 to 1
+bounds,EVI index,1 cols,0,PASS,observed 0.0737 to 0.373; allowed -1 to 1
+bounds,cover fraction (%),8 cols,0,PASS,observed 0 to 100; allowed 0 to 100
+bounds,soil pH,1 cols,0,PASS,observed 4.92 to 6.88; allowed 3 to 10
+bounds,elevation (m),1 cols,0,PASS,observed 0.758 to 1.97e+03; allowed -430 to 6e+03
+bounds,night LST (C),15 cols,0,PASS,observed 9.32 to 26.3; allowed -20 to 45
+bounds,max temperature (C),1 cols,0,PASS,observed 21.7 to 35.7; allowed -20 to 60
+bounds,leaf area index,1 cols,0,PASS,observed 0.132 to 3.32; allowed 0 to 12
+bounds,modification index,1 cols,0,PASS,observed 0.027 to 0.942; allowed 0 to 1
+bounds,crop share,5 cols,0,PASS,observed 0 to 1; allowed 0 to 1
+bounds,population (non-negative),1 cols,0,PASS,observed 0 to 205; allowed 0 to Inf
+bounds,DHS proportion,83 cols,0,PASS,observed 0 to 1; allowed 0 to 1
+bounds,anthropometric z-score,3 cols,0,PASS,observed -2.81 to 1.16; allowed -6 to 6
+bounds,birthweight (g),1 cols,0,PASS,observed 2.57e+03 to 4.57e+03; allowed 1e+03 to 5e+03
+bounds,DHS wealth index (z),1 cols,0,PASS,observed -2.03 to 1.78; allowed -5 to 5
+relationship,elevation vs night LST,4 countries,-0.622,WEAK,expected sign - (temperature falls with altitude (lapse rate)); correct in 3/4
+relationship,night lights vs built surface,4 countries,0.574,PASS,expected sign + (lit area tracks the built environment); correct in 4/4
+relationship,population vs built surface,4 countries,0.938,PASS,expected sign + (people live in buildings); correct in 4/4
+relationship,rainfall vs vegetation,4 countries,0.101,WEAK,expected sign + (vegetation is water-limited in these countries); correct in 3/4
+relationship,human modification vs cropland,4 countries,-0.063,INFO,"expected sign ? (gHM is settlement-weighted, not crop-weighted); correct in 0/4"
+relationship,accessibility vs population,4 countries,-0.66,PASS,expected sign - (remote districts are sparsely populated); correct in 4/4
+spatial,Moran's I,Gambia,0.189,REVIEW,"n=37 areas; 56 of 294 covariates with I < 0.05: aef_A00, aef_A02, aef_A04, aef_A17, aef_A27, aef_A28"
+spatial,Moran's I,Ghana,0.266,PASS,"n=260 areas; 40 of 294 covariates with I < 0.05: dhs_c_ari_2wk, dhs_c_bcg, dhs_c_diarrhea_2wk, dhs_c_diet_diversity_score, dhs_c_dpt1, dhs_c_dpt3"
+spatial,Moran's I,Malawi,0.127,REVIEW,"n=243 areas; 73 of 293 covariates with I < 0.05: aef_A01, built_surface, built_surface_nres, dhs_AN_NUTS_W_THN, dhs_c_bcg, dhs_c_bottle_fed"
