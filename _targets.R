@@ -160,6 +160,13 @@ tar_option_set(
   error = Sys.getenv("TARGETS_ERROR_MODE", "stop")
 )
 
+# Permutation-importance replicates. Read here, at PIPELINE-DEFINITION time,
+# so it is baked into the varimp_* target expressions and therefore IS visible
+# to the dependency graph -- changing it invalidates those targets by itself,
+# unlike the call-time flags documented in scripts/run_full_mode.R.
+VARIMP_N_PERM <- as.integer(Sys.getenv("VARIMP_N_PERM", "2"))
+if (!is.finite(VARIMP_N_PERM) || VARIMP_N_PERM < 1L) VARIMP_N_PERM <- 2L
+
 # ── Source all function files in R/ ──────────────────────────────────────────
 tar_source("R/")
 
@@ -418,16 +425,28 @@ make_outcome_targets <- function(country_name, outcome_name, cc, oc, params) {
     ),
 
     # ── 15. Single-variable permutation importance (top-30 vars) ──────────
+    # n_perm is the number of shuffles per variable and cost is linear in it:
+    # this family was 0.89 CPU-hours (8.6% of the pipeline) at n_perm = 3.
+    # Permutation importance is a descriptive diagnostic, not an estimate any
+    # reported number depends on, so iteration runs use 2 and the final run can
+    # be raised via VARIMP_N_PERM. top_n stays at 30 -- cutting the number of
+    # variables examined would change what the diagnostic says, whereas cutting
+    # replicates only makes it noisier.
     tar_target_raw(
       paste0("varimp_", suffix),
       substitute(
         run_single_var_ablation(outcome_data, sl_fit, cc_val, oc_val,
-                                 top_n = 30L, n_perm = 3L),
+                                 top_n = 30L, n_perm = n_perm_val),
         list(
           outcome_data = as.symbol(paste0("outcome_data_", suffix)),
           sl_fit       = as.symbol(paste0("sl_fit_", suffix)),
           cc_val       = cc,
-          oc_val       = oc
+          oc_val       = oc,
+          # Substituted as a LITERAL, not left as a symbol: the value is then
+          # part of the target's expression, so changing VARIMP_N_PERM
+          # invalidates these targets on its own rather than relying on global-
+          # object tracking.
+          n_perm_val   = VARIMP_N_PERM
         )
       )
     )
@@ -618,6 +637,23 @@ for (country_name in names(all_country_configs)) {
     )
   ))
 
+  # ── Track the external-predictor cache the same merge reads internally ─────
+  # merge_external_predictors() ALSO reads
+  # data/external_cache/<country>_external_predictors.rds directly. The DHS half
+  # of that function was stamped above; the .rds half was not, and the gap was
+  # silent: the caches were refreshed 2026-08-27 while every merged_ext_* had
+  # been built 2026-08-18..23, so the refresh never propagated. Sierra Leone was
+  # serving 0 map2_ / 0 wfp_ columns against a cache holding 57 / 13. See
+  # ext_cache_stamp() in R/data_prep.R.
+  ext_stamp_name <- paste0("ext_cache_stamp_", lc)
+  country_targets <- c(country_targets, list(
+    tar_target_raw(
+      ext_stamp_name,
+      substitute(ext_cache_stamp(cc_val), list(cc_val = cc)),
+      cue = tar_cue(mode = "always")
+    )
+  ))
+
   # Merge external predictors (CHIRPS, WorldPop, MAP, HarvestStat, etc.)
   # AND GEE Admin-2 zonal means into individual-level data.
   merged_ext_target_name <- paste0("merged_ext_", tolower(country_name))
@@ -626,13 +662,15 @@ for (country_name in names(all_country_configs)) {
       merged_ext_target_name,
       substitute({
         force(dhs_stamp_val)
+        force(ext_stamp_val)
         merge_external_predictors(fsec_data, cc_val, cache_dir_val)
       },
         list(
           fsec_data     = as.symbol(fsec_target_name),
           cc_val        = cc,
           cache_dir_val = here::here("data", "external_cache"),
-          dhs_stamp_val = as.symbol(dhs_stamp_name)
+          dhs_stamp_val = as.symbol(dhs_stamp_name),
+          ext_stamp_val = as.symbol(ext_stamp_name)
         )
       )
     )
@@ -665,10 +703,14 @@ for (country_name in names(all_country_configs)) {
         gee <- gee_admin2_data
         if (!is.null(gee) && is.data.frame(gee) && nrow(gee) > 0) {
           # Only merge gee_ columns (not Admin1/Admin2 which already exist)
-          gee_cols <- grep("^gee_", colnames(gee), value = TRUE)
+          # Vocabulary-agnostic. A hardcoded ^gee_ selects nothing under the
+          # harmonised set, and the length>0 guard below would then skip the
+          # merge SILENTLY -- stripping every area covariate out of the
+          # individual-level model without an error.
+          gee_cols <- area_covariate_cols(gee)
           if (length(gee_cols) > 0) {
             # Remove any gee_ columns already in the data to avoid .x/.y suffixes
-            existing_gee <- grep("^gee_", colnames(d), value = TRUE)
+            existing_gee <- intersect(colnames(d), gee_cols)
             new_gee <- setdiff(gee_cols, existing_gee)
             if (length(new_gee) > 0) {
               admin2_col <- cc_val$admin2_col
@@ -871,11 +913,12 @@ for (cc_name in names(all_country_configs)) {
         paste0("area_comparison_", suffix),
         substitute(
           run_area_comparison(svy_admin2_val, sl_admin2_val, gee_admin2_val,
-                              cc_val, oc_val),
+                              cc_val, oc_val, outcome_data = outcome_data_val),
           list(
             svy_admin2_val = as.symbol(paste0("svy_admin2_", suffix)),
             sl_admin2_val  = as.symbol(paste0("admin2_sl_", suffix)),
             gee_admin2_val = as.symbol(paste0("gee_admin2_", ctry_lower)),
+            outcome_data_val = as.symbol(paste0("outcome_data_", suffix)),
             cc_val = cc_local,
             oc_val = oc_local
           )
@@ -1530,10 +1573,31 @@ if (length(all_country_configs) >= 2) {
 # ── Out-of-sample prediction: Côte d'Ivoire ─────────────────────────────────
 # Uses pooled area-level models from all surveyed countries to predict
 # micronutrient deficiency prevalence in an unsurveyed country.
+#
+# GATED OFF BY DEFAULT (2026-08-29). Measured from tar_meta on the last full
+# build, these four targets cost 2.51 CPU-hours -- 24% of the whole in-scope
+# pipeline -- and the longest of them (41 min) sets the critical path, so they
+# dominate wall-clock as well as CPU. They are an EXTERNAL validation against a
+# country with no survey: nothing upstream of them changes when the estimator
+# or the covariate set is tuned, so re-running them on every iteration rebuild
+# is waste.
+#
+#   RUN_CIV_VALIDATION=true   include them (do this for the final/reported run)
+#   unset / false             skip them (default; right for iteration)
+#
+# The gate is at the TARGET-DEFINITION level, so a skipped run does not leave
+# stale oos_civ_* targets looking current -- they are simply absent from the
+# manifest, and their previously built values stay in the store untouched until
+# the flag is turned back on.
 oos_targets <- list()
 
+RUN_CIV <- isTRUE(as.logical(Sys.getenv("RUN_CIV_VALIDATION", "false")))
 civ_raster_dir <- here::here("data", "Cote_dIvoire_GEE_rasters")
-if (dir.exists(civ_raster_dir) && length(all_country_configs) >= 2) {
+if (!RUN_CIV) {
+  message("[targets] Cote d'Ivoire external validation SKIPPED ",
+          "(set RUN_CIV_VALIDATION=true to include; ~2.5 CPU-hours)")
+}
+if (RUN_CIV && dir.exists(civ_raster_dir) && length(all_country_configs) >= 2) {
 
   # Extract GEE covariates for Côte d'Ivoire Admin-2 polygons (once)
   oos_targets <- c(oos_targets, list(

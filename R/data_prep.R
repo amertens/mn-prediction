@@ -294,6 +294,39 @@ dhs_clean_stamp <- function(cc, dhs_dir = here::here("data", "DHS", "clean")) {
   stats::setNames(unname(tools::md5sum(f)), basename(f))
 }
 
+#' The external-predictor cache file merge_external_predictors() reads.
+#'
+#' Path construction mirrors merge_external_predictors() exactly, so the stamp
+#' covers precisely the file that will be read.
+ext_cache_input <- function(cc, cache_dir = here::here("data", "external_cache")) {
+  p <- file.path(cache_dir,
+                 paste0(tolower(gsub(" ", "_", cc$country)),
+                        "_external_predictors.rds"))
+  p[file.exists(p)]
+}
+
+#' Content stamp for a country's external-predictor cache.
+#'
+#' SAME HAZARD AS dhs_clean_stamp(), SAME FUNCTION, AND IT BIT US.
+#' merge_external_predictors() reads
+#' data/external_cache/<country>_external_predictors.rds directly, so {targets}
+#' never sees it. The caches were refreshed on 2026-08-27 (note the
+#' .bak_pre_wfp_refresh siblings) but every merged_ext_* target had been built
+#' 2026-08-18..23 and was never invalidated -- so the refresh reached NO result.
+#' Measured cost when it was found (2026-08-30): Sierra Leone was serving 0
+#' map2_ and 0 wfp_ columns while its cache held 57 and 13; rebuilding recovers
+#' +196 columns for Sierra Leone, +9 Ghana, +3 Malawi. Sierra Leone's absence
+#' also zeroed the shared map2_accessibility_ domain in every pooled/LOCO model,
+#' which is what surfaced as the "[pool] contributes 0 pooled predictors"
+#' warning.
+#'
+#' @return named character vector of md5 sums, or NA_character_ when absent
+ext_cache_stamp <- function(cc, cache_dir = here::here("data", "external_cache")) {
+  f <- ext_cache_input(cc, cache_dir)
+  if (!length(f)) return(NA_character_)
+  stats::setNames(unname(tools::md5sum(f)), basename(f))
+}
+
 
 #' Load DHS admin-2 estimates for merging into the pipeline dataset
 #'

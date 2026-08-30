@@ -42,57 +42,13 @@
 #     build_area_loco_dataset() and assemble_area_transport().
 # =============================================================================
 
-say <- function(...) cat(sprintf("[full] %s  %s\n", format(Sys.time(), "%H:%M:%S"),
-                                 sprintf(...)))
-
-Sys.setenv(PIPELINE_MODE = "full", GEE_COVARIATE_HYGIENE = "true",
-           # Read by tar_option_set(error=) in _targets.R. A batch run must
-           # not throw away every remaining target because one worker died.
-           TARGETS_ERROR_MODE = "continue")
-say("PIPELINE_MODE=%s  GEE_COVARIATE_HYGIENE=%s",
-    Sys.getenv("PIPELINE_MODE"), Sys.getenv("GEE_COVARIATE_HYGIENE"))
-
-n_tif <- length(list.files("data/Tanzania_GEE_rasters", pattern = "\\.tif$"))
-say("Tanzania rasters on disk: %d", n_tif)
-if (n_tif == 0)
-  warning("data/Tanzania_GEE_rasters/ is empty - Tanzania falls back to the ",
-          "legacy-parity CSV and the covariate intersection stays small")
-
-# Keep the pre-existing comparison table so the old and new numbers can be
-# diffed afterwards rather than silently replaced.
-src <- "results/tables/area_comparison_all.csv"
-if (file.exists(src)) {
-  bak <- "results/tables/area_comparison_all_PREFULL.csv"
-  file.copy(src, bak, overwrite = TRUE)
-  say("kept the pre-run comparison table at %s", bak)
-}
-
-# any_of(), NOT all_of(). tar_invalidate() matches against the METADATA store,
-# not the manifest: a target that has never been built is absent there, so
-# all_of() aborts the whole call with "Element `x` doesn't exist" and NOTHING
-# gets invalidated. That failed silently on the first attempt -- the hygiene
-# flag would have applied to some targets and not others, producing a run that
-# was half hygienic and looked clean.
-invalidate <- function(nms, label) {
-  nms <- unique(nms[!is.na(nms) & nzchar(nms)])
-  if (!length(nms)) { say("nothing to invalidate for %s", label); return(invisible()) }
-  before <- tryCatch(nrow(targets::tar_meta(targets_only = TRUE)),
-                     error = function(e) NA_integer_)
-  ok <- tryCatch({ targets::tar_invalidate(names = tidyselect::any_of(nms)); TRUE },
-                 error = function(e) { say("invalidate(%s) failed: %s", label,
-                                           conditionMessage(e)); FALSE })
-  after <- tryCatch(nrow(targets::tar_meta(targets_only = TRUE)),
-                    error = function(e) NA_integer_)
-  say("%s: requested %d, metadata rows %s -> %s (%s)", label, length(nms),
-      before, after, if (ok) "ok" else "FAILED")
-  if (!ok) stop(sprintf("invalidation for %s failed - refusing to run a ",
-                        label), "partially-invalidated pipeline")
-}
-
-all_names <- tryCatch(targets::tar_manifest()$name, error = function(e) character(0))
-invalidate("pipeline_params", "PIPELINE_MODE")
-invalidate(grep("^(area_loco|area_comparison|transport|area_transport)",
-                all_names, value = TRUE), "GEE_COVARIATE_HYGIENE")
+RUNNER_TAG <- "full"
+# Environment defaults + the four invalidation traps for settings {targets}
+# cannot see. Shared with scripts/run_tier1.R so the two launchers can never
+# drift apart -- see the header of that file.
+source(here::here("scripts", "_pipeline_setup.R"))
+# A full run rebuilds everything it invalidates, so no scope restriction.
+apply_invalidation_traps()
 
 n_out <- tryCatch(length(targets::tar_outdated(reporter = "silent")),
                   error = function(e) NA_integer_)
