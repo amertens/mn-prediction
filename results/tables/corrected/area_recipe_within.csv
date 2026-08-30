@@ -1,49 +1,25 @@
 "country","outcome","mode","estimator","scheme","n_area","pearson_r","spearman_r","calib_slope","mae_pp","pearson_ci_lo","pearson_ci_hi","pearson_perm_p","n_boot"
-"Gambia","child_vitA","enriched","binomial","district",30,0.178,0.281,0.23,11.45,-0.165,0.576,0.1808,1000
-"Gambia","child_vitA","enriched","binomial","region",30,0.211,0.053,0.31,12.38,-0.123,0.48,0.1309,1000
-"Gambia","women_vitA","enriched","binomial","district",30,0.384,0.408,0.96,3.22,0.083,0.674,0.027,1000
-"Gambia","women_vitA","enriched","binomial","region",30,0.314,0.224,1.37,3.32,-0.064,0.587,0.041,1000
-"Gambia","child_iron","enriched","binomial","district",30,0.34,0.3,0.71,12.23,0.068,0.602,0.032,1000
-"Gambia","child_iron","enriched","binomial","region",30,0.211,0.228,0.72,12.06,-0.208,0.534,0.1349,1000
-"Gambia","women_iron","enriched","binomial","district",30,0.601,0.571,1.12,10.82,0.411,0.773,0.001,1000
-"Gambia","women_iron","enriched","binomial","region",30,0.511,0.543,1.29,12,0.235,0.716,0.005,1000
-"Ghana","child_vitA","enriched","binomial","district",71,0.221,0.215,0.46,9.65,0.002,0.42,0.03,1000
-"Ghana","child_vitA","enriched","binomial","region",71,0.304,0.269,0.71,8.95,0.069,0.517,0.005,1000
-"Ghana","women_vitA","enriched","binomial","district",72,-0.132,-0.151,-0.7,2.79,-0.278,0.037,0.8501,1000
-"Ghana","women_vitA","enriched","binomial","region",72,-0.15,-0.135,-1.2,2.75,-0.372,0.068,0.8991,1000
-"Ghana","child_iron","enriched","binomial","district",71,0.635,0.592,0.84,11.08,0.489,0.752,0.001,1000
-"Ghana","child_iron","enriched","binomial","region",71,0.548,0.486,0.77,12.05,0.381,0.695,0.001,1000
-"Ghana","women_iron","enriched","binomial","district",72,0.334,0.28,0.71,8.57,0.101,0.526,0.003,1000
-"Ghana","women_iron","enriched","binomial","region",72,0.196,0.256,0.38,8.95,-0.034,0.458,0.048,1000
-"Ghana","women_folate","enriched","binomial","district",52,-0.016,-0.091,-0.03,23.07,-0.286,0.214,0.5295,1000
-"Ghana","women_folate","enriched","binomial","region",52,0.139,-0.005,0.33,20.91,-0.155,0.356,0.1518,1000
-"Ghana","women_b12","enriched","binomial","district",51,0.559,0.383,0.62,8.45,0.168,0.756,0.001,1000
-"Ghana","women_b12","enriched","binomial","region",51,-0.227,-0.224,-0.43,11.39,-0.421,0.012,0.951,1000
-"Sierra Leone","child_vitA","enriched","binomial","district",14,-0.392,-0.552,-1.08,5.68,-0.783,-0.108,0.9291,1000
-"Sierra Leone","child_vitA","enriched","binomial","region",14,0.132,0.068,0.03,19.97,-0.339,0.672,0.3217,1000
-"Sierra Leone","women_vitA","enriched","binomial","district",14,-0.626,-0.873,-1.22,1.74,-0.902,-0.52,1,1000
-"Sierra Leone","women_vitA","enriched","binomial","region",14,0.178,-0.042,0.05,2.85,-0.358,0.643,0.2498,1000
-"Sierra Leone","child_iron","enriched","binomial","district",14,-0.337,-0.314,-0.6,5.02,-0.722,0.134,0.8631,1000
-"Sierra Leone","child_iron","enriched","binomial","region",14,-0.206,-0.147,-0.4,5.07,-0.667,0.441,0.7522,1000
-"Sierra Leone","women_iron","enriched","binomial","district",14,0.204,0.231,0.4,5.3,-0.288,0.652,0.2248,1000
-"Sierra Leone","women_iron","enriched","binomial","region",14,0.535,0.363,0.58,5.61,-0.177,0.826,0.027,1000
-"Sierra Leone","women_folate","enriched","binomial","district",14,-0.264,-0.138,-0.35,10.78,-0.686,0.388,0.8332,1000
-"Sierra Leone","women_folate","enriched","binomial","region",14,-0.367,-0.253,-0.53,11.96,-0.747,0.204,0.9141,1000
-"Sierra Leone","women_b12","enriched","binomial","district",14,-0.001,-0.234,0,0.64,-0.582,0.704,0.4995,1000
-"Sierra Leone","women_b12","enriched","binomial","region",14,0.326,0.237,0.01,8.31,-0.266,0.836,0.2148,1000
-"Malawi","child_vitA","enriched","binomial","district",83,-0.108,-0.033,-0.33,8.43,-0.295,0.096,0.8302,1000
-"Malawi","child_vitA","enriched","binomial","region",83,0.181,0.193,0.56,7.63,-0.044,0.391,0.047,1000
-"Malawi","women_vitA","enriched","binomial","district",79,0.039,0.177,0.1,2.47,-0.087,0.249,0.3027,1000
-"Malawi","women_vitA","enriched","binomial","region",79,0.068,0.091,0.2,2.45,-0.125,0.319,0.2627,1000
-"Malawi","child_iron","enriched","binomial","district",83,0.172,0.103,0.35,11.3,-0.076,0.38,0.0679,1000
-"Malawi","child_iron","enriched","binomial","region",83,0.124,-0.035,0.25,11.49,-0.133,0.346,0.1279,1000
-"Malawi","women_iron","enriched","binomial","district",75,0.12,0.15,0.3,12.63,-0.04,0.328,0.1528,1000
-"Malawi","women_iron","enriched","binomial","region",75,0.165,0.103,0.38,12.49,-0.053,0.336,0.0789,1000
-"Malawi","women_folate","enriched","binomial","district",80,0.273,0.169,0.57,15.89,0.058,0.456,0.014,1000
-"Malawi","women_folate","enriched","binomial","region",80,0.055,-0.077,0.11,17.72,-0.238,0.303,0.2897,1000
-"Malawi","women_b12","enriched","binomial","district",80,0,0.014,0,5.05,-0.201,0.192,0.4775,1000
-"Malawi","women_b12","enriched","binomial","region",80,-0.12,-0.048,-0.17,5.62,-0.213,-0.007,0.8891,1000
-"Malawi","child_zinc","enriched","binomial","district",83,-0.364,-0.382,-1.98,19.96,-0.552,-0.15,1,1000
-"Malawi","child_zinc","enriched","binomial","region",83,-0.223,-0.264,-0.72,20.72,-0.387,-0.063,0.976,1000
-"Malawi","women_zinc","enriched","binomial","district",79,0.084,-0.025,0.26,21.32,-0.162,0.324,0.2388,1000
-"Malawi","women_zinc","enriched","binomial","region",79,0.028,-0.007,0.07,21.99,-0.216,0.272,0.3956,1000
+"Gambia","child_vitA","enriched","binomial","district",30,0.185,0.192,0.27,11.42,-0.126,0.489,0.1778,1000
+"Gambia","women_vitA","enriched","binomial","district",30,0.317,0.397,0.8,3.38,0.036,0.618,0.0589,1000
+"Gambia","child_iron","enriched","binomial","district",30,0.476,0.397,0.94,11.19,0.232,0.699,0.005,1000
+"Gambia","women_iron","enriched","binomial","district",30,0.403,0.473,0.66,12.3,0.15,0.662,0.011,1000
+"Ghana","child_vitA","enriched","binomial","district",71,0.183,0.161,0.42,9.62,-0.049,0.391,0.0659,1000
+"Ghana","women_vitA","enriched","binomial","district",72,-0.153,-0.194,-0.91,2.85,-0.308,-0.047,0.956,1000
+"Ghana","child_iron","enriched","binomial","district",71,0.622,0.59,0.82,11.27,0.487,0.736,0.001,1000
+"Ghana","women_iron","enriched","binomial","district",72,0.391,0.33,0.86,8.21,0.181,0.559,0.001,1000
+"Ghana","women_folate","enriched","binomial","district",52,-0.078,-0.067,-0.16,22.81,-0.382,0.156,0.7113,1000
+"Ghana","women_b12","enriched","binomial","district",51,0.573,0.414,1.07,8,0.215,0.779,0.001,1000
+"Sierra Leone","child_vitA","enriched","binomial","district",14,-0.221,-0.579,-0.64,5.42,-0.732,0.01,0.8162,1000
+"Sierra Leone","women_vitA","enriched","binomial","district",14,-0.262,-0.53,-0.63,1.53,-0.937,0.302,0.8372,1000
+"Sierra Leone","child_iron","enriched","binomial","district",14,-0.124,-0.103,-0.25,4.68,-0.661,0.453,0.6583,1000
+"Sierra Leone","women_iron","enriched","binomial","district",14,0.046,0.108,0.08,6.39,-0.349,0.479,0.4466,1000
+"Sierra Leone","women_folate","enriched","binomial","district",14,-0.716,-0.662,-2.32,10.84,-0.892,-0.416,1,1000
+"Sierra Leone","women_b12","enriched","binomial","district",14,0.348,0.019,0.01,7.68,-0.485,0.841,0.2448,1000
+"Malawi","child_vitA","enriched","binomial","district",86,0.045,0.157,0.11,8.01,-0.133,0.323,0.3057,1000
+"Malawi","women_vitA","enriched","binomial","district",82,0.06,0.122,0.18,2.33,-0.1,0.243,0.2817,1000
+"Malawi","child_iron","enriched","binomial","district",86,0.28,0.309,0.51,11,0.096,0.463,0.007,1000
+"Malawi","women_iron","enriched","binomial","district",78,0.02,0.108,0.04,13.8,-0.143,0.218,0.4306,1000
+"Malawi","women_folate","enriched","binomial","district",83,0.366,0.212,0.67,15.89,0.154,0.54,0.002,1000
+"Malawi","women_b12","enriched","binomial","district",83,0.211,0.336,0.53,4.28,0.041,0.428,0.035,1000
+"Malawi","child_zinc","enriched","binomial","district",86,-0.247,-0.191,-0.8,20.76,-0.42,-0.053,0.992,1000
+"Malawi","women_zinc","enriched","binomial","district",82,-0.18,-0.248,-0.56,22.59,-0.392,0.019,0.9471,1000

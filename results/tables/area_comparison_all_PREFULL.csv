@@ -113,13 +113,3 @@
 "Malawi","women_zinc","Area SL (NLL)",87,28.07,35.05,-0.285,16.05,0.718,0.793,-0.4,TRUE,64.31,16.38,-0.285,-0.4
 "Malawi","women_zinc","National mean (null)",87,22.69,25.85,NA,-1.91,0.718,0.793,NA,TRUE,64.31,NA,NA,NA
 "Malawi","women_zinc","Spatial only (no covariates)",90,23.88,28.14,-0.325,7.04,0.718,0.793,-0.45,TRUE,64.31,NA,-0.325,-0.45
-"Tanzania","child_vitA","Individual SL",162,12.04,14.93,0.251,0.55,0.749,0.816,0.34,TRUE,23.9,-0.59,0.251,0.34
-"Tanzania","child_vitA","Area SL (MSE)",162,12.85,15.89,-0.001,-0.13,0.749,0.816,0,TRUE,23.9,-1.15,-0.001,0
-"Tanzania","child_vitA","Area SL (NLL)",162,13.75,18.19,-0.094,-6.94,0.749,0.816,-0.13,TRUE,23.9,-7.7,-0.094,-0.13
-"Tanzania","child_vitA","National mean (null)",162,12.42,15.36,NA,0.31,0.749,0.816,NA,TRUE,23.9,NA,NA,NA
-"Tanzania","child_vitA","Spatial only (no covariates)",162,12.45,15.98,-0.119,-3.38,0.749,0.816,-0.16,TRUE,23.9,NA,-0.119,-0.16
-"Tanzania","women_vitA","Individual SL",163,5.58,8.55,0.129,-0.31,0.77,0.848,0.17,TRUE,7.53,-0.29,0.129,0.17
-"Tanzania","women_vitA","Area SL (MSE)",163,6.19,8.88,-0.051,0.14,0.77,0.848,-0.07,TRUE,7.53,0.33,-0.051,-0.07
-"Tanzania","women_vitA","Area SL (NLL)",163,6.05,9.49,0.057,-3.98,0.77,0.848,0.07,TRUE,7.53,-3.59,0.057,0.07
-"Tanzania","women_vitA","National mean (null)",163,5.82,8.52,NA,-0.35,0.77,0.848,NA,TRUE,7.53,NA,NA,NA
-"Tanzania","women_vitA","Spatial only (no covariates)",163,5.68,8.99,-0.082,-2.75,0.77,0.848,-0.11,TRUE,7.53,NA,-0.082,-0.11

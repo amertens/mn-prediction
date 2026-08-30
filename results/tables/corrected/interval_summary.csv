@@ -1,25 +1,25 @@
 "country","outcome","target_coverage","split_conformal_halfwidth_pp","empirical_coverage_heldout","n_districts","n_design_ci"
-"Gambia","child_vitA",0.9,21.75,0.867,30,30
-"Gambia","women_vitA",0.9,6.58,0.933,30,30
-"Gambia","child_iron",0.9,48.73,1,30,30
-"Gambia","women_iron",0.9,37.17,0.867,30,30
-"Ghana","child_vitA",0.9,17.1,0.816,75,75
-"Ghana","women_vitA",0.9,9.05,0.947,75,75
-"Ghana","child_iron",0.9,26.35,0.895,75,75
-"Ghana","women_iron",0.9,25.31,0.947,75,75
-"Ghana","women_folate",0.9,46.45,0.868,75,75
-"Ghana","women_b12",0.9,26.62,0.947,75,75
-"Sierra Leone","child_vitA",0.9,7.72,0.714,14,14
-"Sierra Leone","women_vitA",0.9,4,1,14,14
-"Sierra Leone","child_iron",0.9,3.14,0.714,14,14
-"Sierra Leone","women_iron",0.9,21.1,1,14,14
-"Sierra Leone","women_folate",0.9,4.94,0.714,14,14
-"Sierra Leone","women_b12",0.9,1.57,1,14,14
-"Malawi","child_vitA",0.9,22.83,0.864,87,87
-"Malawi","women_vitA",0.9,12.47,1,87,87
-"Malawi","child_iron",0.9,32.12,0.932,87,87
-"Malawi","women_iron",0.9,29.25,0.886,87,87
-"Malawi","women_folate",0.9,30.65,0.864,87,87
-"Malawi","women_b12",0.9,12.86,0.909,87,87
-"Malawi","child_zinc",0.9,40.71,0.841,87,87
-"Malawi","women_zinc",0.9,43.62,0.864,87,87
+"Gambia","child_vitA",0.9,20.06,0.867,30,30
+"Gambia","women_vitA",0.9,11.67,0.933,30,30
+"Gambia","child_iron",0.9,45.57,1,30,30
+"Gambia","women_iron",0.9,36.24,0.867,30,30
+"Ghana","child_vitA",0.9,16.23,0.789,75,75
+"Ghana","women_vitA",0.9,9.09,0.921,75,75
+"Ghana","child_iron",0.9,30.5,0.921,75,75
+"Ghana","women_iron",0.9,23.24,0.921,75,75
+"Ghana","women_folate",0.9,56.32,0.974,75,75
+"Ghana","women_b12",0.9,27.86,0.947,75,75
+"Sierra Leone","child_vitA",0.9,8.1,0.857,14,14
+"Sierra Leone","women_vitA",0.9,4.48,1,14,14
+"Sierra Leone","child_iron",0.9,4.14,0.714,14,14
+"Sierra Leone","women_iron",0.9,24.47,1,14,14
+"Sierra Leone","women_folate",0.9,9.16,0.857,14,14
+"Sierra Leone","women_b12",0.9,1.44,1,14,14
+"Malawi","child_vitA",0.9,22.72,0.864,87,87
+"Malawi","women_vitA",0.9,12.73,0.977,87,87
+"Malawi","child_iron",0.9,33,0.909,87,87
+"Malawi","women_iron",0.9,28.47,0.909,87,87
+"Malawi","women_folate",0.9,27.42,0.818,87,87
+"Malawi","women_b12",0.9,11.01,0.886,87,87
+"Malawi","child_zinc",0.9,41.35,0.909,87,87
+"Malawi","women_zinc",0.9,49.55,0.886,87,87
