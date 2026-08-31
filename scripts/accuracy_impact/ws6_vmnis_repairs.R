@@ -107,59 +107,22 @@ print(as.data.frame(aud[, c("panel","rows","n_missing_samplesize","n_min",
 # A boundary flag is carried so WS6b can mark unusable rows rather than
 # quietly reporting them.
 # ---------------------------------------------------------------------------
-national_noise_ceiling_v2 <- function(d, deff = 1.5, clamp = 0.02,
-                                      centre = c("median", "mean"),
-                                      require_n = TRUE) {
-  centre <- match.arg(centre)
-  need <- c("prev", "iso3c", "year", "Samplesize")
-  if (!all(need %in% names(d))) return(NULL)
-  d <- d[is.finite(d$prev) & !is.na(d$iso3c), , drop = FALSE]
-  d$.n <- suppressWarnings(as.numeric(d$Samplesize))
-  if (require_n) d <- d[is.finite(d$.n), , drop = FALSE]
-  if (nrow(d) < 30 || dplyr::n_distinct(d$iso3c) < 10) return(NULL)
-  d$y <- .nat_logit(d$prev)
-  if (!"method" %in% names(d)) d$method <- "unspecified"
-  d$yr_c <- d$year - mean(d$year, na.rm = TRUE)
-
-  fm <- tryCatch(lme4::lmer(y ~ yr_c + (1 | iso3c) + (1 | method), data = d,
-                            REML = TRUE), error = function(e) NULL)
-  if (is.null(fm)) return(NULL)
-  vc <- as.data.frame(lme4::VarCorr(fm))
-  gv <- function(g) { v <- vc$vcov[vc$grp == g]; if (length(v)) v[1] else 0 }
-  s2_country <- gv("iso3c"); s2_method <- gv("method")
-  s2_resid   <- vc$vcov[vc$grp == "Residual"][1]
-
-  p <- pmin(pmax(d$prev, clamp), 1 - clamp)
-  v_s <- deff / (pmax(d$.n, 2) - 1) / (p * (1 - p))
-  v_s <- v_s[is.finite(v_s)]
-  v_bar <- if (centre == "median") stats::median(v_s) else mean(v_s)
-
-  resid_boundary <- s2_resid <= 1e-8
-  s2_resid_adj <- max(s2_resid - v_bar, 0)
-  sampling_exceeds_resid <- v_bar > s2_resid
-
-  lam_raw <- s2_country / (s2_country + s2_method + s2_resid_adj + v_bar)
-  lam_std <- s2_country / (s2_country + s2_resid_adj + v_bar)
-  data.frame(surveys = nrow(d), countries = dplyr::n_distinct(d$iso3c),
-             sd_country = round(sqrt(s2_country), 3),
-             sd_method  = round(sqrt(s2_method), 3),
-             sd_resid   = round(sqrt(s2_resid_adj), 3),
-             sd_sampling = round(sqrt(v_bar), 3),
-             r_max_report = round(sqrt(lam_raw), 3),
-             r_max_standardised = round(sqrt(lam_std), 3),
-             resid_at_boundary = resid_boundary,
-             sampling_exceeds_resid = sampling_exceeds_resid,
-             usable = !resid_boundary & !sampling_exceeds_resid,
-             stringsAsFactors = FALSE)
-}
+# national_noise_ceiling_v2() has been PROMOTED into R/national_vmnis.R as the
+# definition of national_noise_ceiling(). The published behaviour is still
+# reachable through its arguments, so the two can be compared in one run:
+#   published: centre = "mean",   clamp = 0.005, require_n = FALSE
+#   revised:   centre = "median", clamp = 0.02,  require_n = TRUE
+national_noise_ceiling_published <- function(d, deff = 1.5)
+  national_noise_ceiling(d, deff = deff, clamp = 0.005, centre = "mean",
+                         require_n = FALSE)
 
 old <- list(); new <- list()
 for (i in seq_len(nrow(panels))) {
   mn <- panels$mn[i]; pp <- panels$pop[i]; lab <- paste(mn, "|", pp)
   d <- nat |> filter(mn_group == mn, pop == pp) |>
     mutate(method = paste(adj_level(Dataadjustedfor), trimws(as.character(Indicator))))
-  o <- tryCatch(national_noise_ceiling(d), error = function(e) NULL)
-  nw <- tryCatch(national_noise_ceiling_v2(d), error = function(e) NULL)
+  o <- tryCatch(national_noise_ceiling_published(d), error = function(e) NULL)
+  nw <- tryCatch(national_noise_ceiling(d), error = function(e) NULL)
   if (!is.null(o))  old[[lab]] <- cbind(panel = lab, version = "published", o)
   if (!is.null(nw)) new[[lab]] <- cbind(panel = lab, version = "revised", nw)
 }

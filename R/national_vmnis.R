@@ -255,10 +255,62 @@ compose_level_pattern <- function(pattern_df, level, weight_col = "n_svy") {
 # standardisation actually buys, stated as a number rather than as a side
 # effect of how repeat surveys were grouped.
 # ---------------------------------------------------------------------------
-national_noise_ceiling <- function(d, deff = 1.5) {
+# WS6a, 2026-08-31. THE SAMPLING TERM WAS WRONG BY A FACTOR OF 4.7, AND THE
+# "DEGENERATE lmer FIT" WAS NOT A DEGENERATE lmer FIT.
+#
+# The published version reported sd_sampling 0.816 for the Vitamin A preschool
+# panel. On the logit scale at a prevalence near 25 percent that implies an
+# effective sample size of about THIRTEEN, and national nutrition surveys do not
+# have thirteen respondents. Three causes, each measured
+# (results/tables/vmnis_sampling_audit.csv):
+#
+#   1. v_bar was the ARITHMETIC MEAN of a reciprocal. The mean of 1/n is set by
+#      the smallest surveys, not the typical one. That panel holds 34 surveys
+#      under n = 50 and a minimum of n = 8, against a median of 373.5. Using the
+#      median of the same per-survey variances gives 0.172 instead of 0.816.
+#   2. The prevalence clamp sat at 0.005, so p(1-p) could fall to 0.005 and a
+#      single near-zero-prevalence survey could contribute up to 301/(n-1). That
+#      panel holds 37 surveys with prevalence under 2 percent.
+#   3. Rows with no Samplesize dropped out of v_bar but stayed in the lmer fit,
+#      so the variance components and the sampling term described different sets
+#      of surveys.
+#
+# CONSEQUENCE FOR THE RECORD. Section 6.3 of the review document flags sd_resid
+# at exactly 0.000 in two panels and attributes it to a degenerate lmer fit,
+# concluding r_max is untrustworthy there. That diagnosis was wrong. The raw
+# residual variance is non-zero in all four panels; the reported zero was the
+# over-large sampling term being subtracted from a healthy residual and floored
+# at zero. With the corrected term no panel sits at a boundary and all four are
+# usable, so the refit with weakly informative priors that Section 12 recommends
+# is not needed.
+#
+# WHAT CHANGES IN THE OUTPUT. Vitamin A preschool moves from r_max_report 0.818
+# to 0.869 and sd_resid from 0.000 to 0.703, so the model's saturation against
+# the ceiling falls from about 80 percent to about 75 percent. There is MORE
+# headroom than the published table reports, not less. Three diagnostic columns
+# are added (resid_at_boundary, sampling_exceeds_resid, usable); every previously
+# reported column keeps its name.
+#
+# RE-RUNNING scripts/covariates/19_national_composition.R WILL THEREFORE CHANGE
+# results/tables/national_vmnis_ceiling.csv. The pre-change values are preserved
+# in results/tables/frozen_2026-09/national_vmnis_ceiling.csv and the
+# side-by-side comparison is in results/tables/national_vmnis_ceiling_revised.csv.
+#
+# @param centre "median" (default) or "mean" for the per-survey sampling
+#   variances. "mean" reproduces the published behaviour and is kept so the
+#   difference stays inspectable rather than becoming folklore.
+# @param clamp prevalence clamp; 0.02 by default, 0.005 in the published version
+# @param require_n drop rows with no recorded Samplesize before fitting, so the
+#   variance components and the sampling term describe the same surveys
+national_noise_ceiling <- function(d, deff = 1.5, clamp = 0.02,
+                                   centre = c("median", "mean"),
+                                   require_n = TRUE) {
+  centre <- match.arg(centre)
   need <- c("prev", "iso3c", "year", "Samplesize")
   if (!all(need %in% names(d))) return(NULL)
   d <- d[is.finite(d$prev) & !is.na(d$iso3c), , drop = FALSE]
+  d$.n <- suppressWarnings(as.numeric(d$Samplesize))
+  if (require_n) d <- d[is.finite(d$.n), , drop = FALSE]
   if (nrow(d) < 30 || dplyr::n_distinct(d$iso3c) < 10) return(NULL)
   d$y <- .nat_logit(d$prev)
   if (!"method" %in% names(d)) d$method <- "unspecified"
@@ -274,20 +326,29 @@ national_noise_ceiling <- function(d, deff = 1.5) {
 
   # Binomial sampling variance on the logit scale, design-effect inflated. The
   # residual already contains it, so it is subtracted out rather than added.
-  n <- suppressWarnings(as.numeric(d$Samplesize))
-  p <- pmin(pmax(d$prev, 0.005), 0.995)
-  v_s <- deff / (pmax(n, 2) - 1) / (p * (1 - p))
-  v_bar <- mean(v_s[is.finite(v_s)], na.rm = TRUE)
-  s2_resid <- max(s2_resid - v_bar, 0)
+  p <- pmin(pmax(d$prev, clamp), 1 - clamp)
+  v_s <- deff / (pmax(d$.n, 2) - 1) / (p * (1 - p))
+  v_s <- v_s[is.finite(v_s)]
+  if (!length(v_s)) return(NULL)
+  v_bar <- if (centre == "median") stats::median(v_s) else mean(v_s)
 
-  lam_raw <- s2_country / (s2_country + s2_method + s2_resid + v_bar)
-  lam_std <- s2_country / (s2_country + s2_resid + v_bar)
+  # Flags rather than a silent floor: a reader should be able to see when the
+  # subtraction, not the fit, produced a zero.
+  resid_boundary <- s2_resid <= 1e-8
+  sampling_exceeds_resid <- v_bar > s2_resid
+  s2_resid_adj <- max(s2_resid - v_bar, 0)
+
+  lam_raw <- s2_country / (s2_country + s2_method + s2_resid_adj + v_bar)
+  lam_std <- s2_country / (s2_country + s2_resid_adj + v_bar)
   data.frame(surveys = nrow(d), countries = dplyr::n_distinct(d$iso3c),
              sd_country = round(sqrt(s2_country), 3),
              sd_method  = round(sqrt(s2_method), 3),
-             sd_resid   = round(sqrt(s2_resid), 3),
+             sd_resid   = round(sqrt(s2_resid_adj), 3),
              sd_sampling = round(sqrt(v_bar), 3),
              r_max_report = round(sqrt(lam_raw), 3),
              r_max_standardised = round(sqrt(lam_std), 3),
+             resid_at_boundary = resid_boundary,
+             sampling_exceeds_resid = sampling_exceeds_resid,
+             usable = !resid_boundary & !sampling_exceeds_resid,
              stringsAsFactors = FALSE)
 }
