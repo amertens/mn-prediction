@@ -440,6 +440,69 @@ BIOMARKER_DERIVED_TOKENS <- c("FerAdj", "RBPAdj", "Retinol",
                               "VitADef", "VitAInsuff", "VitADefic",
                               "FeDef", "FolDef", "B12Def", "ZincDef")
 
+#' The DHS standard-recode measurement bands.
+#'
+#' THE TWELFTH INSTANCE OF THE LEAK CLASS, and the first found BEFORE the data
+#' it would have leaked was built rather than after. WS-C4 admits Malawi to the
+#' individual-level arms by joining the micronutrient survey to the DHS
+#' household roster, which means several hundred DHS-coded columns enter the
+#' pipeline under the `gw_` survey prefix for the first time.
+#'
+#' Every guard above matches on ANALYTE NAMES -- "Hb", "ferritin", "anemia".
+#' DHS recodes are named by position in the questionnaire, not by content, so
+#' not one of them fires:
+#'
+#'   hw53   child haemoglobin, g/dL, KR recode. `gw_hw53` matches neither the
+#'          case-sensitive `Hb` nor `^gw_.*hb`, so the existing classifier
+#'          returns "questionnaire" and a blood draw enters the arm whose
+#'          entire purpose is to exclude blood draws.
+#'   v453   the same for women, IR recode.
+#'   ha53 / hc53 / hb53   the same in the PR person recode.
+#'   hml35  malaria rapid-test result. A test, on blood, from the same visit.
+#'
+#' Confirmed present in the Malawi cache: ha50-ha58, hb50-hb58, hc51-hc58,
+#' hw51-hw58 and v453-v459 all exist in the recodes WS-C4 reads.
+#'
+#' Anthropometry is included deliberately. Height, weight and the z-scores
+#' derived from them are not blood draws, but they are MEASUREMENTS taken from
+#' the same respondent in the same visit rather than questionnaire responses,
+#' which is the distinction the questionnaire arm rests on. They are classed
+#' `hb_field` for the same reason field haemoglobin is: available to a survey
+#' that already sent a fieldworker, unavailable to one that did not.
+#'
+#' Scoped to the survey prefix, so DHS-derived Admin-2 aggregates from other
+#' rounds -- which are proxy covariates, available to a country that never ran a
+#' survey -- are untouched.
+#'
+#' @param cols character vector of column names
+#' @return character vector: "", "blood_draw" or "hb_field"
+dhs_measurement_class <- function(cols, survey_prefix = "^gw_") {
+  out <- rep("", length(cols))
+  if (!length(cols)) return(out)
+  stem <- sub(survey_prefix, "", cols)
+  concurrent <- grepl(survey_prefix, cols)
+
+  # Malaria parasitaemia and rapid tests: blood, drawn at the visit.
+  draw <- grepl("^hml3[2-6]$", stem)
+  # The haemoglobin and anaemia band, and the anthropometry band.
+  hb <- grepl("^(ha|hb|hc|hw)5[0-9]$", stem) |
+    grepl("^v45[3-8]$", stem) |   # v459 is a bednet question, not a measurement
+    grepl("^(hw|hc)[1-3]$", stem) |          # age, weight, height
+    grepl("^(hw|hc)7[0-9]$", stem) |         # WHO/NCHS z-scores
+    grepl("^(ha|hb)([23]|4[01])$", stem) |   # adult height, weight, BMI
+    grepl("^v4(3[7-9]|4[0-5])[a-z]?$", stem) # the IR anthropometry block:
+                                             # v437 weight, v438 height,
+                                             # v445 BMI. These survived the
+                                             # first WS-C4 build only because
+                                             # they have more distinct values
+                                             # than the level cap allows, which
+                                             # is luck rather than a guard.
+
+  out[concurrent & hb]   <- "hb_field"
+  out[concurrent & draw] <- "blood_draw"     # precedence: the draw wins
+  out
+}
+
 is_biomarker_column <- function(cols) {
   if (!length(cols)) return(logical(0))
   derived    <- paste(BIOMARKER_DERIVED_TOKENS, collapse = "|")
@@ -536,7 +599,10 @@ is_biomarker_column <- function(cols) {
     grepl("NoAdj", cols) |
     grepl("_[cw]ID($|_|s[TR])", cols) |
     grepl("_[cw]VAI", cols) |
-    grepl("^gw_(bs[0-9]|bis$|rpb[0-9])", cols)
+    grepl("^gw_(bs[0-9]|bis$|rpb[0-9])", cols) |
+    # (4) THE DHS STANDARD RECODE BANDS. Named by questionnaire position, so no
+    # analyte-name guard above fires on them. See dhs_measurement_class().
+    dhs_measurement_class(cols) != ""
 }
 
 
@@ -602,6 +668,12 @@ biomarker_column_class <- function(cols) {
   # verified these individually and they must survive the broader pattern above.
   keep <- grepl("HeardAn[a]?emia", cols) | grepl("^gw_[cw]FF", cols)
   hb <- hb & !keep
+
+  # The DHS standard recode bands (WS-C4). Applied before the local patterns
+  # so that the precedence rule below still governs.
+  dhs <- dhs_measurement_class(cols)
+  hb   <- hb   | dhs == "hb_field"
+  draw <- draw | dhs == "blood_draw"
 
   out <- rep("questionnaire", length(cols))
   out[hb]   <- "hb_field"

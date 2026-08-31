@@ -41,6 +41,13 @@
 #   ridge         the covariate ridge under leave-one-region-out
 #   region_tilt   the jackknifed region mean plus a covariate fit to
 #                 within-region residuals
+#   eb_covariate  the Fay-Herriot form: shrink the district's own estimate
+#                 toward the COVARIATE prediction rather than the region mean,
+#                 with tau2 the residual between-district variance after the
+#                 covariate fit. The first tournament shrank toward the weaker
+#                 of the two available targets: the ridge beat the flat regional
+#                 mean as a predictor (0.324 against 0.143 at rho 0.35), so the
+#                 better shrinkage target had not been tried.
 # Each is scored against TRUTH and, for reference, against the observed estimate.
 # =============================================================================
 
@@ -151,6 +158,18 @@ run_tournament <- function(d, a2_col, cl_col, w_col, y_col, X_d, region,
       }
       est$region_tilt <- ifelse(is.finite(fr) & is.finite(tilt),
                                 pmin(pmax(fr + tilt, 0), 1), fr)
+      # Fay-Herriot: shrink toward the covariate prediction. tau2 is the
+      # RESIDUAL between-district variance after the covariate fit, so a
+      # covariate model that explains more leaves less to shrink and the
+      # district's own estimate gets more weight, not less.
+      okr <- fin & is.finite(pr)
+      if (sum(okr) >= 10) {
+        tau2_r <- max(stats::var(p_obs[okr] - pr[okr]) - mean(v_d[okr]), 1e-8)
+        lam_r <- tau2_r / (tau2_r + v_d)
+        lam_r[!is.finite(lam_r)] <- 1
+        est$eb_covariate <- ifelse(is.finite(pr),
+          pmin(pmax(lam_r * p_obs + (1 - lam_r) * pr, 0), 1), est$eb_blend)
+      }
 
       for (nm in names(est)) {
         p <- est[[nm]]; f2 <- fin & is.finite(p)
