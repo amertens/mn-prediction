@@ -13,7 +13,16 @@ Sys.setenv(COVARIATE_VOCAB = "harmonized")
 targets::tar_source(here("R"))
 PROFILE <- Sys.getenv("PROFILE", "full")
 STORE <- here("_targets_full"); SUF <- if (PROFILE == "smoke") "_SMOKE" else ""
-R_REP <- as.integer(Sys.getenv("WSB2_R", if (PROFILE == "smoke") "30" else "200"))
+R_REP <- as.integer(Sys.getenv("WSB2_R", if (PROFILE == "smoke") "30" else "100"))
+# The tournament costs about half an hour per cell: every replicate refits the
+# ridge and the tilt once per region. Twenty-four cells is not affordable, so the
+# full run is a named eight-cell subset spanning all four countries and both
+# nutrient families, and the scope is stated rather than implied.
+SUBSET <- list(c("Ghana","child_iron"), c("Ghana","women_vitA"),
+               c("Gambia","child_iron"), c("Gambia","women_iron"),
+               c("Malawi","child_vitA"), c("Malawi","women_folate"),
+               c("SierraLeone","child_iron"), c("SierraLeone","women_iron"))
+kk <- function(x) tolower(gsub("[^a-z]", "", tolower(x)))
 RHO <- c(0, 0.2, 0.35, 0.6); SEED <- 20260922L
 TDIR <- here("results","tables"); FDIR <- here("results","figures")
 dir.create(FDIR, showWarnings = FALSE, recursive = TRUE)
@@ -30,7 +39,9 @@ for (cn in names(cfgs)) {
   cc <- cfgs[[cn]]; hc <- H[H$country == cn, , drop = FALSE]
   if (!nrow(hc)) next
   ocs <- names(cc$outcomes)
-  if (PROFILE == "smoke") ocs <- intersect(ocs, "child_iron")
+  if (PROFILE == "smoke") ocs <- intersect(ocs, "child_iron") else
+    ocs <- ocs[vapply(ocs, function(o) any(vapply(SUBSET,
+      function(z) kk(z[1]) == kk(cn) && z[2] == o, logical(1))), logical(1))]
   for (ocn in ocs) {
     oc <- cc$outcomes[[ocn]]
     od <- tryCatch(targets::tar_read_raw(paste0("outcome_data_", tolower(cn), "_", ocn),

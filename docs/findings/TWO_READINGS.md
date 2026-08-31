@@ -147,11 +147,21 @@ This correction was produced by applying to the covariate-free arm the same test
 that had already been applied to the anchored arms. The asymmetry was an
 oversight in the earlier session, not a difference in the estimators.
 
-**2. The field-haemoglobin result rested on four cells.** Both abstracts cite
-`+0.394` for Gambia women's iron and `0.848` for that cell. Those come from a
-four-cell subset. The sixteen-cell run supersedes them; see
-`docs/findings/WS3_INDIVIDUAL_ARMS.md` and
-`results/tables/individual_arms_2026-09_16CELL.csv` when present.
+**2. The field-haemoglobin result rested on four cells, and the sixteen-cell run
+strengthens it.** Both abstracts cite `+0.394` for Gambia women's iron and
+`0.848` for that cell. Over all twelve computable cells the mean gain from field
+haemoglobin is **+0.174**, with the three largest gains all on iron outcomes:
+Gambia child iron **+0.758** reaching 0.865, Ghana women iron **+0.697**, and the
+quoted Gambia women iron **+0.394** reaching 0.848 (source:
+`results/tables/individual_arms_2026-09_16CELL.csv`). The arm buys ranking and
+costs level: its district MAE is 11.07 pp against 8.33 for the proxy arm.
+
+**3. A correction to the first correction.** An interim report from a four-cell
+subset stated that the questionnaire gain **reverses sign** to -0.013 once the
+arms are decontaminated and nested. The sixteen-cell run gives **+0.036** over
+the twelve computable cells, against **+0.0993** for the published arms on the
+same twelve. Decontamination removes about two thirds of the gain and does not
+reverse it. The four-cell subset was not representative.
 
 **What does not change.** The reliability findings, the withdrawal of the
 anchoring gain, the skill curve across 81 DHS indicators, the resolution sweep,

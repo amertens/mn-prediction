@@ -46,13 +46,7 @@
 
 #' One replicate of a covariate-linked simulated world.
 #' @keywords internal
-.sim_world <- function(a2, cl, w, X_d, lev, sd_logit, rho, icc, base_p) {
-  z <- if (is.null(X_d) || ncol(X_d) < 2) rep(0, length(lev)) else {
-    pc <- tryCatch(stats::prcomp(X_d, center = TRUE, scale. = TRUE)$x[, 1],
-                   error = function(e) rep(0, nrow(X_d)))
-    as.numeric(scale(pc))
-  }
-  z[!is.finite(z)] <- 0
+.sim_world <- function(a2, cl, w, z, lev, sd_logit, rho, icc, base_p) {
   e <- as.numeric(scale(stats::rnorm(length(lev))))
   lin <- sqrt(rho) * z + sqrt(max(1 - rho, 0)) * e
   mu <- stats::qlogis(min(max(base_p, 0.01), 0.99))
@@ -94,12 +88,23 @@ run_tournament <- function(d, a2_col, cl_col, w_col, y_col, X_d, region,
   ic <- estimate_icc(y0, cl, a2); icc <- if (is.finite(ic$icc)) ic$icc else 0
   base_p <- mean(y0)
 
+  # The covariate axis is a property of the covariates, not of a replicate, so
+  # it is computed ONCE. The first version recomputed prcomp inside the replicate
+  # loop, which cost a principal-component decomposition per draw and also let
+  # the truth axis drift between replicates for no reason.
+  z_axis <- if (ncol(X_d) < 2) rep(0, length(lev)) else {
+    pc <- tryCatch(stats::prcomp(X_d, center = TRUE, scale. = TRUE)$x[, 1],
+                   error = function(e) rep(0, nrow(X_d)))
+    as.numeric(scale(pc))
+  }
+  z_axis[!is.finite(z_axis)] <- 0
+
   set.seed(seed)
   out <- list()
   for (rh in rho) {
     acc <- list()
     for (r in seq_len(R)) {
-      sm <- .sim_world(a2, cl, w, X_d, lev, sd_logit, rh, icc, base_p)
+      sm <- .sim_world(a2, cl, w, z_axis, lev, sd_logit, rh, icc, base_p)
       ys <- sm$y; truth <- sm$pi_d
       g <- factor(a2, levels = lev)
       p_obs <- .wprev(ys, w, g, lev)

@@ -119,7 +119,13 @@ panels become usable.
 Section 6.4's oracle framing, Section 10's VMNIS row, Section 11 claim 5.
 Register rows 6.3 to 6.9, 6.11.
 
-### 1.6 The questionnaire gain reverses sign once the arms are clean
+### 1.6 The questionnaire gain shrinks by two thirds once the arms are clean
+
+**Superseded, 2026-09-21.** This section was written from a four-cell subset
+and reported a sign reversal to -0.013. The sixteen-cell run gives **+0.036**
+over the twelve computable cells against a published **+0.0993** on the same
+twelve. Decontamination and nesting remove about two thirds of the gain and do
+not reverse it. See `docs/findings/WSC1_SIXTEEN_CELL_ARMS.md`.
 
 Measured on four cells under the strict protocol, with the guard corrected and
 the arms nested (source: `results/tables/individual_arms_2026-09_PARITY.csv`,
