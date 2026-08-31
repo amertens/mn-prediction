@@ -61,7 +61,58 @@ than Sections 4 to 6.
 | 4.8 | National anchoring makes mean absolute bias worse | 5.85 vs 3.24 pp | `frozen_2026-09/admin1_arms.csv`, column `bias_pp` | not yet tested | WS2c, withheld pending the implied-shift audit |
 | 4.9 | Hard beats shrunk despite the theoretical risk | 0.413 vs 0.318 | `frozen_2026-09/admin1_arms.csv` | not yet tested | WS2d |
 | 4.10 | The anchoring gain is not circular | qualitative argument in Section 4.4 | none | not yet tested | WS2a, WS2b |
-| 4.11 | The survey supplies the level; the model supplies the within-region pattern | qualitative | Sections 4 and 6 | not yet tested | WS2d |
+| 4.11 | The survey supplies the level; the model supplies the within-region pattern | qualitative | Sections 4 and 6 | **revised** | WS2d |
+
+**4.1 to 4.5 confirmed as reproductions.** All five published arms reproduce from
+`anchor_controls.csv` to within 0.004 in mean r (hard anchor 0.409 against 0.413,
+MAE 8.91 against 8.85), the difference being rounding before averaging. The
+numbers are right; what they mean is not what Section 4 says.
+
+**4.6 withdrawn.** The hard anchor beats no anchor in 22 of 24 cells here, close
+to the published 20 of 24. Under a jackknife anchor, where each district's
+regional target is computed from the region's other districts so no district
+contributes to its own correction, it beats no anchor in **8 of 24** cells, mean
+r falls from **0.409 to 0.147** against **0.156** unanchored, and both MAE and
+absolute bias become worse (source: `results/tables/anchor_controls.csv`, arm
+`5 ADMIN-1 anchor (hard, JACKKNIFE)`). The gain is an artifact of a district
+contributing roughly a quarter to a third of the number used to correct it.
+
+**4.10 withdrawn.** Section 4.4's argument that the anchor is not circular rests
+on the national anchor as a counterfactual. That control is not valid: a national
+anchor built from about 1,000 respondents contains roughly 0.1 percent of any one
+district's data, against a quarter to a third for a regional anchor, so its
+failure to gain is what a leakage account predicts. The valid control is an arm at
+the same resolution using no covariates, and it was not run. It is now: see 4.12.
+
+**4.12 new, and it replaces the Section 4 interpretation.** Assigning each
+district its region's design-based survey estimate, with **no covariates at
+all**, reaches mean r **0.516**, MAE **7.38 pp** and mean absolute bias **0.77
+pp**, against **0.409 / 8.91 / 1.61** for the anchored covariate model and
+**0.156 / 10.77 / 3.21** unanchored (source:
+`results/tables/anchor_controls.csv`, arm
+`2a flat REGIONAL mean (no covariates)`). The covariate-free arm is better on
+every metric. The information Section 4 identifies is the survey's regional
+estimates; the covariate pattern subtracts from it.
+
+**4.8 released, with its explanation changed.** National anchoring does make
+absolute bias worse, by 2.64 pp against no anchor, better on MAE in only 4 of 24
+cells. The stated reason, that a single number displaces districts that were
+already correct, is not the mechanism. WS2c measured the un-anchored
+population-weighted national aggregate against the design-based survey estimate
+and found a mean absolute gap of **9.60 pp** over 24 cells, reaching **77.57 pp**
+for Sierra Leone child vitamin A, where the model predicts 89.6 percent against a
+survey 12.0 percent (source: `results/tables/anchor_implied_shifts.csv`, rows
+with `arm == "national"`). The base model's level error varies by region, and a
+single national shift cannot correct a region-varying error.
+
+**4.9 not yet tested, and the question is not live.** Hard beats shrunk under the
+published anchors. Under the jackknife the hard anchor does not beat no anchor, so
+there is no anchoring scheme yet shown to work out of sample for the two variants
+to be compared within.
+
+**4.11 revised.** The survey supplies the level, and on this evidence it also
+supplies more of the pattern than the covariates do, since the flat regional mean
+outperforms the covariate model on correlation as well as on error.
 
 ## Section 5. The individual-level anchor
 
@@ -92,7 +143,52 @@ than Sections 4 to 6.
 | 6.9 | Composition arm absolute bias | 3.35, 4.69, 10.03, 0.73 pp | same file, column `bias_pp` | not yet tested | WS6d |
 | 6.10 | The predicted national level is on a different scale; the null beats the covariate model | 6 of 8 cells | `frozen_2026-09/national_composition_levels.csv` | not yet tested | WS6c |
 | 6.11 | Even a perfect national level buys 0.23 pp, better in only 4 of 8 cells | 5.81 to 5.58 pp | `frozen_2026-09/national_composition.csv` | not yet tested | WS6d |
-| 6.12 | Scope limitation: the VMNIS and transport outcomes intersect on vitamin A only | 2 outcomes times 4 countries, 8 cells | Section 6.5 | not yet tested | WS6d |
+| 6.12 | Scope limitation: the VMNIS and transport outcomes intersect on vitamin A only | 2 outcomes times 4 countries, 8 cells | Section 6.5 | confirmed | WS6d |
+
+**6.3 revised.** The sampling term is wrong, and by a factor of 4.7. For Vitamin
+A / preschool the published `sd_sampling` of 0.816 is the square root of the
+**arithmetic mean of a reciprocal**, which the smallest surveys dominate: the
+panel holds 34 surveys under n = 50 and a minimum of n = 8, against a median of
+373.5, and 37 surveys with prevalence under 2 percent, where the delta method is
+clamped at 0.005 and a single survey can contribute up to 301/(n-1). Using the
+median survey's variance instead gives **0.172**, and the implied effective
+sample size rises from **13** to a plausible value (source:
+`results/tables/vmnis_sampling_audit.csv`, columns `sd_samp_from_mean`,
+`sd_samp_from_median`, `implied_n_from_mean`). Revised components for that panel:
+sd country 1.436, method 0.383, residual **0.703**, sampling **0.171** (source:
+`results/tables/national_vmnis_ceiling_revised.csv`, `version == "revised"`).
+
+**6.4 and 6.5 revised.** The corrected ceiling for Vitamin A / preschool is
+`r_max_report` **0.869** and `r_max_standardised` **0.893**, against the
+published 0.818 and 0.866. Against a best model r of 0.655 the saturation is
+therefore about **75 percent**, not 80. The direction of the Section 6.5
+correction stands and its size grows: there is more headroom, not less.
+
+**6.6 withdrawn, and its stated cause was wrong.** Two panels report `sd_resid`
+exactly 0.000, and Section 6.3 attributes this to a degenerate `lmer` fit. It is
+not. The raw residual variance from `lmer` is non-zero in all four panels; the
+reported zero is produced by **subtracting an over-large sampling term** from it
+and flooring at zero. With the corrected sampling term no panel sits at the
+boundary and all four are usable (source:
+`results/tables/national_vmnis_ceiling_revised.csv`, columns
+`resid_at_boundary`, `sampling_exceeds_resid`, `usable`). No refit with priors
+was required, so the `blme` dependency the workstream anticipated is not needed.
+
+**6.7 confirmed.** For Vitamin A / NPW, method variance still exceeds country
+variance after the correction: 2.101 against 1.173 (published 1.996 against
+1.232). That panel is measuring survey methodology more than country.
+
+**6.8, 6.9 and 6.11 revised in presentation, confirmed in substance.** The arm
+MAEs reproduce exactly (5.81, 8.22, 12.70, 5.58). Reported with signed bias
+separated from absolute bias, the transported arm's signed bias is **-3.14 pp**
+and the oracle's **+0.35 pp** (source:
+`results/tables/national_composition_revised.csv`). Four of the eight cells are
+near-degenerate: the women's vitamin A cells sit at 1.3 to 2.5 pp true national
+prevalence, so there is almost no level to get wrong. Excluding them, the oracle
+takes MAE from **9.10 to 8.62 pp**, a gain of 0.48 pp, while taking signed bias
+from **-5.31 to +0.98 pp**. The correct statement is that **an oracle national
+level removes almost all of the bias and almost none of the error**: the residual
+error is pattern, and no national quantity can reach it.
 
 ## Section 9. r_share above one
 

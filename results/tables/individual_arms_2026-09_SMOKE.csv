@@ -1,0 +1,13 @@
+country,outcome,arm,protocol,unit,n_units,n_pred,r,mae_pp
+Ghana,child_iron,proxy,region_loro,district,71,1872,0.3984,13.02
+Ghana,child_iron,proxy,region_loro,cluster,83,1872,0.3933,13.31
+Ghana,child_iron,proxy,cluster_kfold,district,71,1872,0.61,11.31
+Ghana,child_iron,proxy,cluster_kfold,cluster,83,1872,0.5819,11.91
+Ghana,child_iron,questionnaire,region_loro,district,71,2086,0.4104,12.91
+Ghana,child_iron,questionnaire,region_loro,cluster,83,2086,0.4027,13.18
+Ghana,child_iron,questionnaire,cluster_kfold,district,71,2086,0.6096,10.95
+Ghana,child_iron,questionnaire,cluster_kfold,cluster,83,2086,0.5777,11.55
+Ghana,child_iron,questionnaire_hb,region_loro,district,71,2098,0.4254,12.83
+Ghana,child_iron,questionnaire_hb,region_loro,cluster,83,2098,0.414,13.13
+Ghana,child_iron,questionnaire_hb,cluster_kfold,district,71,2098,0.6127,11.2
+Ghana,child_iron,questionnaire_hb,cluster_kfold,cluster,83,2098,0.5878,11.67
