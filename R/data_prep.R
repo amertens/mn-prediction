@@ -407,6 +407,81 @@ load_dhs_admin2 <- function(dhs_dir, country, year, merge_col = "Admin2") {
 #' @param cols character vector of (proxy) column names
 #' @param survey_year integer survey year, for snapshot selection
 #' @return character vector of column names to drop
+#' Is this column a blood-assay measurement?
+#'
+#' The one definition of "the blood draw", shared by build_outcome_dataset()'s
+#' GW leakage filter and by every downstream script that needs an assay-free
+#' design matrix. It lived inline inside build_outcome_dataset() until
+#' 2026-08-31; scripts/covariates/18_individual_anchor.R then wrote its own
+#' version, anchored the tokens with `(^|_)`, and scored r = 0.986 -- because
+#' the tokens sit AFTER a population prefix (gw_wFER, gw_cSTFR), so the anchor
+#' never matched. One function instead of two regexes that can drift.
+#'
+#' Matches assay ANALYTES, not nutrient names. Diet, supplementation and
+#' behaviour columns naming a nutrient are legitimate -- and mechanistically
+#' among the most relevant -- exposures: gw_wVitASuppl, gw_wVitARichFood,
+#' gw_wIodSalt and gw_wFeRichFood are all preserved.
+#'
+#' Three patterns, because one case-insensitive substring match is both too
+#' loose and too tight. "FER" case-insensitively also matches gw_wFvoPreferBuy,
+#' a food-preference item; requiring a boundary everywhere instead lets through
+#' the BRINDA internals (gw__logcrpcoeffSF, gw_lncrpdecile, gw_r_crpagp_sf). So:
+#'   FREE  no English word contains these, so match them anywhere
+#'   CS    analyte tokens that appear upper-case after a population prefix
+#'   BND   lower-case forms that DO occur inside words, so need a boundary
+#'
+#' Verified over all 1,297 gw_ columns in the four surveys: 74 caught, 62 beyond
+#' the derived-biomarker guard, and the only near-misses left unblocked are
+#' gw_wFvoPreferBuy and gw_wFeRichFood -- both exposures, which is correct.
+#'
+#' @param cols character vector of column names
+#' @return logical vector, TRUE where the column is an assay measurement
+BIOMARKER_DERIVED_TOKENS <- c("FerAdj", "RBPAdj", "Retinol",
+                              "VitADef", "VitAInsuff", "VitADefic",
+                              "FeDef", "FolDef", "B12Def", "ZincDef")
+
+is_biomarker_column <- function(cols) {
+  if (!length(cols)) return(logical(0))
+  derived    <- paste(BIOMARKER_DERIVED_TOKENS, collapse = "|")
+  assay_free <- "crp|agp|stfr|ferritin|transferrin|haemoglob|hemoglob"
+  assay_cs   <- "FER|RBP|TFR|Ferr"
+  assay_bnd  <- "_(fer|rbp)([^a-z]|$)"
+  grepl(derived, cols, ignore.case = TRUE) |
+    grepl(assay_free, cols, ignore.case = TRUE) |
+    grepl(assay_cs, cols) |
+    grepl(assay_bnd, cols) |
+    # case-SENSITIVE: matches gw_wHb / gw_cHb / gw_HbCat, but not the
+    # lower-case household variables (gw_hBuy*, gw_hBirds*)
+    grepl("Hb", cols) |
+    # (2) STATUS DERIVED FROM THE DRAW, AND THE DRAW ITSELF. Analyte names were
+    # never the whole leak. Measured 2026-08-31 by ranking every surviving
+    # column against the outcome: the top of the list was gw_cAnemiaYN
+    # (|r| 0.80), gw_cID_NoAdj (0.57) and gw_bs2 (0.69) -- an Hb-derived
+    # status, the SAME iron-deficiency indicator computed without inflammation
+    # adjustment, and a blood-sample field. None of them name an analyte, so
+    # none of the patterns above could ever have caught them.
+    #
+    # Each pattern is written to spare the look-alikes, verified against all
+    # 4,906 columns in the four surveys (32 caught, all of them draw-derived):
+    #   _[cw]Anemia  the population-prefixed status; KEEPS gw_wHeardAnemia
+    #                (a knowledge item) and the gw_wFF* beliefs-about-
+    #                fortified-food block (gw_wFFAnemia, gw_wFFGivesBlood)
+    #   NoAdj        the unadjusted twins of the outcome indicators
+    #   _[cw]ID...   gw_cID / gw_wID / gw_cIDsTFR; KEEPS every identifier
+    #                (gw_HHID, gw_momID, gw_indivID, gw_hHRostCaretakerID*)
+    #                because those do not have a c/w population prefix
+    #   _[cw]VAI     vitamin A insufficiency
+    #   gw_bs*       the blood-sample block, gw_bs1..gw_bs6m plus gw_bis and
+    #                gw_rpb1, including collection times -- "without a blood
+    #                draw" means the draw's metadata goes too
+    grepl("_[cw]An[a]?emia", cols) |
+    grepl("NoAdj", cols) |
+    grepl("_[cw]ID($|_|s[TR])", cols) |
+    grepl("_[cw]VAI", cols) |
+    grepl("^gw_(bs[0-9]|bis$|rpb[0-9])", cols)
+}
+
+
 prune_predictor_cols <- function(cols, survey_year = NA_integer_) {
   drop <- character(0)
 
@@ -561,52 +636,20 @@ build_outcome_dataset <- function(merged_data, cc, oc,
       leak <- if (!is.null(cfg_pat) && length(cfg_pat))
         Reduce("|", lapply(cfg_pat, function(p) grepl(p, prefix_cols, ignore.case = TRUE)))
       else rep(FALSE, length(prefix_cols))
-      # (b) hardcoded outcome-biomarker guard. 2026-06-23 fix for outcome leakage:
-      # the per-country lists missed one-"r" "FerAdj" (e.g. gw_LNwFerAdjBR1),
-      # "VitADef"/"VitAInsuff" (pattern was "VAD"), and hemoglobin. These are
-      # outcome-DERIVED biomarkers, not legitimate diet/behaviour covariates
-      # (gw_wVitASuppl, gw_wVitARichFood, gw_wIodSalt are deliberately kept).
-      guard_ci <- paste(c("FerAdj", "RBPAdj", "Retinol",
-                          "VitADef", "VitAInsuff", "VitADefic",
-                          "FeDef", "FolDef", "B12Def", "ZincDef"),
-                        collapse = "|")
-      # (c) RAW ASSAY GUARD. 2026-08-31: (a) and (b) between them catch every
-      # DERIVED biomarker but no raw one, and the per-country lists are
-      # inconsistent about it -- Gambia has "LogFer" but not "Fer", so
-      # `gw_wFER`, raw ferritin, survived into Xvars_full and was available to
-      # predict ferritin-defined iron deficiency. Measured leak before this
-      # guard: Gambia 15 columns, Ghana 14, Sierra Leone 10, Malawi 0. An
-      # anchor model built on Xvars_full scored r = 0.973 on held-out regions,
-      # which is the outcome predicting itself.
+      # (b) the blood draw. Both the DERIVED biomarkers (2026-06-23: the
+      # per-country lists missed one-"r" "FerAdj", "VitADef"/"VitAInsuff" and
+      # haemoglobin) and the RAW assays behind them (2026-08-31: the lists are
+      # inconsistent about those too -- Gambia has "LogFer" but not "Fer", so
+      # `gw_wFER` survived into Xvars_full and was available to predict
+      # ferritin-defined iron deficiency; the measured leak was Gambia 15
+      # columns, Ghana 14, Sierra Leone 10, Malawi 0, and an anchor model built
+      # on Xvars_full scored r = 0.973, the outcome predicting itself).
       #
       # Xvars_full is meant to be "everything the survey collected EXCEPT the
-      # blood draw", so the assay panel goes whatever the outcome is: an
+      # blood draw", so the assay panel goes whatever the outcome is -- an
       # inflammation marker is still an assay when the outcome is vitamin A.
-      # Diet and behaviour columns naming a nutrient are deliberately kept --
-      # gw_wVitASuppl, gw_wVitARichFood, gw_wIodSalt are exposures, not assays --
-      # which is why this matches assay ANALYTES, not nutrient names.
-      # Three patterns, because a single case-insensitive substring match is
-      # both too loose and too tight. "FER" case-insensitively also matches
-      # gw_wFvoPre(fer)Buy, a food-preference item; requiring a boundary
-      # everywhere instead lets through the BRINDA internals
-      # (gw__logcrpcoeffSF, gw_lncrpdecile, gw_r_crpagp_sf). So:
-      #   FREE  no English word contains these, so match them anywhere
-      #   CS    analyte tokens that appear upper-case after a population prefix
-      #   BND   lower-case forms that DO occur inside words, so need a boundary
-      # Verified over all 1,297 gw_ columns in the four surveys: 74 caught, and
-      # the only near-misses left unblocked are gw_wFvoPreferBuy and
-      # gw_wFeRichFood -- both exposures, which is correct. Supplementation,
-      # iodised salt and nutrient-rich-food items are all preserved.
-      assay_free <- "crp|agp|stfr|ferritin|transferrin|haemoglob|hemoglob"
-      assay_cs   <- "FER|RBP|TFR|Ferr"
-      assay_bnd  <- "_(fer|rbp)([^a-z]|$)"
-      leak <- leak |
-        grepl(guard_ci, prefix_cols, ignore.case = TRUE) |
-        grepl(assay_free, prefix_cols, ignore.case = TRUE) |
-        grepl(assay_cs, prefix_cols) |
-        grepl(assay_bnd, prefix_cols) |
-        grepl("Hb", prefix_cols)   # case-SENSITIVE: matches gw_wHb/gw_cHb/gw_HbCat,
-                                    # not lower-case household vars (gw_hBuy*, gw_hBirds*)
+      # See is_biomarker_column() above for what it does and does not match.
+      leak <- leak | is_biomarker_column(prefix_cols)
       prefix_cols <- prefix_cols[!leak]
 
       # Also exclude the outcome columns themselves
