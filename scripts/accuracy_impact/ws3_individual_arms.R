@@ -43,7 +43,7 @@ targets::tar_source(here("R"))
 
 PROFILE <- Sys.getenv("PROFILE", "full")
 STORE <- here("_targets_full")
-SUF <- switch(PROFILE, smoke = "_SMOKE", "")
+SUF <- if (Sys.getenv("WS3_CELLS") == "parity") "_PARITY" else switch(PROFILE, smoke = "_SMOKE", "")
 K_SCREEN <- 40L; SEED <- 20260906L; MIN_N <- 5L; KFOLD <- 5L
 num <- function(x) suppressWarnings(as.numeric(haven::zap_labels(x)))
 

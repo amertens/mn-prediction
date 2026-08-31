@@ -144,7 +144,15 @@ res <- dplyr::bind_rows(rows)
 if (!nrow(res)) stop("No rows produced.")
 readr::write_csv(res, file.path(TDIR, sprintf("anchoring_design_curve%s.csv", SUF)))
 
-s <- res |> group_by(n_regions_anchored, fraction_clusters) |>
+# BUDGET MUST BE EXPRESSED AS A FRACTION OF THE COUNTRY, NOT AN ABSOLUTE COUNT.
+# The four countries hold 4, 6, 16 and 28 Admin-1 regions, so pooling on the
+# absolute number of anchored regions compares Sierra Leone against Ghana rather
+# than a small budget against a large one. The first run of this script did
+# exactly that and produced a curve on which error RISES with more regions
+# anchored, which is the country effect and not a budget effect.
+res$region_share <- round(res$n_regions_anchored / res$n_regions_total, 2)
+
+s <- res |> group_by(region_share, fraction_clusters) |>
   summarise(settings = dplyr::n(),
             pct_survey = round(mean(pct_survey_used), 1),
             mae_a2 = round(mean(mae_admin2_pp), 3),
@@ -158,7 +166,7 @@ cat("\n=== WS5: error against anchoring budget ===\n")
 print(as.data.frame(s), row.names = FALSE)
 
 # The reference point: every region anchored, every cluster retained.
-full <- s[s$fraction_clusters == 1 & s$n_regions_anchored == max(s$n_regions_anchored), ]
+full <- s[s$fraction_clusters == 1 & s$region_share == max(s$region_share), ]
 if (nrow(full)) {
   ref <- full$mae_a2[1]
   tol <- 1.0   # percentage points
@@ -168,7 +176,7 @@ if (nrow(full)) {
   cat(sprintf("smallest budget within %.1f pp of it: %.1f%% of the survey ",
               tol, ok$pct_survey[1]))
   cat(sprintf("(%d of %d regions, %.0f%% of clusters), MAE %.3f pp [%.3f, %.3f]\n",
-              ok$n_regions_anchored[1], max(s$n_regions_anchored),
+              100 * ok$region_share[1],
               100 * ok$fraction_clusters[1], ok$mae_a2[1],
               ok$mae_a2_lo[1], ok$mae_a2_hi[1]))
 }

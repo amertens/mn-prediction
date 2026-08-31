@@ -18,6 +18,16 @@
 # searched results/, sensitivity/, sandbox_parsimony/ and docs/ and found no
 # committed table containing it. This script measures it.
 #
+# A RESOLUTION CAVEAT THAT MATTERS FOR READING THESE NUMBERS
+# ---------------------------------------------------------
+# The DHS custom Admin-2 files use each country's DHS district system, which is
+# NOT the analytic system the micronutrient cells use: Ghana returns 219 units
+# here against the 75 analytic districts, and Gambia 35 against 30. More units,
+# each measured on a different sample, is a different estimation problem. These
+# correlations are therefore evidence about whether the covariates can track a
+# well-measured district quantity AT ALL, and are not directly comparable with
+# the micronutrient cells' correlations.
+#
 # SAME EXCLUSION AS THE MAIN SCRIPT. The 97 DHS-derived covariates are removed.
 # Predicting dhs2014_w_no_education_adm2 from a covariate set containing DHS
 # education aggregates would be the outcome predicting itself, which is what the
@@ -70,8 +80,18 @@ for (cn in names(FILES)) {
                     stringsAsFactors = FALSE)
     z <- z[is.finite(z$y), , drop = FALSE]
     if (nrow(z) < MIN_D) next
-    m <- dplyr::inner_join(z, hc, by = "Admin2")
+    # Name-only is the only key available: the custom wide file carries no
+    # Admin1 column, so admin2_join_by() takes its documented fallback. Recorded
+    # rather than silently accepted, because this is the defect class Section 8
+    # tracks. The risk is confined to Malawi, whose duplicate district names are
+    # water polygons and TA units; the count check below reports the join width.
+    m <- dplyr::inner_join(z, hc, by = admin2_join_by(z, hc))
     m <- m[is.finite(m$y), , drop = FALSE]
+    if (nrow(m) > nrow(z)) {
+      cat(sprintf("    [fan] %s %s: join widened %d -> %d rows; cell skipped\n",
+                  cn, nm, nrow(z), nrow(m)))
+      next
+    }
     if (nrow(m) < MIN_D || dplyr::n_distinct(m$Admin1) < 3) next
     X <- as.matrix(m[, COVS, drop = FALSE])
     oof <- rep(NA_real_, nrow(m))
