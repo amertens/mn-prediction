@@ -53,6 +53,36 @@
 # All four use leave-one-region-out folds, so no district or cluster is
 # predicted by a model that has seen its own region.
 #
+# WHAT IT FOUND, 2026-08-31, once the guard was right.
+#
+#   unit      arm     cells  mean r  median r   MAE pp
+#   district  proxy      16   0.154     0.126     8.33
+#   district  quest      16   0.228     0.264     7.92
+#   cluster   proxy      16   0.146     0.126    12.79
+#   cluster   quest      16   0.229     0.212     9.27
+#
+# THE ANCHOR SETTLES THE INTERPRETATION. A district r of 0.15 from proxies is
+# uninterpretable alone. Handing the model the actual household questionnaire --
+# wealth, education, diet, WASH, illness, supplementation, ~330 extra columns
+# measured on these very individuals -- moves it to 0.23, better in 10 of 16
+# cells, and clears r = 0.4 in only 3 of 16. In Malawi it adds nothing at all
+# (gains of 0.000 to 0.004 across all four outcomes).
+#
+# So the ceiling is NOT a proxy-data problem. It is not bad linkage, not the
+# inflammation adjustment, and not overfitting -- a questionnaire administered
+# to the same people, with no blood draw, also fails to predict which district
+# a deficiency sits in. The signal is weak at this resolution for everyone, and
+# the geospatial proxies recover most of the little there is.
+#
+# CLUSTER LINKAGE DOES NOT HELP, WHICH FALSIFIES THE PREDICTION ABOVE. The
+# reasoning was that cluster linkage should pay most where clusters outnumber
+# districts by the widest margin, i.e. Sierra Leone at 58 vs 14. Measured, the
+# mean gain is Gambia +0.017, Ghana -0.003, Malawi -0.002, Sierra Leone -0.025:
+# no gain anywhere, and Sierra Leone is the WORST rather than the best. More
+# units to fit does not help when the outcome at each unit is measured on a
+# handful of people, so the extra units are noisier in exactly the proportion
+# that there are more of them.
+#
 #   Rscript scripts/covariates/18_individual_anchor.R
 # -> results/tables/individual_anchor.csv
 # =============================================================================
@@ -173,9 +203,11 @@ print(res %>% group_by(unit, arm) %>%
 
 w <- res %>% select(country, outcome, unit, arm, r) %>%
   tidyr::pivot_wider(names_from = arm, values_from = r)
-if (all(c("proxy", "full") %in% names(w))) {
+# The arm is named "quest", not "full" -- an earlier draft used the latter and
+# this guard was never updated, so the block silently never printed.
+if (all(c("proxy", "quest") %in% names(w))) {
   cat("\n--- how much does having the survey buy, per unit? ---\n")
-  print(w %>% mutate(gap = round(full - proxy, 3)) %>% group_by(unit) %>%
+  print(w %>% mutate(gap = round(quest - proxy, 3)) %>% group_by(unit) %>%
           summarise(cells = n(), mean_gap = round(mean(gap, na.rm = TRUE), 3),
                     quest_better = sprintf("%d/%d", sum(gap > 0, na.rm = TRUE), n()),
                     .groups = "drop") %>% as.data.frame(), row.names = FALSE)
