@@ -98,17 +98,65 @@ than Sections 4 to 6.
 
 | ID | Claim | As stated | Source map | Status | Resolved by |
 |:---|:---|:---|:---|:---|:---|
-| 9.1 | Mean r_share by anchoring arm | hard 2.06, shrunk 1.64, Admin-1 fit 1.77, national 1.34, none 1.35 | `frozen_2026-09/admin1_arms.csv`, column `r_share` grouped by `arm` | not yet tested | WS1b, WS1f |
-| 9.2 | Measured skill routinely exceeds the estimated ceiling; half of all cells show r at or above r_max | qualitative plus the table above | `frozen_2026-09/area_comparison_all.csv` and `admin1_arms.csv` | not yet tested | WS1 |
-| 9.3 | Either the ceiling is biased low or the evaluation is optimistic; unresolved | qualitative | none | not yet tested | WS1a, WS1b, WS1c, WS1e |
+| 9.1 | Mean r_share by anchoring arm | hard 2.06, shrunk 1.64, Admin-1 fit 1.77, national 1.34, none 1.35 | `frozen_2026-09/admin1_arms.csv`, column `r_share` grouped by `arm` | **revised** | WS1b, WS1f |
+| 9.2 | Measured skill routinely exceeds the estimated ceiling; half of all cells show r at or above r_max | qualitative plus the table above | `frozen_2026-09/area_comparison_all.csv` and `admin1_arms.csv` | **revised** | WS1 |
+| 9.3 | Either the ceiling is biased low or the evaluation is optimistic; unresolved | qualitative | none | **revised** | WS1a, WS1b, WS1c, WS1e |
+
+**9.1 revised.** Under the empirical ceiling and with the production
+`r_max > 0.05` guard applied consistently, the arm means become hard **0.75**,
+shrunk **0.56**, Admin-1 fit **0.38**, national **0.35**, none **0.33**, and the
+medians hard **0.68**, shrunk **0.51**, Admin-1 fit **0.52**, national **0.32**,
+none **0.34** (source: `results/tables/r_share_revised_summary.csv`, columns
+`mean_share_empirical` and `med_share_empirical`). Two separate corrections
+produce the change, and both are needed: applying the `r_max > 0.05` guard that
+`add_reliability_columns()` already uses takes the hard arm from 2.06 to 1.17,
+and replacing the biased ceiling takes it from 1.17 to 0.75. No arm exceeds 1.
+
+**9.2 revised.** Cells with `r_share > 1` fall from **25 to 7** of 118 arm-cell
+rows (source: `results/tables/r_share_revised.csv`, columns
+`r_share_analytic` and `r_share_empirical`). The residual seven are concentrated
+in the anchored arms, which is consistent with the mechanism WS2 tests and is
+not evidence that the empirical ceiling is also biased.
+
+**9.3 revised, and resolved to the first horn.** **The ceiling was biased low.**
+WS1c simulates outcomes over the real survey structure with the truth known by
+construction: the analytic estimator's mean bias against the attainable
+correlation is **-0.161**, the split-half estimator's is **+0.007**
+(source: `results/tables/reliability_simulation.csv`, columns `bias_analytic`
+and `bias_empirical`). On the real data the analytic median `r_max` is **0.132**
+against an empirical **0.613**, with the empirical exceeding the analytic in
+**21 of 24** cells (source:
+`results/tables/reliability_analytic_vs_empirical.csv`). The design effect that
+would reconcile the two has median **0.969** against the assumed **1.5**. This
+does not exonerate the anchored arms, whose evaluation may be optimistic for the
+separate reason set out in `docs/TARGET_ESTIMAND.md` section 3; WS2 tests that.
 
 ## Section 11. The interpretation as it now stands
 
 | ID | Claim | As stated | Source map | Status | Resolved by |
 |:---|:---|:---|:---|:---|:---|
-| 11.1 | Admin-2 is below the resolution these surveys can support | median district 6 to 36 measurements; median r_max 0.098 | `frozen_2026-09/admin1_arms.csv`, column `r_max` over 24 unique cells | not yet tested | WS1a, WS1b, WS4a |
+| 11.1 | Admin-2 is below the resolution these surveys can support | median district 6 to 36 measurements; median r_max 0.098 | `frozen_2026-09/admin1_arms.csv`, column `r_max` over 24 unique cells | **revised** | WS1a, WS1b, WS4a |
 | 11.2 | The constraint is a property of the target, not the predictors | 0.154 to 0.228, and education r 0.48 to 0.71 | `frozen_2026-09/individual_anchor.csv`; the education source is not located | not yet tested | WS3, WS4b |
 | 11.3 | Geography carries most of what transportable signal exists | the spatial smoother matches the 294-predictor set; none survive FDR; penalised regression retains a median of zero | `frozen_2026-09/area_comparison_all.csv`, `bivariate_fdr.csv`, `penalized_retained.csv` | not yet tested | WS4a |
 | 11.4 | Level and pattern are different problems with different answers | qualitative | Sections 4 and 6 | not yet tested | WS2, WS6 |
 | 11.5 | The level must be resolved regionally to be worth anything | 0.164 to 0.413; national anchoring costs bias; an oracle level buys 0.23 pp | `frozen_2026-09/admin1_arms.csv`, `national_composition.csv` | not yet tested | WS2, WS5, WS6d |
 | 11.6 | National estimates are the defensible deliverable; district maps are rankings | qualitative | Section 11 | not yet tested | WS8a, WS8b |
+
+**11.1 revised, and the direction of the correction matters.** The stated median
+`r_max` of 0.098 does not reproduce: the committed table gives **0.1315**
+(source: `frozen_2026-09/admin1_arms.csv`, column `r_max`, 24 unique cells), and
+the measured empirical ceiling gives **0.6132** (source:
+`results/tables/reliability_analytic_vs_empirical.csv`, column `r_max_emp`).
+The accompanying claim that 4 of 24 cells have no detectable signal is also
+wrong in both directions: the analytic estimator returns exactly zero in **10**
+of 24 cells, and the empirical one in **3**.
+
+The conclusion that Admin-2 is below the resolution these surveys support is
+**not** withdrawn, because it does not rest on the ceiling alone: median
+district sample sizes of 6 to 36, and 62 of 75 Ghana districts holding a single
+cluster, are direct measurements. What changes is the size of the headroom. A
+median ceiling near 0.61 rather than 0.10 means the gap between what models
+achieve (median r 0.164 unanchored) and what is attainable is **much larger**
+than reported, so the reported skill is a smaller fraction of the possible, not
+a larger one. The claim that models are near-saturated at Admin-2 does not
+survive; the claim that Admin-2 is hard does.

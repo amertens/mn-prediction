@@ -1,0 +1,5 @@
+arm,cells,MAE_pp,mean_signed_bias_pp,mean_abs_bias_pp,cells_excl_degenerate,MAE_pp_excl,mean_signed_bias_excl
++ VMNIS level,8,12.7,10.03,10.03,4,19.12,15.05
++ national null level,8,8.22,4.4,4.69,4,10.51,4.16
++ true national (oracle),8,5.58,0.35,0.73,4,8.62,0.98
+transported (no level),8,5.81,-3.14,3.35,4,9.1,-5.31

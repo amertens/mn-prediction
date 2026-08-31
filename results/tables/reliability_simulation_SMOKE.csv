@@ -1,0 +1,5 @@
+country,outcome,sd_logit,replicates,icc,icc_districts,lambda_true,r_oracle,r_max_analytic,r_max_empirical,bias_analytic,bias_empirical,pct_analytic_zero
+Ghana,child_iron,0.2,20,0,13,0.0743,0.2501,0.0582,0.2536,-0.192,0.0035,85
+Ghana,child_iron,0.5,20,0,13,0.32,0.5831,0.2449,0.6164,-0.3382,0.0333,40
+Ghana,child_iron,1,20,0,13,0.6491,0.8108,0.7165,0.841,-0.0943,0.0302,0
+Ghana,child_iron,1.5,20,0,13,0.7834,0.9003,0.8541,0.9161,-0.0462,0.0158,0

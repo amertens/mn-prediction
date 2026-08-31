@@ -1,0 +1,6 @@
+panel,rows,n_missing_samplesize,n_min,n_median,n_max,n_under_50,prev_under_2pct,v_bar_mean,v_bar_median,sd_samp_from_mean,sd_samp_from_median,sd_samp_median_softclamp,implied_n_from_mean
+Vitamin A | Preschool-age children,528,80,8,373.5,21979,34,37,0.6651,0.0296,0.8155,0.1721,0.1706,13
+Zinc | Preschool-age children,219,32,15,607,23604,5,0,0.0427,0.0134,0.2067,0.1157,0.1157,188.2
+Vitamin A | Non-pregnant women (NPW),93,3,52,674,23976,0,19,0.1676,0.038,0.4094,0.1949,0.1949,48.7
+Folate | Non-pregnant women (NPW),184,23,23,435,12958,4,8,0.1093,0.0284,0.3307,0.1685,0.1663,74.2
+Vitamin B12 | Non-pregnant women (NPW),128,25,23,423,5322,4,22,0.2899,0.0383,0.5384,0.1957,0.1956,28.6

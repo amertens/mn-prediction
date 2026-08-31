@@ -3,7 +3,8 @@
 # seconds, which is enough to stop anyone running the tests.
 suppressPackageStartupMessages(library(here))
 
-for (f in c("lint_admin2_joins.R", "unit_counts.R")) {
+for (f in c("lint_admin2_joins.R", "unit_counts.R",
+            "area_reliability.R", "reliability_empirical.R")) {
   source(here::here("R", f))
 }
 

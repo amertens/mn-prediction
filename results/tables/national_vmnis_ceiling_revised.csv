@@ -1,0 +1,9 @@
+panel,version,surveys,countries,sd_country,sd_method,sd_resid,sd_sampling,r_max_report,r_max_standardised,resid_at_boundary,sampling_exceeds_resid,usable
+Vitamin A | Preschool-age children,published,528,70,1.411,0.564,0,0.816,0.818,0.866,NA,NA,NA
+Zinc | Preschool-age children,published,219,30,1.13,0.468,0.254,0.207,0.892,0.96,NA,NA,NA
+Vitamin A | Non-pregnant women (NPW),published,93,22,1.232,1.996,0,0.409,0.517,0.949,NA,NA,NA
+Folate | Non-pregnant women (NPW),published,184,28,1.764,0.95,0.442,0.331,0.849,0.954,NA,NA,NA
+Vitamin A | Preschool-age children,revised,448,68,1.436,0.383,0.703,0.171,0.869,0.893,FALSE,FALSE,TRUE
+Zinc | Preschool-age children,revised,187,29,1.126,0.496,0.322,0.116,0.882,0.957,FALSE,FALSE,TRUE
+Vitamin A | Non-pregnant women (NPW),revised,90,20,1.173,2.101,0.312,0.195,0.482,0.954,FALSE,FALSE,TRUE
+Folate | Non-pregnant women (NPW),revised,161,28,1.746,0.949,0.563,0.166,0.843,0.948,FALSE,FALSE,TRUE
