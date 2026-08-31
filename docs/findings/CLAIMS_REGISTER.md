@@ -408,3 +408,65 @@ achieve (median r 0.164 unanchored) and what is attainable is **much larger**
 than reported, so the reported skill is a smaller fraction of the possible, not
 a larger one. The claim that models are near-saturated at Admin-2 does not
 survive; the claim that Admin-2 is hard does.
+
+## Session addendum, signal-and-shipping, 2026-09-21
+
+**3.9 revised.** The claim is that 0 of 294 predictors survive FDR control in all
+24 cells. That reproduces and is not disputed, but it answers a cell-by-cell
+question. Pooled across cells with country as the clustering unit and calibrated
+by permutation, **two predictors survive a family-wise correction**:
+`soilgrids_ph` (meta z 7.34, family-wise permutation p 0.020) and
+`dhs_w_skilled_attendant` (z 7.02, p 0.028), both in the region-partialed family
+over 12 cells and 3 countries (source:
+`results/tables/predictor_consistency_meta.csv`, columns `z` and `p_perm_fwer`,
+filter `family == "region_partialed" & cellset == "shared"`). Nothing survives
+marginally. The correct statement is that the cell-by-cell screen was
+underpowered, and that pooling recovers two associations rather than none.
+
+**11.3 revised.** The claim is that geography carries most of what transportable
+signal exists, supported by the spatial smoother, the FDR screen and penalised
+regression retaining a median of zero. The pooled scan sharpens it. What survives
+after removing the between-region component is **soil pH** and a cluster of
+health-service access measures (skilled attendance z 7.02, antenatal visits 5.76,
+improved water 4.19, improved sanitation 4.09). Soil pH is mechanistically
+interpretable with the expected sign, since zinc and iron bioavailability falls
+as pH rises. Soil zinc itself carries the right sign (z -3.37, more zinc with
+less deficiency) and does not survive (family-wise p 0.948). The revised claim is
+that the transportable signal is a socioeconomic access gradient plus one soil
+chemistry variable, and that it is not nutrition-proximal in the sense the
+mechanism hypothesis requires.
+
+**New row A.1.** The analytic random-effects q-values are anti-conservative at
+four clusters: they identify up to 22 survivors where the permutation supports at
+most two, with the smallest analytic q at 5.9e-11 for a predictor whose
+family-wise permutation p is 0.020. Any future pooled analysis in this project
+must carry a permutation calibration.
+
+**New row A.2.** Benjamini-Hochberg applied to permutation p-values is
+**resolution-limited by design** here. With 500 permutations the smallest
+attainable per-predictor p is 0.002 and only one to three predictors per family
+reach it, so the smallest attainable BH q is 0.187. The "zero survive under
+permutation BH" result is therefore not evidence of absence, and the family-wise
+max-statistic calibration is the sound one to quote.
+
+**New row C3.1.** The pre-specified nine-covariate iron-anaemia bridge does not
+beat the full 294 within country (mean r 0.027 against 0.364) or across
+countries (-0.022 against 0.210), and does not beat a covariate-free jackknifed
+regional mean (0.181) (source: `results/tables/iron_bridge.csv`). The two
+countries with an exact district crosswalk disagree: Gambia women's iron reaches
+0.459 under LOCO with nine covariates against 0.467 with 294, and Sierra Leone is
+negative in all four of its cells. Ghana and Malawi discard roughly two thirds of
+their prior-round DHS districts in the crosswalk, which weakens the test there
+and does not explain Sierra Leone.
+
+**New row D.1.** Six of 24 committed cells fail a calibration gate set at the
+larger of 10 pp and twice the survey CI half-width, led by Sierra Leone child
+vitamin A at a 77.57 pp gap (source:
+`results/tables/calibration_gate_report.csv`). Register row 3.8's claim that
+national prevalence lands inside the survey CI in 24 of 24 cells belongs to the
+**individual-level aggregate under its own protocol** and not to the area-level
+ridge, whose mean absolute national gap is 9.60 pp. Row 3.8 is scoped by
+estimator accordingly.
+
+**4.12 further revised.** See the entry above, and the dated correction in
+`docs/findings/TWO_READINGS.md`.
