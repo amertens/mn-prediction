@@ -16,7 +16,7 @@ estimated.
 |:---|:---|:---|
 | Can I read a national prevalence from this? | **Yes**, where a survey exists. | Section 3 national recovery, 24 of 24 inside the survey 95 percent CI |
 | Can I read an Admin-1 (regional) prevalence? | **Yes**, from the survey directly. | WS5: full-survey Admin-1 MAE 0.297 pp |
-| Can I read an Admin-2 (district) prevalence? | **No.** | Best matched-control arm 10.77 pp; no arm below 10.7 pp |
+| Can I read an Admin-2 (district) prevalence? | **Only from the shipped EB blend, and only as a range.** | Tournament against simulated truth: EB blend lowest MAE at every level of covariate signal |
 | Can I read an Admin-2 **ranking**? | **Only with the caveats in section 4.** | WS4b: median achieved r 0.200 |
 | Will a bigger survey fix the district map? | **No.** | WS5: fourfold sample change moves Admin-2 MAE about 1 pp |
 | Will better covariates fix it? | **Not established, and the evidence is against it.** | WS4b: 81 DHS indicators reach a median r of 0.071 |
@@ -101,14 +101,50 @@ the attainable correlation by a mean of 0.161 (`docs/findings/WS1_RELIABILITY_CE
 
 ---
 
+## 3b. The shipping estimator
+
+**Use the empirical Bayes blend** in `R/eb_district_estimator.R`, shipped to
+`results/deliverables/district_estimates.csv`. It shrinks each district's own
+survey estimate toward its region's estimate, computed from the region's OTHER
+districts, with a weight `lambda_d = tau2 / (tau2 + v_d)` that rises with the
+district's sample size.
+
+It was chosen by scoring every candidate against a **simulated truth** rather
+than against the survey's own noisy district estimates
+(`docs/findings/WSB_ESTIMATOR_TOURNAMENT.md`). Against truth it has the lowest
+mean absolute error at every level of covariate signal tested, and it beats the
+covariate-free regional mean on both metrics in 6 to 8 of 8 cells.
+
+| ρ 0.35, against truth | r | MAE pp |
+|:---|---:|---:|
+| direct district estimate | 0.718 | 6.84 |
+| **EB blend (shipped)** | 0.636 | **6.05** |
+| covariate ridge | 0.324 | 9.00 |
+| flat regional mean | 0.143 | 8.75 |
+
+**One caveat carried forward.** The direct estimate wins on *correlation* at
+every level. If a use needs ranking alone and not prevalence, the direct
+estimate ranks better in simulation; but the simulator contains no regional
+block structure while about 40 percent of real district variance is between
+regions (WS-E2), so the blend's ranking is understated there. Both numbers are
+reported and neither is hidden.
+
+**`tau2` must come from the empirical split-half reliability**, not from
+`var(p) - mean(v_d)`. The latter returns zero in 14 of 24 cells and silently
+turns the blend into the flat regional mean.
+
 ## 4. How to display an Admin-2 map
 
 **Rankings, with rank intervals, and never a prevalence number.**
 
 1. **Show a rank, not a value.** Median achieved out-of-fold correlation at
-   Admin-2 is **0.200** (`results/tables/reliability_skill_curve.csv`,
-   `family == "micronutrient"`). A correlation of 0.2 supports a coarse ordering
-   and nothing finer.
+   Admin-2 for a covariate model is **0.200**
+   (`results/tables/reliability_skill_curve.csv`). The shipped EB blend does
+   better than that because it uses the survey rather than covariates, but its
+   rank intervals remain wide: median width **42 to 66 ranks** in the 75- and
+   87-district countries (source:
+   `results/tables/shipped_estimates_summary.csv`, `median_rank_width`). The
+   ranking separates the ends of the distribution and not the middle.
 2. **Show a rank interval.** A point rank from a model at r 0.2 across 14 to 87
    districts is not distinguishable from many neighbouring ranks.
 3. **Do not colour by WHO severity band at Admin-2.** The bands are 5, 20 and 40

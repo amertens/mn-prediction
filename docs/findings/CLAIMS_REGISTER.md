@@ -470,3 +470,46 @@ estimator accordingly.
 
 **4.12 further revised.** See the entry above, and the dated correction in
 `docs/findings/TWO_READINGS.md`.
+
+**11.6 resolved.** The claim is that national estimates are the defensible
+deliverable and district maps are rankings. It stands, and the district layer now
+has a named estimator. The empirical Bayes blend wins the truth-referenced
+tournament on mean absolute error at every level of covariate signal and beats
+the covariate-free regional mean in 6 to 8 of 8 cells (source:
+`results/tables/estimator_tournament_truth.csv`). Shipped to
+`results/deliverables/`, with 19 of 24 Admin-2 layers released and 5 suppressed
+at the reliability cut, and 6 cells marked `calibration_failed` rather than
+deleted.
+
+**New row B.1.** The direct district estimate wins the tournament on
+**correlation** at every level of covariate signal (0.714 to 0.726) while the EB
+blend wins on **error** (6.59 to 5.54 pp). The two claims are separable and both
+are reported. The simulator contains no regional block structure while WS-E2
+measures about 40 percent of real district variance as between-region, so the
+blend's correlation is understated and the direct estimate's ranking advantage
+overstated.
+
+**New row B.2.** The EB blend's `tau2` must be sourced from the empirical
+split-half reliability. The moment estimator `var(p) - mean(v_d)`, floored at
+zero, returns exactly zero in **14 of 24** cells and collapses the blend into the
+flat regional mean withdrawn in 4.12. With the reliability route only the three
+genuinely signal-free cells degenerate, and 21 of 24 use it (source:
+`results/tables/shipped_estimates_summary.csv`, column `tau2_source`).
+
+**4.9 resolved.** The hard-against-shrunk anchoring question is closed by
+supersession rather than by measurement: neither anchoring arm survives its
+jackknife, and the shipped estimator is not an anchored covariate model. The
+comparison no longer bears on any deliverable.
+
+**5.1, 5.2 and 5.4 revised, superseding an interim claim of mine.** Over all
+twelve computable cells the questionnaire gain is **+0.036** against a published
+**+0.0993** on the same twelve (source:
+`results/tables/individual_arms_2026-09_16CELL.csv`). An interim report from a
+four-cell subset stated the gain reverses sign to -0.013; it does not. Field
+haemoglobin gains **+0.174** and is iron-specific, reaching 0.865 for Gambia
+child iron and 0.848 for Gambia women iron, while costing level: district MAE
+11.07 pp against 8.33 for the proxy arm.
+
+**5.6 confirmed as a data fact, not a Malawi finding.** Malawi's four cells now
+emit `not_computed` for both questionnaire arms with the reason recorded, rather
+than scoring the proxy arm twice.

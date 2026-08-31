@@ -1,0 +1,385 @@
+country,outcome,level,unit,prev,n,se,who_band,band_source_verified
+Gambia,child_vitA,national,(national),0.172535,1020,0.011831,moderate,FALSE
+Gambia,child_vitA,admin1,Banjul,0.124569,169,0.025402,moderate,FALSE
+Gambia,child_vitA,admin1,Lower River,0.187359,133,0.033835,moderate,FALSE
+Gambia,child_vitA,admin1,Maccarthy Island,0.28404,309,0.025654,severe,FALSE
+Gambia,child_vitA,admin1,North Bank,0.127109,93,0.03454,moderate,FALSE
+Gambia,child_vitA,admin1,Upper River,0.25302,165,0.033845,severe,FALSE
+Gambia,child_vitA,admin1,Western,0.127701,151,0.027161,moderate,FALSE
+Gambia,women_vitA,national,(national),0.016994,1413,0.003438,low,FALSE
+Gambia,women_vitA,admin1,Banjul,0.011993,371,0.005651,low,FALSE
+Gambia,women_vitA,admin1,Lower River,0.037954,145,0.015869,mild,FALSE
+Gambia,women_vitA,admin1,Maccarthy Island,0.045437,318,0.011679,mild,FALSE
+Gambia,women_vitA,admin1,North Bank,0.0177,152,0.010695,low,FALSE
+Gambia,women_vitA,admin1,Upper River,0.039708,196,0.013948,mild,FALSE
+Gambia,women_vitA,admin1,Western,0.0052,231,0.004732,low,FALSE
+Gambia,child_iron,national,(national),0.375257,1013,0.015213,moderate,FALSE
+Gambia,child_iron,admin1,Banjul,0.47361,168,0.038522,severe,FALSE
+Gambia,child_iron,admin1,Lower River,0.695963,133,0.039887,severe,FALSE
+Gambia,child_iron,admin1,Maccarthy Island,0.71327,306,0.025853,severe,FALSE
+Gambia,child_iron,admin1,North Bank,0.657629,93,0.049204,severe,FALSE
+Gambia,child_iron,admin1,Upper River,0.634143,164,0.037612,severe,FALSE
+Gambia,child_iron,admin1,Western,0.49875,149,0.040961,severe,FALSE
+Gambia,women_iron,national,(national),0.28183,1402,0.012015,moderate,FALSE
+Gambia,women_iron,admin1,Banjul,0.304745,364,0.024126,moderate,FALSE
+Gambia,women_iron,admin1,Lower River,0.562142,145,0.041201,severe,FALSE
+Gambia,women_iron,admin1,Maccarthy Island,0.558192,318,0.027848,severe,FALSE
+Gambia,women_iron,admin1,North Bank,0.436219,150,0.040491,severe,FALSE
+Gambia,women_iron,admin1,Upper River,0.540971,195,0.035685,severe,FALSE
+Gambia,women_iron,admin1,Western,0.37343,230,0.031895,moderate,FALSE
+Ghana,child_vitA,national,(national),0.131787,1165,0.00991,moderate,FALSE
+Ghana,child_vitA,admin1,Ahafo,0.112903,62,0.040192,moderate,FALSE
+Ghana,child_vitA,admin1,Ashanti,0.083333,204,0.019351,mild,FALSE
+Ghana,child_vitA,admin1,Bono,0.060606,33,0.041535999999999997,mild,FALSE
+Ghana,child_vitA,admin1,Bono East,0.152174,46,0.05296,moderate,FALSE
+Ghana,child_vitA,admin1,Central,0.138889,72,0.040757,moderate,FALSE
+Ghana,child_vitA,admin1,Eastern,0.181818,110,0.036775,moderate,FALSE
+Ghana,child_vitA,admin1,Greater Accra,0.111111,99,0.031585,moderate,FALSE
+Ghana,child_vitA,admin1,North East,0.222222,45,0.061975,severe,FALSE
+Ghana,child_vitA,admin1,Northern,0.265734,143,0.036939,severe,FALSE
+Ghana,child_vitA,admin1,Oti,0,14,0,low,FALSE
+Ghana,child_vitA,admin1,Savannah,0.206349,63,0.050985,severe,FALSE
+Ghana,child_vitA,admin1,Upper East,0.209877,81,0.045247,severe,FALSE
+Ghana,child_vitA,admin1,Upper West,0.128571,70,0.040007,moderate,FALSE
+Ghana,child_vitA,admin1,Volta,0.15,40,0.056458,moderate,FALSE
+Ghana,child_vitA,admin1,Western,0.09375,64,0.036435,mild,FALSE
+Ghana,child_vitA,admin1,Western North,0.052632,19,0.051228,mild,FALSE
+Ghana,women_vitA,national,(national),0.011529,992,0.003389,low,FALSE
+Ghana,women_vitA,admin1,Ahafo,0,42,0,low,FALSE
+Ghana,women_vitA,admin1,Ashanti,0.004878,205,0.004866,low,FALSE
+Ghana,women_vitA,admin1,Bono,0,33,0,low,FALSE
+Ghana,women_vitA,admin1,Bono East,0,40,0,low,FALSE
+Ghana,women_vitA,admin1,Central,0.016949,59,0.016805,low,FALSE
+Ghana,women_vitA,admin1,Eastern,0.022214,93,0.015282,mild,FALSE
+Ghana,women_vitA,admin1,Greater Accra,0.015748,127,0.011048,low,FALSE
+Ghana,women_vitA,admin1,North East,0.029412,34,0.028976,mild,FALSE
+Ghana,women_vitA,admin1,Northern,0.029703,101,0.016892,mild,FALSE
+Ghana,women_vitA,admin1,Oti,0,9,0,low,FALSE
+Ghana,women_vitA,admin1,Savannah,0.02381,42,0.023524,mild,FALSE
+Ghana,women_vitA,admin1,Upper East,0.051724,58,0.02908,mild,FALSE
+Ghana,women_vitA,admin1,Upper West,0.019231,52,0.019045,low,FALSE
+Ghana,women_vitA,admin1,Volta,0,46,0,low,FALSE
+Ghana,women_vitA,admin1,Western,0,44,0,low,FALSE
+Ghana,women_vitA,admin1,Western North,0,7,0,low,FALSE
+Ghana,child_iron,national,(national),0.201963,1165,0.011762,moderate,FALSE
+Ghana,child_iron,admin1,Ahafo,0.129032,62,0.042575,mild,FALSE
+Ghana,child_iron,admin1,Ashanti,0.161765,204,0.025782,mild,FALSE
+Ghana,child_iron,admin1,Bono,0.181818,33,0.067141,mild,FALSE
+Ghana,child_iron,admin1,Bono East,0.282609,46,0.066388,moderate,FALSE
+Ghana,child_iron,admin1,Central,0.125,72,0.038976,mild,FALSE
+Ghana,child_iron,admin1,Eastern,0.247218,110,0.041132,moderate,FALSE
+Ghana,child_iron,admin1,Greater Accra,0.131313,99,0.033944,mild,FALSE
+Ghana,child_iron,admin1,North East,0.2,45,0.059628,moderate,FALSE
+Ghana,child_iron,admin1,Northern,0.517483,143,0.041787,severe,FALSE
+Ghana,child_iron,admin1,Oti,0.071429,14,0.06883,mild,FALSE
+Ghana,child_iron,admin1,Savannah,0.253968,63,0.05484,moderate,FALSE
+Ghana,child_iron,admin1,Upper East,0.506173,81,0.055551,severe,FALSE
+Ghana,child_iron,admin1,Upper West,0.285714,70,0.053995,moderate,FALSE
+Ghana,child_iron,admin1,Volta,0.125,40,0.052291,mild,FALSE
+Ghana,child_iron,admin1,Western,0.046875,64,0.026421,low,FALSE
+Ghana,child_iron,admin1,Western North,0,19,0,low,FALSE
+Ghana,women_iron,national,(national),0.075742,981,0.008448,mild,FALSE
+Ghana,women_iron,admin1,Ahafo,0.047619,42,0.03286,low,FALSE
+Ghana,women_iron,admin1,Ashanti,0.118227,203,0.022661,mild,FALSE
+Ghana,women_iron,admin1,Bono,0.03125,32,0.030758,low,FALSE
+Ghana,women_iron,admin1,Bono East,0.1,40,0.047434,mild,FALSE
+Ghana,women_iron,admin1,Central,0.135593,59,0.044571,mild,FALSE
+Ghana,women_iron,admin1,Eastern,0.152904,91,0.037727,mild,FALSE
+Ghana,women_iron,admin1,Greater Accra,0.146341,123,0.031869,mild,FALSE
+Ghana,women_iron,admin1,North East,0.205882,34,0.069345,moderate,FALSE
+Ghana,women_iron,admin1,Northern,0.23,100,0.042083,moderate,FALSE
+Ghana,women_iron,admin1,Oti,0,9,0,low,FALSE
+Ghana,women_iron,admin1,Savannah,0.047619,42,0.03286,low,FALSE
+Ghana,women_iron,admin1,Upper East,0.275862,58,0.058687,moderate,FALSE
+Ghana,women_iron,admin1,Upper West,0.078431,51,0.037646,mild,FALSE
+Ghana,women_iron,admin1,Volta,0.195652,46,0.058491,mild,FALSE
+Ghana,women_iron,admin1,Western,0.022727,44,0.022468,low,FALSE
+Ghana,women_iron,admin1,Western North,0,7,0,low,FALSE
+Ghana,women_folate,national,(national),0.54586,475,0.022845,severe,FALSE
+Ghana,women_folate,admin1,Ahafo,0.473684,19,0.114549,severe,FALSE
+Ghana,women_folate,admin1,Ashanti,0.515789,95,0.051273,severe,FALSE
+Ghana,women_folate,admin1,Bono,0.764706,17,0.102879,severe,FALSE
+Ghana,women_folate,admin1,Bono East,0.761905,21,0.092943,severe,FALSE
+Ghana,women_folate,admin1,Central,0.551724,29,0.09235,severe,FALSE
+Ghana,women_folate,admin1,Eastern,0.570623,43,0.075485,severe,FALSE
+Ghana,women_folate,admin1,Greater Accra,0.516129,62,0.063467,severe,FALSE
+Ghana,women_folate,admin1,North East,0.4375,16,0.12402,severe,FALSE
+Ghana,women_folate,admin1,Northern,0.645833,48,0.069031,severe,FALSE
+Ghana,women_folate,admin1,Oti,1,4,0,severe,FALSE
+Ghana,women_folate,admin1,Savannah,0.782609,23,0.086006,severe,FALSE
+Ghana,women_folate,admin1,Upper East,0.566667,30,0.090472,severe,FALSE
+Ghana,women_folate,admin1,Upper West,0.333333,24,0.096225,moderate,FALSE
+Ghana,women_folate,admin1,Volta,0.636364,22,0.102559,severe,FALSE
+Ghana,women_folate,admin1,Western,0.052632,19,0.051228,mild,FALSE
+Ghana,women_folate,admin1,Western North,0,3,0,low,FALSE
+Ghana,women_b12,national,(national),0.070083,473,0.011738,mild,FALSE
+Ghana,women_b12,admin1,Ahafo,0.052632,19,0.051228,mild,FALSE
+Ghana,women_b12,admin1,Ashanti,0.052632,95,0.02291,mild,FALSE
+Ghana,women_b12,admin1,Bono,0.058824,17,0.057067,mild,FALSE
+Ghana,women_b12,admin1,Bono East,0.142857,21,0.07636,mild,FALSE
+Ghana,women_b12,admin1,Central,0,28,0,low,FALSE
+Ghana,women_b12,admin1,Eastern,0.047709,43,0.032505,low,FALSE
+Ghana,women_b12,admin1,Greater Accra,0.048387,62,0.027252,low,FALSE
+Ghana,women_b12,admin1,North East,0.4375,16,0.12402,severe,FALSE
+Ghana,women_b12,admin1,Northern,0.25,48,0.0625,moderate,FALSE
+Ghana,women_b12,admin1,Oti,0,4,0,low,FALSE
+Ghana,women_b12,admin1,Savannah,0.086957,23,0.058753,mild,FALSE
+Ghana,women_b12,admin1,Upper East,0,29,0,low,FALSE
+Ghana,women_b12,admin1,Upper West,0.041667,24,0.040789,low,FALSE
+Ghana,women_b12,admin1,Volta,0.090909,22,0.061291,mild,FALSE
+Ghana,women_b12,admin1,Western,0.052632,19,0.051228,mild,FALSE
+Ghana,women_b12,admin1,Western North,0,3,0,low,FALSE
+Sierra Leone,child_vitA,national,(national),0.120128,486,0.014747,moderate,FALSE
+Sierra Leone,child_vitA,admin1,Eastern,0.105753,111,0.029189,moderate,FALSE
+Sierra Leone,child_vitA,admin1,Northern,0.131604,170,0.025928,moderate,FALSE
+Sierra Leone,child_vitA,admin1,Southern,0.113006,122,0.028664,moderate,FALSE
+Sierra Leone,child_vitA,admin1,Western,0.12603,83,0.036429,moderate,FALSE
+Sierra Leone,women_vitA,national,(national),0.014247,774,0.00426,low,FALSE
+Sierra Leone,women_vitA,admin1,Eastern,0.009923,166,0.007693,low,FALSE
+Sierra Leone,women_vitA,admin1,Northern,0.017954,228,0.008794,low,FALSE
+Sierra Leone,women_vitA,admin1,Southern,0.012719,185,0.008239,low,FALSE
+Sierra Leone,women_vitA,admin1,Western,0.013905,195,0.008386,low,FALSE
+Sierra Leone,child_iron,national,(national),0.051484,486,0.010024,mild,FALSE
+Sierra Leone,child_iron,admin1,Eastern,0.078989,111,0.025601,mild,FALSE
+Sierra Leone,child_iron,admin1,Northern,0.052795,170,0.017151,mild,FALSE
+Sierra Leone,child_iron,admin1,Southern,0.026653,122,0.014582,low,FALSE
+Sierra Leone,child_iron,admin1,Western,0.053721,83,0.024748,mild,FALSE
+Sierra Leone,women_iron,national,(national),0.096062,774,0.010592,mild,FALSE
+Sierra Leone,women_iron,admin1,Eastern,0.20236,166,0.031183,moderate,FALSE
+Sierra Leone,women_iron,admin1,Northern,0.17611,228,0.025227,mild,FALSE
+Sierra Leone,women_iron,admin1,Southern,0.162679,185,0.027135,mild,FALSE
+Sierra Leone,women_iron,admin1,Western,0.184793,195,0.027795,mild,FALSE
+Sierra Leone,women_folate,national,(national),0.791561,766,0.014676,severe,FALSE
+Sierra Leone,women_folate,admin1,Eastern,0.792047,175,0.030679,severe,FALSE
+Sierra Leone,women_folate,admin1,Northern,0.754035,230,0.028397,severe,FALSE
+Sierra Leone,women_folate,admin1,Southern,0.897188,176,0.022893,severe,FALSE
+Sierra Leone,women_folate,admin1,Western,0.746858,185,0.031968,severe,FALSE
+Sierra Leone,women_b12,national,(national),0.005232,768,0.002603,low,FALSE
+Sierra Leone,women_b12,admin1,Eastern,0.009712,175,0.007413,low,FALSE
+Sierra Leone,women_b12,admin1,Northern,0.002775,230,0.003469,low,FALSE
+Sierra Leone,women_b12,admin1,Southern,0.004465,176,0.005025,low,FALSE
+Sierra Leone,women_b12,admin1,Western,0.005813,187,0.005559,low,FALSE
+Malawi,child_vitA,national,(national),0.10169,1149,0.008916,moderate,FALSE
+Malawi,child_vitA,admin1,Balaka,0.081227,13,0.075768,mild,FALSE
+Malawi,child_vitA,admin1,Blantyre,0.173945,11,0.114291,moderate,FALSE
+Malawi,child_vitA,admin1,Chikwawa,0,25,0,low,FALSE
+Malawi,child_vitA,admin1,Chiradzulu,0.082033,35,0.046385,mild,FALSE
+Malawi,child_vitA,admin1,Chitipa,0.038491,53,0.026425,mild,FALSE
+Malawi,child_vitA,admin1,Dedza,0.132259,60,0.043735,moderate,FALSE
+Malawi,child_vitA,admin1,Dowa,0.023955,27,0.029427,mild,FALSE
+Malawi,child_vitA,admin1,Karonga,0.105155,88,0.0327,moderate,FALSE
+Malawi,child_vitA,admin1,Kasungu,0.045613,41,0.032585,mild,FALSE
+Malawi,child_vitA,admin1,Lilongwe,0.073477,39,0.04178,mild,FALSE
+Malawi,child_vitA,admin1,Machinga,0.277778,18,0.105572,severe,FALSE
+Malawi,child_vitA,admin1,Mangochi,0.180781,34,0.065999,moderate,FALSE
+Malawi,child_vitA,admin1,Mchinji,0.149187,59,0.046383,moderate,FALSE
+Malawi,child_vitA,admin1,Mulanje,0.060519,32,0.042152,mild,FALSE
+Malawi,child_vitA,admin1,Mwanza,0.062642,16,0.060579,mild,FALSE
+Malawi,child_vitA,admin1,Mzimba,0.048685,92,0.022437,mild,FALSE
+Malawi,child_vitA,admin1,Neno,0.003872,23,0.01295,low,FALSE
+Malawi,child_vitA,admin1,Nkhata Bay,0.097412,81,0.032946,mild,FALSE
+Malawi,child_vitA,admin1,Nkhotakota,0.077451,49,0.038187,mild,FALSE
+Malawi,child_vitA,admin1,Nsanje,0.136055,30,0.062595,moderate,FALSE
+Malawi,child_vitA,admin1,Ntcheu,0.131588,54,0.046002,moderate,FALSE
+Malawi,child_vitA,admin1,Ntchisi,0.052832,39,0.03582,mild,FALSE
+Malawi,child_vitA,admin1,Phalombe,0.04297,35,0.034278,mild,FALSE
+Malawi,child_vitA,admin1,Rumphi,0.031763,69,0.021112,mild,FALSE
+Malawi,child_vitA,admin1,Salima,0.207849,43,0.061879,severe,FALSE
+Malawi,child_vitA,admin1,Thyolo,0,23,0,low,FALSE
+Malawi,child_vitA,admin1,Zomba,0.158478,60,0.047146,moderate,FALSE
+Malawi,women_vitA,national,(national),0.021729,836,0.005043,mild,FALSE
+Malawi,women_vitA,admin1,Balaka,0,11,0,low,FALSE
+Malawi,women_vitA,admin1,Blantyre,0,13,0,low,FALSE
+Malawi,women_vitA,admin1,Chikwawa,0.038728,26,0.03784,mild,FALSE
+Malawi,women_vitA,admin1,Chiradzulu,0,29,0,low,FALSE
+Malawi,women_vitA,admin1,Chitipa,0,43,0,low,FALSE
+Malawi,women_vitA,admin1,Dedza,0.053258,32,0.039695,mild,FALSE
+Malawi,women_vitA,admin1,Dowa,0,36,0,low,FALSE
+Malawi,women_vitA,admin1,Karonga,0,51,0,low,FALSE
+Malawi,women_vitA,admin1,Kasungu,0.031996,36,0.029331,mild,FALSE
+Malawi,women_vitA,admin1,Lilongwe,0.050279,30,0.039896,mild,FALSE
+Malawi,women_vitA,admin1,Machinga,0,8,0,low,FALSE
+Malawi,women_vitA,admin1,Mangochi,0,24,0,low,FALSE
+Malawi,women_vitA,admin1,Mchinji,0.027157,35,0.027474,mild,FALSE
+Malawi,women_vitA,admin1,Mulanje,0,25,0,low,FALSE
+Malawi,women_vitA,admin1,Mwanza,0.047437,21,0.046387,mild,FALSE
+Malawi,women_vitA,admin1,Mzimba,0,63,0,low,FALSE
+Malawi,women_vitA,admin1,Neno,0,23,0,low,FALSE
+Malawi,women_vitA,admin1,Nkhata Bay,0,46,0,low,FALSE
+Malawi,women_vitA,admin1,Nkhotakota,0,32,0,low,FALSE
+Malawi,women_vitA,admin1,Nsanje,0.076832,21,0.058117,mild,FALSE
+Malawi,women_vitA,admin1,Ntcheu,0,42,0,low,FALSE
+Malawi,women_vitA,admin1,Ntchisi,0.047445,23,0.044328,mild,FALSE
+Malawi,women_vitA,admin1,Phalombe,0,26,0,low,FALSE
+Malawi,women_vitA,admin1,Rumphi,0,55,0,low,FALSE
+Malawi,women_vitA,admin1,Salima,0,27,0,low,FALSE
+Malawi,women_vitA,admin1,Thyolo,0.03799,28,0.036128,mild,FALSE
+Malawi,women_vitA,admin1,Zomba,0.037804,30,0.034821,mild,FALSE
+Malawi,child_iron,national,(national),0.102859,1149,0.008962,mild,FALSE
+Malawi,child_iron,admin1,Balaka,0.468712,13,0.138403,severe,FALSE
+Malawi,child_iron,admin1,Blantyre,0.373808,11,0.145875,moderate,FALSE
+Malawi,child_iron,admin1,Chikwawa,0.359194,25,0.095953,moderate,FALSE
+Malawi,child_iron,admin1,Chiradzulu,0.172315,35,0.063835,mild,FALSE
+Malawi,child_iron,admin1,Chitipa,0.172055,53,0.051844,mild,FALSE
+Malawi,child_iron,admin1,Dedza,0.028127,60,0.021345,low,FALSE
+Malawi,child_iron,admin1,Dowa,0.11138,27,0.060545,mild,FALSE
+Malawi,child_iron,admin1,Karonga,0.18071,88,0.041017,mild,FALSE
+Malawi,child_iron,admin1,Kasungu,0.192814,41,0.061612,mild,FALSE
+Malawi,child_iron,admin1,Lilongwe,0.272383,39,0.071287,moderate,FALSE
+Malawi,child_iron,admin1,Machinga,0.222222,18,0.097991,moderate,FALSE
+Malawi,child_iron,admin1,Mangochi,0.231504,34,0.072337,moderate,FALSE
+Malawi,child_iron,admin1,Mchinji,0.155515,59,0.04718,mild,FALSE
+Malawi,child_iron,admin1,Mulanje,0.24022,32,0.075522,moderate,FALSE
+Malawi,child_iron,admin1,Mwanza,0.062642,16,0.060579,mild,FALSE
+Malawi,child_iron,admin1,Mzimba,0.234149,92,0.044149,moderate,FALSE
+Malawi,child_iron,admin1,Neno,0.391953,23,0.101794,moderate,FALSE
+Malawi,child_iron,admin1,Nkhata Bay,0.108363,81,0.034538,mild,FALSE
+Malawi,child_iron,admin1,Nkhotakota,0.228048,49,0.059939,moderate,FALSE
+Malawi,child_iron,admin1,Nsanje,0.261968,30,0.080279,moderate,FALSE
+Malawi,child_iron,admin1,Ntcheu,0.181471,54,0.052447,mild,FALSE
+Malawi,child_iron,admin1,Ntchisi,0.126035,39,0.053145,mild,FALSE
+Malawi,child_iron,admin1,Phalombe,0.400512,35,0.082825,severe,FALSE
+Malawi,child_iron,admin1,Rumphi,0.406572,69,0.059133,severe,FALSE
+Malawi,child_iron,admin1,Salima,0.111357,43,0.047972,mild,FALSE
+Malawi,child_iron,admin1,Thyolo,0.174694,23,0.079174,mild,FALSE
+Malawi,child_iron,admin1,Zomba,0.15747,60,0.047024,mild,FALSE
+Malawi,women_iron,national,(national),0.081293,781,0.009779,mild,FALSE
+Malawi,women_iron,admin1,Balaka,0.21011,9,0.135796,moderate,FALSE
+Malawi,women_iron,admin1,Blantyre,0.156672,12,0.104931,mild,FALSE
+Malawi,women_iron,admin1,Chikwawa,0.23029,26,0.082568,moderate,FALSE
+Malawi,women_iron,admin1,Chiradzulu,0.144127,28,0.066374,mild,FALSE
+Malawi,women_iron,admin1,Chitipa,0.194033,39,0.063323,mild,FALSE
+Malawi,women_iron,admin1,Dedza,0.053258,32,0.039695,mild,FALSE
+Malawi,women_iron,admin1,Dowa,0.188587,34,0.067087,mild,FALSE
+Malawi,women_iron,admin1,Karonga,0.137393,47,0.050216,mild,FALSE
+Malawi,women_iron,admin1,Kasungu,0.096942,31,0.053141,mild,FALSE
+Malawi,women_iron,admin1,Lilongwe,0.071794,24,0.052694,mild,FALSE
+Malawi,women_iron,admin1,Machinga,0.25,8,0.153093,moderate,FALSE
+Malawi,women_iron,admin1,Mangochi,0.118176,24,0.065895,mild,FALSE
+Malawi,women_iron,admin1,Mchinji,0.089546,35,0.048263,mild,FALSE
+Malawi,women_iron,admin1,Mulanje,0.156012,24,0.07407,mild,FALSE
+Malawi,women_iron,admin1,Mwanza,0.149763,20,0.079792,mild,FALSE
+Malawi,women_iron,admin1,Mzimba,0.330993,60,0.06075,moderate,FALSE
+Malawi,women_iron,admin1,Neno,0.234656,23,0.088365,moderate,FALSE
+Malawi,women_iron,admin1,Nkhata Bay,0.093197,43,0.044333,mild,FALSE
+Malawi,women_iron,admin1,Nkhotakota,0.161224,28,0.069496,mild,FALSE
+Malawi,women_iron,admin1,Nsanje,0.195445,18,0.093466,mild,FALSE
+Malawi,women_iron,admin1,Ntcheu,0.09603,40,0.046585,mild,FALSE
+Malawi,women_iron,admin1,Ntchisi,0,19,0,low,FALSE
+Malawi,women_iron,admin1,Phalombe,0.143942,24,0.071654,mild,FALSE
+Malawi,women_iron,admin1,Rumphi,0.233187,51,0.059212,moderate,FALSE
+Malawi,women_iron,admin1,Salima,0.16434000000000001,26,0.072677,mild,FALSE
+Malawi,women_iron,admin1,Thyolo,0.142609,27,0.067295,mild,FALSE
+Malawi,women_iron,admin1,Zomba,0.325696,29,0.087023,moderate,FALSE
+Malawi,women_folate,national,(national),0.185997,828,0.013522,mild,FALSE
+Malawi,women_folate,admin1,Balaka,0,11,0,low,FALSE
+Malawi,women_folate,admin1,Blantyre,0.269566,15,0.114572,moderate,FALSE
+Malawi,women_folate,admin1,Chikwawa,0.599568,25,0.097997,severe,FALSE
+Malawi,women_folate,admin1,Chiradzulu,0.206786,29,0.075207,moderate,FALSE
+Malawi,women_folate,admin1,Chitipa,0.024476,42,0.023843,low,FALSE
+Malawi,women_folate,admin1,Dedza,0.023847,35,0.025789,low,FALSE
+Malawi,women_folate,admin1,Dowa,0.114104,35,0.053741,mild,FALSE
+Malawi,women_folate,admin1,Karonga,0.261939,50,0.062181,moderate,FALSE
+Malawi,women_folate,admin1,Kasungu,0.041182,35,0.033588,low,FALSE
+Malawi,women_folate,admin1,Lilongwe,0.162088,27,0.070924,mild,FALSE
+Malawi,women_folate,admin1,Machinga,0,8,0,low,FALSE
+Malawi,women_folate,admin1,Mangochi,0.185115,24,0.07928,mild,FALSE
+Malawi,women_folate,admin1,Mchinji,0.051186,35,0.03725,mild,FALSE
+Malawi,women_folate,admin1,Mulanje,0.211573,27,0.078601,moderate,FALSE
+Malawi,women_folate,admin1,Mwanza,0.094875,21,0.063947,mild,FALSE
+Malawi,women_folate,admin1,Mzimba,0.123219,64,0.041086,mild,FALSE
+Malawi,women_folate,admin1,Neno,0.28097,24,0.091748,moderate,FALSE
+Malawi,women_folate,admin1,Nkhata Bay,0.157036,44,0.05485,mild,FALSE
+Malawi,women_folate,admin1,Nkhotakota,0.510226,29,0.092828,severe,FALSE
+Malawi,women_folate,admin1,Nsanje,0.42868,20,0.11066,severe,FALSE
+Malawi,women_folate,admin1,Ntcheu,0.175086,42,0.058641,mild,FALSE
+Malawi,women_folate,admin1,Ntchisi,0,23,0,low,FALSE
+Malawi,women_folate,admin1,Phalombe,0.149262,24,0.072739,mild,FALSE
+Malawi,women_folate,admin1,Rumphi,0.37125,53,0.066364,moderate,FALSE
+Malawi,women_folate,admin1,Salima,0.465504,25,0.099762,severe,FALSE
+Malawi,women_folate,admin1,Thyolo,0.261194,31,0.078898,moderate,FALSE
+Malawi,women_folate,admin1,Zomba,0.037804,30,0.034821,low,FALSE
+Malawi,women_b12,national,(national),0.022808,839,0.005154,low,FALSE
+Malawi,women_b12,admin1,Balaka,0,11,0,low,FALSE
+Malawi,women_b12,admin1,Blantyre,0,15,0,low,FALSE
+Malawi,women_b12,admin1,Chikwawa,0.037284,27,0.036461,low,FALSE
+Malawi,women_b12,admin1,Chiradzulu,0,29,0,low,FALSE
+Malawi,women_b12,admin1,Chitipa,0.048394,42,0.033113,low,FALSE
+Malawi,women_b12,admin1,Dedza,0.024631,35,0.0262,low,FALSE
+Malawi,women_b12,admin1,Dowa,0.060471,35,0.04029,mild,FALSE
+Malawi,women_b12,admin1,Karonga,0.010572,51,0.014321,low,FALSE
+Malawi,women_b12,admin1,Kasungu,0.083713,35,0.046814,mild,FALSE
+Malawi,women_b12,admin1,Lilongwe,0.02989,28,0.03218,low,FALSE
+Malawi,women_b12,admin1,Machinga,0,8,0,low,FALSE
+Malawi,women_b12,admin1,Mangochi,0,24,0,low,FALSE
+Malawi,women_b12,admin1,Mchinji,0.054859,35,0.038489,mild,FALSE
+Malawi,women_b12,admin1,Mulanje,0,27,0,low,FALSE
+Malawi,women_b12,admin1,Mwanza,0.143006,21,0.076393,mild,FALSE
+Malawi,women_b12,admin1,Mzimba,0.048796,64,0.02693,low,FALSE
+Malawi,women_b12,admin1,Neno,0.052682,24,0.045601,mild,FALSE
+Malawi,women_b12,admin1,Nkhata Bay,0,46,0,low,FALSE
+Malawi,women_b12,admin1,Nkhotakota,0,30,0,low,FALSE
+Malawi,women_b12,admin1,Nsanje,0,20,0,low,FALSE
+Malawi,women_b12,admin1,Ntcheu,0,42,0,low,FALSE
+Malawi,women_b12,admin1,Ntchisi,0.138192,23,0.071959,mild,FALSE
+Malawi,women_b12,admin1,Phalombe,0,25,0,low,FALSE
+Malawi,women_b12,admin1,Rumphi,0,54,0,low,FALSE
+Malawi,women_b12,admin1,Salima,0,27,0,low,FALSE
+Malawi,women_b12,admin1,Thyolo,0,31,0,low,FALSE
+Malawi,women_b12,admin1,Zomba,0,30,0,low,FALSE
+Malawi,child_zinc,national,(national),0.611421,1134,0.014474,severe,FALSE
+Malawi,child_zinc,admin1,Balaka,0.846871,13,0.099877,severe,FALSE
+Malawi,child_zinc,admin1,Blantyre,0.588432,10,0.155621,severe,FALSE
+Malawi,child_zinc,admin1,Chikwawa,0.424035,26,0.09692,severe,FALSE
+Malawi,child_zinc,admin1,Chiradzulu,0.859869,35,0.058674,severe,FALSE
+Malawi,child_zinc,admin1,Chitipa,0.605661,53,0.067129,severe,FALSE
+Malawi,child_zinc,admin1,Dedza,0.68478000000000006,60,0.05998,severe,FALSE
+Malawi,child_zinc,admin1,Dowa,0.496723,27,0.096223,severe,FALSE
+Malawi,child_zinc,admin1,Karonga,0.528639,88,0.053213,severe,FALSE
+Malawi,child_zinc,admin1,Kasungu,0.482243,41,0.078038,severe,FALSE
+Malawi,child_zinc,admin1,Lilongwe,0.626217,37,0.079537,severe,FALSE
+Malawi,child_zinc,admin1,Machinga,0.388889,18,0.114904,severe,FALSE
+Malawi,child_zinc,admin1,Mangochi,0.687665,33,0.080676,severe,FALSE
+Malawi,child_zinc,admin1,Mchinji,0.712963,57,0.059919,severe,FALSE
+Malawi,child_zinc,admin1,Mulanje,0.705587,32,0.080571,severe,FALSE
+Malawi,child_zinc,admin1,Mwanza,0.562671,16,0.124014,severe,FALSE
+Malawi,child_zinc,admin1,Mzimba,0.489225,91,0.052402,severe,FALSE
+Malawi,child_zinc,admin1,Neno,0.604947,24,0.099789,severe,FALSE
+Malawi,child_zinc,admin1,Nkhata Bay,0.653631,75,0.054942,severe,FALSE
+Malawi,child_zinc,admin1,Nkhotakota,0.641396,49,0.068513,severe,FALSE
+Malawi,child_zinc,admin1,Nsanje,0.714971,31,0.081079,severe,FALSE
+Malawi,child_zinc,admin1,Ntcheu,0.440071,52,0.068838,severe,FALSE
+Malawi,child_zinc,admin1,Ntchisi,0.791099,39,0.065096,severe,FALSE
+Malawi,child_zinc,admin1,Phalombe,0.688479,34,0.079424,severe,FALSE
+Malawi,child_zinc,admin1,Rumphi,0.308356,69,0.055596,severe,FALSE
+Malawi,child_zinc,admin1,Salima,0.347971,42,0.073499,severe,FALSE
+Malawi,child_zinc,admin1,Thyolo,0.473321,22,0.106449,severe,FALSE
+Malawi,child_zinc,admin1,Zomba,0.789501,60,0.052629,severe,FALSE
+Malawi,women_zinc,national,(national),0.641126,844,0.016511,severe,FALSE
+Malawi,women_zinc,admin1,Balaka,0.81717,11,0.116542,severe,FALSE
+Malawi,women_zinc,admin1,Blantyre,0.930619,15,0.065608,severe,FALSE
+Malawi,women_zinc,admin1,Chikwawa,0.445408,27,0.09565,severe,FALSE
+Malawi,women_zinc,admin1,Chiradzulu,0.890631,29,0.057956,severe,FALSE
+Malawi,women_zinc,admin1,Chitipa,0.692634,43,0.070363,severe,FALSE
+Malawi,women_zinc,admin1,Dedza,0.660025,35,0.08007,severe,FALSE
+Malawi,women_zinc,admin1,Dowa,0.425177,36,0.082395,severe,FALSE
+Malawi,women_zinc,admin1,Karonga,0.593956,51,0.068767,severe,FALSE
+Malawi,women_zinc,admin1,Kasungu,0.484381,36,0.083293,severe,FALSE
+Malawi,women_zinc,admin1,Lilongwe,0.751865,28,0.081627,severe,FALSE
+Malawi,women_zinc,admin1,Machinga,0.75,8,0.153093,severe,FALSE
+Malawi,women_zinc,admin1,Mangochi,0.379531,24,0.099055,severe,FALSE
+Malawi,women_zinc,admin1,Mchinji,0.708457,35,0.07682,severe,FALSE
+Malawi,women_zinc,admin1,Mulanje,0.529408,27,0.096058,severe,FALSE
+Malawi,women_zinc,admin1,Mwanza,0.905125,21,0.063947,severe,FALSE
+Malawi,women_zinc,admin1,Mzimba,0.629011,64,0.060384,severe,FALSE
+Malawi,women_zinc,admin1,Neno,0.659515,24,0.096729,severe,FALSE
+Malawi,women_zinc,admin1,Nkhata Bay,0.704813,43,0.069559,severe,FALSE
+Malawi,women_zinc,admin1,Nkhotakota,0.468585,33,0.086867,severe,FALSE
+Malawi,women_zinc,admin1,Nsanje,0.607018,21,0.10658,severe,FALSE
+Malawi,women_zinc,admin1,Ntcheu,0.599226,42,0.075617,severe,FALSE
+Malawi,women_zinc,admin1,Ntchisi,0.826818,23,0.078903,severe,FALSE
+Malawi,women_zinc,admin1,Phalombe,0.813858,25,0.077844,severe,FALSE
+Malawi,women_zinc,admin1,Rumphi,0.302669,55,0.061947,severe,FALSE
+Malawi,women_zinc,admin1,Salima,0.407757,27,0.094573,severe,FALSE
+Malawi,women_zinc,admin1,Thyolo,0.655708,31,0.085337,severe,FALSE
+Malawi,women_zinc,admin1,Zomba,0.760219,30,0.07795,severe,FALSE
