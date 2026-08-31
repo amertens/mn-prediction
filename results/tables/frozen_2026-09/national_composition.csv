@@ -1,0 +1,33 @@
+outcome,country,panel,arm,n_admin2,mae_pp,bias_pp,pearson,spearman
+child_vitA,gambia,Vitamin A | Preschool-age children,transported (no level),30,11.6,-8.84,0.397,0.393
+child_vitA,gambia,Vitamin A | Preschool-age children,+ national null level,30,9.8,-1.17,0.4,0.393
+child_vitA,gambia,Vitamin A | Preschool-age children,+ VMNIS level,30,10.05,1.94,0.401,0.393
+child_vitA,gambia,Vitamin A | Preschool-age children,+ true national (oracle),30,9.97,1.45,0.401,0.393
+child_vitA,ghana,Vitamin A | Preschool-age children,transported (no level),75,9.38,0.52,0.227,0.168
+child_vitA,ghana,Vitamin A | Preschool-age children,+ national null level,75,10.25,4.19,0.226,0.168
+child_vitA,ghana,Vitamin A | Preschool-age children,+ VMNIS level,75,11.7,7.54,0.225,0.168
+child_vitA,ghana,Vitamin A | Preschool-age children,+ true national (oracle),75,9.57,1.63,0.227,0.168
+child_vitA,sierraleone,Vitamin A | Preschool-age children,transported (no level),14,6.94,-6.55,0.052,-0.011
+child_vitA,sierraleone,Vitamin A | Preschool-age children,+ national null level,14,7.78,6.38,0.049,-0.011
+child_vitA,sierraleone,Vitamin A | Preschool-age children,+ VMNIS level,14,29.92,29.92,0.045,-0.011
+child_vitA,sierraleone,Vitamin A | Preschool-age children,+ true national (oracle),14,4.78,1.07,0.05,-0.011
+child_vitA,malawi,Vitamin A | Preschool-age children,transported (no level),87,8.46,-6.36,-0.156,-0.046
+child_vitA,malawi,Vitamin A | Preschool-age children,+ national null level,87,14.21,7.23,-0.155,-0.025
+child_vitA,malawi,Vitamin A | Preschool-age children,+ VMNIS level,87,24.82,20.82,-0.15,-0.025
+child_vitA,malawi,Vitamin A | Preschool-age children,+ true national (oracle),87,10.14,-0.23,-0.157,-0.025
+women_vitA,gambia,Vitamin A | Non-pregnant women (NPW),transported (no level),30,3.43,-2.61,NA,NA
+women_vitA,gambia,Vitamin A | Non-pregnant women (NPW),+ national null level,30,5.16,3.02,NA,NA
+women_vitA,gambia,Vitamin A | Non-pregnant women (NPW),+ VMNIS level,30,5.12,2.95,NA,NA
+women_vitA,gambia,Vitamin A | Non-pregnant women (NPW),+ true national (oracle),30,3.59,-0.99,NA,NA
+women_vitA,ghana,Vitamin A | Non-pregnant women (NPW),transported (no level),75,2.3,-0.58,0.207,0.219
+women_vitA,ghana,Vitamin A | Non-pregnant women (NPW),+ national null level,75,6.13,4.97,0.208,0.219
+women_vitA,ghana,Vitamin A | Non-pregnant women (NPW),+ VMNIS level,75,5.88,4.63,0.208,0.219
+women_vitA,ghana,Vitamin A | Non-pregnant women (NPW),+ true national (oracle),75,2.63,-0.09,0.207,0.219
+women_vitA,sierraleone,Vitamin A | Non-pregnant women (NPW),transported (no level),14,1.27,-1.03,-0.08,-0.069
+women_vitA,sierraleone,Vitamin A | Non-pregnant women (NPW),+ national null level,14,5.22,5.22,NA,NA
+women_vitA,sierraleone,Vitamin A | Non-pregnant women (NPW),+ VMNIS level,14,6.29,6.29,NA,NA
+women_vitA,sierraleone,Vitamin A | Non-pregnant women (NPW),+ true national (oracle),14,1.26,0.19,NA,NA
+women_vitA,malawi,Vitamin A | Non-pregnant women (NPW),transported (no level),87,3.13,0.3,-0.083,-0.051
+women_vitA,malawi,Vitamin A | Non-pregnant women (NPW),+ national null level,87,7.18,5.33,-0.083,-0.052
+women_vitA,malawi,Vitamin A | Non-pregnant women (NPW),+ VMNIS level,87,7.82,6.11,-0.082,-0.052
+women_vitA,malawi,Vitamin A | Non-pregnant women (NPW),+ true national (oracle),87,2.74,-0.2,-0.087,-0.052
