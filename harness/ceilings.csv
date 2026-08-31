@@ -1,0 +1,25 @@
+country,outcome,lambda_emp,r_max_emp,r_max_emp_lo,r_max_emp_hi
+Gambia,child_vitA,0.6355,0.7972,0.6226,0.9065
+Gambia,women_vitA,0.4148,0.6441,0,0.8
+Gambia,child_iron,0.5678,0.7535,0.4771,0.8737
+Gambia,women_iron,0.6784,0.8237,0.6328,0.9169
+Ghana,child_vitA,0.3508,0.5923,0.2927,0.7545
+Ghana,women_vitA,0.154,0.3925,0,0.6841
+Ghana,child_iron,0.6574,0.8108,0.7177,0.8655
+Ghana,women_iron,0.1474,0.3839,0,0.6074
+Ghana,women_folate,0.5086,0.7131,0.5395,0.8183
+Ghana,women_b12,0.2364,0.4862,0,0.7295
+Sierra Leone,child_vitA,0.0333,0.1826,0,0.8373
+Sierra Leone,women_vitA,0.2044,0.4521,0,0.7906
+Sierra Leone,child_iron,0.0627,0.2505,0,0.7664
+Sierra Leone,women_iron,0.6747,0.8214,0.4878,0.9345
+Sierra Leone,women_folate,0.7183,0.8475,0.6779,0.9487
+Sierra Leone,women_b12,0,0,0,0
+Malawi,child_vitA,0.4021,0.6341,0.3943,0.7649
+Malawi,women_vitA,0,0,0,0
+Malawi,child_iron,0.2013,0.4487,0,0.6416
+Malawi,women_iron,0.1558,0.3947,0,0.6291
+Malawi,women_folate,0.6898,0.8305,0.7462,0.8878
+Malawi,women_b12,0,0,0,0.4545
+Malawi,child_zinc,0.6375,0.7985,0.7321,0.8594
+Malawi,women_zinc,0.6255,0.7909,0.6781,0.8663
