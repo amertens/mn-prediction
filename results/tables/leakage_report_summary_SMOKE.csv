@@ -1,0 +1,3 @@
+country,outcome,predictor_set,n_predictors,max_abs_r,n_flagged,n_under_measured,top_column,top_n_pairs
+Ghana,child_iron,proxy,1872,0.3343,0,0,ihme_adm1_africa_hiv_2000_2018_hiv_prevalence_females_30_34_years_females_hiv_prevalence_percent,883
+Ghana,child_iron,questionnaire,2080,0.3343,0,11,ihme_adm1_africa_hiv_2000_2018_hiv_prevalence_females_30_34_years_females_hiv_prevalence_percent,883

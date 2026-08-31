@@ -1,0 +1,1201 @@
+country,outcome,predictor_set,n_predictors,rank,column,r,abs_r,n_pairs,min_n,eligible,threshold,flagged,n_flagged_in_cell,max_abs_r_in_cell,n_under_measured_cols
+Gambia,child_vitA,questionnaire,1521,1,gw_cCurrentBF,0.2477,0.2477,537,100,TRUE,0.55,FALSE,0,0.2477,4
+Gambia,child_vitA,questionnaire,1521,2,map2_accessibility_201501_global_travel_time_to_cities,0.211,0.211,1020,100,TRUE,0.55,FALSE,0,0.2477,4
+Gambia,child_vitA,questionnaire,1521,3,map2_explorer_2015_accessibility_to_cities_v1_0,0.211,0.211,1020,100,TRUE,0.55,FALSE,0,0.2477,4
+Gambia,child_vitA,questionnaire,1521,4,gee_a2_AccessibilityCities,0.2105,0.2105,1020,100,TRUE,0.55,FALSE,0,0.2477,4
+Gambia,child_vitA,questionnaire,1521,5,gw_WS8,0.2089,0.2089,143,100,TRUE,0.55,FALSE,0,0.2477,4
+Gambia,child_vitA,questionnaire,1521,6,dhs2019_w_literate_adm2.x,-0.2044,0.2044,1020,100,TRUE,0.55,FALSE,0,0.2477,4
+Gambia,child_vitA,questionnaire,1521,7,dhs2019_w_literate_adm2.y,-0.2044,0.2044,1020,100,TRUE,0.55,FALSE,0,0.2477,4
+Gambia,child_vitA,questionnaire,1521,8,gee_a2_LST_Night_Mean,0.2032,0.2032,1020,100,TRUE,0.55,FALSE,0,0.2477,4
+Gambia,child_vitA,questionnaire,1521,9,gee_a2_LandCoverLayers,-0.2016,0.2016,1020,100,TRUE,0.55,FALSE,0,0.2477,4
+Gambia,child_vitA,questionnaire,1521,10,mics_ir1,-0.201,0.201,1020,100,TRUE,0.55,FALSE,0,0.2477,4
+Gambia,child_vitA,questionnaire,1521,11,gee_a2_TerraClimate_vap,-0.2009,0.2009,1020,100,TRUE,0.55,FALSE,0,0.2477,4
+Gambia,child_vitA,questionnaire,1521,12,gw_Stratum,0.2008,0.2008,1020,100,TRUE,0.55,FALSE,0,0.2477,4
+Gambia,child_vitA,questionnaire,1521,13,gee_a2_TerraClimate_vs,-0.2005,0.2005,1020,100,TRUE,0.55,FALSE,0,0.2477,4
+Gambia,child_vitA,questionnaire,1521,14,mics_ws14_se,-0.2001,0.2001,1020,100,TRUE,0.55,FALSE,0,0.2477,4
+Gambia,child_vitA,questionnaire,1521,15,gw_cAgeMonthsCat_COHA,0.1995,0.1995,1020,100,TRUE,0.55,FALSE,0,0.2477,4
+Gambia,child_vitA,questionnaire,1521,16,gee_a2_LST_Night_Mean_yoy,0.199,0.199,1020,100,TRUE,0.55,FALSE,0,0.2477,4
+Gambia,child_vitA,questionnaire,1521,17,ihme_adm1_global_anemia_2000_2019_sev_anemia_prev_15_49_years_females_severe_anemia_percent,0.1989,0.1989,1020,100,TRUE,0.55,FALSE,0,0.2477,4
+Gambia,child_vitA,questionnaire,1521,18,soil_calcium_stdev_20_50,-0.1987,0.1987,1020,100,TRUE,0.55,FALSE,0,0.2477,4
+Gambia,child_vitA,questionnaire,1521,19,gee_a2_TerraClimate_vpd,0.1984,0.1984,1020,100,TRUE,0.55,FALSE,0,0.2477,4
+Gambia,child_vitA,questionnaire,1521,20,mics_hc5,-0.1979,0.1979,1020,100,TRUE,0.55,FALSE,0,0.2477,4
+Gambia,child_vitA,questionnaire,1521,21,dhs2019_w_secondary_plus_adm2.x,-0.1974,0.1974,1020,100,TRUE,0.55,FALSE,0,0.2477,4
+Gambia,child_vitA,questionnaire,1521,22,dhs2019_w_secondary_plus_adm2.y,-0.1974,0.1974,1020,100,TRUE,0.55,FALSE,0,0.2477,4
+Gambia,child_vitA,questionnaire,1521,23,gw_an4u,0.1971,0.1971,1020,100,TRUE,0.55,FALSE,0,0.2477,4
+Gambia,child_vitA,questionnaire,1521,24,gw_HC7G,0.1969,0.1969,1020,100,TRUE,0.55,FALSE,0,0.2477,4
+Gambia,child_vitA,questionnaire,1521,25,gw_goods_G,-0.1969,0.1969,1020,100,TRUE,0.55,FALSE,0,0.2477,4
+Gambia,child_vitA,proxy,1195,1,map2_accessibility_201501_global_travel_time_to_cities,0.211,0.211,1020,100,TRUE,0.55,FALSE,0,0.211,0
+Gambia,child_vitA,proxy,1195,2,map2_explorer_2015_accessibility_to_cities_v1_0,0.211,0.211,1020,100,TRUE,0.55,FALSE,0,0.211,0
+Gambia,child_vitA,proxy,1195,3,gee_a2_AccessibilityCities,0.2105,0.2105,1020,100,TRUE,0.55,FALSE,0,0.211,0
+Gambia,child_vitA,proxy,1195,4,dhs2019_w_literate_adm2.x,-0.2044,0.2044,1020,100,TRUE,0.55,FALSE,0,0.211,0
+Gambia,child_vitA,proxy,1195,5,dhs2019_w_literate_adm2.y,-0.2044,0.2044,1020,100,TRUE,0.55,FALSE,0,0.211,0
+Gambia,child_vitA,proxy,1195,6,gee_a2_LST_Night_Mean,0.2032,0.2032,1020,100,TRUE,0.55,FALSE,0,0.211,0
+Gambia,child_vitA,proxy,1195,7,gee_a2_LandCoverLayers,-0.2016,0.2016,1020,100,TRUE,0.55,FALSE,0,0.211,0
+Gambia,child_vitA,proxy,1195,8,mics_ir1,-0.201,0.201,1020,100,TRUE,0.55,FALSE,0,0.211,0
+Gambia,child_vitA,proxy,1195,9,gee_a2_TerraClimate_vap,-0.2009,0.2009,1020,100,TRUE,0.55,FALSE,0,0.211,0
+Gambia,child_vitA,proxy,1195,10,gee_a2_TerraClimate_vs,-0.2005,0.2005,1020,100,TRUE,0.55,FALSE,0,0.211,0
+Gambia,child_vitA,proxy,1195,11,mics_ws14_se,-0.2001,0.2001,1020,100,TRUE,0.55,FALSE,0,0.211,0
+Gambia,child_vitA,proxy,1195,12,gee_a2_LST_Night_Mean_yoy,0.199,0.199,1020,100,TRUE,0.55,FALSE,0,0.211,0
+Gambia,child_vitA,proxy,1195,13,ihme_adm1_global_anemia_2000_2019_sev_anemia_prev_15_49_years_females_severe_anemia_percent,0.1989,0.1989,1020,100,TRUE,0.55,FALSE,0,0.211,0
+Gambia,child_vitA,proxy,1195,14,soil_calcium_stdev_20_50,-0.1987,0.1987,1020,100,TRUE,0.55,FALSE,0,0.211,0
+Gambia,child_vitA,proxy,1195,15,gee_a2_TerraClimate_vpd,0.1984,0.1984,1020,100,TRUE,0.55,FALSE,0,0.211,0
+Gambia,child_vitA,proxy,1195,16,mics_hc5,-0.1979,0.1979,1020,100,TRUE,0.55,FALSE,0,0.211,0
+Gambia,child_vitA,proxy,1195,17,dhs2019_w_secondary_plus_adm2.x,-0.1974,0.1974,1020,100,TRUE,0.55,FALSE,0,0.211,0
+Gambia,child_vitA,proxy,1195,18,dhs2019_w_secondary_plus_adm2.y,-0.1974,0.1974,1020,100,TRUE,0.55,FALSE,0,0.211,0
+Gambia,child_vitA,proxy,1195,19,gee_ndvi_50km_seasonal_sd,0.1966,0.1966,1020,100,TRUE,0.55,FALSE,0,0.211,0
+Gambia,child_vitA,proxy,1195,20,mics_sa2,0.1964,0.1964,1020,100,TRUE,0.55,FALSE,0,0.211,0
+Gambia,child_vitA,proxy,1195,21,mics_se.hw7b,-0.1957,0.1957,1020,100,TRUE,0.55,FALSE,0,0.211,0
+Gambia,child_vitA,proxy,1195,22,mics_se.hw7b_b,-0.1957,0.1957,1020,100,TRUE,0.55,FALSE,0,0.211,0
+Gambia,child_vitA,proxy,1195,23,ihme_adm1_global_anemia_2000_2019_all_anemia_prev_15_49_years_females_all_anemia_percent,0.1955,0.1955,1020,100,TRUE,0.55,FALSE,0,0.211,0
+Gambia,child_vitA,proxy,1195,24,mics_wq4,0.1953,0.1953,1020,100,TRUE,0.55,FALSE,0,0.211,0
+Gambia,child_vitA,proxy,1195,25,gee_temp_Jun_50km,0.195,0.195,1020,100,TRUE,0.55,FALSE,0,0.211,0
+Gambia,women_vitA,questionnaire,1550,1,gee_ndvi_50km_seasonal_cv,0.1734,0.1734,1413,100,TRUE,0.55,FALSE,0,0.1734,4
+Gambia,women_vitA,questionnaire,1550,2,dhs2019_c_anemia_moderate_adm2.x,0.1611,0.1611,1413,100,TRUE,0.55,FALSE,0,0.1734,4
+Gambia,women_vitA,questionnaire,1550,3,dhs2019_c_anemia_moderate_adm2.y,0.1611,0.1611,1413,100,TRUE,0.55,FALSE,0,0.1734,4
+Gambia,women_vitA,questionnaire,1550,4,dhs2019_c_anemia_any_adm2.x,0.1518,0.1518,1413,100,TRUE,0.55,FALSE,0,0.1734,4
+Gambia,women_vitA,questionnaire,1550,5,dhs2019_c_anemia_any_adm2.y,0.1518,0.1518,1413,100,TRUE,0.55,FALSE,0,0.1734,4
+Gambia,women_vitA,questionnaire,1550,6,dhs2019_CN_ANMC_C_ANY_adm2.x,0.1502,0.1502,1413,100,TRUE,0.55,FALSE,0,0.1734,4
+Gambia,women_vitA,questionnaire,1550,7,dhs2019_CN_ANMC_C_ANY_adm2.y,0.1502,0.1502,1413,100,TRUE,0.55,FALSE,0,0.1734,4
+Gambia,women_vitA,questionnaire,1550,8,gw_WS8,0.149,0.149,205,100,TRUE,0.55,FALSE,0,0.1734,4
+Gambia,women_vitA,questionnaire,1550,9,gee_ndvi_50km_seasonal_sd,0.1457,0.1457,1413,100,TRUE,0.55,FALSE,0,0.1734,4
+Gambia,women_vitA,questionnaire,1550,10,gee_ndvi_50km_seasonal_range,0.1435,0.1435,1413,100,TRUE,0.55,FALSE,0,0.1734,4
+Gambia,women_vitA,questionnaire,1550,11,gw_ib4,-0.1429,0.1429,109,100,TRUE,0.55,FALSE,0,0.1734,4
+Gambia,women_vitA,questionnaire,1550,12,dhs2019_w_anemia_moderate_adm2.x,0.1417,0.1417,1413,100,TRUE,0.55,FALSE,0,0.1734,4
+Gambia,women_vitA,questionnaire,1550,13,dhs2019_w_anemia_moderate_adm2.y,0.1417,0.1417,1413,100,TRUE,0.55,FALSE,0,0.1734,4
+Gambia,women_vitA,questionnaire,1550,14,gw_electric_1,-0.1369,0.1369,1413,100,TRUE,0.55,FALSE,0,0.1734,4
+Gambia,women_vitA,questionnaire,1550,15,gee_a2_FLDAS_Qs_tavg_yoy,-0.1356,0.1356,1413,100,TRUE,0.55,FALSE,0,0.1734,4
+Gambia,women_vitA,questionnaire,1550,16,gee_grassland_50km,0.1329,0.1329,1413,100,TRUE,0.55,FALSE,0,0.1734,4
+Gambia,women_vitA,questionnaire,1550,17,gw_hWealthscoreNATL,-0.1316,0.1316,1406,100,TRUE,0.55,FALSE,0,0.1734,4
+Gambia,women_vitA,questionnaire,1550,18,dhs2019_w_no_education_adm2.x,0.1304,0.1304,1413,100,TRUE,0.55,FALSE,0,0.1734,4
+Gambia,women_vitA,questionnaire,1550,19,dhs2019_w_primary_edu_adm2.x,-0.1304,0.1304,1413,100,TRUE,0.55,FALSE,0,0.1734,4
+Gambia,women_vitA,questionnaire,1550,20,dhs2019_w_no_education_adm2.y,0.1304,0.1304,1413,100,TRUE,0.55,FALSE,0,0.1734,4
+Gambia,women_vitA,questionnaire,1550,21,dhs2019_w_primary_edu_adm2.y,-0.1304,0.1304,1413,100,TRUE,0.55,FALSE,0,0.1734,4
+Gambia,women_vitA,questionnaire,1550,22,gee_a2_FLDAS_LWdown_f_tavg_yoy,0.1299,0.1299,1413,100,TRUE,0.55,FALSE,0,0.1734,4
+Gambia,women_vitA,questionnaire,1550,23,gee_a2_FLDAS_Tair_f_tavg_yoy,0.1295,0.1295,1413,100,TRUE,0.55,FALSE,0,0.1734,4
+Gambia,women_vitA,questionnaire,1550,24,dhs2019_hh_urban_adm2.x,-0.1293,0.1293,1413,100,TRUE,0.55,FALSE,0,0.1734,4
+Gambia,women_vitA,questionnaire,1550,25,dhs2019_hh_urban_adm2.y,-0.1293,0.1293,1413,100,TRUE,0.55,FALSE,0,0.1734,4
+Gambia,women_vitA,proxy,1195,1,gee_ndvi_50km_seasonal_cv,0.1734,0.1734,1413,100,TRUE,0.55,FALSE,0,0.1734,0
+Gambia,women_vitA,proxy,1195,2,dhs2019_c_anemia_moderate_adm2.x,0.1611,0.1611,1413,100,TRUE,0.55,FALSE,0,0.1734,0
+Gambia,women_vitA,proxy,1195,3,dhs2019_c_anemia_moderate_adm2.y,0.1611,0.1611,1413,100,TRUE,0.55,FALSE,0,0.1734,0
+Gambia,women_vitA,proxy,1195,4,dhs2019_c_anemia_any_adm2.x,0.1518,0.1518,1413,100,TRUE,0.55,FALSE,0,0.1734,0
+Gambia,women_vitA,proxy,1195,5,dhs2019_c_anemia_any_adm2.y,0.1518,0.1518,1413,100,TRUE,0.55,FALSE,0,0.1734,0
+Gambia,women_vitA,proxy,1195,6,dhs2019_CN_ANMC_C_ANY_adm2.x,0.1502,0.1502,1413,100,TRUE,0.55,FALSE,0,0.1734,0
+Gambia,women_vitA,proxy,1195,7,dhs2019_CN_ANMC_C_ANY_adm2.y,0.1502,0.1502,1413,100,TRUE,0.55,FALSE,0,0.1734,0
+Gambia,women_vitA,proxy,1195,8,dhs2019_c_mean_hemoglobin_adm2.x,-0.1462,0.1462,1413,100,TRUE,0.55,FALSE,0,0.1734,0
+Gambia,women_vitA,proxy,1195,9,dhs2019_c_mean_hemoglobin_adm2.y,-0.1462,0.1462,1413,100,TRUE,0.55,FALSE,0,0.1734,0
+Gambia,women_vitA,proxy,1195,10,gee_ndvi_50km_seasonal_sd,0.1457,0.1457,1413,100,TRUE,0.55,FALSE,0,0.1734,0
+Gambia,women_vitA,proxy,1195,11,gee_ndvi_50km_seasonal_range,0.1435,0.1435,1413,100,TRUE,0.55,FALSE,0,0.1734,0
+Gambia,women_vitA,proxy,1195,12,dhs2019_w_anemia_moderate_adm2.x,0.1417,0.1417,1413,100,TRUE,0.55,FALSE,0,0.1734,0
+Gambia,women_vitA,proxy,1195,13,dhs2019_w_anemia_moderate_adm2.y,0.1417,0.1417,1413,100,TRUE,0.55,FALSE,0,0.1734,0
+Gambia,women_vitA,proxy,1195,14,gee_a2_FLDAS_Qs_tavg_yoy,-0.1356,0.1356,1413,100,TRUE,0.55,FALSE,0,0.1734,0
+Gambia,women_vitA,proxy,1195,15,gee_grassland_50km,0.1329,0.1329,1413,100,TRUE,0.55,FALSE,0,0.1734,0
+Gambia,women_vitA,proxy,1195,16,dhs2019_w_no_education_adm2.x,0.1304,0.1304,1413,100,TRUE,0.55,FALSE,0,0.1734,0
+Gambia,women_vitA,proxy,1195,17,dhs2019_w_primary_edu_adm2.x,-0.1304,0.1304,1413,100,TRUE,0.55,FALSE,0,0.1734,0
+Gambia,women_vitA,proxy,1195,18,dhs2019_w_no_education_adm2.y,0.1304,0.1304,1413,100,TRUE,0.55,FALSE,0,0.1734,0
+Gambia,women_vitA,proxy,1195,19,dhs2019_w_primary_edu_adm2.y,-0.1304,0.1304,1413,100,TRUE,0.55,FALSE,0,0.1734,0
+Gambia,women_vitA,proxy,1195,20,gee_a2_FLDAS_LWdown_f_tavg_yoy,0.1299,0.1299,1413,100,TRUE,0.55,FALSE,0,0.1734,0
+Gambia,women_vitA,proxy,1195,21,gee_a2_FLDAS_Tair_f_tavg_yoy,0.1295,0.1295,1413,100,TRUE,0.55,FALSE,0,0.1734,0
+Gambia,women_vitA,proxy,1195,22,dhs2019_hh_urban_adm2.x,-0.1293,0.1293,1413,100,TRUE,0.55,FALSE,0,0.1734,0
+Gambia,women_vitA,proxy,1195,23,dhs2019_hh_urban_adm2.y,-0.1293,0.1293,1413,100,TRUE,0.55,FALSE,0,0.1734,0
+Gambia,women_vitA,proxy,1195,24,gee_ndvi_Oct_50km,0.1292,0.1292,1413,100,TRUE,0.55,FALSE,0,0.1734,0
+Gambia,women_vitA,proxy,1195,25,dhs2019_w_edu_years_mean_adm2.x,-0.1285,0.1285,1413,100,TRUE,0.55,FALSE,0,0.1734,0
+Gambia,child_iron,questionnaire,1522,1,gw_cBirthDate,0.2344,0.2344,995,100,TRUE,0.55,FALSE,0,0.2344,5
+Gambia,child_iron,questionnaire,1522,2,gw_caged,-0.234,0.234,995,100,TRUE,0.55,FALSE,0,0.2344,5
+Gambia,child_iron,questionnaire,1522,3,gw_cAgeDay_MICS,-0.234,0.234,995,100,TRUE,0.55,FALSE,0,0.2344,5
+Gambia,child_iron,questionnaire,1522,4,gw_cAgeMonth_MICS,-0.234,0.234,995,100,TRUE,0.55,FALSE,0,0.2344,5
+Gambia,child_iron,questionnaire,1522,5,gw_cage,-0.2331,0.2331,995,100,TRUE,0.55,FALSE,0,0.2344,5
+Gambia,child_iron,questionnaire,1522,6,gw_ch4y,0.226,0.226,1013,100,TRUE,0.55,FALSE,0,0.2344,5
+Gambia,child_iron,questionnaire,1522,7,gw_an2a,-0.2128,0.2128,1013,100,TRUE,0.55,FALSE,0,0.2344,5
+Gambia,child_iron,questionnaire,1522,8,gw_cWeight,-0.2124,0.2124,1013,100,TRUE,0.55,FALSE,0,0.2344,5
+Gambia,child_iron,questionnaire,1522,9,gw_weight,-0.2124,0.2124,1013,100,TRUE,0.55,FALSE,0,0.2344,5
+Gambia,child_iron,questionnaire,1522,10,gw_an2b,-0.212,0.212,1013,100,TRUE,0.55,FALSE,0,0.2344,5
+Gambia,child_iron,questionnaire,1522,11,gw_cAgeMonths_GMNS,-0.2115,0.2115,1013,100,TRUE,0.55,FALSE,0,0.2344,5
+Gambia,child_iron,questionnaire,1522,12,gw_agemons,-0.2115,0.2115,1013,100,TRUE,0.55,FALSE,0,0.2344,5
+Gambia,child_iron,questionnaire,1522,13,gw__agedays,-0.2114,0.2114,1013,100,TRUE,0.55,FALSE,0,0.2344,5
+Gambia,child_iron,questionnaire,1522,14,gw_ch5,-0.2044,0.2044,1013,100,TRUE,0.55,FALSE,0,0.2344,5
+Gambia,child_iron,questionnaire,1522,15,gw_cAgeMonthsCat,-0.1912,0.1912,1013,100,TRUE,0.55,FALSE,0,0.2344,5
+Gambia,child_iron,questionnaire,1522,16,gw_haz06,-0.1823,0.1823,994,100,TRUE,0.55,FALSE,0,0.2344,5
+Gambia,child_iron,questionnaire,1522,17,gw__zlen,-0.1819,0.1819,994,100,TRUE,0.55,FALSE,0,0.2344,5
+Gambia,child_iron,questionnaire,1522,18,gw_an4u,-0.1573,0.1573,1013,100,TRUE,0.55,FALSE,0,0.2344,5
+Gambia,child_iron,questionnaire,1522,19,gw_cStuntYN,0.1571,0.1571,994,100,TRUE,0.55,FALSE,0,0.2344,5
+Gambia,child_iron,questionnaire,1522,20,gw_cGrain,0.1501,0.1501,325,100,TRUE,0.55,FALSE,0,0.2344,5
+Gambia,child_iron,questionnaire,1522,21,gee_a2_TerraClimate_def_yoy,0.1494,0.1494,1013,100,TRUE,0.55,FALSE,0,0.2344,5
+Gambia,child_iron,questionnaire,1522,22,soil_aluminium_stdev_20_50,0.1486,0.1486,1013,100,TRUE,0.55,FALSE,0,0.2344,5
+Gambia,child_iron,questionnaire,1522,23,gee_a2_FLDAS_LWdown_f_tavg_yoy,0.1481,0.1481,1013,100,TRUE,0.55,FALSE,0,0.2344,5
+Gambia,child_iron,questionnaire,1522,24,wfp_sorghum,-0.1472,0.1472,690,100,TRUE,0.55,FALSE,0,0.2344,5
+Gambia,child_iron,questionnaire,1522,25,gee_a2_FLDAS_Qair_f_tavg,-0.1461,0.1461,1013,100,TRUE,0.55,FALSE,0,0.2344,5
+Gambia,child_iron,proxy,1195,1,gee_a2_TerraClimate_def_yoy,0.1494,0.1494,1013,100,TRUE,0.55,FALSE,0,0.1494,0
+Gambia,child_iron,proxy,1195,2,soil_aluminium_stdev_20_50,0.1486,0.1486,1013,100,TRUE,0.55,FALSE,0,0.1494,0
+Gambia,child_iron,proxy,1195,3,gee_a2_FLDAS_LWdown_f_tavg_yoy,0.1481,0.1481,1013,100,TRUE,0.55,FALSE,0,0.1494,0
+Gambia,child_iron,proxy,1195,4,wfp_sorghum,-0.1472,0.1472,690,100,TRUE,0.55,FALSE,0,0.1494,0
+Gambia,child_iron,proxy,1195,5,gee_a2_FLDAS_Qair_f_tavg,-0.1461,0.1461,1013,100,TRUE,0.55,FALSE,0,0.1494,0
+Gambia,child_iron,proxy,1195,6,wfp_meat_chicken,-0.1455,0.1455,690,100,TRUE,0.55,FALSE,0,0.1494,0
+Gambia,child_iron,proxy,1195,7,gee_temp_Apr_25km,0.1454,0.1454,997,100,TRUE,0.55,FALSE,0,0.1494,0
+Gambia,child_iron,proxy,1195,8,gee_temp_25km_annual_mean,0.1448,0.1448,997,100,TRUE,0.55,FALSE,0,0.1494,0
+Gambia,child_iron,proxy,1195,9,gee_temp_Mar_25km,0.1448,0.1448,997,100,TRUE,0.55,FALSE,0,0.1494,0
+Gambia,child_iron,proxy,1195,10,ihme_adm1_global_anemia_2000_2019_sev_anemia_prev_15_49_years_females_severe_anemia_percent,0.1445,0.1445,1013,100,TRUE,0.55,FALSE,0,0.1494,0
+Gambia,child_iron,proxy,1195,11,gee_a2_TerraClimate_aet_yoy,-0.1445,0.1445,1013,100,TRUE,0.55,FALSE,0,0.1494,0
+Gambia,child_iron,proxy,1195,12,gee_temp_Apr_10km,0.1444,0.1444,978,100,TRUE,0.55,FALSE,0,0.1494,0
+Gambia,child_iron,proxy,1195,13,ihme_adm1_global_anemia_2000_2019_mild_anemia_prev_15_49_years_females_mild_anemia_percent,0.1444,0.1444,1013,100,TRUE,0.55,FALSE,0,0.1494,0
+Gambia,child_iron,proxy,1195,14,gee_a2_FLDAS_Tair_f_tavg_yoy,0.1444,0.1444,1013,100,TRUE,0.55,FALSE,0,0.1494,0
+Gambia,child_iron,proxy,1195,15,gee_a2_SoilZinc_mean_0_20,-0.1443,0.1443,1013,100,TRUE,0.55,FALSE,0,0.1494,0
+Gambia,child_iron,proxy,1195,16,gee_a2_SoilZinc_mean_20_50,-0.144,0.144,1013,100,TRUE,0.55,FALSE,0,0.1494,0
+Gambia,child_iron,proxy,1195,17,gee_temp_Mar_10km,0.1438,0.1438,978,100,TRUE,0.55,FALSE,0,0.1494,0
+Gambia,child_iron,proxy,1195,18,ihme_adm1_global_anemia_2000_2019_all_anemia_prev_15_49_years_females_all_anemia_percent,0.1436,0.1436,1013,100,TRUE,0.55,FALSE,0,0.1494,0
+Gambia,child_iron,proxy,1195,19,gee_a2_TerraClimate_tmmx,0.1431,0.1431,1013,100,TRUE,0.55,FALSE,0,0.1494,0
+Gambia,child_iron,proxy,1195,20,gee_temp_10km_annual_mean,0.1428,0.1428,978,100,TRUE,0.55,FALSE,0,0.1494,0
+Gambia,child_iron,proxy,1195,21,mics_tn1_se,-0.1427,0.1427,1013,100,TRUE,0.55,FALSE,0,0.1494,0
+Gambia,child_iron,proxy,1195,22,soil_zinc_mean_20_50,-0.1427,0.1427,1013,100,TRUE,0.55,FALSE,0,0.1494,0
+Gambia,child_iron,proxy,1195,23,gee_a2_TerraClimate_vpd,0.1427,0.1427,1013,100,TRUE,0.55,FALSE,0,0.1494,0
+Gambia,child_iron,proxy,1195,24,soil_zinc_mean_0_20,-0.1426,0.1426,1013,100,TRUE,0.55,FALSE,0,0.1494,0
+Gambia,child_iron,proxy,1195,25,mics_hc7d,0.1423,0.1423,1013,100,TRUE,0.55,FALSE,0,0.1494,0
+Gambia,women_iron,questionnaire,1560,1,gw_WQ14,-0.239,0.239,329,100,TRUE,0.55,FALSE,0,0.239,14
+Gambia,women_iron,questionnaire,1560,2,gw_hWealthscoreNATL,-0.2221,0.2221,1395,100,TRUE,0.55,FALSE,0,0.239,14
+Gambia,women_iron,questionnaire,1560,3,wfp_meat_chicken,-0.2219,0.2219,990,100,TRUE,0.55,FALSE,0,0.239,14
+Gambia,women_iron,questionnaire,1560,4,gee_a2_TerraClimate_vs_yoy,-0.2204,0.2204,1402,100,TRUE,0.55,FALSE,0,0.239,14
+Gambia,women_iron,questionnaire,1560,5,gee_trmm_10km_peak_month,0.2191,0.2191,1402,100,TRUE,0.55,FALSE,0,0.239,14
+Gambia,women_iron,questionnaire,1560,6,gee_trmm_50km_peak_month,0.2191,0.2191,1402,100,TRUE,0.55,FALSE,0,0.239,14
+Gambia,women_iron,questionnaire,1560,7,map2_explorer_2015_nature_africa_incidence,0.219,0.219,1402,100,TRUE,0.55,FALSE,0,0.239,14
+Gambia,women_iron,questionnaire,1560,8,dhs2019_w_edu_years_mean_adm2.x,-0.2178,0.2178,1402,100,TRUE,0.55,FALSE,0,0.239,14
+Gambia,women_iron,questionnaire,1560,9,dhs2019_w_edu_years_mean_adm2.y,-0.2178,0.2178,1402,100,TRUE,0.55,FALSE,0,0.239,14
+Gambia,women_iron,questionnaire,1560,10,gee_a2_SoilZinc_mean_20_50,-0.2176,0.2176,1402,100,TRUE,0.55,FALSE,0,0.239,14
+Gambia,women_iron,questionnaire,1560,11,gee_ndvi_May_10km,0.2175,0.2175,1402,100,TRUE,0.55,FALSE,0,0.239,14
+Gambia,women_iron,questionnaire,1560,12,gee_a2_TerraClimate_vpd_yoy,0.2172,0.2172,1402,100,TRUE,0.55,FALSE,0,0.239,14
+Gambia,women_iron,questionnaire,1560,13,gee_a2_TerraClimate_srad_yoy,-0.217,0.217,1402,100,TRUE,0.55,FALSE,0,0.239,14
+Gambia,women_iron,questionnaire,1560,14,wfp_price_cassava,-0.2167,0.2167,1252,100,TRUE,0.55,FALSE,0,0.239,14
+Gambia,women_iron,questionnaire,1560,15,gee_trmm_May_50km,-0.2167,0.2167,1402,100,TRUE,0.55,FALSE,0,0.239,14
+Gambia,women_iron,questionnaire,1560,16,gee_temp_Mar_50km,0.2166,0.2166,1402,100,TRUE,0.55,FALSE,0,0.239,14
+Gambia,women_iron,questionnaire,1560,17,soil_zinc_mean_20_50,-0.2163,0.2163,1402,100,TRUE,0.55,FALSE,0,0.239,14
+Gambia,women_iron,questionnaire,1560,18,gee_a2_SoilZinc_mean_0_20,-0.2161,0.2161,1402,100,TRUE,0.55,FALSE,0,0.239,14
+Gambia,women_iron,questionnaire,1560,19,gee_ndvi_May_25km,0.2158,0.2158,1402,100,TRUE,0.55,FALSE,0,0.239,14
+Gambia,women_iron,questionnaire,1560,20,gee_trmm_Feb_50km,-0.2155,0.2155,1402,100,TRUE,0.55,FALSE,0,0.239,14
+Gambia,women_iron,questionnaire,1560,21,wfp_bananas,-0.2151,0.2151,990,100,TRUE,0.55,FALSE,0,0.239,14
+Gambia,women_iron,questionnaire,1560,22,map2_explorer_2010_tempsuitability_pf_index_1k_global_decomp,-0.2151,0.2151,1402,100,TRUE,0.55,FALSE,0,0.239,14
+Gambia,women_iron,questionnaire,1560,23,dhs2019_w_secondary_plus_adm2.x,-0.215,0.215,1402,100,TRUE,0.55,FALSE,0,0.239,14
+Gambia,women_iron,questionnaire,1560,24,dhs2019_w_secondary_plus_adm2.y,-0.215,0.215,1402,100,TRUE,0.55,FALSE,0,0.239,14
+Gambia,women_iron,questionnaire,1560,25,gee_a2_TerraClimate_aet_yoy,-0.215,0.215,1402,100,TRUE,0.55,FALSE,0,0.239,14
+Gambia,women_iron,proxy,1195,1,wfp_meat_chicken,-0.2219,0.2219,990,100,TRUE,0.55,FALSE,0,0.2219,0
+Gambia,women_iron,proxy,1195,2,gee_a2_TerraClimate_vs_yoy,-0.2204,0.2204,1402,100,TRUE,0.55,FALSE,0,0.2219,0
+Gambia,women_iron,proxy,1195,3,gee_trmm_10km_peak_month,0.2191,0.2191,1402,100,TRUE,0.55,FALSE,0,0.2219,0
+Gambia,women_iron,proxy,1195,4,gee_trmm_50km_peak_month,0.2191,0.2191,1402,100,TRUE,0.55,FALSE,0,0.2219,0
+Gambia,women_iron,proxy,1195,5,map2_explorer_2015_nature_africa_incidence,0.219,0.219,1402,100,TRUE,0.55,FALSE,0,0.2219,0
+Gambia,women_iron,proxy,1195,6,dhs2019_w_edu_years_mean_adm2.x,-0.2178,0.2178,1402,100,TRUE,0.55,FALSE,0,0.2219,0
+Gambia,women_iron,proxy,1195,7,dhs2019_w_edu_years_mean_adm2.y,-0.2178,0.2178,1402,100,TRUE,0.55,FALSE,0,0.2219,0
+Gambia,women_iron,proxy,1195,8,gee_a2_SoilZinc_mean_20_50,-0.2176,0.2176,1402,100,TRUE,0.55,FALSE,0,0.2219,0
+Gambia,women_iron,proxy,1195,9,gee_ndvi_May_10km,0.2175,0.2175,1402,100,TRUE,0.55,FALSE,0,0.2219,0
+Gambia,women_iron,proxy,1195,10,gee_a2_TerraClimate_vpd_yoy,0.2172,0.2172,1402,100,TRUE,0.55,FALSE,0,0.2219,0
+Gambia,women_iron,proxy,1195,11,gee_a2_TerraClimate_srad_yoy,-0.217,0.217,1402,100,TRUE,0.55,FALSE,0,0.2219,0
+Gambia,women_iron,proxy,1195,12,wfp_price_cassava,-0.2167,0.2167,1252,100,TRUE,0.55,FALSE,0,0.2219,0
+Gambia,women_iron,proxy,1195,13,gee_trmm_May_50km,-0.2167,0.2167,1402,100,TRUE,0.55,FALSE,0,0.2219,0
+Gambia,women_iron,proxy,1195,14,gee_temp_Mar_50km,0.2166,0.2166,1402,100,TRUE,0.55,FALSE,0,0.2219,0
+Gambia,women_iron,proxy,1195,15,soil_zinc_mean_20_50,-0.2163,0.2163,1402,100,TRUE,0.55,FALSE,0,0.2219,0
+Gambia,women_iron,proxy,1195,16,gee_a2_SoilZinc_mean_0_20,-0.2161,0.2161,1402,100,TRUE,0.55,FALSE,0,0.2219,0
+Gambia,women_iron,proxy,1195,17,gee_ndvi_May_25km,0.2158,0.2158,1402,100,TRUE,0.55,FALSE,0,0.2219,0
+Gambia,women_iron,proxy,1195,18,gee_trmm_Feb_50km,-0.2155,0.2155,1402,100,TRUE,0.55,FALSE,0,0.2219,0
+Gambia,women_iron,proxy,1195,19,wfp_bananas,-0.2151,0.2151,990,100,TRUE,0.55,FALSE,0,0.2219,0
+Gambia,women_iron,proxy,1195,20,map2_explorer_2010_tempsuitability_pf_index_1k_global_decomp,-0.2151,0.2151,1402,100,TRUE,0.55,FALSE,0,0.2219,0
+Gambia,women_iron,proxy,1195,21,dhs2019_w_secondary_plus_adm2.x,-0.215,0.215,1402,100,TRUE,0.55,FALSE,0,0.2219,0
+Gambia,women_iron,proxy,1195,22,dhs2019_w_secondary_plus_adm2.y,-0.215,0.215,1402,100,TRUE,0.55,FALSE,0,0.2219,0
+Gambia,women_iron,proxy,1195,23,gee_a2_TerraClimate_aet_yoy,-0.215,0.215,1402,100,TRUE,0.55,FALSE,0,0.2219,0
+Gambia,women_iron,proxy,1195,24,gee_ndvi_Dec_10km,0.2146,0.2146,1402,100,TRUE,0.55,FALSE,0,0.2219,0
+Gambia,women_iron,proxy,1195,25,soil_zinc_mean_0_20,-0.2145,0.2145,1402,100,TRUE,0.55,FALSE,0,0.2219,0
+Ghana,child_vitA,questionnaire,2077,1,wfp_rice_paddy,-0.2555,0.2555,331,100,TRUE,0.55,FALSE,0,0.2555,8
+Ghana,child_vitA,questionnaire,2077,2,ihme_under_5_1_both_ors_or_rhf_number,0.2263,0.2263,327,100,TRUE,0.55,FALSE,0,0.2555,8
+Ghana,child_vitA,questionnaire,2077,3,ihme_under_5_1_both_recommended_home_fluids_number,0.2256,0.2256,327,100,TRUE,0.55,FALSE,0,0.2555,8
+Ghana,child_vitA,questionnaire,2077,4,ihme_all_ages_22_both_s_od_number,0.2238,0.2238,327,100,TRUE,0.55,FALSE,0,0.2555,8
+Ghana,child_vitA,questionnaire,2077,5,ihme_under_5_1_both_oral_rehydration_solution_number,0.2236,0.2236,327,100,TRUE,0.55,FALSE,0,0.2555,8
+Ghana,child_vitA,questionnaire,2077,6,ihme_under_5_1_both_deaths,0.198,0.198,327,100,TRUE,0.55,FALSE,0,0.2555,8
+Ghana,child_vitA,questionnaire,2077,7,ihme_infant_28_both_deaths,0.1893,0.1893,327,100,TRUE,0.55,FALSE,0,0.2555,8
+Ghana,child_vitA,questionnaire,2077,8,ihme_all_ages_22_both_w_surface_number,0.1853,0.1853,327,100,TRUE,0.55,FALSE,0,0.2555,8
+Ghana,child_vitA,questionnaire,2077,9,ihme_all_ages_22_both_w_piped_number,0.1852,0.1852,327,100,TRUE,0.55,FALSE,0,0.2555,8
+Ghana,child_vitA,questionnaire,2077,10,ihme_neonatal_42_both_deaths,0.182,0.182,327,100,TRUE,0.55,FALSE,0,0.2555,8
+Ghana,child_vitA,questionnaire,2077,11,ihme_all_ages_22_both_w_imp_number,0.1727,0.1727,327,100,TRUE,0.55,FALSE,0,0.2555,8
+Ghana,child_vitA,questionnaire,2077,12,ihme_under_5_1_both_wasting_prevalence_percent,0.1698,0.1698,327,100,TRUE,0.55,FALSE,0,0.2555,8
+Ghana,child_vitA,questionnaire,2077,13,ihme_under_5_1_both_underweight_prevalence_percent,0.1674,0.1674,327,100,TRUE,0.55,FALSE,0,0.2555,8
+Ghana,child_vitA,questionnaire,2077,14,ihme_all_ages_22_both_w_unimp_number,0.1639,0.1639,327,100,TRUE,0.55,FALSE,0,0.2555,8
+Ghana,child_vitA,questionnaire,2077,15,gw_childid,0.1634,0.1634,1165,100,TRUE,0.55,FALSE,0,0.2555,8
+Ghana,child_vitA,questionnaire,2077,16,ihme_20_24_24_female_proportion_of_population_achieving_6_11_years_education,-0.1611,0.1611,327,100,TRUE,0.55,FALSE,0,0.2555,8
+Ghana,child_vitA,questionnaire,2077,17,mics_se.hw7b,-0.1602,0.1602,1165,100,TRUE,0.55,FALSE,0,0.2555,8
+Ghana,child_vitA,questionnaire,2077,18,mics_se.hw7b_b,-0.1602,0.1602,1165,100,TRUE,0.55,FALSE,0,0.2555,8
+Ghana,child_vitA,questionnaire,2077,19,ihme_all_ages_22_both_s_unimp_percent,-0.1587,0.1587,327,100,TRUE,0.55,FALSE,0,0.2555,8
+Ghana,child_vitA,questionnaire,2077,20,dhs2014_CN_ANMC_C_ANY,0.1585,0.1585,1024,100,TRUE,0.55,FALSE,0,0.2555,8
+Ghana,child_vitA,questionnaire,2077,21,mics_hw4,0.1569,0.1569,1165,100,TRUE,0.55,FALSE,0,0.2555,8
+Ghana,child_vitA,questionnaire,2077,22,gw_bclnr,0.1564,0.1564,1159,100,TRUE,0.55,FALSE,0,0.2555,8
+Ghana,child_vitA,questionnaire,2077,23,ihme_15_49_24_female_proportion_of_population_achieving_6_11_years_education,-0.1554,0.1554,327,100,TRUE,0.55,FALSE,0,0.2555,8
+Ghana,child_vitA,questionnaire,2077,24,gee_ndvi_10km_seasonal_cv,0.153,0.153,1165,100,TRUE,0.55,FALSE,0,0.2555,8
+Ghana,child_vitA,questionnaire,2077,25,lsms_hh_narcotics,0.1529,0.1529,1165,100,TRUE,0.55,FALSE,0,0.2555,8
+Ghana,child_vitA,proxy,1872,1,wfp_rice_paddy,-0.2555,0.2555,331,100,TRUE,0.55,FALSE,0,0.2555,0
+Ghana,child_vitA,proxy,1872,2,ihme_under_5_1_both_ors_or_rhf_number,0.2263,0.2263,327,100,TRUE,0.55,FALSE,0,0.2555,0
+Ghana,child_vitA,proxy,1872,3,ihme_under_5_1_both_recommended_home_fluids_number,0.2256,0.2256,327,100,TRUE,0.55,FALSE,0,0.2555,0
+Ghana,child_vitA,proxy,1872,4,ihme_all_ages_22_both_s_od_number,0.2238,0.2238,327,100,TRUE,0.55,FALSE,0,0.2555,0
+Ghana,child_vitA,proxy,1872,5,ihme_under_5_1_both_oral_rehydration_solution_number,0.2236,0.2236,327,100,TRUE,0.55,FALSE,0,0.2555,0
+Ghana,child_vitA,proxy,1872,6,ihme_under_5_1_both_deaths,0.198,0.198,327,100,TRUE,0.55,FALSE,0,0.2555,0
+Ghana,child_vitA,proxy,1872,7,ihme_infant_28_both_deaths,0.1893,0.1893,327,100,TRUE,0.55,FALSE,0,0.2555,0
+Ghana,child_vitA,proxy,1872,8,ihme_all_ages_22_both_w_surface_number,0.1853,0.1853,327,100,TRUE,0.55,FALSE,0,0.2555,0
+Ghana,child_vitA,proxy,1872,9,ihme_all_ages_22_both_w_piped_number,0.1852,0.1852,327,100,TRUE,0.55,FALSE,0,0.2555,0
+Ghana,child_vitA,proxy,1872,10,ihme_neonatal_42_both_deaths,0.182,0.182,327,100,TRUE,0.55,FALSE,0,0.2555,0
+Ghana,child_vitA,proxy,1872,11,ihme_all_ages_22_both_w_imp_number,0.1727,0.1727,327,100,TRUE,0.55,FALSE,0,0.2555,0
+Ghana,child_vitA,proxy,1872,12,ihme_under_5_1_both_wasting_prevalence_percent,0.1698,0.1698,327,100,TRUE,0.55,FALSE,0,0.2555,0
+Ghana,child_vitA,proxy,1872,13,ihme_under_5_1_both_underweight_prevalence_percent,0.1674,0.1674,327,100,TRUE,0.55,FALSE,0,0.2555,0
+Ghana,child_vitA,proxy,1872,14,ihme_all_ages_22_both_w_unimp_number,0.1639,0.1639,327,100,TRUE,0.55,FALSE,0,0.2555,0
+Ghana,child_vitA,proxy,1872,15,ihme_20_24_24_female_proportion_of_population_achieving_6_11_years_education,-0.1611,0.1611,327,100,TRUE,0.55,FALSE,0,0.2555,0
+Ghana,child_vitA,proxy,1872,16,mics_se.hw7b,-0.1602,0.1602,1165,100,TRUE,0.55,FALSE,0,0.2555,0
+Ghana,child_vitA,proxy,1872,17,mics_se.hw7b_b,-0.1602,0.1602,1165,100,TRUE,0.55,FALSE,0,0.2555,0
+Ghana,child_vitA,proxy,1872,18,ihme_all_ages_22_both_s_unimp_percent,-0.1587,0.1587,327,100,TRUE,0.55,FALSE,0,0.2555,0
+Ghana,child_vitA,proxy,1872,19,dhs2014_CN_ANMC_C_ANY,0.1585,0.1585,1024,100,TRUE,0.55,FALSE,0,0.2555,0
+Ghana,child_vitA,proxy,1872,20,mics_hw4,0.1569,0.1569,1165,100,TRUE,0.55,FALSE,0,0.2555,0
+Ghana,child_vitA,proxy,1872,21,ihme_15_49_24_female_proportion_of_population_achieving_6_11_years_education,-0.1554,0.1554,327,100,TRUE,0.55,FALSE,0,0.2555,0
+Ghana,child_vitA,proxy,1872,22,gee_ndvi_10km_seasonal_cv,0.153,0.153,1165,100,TRUE,0.55,FALSE,0,0.2555,0
+Ghana,child_vitA,proxy,1872,23,lsms_hh_narcotics,0.1529,0.1529,1165,100,TRUE,0.55,FALSE,0,0.2555,0
+Ghana,child_vitA,proxy,1872,24,wfp_maize_yellow,-0.1526,0.1526,885,100,TRUE,0.55,FALSE,0,0.2555,0
+Ghana,child_vitA,proxy,1872,25,gee_a2_LandCoverLayers_2017_2017_data_density_indicator,0.1523,0.1523,1101,100,TRUE,0.55,FALSE,0,0.2555,0
+Ghana,women_vitA,questionnaire,2036,1,gw_wAtRisk,0.1786,0.1786,971,100,TRUE,0.55,FALSE,0,0.1786,14
+Ghana,women_vitA,questionnaire,2036,2,fsec_hfid_fcs_lit,0.1642,0.1642,303,100,TRUE,0.55,FALSE,0,0.1786,14
+Ghana,women_vitA,questionnaire,2036,3,ihme_15_49_24_male_proportion_of_population_achieving_0_years_education,0.155,0.155,255,100,TRUE,0.55,FALSE,0,0.1786,14
+Ghana,women_vitA,questionnaire,2036,4,ihme_20_24_24_male_proportion_of_population_achieving_0_years_education,0.1513,0.1513,255,100,TRUE,0.55,FALSE,0,0.1786,14
+Ghana,women_vitA,questionnaire,2036,5,gw_wUnderweight,0.1497,0.1497,971,100,TRUE,0.55,FALSE,0,0.1786,14
+Ghana,women_vitA,questionnaire,2036,6,ihme_15_49_24_male_proportion_of_population_achieving_6_11_years_education,-0.1469,0.1469,255,100,TRUE,0.55,FALSE,0,0.1786,14
+Ghana,women_vitA,questionnaire,2036,7,ihme_15_49_24_female_proportion_of_population_achieving_12_years_education,-0.1462,0.1462,255,100,TRUE,0.55,FALSE,0,0.1786,14
+Ghana,women_vitA,questionnaire,2036,8,ihme_15_49_24_female_proportion_of_population_achieving_0_years_education,0.1456,0.1456,255,100,TRUE,0.55,FALSE,0,0.1786,14
+Ghana,women_vitA,questionnaire,2036,9,ihme_15_49_24_female_mean_years_of_attainment,-0.1446,0.1446,255,100,TRUE,0.55,FALSE,0,0.1786,14
+Ghana,women_vitA,questionnaire,2036,10,ihme_20_24_24_female_proportion_of_population_achieving_12_years_education,-0.1443,0.1443,255,100,TRUE,0.55,FALSE,0,0.1786,14
+Ghana,women_vitA,questionnaire,2036,11,ihme_15_49_24_male_mean_years_of_attainment,-0.143,0.143,255,100,TRUE,0.55,FALSE,0,0.1786,14
+Ghana,women_vitA,questionnaire,2036,12,ihme_15_49_24_male_proportion_of_population_achieving_12_years_education,-0.1418,0.1418,255,100,TRUE,0.55,FALSE,0,0.1786,14
+Ghana,women_vitA,questionnaire,2036,13,ihme_15_49_24_female_proportion_of_population_achieving_6_11_years_education,-0.1412,0.1412,255,100,TRUE,0.55,FALSE,0,0.1786,14
+Ghana,women_vitA,questionnaire,2036,14,ihme_20_24_24_male_mean_years_of_attainment,-0.1346,0.1346,255,100,TRUE,0.55,FALSE,0,0.1786,14
+Ghana,women_vitA,questionnaire,2036,15,ihme_20_24_24_female_proportion_of_population_achieving_0_years_education,0.1346,0.1346,255,100,TRUE,0.55,FALSE,0,0.1786,14
+Ghana,women_vitA,questionnaire,2036,16,ihme_20_24_24_female_mean_years_of_attainment,-0.1345,0.1345,255,100,TRUE,0.55,FALSE,0,0.1786,14
+Ghana,women_vitA,questionnaire,2036,17,gw_wprm_yr,-0.1309,0.1309,163,100,TRUE,0.55,FALSE,0,0.1786,14
+Ghana,women_vitA,questionnaire,2036,18,ihme_under_5_1_both_probability_of_death,0.1282,0.1282,255,100,TRUE,0.55,FALSE,0,0.1786,14
+Ghana,women_vitA,questionnaire,2036,19,ihme_20_24_24_male_proportion_of_population_achieving_12_years_education,-0.124,0.124,255,100,TRUE,0.55,FALSE,0,0.1786,14
+Ghana,women_vitA,questionnaire,2036,20,gw_PSU_weight,0.1238,0.1238,992,100,TRUE,0.55,FALSE,0,0.1786,14
+Ghana,women_vitA,questionnaire,2036,21,ihme_under_5_1_both_stunting_prevalence_percent,0.1236,0.1236,255,100,TRUE,0.55,FALSE,0,0.1786,14
+Ghana,women_vitA,questionnaire,2036,22,gw_Corrected_probability_of_selecti,0.1109,0.1109,992,100,TRUE,0.55,FALSE,0,0.1786,14
+Ghana,women_vitA,questionnaire,2036,23,ihme_under_5_1_both_wasting_prevalence_percent,0.1076,0.1076,255,100,TRUE,0.55,FALSE,0,0.1786,14
+Ghana,women_vitA,questionnaire,2036,24,gw_wht,0.1057,0.1057,977,100,TRUE,0.55,FALSE,0,0.1786,14
+Ghana,women_vitA,questionnaire,2036,25,ihme_all_ages_22_both_s_imp_percent,-0.1033,0.1033,255,100,TRUE,0.55,FALSE,0,0.1786,14
+Ghana,women_vitA,proxy,1872,1,fsec_hfid_fcs_lit,0.1642,0.1642,303,100,TRUE,0.55,FALSE,0,0.1642,0
+Ghana,women_vitA,proxy,1872,2,ihme_15_49_24_male_proportion_of_population_achieving_0_years_education,0.155,0.155,255,100,TRUE,0.55,FALSE,0,0.1642,0
+Ghana,women_vitA,proxy,1872,3,ihme_20_24_24_male_proportion_of_population_achieving_0_years_education,0.1513,0.1513,255,100,TRUE,0.55,FALSE,0,0.1642,0
+Ghana,women_vitA,proxy,1872,4,ihme_15_49_24_male_proportion_of_population_achieving_6_11_years_education,-0.1469,0.1469,255,100,TRUE,0.55,FALSE,0,0.1642,0
+Ghana,women_vitA,proxy,1872,5,ihme_15_49_24_female_proportion_of_population_achieving_12_years_education,-0.1462,0.1462,255,100,TRUE,0.55,FALSE,0,0.1642,0
+Ghana,women_vitA,proxy,1872,6,ihme_15_49_24_female_proportion_of_population_achieving_0_years_education,0.1456,0.1456,255,100,TRUE,0.55,FALSE,0,0.1642,0
+Ghana,women_vitA,proxy,1872,7,ihme_15_49_24_female_mean_years_of_attainment,-0.1446,0.1446,255,100,TRUE,0.55,FALSE,0,0.1642,0
+Ghana,women_vitA,proxy,1872,8,ihme_20_24_24_female_proportion_of_population_achieving_12_years_education,-0.1443,0.1443,255,100,TRUE,0.55,FALSE,0,0.1642,0
+Ghana,women_vitA,proxy,1872,9,ihme_15_49_24_male_mean_years_of_attainment,-0.143,0.143,255,100,TRUE,0.55,FALSE,0,0.1642,0
+Ghana,women_vitA,proxy,1872,10,ihme_15_49_24_male_proportion_of_population_achieving_12_years_education,-0.1418,0.1418,255,100,TRUE,0.55,FALSE,0,0.1642,0
+Ghana,women_vitA,proxy,1872,11,ihme_15_49_24_female_proportion_of_population_achieving_6_11_years_education,-0.1412,0.1412,255,100,TRUE,0.55,FALSE,0,0.1642,0
+Ghana,women_vitA,proxy,1872,12,ihme_20_24_24_male_mean_years_of_attainment,-0.1346,0.1346,255,100,TRUE,0.55,FALSE,0,0.1642,0
+Ghana,women_vitA,proxy,1872,13,ihme_20_24_24_female_proportion_of_population_achieving_0_years_education,0.1346,0.1346,255,100,TRUE,0.55,FALSE,0,0.1642,0
+Ghana,women_vitA,proxy,1872,14,ihme_20_24_24_female_mean_years_of_attainment,-0.1345,0.1345,255,100,TRUE,0.55,FALSE,0,0.1642,0
+Ghana,women_vitA,proxy,1872,15,ihme_under_5_1_both_probability_of_death,0.1282,0.1282,255,100,TRUE,0.55,FALSE,0,0.1642,0
+Ghana,women_vitA,proxy,1872,16,ihme_20_24_24_male_proportion_of_population_achieving_12_years_education,-0.124,0.124,255,100,TRUE,0.55,FALSE,0,0.1642,0
+Ghana,women_vitA,proxy,1872,17,ihme_under_5_1_both_stunting_prevalence_percent,0.1236,0.1236,255,100,TRUE,0.55,FALSE,0,0.1642,0
+Ghana,women_vitA,proxy,1872,18,ihme_under_5_1_both_wasting_prevalence_percent,0.1076,0.1076,255,100,TRUE,0.55,FALSE,0,0.1642,0
+Ghana,women_vitA,proxy,1872,19,ihme_all_ages_22_both_s_imp_percent,-0.1033,0.1033,255,100,TRUE,0.55,FALSE,0,0.1642,0
+Ghana,women_vitA,proxy,1872,20,ihme_all_ages_22_both_s_od_percent,0.101,0.101,255,100,TRUE,0.55,FALSE,0,0.1642,0
+Ghana,women_vitA,proxy,1872,21,mics_hc7k_se,-0.0995,0.0995,992,100,TRUE,0.55,FALSE,0,0.1642,0
+Ghana,women_vitA,proxy,1872,22,ihme_under_5_1_both_underweight_prevalence_percent,0.0994,0.0994,255,100,TRUE,0.55,FALSE,0,0.1642,0
+Ghana,women_vitA,proxy,1872,23,ihme_20_24_24_female_proportion_of_population_achieving_6_11_years_education,-0.0991,0.0991,255,100,TRUE,0.55,FALSE,0,0.1642,0
+Ghana,women_vitA,proxy,1872,24,mics_ws15,0.0973,0.0973,992,100,TRUE,0.55,FALSE,0,0.1642,0
+Ghana,women_vitA,proxy,1872,25,dhs2014_CH_VACC_C_NON_adm2.x,0.0969,0.0969,914,100,TRUE,0.55,FALSE,0,0.1642,0
+Ghana,child_iron,questionnaire,2080,1,ihme_adm1_africa_hiv_2000_2018_hiv_prevalence_females_30_34_years_females_hiv_prevalence_percent,-0.3343,0.3343,883,100,TRUE,0.55,FALSE,0,0.3343,11
+Ghana,child_iron,questionnaire,2080,2,ihme_adm1_africa_hiv_2000_2018_hiv_prevalence_males_30_34_years_males_hiv_prevalence_percent,-0.3343,0.3343,883,100,TRUE,0.55,FALSE,0,0.3343,11
+Ghana,child_iron,questionnaire,2080,3,ihme_adm1_africa_hiv_2000_2018_hiv_prevalence_females_20_24_years_females_hiv_prevalence_percent,-0.3343,0.3343,883,100,TRUE,0.55,FALSE,0,0.3343,11
+Ghana,child_iron,questionnaire,2080,4,ihme_adm1_africa_hiv_2000_2018_hiv_prevalence_females_25_29_years_females_hiv_prevalence_percent,-0.3342,0.3342,883,100,TRUE,0.55,FALSE,0,0.3343,11
+Ghana,child_iron,questionnaire,2080,5,ihme_adm1_africa_hiv_2000_2018_hiv_prevalence_males_40_44_years_males_hiv_prevalence_percent,-0.334,0.334,883,100,TRUE,0.55,FALSE,0,0.3343,11
+Ghana,child_iron,questionnaire,2080,6,ihme_adm1_africa_hiv_2000_2018_hiv_prevalence_males_45_49_years_males_hiv_prevalence_percent,-0.334,0.334,883,100,TRUE,0.55,FALSE,0,0.3343,11
+Ghana,child_iron,questionnaire,2080,7,ihme_adm1_africa_hiv_2000_2018_hiv_prevalence_males_25_29_years_males_hiv_prevalence_percent,-0.334,0.334,883,100,TRUE,0.55,FALSE,0,0.3343,11
+Ghana,child_iron,questionnaire,2080,8,ihme_adm1_africa_hiv_2000_2018_hiv_prevalence_males_35_39_years_males_hiv_prevalence_percent,-0.334,0.334,883,100,TRUE,0.55,FALSE,0,0.3343,11
+Ghana,child_iron,questionnaire,2080,9,ihme_adm1_africa_hiv_2000_2018_hiv_prevalence_females_35_39_years_females_hiv_prevalence_percent,-0.3339,0.3339,883,100,TRUE,0.55,FALSE,0,0.3343,11
+Ghana,child_iron,questionnaire,2080,10,ihme_adm1_africa_hiv_2000_2018_hiv_prevalence_females_40_44_years_females_hiv_prevalence_percent,-0.3339,0.3339,883,100,TRUE,0.55,FALSE,0,0.3343,11
+Ghana,child_iron,questionnaire,2080,11,ihme_adm1_africa_hiv_2000_2018_hiv_prevalence_females_45_49_years_females_hiv_prevalence_percent,-0.3338,0.3338,883,100,TRUE,0.55,FALSE,0,0.3343,11
+Ghana,child_iron,questionnaire,2080,12,ihme_adm1_africa_hiv_2000_2018_hiv_prevalence_males_20_24_years_males_hiv_prevalence_percent,-0.3338,0.3338,883,100,TRUE,0.55,FALSE,0,0.3343,11
+Ghana,child_iron,questionnaire,2080,13,ihme_adm1_africa_hiv_2000_2018_hiv_prevalence_males_50_54_years_males_hiv_prevalence_percent,-0.3336,0.3336,883,100,TRUE,0.55,FALSE,0,0.3343,11
+Ghana,child_iron,questionnaire,2080,14,ihme_adm1_africa_hiv_2000_2018_hiv_prevalence_females_50_54_years_females_hiv_prevalence_percent,-0.3335,0.3335,883,100,TRUE,0.55,FALSE,0,0.3343,11
+Ghana,child_iron,questionnaire,2080,15,ihme_adm1_africa_hiv_2000_2018_hiv_prevalence_females_15_19_years_females_hiv_prevalence_percent,-0.3335,0.3335,883,100,TRUE,0.55,FALSE,0,0.3343,11
+Ghana,child_iron,questionnaire,2080,16,ihme_adm1_africa_hiv_2000_2018_hiv_prevalence_males_55_59_years_males_hiv_prevalence_percent,-0.333,0.333,883,100,TRUE,0.55,FALSE,0,0.3343,11
+Ghana,child_iron,questionnaire,2080,17,ihme_adm1_africa_hiv_2000_2018_hiv_prevalence_females_55_59_years_females_hiv_prevalence_percent,-0.333,0.333,883,100,TRUE,0.55,FALSE,0,0.3343,11
+Ghana,child_iron,questionnaire,2080,18,ihme_adm1_africa_hiv_2000_2018_hiv_prevalence_males_15_19_years_males_hiv_prevalence_percent,-0.333,0.333,883,100,TRUE,0.55,FALSE,0,0.3343,11
+Ghana,child_iron,questionnaire,2080,19,ihme_adm1_africa_hiv_2000_2018_hiv_prevalence_both_15_49_years_both_hiv_prevalence_percent,-0.3323,0.3323,883,100,TRUE,0.55,FALSE,0,0.3343,11
+Ghana,child_iron,questionnaire,2080,20,ihme_adm1_africa_hiv_2000_2018_hiv_prevalence_both_15_59_years_both_hiv_prevalence_percent,-0.3323,0.3323,883,100,TRUE,0.55,FALSE,0,0.3343,11
+Ghana,child_iron,questionnaire,2080,21,ihme_adm1_lmic_wash_2000_2017_s_imp_all_ages_both_s_imp_percent,-0.324,0.324,883,100,TRUE,0.55,FALSE,0,0.3343,11
+Ghana,child_iron,questionnaire,2080,22,ihme_adm1_lmic_wash_2000_2017_s_od_all_ages_both_s_od_percent,0.3227,0.3227,883,100,TRUE,0.55,FALSE,0,0.3343,11
+Ghana,child_iron,questionnaire,2080,23,wfp_rice_paddy,-0.3208,0.3208,331,100,TRUE,0.55,FALSE,0,0.3343,11
+Ghana,child_iron,questionnaire,2080,24,ihme_adm1_lmic_edu_2000_2017_zeroprop_15_49_female_15_49_female_proportion_of_population_achieving_0_years_education,0.3199,0.3199,883,100,TRUE,0.55,FALSE,0,0.3343,11
+Ghana,child_iron,questionnaire,2080,25,ihme_adm1_lmic_edu_2000_2017_zeroprop_20_24_male_20_24_male_proportion_of_population_achieving_0_years_education,0.3183,0.3183,883,100,TRUE,0.55,FALSE,0,0.3343,11
+Ghana,child_iron,proxy,1872,1,ihme_adm1_africa_hiv_2000_2018_hiv_prevalence_females_30_34_years_females_hiv_prevalence_percent,-0.3343,0.3343,883,100,TRUE,0.55,FALSE,0,0.3343,0
+Ghana,child_iron,proxy,1872,2,ihme_adm1_africa_hiv_2000_2018_hiv_prevalence_males_30_34_years_males_hiv_prevalence_percent,-0.3343,0.3343,883,100,TRUE,0.55,FALSE,0,0.3343,0
+Ghana,child_iron,proxy,1872,3,ihme_adm1_africa_hiv_2000_2018_hiv_prevalence_females_20_24_years_females_hiv_prevalence_percent,-0.3343,0.3343,883,100,TRUE,0.55,FALSE,0,0.3343,0
+Ghana,child_iron,proxy,1872,4,ihme_adm1_africa_hiv_2000_2018_hiv_prevalence_females_25_29_years_females_hiv_prevalence_percent,-0.3342,0.3342,883,100,TRUE,0.55,FALSE,0,0.3343,0
+Ghana,child_iron,proxy,1872,5,ihme_adm1_africa_hiv_2000_2018_hiv_prevalence_males_40_44_years_males_hiv_prevalence_percent,-0.334,0.334,883,100,TRUE,0.55,FALSE,0,0.3343,0
+Ghana,child_iron,proxy,1872,6,ihme_adm1_africa_hiv_2000_2018_hiv_prevalence_males_45_49_years_males_hiv_prevalence_percent,-0.334,0.334,883,100,TRUE,0.55,FALSE,0,0.3343,0
+Ghana,child_iron,proxy,1872,7,ihme_adm1_africa_hiv_2000_2018_hiv_prevalence_males_25_29_years_males_hiv_prevalence_percent,-0.334,0.334,883,100,TRUE,0.55,FALSE,0,0.3343,0
+Ghana,child_iron,proxy,1872,8,ihme_adm1_africa_hiv_2000_2018_hiv_prevalence_males_35_39_years_males_hiv_prevalence_percent,-0.334,0.334,883,100,TRUE,0.55,FALSE,0,0.3343,0
+Ghana,child_iron,proxy,1872,9,ihme_adm1_africa_hiv_2000_2018_hiv_prevalence_females_35_39_years_females_hiv_prevalence_percent,-0.3339,0.3339,883,100,TRUE,0.55,FALSE,0,0.3343,0
+Ghana,child_iron,proxy,1872,10,ihme_adm1_africa_hiv_2000_2018_hiv_prevalence_females_40_44_years_females_hiv_prevalence_percent,-0.3339,0.3339,883,100,TRUE,0.55,FALSE,0,0.3343,0
+Ghana,child_iron,proxy,1872,11,ihme_adm1_africa_hiv_2000_2018_hiv_prevalence_females_45_49_years_females_hiv_prevalence_percent,-0.3338,0.3338,883,100,TRUE,0.55,FALSE,0,0.3343,0
+Ghana,child_iron,proxy,1872,12,ihme_adm1_africa_hiv_2000_2018_hiv_prevalence_males_20_24_years_males_hiv_prevalence_percent,-0.3338,0.3338,883,100,TRUE,0.55,FALSE,0,0.3343,0
+Ghana,child_iron,proxy,1872,13,ihme_adm1_africa_hiv_2000_2018_hiv_prevalence_males_50_54_years_males_hiv_prevalence_percent,-0.3336,0.3336,883,100,TRUE,0.55,FALSE,0,0.3343,0
+Ghana,child_iron,proxy,1872,14,ihme_adm1_africa_hiv_2000_2018_hiv_prevalence_females_50_54_years_females_hiv_prevalence_percent,-0.3335,0.3335,883,100,TRUE,0.55,FALSE,0,0.3343,0
+Ghana,child_iron,proxy,1872,15,ihme_adm1_africa_hiv_2000_2018_hiv_prevalence_females_15_19_years_females_hiv_prevalence_percent,-0.3335,0.3335,883,100,TRUE,0.55,FALSE,0,0.3343,0
+Ghana,child_iron,proxy,1872,16,ihme_adm1_africa_hiv_2000_2018_hiv_prevalence_males_55_59_years_males_hiv_prevalence_percent,-0.333,0.333,883,100,TRUE,0.55,FALSE,0,0.3343,0
+Ghana,child_iron,proxy,1872,17,ihme_adm1_africa_hiv_2000_2018_hiv_prevalence_females_55_59_years_females_hiv_prevalence_percent,-0.333,0.333,883,100,TRUE,0.55,FALSE,0,0.3343,0
+Ghana,child_iron,proxy,1872,18,ihme_adm1_africa_hiv_2000_2018_hiv_prevalence_males_15_19_years_males_hiv_prevalence_percent,-0.333,0.333,883,100,TRUE,0.55,FALSE,0,0.3343,0
+Ghana,child_iron,proxy,1872,19,ihme_adm1_africa_hiv_2000_2018_hiv_prevalence_both_15_49_years_both_hiv_prevalence_percent,-0.3323,0.3323,883,100,TRUE,0.55,FALSE,0,0.3343,0
+Ghana,child_iron,proxy,1872,20,ihme_adm1_africa_hiv_2000_2018_hiv_prevalence_both_15_59_years_both_hiv_prevalence_percent,-0.3323,0.3323,883,100,TRUE,0.55,FALSE,0,0.3343,0
+Ghana,child_iron,proxy,1872,21,ihme_adm1_lmic_wash_2000_2017_s_imp_all_ages_both_s_imp_percent,-0.324,0.324,883,100,TRUE,0.55,FALSE,0,0.3343,0
+Ghana,child_iron,proxy,1872,22,ihme_adm1_lmic_wash_2000_2017_s_od_all_ages_both_s_od_percent,0.3227,0.3227,883,100,TRUE,0.55,FALSE,0,0.3343,0
+Ghana,child_iron,proxy,1872,23,wfp_rice_paddy,-0.3208,0.3208,331,100,TRUE,0.55,FALSE,0,0.3343,0
+Ghana,child_iron,proxy,1872,24,ihme_adm1_lmic_edu_2000_2017_zeroprop_15_49_female_15_49_female_proportion_of_population_achieving_0_years_education,0.3199,0.3199,883,100,TRUE,0.55,FALSE,0,0.3343,0
+Ghana,child_iron,proxy,1872,25,ihme_adm1_lmic_edu_2000_2017_zeroprop_20_24_male_20_24_male_proportion_of_population_achieving_0_years_education,0.3183,0.3183,883,100,TRUE,0.55,FALSE,0,0.3343,0
+Ghana,women_iron,questionnaire,2039,1,fsec_hfid_fcs_lit,0.183,0.183,301,100,TRUE,0.55,FALSE,0,0.183,15
+Ghana,women_iron,questionnaire,2039,2,ihme_under_5_1_both_recommended_home_fluids_percent,0.1797,0.1797,254,100,TRUE,0.55,FALSE,0,0.183,15
+Ghana,women_iron,questionnaire,2039,3,wfp_rice_paddy,-0.1784,0.1784,302,100,TRUE,0.55,FALSE,0,0.183,15
+Ghana,women_iron,questionnaire,2039,4,ihme_all_ages_22_both_w_imp_other_number,0.1598,0.1598,254,100,TRUE,0.55,FALSE,0,0.183,15
+Ghana,women_iron,questionnaire,2039,5,spam_share_cereals,0.1535,0.1535,906,100,TRUE,0.55,FALSE,0,0.183,15
+Ghana,women_iron,questionnaire,2039,6,ihme_under_5_1_both_probability_of_death,-0.1488,0.1488,254,100,TRUE,0.55,FALSE,0,0.183,15
+Ghana,women_iron,questionnaire,2039,7,ihme_infant_28_both_probability_of_death,-0.1438,0.1438,254,100,TRUE,0.55,FALSE,0,0.183,15
+Ghana,women_iron,questionnaire,2039,8,lsms_hh_rcpets,0.1341,0.1341,981,100,TRUE,0.55,FALSE,0,0.183,15
+Ghana,women_iron,questionnaire,2039,9,lsms_hh_se.rcpets,0.1334,0.1334,981,100,TRUE,0.55,FALSE,0,0.183,15
+Ghana,women_iron,questionnaire,2039,10,gw_PSU_weight,0.1311,0.1311,981,100,TRUE,0.55,FALSE,0,0.183,15
+Ghana,women_iron,questionnaire,2039,11,gee_a2_GLW4_2020_D_DA_GLEAM3_ALL_LU,0.1301,0.1301,981,100,TRUE,0.55,FALSE,0,0.183,15
+Ghana,women_iron,questionnaire,2039,12,ihme_all_ages_22_both_w_imp_number,0.13,0.13,254,100,TRUE,0.55,FALSE,0,0.183,15
+Ghana,women_iron,questionnaire,2039,13,gw_wNumBirth,-0.1296,0.1296,590,100,TRUE,0.55,FALSE,0,0.183,15
+Ghana,women_iron,questionnaire,2039,14,gee_a2_ESA_WorldCereal_2021_32121_TC_MAIZE_MAIN_ACTIVECROPLAND_20210327_20211119_classification,0.1288,0.1288,948,100,TRUE,0.55,FALSE,0,0.183,15
+Ghana,women_iron,questionnaire,2039,15,spam_prod_roots,-0.122,0.122,906,100,TRUE,0.55,FALSE,0,0.183,15
+Ghana,women_iron,questionnaire,2039,16,gee_ndvi_May_25km,-0.1213,0.1213,981,100,TRUE,0.55,FALSE,0,0.183,15
+Ghana,women_iron,questionnaire,2039,17,gee_wapor_npp_Jun_25km,-0.1209,0.1209,970,100,TRUE,0.55,FALSE,0,0.183,15
+Ghana,women_iron,questionnaire,2039,18,gee_ndvi_May_10km,-0.1202,0.1202,981,100,TRUE,0.55,FALSE,0,0.183,15
+Ghana,women_iron,questionnaire,2039,19,gee_a2_ESA_WorldCereal_2021_32121_TC_MAIZE_SECOND_ACTIVECROPLAND_20200726_20210104_classification,0.1184,0.1184,948,100,TRUE,0.55,FALSE,0,0.183,15
+Ghana,women_iron,questionnaire,2039,20,gee_a2_SoilAluminium_2016_stdev_0_20,0.1184,0.1184,785,100,TRUE,0.55,FALSE,0,0.183,15
+Ghana,women_iron,questionnaire,2039,21,lsms_hh_se.rcpetserv,0.1181,0.1181,981,100,TRUE,0.55,FALSE,0,0.183,15
+Ghana,women_iron,questionnaire,2039,22,gw_Corrected_probability_of_selecti,0.1177,0.1177,981,100,TRUE,0.55,FALSE,0,0.183,15
+Ghana,women_iron,questionnaire,2039,23,gee_wapor_npp_Jun_10km,-0.1171,0.1171,914,100,TRUE,0.55,FALSE,0,0.183,15
+Ghana,women_iron,questionnaire,2039,24,wfp_price_rice_paddy_,-0.1156,0.1156,471,100,TRUE,0.55,FALSE,0,0.183,15
+Ghana,women_iron,questionnaire,2039,25,gee_wapor_npp_Jul_25km,-0.115,0.115,970,100,TRUE,0.55,FALSE,0,0.183,15
+Ghana,women_iron,proxy,1872,1,fsec_hfid_fcs_lit,0.183,0.183,301,100,TRUE,0.55,FALSE,0,0.183,0
+Ghana,women_iron,proxy,1872,2,ihme_under_5_1_both_recommended_home_fluids_percent,0.1797,0.1797,254,100,TRUE,0.55,FALSE,0,0.183,0
+Ghana,women_iron,proxy,1872,3,wfp_rice_paddy,-0.1784,0.1784,302,100,TRUE,0.55,FALSE,0,0.183,0
+Ghana,women_iron,proxy,1872,4,ihme_all_ages_22_both_w_imp_other_number,0.1598,0.1598,254,100,TRUE,0.55,FALSE,0,0.183,0
+Ghana,women_iron,proxy,1872,5,spam_share_cereals,0.1535,0.1535,906,100,TRUE,0.55,FALSE,0,0.183,0
+Ghana,women_iron,proxy,1872,6,ihme_under_5_1_both_probability_of_death,-0.1488,0.1488,254,100,TRUE,0.55,FALSE,0,0.183,0
+Ghana,women_iron,proxy,1872,7,ihme_infant_28_both_probability_of_death,-0.1438,0.1438,254,100,TRUE,0.55,FALSE,0,0.183,0
+Ghana,women_iron,proxy,1872,8,lsms_hh_rcpets,0.1341,0.1341,981,100,TRUE,0.55,FALSE,0,0.183,0
+Ghana,women_iron,proxy,1872,9,lsms_hh_se.rcpets,0.1334,0.1334,981,100,TRUE,0.55,FALSE,0,0.183,0
+Ghana,women_iron,proxy,1872,10,gee_a2_GLW4_2020_D_DA_GLEAM3_ALL_LU,0.1301,0.1301,981,100,TRUE,0.55,FALSE,0,0.183,0
+Ghana,women_iron,proxy,1872,11,ihme_all_ages_22_both_w_imp_number,0.13,0.13,254,100,TRUE,0.55,FALSE,0,0.183,0
+Ghana,women_iron,proxy,1872,12,gee_a2_ESA_WorldCereal_2021_32121_TC_MAIZE_MAIN_ACTIVECROPLAND_20210327_20211119_classification,0.1288,0.1288,948,100,TRUE,0.55,FALSE,0,0.183,0
+Ghana,women_iron,proxy,1872,13,spam_prod_roots,-0.122,0.122,906,100,TRUE,0.55,FALSE,0,0.183,0
+Ghana,women_iron,proxy,1872,14,gee_ndvi_May_25km,-0.1213,0.1213,981,100,TRUE,0.55,FALSE,0,0.183,0
+Ghana,women_iron,proxy,1872,15,gee_wapor_npp_Jun_25km,-0.1209,0.1209,970,100,TRUE,0.55,FALSE,0,0.183,0
+Ghana,women_iron,proxy,1872,16,gee_ndvi_May_10km,-0.1202,0.1202,981,100,TRUE,0.55,FALSE,0,0.183,0
+Ghana,women_iron,proxy,1872,17,gee_a2_ESA_WorldCereal_2021_32121_TC_MAIZE_SECOND_ACTIVECROPLAND_20200726_20210104_classification,0.1184,0.1184,948,100,TRUE,0.55,FALSE,0,0.183,0
+Ghana,women_iron,proxy,1872,18,gee_a2_SoilAluminium_2016_stdev_0_20,0.1184,0.1184,785,100,TRUE,0.55,FALSE,0,0.183,0
+Ghana,women_iron,proxy,1872,19,lsms_hh_se.rcpetserv,0.1181,0.1181,981,100,TRUE,0.55,FALSE,0,0.183,0
+Ghana,women_iron,proxy,1872,20,gee_wapor_npp_Jun_10km,-0.1171,0.1171,914,100,TRUE,0.55,FALSE,0,0.183,0
+Ghana,women_iron,proxy,1872,21,wfp_price_rice_paddy_,-0.1156,0.1156,471,100,TRUE,0.55,FALSE,0,0.183,0
+Ghana,women_iron,proxy,1872,22,gee_wapor_npp_Jul_25km,-0.115,0.115,970,100,TRUE,0.55,FALSE,0,0.183,0
+Ghana,women_iron,proxy,1872,23,lsms_hh_fdrecall,0.1144,0.1144,981,100,TRUE,0.55,FALSE,0,0.183,0
+Ghana,women_iron,proxy,1872,24,lsms_hh_ppp2005,0.1144,0.1144,981,100,TRUE,0.55,FALSE,0,0.183,0
+Ghana,women_iron,proxy,1872,25,lsms_hh_pl_abs,0.1144,0.1144,981,100,TRUE,0.55,FALSE,0,0.183,0
+Ghana,women_folate,questionnaire,2042,1,ihme_under_5_1_both_overweight_prevalence_percent,-0.3881,0.3881,111,100,TRUE,0.55,FALSE,0,0.3881,23
+Ghana,women_folate,questionnaire,2042,2,ihme_all_ages_22_both_s_imp_percent,-0.3699,0.3699,111,100,TRUE,0.55,FALSE,0,0.3881,23
+Ghana,women_folate,questionnaire,2042,3,ihme_all_ages_22_both_s_imp_other_percent,-0.363,0.363,111,100,TRUE,0.55,FALSE,0,0.3881,23
+Ghana,women_folate,questionnaire,2042,4,ihme_15_49_9_male_proportion_of_population_achieving_6_11_years_education,0.3611,0.3611,111,100,TRUE,0.55,FALSE,0,0.3881,23
+Ghana,women_folate,questionnaire,2042,5,ihme_all_ages_22_both_w_imp_percent,-0.3072,0.3072,111,100,TRUE,0.55,FALSE,0,0.3881,23
+Ghana,women_folate,questionnaire,2042,6,ihme_20_24_9_male_proportion_of_population_achieving_6_11_years_education,0.304,0.304,111,100,TRUE,0.55,FALSE,0,0.3881,23
+Ghana,women_folate,questionnaire,2042,7,ihme_all_ages_22_both_s_od_percent,0.3022,0.3022,111,100,TRUE,0.55,FALSE,0,0.3881,23
+Ghana,women_folate,questionnaire,2042,8,ihme_20_24_24_male_proportion_of_population_achieving_12_years_education,-0.2782,0.2782,111,100,TRUE,0.55,FALSE,0,0.3881,23
+Ghana,women_folate,questionnaire,2042,9,ihme_15_49_24_female_mean_years_of_attainment,-0.2738,0.2738,111,100,TRUE,0.55,FALSE,0,0.3881,23
+Ghana,women_folate,questionnaire,2042,10,ihme_15_49_24_female_proportion_of_population_achieving_12_years_education,-0.2727,0.2727,111,100,TRUE,0.55,FALSE,0,0.3881,23
+Ghana,women_folate,questionnaire,2042,11,dhs2014_AN_NUTS_W_THN_adm2.y,0.269,0.269,454,100,TRUE,0.55,FALSE,0,0.3881,23
+Ghana,women_folate,questionnaire,2042,12,ihme_under_5_1_both_oral_rehydration_solution_percent,-0.2684,0.2684,111,100,TRUE,0.55,FALSE,0,0.3881,23
+Ghana,women_folate,questionnaire,2042,13,ihme_under_5_1_both_wasting_prevalence_percent,0.2675,0.2675,111,100,TRUE,0.55,FALSE,0,0.3881,23
+Ghana,women_folate,questionnaire,2042,14,ihme_all_ages_22_both_w_surface_percent,0.2668,0.2668,111,100,TRUE,0.55,FALSE,0,0.3881,23
+Ghana,women_folate,questionnaire,2042,15,ihme_15_49_24_male_proportion_of_population_achieving_12_years_education,-0.2639,0.2639,111,100,TRUE,0.55,FALSE,0,0.3881,23
+Ghana,women_folate,questionnaire,2042,16,ihme_neonatal_42_both_probability_of_death,-0.2637,0.2637,111,100,TRUE,0.55,FALSE,0,0.3881,23
+Ghana,women_folate,questionnaire,2042,17,ihme_15_49_24_male_mean_years_of_attainment,-0.262,0.262,111,100,TRUE,0.55,FALSE,0,0.3881,23
+Ghana,women_folate,questionnaire,2042,18,dhs2014_AN_NUTS_W_THN_adm2.x,0.2589,0.2589,448,100,TRUE,0.55,FALSE,0,0.3881,23
+Ghana,women_folate,questionnaire,2042,19,ihme_20_24_24_female_proportion_of_population_achieving_12_years_education,-0.2562,0.2562,111,100,TRUE,0.55,FALSE,0,0.3881,23
+Ghana,women_folate,questionnaire,2042,20,ihme_15_49_24_female_proportion_of_population_achieving_0_years_education,0.2546,0.2546,111,100,TRUE,0.55,FALSE,0,0.3881,23
+Ghana,women_folate,questionnaire,2042,21,dhs2014_w_anc_visits_adm2.y,-0.241,0.241,454,100,TRUE,0.55,FALSE,0,0.3881,23
+Ghana,women_folate,questionnaire,2042,22,ihme_15_49_24_female_proportion_of_population_achieving_6_11_years_education,-0.236,0.236,111,100,TRUE,0.55,FALSE,0,0.3881,23
+Ghana,women_folate,questionnaire,2042,23,ihme_under_5_1_both_ors_or_rhf_percent,-0.2358,0.2358,111,100,TRUE,0.55,FALSE,0,0.3881,23
+Ghana,women_folate,questionnaire,2042,24,dhs2014_w_anc_visits_adm2.x,-0.2342,0.2342,448,100,TRUE,0.55,FALSE,0,0.3881,23
+Ghana,women_folate,questionnaire,2042,25,ihme_20_24_24_female_mean_years_of_attainment,-0.234,0.234,111,100,TRUE,0.55,FALSE,0,0.3881,23
+Ghana,women_folate,proxy,1872,1,ihme_under_5_1_both_overweight_prevalence_percent,-0.3881,0.3881,111,100,TRUE,0.55,FALSE,0,0.3881,0
+Ghana,women_folate,proxy,1872,2,ihme_all_ages_22_both_s_imp_percent,-0.3699,0.3699,111,100,TRUE,0.55,FALSE,0,0.3881,0
+Ghana,women_folate,proxy,1872,3,ihme_all_ages_22_both_s_imp_other_percent,-0.363,0.363,111,100,TRUE,0.55,FALSE,0,0.3881,0
+Ghana,women_folate,proxy,1872,4,ihme_15_49_9_male_proportion_of_population_achieving_6_11_years_education,0.3611,0.3611,111,100,TRUE,0.55,FALSE,0,0.3881,0
+Ghana,women_folate,proxy,1872,5,ihme_all_ages_22_both_w_imp_percent,-0.3072,0.3072,111,100,TRUE,0.55,FALSE,0,0.3881,0
+Ghana,women_folate,proxy,1872,6,ihme_20_24_9_male_proportion_of_population_achieving_6_11_years_education,0.304,0.304,111,100,TRUE,0.55,FALSE,0,0.3881,0
+Ghana,women_folate,proxy,1872,7,ihme_all_ages_22_both_s_od_percent,0.3022,0.3022,111,100,TRUE,0.55,FALSE,0,0.3881,0
+Ghana,women_folate,proxy,1872,8,ihme_20_24_24_male_proportion_of_population_achieving_12_years_education,-0.2782,0.2782,111,100,TRUE,0.55,FALSE,0,0.3881,0
+Ghana,women_folate,proxy,1872,9,ihme_15_49_24_female_mean_years_of_attainment,-0.2738,0.2738,111,100,TRUE,0.55,FALSE,0,0.3881,0
+Ghana,women_folate,proxy,1872,10,ihme_15_49_24_female_proportion_of_population_achieving_12_years_education,-0.2727,0.2727,111,100,TRUE,0.55,FALSE,0,0.3881,0
+Ghana,women_folate,proxy,1872,11,dhs2014_AN_NUTS_W_THN_adm2.y,0.269,0.269,454,100,TRUE,0.55,FALSE,0,0.3881,0
+Ghana,women_folate,proxy,1872,12,ihme_under_5_1_both_oral_rehydration_solution_percent,-0.2684,0.2684,111,100,TRUE,0.55,FALSE,0,0.3881,0
+Ghana,women_folate,proxy,1872,13,ihme_under_5_1_both_wasting_prevalence_percent,0.2675,0.2675,111,100,TRUE,0.55,FALSE,0,0.3881,0
+Ghana,women_folate,proxy,1872,14,ihme_all_ages_22_both_w_surface_percent,0.2668,0.2668,111,100,TRUE,0.55,FALSE,0,0.3881,0
+Ghana,women_folate,proxy,1872,15,ihme_15_49_24_male_proportion_of_population_achieving_12_years_education,-0.2639,0.2639,111,100,TRUE,0.55,FALSE,0,0.3881,0
+Ghana,women_folate,proxy,1872,16,ihme_neonatal_42_both_probability_of_death,-0.2637,0.2637,111,100,TRUE,0.55,FALSE,0,0.3881,0
+Ghana,women_folate,proxy,1872,17,ihme_15_49_24_male_mean_years_of_attainment,-0.262,0.262,111,100,TRUE,0.55,FALSE,0,0.3881,0
+Ghana,women_folate,proxy,1872,18,dhs2014_AN_NUTS_W_THN_adm2.x,0.2589,0.2589,448,100,TRUE,0.55,FALSE,0,0.3881,0
+Ghana,women_folate,proxy,1872,19,ihme_20_24_24_female_proportion_of_population_achieving_12_years_education,-0.2562,0.2562,111,100,TRUE,0.55,FALSE,0,0.3881,0
+Ghana,women_folate,proxy,1872,20,ihme_15_49_24_female_proportion_of_population_achieving_0_years_education,0.2546,0.2546,111,100,TRUE,0.55,FALSE,0,0.3881,0
+Ghana,women_folate,proxy,1872,21,dhs2014_w_anc_visits_adm2.y,-0.241,0.241,454,100,TRUE,0.55,FALSE,0,0.3881,0
+Ghana,women_folate,proxy,1872,22,ihme_15_49_24_female_proportion_of_population_achieving_6_11_years_education,-0.236,0.236,111,100,TRUE,0.55,FALSE,0,0.3881,0
+Ghana,women_folate,proxy,1872,23,ihme_under_5_1_both_ors_or_rhf_percent,-0.2358,0.2358,111,100,TRUE,0.55,FALSE,0,0.3881,0
+Ghana,women_folate,proxy,1872,24,dhs2014_w_anc_visits_adm2.x,-0.2342,0.2342,448,100,TRUE,0.55,FALSE,0,0.3881,0
+Ghana,women_folate,proxy,1872,25,ihme_20_24_24_female_mean_years_of_attainment,-0.234,0.234,111,100,TRUE,0.55,FALSE,0,0.3881,0
+Ghana,women_b12,questionnaire,2038,1,ihme_20_24_24_female_proportion_of_population_achieving_6_11_years_education,-0.3144,0.3144,111,100,TRUE,0.55,FALSE,0,0.3144,19
+Ghana,women_b12,questionnaire,2038,2,ihme_all_ages_22_both_s_od_number,0.3058,0.3058,111,100,TRUE,0.55,FALSE,0,0.3144,19
+Ghana,women_b12,questionnaire,2038,3,ihme_15_49_24_female_proportion_of_population_achieving_6_11_years_education,-0.2997,0.2997,111,100,TRUE,0.55,FALSE,0,0.3144,19
+Ghana,women_b12,questionnaire,2038,4,ihme_15_49_24_male_proportion_of_population_achieving_6_11_years_education,-0.2908,0.2908,111,100,TRUE,0.55,FALSE,0,0.3144,19
+Ghana,women_b12,questionnaire,2038,5,ihme_20_24_24_female_proportion_of_population_achieving_0_years_education,0.2847,0.2847,111,100,TRUE,0.55,FALSE,0,0.3144,19
+Ghana,women_b12,questionnaire,2038,6,ihme_under_5_1_both_ors_or_rhf_number,0.2838,0.2838,111,100,TRUE,0.55,FALSE,0,0.3144,19
+Ghana,women_b12,questionnaire,2038,7,ihme_under_5_1_both_oral_rehydration_solution_number,0.2838,0.2838,111,100,TRUE,0.55,FALSE,0,0.3144,19
+Ghana,women_b12,questionnaire,2038,8,ihme_under_5_1_both_recommended_home_fluids_number,0.2778,0.2778,111,100,TRUE,0.55,FALSE,0,0.3144,19
+Ghana,women_b12,questionnaire,2038,9,ihme_20_24_24_male_proportion_of_population_achieving_0_years_education,0.2749,0.2749,111,100,TRUE,0.55,FALSE,0,0.3144,19
+Ghana,women_b12,questionnaire,2038,10,ihme_under_5_1_both_underweight_prevalence_percent,0.2725,0.2725,111,100,TRUE,0.55,FALSE,0,0.3144,19
+Ghana,women_b12,questionnaire,2038,11,ihme_15_49_24_female_proportion_of_population_achieving_0_years_education,0.2702,0.2702,111,100,TRUE,0.55,FALSE,0,0.3144,19
+Ghana,women_b12,questionnaire,2038,12,dhs2014_CN_NUTS_C_HA2,0.2666,0.2666,416,100,TRUE,0.55,FALSE,0,0.3144,19
+Ghana,women_b12,questionnaire,2038,13,ihme_all_ages_22_both_w_surface_number,0.2651,0.2651,111,100,TRUE,0.55,FALSE,0,0.3144,19
+Ghana,women_b12,questionnaire,2038,14,dhs2014_CH_VACC_C_NON,0.2619,0.2619,416,100,TRUE,0.55,FALSE,0,0.3144,19
+Ghana,women_b12,questionnaire,2038,15,lsms_hh_se.rentall,0.2611,0.2611,473,100,TRUE,0.55,FALSE,0,0.3144,19
+Ghana,women_b12,questionnaire,2038,16,ihme_15_49_24_male_proportion_of_population_achieving_0_years_education,0.2593,0.2593,111,100,TRUE,0.55,FALSE,0,0.3144,19
+Ghana,women_b12,questionnaire,2038,17,ihme_under_5_1_both_wasting_prevalence_percent,0.2576,0.2576,111,100,TRUE,0.55,FALSE,0,0.3144,19
+Ghana,women_b12,questionnaire,2038,18,mics_hw4_se,0.2569,0.2569,473,100,TRUE,0.55,FALSE,0,0.3144,19
+Ghana,women_b12,questionnaire,2038,19,dhs2014_RH_DELA_C_SKP,-0.2527,0.2527,416,100,TRUE,0.55,FALSE,0,0.3144,19
+Ghana,women_b12,questionnaire,2038,20,mics_hh26b,0.2519,0.2519,473,100,TRUE,0.55,FALSE,0,0.3144,19
+Ghana,women_b12,questionnaire,2038,21,dhs2014_FP_CUSA_W_MOD,-0.251,0.251,416,100,TRUE,0.55,FALSE,0,0.3144,19
+Ghana,women_b12,questionnaire,2038,22,mics_hh56_se,-0.2507,0.2507,473,100,TRUE,0.55,FALSE,0,0.3144,19
+Ghana,women_b12,questionnaire,2038,23,ihme_under_5_1_both_stunting_prevalence_percent,0.2486,0.2486,111,100,TRUE,0.55,FALSE,0,0.3144,19
+Ghana,women_b12,questionnaire,2038,24,mics_hh48,0.2476,0.2476,473,100,TRUE,0.55,FALSE,0,0.3144,19
+Ghana,women_b12,questionnaire,2038,25,dhs2014_AN_NUTS_W_THN,0.2462,0.2462,416,100,TRUE,0.55,FALSE,0,0.3144,19
+Ghana,women_b12,proxy,1872,1,ihme_20_24_24_female_proportion_of_population_achieving_6_11_years_education,-0.3144,0.3144,111,100,TRUE,0.55,FALSE,0,0.3144,0
+Ghana,women_b12,proxy,1872,2,ihme_all_ages_22_both_s_od_number,0.3058,0.3058,111,100,TRUE,0.55,FALSE,0,0.3144,0
+Ghana,women_b12,proxy,1872,3,ihme_15_49_24_female_proportion_of_population_achieving_6_11_years_education,-0.2997,0.2997,111,100,TRUE,0.55,FALSE,0,0.3144,0
+Ghana,women_b12,proxy,1872,4,ihme_15_49_24_male_proportion_of_population_achieving_6_11_years_education,-0.2908,0.2908,111,100,TRUE,0.55,FALSE,0,0.3144,0
+Ghana,women_b12,proxy,1872,5,ihme_20_24_24_female_proportion_of_population_achieving_0_years_education,0.2847,0.2847,111,100,TRUE,0.55,FALSE,0,0.3144,0
+Ghana,women_b12,proxy,1872,6,ihme_under_5_1_both_ors_or_rhf_number,0.2838,0.2838,111,100,TRUE,0.55,FALSE,0,0.3144,0
+Ghana,women_b12,proxy,1872,7,ihme_under_5_1_both_oral_rehydration_solution_number,0.2838,0.2838,111,100,TRUE,0.55,FALSE,0,0.3144,0
+Ghana,women_b12,proxy,1872,8,ihme_under_5_1_both_recommended_home_fluids_number,0.2778,0.2778,111,100,TRUE,0.55,FALSE,0,0.3144,0
+Ghana,women_b12,proxy,1872,9,ihme_20_24_24_male_proportion_of_population_achieving_0_years_education,0.2749,0.2749,111,100,TRUE,0.55,FALSE,0,0.3144,0
+Ghana,women_b12,proxy,1872,10,ihme_under_5_1_both_underweight_prevalence_percent,0.2725,0.2725,111,100,TRUE,0.55,FALSE,0,0.3144,0
+Ghana,women_b12,proxy,1872,11,ihme_15_49_24_female_proportion_of_population_achieving_0_years_education,0.2702,0.2702,111,100,TRUE,0.55,FALSE,0,0.3144,0
+Ghana,women_b12,proxy,1872,12,dhs2014_CN_NUTS_C_HA2,0.2666,0.2666,416,100,TRUE,0.55,FALSE,0,0.3144,0
+Ghana,women_b12,proxy,1872,13,ihme_all_ages_22_both_w_surface_number,0.2651,0.2651,111,100,TRUE,0.55,FALSE,0,0.3144,0
+Ghana,women_b12,proxy,1872,14,dhs2014_CH_VACC_C_NON,0.2619,0.2619,416,100,TRUE,0.55,FALSE,0,0.3144,0
+Ghana,women_b12,proxy,1872,15,lsms_hh_se.rentall,0.2611,0.2611,473,100,TRUE,0.55,FALSE,0,0.3144,0
+Ghana,women_b12,proxy,1872,16,ihme_15_49_24_male_proportion_of_population_achieving_0_years_education,0.2593,0.2593,111,100,TRUE,0.55,FALSE,0,0.3144,0
+Ghana,women_b12,proxy,1872,17,ihme_under_5_1_both_wasting_prevalence_percent,0.2576,0.2576,111,100,TRUE,0.55,FALSE,0,0.3144,0
+Ghana,women_b12,proxy,1872,18,mics_hw4_se,0.2569,0.2569,473,100,TRUE,0.55,FALSE,0,0.3144,0
+Ghana,women_b12,proxy,1872,19,dhs2014_RH_DELA_C_SKP,-0.2527,0.2527,416,100,TRUE,0.55,FALSE,0,0.3144,0
+Ghana,women_b12,proxy,1872,20,mics_hh26b,0.2519,0.2519,473,100,TRUE,0.55,FALSE,0,0.3144,0
+Ghana,women_b12,proxy,1872,21,dhs2014_FP_CUSA_W_MOD,-0.251,0.251,416,100,TRUE,0.55,FALSE,0,0.3144,0
+Ghana,women_b12,proxy,1872,22,mics_hh56_se,-0.2507,0.2507,473,100,TRUE,0.55,FALSE,0,0.3144,0
+Ghana,women_b12,proxy,1872,23,ihme_under_5_1_both_stunting_prevalence_percent,0.2486,0.2486,111,100,TRUE,0.55,FALSE,0,0.3144,0
+Ghana,women_b12,proxy,1872,24,mics_hh48,0.2476,0.2476,473,100,TRUE,0.55,FALSE,0,0.3144,0
+Ghana,women_b12,proxy,1872,25,dhs2014_AN_NUTS_W_THN,0.2462,0.2462,416,100,TRUE,0.55,FALSE,0,0.3144,0
+Sierra Leone,child_vitA,questionnaire,1532,1,gw_wEducLevelYears,0.2964,0.2964,137,100,TRUE,0.55,FALSE,0,0.2964,98
+Sierra Leone,child_vitA,questionnaire,1532,2,gw_cBioMotherinHH,0.1947,0.1947,155,100,TRUE,0.55,FALSE,0,0.2964,98
+Sierra Leone,child_vitA,questionnaire,1532,3,gw_wFeSupplTime,0.1941,0.1941,110,100,TRUE,0.55,FALSE,0,0.2964,98
+Sierra Leone,child_vitA,questionnaire,1532,4,gw_hEducLevel,-0.1772,0.1772,175,100,TRUE,0.55,FALSE,0,0.2964,98
+Sierra Leone,child_vitA,questionnaire,1532,5,gw_wEducLevel,-0.171,0.171,138,100,TRUE,0.55,FALSE,0,0.2964,98
+Sierra Leone,child_vitA,questionnaire,1532,6,gw_hEducLevelYears,0.1648,0.1648,175,100,TRUE,0.55,FALSE,0,0.2964,98
+Sierra Leone,child_vitA,questionnaire,1532,7,gw_wHHNumb,0.1601,0.1601,442,100,TRUE,0.55,FALSE,0,0.2964,98
+Sierra Leone,child_vitA,questionnaire,1532,8,gw_hGoatsNumb,-0.1487,0.1487,103,100,TRUE,0.55,FALSE,0,0.2964,98
+Sierra Leone,child_vitA,questionnaire,1532,9,gw_hHRostDOBMo10,-0.1444,0.1444,123,100,TRUE,0.55,FALSE,0,0.2964,98
+Sierra Leone,child_vitA,questionnaire,1532,10,gw_FoodGrp1Grains,0.1323,0.1323,202,100,TRUE,0.55,FALSE,0,0.2964,98
+Sierra Leone,child_vitA,questionnaire,1532,11,gw_hHHNumb,0.1308,0.1308,486,100,TRUE,0.55,FALSE,0,0.2964,98
+Sierra Leone,child_vitA,questionnaire,1532,12,gee_tpp_500m_25km,-0.1233,0.1233,214,100,TRUE,0.55,FALSE,0,0.2964,98
+Sierra Leone,child_vitA,questionnaire,1532,13,gw_hHRostDOBMo07,-0.1227,0.1227,259,100,TRUE,0.55,FALSE,0,0.2964,98
+Sierra Leone,child_vitA,questionnaire,1532,14,gee_tpp_1km_10km,-0.1219,0.1219,214,100,TRUE,0.55,FALSE,0,0.2964,98
+Sierra Leone,child_vitA,questionnaire,1532,15,gw_hHRostSex06,-0.1173,0.1173,324,100,TRUE,0.55,FALSE,0,0.2964,98
+Sierra Leone,child_vitA,questionnaire,1532,16,gw_cHHNumb,0.1164,0.1164,486,100,TRUE,0.55,FALSE,0,0.2964,98
+Sierra Leone,child_vitA,questionnaire,1532,17,gee_tpp_1km_cropland_10km,-0.1161,0.1161,214,100,TRUE,0.55,FALSE,0,0.2964,98
+Sierra Leone,child_vitA,questionnaire,1532,18,gee_tpp_500m_cropland_10km,-0.1154,0.1154,214,100,TRUE,0.55,FALSE,0,0.2964,98
+Sierra Leone,child_vitA,questionnaire,1532,19,gw_hHRostSex10,0.1145,0.1145,123,100,TRUE,0.55,FALSE,0,0.2964,98
+Sierra Leone,child_vitA,questionnaire,1532,20,gw_hHRostAge09,-0.1132,0.1132,161,100,TRUE,0.55,FALSE,0,0.2964,98
+Sierra Leone,child_vitA,questionnaire,1532,21,gw_cRespBioMother,0.1096,0.1096,486,100,TRUE,0.55,FALSE,0,0.2964,98
+Sierra Leone,child_vitA,questionnaire,1532,22,gw_ICFI_DivSc,0.104,0.104,195,100,TRUE,0.55,FALSE,0,0.2964,98
+Sierra Leone,child_vitA,questionnaire,1532,23,gw_cAnemMalarInflamm,-0.1013,0.1013,486,100,TRUE,0.55,FALSE,0,0.2964,98
+Sierra Leone,child_vitA,questionnaire,1532,24,gee_fpp_5km_10km,-0.0975,0.0975,424,100,TRUE,0.55,FALSE,0,0.2964,98
+Sierra Leone,child_vitA,questionnaire,1532,25,gee_fpp_1km_10km,-0.0972,0.0972,424,100,TRUE,0.55,FALSE,0,0.2964,98
+Sierra Leone,child_vitA,proxy,1165,1,gee_tpp_500m_25km,-0.1233,0.1233,214,100,TRUE,0.55,FALSE,0,0.1233,23
+Sierra Leone,child_vitA,proxy,1165,2,gee_tpp_1km_10km,-0.1219,0.1219,214,100,TRUE,0.55,FALSE,0,0.1233,23
+Sierra Leone,child_vitA,proxy,1165,3,gee_tpp_1km_cropland_10km,-0.1161,0.1161,214,100,TRUE,0.55,FALSE,0,0.1233,23
+Sierra Leone,child_vitA,proxy,1165,4,gee_tpp_500m_cropland_10km,-0.1154,0.1154,214,100,TRUE,0.55,FALSE,0,0.1233,23
+Sierra Leone,child_vitA,proxy,1165,5,gee_fpp_5km_10km,-0.0975,0.0975,424,100,TRUE,0.55,FALSE,0,0.1233,23
+Sierra Leone,child_vitA,proxy,1165,6,gee_fpp_1km_10km,-0.0972,0.0972,424,100,TRUE,0.55,FALSE,0,0.1233,23
+Sierra Leone,child_vitA,proxy,1165,7,gee_tpp_1km_cropland_25km,-0.0934,0.0934,238,100,TRUE,0.55,FALSE,0,0.1233,23
+Sierra Leone,child_vitA,proxy,1165,8,gee_tpp_500m_cropland_25km,-0.0927,0.0927,238,100,TRUE,0.55,FALSE,0,0.1233,23
+Sierra Leone,child_vitA,proxy,1165,9,ihme_all_ages_22_both_w_unimp_number,0.0857,0.0857,486,100,TRUE,0.55,FALSE,0,0.1233,23
+Sierra Leone,child_vitA,proxy,1165,10,dhs2013_hh_irs_adm2.x,0.0833,0.0833,486,100,TRUE,0.55,FALSE,0,0.1233,23
+Sierra Leone,child_vitA,proxy,1165,11,dhs2013_hh_irs_adm2.y,0.0833,0.0833,486,100,TRUE,0.55,FALSE,0,0.1233,23
+Sierra Leone,child_vitA,proxy,1165,12,ihme_all_ages_22_both_s_unimp_number,0.0795,0.0795,486,100,TRUE,0.55,FALSE,0,0.1233,23
+Sierra Leone,child_vitA,proxy,1165,13,gee_a2_LandCoverType_2013_2013_01_01_LW,0.078,0.078,486,100,TRUE,0.55,FALSE,0,0.1233,23
+Sierra Leone,child_vitA,proxy,1165,14,gee_a2_LandCoverType_2012_2012_01_01_LW,0.078,0.078,486,100,TRUE,0.55,FALSE,0,0.1233,23
+Sierra Leone,child_vitA,proxy,1165,15,gee_grassland_10km,0.0779,0.0779,486,100,TRUE,0.55,FALSE,0,0.1233,23
+Sierra Leone,child_vitA,proxy,1165,16,map2_explorer_2013_pv_relapse_incidence_decompressed,0.077,0.077,486,100,TRUE,0.55,FALSE,0,0.1233,23
+Sierra Leone,child_vitA,proxy,1165,17,soil_nitrogen,-0.0763,0.0763,486,100,TRUE,0.55,FALSE,0,0.1233,23
+Sierra Leone,child_vitA,proxy,1165,18,map2_explorer_2010_pf_limits_decompressed,-0.0761,0.0761,486,100,TRUE,0.55,FALSE,0,0.1233,23
+Sierra Leone,child_vitA,proxy,1165,19,ihme_20_24_24_male_proportion_of_population_achieving_6_11_years_education,0.076,0.076,486,100,TRUE,0.55,FALSE,0,0.1233,23
+Sierra Leone,child_vitA,proxy,1165,20,ihme_under_5_1_both_recommended_home_fluids_number,0.076,0.076,486,100,TRUE,0.55,FALSE,0,0.1233,23
+Sierra Leone,child_vitA,proxy,1165,21,gee_tpp_Mar_25km,-0.0753,0.0753,238,100,TRUE,0.55,FALSE,0,0.1233,23
+Sierra Leone,child_vitA,proxy,1165,22,gee_trmm_Nov_25km,0.075,0.075,486,100,TRUE,0.55,FALSE,0,0.1233,23
+Sierra Leone,child_vitA,proxy,1165,23,dhs2013_hh_handwash_facility_adm2.x,0.0749,0.0749,486,100,TRUE,0.55,FALSE,0,0.1233,23
+Sierra Leone,child_vitA,proxy,1165,24,dhs2013_hh_handwash_facility_adm2.y,0.0749,0.0749,486,100,TRUE,0.55,FALSE,0,0.1233,23
+Sierra Leone,child_vitA,proxy,1165,25,gee_trmm_Nov_50km,0.0743,0.0743,486,100,TRUE,0.55,FALSE,0,0.1233,23
+Sierra Leone,women_vitA,questionnaire,1344,1,gw_wVitAMort,-0.2767,0.2767,208,100,TRUE,0.55,FALSE,0,0.2767,1
+Sierra Leone,women_vitA,questionnaire,1344,2,gw_wFeSupplStop,0.1194,0.1194,126,100,TRUE,0.55,FALSE,0,0.2767,1
+Sierra Leone,women_vitA,questionnaire,1344,3,gee_a2_GPW_Demographic_2010_gpw_v4_basic_demographic_characteristics_rev11_a065_069mt_2010_cntm_30_sec_basic_demographic_characteristics,0.1048,0.1048,197,100,TRUE,0.55,FALSE,0,0.2767,1
+Sierra Leone,women_vitA,questionnaire,1344,4,gw_hBuySmLoafNumb,0.0971,0.0971,207,100,TRUE,0.55,FALSE,0,0.2767,1
+Sierra Leone,women_vitA,questionnaire,1344,5,gee_a2_GPW_Demographic_2010_gpw_v4_basic_demographic_characteristics_rev11_a070_074mt_2010_cntm_30_sec_basic_demographic_characteristics,0.0913,0.0913,197,100,TRUE,0.55,FALSE,0,0.2767,1
+Sierra Leone,women_vitA,questionnaire,1344,6,fsec_ch_phase_class,0.0906,0.0906,666,100,TRUE,0.55,FALSE,0,0.2767,1
+Sierra Leone,women_vitA,questionnaire,1344,7,gee_a2_GPW_Demographic_2010_gpw_v4_basic_demographic_characteristics_rev11_a065_069bt_2010_cntm_30_sec_basic_demographic_characteristics,0.0882,0.0882,197,100,TRUE,0.55,FALSE,0,0.2767,1
+Sierra Leone,women_vitA,questionnaire,1344,8,gee_a2_GPW_Demographic_2010_gpw_v4_basic_demographic_characteristics_rev11_a075_079mt_2010_cntm_30_sec_basic_demographic_characteristics,0.0877,0.0877,197,100,TRUE,0.55,FALSE,0,0.2767,1
+Sierra Leone,women_vitA,questionnaire,1344,9,gw_wVitASuppl,0.0864,0.0864,732,100,TRUE,0.55,FALSE,0,0.2767,1
+Sierra Leone,women_vitA,questionnaire,1344,10,MAP_201201_Duffy_Negativity_Phenotype_Frequency,-0.0853,0.0853,774,100,TRUE,0.55,FALSE,0,0.2767,1
+Sierra Leone,women_vitA,questionnaire,1344,11,gee_trmm_50km_seasonal_range,0.0844,0.0844,774,100,TRUE,0.55,FALSE,0,0.2767,1
+Sierra Leone,women_vitA,questionnaire,1344,12,gw_hBreadType,0.0834,0.0834,361,100,TRUE,0.55,FALSE,0,0.2767,1
+Sierra Leone,women_vitA,questionnaire,1344,13,gee_trmm_10km_seasonal_range,0.0815,0.0815,774,100,TRUE,0.55,FALSE,0,0.2767,1
+Sierra Leone,women_vitA,questionnaire,1344,14,gee_trmm_25km_seasonal_sd,0.0806,0.0806,774,100,TRUE,0.55,FALSE,0,0.2767,1
+Sierra Leone,women_vitA,questionnaire,1344,15,gw_wFoodGrp8Beans,-0.08,0.08,771,100,TRUE,0.55,FALSE,0,0.2767,1
+Sierra Leone,women_vitA,questionnaire,1344,16,gee_trmm_25km_seasonal_range,0.079,0.079,774,100,TRUE,0.55,FALSE,0,0.2767,1
+Sierra Leone,women_vitA,questionnaire,1344,17,gw_hBuyFullLoafNumb,-0.0785,0.0785,247,100,TRUE,0.55,FALSE,0,0.2767,1
+Sierra Leone,women_vitA,questionnaire,1344,18,gw_UICatLact,0.0781,0.0781,195,100,TRUE,0.55,FALSE,0,0.2767,1
+Sierra Leone,women_vitA,questionnaire,1344,19,gee_trmm_10km_seasonal_sd,0.0778,0.0778,774,100,TRUE,0.55,FALSE,0,0.2767,1
+Sierra Leone,women_vitA,questionnaire,1344,20,gw_wInflammYN,-0.0776,0.0776,774,100,TRUE,0.55,FALSE,0,0.2767,1
+Sierra Leone,women_vitA,questionnaire,1344,21,chirps_precip_oct,0.0768,0.0768,774,100,TRUE,0.55,FALSE,0,0.2767,1
+Sierra Leone,women_vitA,questionnaire,1344,22,gw_KnowIodSaltBen,0.0753,0.0753,214,100,TRUE,0.55,FALSE,0,0.2767,1
+Sierra Leone,women_vitA,questionnaire,1344,23,wfp_price_fish_bonga_,0.0753,0.0753,735,100,TRUE,0.55,FALSE,0,0.2767,1
+Sierra Leone,women_vitA,questionnaire,1344,24,gee_a2_GPW_Demographic_2010_gpw_v4_basic_demographic_characteristics_rev11_a075_079bt_2010_cntm_30_sec_basic_demographic_characteristics,0.0752,0.0752,197,100,TRUE,0.55,FALSE,0,0.2767,1
+Sierra Leone,women_vitA,questionnaire,1344,25,gw_wIodGoiter,0.075,0.075,223,100,TRUE,0.55,FALSE,0,0.2767,1
+Sierra Leone,women_vitA,proxy,1165,1,gee_a2_GPW_Demographic_2010_gpw_v4_basic_demographic_characteristics_rev11_a065_069mt_2010_cntm_30_sec_basic_demographic_characteristics,0.1048,0.1048,197,100,TRUE,0.55,FALSE,0,0.1048,0
+Sierra Leone,women_vitA,proxy,1165,2,gee_a2_GPW_Demographic_2010_gpw_v4_basic_demographic_characteristics_rev11_a070_074mt_2010_cntm_30_sec_basic_demographic_characteristics,0.0913,0.0913,197,100,TRUE,0.55,FALSE,0,0.1048,0
+Sierra Leone,women_vitA,proxy,1165,3,fsec_ch_phase_class,0.0906,0.0906,666,100,TRUE,0.55,FALSE,0,0.1048,0
+Sierra Leone,women_vitA,proxy,1165,4,gee_a2_GPW_Demographic_2010_gpw_v4_basic_demographic_characteristics_rev11_a065_069bt_2010_cntm_30_sec_basic_demographic_characteristics,0.0882,0.0882,197,100,TRUE,0.55,FALSE,0,0.1048,0
+Sierra Leone,women_vitA,proxy,1165,5,gee_a2_GPW_Demographic_2010_gpw_v4_basic_demographic_characteristics_rev11_a075_079mt_2010_cntm_30_sec_basic_demographic_characteristics,0.0877,0.0877,197,100,TRUE,0.55,FALSE,0,0.1048,0
+Sierra Leone,women_vitA,proxy,1165,6,MAP_201201_Duffy_Negativity_Phenotype_Frequency,-0.0853,0.0853,774,100,TRUE,0.55,FALSE,0,0.1048,0
+Sierra Leone,women_vitA,proxy,1165,7,gee_trmm_50km_seasonal_range,0.0844,0.0844,774,100,TRUE,0.55,FALSE,0,0.1048,0
+Sierra Leone,women_vitA,proxy,1165,8,gee_trmm_10km_seasonal_range,0.0815,0.0815,774,100,TRUE,0.55,FALSE,0,0.1048,0
+Sierra Leone,women_vitA,proxy,1165,9,gee_trmm_25km_seasonal_sd,0.0806,0.0806,774,100,TRUE,0.55,FALSE,0,0.1048,0
+Sierra Leone,women_vitA,proxy,1165,10,gee_trmm_25km_seasonal_range,0.079,0.079,774,100,TRUE,0.55,FALSE,0,0.1048,0
+Sierra Leone,women_vitA,proxy,1165,11,gee_trmm_10km_seasonal_sd,0.0778,0.0778,774,100,TRUE,0.55,FALSE,0,0.1048,0
+Sierra Leone,women_vitA,proxy,1165,12,chirps_precip_oct,0.0768,0.0768,774,100,TRUE,0.55,FALSE,0,0.1048,0
+Sierra Leone,women_vitA,proxy,1165,13,wfp_price_fish_bonga_,0.0753,0.0753,735,100,TRUE,0.55,FALSE,0,0.1048,0
+Sierra Leone,women_vitA,proxy,1165,14,gee_a2_GPW_Demographic_2010_gpw_v4_basic_demographic_characteristics_rev11_a075_079bt_2010_cntm_30_sec_basic_demographic_characteristics,0.0752,0.0752,197,100,TRUE,0.55,FALSE,0,0.1048,0
+Sierra Leone,women_vitA,proxy,1165,15,gee_a2_GPW_Demographic_2010_gpw_v4_basic_demographic_characteristics_rev11_a065_069ft_2010_cntm_30_sec_basic_demographic_characteristics,0.074,0.074,197,100,TRUE,0.55,FALSE,0,0.1048,0
+Sierra Leone,women_vitA,proxy,1165,16,gee_trmm_Sep_25km,0.0714,0.0714,774,100,TRUE,0.55,FALSE,0,0.1048,0
+Sierra Leone,women_vitA,proxy,1165,17,gee_tpp_Mar_25km,-0.0708,0.0708,305,100,TRUE,0.55,FALSE,0,0.1048,0
+Sierra Leone,women_vitA,proxy,1165,18,gee_trmm_50km_seasonal_sd,0.0699,0.0699,774,100,TRUE,0.55,FALSE,0,0.1048,0
+Sierra Leone,women_vitA,proxy,1165,19,gee_a2_TRMM_2012,0.0698,0.0698,774,100,TRUE,0.55,FALSE,0,0.1048,0
+Sierra Leone,women_vitA,proxy,1165,20,gee_trmm_Oct_50km,0.0689,0.0689,774,100,TRUE,0.55,FALSE,0,0.1048,0
+Sierra Leone,women_vitA,proxy,1165,21,gee_a2_GPW_Demographic_2010_gpw_v4_basic_demographic_characteristics_rev11_a070plusmt_2010_cntm_30_sec_basic_demographic_characteristics,0.068,0.068,197,100,TRUE,0.55,FALSE,0,0.1048,0
+Sierra Leone,women_vitA,proxy,1165,22,fsec_ch_prop_phase2,0.0671,0.0671,666,100,TRUE,0.55,FALSE,0,0.1048,0
+Sierra Leone,women_vitA,proxy,1165,23,gee_tpp_500m_cropland_10km,-0.0667,0.0667,271,100,TRUE,0.55,FALSE,0,0.1048,0
+Sierra Leone,women_vitA,proxy,1165,24,dhs2013_c_overweight_adm2.x,-0.0665,0.0665,774,100,TRUE,0.55,FALSE,0,0.1048,0
+Sierra Leone,women_vitA,proxy,1165,25,dhs2013_c_overweight_adm2.y,-0.0665,0.0665,774,100,TRUE,0.55,FALSE,0,0.1048,0
+Sierra Leone,child_iron,questionnaire,1533,1,gw_hLandUnit,0.2127,0.2127,294,100,TRUE,0.55,FALSE,0,0.2127,99
+Sierra Leone,child_iron,questionnaire,1533,2,gw_hLandAmount,0.2084,0.2084,294,100,TRUE,0.55,FALSE,0,0.2127,99
+Sierra Leone,child_iron,questionnaire,1533,3,gw_cBioMotherinHHNumb,0.1657,0.1657,113,100,TRUE,0.55,FALSE,0,0.2127,99
+Sierra Leone,child_iron,questionnaire,1533,4,dhs2013_c_small_at_birth_adm2.x,0.1588,0.1588,486,100,TRUE,0.55,FALSE,0,0.2127,99
+Sierra Leone,child_iron,questionnaire,1533,5,dhs2013_c_small_at_birth_adm2.y,0.1588,0.1588,486,100,TRUE,0.55,FALSE,0,0.2127,99
+Sierra Leone,child_iron,questionnaire,1533,6,gee_tpp_1km_cropland_50km,0.1577,0.1577,405,100,TRUE,0.55,FALSE,0,0.2127,99
+Sierra Leone,child_iron,questionnaire,1533,7,gw_wEducLevelYears,0.1549,0.1549,137,100,TRUE,0.55,FALSE,0,0.2127,99
+Sierra Leone,child_iron,questionnaire,1533,8,map2_explorer_2010_tempsuitability_pf_annualinfectiousdays_1,-0.1524,0.1524,486,100,TRUE,0.55,FALSE,0,0.2127,99
+Sierra Leone,child_iron,questionnaire,1533,9,gee_tpp_500m_cropland_50km,0.1497,0.1497,405,100,TRUE,0.55,FALSE,0,0.2127,99
+Sierra Leone,child_iron,questionnaire,1533,10,map2_explorer_2010_tempsuitability_pv_annualinfectiousdays_1,-0.1494,0.1494,486,100,TRUE,0.55,FALSE,0,0.2127,99
+Sierra Leone,child_iron,questionnaire,1533,11,gw_hHRostSex10,0.1491,0.1491,123,100,TRUE,0.55,FALSE,0,0.2127,99
+Sierra Leone,child_iron,questionnaire,1533,12,wfp_price_meat_beef_,-0.1464,0.1464,418,100,TRUE,0.55,FALSE,0,0.2127,99
+Sierra Leone,child_iron,questionnaire,1533,13,MAP_202206_Pv_Incidence_Rate,0.1455,0.1455,486,100,TRUE,0.55,FALSE,0,0.2127,99
+Sierra Leone,child_iron,questionnaire,1533,14,MAP_202206_Pv_Parasite_Rate,0.1455,0.1455,486,100,TRUE,0.55,FALSE,0,0.2127,99
+Sierra Leone,child_iron,questionnaire,1533,15,gw_hFowlNumb,0.1418,0.1418,288,100,TRUE,0.55,FALSE,0,0.2127,99
+Sierra Leone,child_iron,questionnaire,1533,16,gw_cDiarBlood,0.1408,0.1408,151,100,TRUE,0.55,FALSE,0,0.2127,99
+Sierra Leone,child_iron,questionnaire,1533,17,wfp_price_peppers_green_,0.1386,0.1386,448,100,TRUE,0.55,FALSE,0,0.2127,99
+Sierra Leone,child_iron,questionnaire,1533,18,gw_ICFI,-0.1353,0.1353,171,100,TRUE,0.55,FALSE,0,0.2127,99
+Sierra Leone,child_iron,questionnaire,1533,19,gw_hHRostCaretakerID04,-0.135,0.135,109,100,TRUE,0.55,FALSE,0,0.2127,99
+Sierra Leone,child_iron,questionnaire,1533,20,chirps_precip_jun,-0.1345,0.1345,486,100,TRUE,0.55,FALSE,0,0.2127,99
+Sierra Leone,child_iron,questionnaire,1533,21,wfp_price_rice_imported_,0.1335,0.1335,486,100,TRUE,0.55,FALSE,0,0.2127,99
+Sierra Leone,child_iron,questionnaire,1533,22,gee_trmm_50km_seasonal_range,-0.1315,0.1315,486,100,TRUE,0.55,FALSE,0,0.2127,99
+Sierra Leone,child_iron,questionnaire,1533,23,dhs2013_c_diarrhea_2wk_adm2.x,0.1309,0.1309,486,100,TRUE,0.55,FALSE,0,0.2127,99
+Sierra Leone,child_iron,questionnaire,1533,24,dhs2013_c_diarrhea_2wk_adm2.y,0.1309,0.1309,486,100,TRUE,0.55,FALSE,0,0.2127,99
+Sierra Leone,child_iron,questionnaire,1533,25,soil_calcium_stdev_0_20,-0.1307,0.1307,486,100,TRUE,0.55,FALSE,0,0.2127,99
+Sierra Leone,child_iron,proxy,1165,1,dhs2013_c_small_at_birth_adm2.x,0.1588,0.1588,486,100,TRUE,0.55,FALSE,0,0.1588,23
+Sierra Leone,child_iron,proxy,1165,2,dhs2013_c_small_at_birth_adm2.y,0.1588,0.1588,486,100,TRUE,0.55,FALSE,0,0.1588,23
+Sierra Leone,child_iron,proxy,1165,3,gee_tpp_1km_cropland_50km,0.1577,0.1577,405,100,TRUE,0.55,FALSE,0,0.1588,23
+Sierra Leone,child_iron,proxy,1165,4,map2_explorer_2010_tempsuitability_pf_annualinfectiousdays_1,-0.1524,0.1524,486,100,TRUE,0.55,FALSE,0,0.1588,23
+Sierra Leone,child_iron,proxy,1165,5,gee_tpp_500m_cropland_50km,0.1497,0.1497,405,100,TRUE,0.55,FALSE,0,0.1588,23
+Sierra Leone,child_iron,proxy,1165,6,map2_explorer_2010_tempsuitability_pv_annualinfectiousdays_1,-0.1494,0.1494,486,100,TRUE,0.55,FALSE,0,0.1588,23
+Sierra Leone,child_iron,proxy,1165,7,wfp_price_meat_beef_,-0.1464,0.1464,418,100,TRUE,0.55,FALSE,0,0.1588,23
+Sierra Leone,child_iron,proxy,1165,8,MAP_202206_Pv_Incidence_Rate,0.1455,0.1455,486,100,TRUE,0.55,FALSE,0,0.1588,23
+Sierra Leone,child_iron,proxy,1165,9,MAP_202206_Pv_Parasite_Rate,0.1455,0.1455,486,100,TRUE,0.55,FALSE,0,0.1588,23
+Sierra Leone,child_iron,proxy,1165,10,wfp_price_peppers_green_,0.1386,0.1386,448,100,TRUE,0.55,FALSE,0,0.1588,23
+Sierra Leone,child_iron,proxy,1165,11,chirps_precip_jun,-0.1345,0.1345,486,100,TRUE,0.55,FALSE,0,0.1588,23
+Sierra Leone,child_iron,proxy,1165,12,wfp_price_rice_imported_,0.1335,0.1335,486,100,TRUE,0.55,FALSE,0,0.1588,23
+Sierra Leone,child_iron,proxy,1165,13,gee_trmm_50km_seasonal_range,-0.1315,0.1315,486,100,TRUE,0.55,FALSE,0,0.1588,23
+Sierra Leone,child_iron,proxy,1165,14,dhs2013_c_diarrhea_2wk_adm2.x,0.1309,0.1309,486,100,TRUE,0.55,FALSE,0,0.1588,23
+Sierra Leone,child_iron,proxy,1165,15,dhs2013_c_diarrhea_2wk_adm2.y,0.1309,0.1309,486,100,TRUE,0.55,FALSE,0,0.1588,23
+Sierra Leone,child_iron,proxy,1165,16,soil_calcium_stdev_0_20,-0.1307,0.1307,486,100,TRUE,0.55,FALSE,0,0.1588,23
+Sierra Leone,child_iron,proxy,1165,17,gee_a2_SoilCalcium_2013_stdev_0_20,-0.1307,0.1307,486,100,TRUE,0.55,FALSE,0,0.1588,23
+Sierra Leone,child_iron,proxy,1165,18,gee_a2_SoilCalcium_2012_stdev_0_20,-0.1307,0.1307,486,100,TRUE,0.55,FALSE,0,0.1588,23
+Sierra Leone,child_iron,proxy,1165,19,dhs2013_c_no_vaccination_adm2.x,0.1302,0.1302,486,100,TRUE,0.55,FALSE,0,0.1588,23
+Sierra Leone,child_iron,proxy,1165,20,dhs2013_c_no_vaccination_adm2.y,0.1302,0.1302,486,100,TRUE,0.55,FALSE,0,0.1588,23
+Sierra Leone,child_iron,proxy,1165,21,gee_a2_LAI8days_yoy_2013_2012,0.1297,0.1297,486,100,TRUE,0.55,FALSE,0,0.1588,23
+Sierra Leone,child_iron,proxy,1165,22,dhs2013_w_anc4plus_adm2.x,-0.1291,0.1291,486,100,TRUE,0.55,FALSE,0,0.1588,23
+Sierra Leone,child_iron,proxy,1165,23,dhs2013_w_anc4plus_adm2.y,-0.1291,0.1291,486,100,TRUE,0.55,FALSE,0,0.1588,23
+Sierra Leone,child_iron,proxy,1165,24,soil_cec,0.1278,0.1278,486,100,TRUE,0.55,FALSE,0,0.1588,23
+Sierra Leone,child_iron,proxy,1165,25,dhs2013_c_ari_2wk_adm2.x,0.1233,0.1233,486,100,TRUE,0.55,FALSE,0,0.1588,23
+Sierra Leone,women_iron,questionnaire,1347,1,gw_wAnemMalarInflamm,-0.3583,0.3583,741,100,TRUE,0.55,FALSE,0,0.3583,3
+Sierra Leone,women_iron,questionnaire,1347,2,gw_wFeSupplStop,0.1646,0.1646,126,100,TRUE,0.55,FALSE,0,0.3583,3
+Sierra Leone,women_iron,questionnaire,1347,3,gw_hWaterBleach,-0.1552,0.1552,114,100,TRUE,0.55,FALSE,0,0.3583,3
+Sierra Leone,women_iron,questionnaire,1347,4,gw_UICatLact,-0.1449,0.1449,195,100,TRUE,0.55,FALSE,0,0.3583,3
+Sierra Leone,women_iron,questionnaire,1347,5,gw_wVitAMort,-0.143,0.143,208,100,TRUE,0.55,FALSE,0,0.3583,3
+Sierra Leone,women_iron,questionnaire,1347,6,dhs2013_c_fever_2wk_adm2.x,0.1372,0.1372,774,100,TRUE,0.55,FALSE,0,0.3583,3
+Sierra Leone,women_iron,questionnaire,1347,7,dhs2013_c_fever_2wk_adm2.y,0.1372,0.1372,774,100,TRUE,0.55,FALSE,0,0.3583,3
+Sierra Leone,women_iron,questionnaire,1347,8,map2_explorer_2010_tempsuitability_pv_annualinfectiousdays_1,-0.1308,0.1308,774,100,TRUE,0.55,FALSE,0,0.3583,3
+Sierra Leone,women_iron,questionnaire,1347,9,map2_explorer_2010_tempsuitability_pf_annualinfectiousdays_1,-0.1273,0.1273,774,100,TRUE,0.55,FALSE,0,0.3583,3
+Sierra Leone,women_iron,questionnaire,1347,10,dhs2013_c_underweight_adm2.x,0.1248,0.1248,774,100,TRUE,0.55,FALSE,0,0.3583,3
+Sierra Leone,women_iron,questionnaire,1347,11,dhs2013_c_underweight_adm2.y,0.1248,0.1248,774,100,TRUE,0.55,FALSE,0,0.3583,3
+Sierra Leone,women_iron,questionnaire,1347,12,gw_hHandWashWater,0.1228,0.1228,265,100,TRUE,0.55,FALSE,0,0.3583,3
+Sierra Leone,women_iron,questionnaire,1347,13,dhs2013_w_vitA_postpartum_adm2.x,-0.1216,0.1216,774,100,TRUE,0.55,FALSE,0,0.3583,3
+Sierra Leone,women_iron,questionnaire,1347,14,dhs2013_w_vitA_postpartum_adm2.y,-0.1216,0.1216,774,100,TRUE,0.55,FALSE,0,0.3583,3
+Sierra Leone,women_iron,questionnaire,1347,15,wfp_price_peppers_green_,0.1178,0.1178,693,100,TRUE,0.55,FALSE,0,0.3583,3
+Sierra Leone,women_iron,questionnaire,1347,16,MAP_202206_Pv_Incidence_Rate,0.117,0.117,774,100,TRUE,0.55,FALSE,0,0.3583,3
+Sierra Leone,women_iron,questionnaire,1347,17,MAP_202206_Pv_Parasite_Rate,0.117,0.117,774,100,TRUE,0.55,FALSE,0,0.3583,3
+Sierra Leone,women_iron,questionnaire,1347,18,gw_hSchoolEver,0.1165,0.1165,774,100,TRUE,0.55,FALSE,0,0.3583,3
+Sierra Leone,women_iron,questionnaire,1347,19,gee_a2_LandCoverLayers_2015_2015_forest_type,0.1132,0.1132,774,100,TRUE,0.55,FALSE,0,0.3583,3
+Sierra Leone,women_iron,questionnaire,1347,20,dhs2013_w_mean_age_first_birth_adm2.x,-0.1116,0.1116,774,100,TRUE,0.55,FALSE,0,0.3583,3
+Sierra Leone,women_iron,questionnaire,1347,21,dhs2013_w_mean_age_first_birth_adm2.y,-0.1116,0.1116,774,100,TRUE,0.55,FALSE,0,0.3583,3
+Sierra Leone,women_iron,questionnaire,1347,22,wfp_price_rice_imported_,0.1113,0.1113,774,100,TRUE,0.55,FALSE,0,0.3583,3
+Sierra Leone,women_iron,questionnaire,1347,23,gee_a2_TerraClimate_2013_pr,-0.1106,0.1106,774,100,TRUE,0.55,FALSE,0,0.3583,3
+Sierra Leone,women_iron,questionnaire,1347,24,wfp_price_rice_local_,0.1102,0.1102,774,100,TRUE,0.55,FALSE,0,0.3583,3
+Sierra Leone,women_iron,questionnaire,1347,25,gw_wFoodGrp4OthFrVegs,0.1092,0.1092,772,100,TRUE,0.55,FALSE,0,0.3583,3
+Sierra Leone,women_iron,proxy,1165,1,dhs2013_c_fever_2wk_adm2.x,0.1372,0.1372,774,100,TRUE,0.55,FALSE,0,0.1372,0
+Sierra Leone,women_iron,proxy,1165,2,dhs2013_c_fever_2wk_adm2.y,0.1372,0.1372,774,100,TRUE,0.55,FALSE,0,0.1372,0
+Sierra Leone,women_iron,proxy,1165,3,map2_explorer_2010_tempsuitability_pv_annualinfectiousdays_1,-0.1308,0.1308,774,100,TRUE,0.55,FALSE,0,0.1372,0
+Sierra Leone,women_iron,proxy,1165,4,map2_explorer_2010_tempsuitability_pf_annualinfectiousdays_1,-0.1273,0.1273,774,100,TRUE,0.55,FALSE,0,0.1372,0
+Sierra Leone,women_iron,proxy,1165,5,dhs2013_c_underweight_adm2.x,0.1248,0.1248,774,100,TRUE,0.55,FALSE,0,0.1372,0
+Sierra Leone,women_iron,proxy,1165,6,dhs2013_c_underweight_adm2.y,0.1248,0.1248,774,100,TRUE,0.55,FALSE,0,0.1372,0
+Sierra Leone,women_iron,proxy,1165,7,dhs2013_w_vitA_postpartum_adm2.x,-0.1216,0.1216,774,100,TRUE,0.55,FALSE,0,0.1372,0
+Sierra Leone,women_iron,proxy,1165,8,dhs2013_w_vitA_postpartum_adm2.y,-0.1216,0.1216,774,100,TRUE,0.55,FALSE,0,0.1372,0
+Sierra Leone,women_iron,proxy,1165,9,wfp_price_peppers_green_,0.1178,0.1178,693,100,TRUE,0.55,FALSE,0,0.1372,0
+Sierra Leone,women_iron,proxy,1165,10,MAP_202206_Pv_Incidence_Rate,0.117,0.117,774,100,TRUE,0.55,FALSE,0,0.1372,0
+Sierra Leone,women_iron,proxy,1165,11,MAP_202206_Pv_Parasite_Rate,0.117,0.117,774,100,TRUE,0.55,FALSE,0,0.1372,0
+Sierra Leone,women_iron,proxy,1165,12,gee_a2_LandCoverLayers_2015_2015_forest_type,0.1132,0.1132,774,100,TRUE,0.55,FALSE,0,0.1372,0
+Sierra Leone,women_iron,proxy,1165,13,dhs2013_w_mean_age_first_birth_adm2.x,-0.1116,0.1116,774,100,TRUE,0.55,FALSE,0,0.1372,0
+Sierra Leone,women_iron,proxy,1165,14,dhs2013_w_mean_age_first_birth_adm2.y,-0.1116,0.1116,774,100,TRUE,0.55,FALSE,0,0.1372,0
+Sierra Leone,women_iron,proxy,1165,15,wfp_price_rice_imported_,0.1113,0.1113,774,100,TRUE,0.55,FALSE,0,0.1372,0
+Sierra Leone,women_iron,proxy,1165,16,gee_a2_TerraClimate_2013_pr,-0.1106,0.1106,774,100,TRUE,0.55,FALSE,0,0.1372,0
+Sierra Leone,women_iron,proxy,1165,17,wfp_price_rice_local_,0.1102,0.1102,774,100,TRUE,0.55,FALSE,0,0.1372,0
+Sierra Leone,women_iron,proxy,1165,18,ihme_6_months_390_both_ebf_prevalence_percent,0.10780000000000001,0.10780000000000001,718,100,TRUE,0.55,FALSE,0,0.1372,0
+Sierra Leone,women_iron,proxy,1165,19,gee_a2_TerraClimate_2012_pr,-0.1043,0.1043,774,100,TRUE,0.55,FALSE,0,0.1372,0
+Sierra Leone,women_iron,proxy,1165,20,gee_a2_LandCoverLayers_2015_2015_crops_coverfraction,-0.1038,0.1038,774,100,TRUE,0.55,FALSE,0,0.1372,0
+Sierra Leone,women_iron,proxy,1165,21,gee_a2_TerraClimate_2012_ro,-0.1022,0.1022,774,100,TRUE,0.55,FALSE,0,0.1372,0
+Sierra Leone,women_iron,proxy,1165,22,gee_a2_TerraClimate_2013_ro,-0.1013,0.1013,774,100,TRUE,0.55,FALSE,0,0.1372,0
+Sierra Leone,women_iron,proxy,1165,23,gee_a2_SoilIron_2013_stdev_20_50,-0.1004,0.1004,774,100,TRUE,0.55,FALSE,0,0.1372,0
+Sierra Leone,women_iron,proxy,1165,24,gee_a2_SoilIron_2012_stdev_20_50,-0.1004,0.1004,774,100,TRUE,0.55,FALSE,0,0.1372,0
+Sierra Leone,women_iron,proxy,1165,25,soil_iron_stdev_20_50,-0.1001,0.1001,774,100,TRUE,0.55,FALSE,0,0.1372,0
+Sierra Leone,women_folate,questionnaire,1349,1,gee_tpp_1km_cropland_25km,-0.2185,0.2185,320,100,TRUE,0.55,FALSE,0,0.2185,5
+Sierra Leone,women_folate,questionnaire,1349,2,gee_tpp_500m_cropland_25km,-0.2166,0.2166,320,100,TRUE,0.55,FALSE,0,0.2185,5
+Sierra Leone,women_folate,questionnaire,1349,3,gee_tpp_1km_cropland_10km,-0.2044,0.2044,289,100,TRUE,0.55,FALSE,0,0.2185,5
+Sierra Leone,women_folate,questionnaire,1349,4,gee_tpp_500m_cropland_10km,-0.2026,0.2026,289,100,TRUE,0.55,FALSE,0,0.2185,5
+Sierra Leone,women_folate,questionnaire,1349,5,gee_tpp_Mar_25km,-0.2006,0.2006,320,100,TRUE,0.55,FALSE,0,0.2185,5
+Sierra Leone,women_folate,questionnaire,1349,6,gee_tpp_1km_25km,-0.1975,0.1975,320,100,TRUE,0.55,FALSE,0,0.2185,5
+Sierra Leone,women_folate,questionnaire,1349,7,ihme_15_plus_15_both_malaria_incidence_rate,-0.1904,0.1904,581,100,TRUE,0.55,FALSE,0,0.2185,5
+Sierra Leone,women_folate,questionnaire,1349,8,ihme_0_to_4_years_0_to_4_both_malaria_incidence_rate,-0.1904,0.1904,581,100,TRUE,0.55,FALSE,0,0.2185,5
+Sierra Leone,women_folate,questionnaire,1349,9,ihme_0_to_99_years_all_ages_both_malaria_incidence_rate,-0.1904,0.1904,581,100,TRUE,0.55,FALSE,0,0.2185,5
+Sierra Leone,women_folate,questionnaire,1349,10,ihme_5_to_14_years_5_to_14_both_malaria_incidence_rate,-0.1904,0.1904,581,100,TRUE,0.55,FALSE,0,0.2185,5
+Sierra Leone,women_folate,questionnaire,1349,11,gee_a2_GPW_Demographic_2010_gpw_v4_basic_demographic_characteristics_rev11_a085plusbt_2010_cntm_30_sec_basic_demographic_characteristics,-0.1885,0.1885,184,100,TRUE,0.55,FALSE,0,0.2185,5
+Sierra Leone,women_folate,questionnaire,1349,12,gee_a2_GPW_Demographic_2010_gpw_v4_basic_demographic_characteristics_rev11_a085plusft_2010_cntm_30_sec_basic_demographic_characteristics,-0.1879,0.1879,184,100,TRUE,0.55,FALSE,0,0.2185,5
+Sierra Leone,women_folate,questionnaire,1349,13,gee_a2_GPW_Demographic_2010_gpw_v4_basic_demographic_characteristics_rev11_a080plusmt_2010_cntm_30_sec_basic_demographic_characteristics,-0.1865,0.1865,184,100,TRUE,0.55,FALSE,0,0.2185,5
+Sierra Leone,women_folate,questionnaire,1349,14,gee_a2_GPW_Demographic_2010_gpw_v4_basic_demographic_characteristics_rev11_a080plusbt_2010_cntm_30_sec_basic_demographic_characteristics,-0.1862,0.1862,184,100,TRUE,0.55,FALSE,0,0.2185,5
+Sierra Leone,women_folate,questionnaire,1349,15,gee_a2_GPW_Demographic_2010_gpw_v4_basic_demographic_characteristics_rev11_a080plusft_2010_cntm_30_sec_basic_demographic_characteristics,-0.186,0.186,184,100,TRUE,0.55,FALSE,0,0.2185,5
+Sierra Leone,women_folate,questionnaire,1349,16,ihme_2_to_10_years_2_to_10_both_malaria_prevalence_rate,-0.1858,0.1858,581,100,TRUE,0.55,FALSE,0,0.2185,5
+Sierra Leone,women_folate,questionnaire,1349,17,gee_a2_GPW_Demographic_2010_gpw_v4_basic_demographic_characteristics_rev11_a070_074ft_2010_cntm_30_sec_basic_demographic_characteristics,-0.1836,0.1836,184,100,TRUE,0.55,FALSE,0,0.2185,5
+Sierra Leone,women_folate,questionnaire,1349,18,gee_a2_GPW_Demographic_2010_gpw_v4_basic_demographic_characteristics_rev11_a080_084ft_2010_cntm_30_sec_basic_demographic_characteristics,-0.1833,0.1833,184,100,TRUE,0.55,FALSE,0,0.2185,5
+Sierra Leone,women_folate,questionnaire,1349,19,gee_a2_GPW_Demographic_2010_gpw_v4_basic_demographic_characteristics_rev11_a080_084bt_2010_cntm_30_sec_basic_demographic_characteristics,-0.1826,0.1826,184,100,TRUE,0.55,FALSE,0,0.2185,5
+Sierra Leone,women_folate,questionnaire,1349,20,gee_a2_GPW_Demographic_2010_gpw_v4_basic_demographic_characteristics_rev11_a070plusft_2010_cntm_30_sec_basic_demographic_characteristics,-0.182,0.182,184,100,TRUE,0.55,FALSE,0,0.2185,5
+Sierra Leone,women_folate,questionnaire,1349,21,gee_a2_GPW_Demographic_2010_gpw_v4_basic_demographic_characteristics_rev11_a080_084mt_2010_cntm_30_sec_basic_demographic_characteristics,-0.1816,0.1816,184,100,TRUE,0.55,FALSE,0,0.2185,5
+Sierra Leone,women_folate,questionnaire,1349,22,gee_a2_GPW_Demographic_2010_gpw_v4_basic_demographic_characteristics_rev11_a075plusft_2010_cntm_30_sec_basic_demographic_characteristics,-0.1811,0.1811,184,100,TRUE,0.55,FALSE,0,0.2185,5
+Sierra Leone,women_folate,questionnaire,1349,23,gee_tpp_500m_25km,-0.179,0.179,289,100,TRUE,0.55,FALSE,0,0.2185,5
+Sierra Leone,women_folate,questionnaire,1349,24,gee_a2_GPW_Demographic_2010_gpw_v4_basic_demographic_characteristics_rev11_a075plusbt_2010_cntm_30_sec_basic_demographic_characteristics,-0.1783,0.1783,184,100,TRUE,0.55,FALSE,0,0.2185,5
+Sierra Leone,women_folate,questionnaire,1349,25,gee_a2_GPW_Demographic_2010_gpw_v4_basic_demographic_characteristics_rev11_a070plusbt_2010_cntm_30_sec_basic_demographic_characteristics,-0.1761,0.1761,184,100,TRUE,0.55,FALSE,0,0.2185,5
+Sierra Leone,women_folate,proxy,1165,1,gee_tpp_1km_cropland_25km,-0.2185,0.2185,320,100,TRUE,0.55,FALSE,0,0.2185,0
+Sierra Leone,women_folate,proxy,1165,2,gee_tpp_500m_cropland_25km,-0.2166,0.2166,320,100,TRUE,0.55,FALSE,0,0.2185,0
+Sierra Leone,women_folate,proxy,1165,3,gee_tpp_1km_cropland_10km,-0.2044,0.2044,289,100,TRUE,0.55,FALSE,0,0.2185,0
+Sierra Leone,women_folate,proxy,1165,4,gee_tpp_500m_cropland_10km,-0.2026,0.2026,289,100,TRUE,0.55,FALSE,0,0.2185,0
+Sierra Leone,women_folate,proxy,1165,5,gee_tpp_Mar_25km,-0.2006,0.2006,320,100,TRUE,0.55,FALSE,0,0.2185,0
+Sierra Leone,women_folate,proxy,1165,6,gee_tpp_1km_25km,-0.1975,0.1975,320,100,TRUE,0.55,FALSE,0,0.2185,0
+Sierra Leone,women_folate,proxy,1165,7,ihme_15_plus_15_both_malaria_incidence_rate,-0.1904,0.1904,581,100,TRUE,0.55,FALSE,0,0.2185,0
+Sierra Leone,women_folate,proxy,1165,8,ihme_0_to_4_years_0_to_4_both_malaria_incidence_rate,-0.1904,0.1904,581,100,TRUE,0.55,FALSE,0,0.2185,0
+Sierra Leone,women_folate,proxy,1165,9,ihme_0_to_99_years_all_ages_both_malaria_incidence_rate,-0.1904,0.1904,581,100,TRUE,0.55,FALSE,0,0.2185,0
+Sierra Leone,women_folate,proxy,1165,10,ihme_5_to_14_years_5_to_14_both_malaria_incidence_rate,-0.1904,0.1904,581,100,TRUE,0.55,FALSE,0,0.2185,0
+Sierra Leone,women_folate,proxy,1165,11,gee_a2_GPW_Demographic_2010_gpw_v4_basic_demographic_characteristics_rev11_a085plusbt_2010_cntm_30_sec_basic_demographic_characteristics,-0.1885,0.1885,184,100,TRUE,0.55,FALSE,0,0.2185,0
+Sierra Leone,women_folate,proxy,1165,12,gee_a2_GPW_Demographic_2010_gpw_v4_basic_demographic_characteristics_rev11_a085plusft_2010_cntm_30_sec_basic_demographic_characteristics,-0.1879,0.1879,184,100,TRUE,0.55,FALSE,0,0.2185,0
+Sierra Leone,women_folate,proxy,1165,13,gee_a2_GPW_Demographic_2010_gpw_v4_basic_demographic_characteristics_rev11_a080plusmt_2010_cntm_30_sec_basic_demographic_characteristics,-0.1865,0.1865,184,100,TRUE,0.55,FALSE,0,0.2185,0
+Sierra Leone,women_folate,proxy,1165,14,gee_a2_GPW_Demographic_2010_gpw_v4_basic_demographic_characteristics_rev11_a080plusbt_2010_cntm_30_sec_basic_demographic_characteristics,-0.1862,0.1862,184,100,TRUE,0.55,FALSE,0,0.2185,0
+Sierra Leone,women_folate,proxy,1165,15,gee_a2_GPW_Demographic_2010_gpw_v4_basic_demographic_characteristics_rev11_a080plusft_2010_cntm_30_sec_basic_demographic_characteristics,-0.186,0.186,184,100,TRUE,0.55,FALSE,0,0.2185,0
+Sierra Leone,women_folate,proxy,1165,16,ihme_2_to_10_years_2_to_10_both_malaria_prevalence_rate,-0.1858,0.1858,581,100,TRUE,0.55,FALSE,0,0.2185,0
+Sierra Leone,women_folate,proxy,1165,17,gee_a2_GPW_Demographic_2010_gpw_v4_basic_demographic_characteristics_rev11_a070_074ft_2010_cntm_30_sec_basic_demographic_characteristics,-0.1836,0.1836,184,100,TRUE,0.55,FALSE,0,0.2185,0
+Sierra Leone,women_folate,proxy,1165,18,gee_a2_GPW_Demographic_2010_gpw_v4_basic_demographic_characteristics_rev11_a080_084ft_2010_cntm_30_sec_basic_demographic_characteristics,-0.1833,0.1833,184,100,TRUE,0.55,FALSE,0,0.2185,0
+Sierra Leone,women_folate,proxy,1165,19,gee_a2_GPW_Demographic_2010_gpw_v4_basic_demographic_characteristics_rev11_a080_084bt_2010_cntm_30_sec_basic_demographic_characteristics,-0.1826,0.1826,184,100,TRUE,0.55,FALSE,0,0.2185,0
+Sierra Leone,women_folate,proxy,1165,20,gee_a2_GPW_Demographic_2010_gpw_v4_basic_demographic_characteristics_rev11_a070plusft_2010_cntm_30_sec_basic_demographic_characteristics,-0.182,0.182,184,100,TRUE,0.55,FALSE,0,0.2185,0
+Sierra Leone,women_folate,proxy,1165,21,gee_a2_GPW_Demographic_2010_gpw_v4_basic_demographic_characteristics_rev11_a080_084mt_2010_cntm_30_sec_basic_demographic_characteristics,-0.1816,0.1816,184,100,TRUE,0.55,FALSE,0,0.2185,0
+Sierra Leone,women_folate,proxy,1165,22,gee_a2_GPW_Demographic_2010_gpw_v4_basic_demographic_characteristics_rev11_a075plusft_2010_cntm_30_sec_basic_demographic_characteristics,-0.1811,0.1811,184,100,TRUE,0.55,FALSE,0,0.2185,0
+Sierra Leone,women_folate,proxy,1165,23,gee_tpp_500m_25km,-0.179,0.179,289,100,TRUE,0.55,FALSE,0,0.2185,0
+Sierra Leone,women_folate,proxy,1165,24,gee_a2_GPW_Demographic_2010_gpw_v4_basic_demographic_characteristics_rev11_a075plusbt_2010_cntm_30_sec_basic_demographic_characteristics,-0.1783,0.1783,184,100,TRUE,0.55,FALSE,0,0.2185,0
+Sierra Leone,women_folate,proxy,1165,25,gee_a2_GPW_Demographic_2010_gpw_v4_basic_demographic_characteristics_rev11_a070plusbt_2010_cntm_30_sec_basic_demographic_characteristics,-0.1761,0.1761,184,100,TRUE,0.55,FALSE,0,0.2185,0
+Sierra Leone,women_b12,questionnaire,1332,1,gw_UICatLact,-0.1336,0.1336,201,100,TRUE,0.55,FALSE,0,0.1336,1
+Sierra Leone,women_b12,questionnaire,1332,2,gw_wAgeRpt,0.0934,0.0934,768,100,TRUE,0.55,FALSE,0,0.1336,1
+Sierra Leone,women_b12,questionnaire,1332,3,gw_wIodGoiter,-0.0917,0.0917,221,100,TRUE,0.55,FALSE,0,0.1336,1
+Sierra Leone,women_b12,questionnaire,1332,4,gw_hSaltPackageIodized,-0.0905,0.0905,675,100,TRUE,0.55,FALSE,0,0.1336,1
+Sierra Leone,women_b12,questionnaire,1332,5,gw_wVitAHealth,-0.0806,0.0806,206,100,TRUE,0.55,FALSE,0,0.1336,1
+Sierra Leone,women_b12,questionnaire,1332,6,gee_a2_GPW_Demographic_2010_gpw_v4_basic_demographic_characteristics_rev11_a065_069mt_2010_cntm_30_sec_basic_demographic_characteristics,-0.0755,0.0755,184,100,TRUE,0.55,FALSE,0,0.1336,1
+Sierra Leone,women_b12,questionnaire,1332,7,gw_hWheatType,0.075,0.075,767,100,TRUE,0.55,FALSE,0,0.1336,1
+Sierra Leone,women_b12,questionnaire,1332,8,gee_a2_GPW_Demographic_2010_gpw_v4_basic_demographic_characteristics_rev11_a070_074mt_2010_cntm_30_sec_basic_demographic_characteristics,-0.0737,0.0737,184,100,TRUE,0.55,FALSE,0,0.1336,1
+Sierra Leone,women_b12,questionnaire,1332,9,gw_wBloodVol,0.073,0.073,767,100,TRUE,0.55,FALSE,0,0.1336,1
+Sierra Leone,women_b12,questionnaire,1332,10,gee_a2_GPW_Demographic_2010_gpw_v4_basic_demographic_characteristics_rev11_a065_069bt_2010_cntm_30_sec_basic_demographic_characteristics,-0.0729,0.0729,184,100,TRUE,0.55,FALSE,0,0.1336,1
+Sierra Leone,women_b12,questionnaire,1332,11,gee_a2_GPW_Demographic_2010_gpw_v4_basic_demographic_characteristics_rev11_a075_079mt_2010_cntm_30_sec_basic_demographic_characteristics,-0.0728,0.0728,184,100,TRUE,0.55,FALSE,0,0.1336,1
+Sierra Leone,women_b12,questionnaire,1332,12,gee_a2_GPW_Demographic_2010_gpw_v4_basic_demographic_characteristics_rev11_a075_079bt_2010_cntm_30_sec_basic_demographic_characteristics,-0.0692,0.0692,184,100,TRUE,0.55,FALSE,0,0.1336,1
+Sierra Leone,women_b12,questionnaire,1332,13,gee_a2_GPW_Demographic_2010_gpw_v4_basic_demographic_characteristics_rev11_a065_069ft_2010_cntm_30_sec_basic_demographic_characteristics,-0.0688,0.0688,184,100,TRUE,0.55,FALSE,0,0.1336,1
+Sierra Leone,women_b12,questionnaire,1332,14,gee_a2_TRMM_2012,0.0677,0.0677,768,100,TRUE,0.55,FALSE,0,0.1336,1
+Sierra Leone,women_b12,questionnaire,1332,15,gee_a2_GPW_Demographic_2010_gpw_v4_basic_demographic_characteristics_rev11_a070plusmt_2010_cntm_30_sec_basic_demographic_characteristics,-0.0668,0.0668,184,100,TRUE,0.55,FALSE,0,0.1336,1
+Sierra Leone,women_b12,questionnaire,1332,16,MAP_202206_Pv_Incidence_Rate,0.0666,0.0666,768,100,TRUE,0.55,FALSE,0,0.1336,1
+Sierra Leone,women_b12,questionnaire,1332,17,MAP_202206_Pv_Parasite_Rate,0.0666,0.0666,768,100,TRUE,0.55,FALSE,0,0.1336,1
+Sierra Leone,women_b12,questionnaire,1332,18,gee_a2_GPW_Demographic_2010_gpw_v4_basic_demographic_characteristics_rev11_a070_074bt_2010_cntm_30_sec_basic_demographic_characteristics,-0.0659,0.0659,184,100,TRUE,0.55,FALSE,0,0.1336,1
+Sierra Leone,women_b12,questionnaire,1332,19,gee_a2_GPW_Demographic_2010_gpw_v4_basic_demographic_characteristics_rev11_a075_079ft_2010_cntm_30_sec_basic_demographic_characteristics,-0.0658,0.0658,184,100,TRUE,0.55,FALSE,0,0.1336,1
+Sierra Leone,women_b12,questionnaire,1332,20,gee_a2_GPW_Demographic_2010_gpw_v4_basic_demographic_characteristics_rev11_a075plusmt_2010_cntm_30_sec_basic_demographic_characteristics,-0.0644,0.0644,184,100,TRUE,0.55,FALSE,0,0.1336,1
+Sierra Leone,women_b12,questionnaire,1332,21,gee_a2_GPW_Demographic_2010_gpw_v4_basic_demographic_characteristics_rev11_a070plusbt_2010_cntm_30_sec_basic_demographic_characteristics,-0.0639,0.0639,184,100,TRUE,0.55,FALSE,0,0.1336,1
+Sierra Leone,women_b12,questionnaire,1332,22,gee_a2_GPW_Demographic_2010_gpw_v4_basic_demographic_characteristics_rev11_a075plusbt_2010_cntm_30_sec_basic_demographic_characteristics,-0.063,0.063,184,100,TRUE,0.55,FALSE,0,0.1336,1
+Sierra Leone,women_b12,questionnaire,1332,23,gw_KnowFortOilBen,-0.0623,0.0623,205,100,TRUE,0.55,FALSE,0,0.1336,1
+Sierra Leone,women_b12,questionnaire,1332,24,gw_HExtWallsGrp3,-0.0622,0.0622,768,100,TRUE,0.55,FALSE,0,0.1336,1
+Sierra Leone,women_b12,questionnaire,1332,25,gee_a2_GPW_Demographic_2010_gpw_v4_basic_demographic_characteristics_rev11_a075plusft_2010_cntm_30_sec_basic_demographic_characteristics,-0.0619,0.0619,184,100,TRUE,0.55,FALSE,0,0.1336,1
+Sierra Leone,women_b12,proxy,1165,1,gee_a2_GPW_Demographic_2010_gpw_v4_basic_demographic_characteristics_rev11_a065_069mt_2010_cntm_30_sec_basic_demographic_characteristics,-0.0755,0.0755,184,100,TRUE,0.55,FALSE,0,0.0755,0
+Sierra Leone,women_b12,proxy,1165,2,gee_a2_GPW_Demographic_2010_gpw_v4_basic_demographic_characteristics_rev11_a070_074mt_2010_cntm_30_sec_basic_demographic_characteristics,-0.0737,0.0737,184,100,TRUE,0.55,FALSE,0,0.0755,0
+Sierra Leone,women_b12,proxy,1165,3,gee_a2_GPW_Demographic_2010_gpw_v4_basic_demographic_characteristics_rev11_a065_069bt_2010_cntm_30_sec_basic_demographic_characteristics,-0.0729,0.0729,184,100,TRUE,0.55,FALSE,0,0.0755,0
+Sierra Leone,women_b12,proxy,1165,4,gee_a2_GPW_Demographic_2010_gpw_v4_basic_demographic_characteristics_rev11_a075_079mt_2010_cntm_30_sec_basic_demographic_characteristics,-0.0728,0.0728,184,100,TRUE,0.55,FALSE,0,0.0755,0
+Sierra Leone,women_b12,proxy,1165,5,gee_a2_GPW_Demographic_2010_gpw_v4_basic_demographic_characteristics_rev11_a075_079bt_2010_cntm_30_sec_basic_demographic_characteristics,-0.0692,0.0692,184,100,TRUE,0.55,FALSE,0,0.0755,0
+Sierra Leone,women_b12,proxy,1165,6,gee_a2_GPW_Demographic_2010_gpw_v4_basic_demographic_characteristics_rev11_a065_069ft_2010_cntm_30_sec_basic_demographic_characteristics,-0.0688,0.0688,184,100,TRUE,0.55,FALSE,0,0.0755,0
+Sierra Leone,women_b12,proxy,1165,7,gee_a2_TRMM_2012,0.0677,0.0677,768,100,TRUE,0.55,FALSE,0,0.0755,0
+Sierra Leone,women_b12,proxy,1165,8,gee_a2_GPW_Demographic_2010_gpw_v4_basic_demographic_characteristics_rev11_a070plusmt_2010_cntm_30_sec_basic_demographic_characteristics,-0.0668,0.0668,184,100,TRUE,0.55,FALSE,0,0.0755,0
+Sierra Leone,women_b12,proxy,1165,9,MAP_202206_Pv_Incidence_Rate,0.0666,0.0666,768,100,TRUE,0.55,FALSE,0,0.0755,0
+Sierra Leone,women_b12,proxy,1165,10,MAP_202206_Pv_Parasite_Rate,0.0666,0.0666,768,100,TRUE,0.55,FALSE,0,0.0755,0
+Sierra Leone,women_b12,proxy,1165,11,gee_a2_GPW_Demographic_2010_gpw_v4_basic_demographic_characteristics_rev11_a070_074bt_2010_cntm_30_sec_basic_demographic_characteristics,-0.0659,0.0659,184,100,TRUE,0.55,FALSE,0,0.0755,0
+Sierra Leone,women_b12,proxy,1165,12,gee_a2_GPW_Demographic_2010_gpw_v4_basic_demographic_characteristics_rev11_a075_079ft_2010_cntm_30_sec_basic_demographic_characteristics,-0.0658,0.0658,184,100,TRUE,0.55,FALSE,0,0.0755,0
+Sierra Leone,women_b12,proxy,1165,13,gee_a2_GPW_Demographic_2010_gpw_v4_basic_demographic_characteristics_rev11_a075plusmt_2010_cntm_30_sec_basic_demographic_characteristics,-0.0644,0.0644,184,100,TRUE,0.55,FALSE,0,0.0755,0
+Sierra Leone,women_b12,proxy,1165,14,gee_a2_GPW_Demographic_2010_gpw_v4_basic_demographic_characteristics_rev11_a070plusbt_2010_cntm_30_sec_basic_demographic_characteristics,-0.0639,0.0639,184,100,TRUE,0.55,FALSE,0,0.0755,0
+Sierra Leone,women_b12,proxy,1165,15,gee_a2_GPW_Demographic_2010_gpw_v4_basic_demographic_characteristics_rev11_a075plusbt_2010_cntm_30_sec_basic_demographic_characteristics,-0.063,0.063,184,100,TRUE,0.55,FALSE,0,0.0755,0
+Sierra Leone,women_b12,proxy,1165,16,gee_a2_GPW_Demographic_2010_gpw_v4_basic_demographic_characteristics_rev11_a075plusft_2010_cntm_30_sec_basic_demographic_characteristics,-0.0619,0.0619,184,100,TRUE,0.55,FALSE,0,0.0755,0
+Sierra Leone,women_b12,proxy,1165,17,gee_tpp_1km_25km,-0.0619,0.0619,320,100,TRUE,0.55,FALSE,0,0.0755,0
+Sierra Leone,women_b12,proxy,1165,18,gee_a2_GPW_Demographic_2010_gpw_v4_basic_demographic_characteristics_rev11_a080_084mt_2010_cntm_30_sec_basic_demographic_characteristics,-0.0617,0.0617,184,100,TRUE,0.55,FALSE,0,0.0755,0
+Sierra Leone,women_b12,proxy,1165,19,gee_a2_GPW_Demographic_2010_gpw_v4_basic_demographic_characteristics_rev11_a070plusft_2010_cntm_30_sec_basic_demographic_characteristics,-0.0616,0.0616,184,100,TRUE,0.55,FALSE,0,0.0755,0
+Sierra Leone,women_b12,proxy,1165,20,gee_a2_GPW_Demographic_2010_gpw_v4_basic_demographic_characteristics_rev11_a080_084bt_2010_cntm_30_sec_basic_demographic_characteristics,-0.0613,0.0613,184,100,TRUE,0.55,FALSE,0,0.0755,0
+Sierra Leone,women_b12,proxy,1165,21,gee_tpp_Mar_25km,-0.0612,0.0612,320,100,TRUE,0.55,FALSE,0,0.0755,0
+Sierra Leone,women_b12,proxy,1165,22,gee_a2_GPW_Demographic_2010_gpw_v4_basic_demographic_characteristics_rev11_a080_084ft_2010_cntm_30_sec_basic_demographic_characteristics,-0.061,0.061,184,100,TRUE,0.55,FALSE,0,0.0755,0
+Sierra Leone,women_b12,proxy,1165,23,gee_a2_GPW_Demographic_2010_gpw_v4_basic_demographic_characteristics_rev11_a070_074ft_2010_cntm_30_sec_basic_demographic_characteristics,-0.0608,0.0608,184,100,TRUE,0.55,FALSE,0,0.0755,0
+Sierra Leone,women_b12,proxy,1165,24,gee_a2_GPW_Demographic_2010_gpw_v4_basic_demographic_characteristics_rev11_a080plusft_2010_cntm_30_sec_basic_demographic_characteristics,-0.0597,0.0597,184,100,TRUE,0.55,FALSE,0,0.0755,0
+Sierra Leone,women_b12,proxy,1165,25,gee_a2_GPW_Demographic_2010_gpw_v4_basic_demographic_characteristics_rev11_a080plusbt_2010_cntm_30_sec_basic_demographic_characteristics,-0.0596,0.0596,184,100,TRUE,0.55,FALSE,0,0.0755,0
+Malawi,child_vitA,questionnaire,1141,1,ihme_15_49_years_24_males_male_circumcision_prevalence_percent,0.13,0.13,1149,100,TRUE,0.55,FALSE,0,0.13,0
+Malawi,child_vitA,questionnaire,1141,2,dhs2015_w_bmi_low_adm2.y,0.128,0.128,1149,100,TRUE,0.55,FALSE,0,0.13,0
+Malawi,child_vitA,questionnaire,1141,3,soil_calcium_mean_0_20,0.1246,0.1246,1149,100,TRUE,0.55,FALSE,0,0.13,0
+Malawi,child_vitA,questionnaire,1141,4,soil_calcium_mean_20_50,0.1245,0.1245,1149,100,TRUE,0.55,FALSE,0,0.13,0
+Malawi,child_vitA,questionnaire,1141,5,soil_magnesium_mean_20_50,0.1215,0.1215,1149,100,TRUE,0.55,FALSE,0,0.13,0
+Malawi,child_vitA,questionnaire,1141,6,spam_share_pulses,0.1202,0.1202,1100,100,TRUE,0.55,FALSE,0,0.13,0
+Malawi,child_vitA,questionnaire,1141,7,soil_magnesium_mean_0_20,0.1187,0.1187,1149,100,TRUE,0.55,FALSE,0,0.13,0
+Malawi,child_vitA,questionnaire,1141,8,gee_a2_SoilCalcium_2015_mean_0_20,0.1176,0.1176,1116,100,TRUE,0.55,FALSE,0,0.13,0
+Malawi,child_vitA,questionnaire,1141,9,gee_a2_SoilCalcium_2014_mean_0_20,0.1176,0.1176,1116,100,TRUE,0.55,FALSE,0,0.13,0
+Malawi,child_vitA,questionnaire,1141,10,gee_a2_SoilCalcium_2015_mean_20_50,0.1175,0.1175,1116,100,TRUE,0.55,FALSE,0,0.13,0
+Malawi,child_vitA,questionnaire,1141,11,gee_a2_SoilCalcium_2014_mean_20_50,0.1175,0.1175,1116,100,TRUE,0.55,FALSE,0,0.13,0
+Malawi,child_vitA,questionnaire,1141,12,gee_a2_SoilMagnesium_2015_mean_20_50,0.1122,0.1122,1116,100,TRUE,0.55,FALSE,0,0.13,0
+Malawi,child_vitA,questionnaire,1141,13,gee_a2_SoilMagnesium_2014_mean_20_50,0.1122,0.1122,1116,100,TRUE,0.55,FALSE,0,0.13,0
+Malawi,child_vitA,questionnaire,1141,14,soil_iron_stdev_0_20,0.1121,0.1121,1149,100,TRUE,0.55,FALSE,0,0.13,0
+Malawi,child_vitA,questionnaire,1141,15,gee_a2_LandCoverLayers_2015_2015_grass_coverfraction,0.1117,0.1117,1116,100,TRUE,0.55,FALSE,0,0.13,0
+Malawi,child_vitA,questionnaire,1141,16,gee_a2_SoilMagnesium_2015_mean_0_20,0.1099,0.1099,1116,100,TRUE,0.55,FALSE,0,0.13,0
+Malawi,child_vitA,questionnaire,1141,17,gee_a2_SoilMagnesium_2014_mean_0_20,0.1099,0.1099,1116,100,TRUE,0.55,FALSE,0,0.13,0
+Malawi,child_vitA,questionnaire,1141,18,gee_a2_SoilIron_2015_stdev_0_20,0.1098,0.1098,1116,100,TRUE,0.55,FALSE,0,0.13,0
+Malawi,child_vitA,questionnaire,1141,19,gee_a2_SoilIron_2014_stdev_0_20,0.1098,0.1098,1116,100,TRUE,0.55,FALSE,0,0.13,0
+Malawi,child_vitA,questionnaire,1141,20,dhs2015_w_anc_visits_adm2.x,0.1082,0.1082,1149,100,TRUE,0.55,FALSE,0,0.13,0
+Malawi,child_vitA,questionnaire,1141,21,wfp_cowpeas,0.1063,0.1063,286,100,TRUE,0.55,FALSE,0,0.13,0
+Malawi,child_vitA,questionnaire,1141,22,dhs2015_w_bmi_low_adm2.x,0.1057,0.1057,1149,100,TRUE,0.55,FALSE,0,0.13,0
+Malawi,child_vitA,questionnaire,1141,23,ihme_20_24_24_male_mean_years_of_attainment,-0.1048,0.1048,1149,100,TRUE,0.55,FALSE,0,0.13,0
+Malawi,child_vitA,questionnaire,1141,24,dhs2015_w_anc_visits_adm2.y,0.1032,0.1032,1149,100,TRUE,0.55,FALSE,0,0.13,0
+Malawi,child_vitA,questionnaire,1141,25,gee_ndvi_50km_seasonal_cv,0.1028,0.1028,1149,100,TRUE,0.55,FALSE,0,0.13,0
+Malawi,child_vitA,proxy,1147,1,ihme_15_49_years_24_males_male_circumcision_prevalence_percent,0.13,0.13,1149,100,TRUE,0.55,FALSE,0,0.13,0
+Malawi,child_vitA,proxy,1147,2,dhs2015_w_bmi_low_adm2.y,0.128,0.128,1149,100,TRUE,0.55,FALSE,0,0.13,0
+Malawi,child_vitA,proxy,1147,3,soil_calcium_mean_0_20,0.1246,0.1246,1149,100,TRUE,0.55,FALSE,0,0.13,0
+Malawi,child_vitA,proxy,1147,4,soil_calcium_mean_20_50,0.1245,0.1245,1149,100,TRUE,0.55,FALSE,0,0.13,0
+Malawi,child_vitA,proxy,1147,5,soil_magnesium_mean_20_50,0.1215,0.1215,1149,100,TRUE,0.55,FALSE,0,0.13,0
+Malawi,child_vitA,proxy,1147,6,spam_share_pulses,0.1202,0.1202,1100,100,TRUE,0.55,FALSE,0,0.13,0
+Malawi,child_vitA,proxy,1147,7,soil_magnesium_mean_0_20,0.1187,0.1187,1149,100,TRUE,0.55,FALSE,0,0.13,0
+Malawi,child_vitA,proxy,1147,8,gee_a2_SoilCalcium_2015_mean_0_20,0.1176,0.1176,1116,100,TRUE,0.55,FALSE,0,0.13,0
+Malawi,child_vitA,proxy,1147,9,gee_a2_SoilCalcium_2014_mean_0_20,0.1176,0.1176,1116,100,TRUE,0.55,FALSE,0,0.13,0
+Malawi,child_vitA,proxy,1147,10,gee_a2_SoilCalcium_2015_mean_20_50,0.1175,0.1175,1116,100,TRUE,0.55,FALSE,0,0.13,0
+Malawi,child_vitA,proxy,1147,11,gee_a2_SoilCalcium_2014_mean_20_50,0.1175,0.1175,1116,100,TRUE,0.55,FALSE,0,0.13,0
+Malawi,child_vitA,proxy,1147,12,gee_a2_SoilMagnesium_2015_mean_20_50,0.1122,0.1122,1116,100,TRUE,0.55,FALSE,0,0.13,0
+Malawi,child_vitA,proxy,1147,13,gee_a2_SoilMagnesium_2014_mean_20_50,0.1122,0.1122,1116,100,TRUE,0.55,FALSE,0,0.13,0
+Malawi,child_vitA,proxy,1147,14,soil_iron_stdev_0_20,0.1121,0.1121,1149,100,TRUE,0.55,FALSE,0,0.13,0
+Malawi,child_vitA,proxy,1147,15,gee_a2_LandCoverLayers_2015_2015_grass_coverfraction,0.1117,0.1117,1116,100,TRUE,0.55,FALSE,0,0.13,0
+Malawi,child_vitA,proxy,1147,16,gee_a2_SoilMagnesium_2015_mean_0_20,0.1099,0.1099,1116,100,TRUE,0.55,FALSE,0,0.13,0
+Malawi,child_vitA,proxy,1147,17,gee_a2_SoilMagnesium_2014_mean_0_20,0.1099,0.1099,1116,100,TRUE,0.55,FALSE,0,0.13,0
+Malawi,child_vitA,proxy,1147,18,gee_a2_SoilIron_2015_stdev_0_20,0.1098,0.1098,1116,100,TRUE,0.55,FALSE,0,0.13,0
+Malawi,child_vitA,proxy,1147,19,gee_a2_SoilIron_2014_stdev_0_20,0.1098,0.1098,1116,100,TRUE,0.55,FALSE,0,0.13,0
+Malawi,child_vitA,proxy,1147,20,dhs2015_w_anc_visits_adm2.x,0.1082,0.1082,1149,100,TRUE,0.55,FALSE,0,0.13,0
+Malawi,child_vitA,proxy,1147,21,wfp_cowpeas,0.1063,0.1063,286,100,TRUE,0.55,FALSE,0,0.13,0
+Malawi,child_vitA,proxy,1147,22,dhs2015_w_bmi_low_adm2.x,0.1057,0.1057,1149,100,TRUE,0.55,FALSE,0,0.13,0
+Malawi,child_vitA,proxy,1147,23,ihme_20_24_24_male_mean_years_of_attainment,-0.1048,0.1048,1149,100,TRUE,0.55,FALSE,0,0.13,0
+Malawi,child_vitA,proxy,1147,24,dhs2015_w_anc_visits_adm2.y,0.1032,0.1032,1149,100,TRUE,0.55,FALSE,0,0.13,0
+Malawi,child_vitA,proxy,1147,25,gee_ndvi_50km_seasonal_cv,0.1028,0.1028,1149,100,TRUE,0.55,FALSE,0,0.13,0
+Malawi,women_vitA,questionnaire,1141,1,wfp_cassava,-0.1385,0.1385,233,100,TRUE,0.55,FALSE,0,0.1385,0
+Malawi,women_vitA,questionnaire,1141,2,dhs2015_c_severely_wasted_adm2.x,0.1129,0.1129,836,100,TRUE,0.55,FALSE,0,0.1385,0
+Malawi,women_vitA,questionnaire,1141,3,gee_built_surface_nres_10km,0.1128,0.1128,832,100,TRUE,0.55,FALSE,0,0.1385,0
+Malawi,women_vitA,questionnaire,1141,4,wfp_pigeon_peas,0.1019,0.1019,112,100,TRUE,0.55,FALSE,0,0.1385,0
+Malawi,women_vitA,questionnaire,1141,5,ihme_15_49_24_male_proportion_of_population_achieving_6_11_years_education,-0.101,0.101,614,100,TRUE,0.55,FALSE,0,0.1385,0
+Malawi,women_vitA,questionnaire,1141,6,gee_trmm_Mar_50km,-0.096,0.096,836,100,TRUE,0.55,FALSE,0,0.1385,0
+Malawi,women_vitA,questionnaire,1141,7,gee_trmm_50km_seasonal_cv,0.0949,0.0949,836,100,TRUE,0.55,FALSE,0,0.1385,0
+Malawi,women_vitA,questionnaire,1141,8,gee_trmm_Mar_25km,-0.0929,0.0929,836,100,TRUE,0.55,FALSE,0,0.1385,0
+Malawi,women_vitA,questionnaire,1141,9,dhs2015_c_severely_wasted_adm2.y,0.0919,0.0919,836,100,TRUE,0.55,FALSE,0,0.1385,0
+Malawi,women_vitA,questionnaire,1141,10,gee_trmm_Mar_10km,-0.0891,0.0891,836,100,TRUE,0.55,FALSE,0,0.1385,0
+Malawi,women_vitA,questionnaire,1141,11,dhs2015_hh_open_defecation_adm2.x,0.0873,0.0873,836,100,TRUE,0.55,FALSE,0,0.1385,0
+Malawi,women_vitA,questionnaire,1141,12,gee_built_surface_nres_25km,0.0872,0.0872,836,100,TRUE,0.55,FALSE,0,0.1385,0
+Malawi,women_vitA,questionnaire,1141,13,gee_a2_TerraClimate_2014_aet,-0.087,0.087,836,100,TRUE,0.55,FALSE,0,0.1385,0
+Malawi,women_vitA,questionnaire,1141,14,gee_a2_FLDAS_2015_Annual_Mean_Qg_tavg,0.0869,0.0869,836,100,TRUE,0.55,FALSE,0,0.1385,0
+Malawi,women_vitA,questionnaire,1141,15,gee_a2_TRMM_2016,-0.0865,0.0865,836,100,TRUE,0.55,FALSE,0,0.1385,0
+Malawi,women_vitA,questionnaire,1141,16,gee_temp_50km_seasonal_sd,0.0863,0.0863,836,100,TRUE,0.55,FALSE,0,0.1385,0
+Malawi,women_vitA,questionnaire,1141,17,gee_trmm_50km_annual_mean,-0.085,0.085,836,100,TRUE,0.55,FALSE,0,0.1385,0
+Malawi,women_vitA,questionnaire,1141,18,dhs2015_hh_open_defecation_adm2.y,0.0846,0.0846,836,100,TRUE,0.55,FALSE,0,0.1385,0
+Malawi,women_vitA,questionnaire,1141,19,gee_ndvi_Mar_50km,0.0844,0.0844,836,100,TRUE,0.55,FALSE,0,0.1385,0
+Malawi,women_vitA,questionnaire,1141,20,gee_temp_50km_seasonal_range,0.0839,0.0839,836,100,TRUE,0.55,FALSE,0,0.1385,0
+Malawi,women_vitA,questionnaire,1141,21,gee_trmm_25km_seasonal_cv,0.0819,0.0819,836,100,TRUE,0.55,FALSE,0,0.1385,0
+Malawi,women_vitA,questionnaire,1141,22,dhs2015_c_ari_2wk_adm2.x,-0.0818,0.0818,836,100,TRUE,0.55,FALSE,0,0.1385,0
+Malawi,women_vitA,questionnaire,1141,23,gee_temp_25km_seasonal_sd,0.0812,0.0812,836,100,TRUE,0.55,FALSE,0,0.1385,0
+Malawi,women_vitA,questionnaire,1141,24,ihme_15_49_24_female_mean_years_of_attainment,-0.0812,0.0812,836,100,TRUE,0.55,FALSE,0,0.1385,0
+Malawi,women_vitA,questionnaire,1141,25,dhs2015_w_anemia_moderate_adm2.y,-0.0807,0.0807,836,100,TRUE,0.55,FALSE,0,0.1385,0
+Malawi,women_vitA,proxy,1147,1,wfp_cassava,-0.1385,0.1385,233,100,TRUE,0.55,FALSE,0,0.1385,0
+Malawi,women_vitA,proxy,1147,2,dhs2015_c_severely_wasted_adm2.x,0.1129,0.1129,836,100,TRUE,0.55,FALSE,0,0.1385,0
+Malawi,women_vitA,proxy,1147,3,gee_built_surface_nres_10km,0.1128,0.1128,832,100,TRUE,0.55,FALSE,0,0.1385,0
+Malawi,women_vitA,proxy,1147,4,wfp_pigeon_peas,0.1019,0.1019,112,100,TRUE,0.55,FALSE,0,0.1385,0
+Malawi,women_vitA,proxy,1147,5,ihme_15_49_24_male_proportion_of_population_achieving_6_11_years_education,-0.101,0.101,614,100,TRUE,0.55,FALSE,0,0.1385,0
+Malawi,women_vitA,proxy,1147,6,gee_trmm_Mar_50km,-0.096,0.096,836,100,TRUE,0.55,FALSE,0,0.1385,0
+Malawi,women_vitA,proxy,1147,7,gee_trmm_50km_seasonal_cv,0.0949,0.0949,836,100,TRUE,0.55,FALSE,0,0.1385,0
+Malawi,women_vitA,proxy,1147,8,gee_trmm_Mar_25km,-0.0929,0.0929,836,100,TRUE,0.55,FALSE,0,0.1385,0
+Malawi,women_vitA,proxy,1147,9,dhs2015_c_severely_wasted_adm2.y,0.0919,0.0919,836,100,TRUE,0.55,FALSE,0,0.1385,0
+Malawi,women_vitA,proxy,1147,10,gee_trmm_Mar_10km,-0.0891,0.0891,836,100,TRUE,0.55,FALSE,0,0.1385,0
+Malawi,women_vitA,proxy,1147,11,dhs2015_hh_open_defecation_adm2.x,0.0873,0.0873,836,100,TRUE,0.55,FALSE,0,0.1385,0
+Malawi,women_vitA,proxy,1147,12,gee_built_surface_nres_25km,0.0872,0.0872,836,100,TRUE,0.55,FALSE,0,0.1385,0
+Malawi,women_vitA,proxy,1147,13,gee_a2_TerraClimate_2014_aet,-0.087,0.087,836,100,TRUE,0.55,FALSE,0,0.1385,0
+Malawi,women_vitA,proxy,1147,14,gee_a2_FLDAS_2015_Annual_Mean_Qg_tavg,0.0869,0.0869,836,100,TRUE,0.55,FALSE,0,0.1385,0
+Malawi,women_vitA,proxy,1147,15,gee_a2_TRMM_2016,-0.0865,0.0865,836,100,TRUE,0.55,FALSE,0,0.1385,0
+Malawi,women_vitA,proxy,1147,16,gee_temp_50km_seasonal_sd,0.0863,0.0863,836,100,TRUE,0.55,FALSE,0,0.1385,0
+Malawi,women_vitA,proxy,1147,17,gee_trmm_50km_annual_mean,-0.085,0.085,836,100,TRUE,0.55,FALSE,0,0.1385,0
+Malawi,women_vitA,proxy,1147,18,dhs2015_hh_open_defecation_adm2.y,0.0846,0.0846,836,100,TRUE,0.55,FALSE,0,0.1385,0
+Malawi,women_vitA,proxy,1147,19,gee_ndvi_Mar_50km,0.0844,0.0844,836,100,TRUE,0.55,FALSE,0,0.1385,0
+Malawi,women_vitA,proxy,1147,20,gee_temp_50km_seasonal_range,0.0839,0.0839,836,100,TRUE,0.55,FALSE,0,0.1385,0
+Malawi,women_vitA,proxy,1147,21,gee_trmm_25km_seasonal_cv,0.0819,0.0819,836,100,TRUE,0.55,FALSE,0,0.1385,0
+Malawi,women_vitA,proxy,1147,22,dhs2015_c_ari_2wk_adm2.x,-0.0818,0.0818,836,100,TRUE,0.55,FALSE,0,0.1385,0
+Malawi,women_vitA,proxy,1147,23,gee_temp_25km_seasonal_sd,0.0812,0.0812,836,100,TRUE,0.55,FALSE,0,0.1385,0
+Malawi,women_vitA,proxy,1147,24,ihme_15_49_24_female_mean_years_of_attainment,-0.0812,0.0812,836,100,TRUE,0.55,FALSE,0,0.1385,0
+Malawi,women_vitA,proxy,1147,25,dhs2015_w_anemia_moderate_adm2.y,-0.0807,0.0807,836,100,TRUE,0.55,FALSE,0,0.1385,0
+Malawi,child_iron,questionnaire,1141,1,gee_a2_GHSBUILTS_2015_built_surface_nres,0.1447,0.1447,1116,100,TRUE,0.55,FALSE,0,0.1447,0
+Malawi,child_iron,questionnaire,1141,2,dhs2015_w_secondary_plus_adm2.y,0.1445,0.1445,1149,100,TRUE,0.55,FALSE,0,0.1447,0
+Malawi,child_iron,questionnaire,1141,3,gee_a2_GPW_Demographic_2010_gpw_v4_basic_demographic_characteristics_rev11_a030_034mt_2010_cntm_30_sec_basic_demographic_characteristics,0.1367,0.1367,1149,100,TRUE,0.55,FALSE,0,0.1447,0
+Malawi,child_iron,questionnaire,1141,4,gee_a2_GHSPOP_2015,0.1352,0.1352,1116,100,TRUE,0.55,FALSE,0,0.1447,0
+Malawi,child_iron,questionnaire,1141,5,gee_a2_GPW_Demographic_2010_gpw_v4_basic_demographic_characteristics_rev11_a030_034bt_2010_cntm_30_sec_basic_demographic_characteristics,0.1351,0.1351,1149,100,TRUE,0.55,FALSE,0,0.1447,0
+Malawi,child_iron,questionnaire,1141,6,gee_a2_GPW_Demographic_2010_gpw_v4_basic_demographic_characteristics_rev11_a025_029mt_2010_cntm_30_sec_basic_demographic_characteristics,0.135,0.135,1149,100,TRUE,0.55,FALSE,0,0.1447,0
+Malawi,child_iron,questionnaire,1141,7,gee_a2_GPW_Demographic_2010_gpw_v4_basic_demographic_characteristics_rev11_a025_029bt_2010_cntm_30_sec_basic_demographic_characteristics,0.1344,0.1344,1149,100,TRUE,0.55,FALSE,0,0.1447,0
+Malawi,child_iron,questionnaire,1141,8,worldpop_pop_density,0.1343,0.1343,1149,100,TRUE,0.55,FALSE,0,0.1447,0
+Malawi,child_iron,questionnaire,1141,9,gee_a2_GPW_Demographic_2010_gpw_v4_basic_demographic_characteristics_rev11_a035_039mt_2010_cntm_30_sec_basic_demographic_characteristics,0.1339,0.1339,1149,100,TRUE,0.55,FALSE,0,0.1447,0
+Malawi,child_iron,questionnaire,1141,10,gee_a2_CCNL_2013,0.1339,0.1339,1149,100,TRUE,0.55,FALSE,0,0.1447,0
+Malawi,child_iron,questionnaire,1141,11,gee_a2_GHSBUILTS_2015_built_surface,0.1338,0.1338,1116,100,TRUE,0.55,FALSE,0,0.1447,0
+Malawi,child_iron,questionnaire,1141,12,gee_a2_GPW_Demographic_2010_gpw_v4_basic_demographic_characteristics_rev11_a020_024ft_2010_cntm_30_sec_basic_demographic_characteristics,0.1338,0.1338,1149,100,TRUE,0.55,FALSE,0,0.1447,0
+Malawi,child_iron,questionnaire,1141,13,ntl_ccnl,0.1336,0.1336,1149,100,TRUE,0.55,FALSE,0,0.1447,0
+Malawi,child_iron,questionnaire,1141,14,gee_a2_GPW_Demographic_2010_gpw_v4_basic_demographic_characteristics_rev11_a015_049mt_2010_cntm_30_sec_basic_demographic_characteristics,0.1333,0.1333,1149,100,TRUE,0.55,FALSE,0,0.1447,0
+Malawi,child_iron,questionnaire,1141,15,gee_a2_GPW_Demographic_2010_gpw_v4_basic_demographic_characteristics_rev11_a025_029ft_2010_cntm_30_sec_basic_demographic_characteristics,0.1333,0.1333,1149,100,TRUE,0.55,FALSE,0,0.1447,0
+Malawi,child_iron,questionnaire,1141,16,gee_a2_GPW_Demographic_2010_gpw_v4_basic_demographic_characteristics_rev11_a015_064mt_2010_cntm_30_sec_basic_demographic_characteristics,0.1328,0.1328,1149,100,TRUE,0.55,FALSE,0,0.1447,0
+Malawi,child_iron,questionnaire,1141,17,gee_a2_GPW_Demographic_2010_gpw_v4_basic_demographic_characteristics_rev11_a020_024bt_2010_cntm_30_sec_basic_demographic_characteristics,0.1327,0.1327,1149,100,TRUE,0.55,FALSE,0,0.1447,0
+Malawi,child_iron,questionnaire,1141,18,gee_a2_GPW_Demographic_2010_gpw_v4_basic_demographic_characteristics_rev11_a030_034ft_2010_cntm_30_sec_basic_demographic_characteristics,0.1324,0.1324,1149,100,TRUE,0.55,FALSE,0,0.1447,0
+Malawi,child_iron,questionnaire,1141,19,gee_a2_GPW_Demographic_2010_gpw_v4_basic_demographic_characteristics_rev11_a015_049bt_2010_cntm_30_sec_basic_demographic_characteristics,0.1324,0.1324,1149,100,TRUE,0.55,FALSE,0,0.1447,0
+Malawi,child_iron,questionnaire,1141,20,dhs2015_hh_improved_water_adm2.y,0.1324,0.1324,1149,100,TRUE,0.55,FALSE,0,0.1447,0
+Malawi,child_iron,questionnaire,1141,21,gee_a2_GPW_Demographic_2010_gpw_v4_basic_demographic_characteristics_rev11_a040_044mt_2010_cntm_30_sec_basic_demographic_characteristics,0.1322,0.1322,1149,100,TRUE,0.55,FALSE,0,0.1447,0
+Malawi,child_iron,questionnaire,1141,22,gee_a2_GPW_Demographic_2010_gpw_v4_basic_demographic_characteristics_rev11_a035_039bt_2010_cntm_30_sec_basic_demographic_characteristics,0.1322,0.1322,1149,100,TRUE,0.55,FALSE,0,0.1447,0
+Malawi,child_iron,questionnaire,1141,23,gee_a2_GPW_Demographic_2010_gpw_v4_basic_demographic_characteristics_rev11_a015_064bt_2010_cntm_30_sec_basic_demographic_characteristics,0.1315,0.1315,1149,100,TRUE,0.55,FALSE,0,0.1447,0
+Malawi,child_iron,questionnaire,1141,24,gee_a2_GPW_Demographic_2010_gpw_v4_basic_demographic_characteristics_rev11_a020_024mt_2010_cntm_30_sec_basic_demographic_characteristics,0.1314,0.1314,1149,100,TRUE,0.55,FALSE,0,0.1447,0
+Malawi,child_iron,questionnaire,1141,25,gee_a2_GPW_Demographic_2010_gpw_v4_basic_demographic_characteristics_rev11_a015_049ft_2010_cntm_30_sec_basic_demographic_characteristics,0.1313,0.1313,1149,100,TRUE,0.55,FALSE,0,0.1447,0
+Malawi,child_iron,proxy,1147,1,gee_a2_GHSBUILTS_2015_built_surface_nres,0.1447,0.1447,1116,100,TRUE,0.55,FALSE,0,0.1447,0
+Malawi,child_iron,proxy,1147,2,dhs2015_w_secondary_plus_adm2.y,0.1445,0.1445,1149,100,TRUE,0.55,FALSE,0,0.1447,0
+Malawi,child_iron,proxy,1147,3,gee_a2_GPW_Demographic_2010_gpw_v4_basic_demographic_characteristics_rev11_a030_034mt_2010_cntm_30_sec_basic_demographic_characteristics,0.1367,0.1367,1149,100,TRUE,0.55,FALSE,0,0.1447,0
+Malawi,child_iron,proxy,1147,4,gee_a2_GHSPOP_2015,0.1352,0.1352,1116,100,TRUE,0.55,FALSE,0,0.1447,0
+Malawi,child_iron,proxy,1147,5,gee_a2_GPW_Demographic_2010_gpw_v4_basic_demographic_characteristics_rev11_a030_034bt_2010_cntm_30_sec_basic_demographic_characteristics,0.1351,0.1351,1149,100,TRUE,0.55,FALSE,0,0.1447,0
+Malawi,child_iron,proxy,1147,6,gee_a2_GPW_Demographic_2010_gpw_v4_basic_demographic_characteristics_rev11_a025_029mt_2010_cntm_30_sec_basic_demographic_characteristics,0.135,0.135,1149,100,TRUE,0.55,FALSE,0,0.1447,0
+Malawi,child_iron,proxy,1147,7,gee_a2_GPW_Demographic_2010_gpw_v4_basic_demographic_characteristics_rev11_a025_029bt_2010_cntm_30_sec_basic_demographic_characteristics,0.1344,0.1344,1149,100,TRUE,0.55,FALSE,0,0.1447,0
+Malawi,child_iron,proxy,1147,8,worldpop_pop_density,0.1343,0.1343,1149,100,TRUE,0.55,FALSE,0,0.1447,0
+Malawi,child_iron,proxy,1147,9,gee_a2_GPW_Demographic_2010_gpw_v4_basic_demographic_characteristics_rev11_a035_039mt_2010_cntm_30_sec_basic_demographic_characteristics,0.1339,0.1339,1149,100,TRUE,0.55,FALSE,0,0.1447,0
+Malawi,child_iron,proxy,1147,10,gee_a2_CCNL_2013,0.1339,0.1339,1149,100,TRUE,0.55,FALSE,0,0.1447,0
+Malawi,child_iron,proxy,1147,11,gee_a2_GHSBUILTS_2015_built_surface,0.1338,0.1338,1116,100,TRUE,0.55,FALSE,0,0.1447,0
+Malawi,child_iron,proxy,1147,12,gee_a2_GPW_Demographic_2010_gpw_v4_basic_demographic_characteristics_rev11_a020_024ft_2010_cntm_30_sec_basic_demographic_characteristics,0.1338,0.1338,1149,100,TRUE,0.55,FALSE,0,0.1447,0
+Malawi,child_iron,proxy,1147,13,ntl_ccnl,0.1336,0.1336,1149,100,TRUE,0.55,FALSE,0,0.1447,0
+Malawi,child_iron,proxy,1147,14,gee_a2_GPW_Demographic_2010_gpw_v4_basic_demographic_characteristics_rev11_a015_049mt_2010_cntm_30_sec_basic_demographic_characteristics,0.1333,0.1333,1149,100,TRUE,0.55,FALSE,0,0.1447,0
+Malawi,child_iron,proxy,1147,15,gee_a2_GPW_Demographic_2010_gpw_v4_basic_demographic_characteristics_rev11_a025_029ft_2010_cntm_30_sec_basic_demographic_characteristics,0.1333,0.1333,1149,100,TRUE,0.55,FALSE,0,0.1447,0
+Malawi,child_iron,proxy,1147,16,gee_a2_GPW_Demographic_2010_gpw_v4_basic_demographic_characteristics_rev11_a015_064mt_2010_cntm_30_sec_basic_demographic_characteristics,0.1328,0.1328,1149,100,TRUE,0.55,FALSE,0,0.1447,0
+Malawi,child_iron,proxy,1147,17,gee_a2_GPW_Demographic_2010_gpw_v4_basic_demographic_characteristics_rev11_a020_024bt_2010_cntm_30_sec_basic_demographic_characteristics,0.1327,0.1327,1149,100,TRUE,0.55,FALSE,0,0.1447,0
+Malawi,child_iron,proxy,1147,18,gee_a2_GPW_Demographic_2010_gpw_v4_basic_demographic_characteristics_rev11_a030_034ft_2010_cntm_30_sec_basic_demographic_characteristics,0.1324,0.1324,1149,100,TRUE,0.55,FALSE,0,0.1447,0
+Malawi,child_iron,proxy,1147,19,gee_a2_GPW_Demographic_2010_gpw_v4_basic_demographic_characteristics_rev11_a015_049bt_2010_cntm_30_sec_basic_demographic_characteristics,0.1324,0.1324,1149,100,TRUE,0.55,FALSE,0,0.1447,0
+Malawi,child_iron,proxy,1147,20,dhs2015_hh_improved_water_adm2.y,0.1324,0.1324,1149,100,TRUE,0.55,FALSE,0,0.1447,0
+Malawi,child_iron,proxy,1147,21,gee_a2_GPW_Demographic_2010_gpw_v4_basic_demographic_characteristics_rev11_a040_044mt_2010_cntm_30_sec_basic_demographic_characteristics,0.1322,0.1322,1149,100,TRUE,0.55,FALSE,0,0.1447,0
+Malawi,child_iron,proxy,1147,22,gee_a2_GPW_Demographic_2010_gpw_v4_basic_demographic_characteristics_rev11_a035_039bt_2010_cntm_30_sec_basic_demographic_characteristics,0.1322,0.1322,1149,100,TRUE,0.55,FALSE,0,0.1447,0
+Malawi,child_iron,proxy,1147,23,gee_a2_GPW_Demographic_2010_gpw_v4_basic_demographic_characteristics_rev11_a015_064bt_2010_cntm_30_sec_basic_demographic_characteristics,0.1315,0.1315,1149,100,TRUE,0.55,FALSE,0,0.1447,0
+Malawi,child_iron,proxy,1147,24,gee_a2_GPW_Demographic_2010_gpw_v4_basic_demographic_characteristics_rev11_a020_024mt_2010_cntm_30_sec_basic_demographic_characteristics,0.1314,0.1314,1149,100,TRUE,0.55,FALSE,0,0.1447,0
+Malawi,child_iron,proxy,1147,25,gee_a2_GPW_Demographic_2010_gpw_v4_basic_demographic_characteristics_rev11_a015_049ft_2010_cntm_30_sec_basic_demographic_characteristics,0.1313,0.1313,1149,100,TRUE,0.55,FALSE,0,0.1447,0
+Malawi,women_iron,questionnaire,1141,1,dhs2015_w_delivery_csection_adm2.y,0.1562,0.1562,781,100,TRUE,0.55,FALSE,0,0.1562,0
+Malawi,women_iron,questionnaire,1141,2,dhs2015_hh_wealth_mean_adm2.y,0.1557,0.1557,781,100,TRUE,0.55,FALSE,0,0.1562,0
+Malawi,women_iron,questionnaire,1141,3,wfp_pigeon_peas,0.1546,0.1546,103,100,TRUE,0.55,FALSE,0,0.1562,0
+Malawi,women_iron,questionnaire,1141,4,dhs2015_hh_fridge_adm2.y,0.1539,0.1539,781,100,TRUE,0.55,FALSE,0,0.1562,0
+Malawi,women_iron,questionnaire,1141,5,dhs2015_hh_improved_floor_adm2.y,0.1525,0.1525,781,100,TRUE,0.55,FALSE,0,0.1562,0
+Malawi,women_iron,questionnaire,1141,6,dhs2015_w_delivery_csection_adm2.x,0.1506,0.1506,781,100,TRUE,0.55,FALSE,0,0.1562,0
+Malawi,women_iron,questionnaire,1141,7,dhs2015_hh_electricity_adm2.y,0.1496,0.1496,781,100,TRUE,0.55,FALSE,0,0.1562,0
+Malawi,women_iron,questionnaire,1141,8,dhs2015_hh_tv_adm2.y,0.1488,0.1488,781,100,TRUE,0.55,FALSE,0,0.1562,0
+Malawi,women_iron,questionnaire,1141,9,dhs2015_w_anemia_moderate_adm2.y,0.1483,0.1483,781,100,TRUE,0.55,FALSE,0,0.1562,0
+Malawi,women_iron,questionnaire,1141,10,dhs2015_w_high_parity_adm2.y,-0.1409,0.1409,781,100,TRUE,0.55,FALSE,0,0.1562,0
+Malawi,women_iron,questionnaire,1141,11,dhs2015_hh_wealth_poor_adm2.y,-0.1406,0.1406,781,100,TRUE,0.55,FALSE,0,0.1562,0
+Malawi,women_iron,questionnaire,1141,12,dhs2015_w_mean_parity_adm2.y,-0.1385,0.1385,781,100,TRUE,0.55,FALSE,0,0.1562,0
+Malawi,women_iron,questionnaire,1141,13,wfp_cassava,0.1348,0.1348,219,100,TRUE,0.55,FALSE,0,0.1562,0
+Malawi,women_iron,questionnaire,1141,14,dhs2015_hh_improved_water_adm2.y,0.1341,0.1341,781,100,TRUE,0.55,FALSE,0,0.1562,0
+Malawi,women_iron,questionnaire,1141,15,dhs2015_w_secondary_plus_adm2.y,0.1327,0.1327,781,100,TRUE,0.55,FALSE,0,0.1562,0
+Malawi,women_iron,questionnaire,1141,16,dhs2015_hh_urban_adm2.x,0.1285,0.1285,781,100,TRUE,0.55,FALSE,0,0.1562,0
+Malawi,women_iron,questionnaire,1141,17,dhs2015_hh_wealth_mean_adm2.x,0.1274,0.1274,781,100,TRUE,0.55,FALSE,0,0.1562,0
+Malawi,women_iron,questionnaire,1141,18,dhs2015_w_listens_radio_adm2.y,0.1273,0.1273,781,100,TRUE,0.55,FALSE,0,0.1562,0
+Malawi,women_iron,questionnaire,1141,19,dhs2015_w_listens_radio_adm2.x,0.1249,0.1249,781,100,TRUE,0.55,FALSE,0,0.1562,0
+Malawi,women_iron,questionnaire,1141,20,dhs2015_FP_CUSA_W_MOD_adm2.y,-0.1243,0.1243,781,100,TRUE,0.55,FALSE,0,0.1562,0
+Malawi,women_iron,questionnaire,1141,21,dhs2015_hh_urban_adm2.y,0.1239,0.1239,781,100,TRUE,0.55,FALSE,0,0.1562,0
+Malawi,women_iron,questionnaire,1141,22,dhs2015_w_high_parity_adm2.x,-0.1227,0.1227,781,100,TRUE,0.55,FALSE,0,0.1562,0
+Malawi,women_iron,questionnaire,1141,23,gee_a2_LandCoverLayers_2015_2015_discrete_classification_proba,-0.1224,0.1224,758,100,TRUE,0.55,FALSE,0,0.1562,0
+Malawi,women_iron,questionnaire,1141,24,dhs2015_hh_improved_floor_adm2.x,0.1212,0.1212,781,100,TRUE,0.55,FALSE,0,0.1562,0
+Malawi,women_iron,questionnaire,1141,25,dhs2015_hh_tv_adm2.x,0.1206,0.1206,781,100,TRUE,0.55,FALSE,0,0.1562,0
+Malawi,women_iron,proxy,1147,1,dhs2015_w_delivery_csection_adm2.y,0.1562,0.1562,781,100,TRUE,0.55,FALSE,0,0.1562,0
+Malawi,women_iron,proxy,1147,2,dhs2015_hh_wealth_mean_adm2.y,0.1557,0.1557,781,100,TRUE,0.55,FALSE,0,0.1562,0
+Malawi,women_iron,proxy,1147,3,wfp_pigeon_peas,0.1546,0.1546,103,100,TRUE,0.55,FALSE,0,0.1562,0
+Malawi,women_iron,proxy,1147,4,dhs2015_hh_fridge_adm2.y,0.1539,0.1539,781,100,TRUE,0.55,FALSE,0,0.1562,0
+Malawi,women_iron,proxy,1147,5,dhs2015_hh_improved_floor_adm2.y,0.1525,0.1525,781,100,TRUE,0.55,FALSE,0,0.1562,0
+Malawi,women_iron,proxy,1147,6,dhs2015_w_delivery_csection_adm2.x,0.1506,0.1506,781,100,TRUE,0.55,FALSE,0,0.1562,0
+Malawi,women_iron,proxy,1147,7,dhs2015_hh_electricity_adm2.y,0.1496,0.1496,781,100,TRUE,0.55,FALSE,0,0.1562,0
+Malawi,women_iron,proxy,1147,8,dhs2015_hh_tv_adm2.y,0.1488,0.1488,781,100,TRUE,0.55,FALSE,0,0.1562,0
+Malawi,women_iron,proxy,1147,9,dhs2015_w_anemia_moderate_adm2.y,0.1483,0.1483,781,100,TRUE,0.55,FALSE,0,0.1562,0
+Malawi,women_iron,proxy,1147,10,dhs2015_w_high_parity_adm2.y,-0.1409,0.1409,781,100,TRUE,0.55,FALSE,0,0.1562,0
+Malawi,women_iron,proxy,1147,11,dhs2015_hh_wealth_poor_adm2.y,-0.1406,0.1406,781,100,TRUE,0.55,FALSE,0,0.1562,0
+Malawi,women_iron,proxy,1147,12,dhs2015_w_mean_parity_adm2.y,-0.1385,0.1385,781,100,TRUE,0.55,FALSE,0,0.1562,0
+Malawi,women_iron,proxy,1147,13,wfp_cassava,0.1348,0.1348,219,100,TRUE,0.55,FALSE,0,0.1562,0
+Malawi,women_iron,proxy,1147,14,dhs2015_hh_improved_water_adm2.y,0.1341,0.1341,781,100,TRUE,0.55,FALSE,0,0.1562,0
+Malawi,women_iron,proxy,1147,15,dhs2015_w_secondary_plus_adm2.y,0.1327,0.1327,781,100,TRUE,0.55,FALSE,0,0.1562,0
+Malawi,women_iron,proxy,1147,16,dhs2015_hh_urban_adm2.x,0.1285,0.1285,781,100,TRUE,0.55,FALSE,0,0.1562,0
+Malawi,women_iron,proxy,1147,17,dhs2015_hh_wealth_mean_adm2.x,0.1274,0.1274,781,100,TRUE,0.55,FALSE,0,0.1562,0
+Malawi,women_iron,proxy,1147,18,dhs2015_w_listens_radio_adm2.y,0.1273,0.1273,781,100,TRUE,0.55,FALSE,0,0.1562,0
+Malawi,women_iron,proxy,1147,19,dhs2015_w_listens_radio_adm2.x,0.1249,0.1249,781,100,TRUE,0.55,FALSE,0,0.1562,0
+Malawi,women_iron,proxy,1147,20,dhs2015_FP_CUSA_W_MOD_adm2.y,-0.1243,0.1243,781,100,TRUE,0.55,FALSE,0,0.1562,0
+Malawi,women_iron,proxy,1147,21,dhs2015_hh_urban_adm2.y,0.1239,0.1239,781,100,TRUE,0.55,FALSE,0,0.1562,0
+Malawi,women_iron,proxy,1147,22,dhs2015_w_high_parity_adm2.x,-0.1227,0.1227,781,100,TRUE,0.55,FALSE,0,0.1562,0
+Malawi,women_iron,proxy,1147,23,gee_a2_LandCoverLayers_2015_2015_discrete_classification_proba,-0.1224,0.1224,758,100,TRUE,0.55,FALSE,0,0.1562,0
+Malawi,women_iron,proxy,1147,24,dhs2015_hh_improved_floor_adm2.x,0.1212,0.1212,781,100,TRUE,0.55,FALSE,0,0.1562,0
+Malawi,women_iron,proxy,1147,25,dhs2015_hh_tv_adm2.x,0.1206,0.1206,781,100,TRUE,0.55,FALSE,0,0.1562,0
+Malawi,women_folate,questionnaire,1141,1,wfp_price_cowpeas,0.2676,0.2676,549,100,TRUE,0.55,FALSE,0,0.2676,0
+Malawi,women_folate,questionnaire,1141,2,gee_a2_Elevation_2000,-0.2635,0.2635,554,100,TRUE,0.55,FALSE,0,0.2676,0
+Malawi,women_folate,questionnaire,1141,3,gee_a2_LST_Night_2015_Monthly_annual_mean,0.2439,0.2439,828,100,TRUE,0.55,FALSE,0,0.2676,0
+Malawi,women_folate,questionnaire,1141,4,gee_a2_LST_Night_2015_Annual_Mean_Mean,0.2439,0.2439,828,100,TRUE,0.55,FALSE,0,0.2676,0
+Malawi,women_folate,questionnaire,1141,5,gee_a2_LST_Night_2014_Monthly_annual_mean,0.2415,0.2415,828,100,TRUE,0.55,FALSE,0,0.2676,0
+Malawi,women_folate,questionnaire,1141,6,gee_a2_LST_Night_2014_Annual_Mean_Mean,0.2415,0.2415,828,100,TRUE,0.55,FALSE,0,0.2676,0
+Malawi,women_folate,questionnaire,1141,7,gee_temp_Aug_10km,0.2375,0.2375,828,100,TRUE,0.55,FALSE,0,0.2676,0
+Malawi,women_folate,questionnaire,1141,8,gee_a2_FLDAS_2014_Annual_Mean_Tair_f_tavg,0.2364,0.2364,828,100,TRUE,0.55,FALSE,0,0.2676,0
+Malawi,women_folate,questionnaire,1141,9,gee_a2_FLDAS_2015_Annual_Mean_Tair_f_tavg,0.2362,0.2362,828,100,TRUE,0.55,FALSE,0,0.2676,0
+Malawi,women_folate,questionnaire,1141,10,gee_a2_TerraClimate_2014_vap,0.2359,0.2359,828,100,TRUE,0.55,FALSE,0,0.2676,0
+Malawi,women_folate,questionnaire,1141,11,gee_temp_Aug_50km,0.2343,0.2343,828,100,TRUE,0.55,FALSE,0,0.2676,0
+Malawi,women_folate,questionnaire,1141,12,gee_a2_FLDAS_2015_Annual_Mean_RadT_tavg,0.2341,0.2341,828,100,TRUE,0.55,FALSE,0,0.2676,0
+Malawi,women_folate,questionnaire,1141,13,gee_a2_FLDAS_2015_Annual_Mean_SoilTemp00_10cm_tavg,0.234,0.234,828,100,TRUE,0.55,FALSE,0,0.2676,0
+Malawi,women_folate,questionnaire,1141,14,gee_a2_FLDAS_2015_Annual_Mean_SoilTemp10_40cm_tavg,0.2335,0.2335,828,100,TRUE,0.55,FALSE,0,0.2676,0
+Malawi,women_folate,questionnaire,1141,15,gee_a2_FLDAS_2015_Annual_Mean_SoilTemp40_100cm_tavg,0.2334,0.2334,828,100,TRUE,0.55,FALSE,0,0.2676,0
+Malawi,women_folate,questionnaire,1141,16,gee_a2_FLDAS_2014_Annual_Mean_RadT_tavg,0.2334,0.2334,828,100,TRUE,0.55,FALSE,0,0.2676,0
+Malawi,women_folate,questionnaire,1141,17,gee_a2_FLDAS_2014_Annual_Mean_SoilTemp00_10cm_tavg,0.2333,0.2333,828,100,TRUE,0.55,FALSE,0,0.2676,0
+Malawi,women_folate,questionnaire,1141,18,gee_a2_FLDAS_2014_Annual_Mean_SoilTemp10_40cm_tavg,0.2328,0.2328,828,100,TRUE,0.55,FALSE,0,0.2676,0
+Malawi,women_folate,questionnaire,1141,19,gee_a2_FLDAS_2015_Annual_Mean_SoilTemp100_200cm_tavg,0.2328,0.2328,828,100,TRUE,0.55,FALSE,0,0.2676,0
+Malawi,women_folate,questionnaire,1141,20,gee_a2_FLDAS_2014_Annual_Mean_SoilTemp40_100cm_tavg,0.2323,0.2323,828,100,TRUE,0.55,FALSE,0,0.2676,0
+Malawi,women_folate,questionnaire,1141,21,gee_temp_Aug_25km,0.2323,0.2323,828,100,TRUE,0.55,FALSE,0,0.2676,0
+Malawi,women_folate,questionnaire,1141,22,gee_a2_TerraClimate_2015_vap,0.2319,0.2319,828,100,TRUE,0.55,FALSE,0,0.2676,0
+Malawi,women_folate,questionnaire,1141,23,gee_a2_FLDAS_2014_Annual_Mean_SoilTemp100_200cm_tavg,0.2316,0.2316,828,100,TRUE,0.55,FALSE,0,0.2676,0
+Malawi,women_folate,questionnaire,1141,24,gee_a2_FLDAS_2014_Annual_Mean_LWdown_f_tavg,0.2308,0.2308,828,100,TRUE,0.55,FALSE,0,0.2676,0
+Malawi,women_folate,questionnaire,1141,25,gee_temp_Sep_10km,0.2302,0.2302,828,100,TRUE,0.55,FALSE,0,0.2676,0
+Malawi,women_folate,proxy,1147,1,wfp_price_cowpeas,0.2676,0.2676,549,100,TRUE,0.55,FALSE,0,0.2676,0
+Malawi,women_folate,proxy,1147,2,gee_a2_Elevation_2000,-0.2635,0.2635,554,100,TRUE,0.55,FALSE,0,0.2676,0
+Malawi,women_folate,proxy,1147,3,gee_a2_LST_Night_2015_Monthly_annual_mean,0.2439,0.2439,828,100,TRUE,0.55,FALSE,0,0.2676,0
+Malawi,women_folate,proxy,1147,4,gee_a2_LST_Night_2015_Annual_Mean_Mean,0.2439,0.2439,828,100,TRUE,0.55,FALSE,0,0.2676,0
+Malawi,women_folate,proxy,1147,5,gee_a2_LST_Night_2014_Monthly_annual_mean,0.2415,0.2415,828,100,TRUE,0.55,FALSE,0,0.2676,0
+Malawi,women_folate,proxy,1147,6,gee_a2_LST_Night_2014_Annual_Mean_Mean,0.2415,0.2415,828,100,TRUE,0.55,FALSE,0,0.2676,0
+Malawi,women_folate,proxy,1147,7,gee_temp_Aug_10km,0.2375,0.2375,828,100,TRUE,0.55,FALSE,0,0.2676,0
+Malawi,women_folate,proxy,1147,8,gee_a2_FLDAS_2014_Annual_Mean_Tair_f_tavg,0.2364,0.2364,828,100,TRUE,0.55,FALSE,0,0.2676,0
+Malawi,women_folate,proxy,1147,9,gee_a2_FLDAS_2015_Annual_Mean_Tair_f_tavg,0.2362,0.2362,828,100,TRUE,0.55,FALSE,0,0.2676,0
+Malawi,women_folate,proxy,1147,10,gee_a2_TerraClimate_2014_vap,0.2359,0.2359,828,100,TRUE,0.55,FALSE,0,0.2676,0
+Malawi,women_folate,proxy,1147,11,gee_temp_Aug_50km,0.2343,0.2343,828,100,TRUE,0.55,FALSE,0,0.2676,0
+Malawi,women_folate,proxy,1147,12,gee_a2_FLDAS_2015_Annual_Mean_RadT_tavg,0.2341,0.2341,828,100,TRUE,0.55,FALSE,0,0.2676,0
+Malawi,women_folate,proxy,1147,13,gee_a2_FLDAS_2015_Annual_Mean_SoilTemp00_10cm_tavg,0.234,0.234,828,100,TRUE,0.55,FALSE,0,0.2676,0
+Malawi,women_folate,proxy,1147,14,gee_a2_FLDAS_2015_Annual_Mean_SoilTemp10_40cm_tavg,0.2335,0.2335,828,100,TRUE,0.55,FALSE,0,0.2676,0
+Malawi,women_folate,proxy,1147,15,gee_a2_FLDAS_2015_Annual_Mean_SoilTemp40_100cm_tavg,0.2334,0.2334,828,100,TRUE,0.55,FALSE,0,0.2676,0
+Malawi,women_folate,proxy,1147,16,gee_a2_FLDAS_2014_Annual_Mean_RadT_tavg,0.2334,0.2334,828,100,TRUE,0.55,FALSE,0,0.2676,0
+Malawi,women_folate,proxy,1147,17,gee_a2_FLDAS_2014_Annual_Mean_SoilTemp00_10cm_tavg,0.2333,0.2333,828,100,TRUE,0.55,FALSE,0,0.2676,0
+Malawi,women_folate,proxy,1147,18,gee_a2_FLDAS_2014_Annual_Mean_SoilTemp10_40cm_tavg,0.2328,0.2328,828,100,TRUE,0.55,FALSE,0,0.2676,0
+Malawi,women_folate,proxy,1147,19,gee_a2_FLDAS_2015_Annual_Mean_SoilTemp100_200cm_tavg,0.2328,0.2328,828,100,TRUE,0.55,FALSE,0,0.2676,0
+Malawi,women_folate,proxy,1147,20,gee_a2_FLDAS_2014_Annual_Mean_SoilTemp40_100cm_tavg,0.2323,0.2323,828,100,TRUE,0.55,FALSE,0,0.2676,0
+Malawi,women_folate,proxy,1147,21,gee_temp_Aug_25km,0.2323,0.2323,828,100,TRUE,0.55,FALSE,0,0.2676,0
+Malawi,women_folate,proxy,1147,22,gee_a2_TerraClimate_2015_vap,0.2319,0.2319,828,100,TRUE,0.55,FALSE,0,0.2676,0
+Malawi,women_folate,proxy,1147,23,gee_a2_FLDAS_2014_Annual_Mean_SoilTemp100_200cm_tavg,0.2316,0.2316,828,100,TRUE,0.55,FALSE,0,0.2676,0
+Malawi,women_folate,proxy,1147,24,gee_a2_FLDAS_2014_Annual_Mean_LWdown_f_tavg,0.2308,0.2308,828,100,TRUE,0.55,FALSE,0,0.2676,0
+Malawi,women_folate,proxy,1147,25,gee_temp_Sep_10km,0.2302,0.2302,828,100,TRUE,0.55,FALSE,0,0.2676,0
+Malawi,women_b12,questionnaire,1141,1,dhs2015_hh_crowding_adm2.x,0.1408,0.1408,839,100,TRUE,0.55,FALSE,0,0.1408,0
+Malawi,women_b12,questionnaire,1141,2,soil_cec,-0.1268,0.1268,839,100,TRUE,0.55,FALSE,0,0.1408,0
+Malawi,women_b12,questionnaire,1141,3,dhs2015_hh_crowding_adm2.y,0.1206,0.1206,839,100,TRUE,0.55,FALSE,0,0.1408,0
+Malawi,women_b12,questionnaire,1141,4,soil_sand,0.1153,0.1153,839,100,TRUE,0.55,FALSE,0,0.1408,0
+Malawi,women_b12,questionnaire,1141,5,dhs2015_w_high_parity_adm2.y,0.1144,0.1144,839,100,TRUE,0.55,FALSE,0,0.1408,0
+Malawi,women_b12,questionnaire,1141,6,MAP_202206_Pf_Parasite_Rate,0.1133,0.1133,839,100,TRUE,0.55,FALSE,0,0.1408,0
+Malawi,women_b12,questionnaire,1141,7,MAP_202206_Pf_Incidence_Rate,0.1127,0.1127,839,100,TRUE,0.55,FALSE,0,0.1408,0
+Malawi,women_b12,questionnaire,1141,8,gee_a2_FLDAS_2015_Annual_Mean_Wind_f_tavg,0.1109,0.1109,839,100,TRUE,0.55,FALSE,0,0.1408,0
+Malawi,women_b12,questionnaire,1141,9,gee_grassland_50km,0.1108,0.1108,839,100,TRUE,0.55,FALSE,0,0.1408,0
+Malawi,women_b12,questionnaire,1141,10,soil_cec_mean_20_50,-0.1101,0.1101,839,100,TRUE,0.55,FALSE,0,0.1408,0
+Malawi,women_b12,questionnaire,1141,11,map2_explorer_2019_global_pfpr,0.1081,0.1081,839,100,TRUE,0.55,FALSE,0,0.1408,0
+Malawi,women_b12,questionnaire,1141,12,soil_silt,-0.107,0.107,839,100,TRUE,0.55,FALSE,0,0.1408,0
+Malawi,women_b12,questionnaire,1141,13,MAP_202202_Pf_Reproductive_Number,0.1062,0.1062,839,100,TRUE,0.55,FALSE,0,0.1408,0
+Malawi,women_b12,questionnaire,1141,14,gee_a2_SoilCEC_2015_mean_20_50,-0.1057,0.1057,816,100,TRUE,0.55,FALSE,0,0.1408,0
+Malawi,women_b12,questionnaire,1141,15,gee_a2_SoilCEC_2014_mean_20_50,-0.1057,0.1057,816,100,TRUE,0.55,FALSE,0,0.1408,0
+Malawi,women_b12,questionnaire,1141,16,dhs2015_hh_wealth_poorest_adm2.x,0.1048,0.1048,839,100,TRUE,0.55,FALSE,0,0.1408,0
+Malawi,women_b12,questionnaire,1141,17,ihme_40_44_years_13_females_hiv_prevalence_percent,-0.1044,0.1044,839,100,TRUE,0.55,FALSE,0,0.1408,0
+Malawi,women_b12,questionnaire,1141,18,ihme_45_49_years_14_males_hiv_prevalence_percent,-0.1041,0.1041,839,100,TRUE,0.55,FALSE,0,0.1408,0
+Malawi,women_b12,questionnaire,1141,19,ihme_45_49_years_14_females_hiv_prevalence_percent,-0.1041,0.1041,839,100,TRUE,0.55,FALSE,0,0.1408,0
+Malawi,women_b12,questionnaire,1141,20,ihme_50_54_years_15_males_hiv_prevalence_percent,-0.104,0.104,839,100,TRUE,0.55,FALSE,0,0.1408,0
+Malawi,women_b12,questionnaire,1141,21,ihme_35_39_years_12_females_hiv_prevalence_percent,-0.1039,0.1039,839,100,TRUE,0.55,FALSE,0,0.1408,0
+Malawi,women_b12,questionnaire,1141,22,ihme_50_54_years_15_females_hiv_prevalence_percent,-0.1036,0.1036,839,100,TRUE,0.55,FALSE,0,0.1408,0
+Malawi,women_b12,questionnaire,1141,23,ihme_55_59_years_16_females_hiv_prevalence_percent,-0.1035,0.1035,839,100,TRUE,0.55,FALSE,0,0.1408,0
+Malawi,women_b12,questionnaire,1141,24,ihme_15_49_years_24_both_hiv_prevalence_percent,-0.1035,0.1035,839,100,TRUE,0.55,FALSE,0,0.1408,0
+Malawi,women_b12,questionnaire,1141,25,ihme_15_59_years_199_both_hiv_prevalence_percent,-0.1035,0.1035,839,100,TRUE,0.55,FALSE,0,0.1408,0
+Malawi,women_b12,proxy,1147,1,dhs2015_hh_crowding_adm2.x,0.1408,0.1408,839,100,TRUE,0.55,FALSE,0,0.1408,0
+Malawi,women_b12,proxy,1147,2,soil_cec,-0.1268,0.1268,839,100,TRUE,0.55,FALSE,0,0.1408,0
+Malawi,women_b12,proxy,1147,3,dhs2015_hh_crowding_adm2.y,0.1206,0.1206,839,100,TRUE,0.55,FALSE,0,0.1408,0
+Malawi,women_b12,proxy,1147,4,soil_sand,0.1153,0.1153,839,100,TRUE,0.55,FALSE,0,0.1408,0
+Malawi,women_b12,proxy,1147,5,dhs2015_w_high_parity_adm2.y,0.1144,0.1144,839,100,TRUE,0.55,FALSE,0,0.1408,0
+Malawi,women_b12,proxy,1147,6,MAP_202206_Pf_Parasite_Rate,0.1133,0.1133,839,100,TRUE,0.55,FALSE,0,0.1408,0
+Malawi,women_b12,proxy,1147,7,MAP_202206_Pf_Incidence_Rate,0.1127,0.1127,839,100,TRUE,0.55,FALSE,0,0.1408,0
+Malawi,women_b12,proxy,1147,8,gee_a2_FLDAS_2015_Annual_Mean_Wind_f_tavg,0.1109,0.1109,839,100,TRUE,0.55,FALSE,0,0.1408,0
+Malawi,women_b12,proxy,1147,9,gee_grassland_50km,0.1108,0.1108,839,100,TRUE,0.55,FALSE,0,0.1408,0
+Malawi,women_b12,proxy,1147,10,soil_cec_mean_20_50,-0.1101,0.1101,839,100,TRUE,0.55,FALSE,0,0.1408,0
+Malawi,women_b12,proxy,1147,11,map2_explorer_2019_global_pfpr,0.1081,0.1081,839,100,TRUE,0.55,FALSE,0,0.1408,0
+Malawi,women_b12,proxy,1147,12,soil_silt,-0.107,0.107,839,100,TRUE,0.55,FALSE,0,0.1408,0
+Malawi,women_b12,proxy,1147,13,MAP_202202_Pf_Reproductive_Number,0.1062,0.1062,839,100,TRUE,0.55,FALSE,0,0.1408,0
+Malawi,women_b12,proxy,1147,14,gee_a2_SoilCEC_2015_mean_20_50,-0.1057,0.1057,816,100,TRUE,0.55,FALSE,0,0.1408,0
+Malawi,women_b12,proxy,1147,15,gee_a2_SoilCEC_2014_mean_20_50,-0.1057,0.1057,816,100,TRUE,0.55,FALSE,0,0.1408,0
+Malawi,women_b12,proxy,1147,16,dhs2015_hh_wealth_poorest_adm2.x,0.1048,0.1048,839,100,TRUE,0.55,FALSE,0,0.1408,0
+Malawi,women_b12,proxy,1147,17,ihme_40_44_years_13_females_hiv_prevalence_percent,-0.1044,0.1044,839,100,TRUE,0.55,FALSE,0,0.1408,0
+Malawi,women_b12,proxy,1147,18,ihme_45_49_years_14_males_hiv_prevalence_percent,-0.1041,0.1041,839,100,TRUE,0.55,FALSE,0,0.1408,0
+Malawi,women_b12,proxy,1147,19,ihme_45_49_years_14_females_hiv_prevalence_percent,-0.1041,0.1041,839,100,TRUE,0.55,FALSE,0,0.1408,0
+Malawi,women_b12,proxy,1147,20,ihme_50_54_years_15_males_hiv_prevalence_percent,-0.104,0.104,839,100,TRUE,0.55,FALSE,0,0.1408,0
+Malawi,women_b12,proxy,1147,21,ihme_35_39_years_12_females_hiv_prevalence_percent,-0.1039,0.1039,839,100,TRUE,0.55,FALSE,0,0.1408,0
+Malawi,women_b12,proxy,1147,22,ihme_50_54_years_15_females_hiv_prevalence_percent,-0.1036,0.1036,839,100,TRUE,0.55,FALSE,0,0.1408,0
+Malawi,women_b12,proxy,1147,23,ihme_55_59_years_16_females_hiv_prevalence_percent,-0.1035,0.1035,839,100,TRUE,0.55,FALSE,0,0.1408,0
+Malawi,women_b12,proxy,1147,24,ihme_15_49_years_24_both_hiv_prevalence_percent,-0.1035,0.1035,839,100,TRUE,0.55,FALSE,0,0.1408,0
+Malawi,women_b12,proxy,1147,25,ihme_15_59_years_199_both_hiv_prevalence_percent,-0.1035,0.1035,839,100,TRUE,0.55,FALSE,0,0.1408,0
+Malawi,child_zinc,questionnaire,1141,1,dhs2015_c_excl_breastfed_adm2.y,0.18,0.18,1134,100,TRUE,0.55,FALSE,0,0.18,0
+Malawi,child_zinc,questionnaire,1141,2,gee_trmm_Feb_50km,0.1738,0.1738,1134,100,TRUE,0.55,FALSE,0,0.18,0
+Malawi,child_zinc,questionnaire,1141,3,dhs2015_c_excl_breastfed_adm2.x,0.1653,0.1653,1088,100,TRUE,0.55,FALSE,0,0.18,0
+Malawi,child_zinc,questionnaire,1141,4,wfp_rice,-0.1621,0.1621,778,100,TRUE,0.55,FALSE,0,0.18,0
+Malawi,child_zinc,questionnaire,1141,5,dhs2015_w_literate_adm2.x,-0.1565,0.1565,1134,100,TRUE,0.55,FALSE,0,0.18,0
+Malawi,child_zinc,questionnaire,1141,6,gee_a2_LAI8days_yoy_2015_2014,0.1511,0.1511,1134,100,TRUE,0.55,FALSE,0,0.18,0
+Malawi,child_zinc,questionnaire,1141,7,wfp_pigeon_peas,0.1507,0.1507,167,100,TRUE,0.55,FALSE,0,0.18,0
+Malawi,child_zinc,questionnaire,1141,8,gee_a2_FLDAS_2015_Annual_Mean_SoilMoi40_100cm_tavg,0.1497,0.1497,1134,100,TRUE,0.55,FALSE,0,0.18,0
+Malawi,child_zinc,questionnaire,1141,9,gee_a2_DailyEVI_yoy_2015_2014,0.1475,0.1475,1134,100,TRUE,0.55,FALSE,0,0.18,0
+Malawi,child_zinc,questionnaire,1141,10,dhs2015_c_small_at_birth_adm2.x,0.1438,0.1438,1134,100,TRUE,0.55,FALSE,0,0.18,0
+Malawi,child_zinc,questionnaire,1141,11,gee_tpp_1km_25km,0.1431,0.1431,1031,100,TRUE,0.55,FALSE,0,0.18,0
+Malawi,child_zinc,questionnaire,1141,12,dhs2015_CH_VACC_C_DP3_adm2.y,-0.1419,0.1419,1134,100,TRUE,0.55,FALSE,0,0.18,0
+Malawi,child_zinc,questionnaire,1141,13,dhs2015_CH_VACC_C_DP3_adm2.x,-0.141,0.141,1134,100,TRUE,0.55,FALSE,0,0.18,0
+Malawi,child_zinc,questionnaire,1141,14,map2_explorer_2019_global_pf_incidence,0.1393,0.1393,1134,100,TRUE,0.55,FALSE,0,0.18,0
+Malawi,child_zinc,questionnaire,1141,15,gee_tpp_Mar_25km,0.135,0.135,1031,100,TRUE,0.55,FALSE,0,0.18,0
+Malawi,child_zinc,questionnaire,1141,16,gee_a2_FLDAS_2014_Annual_Mean_Wind_f_tavg,-0.1346,0.1346,1134,100,TRUE,0.55,FALSE,0,0.18,0
+Malawi,child_zinc,questionnaire,1141,17,gee_trmm_Feb_10km,0.1325,0.1325,1134,100,TRUE,0.55,FALSE,0,0.18,0
+Malawi,child_zinc,questionnaire,1141,18,gee_a2_FLDAS_2015_Annual_Mean_Qs_tavg,0.1313,0.1313,1134,100,TRUE,0.55,FALSE,0,0.18,0
+Malawi,child_zinc,questionnaire,1141,19,gee_trmm_Feb_25km,0.1305,0.1305,1134,100,TRUE,0.55,FALSE,0,0.18,0
+Malawi,child_zinc,questionnaire,1141,20,gee_a2_FLDAS_2015_Annual_Mean_Qsb_tavg,0.1291,0.1291,1134,100,TRUE,0.55,FALSE,0,0.18,0
+Malawi,child_zinc,questionnaire,1141,21,gee_a2_FLDAS_2015_Annual_Mean_SoilMoi00_10cm_tavg,0.129,0.129,1134,100,TRUE,0.55,FALSE,0,0.18,0
+Malawi,child_zinc,questionnaire,1141,22,gee_trmm_50km_seasonal_range,0.1286,0.1286,1134,100,TRUE,0.55,FALSE,0,0.18,0
+Malawi,child_zinc,questionnaire,1141,23,wfp_cowpeas,0.1269,0.1269,287,100,TRUE,0.55,FALSE,0,0.18,0
+Malawi,child_zinc,questionnaire,1141,24,dhs2015_w_listens_radio_adm2.x,-0.1269,0.1269,1134,100,TRUE,0.55,FALSE,0,0.18,0
+Malawi,child_zinc,questionnaire,1141,25,dhs2015_w_edu_years_mean_adm2.x,-0.1267,0.1267,1134,100,TRUE,0.55,FALSE,0,0.18,0
+Malawi,child_zinc,proxy,1147,1,dhs2015_c_excl_breastfed_adm2.y,0.18,0.18,1134,100,TRUE,0.55,FALSE,0,0.18,0
+Malawi,child_zinc,proxy,1147,2,gee_trmm_Feb_50km,0.1738,0.1738,1134,100,TRUE,0.55,FALSE,0,0.18,0
+Malawi,child_zinc,proxy,1147,3,dhs2015_c_excl_breastfed_adm2.x,0.1653,0.1653,1088,100,TRUE,0.55,FALSE,0,0.18,0
+Malawi,child_zinc,proxy,1147,4,wfp_rice,-0.1621,0.1621,778,100,TRUE,0.55,FALSE,0,0.18,0
+Malawi,child_zinc,proxy,1147,5,dhs2015_w_literate_adm2.x,-0.1565,0.1565,1134,100,TRUE,0.55,FALSE,0,0.18,0
+Malawi,child_zinc,proxy,1147,6,gee_a2_LAI8days_yoy_2015_2014,0.1511,0.1511,1134,100,TRUE,0.55,FALSE,0,0.18,0
+Malawi,child_zinc,proxy,1147,7,wfp_pigeon_peas,0.1507,0.1507,167,100,TRUE,0.55,FALSE,0,0.18,0
+Malawi,child_zinc,proxy,1147,8,gee_a2_FLDAS_2015_Annual_Mean_SoilMoi40_100cm_tavg,0.1497,0.1497,1134,100,TRUE,0.55,FALSE,0,0.18,0
+Malawi,child_zinc,proxy,1147,9,gee_a2_DailyEVI_yoy_2015_2014,0.1475,0.1475,1134,100,TRUE,0.55,FALSE,0,0.18,0
+Malawi,child_zinc,proxy,1147,10,dhs2015_c_small_at_birth_adm2.x,0.1438,0.1438,1134,100,TRUE,0.55,FALSE,0,0.18,0
+Malawi,child_zinc,proxy,1147,11,gee_tpp_1km_25km,0.1431,0.1431,1031,100,TRUE,0.55,FALSE,0,0.18,0
+Malawi,child_zinc,proxy,1147,12,dhs2015_CH_VACC_C_DP3_adm2.y,-0.1419,0.1419,1134,100,TRUE,0.55,FALSE,0,0.18,0
+Malawi,child_zinc,proxy,1147,13,dhs2015_CH_VACC_C_DP3_adm2.x,-0.141,0.141,1134,100,TRUE,0.55,FALSE,0,0.18,0
+Malawi,child_zinc,proxy,1147,14,map2_explorer_2019_global_pf_incidence,0.1393,0.1393,1134,100,TRUE,0.55,FALSE,0,0.18,0
+Malawi,child_zinc,proxy,1147,15,gee_tpp_Mar_25km,0.135,0.135,1031,100,TRUE,0.55,FALSE,0,0.18,0
+Malawi,child_zinc,proxy,1147,16,gee_a2_FLDAS_2014_Annual_Mean_Wind_f_tavg,-0.1346,0.1346,1134,100,TRUE,0.55,FALSE,0,0.18,0
+Malawi,child_zinc,proxy,1147,17,gee_trmm_Feb_10km,0.1325,0.1325,1134,100,TRUE,0.55,FALSE,0,0.18,0
+Malawi,child_zinc,proxy,1147,18,gee_a2_FLDAS_2015_Annual_Mean_Qs_tavg,0.1313,0.1313,1134,100,TRUE,0.55,FALSE,0,0.18,0
+Malawi,child_zinc,proxy,1147,19,gee_trmm_Feb_25km,0.1305,0.1305,1134,100,TRUE,0.55,FALSE,0,0.18,0
+Malawi,child_zinc,proxy,1147,20,gee_a2_FLDAS_2015_Annual_Mean_Qsb_tavg,0.1291,0.1291,1134,100,TRUE,0.55,FALSE,0,0.18,0
+Malawi,child_zinc,proxy,1147,21,gee_a2_FLDAS_2015_Annual_Mean_SoilMoi00_10cm_tavg,0.129,0.129,1134,100,TRUE,0.55,FALSE,0,0.18,0
+Malawi,child_zinc,proxy,1147,22,gee_trmm_50km_seasonal_range,0.1286,0.1286,1134,100,TRUE,0.55,FALSE,0,0.18,0
+Malawi,child_zinc,proxy,1147,23,wfp_cowpeas,0.1269,0.1269,287,100,TRUE,0.55,FALSE,0,0.18,0
+Malawi,child_zinc,proxy,1147,24,dhs2015_w_listens_radio_adm2.x,-0.1269,0.1269,1134,100,TRUE,0.55,FALSE,0,0.18,0
+Malawi,child_zinc,proxy,1147,25,dhs2015_w_edu_years_mean_adm2.x,-0.1267,0.1267,1134,100,TRUE,0.55,FALSE,0,0.18,0
+Malawi,women_zinc,questionnaire,1141,1,gee_trmm_Feb_50km,0.1809,0.1809,844,100,TRUE,0.55,FALSE,0,0.1809,0
+Malawi,women_zinc,questionnaire,1141,2,wfp_price_pigeon_peas,-0.1676,0.1676,284,100,TRUE,0.55,FALSE,0,0.1809,0
+Malawi,women_zinc,questionnaire,1141,3,gee_a2_LAI8days_yoy_2015_2014,0.1656,0.1656,844,100,TRUE,0.55,FALSE,0,0.1809,0
+Malawi,women_zinc,questionnaire,1141,4,gee_a2_DailyEVI_yoy_2015_2014,0.1654,0.1654,844,100,TRUE,0.55,FALSE,0,0.1809,0
+Malawi,women_zinc,questionnaire,1141,5,gee_trmm_Feb_10km,0.1545,0.1545,844,100,TRUE,0.55,FALSE,0,0.1809,0
+Malawi,women_zinc,questionnaire,1141,6,dhs2015_w_anemia_moderate_adm2.y,-0.1509,0.1509,844,100,TRUE,0.55,FALSE,0,0.1809,0
+Malawi,women_zinc,questionnaire,1141,7,dhs2015_c_excl_breastfed_adm2.x,0.1485,0.1485,822,100,TRUE,0.55,FALSE,0,0.1809,0
+Malawi,women_zinc,questionnaire,1141,8,gee_a2_Atmosphere_yoy_2015_2014__annual_mean,0.1425,0.1425,844,100,TRUE,0.55,FALSE,0,0.1809,0
+Malawi,women_zinc,questionnaire,1141,9,gee_a2_Atmosphere_2015_annual_mean,0.1403,0.1403,844,100,TRUE,0.55,FALSE,0,0.1809,0
+Malawi,women_zinc,questionnaire,1141,10,gee_trmm_Feb_25km,0.1399,0.1399,844,100,TRUE,0.55,FALSE,0,0.1809,0
+Malawi,women_zinc,questionnaire,1141,11,dhs2015_c_excl_breastfed_adm2.y,0.1394,0.1394,844,100,TRUE,0.55,FALSE,0,0.1809,0
+Malawi,women_zinc,questionnaire,1141,12,gee_built_surface_10km,0.1381,0.1381,840,100,TRUE,0.55,FALSE,0,0.1809,0
+Malawi,women_zinc,questionnaire,1141,13,ihme_all_ages_22_both_w_surface_percent,-0.1363,0.1363,844,100,TRUE,0.55,FALSE,0,0.1809,0
+Malawi,women_zinc,questionnaire,1141,14,gee_a2_Atmosphere_2014_annual_mean,0.1354,0.1354,844,100,TRUE,0.55,FALSE,0,0.1809,0
+Malawi,women_zinc,questionnaire,1141,15,map2_accessibility_201501_global_travel_speed_friction_surfa,-0.134,0.134,844,100,TRUE,0.55,FALSE,0,0.1809,0
+Malawi,women_zinc,questionnaire,1141,16,map2_explorer_2015_friction_surface_v1_decompressed,-0.134,0.134,844,100,TRUE,0.55,FALSE,0,0.1809,0
+Malawi,women_zinc,questionnaire,1141,17,gee_a2_GLW4_2020_D_DA_GLEAM3_ALL_LU,0.1331,0.1331,844,100,TRUE,0.55,FALSE,0,0.1809,0
+Malawi,women_zinc,questionnaire,1141,18,dhs2015_CM_ECMR_C_NNR_adm2.x,-0.1306,0.1306,844,100,TRUE,0.55,FALSE,0,0.1809,0
+Malawi,women_zinc,questionnaire,1141,19,gee_a2_TerraClimate_2014_pdsi,-0.1244,0.1244,844,100,TRUE,0.55,FALSE,0,0.1809,0
+Malawi,women_zinc,questionnaire,1141,20,gee_built_surface_25km,0.1235,0.1235,844,100,TRUE,0.55,FALSE,0,0.1809,0
+Malawi,women_zinc,questionnaire,1141,21,gee_a2_FLDAS_2015_Annual_Mean_SoilMoi40_100cm_tavg,0.121,0.121,844,100,TRUE,0.55,FALSE,0,0.1809,0
+Malawi,women_zinc,questionnaire,1141,22,gee_a2_GPW_Grasslands_yoy_2015_2014,0.1209,0.1209,821,100,TRUE,0.55,FALSE,0,0.1809,0
+Malawi,women_zinc,questionnaire,1141,23,gee_a2_SoilZinc_2015_stdev_20_50,-0.1207,0.1207,821,100,TRUE,0.55,FALSE,0,0.1809,0
+Malawi,women_zinc,questionnaire,1141,24,gee_a2_SoilZinc_2014_stdev_20_50,-0.1207,0.1207,821,100,TRUE,0.55,FALSE,0,0.1809,0
+Malawi,women_zinc,questionnaire,1141,25,ihme_15_plus_15_both_deaths_rate,-0.119,0.119,844,100,TRUE,0.55,FALSE,0,0.1809,0
+Malawi,women_zinc,proxy,1147,1,gee_trmm_Feb_50km,0.1809,0.1809,844,100,TRUE,0.55,FALSE,0,0.1809,0
+Malawi,women_zinc,proxy,1147,2,wfp_price_pigeon_peas,-0.1676,0.1676,284,100,TRUE,0.55,FALSE,0,0.1809,0
+Malawi,women_zinc,proxy,1147,3,gee_a2_LAI8days_yoy_2015_2014,0.1656,0.1656,844,100,TRUE,0.55,FALSE,0,0.1809,0
+Malawi,women_zinc,proxy,1147,4,gee_a2_DailyEVI_yoy_2015_2014,0.1654,0.1654,844,100,TRUE,0.55,FALSE,0,0.1809,0
+Malawi,women_zinc,proxy,1147,5,gee_trmm_Feb_10km,0.1545,0.1545,844,100,TRUE,0.55,FALSE,0,0.1809,0
+Malawi,women_zinc,proxy,1147,6,dhs2015_w_anemia_moderate_adm2.y,-0.1509,0.1509,844,100,TRUE,0.55,FALSE,0,0.1809,0
+Malawi,women_zinc,proxy,1147,7,dhs2015_c_excl_breastfed_adm2.x,0.1485,0.1485,822,100,TRUE,0.55,FALSE,0,0.1809,0
+Malawi,women_zinc,proxy,1147,8,gee_a2_Atmosphere_yoy_2015_2014__annual_mean,0.1425,0.1425,844,100,TRUE,0.55,FALSE,0,0.1809,0
+Malawi,women_zinc,proxy,1147,9,gee_a2_Atmosphere_2015_annual_mean,0.1403,0.1403,844,100,TRUE,0.55,FALSE,0,0.1809,0
+Malawi,women_zinc,proxy,1147,10,gee_trmm_Feb_25km,0.1399,0.1399,844,100,TRUE,0.55,FALSE,0,0.1809,0
+Malawi,women_zinc,proxy,1147,11,dhs2015_c_excl_breastfed_adm2.y,0.1394,0.1394,844,100,TRUE,0.55,FALSE,0,0.1809,0
+Malawi,women_zinc,proxy,1147,12,gee_built_surface_10km,0.1381,0.1381,840,100,TRUE,0.55,FALSE,0,0.1809,0
+Malawi,women_zinc,proxy,1147,13,ihme_all_ages_22_both_w_surface_percent,-0.1363,0.1363,844,100,TRUE,0.55,FALSE,0,0.1809,0
+Malawi,women_zinc,proxy,1147,14,gee_a2_Atmosphere_2014_annual_mean,0.1354,0.1354,844,100,TRUE,0.55,FALSE,0,0.1809,0
+Malawi,women_zinc,proxy,1147,15,map2_accessibility_201501_global_travel_speed_friction_surfa,-0.134,0.134,844,100,TRUE,0.55,FALSE,0,0.1809,0
+Malawi,women_zinc,proxy,1147,16,map2_explorer_2015_friction_surface_v1_decompressed,-0.134,0.134,844,100,TRUE,0.55,FALSE,0,0.1809,0
+Malawi,women_zinc,proxy,1147,17,gee_a2_GLW4_2020_D_DA_GLEAM3_ALL_LU,0.1331,0.1331,844,100,TRUE,0.55,FALSE,0,0.1809,0
+Malawi,women_zinc,proxy,1147,18,dhs2015_CM_ECMR_C_NNR_adm2.x,-0.1306,0.1306,844,100,TRUE,0.55,FALSE,0,0.1809,0
+Malawi,women_zinc,proxy,1147,19,gee_a2_TerraClimate_2014_pdsi,-0.1244,0.1244,844,100,TRUE,0.55,FALSE,0,0.1809,0
+Malawi,women_zinc,proxy,1147,20,gee_built_surface_25km,0.1235,0.1235,844,100,TRUE,0.55,FALSE,0,0.1809,0
+Malawi,women_zinc,proxy,1147,21,gee_a2_FLDAS_2015_Annual_Mean_SoilMoi40_100cm_tavg,0.121,0.121,844,100,TRUE,0.55,FALSE,0,0.1809,0
+Malawi,women_zinc,proxy,1147,22,gee_a2_GPW_Grasslands_yoy_2015_2014,0.1209,0.1209,821,100,TRUE,0.55,FALSE,0,0.1809,0
+Malawi,women_zinc,proxy,1147,23,gee_a2_SoilZinc_2015_stdev_20_50,-0.1207,0.1207,821,100,TRUE,0.55,FALSE,0,0.1809,0
+Malawi,women_zinc,proxy,1147,24,gee_a2_SoilZinc_2014_stdev_20_50,-0.1207,0.1207,821,100,TRUE,0.55,FALSE,0,0.1809,0
+Malawi,women_zinc,proxy,1147,25,ihme_15_plus_15_both_deaths_rate,-0.119,0.119,844,100,TRUE,0.55,FALSE,0,0.1809,0

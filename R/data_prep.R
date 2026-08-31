@@ -453,6 +453,33 @@ is_biomarker_column <- function(cols) {
     # case-SENSITIVE: matches gw_wHb / gw_cHb / gw_HbCat, but not the
     # lower-case household variables (gw_hBuy*, gw_hBirds*)
     grepl("Hb", cols) |
+    # ...and the same token in LOWER case, scoped to the survey domain.
+    #
+    # THE ELEVENTH INSTANCE OF THE LEAK CLASS, found 2026-08-31 by the WS7a
+    # leakage report. The case-sensitive `Hb` above was chosen to spare the
+    # lower-case household block (gw_hBuy*, gw_hBreadType, gw_hBirds*), where
+    # the `h` is a household prefix and the next character is upper case. That
+    # choice let TWO haemoglobin columns through:
+    #
+    #   gw_wm_whbc   Ghana, women's haemoglobin, g/dL. Measured: n 981,
+    #                range 7.0-17.0, median 12.9; mean 12.98 in non-deficient
+    #                women against 10.71 in iron-deficient women; |r| 0.500
+    #                with the outcome, the highest of any eligible column in
+    #                any of the 48 cell-by-set combinations scanned.
+    #   gw_gchb      Ghana, child haemoglobin, g/dL. Measured: n 1159,
+    #                range 6.2-15.0, median 11.4.
+    #
+    # Both sat inside the questionnaire arm of the individual anchor, the arm
+    # whose entire purpose is to answer what a household survey WITHOUT a blood
+    # draw buys. A haemoglobin reading is a blood draw.
+    #
+    # Scoping to `^gw_` keeps this away from the MAP and map2 sickle-cell and
+    # HbC allele-frequency rasters, which are geospatial covariates rather than
+    # anything drawn from these respondents. Verified against all 4,906 columns
+    # in the four surveys: this pattern matches exactly four, gw_bs2_hb,
+    # gw_bs3_hba1c, gw_gchb and gw_wm_whbc, every one of them draw-derived, and
+    # no household-block column.
+    grepl("^gw_.*hb", cols) |
     # (2) STATUS DERIVED FROM THE DRAW, AND THE DRAW ITSELF. Analyte names were
     # never the whole leak. Measured 2026-08-31 by ranking every surviving
     # column against the outcome: the top of the list was gw_cAnemiaYN
