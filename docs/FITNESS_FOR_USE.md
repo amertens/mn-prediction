@@ -16,7 +16,7 @@ estimated.
 |:---|:---|:---|
 | Can I read a national prevalence from this? | **Yes**, where a survey exists. | Section 3 national recovery, 24 of 24 inside the survey 95 percent CI |
 | Can I read an Admin-1 (regional) prevalence? | **Yes**, from the survey directly. | WS5: full-survey Admin-1 MAE 0.297 pp |
-| Can I read an Admin-2 (district) prevalence? | **No.** | WS5: Admin-2 MAE 5.09 to 13.66 pp at full survey |
+| Can I read an Admin-2 (district) prevalence? | **No.** | Best matched-control arm 10.77 pp; no arm below 10.7 pp |
 | Can I read an Admin-2 **ranking**? | **Only with the caveats in section 4.** | WS4b: median achieved r 0.200 |
 | Will a bigger survey fix the district map? | **No.** | WS5: fourfold sample change moves Admin-2 MAE about 1 pp |
 | Will better covariates fix it? | **Not established, and the evidence is against it.** | WS4b: 81 DHS indicators reach a median r of 0.071 |
@@ -32,12 +32,17 @@ The measured gap is large and it is not close:
 | Level | Mean absolute error against the full survey | Source |
 |:---|---:|:---|
 | Admin-1, from the survey | **0.297 pp** | `results/tables/anchoring_design_curve.csv`, `mae_admin1_pp`, all regions and clusters retained |
-| Admin-2, best arm | **7.38 pp** | `results/tables/anchor_controls.csv`, arm `2a flat REGIONAL mean (no covariates)`, `mae_pp` |
+| Admin-2, best arm under a matched control | **10.77 pp** | `results/tables/anchor_controls_B1.csv`, arm `1 no anchor (LORO)`, `mae_pp` |
+| Admin-2, flat regional mean, jackknifed | 10.87 pp | same file, arm `2b flat REGIONAL mean (JACKKNIFE)` |
+| Admin-2, flat regional mean, NOT jackknifed (superseded) | 7.38 pp | same file, arm `2a flat REGIONAL mean (no covariates)`; each district contributed to its own prediction |
 | Admin-2, anchored covariate model | 8.91 pp | same file, arm `3 ADMIN-1 anchor (hard)` |
 | Admin-2, unanchored covariate model | 10.77 pp | same file, arm `1 no anchor (LORO)` |
 
-A district estimate carries roughly **twenty-five times** the error of the
-regional estimate it is derived from. No arm tested closes that gap.
+A district estimate carries roughly **thirty-five times** the error of the
+regional estimate it is derived from, once every arm is scored under a matched
+out-of-sample control. No arm tested closes that gap. The earlier figure of
+twenty-five times used a flat regional arm that had not been jackknifed; see the
+correction in `docs/findings/TWO_READINGS.md`.
 
 **Measurements per unit.** The median district contributes 12 to 36 biomarker
 measurements depending on country, and single-cluster districts dominate three

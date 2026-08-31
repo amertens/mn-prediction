@@ -137,15 +137,38 @@ district's data, against a quarter to a third for a regional anchor, so its
 failure to gain is what a leakage account predicts. The valid control is an arm at
 the same resolution using no covariates, and it was not run. It is now: see 4.12.
 
-**4.12 new, and it replaces the Section 4 interpretation.** Assigning each
-district its region's design-based survey estimate, with **no covariates at
-all**, reaches mean r **0.516**, MAE **7.38 pp** and mean absolute bias **0.77
-pp**, against **0.409 / 8.91 / 1.61** for the anchored covariate model and
-**0.156 / 10.77 / 3.21** unanchored (source:
-`results/tables/anchor_controls.csv`, arm
-`2a flat REGIONAL mean (no covariates)`). The covariate-free arm is better on
-every metric. The information Section 4 identifies is the survey's regional
-estimates; the covariate pattern subtracts from it.
+**4.12 WITHDRAWN as originally stated, 2026-09-21.** The original entry read:
+assigning each district its region's design-based survey estimate, with no
+covariates at all, reaches mean r 0.516, MAE 7.38 pp and mean absolute bias 0.77
+pp, and is better than every covariate arm on every metric.
+
+**That arm had not been jackknifed.** Its regional estimate was computed from all
+the region's respondents including the scored district's, which is the same
+mechanism that withdrew 4.6. Under a symmetric jackknife (source:
+`results/tables/anchor_controls_B1.csv`, arm
+`2b flat REGIONAL mean (JACKKNIFE)`):
+
+| Arm | mean r | MAE pp | mean absolute bias pp |
+|:---|---:|---:|---:|
+| Flat regional mean, as published | 0.516 | 7.38 | 0.77 |
+| **Flat regional mean, jackknifed** | **0.076** | **10.87** | **3.41** |
+| No anchor (LORO) | 0.156 | 10.77 | 3.21 |
+| Admin-1 anchor (hard), jackknifed | 0.147 | 12.33 | 4.35 |
+
+**The corrected claim.** Under a matched out-of-sample control the covariate-free
+regional mean does **not** beat the covariate model: it is lower on correlation
+(0.076 against 0.156) and indistinguishable on error (10.87 against 10.77 pp).
+The Section 4 interpretation that "the covariate pattern subtracts from it" is
+withdrawn. What survives from WS2 is narrower and still substantial: the
+published anchoring gain is circular, and no arm tested reaches a useful
+district-level correlation.
+
+**Which number applies depends on the use case, and both are reported.** For a
+district the survey did measure, the un-jackknifed regional mean is what one
+would actually compute, but the district's own direct estimate is available and
+better. For a district the survey did not measure, which is the deployment case,
+the jackknifed number is the honest analogue. WS-B2 settles the choice against
+simulated truth rather than against either observed number.
 
 **4.8 released, with its explanation changed.** National anchoring does make
 absolute bias worse, by 2.64 pp against no anchor, better on MAE in only 4 of 24

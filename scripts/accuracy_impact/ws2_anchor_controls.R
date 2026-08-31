@@ -55,7 +55,7 @@ Sys.setenv(COVARIATE_VOCAB = "harmonized")
 targets::tar_source(here("R"))
 
 PROFILE <- Sys.getenv("PROFILE", "full")
-STORE <- here("_targets_full"); SUF <- if (PROFILE == "smoke") "_SMOKE" else ""
+STORE <- here("_targets_full"); SUF <- if (PROFILE == "smoke") "_SMOKE" else "_B1"
 SEED <- 20260905L; N_SPLIT <- 25L; K_SCREEN <- 20L
 rd <- function(nm) tryCatch(targets::tar_read_raw(nm, store = STORE), error = function(e) NULL)
 
@@ -171,6 +171,23 @@ for (ctry in names(cfgs)) {
     fr <- data.frame(Admin2 = p2$Admin2, Admin1 = p2$Admin1,
                      pred = a1t$prev[match(p2$Admin1, a1t$Admin1)])
     add(fr, "pred", "2a flat REGIONAL mean (no covariates)")
+
+    # WS-B1. THE SAME CONTROL THAT WITHDREW 4.6 MUST BE APPLIED HERE.
+    #
+    # The arm above predicts a district by its region's design-based estimate,
+    # and that estimate is computed from ALL the region's respondents INCLUDING
+    # the scored district's. With three to four districts per region in two of
+    # these countries a district supplies a quarter to a third of the number
+    # used to predict it, which is exactly the mechanism that withdrew the hard
+    # anchor. The covariate-free arm cannot be quoted as a baseline until it has
+    # faced its own control.
+    frj <- data.frame(Admin2 = p2$Admin2, Admin1 = p2$Admin1, pred = NA_real_)
+    for (i in seq_len(nrow(p2))) {
+      a1x <- a1_prev_excluding(d, cc, oc, drop_admin2 = p2$Admin2[i])
+      if (is.null(a1x)) next
+      frj$pred[i] <- a1x$prev[match(p2$Admin1[i], a1x$Admin1)]
+    }
+    add(frj, "pred", "2b flat REGIONAL mean (JACKKNIFE)")
     fn <- data.frame(Admin2 = p2$Admin2, Admin1 = p2$Admin1,
                      pred = rep(nat$prev, nrow(p2)))
     add(fn, "pred", "2a flat NATIONAL mean (no covariates)")

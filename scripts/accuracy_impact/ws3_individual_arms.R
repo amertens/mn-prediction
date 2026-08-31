@@ -43,7 +43,7 @@ targets::tar_source(here("R"))
 
 PROFILE <- Sys.getenv("PROFILE", "full")
 STORE <- here("_targets_full")
-SUF <- if (Sys.getenv("WS3_CELLS") == "parity") "_PARITY" else switch(PROFILE, smoke = "_SMOKE", "")
+SUF <- if (Sys.getenv("WS3_CELLS") == "parity") "_PARITY" else switch(PROFILE, smoke = "_SMOKE", "_16CELL")
 K_SCREEN <- 40L; SEED <- 20260906L; MIN_N <- 5L; KFOLD <- 5L
 num <- function(x) suppressWarnings(as.numeric(haven::zap_labels(x)))
 
@@ -102,11 +102,31 @@ for (cn in names(cfgs)) {
     if (dplyr::n_distinct(blk) < 3) next
 
     full <- od$Xvars_full %||% od$Xvars
+    # WS-C1. A country whose GW domain is EMPTY has no questionnaire to add, so
+    # its questionnaire arms are the proxy arm under another name. The published
+    # table scored Malawi that way and reported gains of 0.000 to 0.004 as a
+    # finding about Malawi. Detect the condition and emit not_computed instead
+    # of scoring one arm twice.
+    n_gw <- length(grep("^gw_", full))
     ARMS <- list(
       proxy            = od$Xvars,
       questionnaire    = full[allowed_under_arm(full, "questionnaire")],
       questionnaire_hb = full[allowed_under_arm(full, "questionnaire_hb")]
     )
+    if (n_gw == 0L) {
+      for (a in c("questionnaire", "questionnaire_hb"))
+        for (proto in c("region_loro", "cluster_kfold"))
+          for (unit in c("district", "cluster"))
+            rows[[length(rows) + 1L]] <- data.frame(
+              country = cc$country, outcome = on, arm = a, protocol = proto,
+              unit = unit, n_units = NA_integer_, n_pred = NA_integer_,
+              r = NA_real_, mae_pp = NA_real_, status = "not_computed",
+              reason = "survey domain empty: no gw_ columns, so this arm would be the proxy arm",
+              stringsAsFactors = FALSE)
+      ARMS <- ARMS["proxy"]
+      cat(sprintf("  %-13s %-11s questionnaire arms not_computed (GW domain empty)\n",
+                  cn, on))
+    }
 
     for (arm in names(ARMS)) {
       X <- prep(d, ARMS[[arm]]); if (ncol(X) < 5) next
@@ -143,6 +163,7 @@ for (cn in names(cfgs)) {
             unit = unit, n_units = nrow(agg), n_pred = ncol(X),
             r = round(suppressWarnings(stats::cor(agg$obs, agg$pred)), 4),
             mae_pp = round(100 * mean(abs(agg$obs - agg$pred)), 2),
+            status = "measured", reason = NA_character_,
             stringsAsFactors = FALSE)
           cat(sprintf("  %-13s %-11s %-17s %-14s %-8s p=%4d units=%3d r=%+.3f\n",
                       cn, on, arm, proto, unit, ncol(X), nrow(agg),
@@ -157,7 +178,8 @@ if (!nrow(res)) stop("No rows produced.")
 readr::write_csv(res, here("results", "tables",
                            sprintf("individual_arms_2026-09%s.csv", SUF)))
 
-D <- res[res$unit == "district", ]
+res_m <- res[res$status == "measured", , drop = FALSE]
+D <- res_m[res_m$unit == "district", ]
 cat("\n=== WS3a: protocol by arm, district ===\n")
 print(as.data.frame(D |> group_by(protocol, arm) |>
   summarise(cells = dplyr::n(), mean_r = round(mean(r, na.rm = TRUE), 3),
@@ -190,7 +212,7 @@ if (all(c("proxy","questionnaire") %in% names(w))) {
 }
 
 cat("\n=== WS3f: cluster against district, same protocol and arm ===\n")
-u <- res[res$protocol == "region_loro", ] |> select(country, outcome, arm, unit, r) |>
+u <- res_m[res_m$protocol == "region_loro", ] |> select(country, outcome, arm, unit, r) |>
   tidyr::pivot_wider(names_from = unit, values_from = r)
 if (all(c("district","cluster") %in% names(u))) {
   u$gain <- round(u$cluster - u$district, 3)

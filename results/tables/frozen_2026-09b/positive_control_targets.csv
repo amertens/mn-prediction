@@ -1,0 +1,24 @@
+country,target,column,n_districts,r_oof
+Gambia,education_none,dhs2019_w_no_education_adm2,35,0.8081
+Gambia,education_secondary,dhs2019_w_secondary_plus_adm2,35,0.8048
+Gambia,anaemia_child,dhs2019_c_anemia_any_adm2,35,0.7035
+Gambia,stunting,dhs2019_c_stunted_adm2,35,-0.1628
+Gambia,wealth_index,dhs2019_hh_wealth_mean_adm2,35,0.6211
+Gambia,vaccination_full,dhs2019_c_fully_vaccinated_adm2,35,0.1902
+Gambia,water_improved,dhs2019_hh_improved_water_adm2,35,-0.1664
+Gambia,sanitation_improved,dhs2019_hh_improved_sanitation_adm2,35,0.0069
+Ghana,education_none,dhs2014_w_no_education_adm2,219,0.679
+Ghana,education_secondary,dhs2014_w_secondary_plus_adm2,219,0.6308
+Ghana,anaemia_child,dhs2014_c_anemia_any_adm2,218,0.1854
+Ghana,stunting,dhs2014_c_stunted_adm2,218,0.2228
+Ghana,wealth_index,dhs2014_hh_wealth_mean_adm2,219,0.6425
+Ghana,vaccination_full,dhs2014_c_fully_vaccinated_adm2,219,0.1643
+Ghana,water_improved,dhs2014_hh_improved_water_adm2,219,0.0143
+Ghana,sanitation_improved,dhs2014_hh_improved_sanitation_adm2,216,0.2459
+Sierra Leone,education_none,dhs2013_w_no_education_adm2,14,0.7946
+Sierra Leone,education_secondary,dhs2013_w_secondary_plus_adm2,14,-0.752
+Sierra Leone,anaemia_child,dhs2013_c_anemia_any_adm2,14,0.4388
+Sierra Leone,stunting,dhs2013_c_stunted_adm2,14,-0.1221
+Sierra Leone,vaccination_full,dhs2013_c_fully_vaccinated_adm2,14,-0.0227
+Sierra Leone,water_improved,dhs2013_hh_improved_water_adm2,14,0.4273
+Sierra Leone,sanitation_improved,dhs2013_hh_improved_sanitation_adm2,14,-0.1913

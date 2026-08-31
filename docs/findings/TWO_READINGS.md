@@ -110,3 +110,49 @@ evidence any available covariate can close it. Deciding between them needs the
 work this branch did not compute: the aggregation-level sweep (WS4a), the full
 sixteen-cell protocol comparison, and a covariate set built for nutrition rather
 than inherited from poverty mapping.
+
+---
+
+## Correction, 2026-09-21
+
+Both abstracts above were written before two controls were run. Neither abstract
+is rewritten; this note records what supersedes them and where.
+
+**1. The covariate-free regional arm was not jackknifed.** Reading B quotes it at
+`0.516 / 7.38 pp / 0.77 pp` and calls it the arm that "outperforms every
+covariate model tested". Reading A quotes the same figures. Those numbers were
+produced with each district contributing to the regional estimate used to
+predict it, which is the same mechanism that withdrew the hard-anchor claim
+(register row 4.6). Under a symmetric jackknife, where a district's regional
+estimate is computed from the region's other districts, the arm scores
+
+| Arm | mean r | MAE pp | mean absolute bias pp |
+|:---|---:|---:|---:|
+| Flat regional mean, as quoted above | 0.516 | 7.38 | 0.77 |
+| **Flat regional mean, jackknifed** | **0.076** | **10.87** | **3.41** |
+| No anchor (LORO), for comparison | 0.156 | 10.77 | 3.21 |
+
+(source: `results/tables/anchor_controls_B1.csv`, arms
+`2a flat REGIONAL mean (no covariates)` and `2b flat REGIONAL mean (JACKKNIFE)`.)
+
+**The claim that a covariate-free predictor beats every covariate model does not
+survive its own control and is withdrawn.** It appears in Reading B's abstract
+and conclusions, in Reading A's results paragraph, and in the comparison table's
+"Do the covariates work?" row. The corrected statement is that under a matched
+out-of-sample control the covariate model and the covariate-free regional mean
+are close, with the covariate model ahead on correlation and the two
+indistinguishable on error.
+
+This correction was produced by applying to the covariate-free arm the same test
+that had already been applied to the anchored arms. The asymmetry was an
+oversight in the earlier session, not a difference in the estimators.
+
+**2. The field-haemoglobin result rested on four cells.** Both abstracts cite
+`+0.394` for Gambia women's iron and `0.848` for that cell. Those come from a
+four-cell subset. The sixteen-cell run supersedes them; see
+`docs/findings/WS3_INDIVIDUAL_ARMS.md` and
+`results/tables/individual_arms_2026-09_16CELL.csv` when present.
+
+**What does not change.** The reliability findings, the withdrawal of the
+anchoring gain, the skill curve across 81 DHS indicators, the resolution sweep,
+and the VMNIS repairs are unaffected by either correction.
