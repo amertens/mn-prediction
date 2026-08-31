@@ -114,6 +114,15 @@ cluster_res <- if (file.exists(cluster_res_path)) {
   list(comparison = NULL, loco = NULL, build_time = NULL)
 }
 
+# Anchoring: where a district map's LEVEL comes from, and at which unit the
+# model is fit. Same empty-state contract as cluster_res above.
+anchoring_path <- file.path(DATA_DIR, "anchoring.rds")
+anchoring <- if (file.exists(anchoring_path)) {
+  readRDS(anchoring_path)
+} else {
+  list(arms = NULL, levels = NULL, build_time = NULL)
+}
+
 # Importance / SHAP / domain ablation
 importance_path <- file.path(DATA_DIR, "importance.rds")
 importance_data <- if (file.exists(importance_path)) {

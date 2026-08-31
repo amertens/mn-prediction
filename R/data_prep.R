@@ -570,8 +570,41 @@ build_outcome_dataset <- function(merged_data, cc, oc,
                           "VitADef", "VitAInsuff", "VitADefic",
                           "FeDef", "FolDef", "B12Def", "ZincDef"),
                         collapse = "|")
+      # (c) RAW ASSAY GUARD. 2026-08-31: (a) and (b) between them catch every
+      # DERIVED biomarker but no raw one, and the per-country lists are
+      # inconsistent about it -- Gambia has "LogFer" but not "Fer", so
+      # `gw_wFER`, raw ferritin, survived into Xvars_full and was available to
+      # predict ferritin-defined iron deficiency. Measured leak before this
+      # guard: Gambia 15 columns, Ghana 14, Sierra Leone 10, Malawi 0. An
+      # anchor model built on Xvars_full scored r = 0.973 on held-out regions,
+      # which is the outcome predicting itself.
+      #
+      # Xvars_full is meant to be "everything the survey collected EXCEPT the
+      # blood draw", so the assay panel goes whatever the outcome is: an
+      # inflammation marker is still an assay when the outcome is vitamin A.
+      # Diet and behaviour columns naming a nutrient are deliberately kept --
+      # gw_wVitASuppl, gw_wVitARichFood, gw_wIodSalt are exposures, not assays --
+      # which is why this matches assay ANALYTES, not nutrient names.
+      # Three patterns, because a single case-insensitive substring match is
+      # both too loose and too tight. "FER" case-insensitively also matches
+      # gw_wFvoPre(fer)Buy, a food-preference item; requiring a boundary
+      # everywhere instead lets through the BRINDA internals
+      # (gw__logcrpcoeffSF, gw_lncrpdecile, gw_r_crpagp_sf). So:
+      #   FREE  no English word contains these, so match them anywhere
+      #   CS    analyte tokens that appear upper-case after a population prefix
+      #   BND   lower-case forms that DO occur inside words, so need a boundary
+      # Verified over all 1,297 gw_ columns in the four surveys: 74 caught, and
+      # the only near-misses left unblocked are gw_wFvoPreferBuy and
+      # gw_wFeRichFood -- both exposures, which is correct. Supplementation,
+      # iodised salt and nutrient-rich-food items are all preserved.
+      assay_free <- "crp|agp|stfr|ferritin|transferrin|haemoglob|hemoglob"
+      assay_cs   <- "FER|RBP|TFR|Ferr"
+      assay_bnd  <- "_(fer|rbp)([^a-z]|$)"
       leak <- leak |
         grepl(guard_ci, prefix_cols, ignore.case = TRUE) |
+        grepl(assay_free, prefix_cols, ignore.case = TRUE) |
+        grepl(assay_cs, prefix_cols) |
+        grepl(assay_bnd, prefix_cols) |
         grepl("Hb", prefix_cols)   # case-SENSITIVE: matches gw_wHb/gw_cHb/gw_HbCat,
                                     # not lower-case household vars (gw_hBuy*, gw_hBirds*)
       prefix_cols <- prefix_cols[!leak]

@@ -87,7 +87,17 @@ mod_map_explorer_ui <- function(id) {
           leafletOutput(ns("map"), height = "650px")
         ),
         card_footer(
-          textOutput(ns("map_caption"))
+          textOutput(ns("map_caption")),
+          # The shading a reader takes off this map is a level, and the level
+          # comes from the survey, not the covariates. Say so where the map is,
+          # not only on Start Here -- and point at the evidence.
+          tags$small(
+            class = "text-muted",
+            "Shading is anchored to each region's design-based survey total, ",
+            "so the level is the survey's and the within-region pattern is the ",
+            "model's. See ", tags$strong("Resolution & anchoring → Where ",
+            "the level comes from"), " for what that anchoring is worth."
+          )
         )
       )
     )

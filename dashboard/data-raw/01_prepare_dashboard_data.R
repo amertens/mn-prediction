@@ -716,6 +716,33 @@ cat(sprintf("  comparison rows: %d, LOCO rows: %d\n",
 
 
 # =============================================================================
+# 7b-ii. WHERE THE LEVEL COMES FROM — anchoring, and the choice of unit
+# =============================================================================
+# The single design choice that most affects the district map, and until now the
+# app showed its OUTPUT without ever showing the choice. Anchoring each district
+# prediction to its region's design-based survey total more than doubles rank
+# correlation (0.170 -> 0.406) and cuts mean absolute bias from 3.6 to 1.5 pp,
+# better in 20 of 24 country x outcome cells; anchoring to the NATIONAL total
+# instead buys almost nothing (+0.006). Read together with the resolution
+# comparison, these say the model supplies the pattern and the survey supplies
+# the level -- which is also why a transported map for a country with no survey
+# of its own can be read as a ranking but not as a set of prevalences.
+anchor_path <- here::here("results", "tables", "admin1_arms.csv")
+resolution_path <- here::here("results", "tables", "resolution_comparison.csv")
+anchor_arms <- if (file.exists(anchor_path))
+  read.csv(anchor_path, stringsAsFactors = FALSE) else NULL
+resolution_levels <- if (file.exists(resolution_path))
+  read.csv(resolution_path, stringsAsFactors = FALSE) else NULL
+
+saveRDS(list(arms = anchor_arms, levels = resolution_levels,
+             build_time = Sys.time()),
+        file.path(DASHBOARD_DATA, "anchoring.rds"))
+cat(sprintf("\n-- Anchoring / level --\n  anchor arms: %d rows | resolution rows: %d\n",
+            nrow(anchor_arms %||% data.frame()),
+            nrow(resolution_levels %||% data.frame())))
+
+
+# =============================================================================
 # 7c. TRANSPORT CALIBRATION (predicted vs. true prevalence, multi-level)
 # =============================================================================
 # Powers the interactive Transportability panel: predicted-vs-observed

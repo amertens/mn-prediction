@@ -106,7 +106,7 @@ ui <- page_navbar(
     ),
 
     nav_panel(
-      title = "Resolution",
+      title = "Resolution & anchoring",
       icon  = bsicons::bs_icon("rulers"),
       mod_resolution_ui("resolution")
     ),
