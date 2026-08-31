@@ -94,8 +94,8 @@ mod_start_here_ui <- function(id) {
                   "does not."),
           # Added 2026-08-30. The district maps are anchored to design-based
           # regional totals, and that anchoring is what makes them usable --
-          # it more than doubles rank correlation (0.170 -> 0.406) and cuts
-          # mean absolute bias from 3.6 to 1.5 pp, better in 20 of 24 cells.
+          # it more than doubles rank correlation (0.164 -> 0.413) and cuts
+          # mean absolute bias from 3.2 to 1.6 pp, better in 20 of 24 cells.
           # Saying so is more honest than presenting the map as if the
           # covariates alone produced it.
           tags$li(strong("The survey sets the level; the model sets the pattern. "),

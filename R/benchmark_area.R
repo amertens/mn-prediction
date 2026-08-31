@@ -127,7 +127,18 @@ benchmark_admin2_table <- function(preds, pred_col, target, pop = NULL,
   if (is.null(preds) || !nrow(preds) || !pred_col %in% names(preds)) return(preds)
   w <- NULL
   if (!is.null(pop) && all(c("Admin2", "pop") %in% names(pop))) {
-    w <- pop$pop[match(preds$Admin2, pop$Admin2)]
+    # Match on the (Admin1, Admin2) PAIR when both sides carry Admin1. Matching
+    # on the district NAME alone hands a duplicate-named district whichever of
+    # the pair happens to come first -- six Malawi names occur in more than one
+    # region -- so the benchmark reweights to the wrong population. Falls back
+    # to the name for callers whose tables have no Admin1.
+    if (all(c("Admin1", "Admin2") %in% names(pop)) &&
+        "Admin1" %in% names(preds)) {
+      w <- pop$pop[match(paste0(preds$Admin1, "\r", preds$Admin2),
+                         paste0(pop$Admin1, "\r", pop$Admin2))]
+    } else {
+      w <- pop$pop[match(preds$Admin2, pop$Admin2)]
+    }
     if (all(!is.finite(w))) w <- NULL
   }
   if (is.null(w))
@@ -253,7 +264,12 @@ benchmark_admin2_to_admin1 <- function(preds, pred_col, a1_targets, national = N
 
   w_all <- NULL
   if (!is.null(pop) && all(c("Admin2", "pop") %in% names(pop)))
-    w_all <- pop$pop[match(preds$Admin2, pop$Admin2)]
+    # Pair match where both sides have Admin1 -- see benchmark_admin2_table().
+    w_all <- if (all(c("Admin1", "Admin2") %in% names(pop)) &&
+                 "Admin1" %in% names(preds))
+      pop$pop[match(paste0(preds$Admin1, "\r", preds$Admin2),
+                    paste0(pop$Admin1, "\r", pop$Admin2))]
+    else pop$pop[match(preds$Admin2, pop$Admin2)]
 
   tgt <- a1_targets$target %||% a1_targets$prev
   names(tgt) <- a1_targets$Admin1

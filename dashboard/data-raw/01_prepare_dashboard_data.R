@@ -721,7 +721,7 @@ cat(sprintf("  comparison rows: %d, LOCO rows: %d\n",
 # The single design choice that most affects the district map, and until now the
 # app showed its OUTPUT without ever showing the choice. Anchoring each district
 # prediction to its region's design-based survey total more than doubles rank
-# correlation (0.170 -> 0.406) and cuts mean absolute bias from 3.6 to 1.5 pp,
+# correlation (0.164 -> 0.413) and cuts mean absolute bias from 3.2 to 1.6 pp,
 # better in 20 of 24 country x outcome cells; anchoring to the NATIONAL total
 # instead buys almost nothing (+0.006). Read together with the resolution
 # comparison, these say the model supplies the pattern and the survey supplies

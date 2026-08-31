@@ -19,7 +19,7 @@
 # WHY COMPOSE. The subnational work established that the proxy covariates carry
 # a district PATTERN but not a LEVEL, which is why every production map is
 # anchored to a design-based survey total (R/area_level_comparison.R; anchoring
-# lifts r from 0.170 to 0.406 and cuts absolute bias from 3.60 to 1.49 pp). A
+# lifts r from 0.164 to 0.413 and cuts absolute bias from 3.24 to 1.59 pp). A
 # country with no survey has no such anchor, and its transported map is
 # therefore a ranking, not a set of prevalences. The VMNIS model supplies a
 # level for exactly that case: predict the national prevalence from national
@@ -38,10 +38,13 @@
 # 0.505) differed only in whether repeat surveys were grouped by country-year or
 # by country-year-METHOD -- an arbitrary choice deciding what counts as error.
 # national_noise_ceiling() estimates the variance components instead, using
-# VMNIS's recorded Samplesize for the sampling term, and gives r_max = 0.837 for
-# what a survey will REPORT and 0.888 for a standardised prevalence. Against
-# 0.837 a model at r = 0.59 sits at ~71% of the ceiling: there is real headroom
-# here, unlike at Admin-2 where the honest arms are near-saturated.
+# VMNIS's recorded Samplesize for the sampling term. For Vitamin A / preschool
+# children (528 surveys, 70 countries) it gives r_max = 0.818 for what a survey
+# will REPORT and 0.866 for a standardised prevalence; the best LOCO model
+# reaches r = 0.655, so 80% of the ceiling. There is real headroom here, unlike
+# at Admin-2 where the honest arms are near-saturated -- but see
+# scripts/covariates/19_national_composition.R for why closing it would not
+# help a district map.
 # =============================================================================
 
 .nat_logit  <- function(p, eps = 0.005) stats::qlogis(pmin(pmax(p, eps), 1 - eps))

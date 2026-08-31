@@ -62,7 +62,12 @@ aggregate_covariates_to_admin1 <- function(area_cov, weights = NULL) {
   covs <- covs[vapply(covs, function(v) is.numeric(area_cov[[v]]), logical(1))]
   w <- rep(1, nrow(area_cov)); wsrc <- "equal (per district)"
   if (!is.null(weights) && all(c("Admin2", "w") %in% names(weights))) {
-    ww <- weights$w[match(area_cov$Admin2, weights$Admin2)]
+    # Pair match where available, for the same reason as benchmark_admin2_table:
+    # a duplicate-named district must not borrow its twin's population weight.
+    ww <- if (all(c("Admin1", "Admin2") %in% names(weights)))
+      weights$w[match(paste0(area_cov$Admin1, "\r", area_cov$Admin2),
+                      paste0(weights$Admin1, "\r", weights$Admin2))]
+    else weights$w[match(area_cov$Admin2, weights$Admin2)]
     if (any(is.finite(ww) & ww > 0)) {
       ww[!is.finite(ww) | ww <= 0] <- stats::median(ww[is.finite(ww) & ww > 0])
       w <- ww; wsrc <- "population"

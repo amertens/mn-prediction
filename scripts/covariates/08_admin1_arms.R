@@ -32,8 +32,15 @@ cfgs <- get_country_configs()
 rows <- list()
 
 score <- function(svy, pred_df, col, country, outcome, arm, rmax) {
-  m <- dplyr::inner_join(svy[, c("Admin2", "svy_prev", "n_svy")],
-                         pred_df[, c("Admin2", col)], by = "Admin2")
+  # Pair key where both sides carry Admin1. Joining on the district NAME alone
+  # fans Malawi from 87 rows to 90, because six of its Admin-2 names occur in
+  # more than one region; every other consumer of a GADM-derived covariate
+  # table was migrated to admin2_join_by() and this one was missed.
+  jb <- admin2_join_by(svy, pred_df)
+  keep_s <- intersect(c("Admin1", "Admin2", "svy_prev", "n_svy"), names(svy))
+  keep_p <- intersect(c("Admin1", "Admin2", col), names(pred_df))
+  m <- dplyr::inner_join(svy[, keep_s, drop = FALSE],
+                         pred_df[, keep_p, drop = FALSE], by = jb)
   names(m)[names(m) == col] <- "p"
   m <- m[is.finite(m$svy_prev) & is.finite(m$p), , drop = FALSE]
   if (nrow(m) < 5) return(NULL)
@@ -48,11 +55,16 @@ score <- function(svy, pred_df, col, country, outcome, arm, rmax) {
 
 for (ctry in names(cfgs)) {
   cc <- cfgs[[ctry]]
+  # Deduplicate on the PAIR, not the name. `!duplicated(key$Admin2)` discarded
+  # the second district of every duplicate-named pair -- the same defect that
+  # was found in the dashboard's get_country_admin2().
   key <- H[H$country == ctry, c("Admin1", "Admin2")]
-  key <- key[!duplicated(key$Admin2), ]
+  key <- key[!duplicated(key[, c("Admin1", "Admin2")]), ]
   if (!nrow(key)) next
   hc  <- H[H$country == ctry, ]
-  pop <- data.frame(Admin2 = hc$Admin2,
+  # Carry Admin1 so the benchmark's population weights key on the pair too;
+  # without it a duplicate-named district takes the other one's population.
+  pop <- data.frame(Admin1 = hc$Admin1, Admin2 = hc$Admin2,
                     pop = if ("ghs_pop" %in% names(hc)) hc$ghs_pop else NA_real_)
 
   for (ocn in names(cc$outcomes)) {
@@ -69,7 +81,9 @@ for (ctry in names(cfgs)) {
     # compared against a genuinely out-of-sample downscaling arm, and would win
     # for that reason alone rather than on merit. Region-block folds also match
     # the spatial-block structure the downscaling arm is validated under.
-    tr <- dplyr::inner_join(svy[, c("Admin2", "svy_prev", "n_svy")], hc, by = "Admin2")
+    tr <- dplyr::inner_join(svy[, intersect(c("Admin1", "Admin2", "svy_prev", "n_svy"),
+                                            names(svy)), drop = FALSE],
+                            hc, by = admin2_join_by(svy, hc))
     tr <- tr[is.finite(tr$svy_prev), , drop = FALSE]
     if (nrow(tr) < 10 || dplyr::n_distinct(tr$Admin1) < 3) next
     Xtr <- as.matrix(tr[, COVS, drop = FALSE])
@@ -127,7 +141,7 @@ for (ocn in outcomes) {
     if (is.null(svy) || is.null(od)) next
     hc <- H[H$country == ctry, ]
     a1t <- admin1_design_based(od, cc, oc); if (is.null(a1t)) next
-    wts <- data.frame(Admin2 = hc$Admin2,
+    wts <- data.frame(Admin1 = hc$Admin1, Admin2 = hc$Admin2,
                       w = if ("ghs_pop" %in% names(hc)) hc$ghs_pop else 1)
     agg <- aggregate_covariates_to_admin1(hc[, c("Admin1", "Admin2", COVS)], wts)
     a1 <- dplyr::inner_join(a1t, agg, by = "Admin1")

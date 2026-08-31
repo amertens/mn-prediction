@@ -5,7 +5,7 @@
 #
 # The subnational work ends at an awkward place. Anchoring a district map to a
 # region's design-based survey total more than doubles its rank correlation and
-# cuts absolute bias from 3.60 to 1.49 pp -- but a country with no survey has no
+# cuts absolute bias from 3.24 to 1.59 pp -- but a country with no survey has no
 # anchor to use, so its transported map is a ranking and not a set of
 # prevalences. That is the gap this closes: predict the national LEVEL from the
 # WHO VMNIS panel (~70 countries, national covariates), and shift the
@@ -62,7 +62,7 @@
 #    VMNIS modelling can raise it. The reason is the same one the Admin-1
 #    anchoring result already showed: a national number moves every district by
 #    the same amount, including the ones that were already right. What pays is
-#    the ADMIN-1 anchor, which corrects region by region (r 0.170 -> 0.406) --
+#    the ADMIN-1 anchor, which corrects region by region (r 0.164 -> 0.413) --
 #    and that needs a survey, which is exactly what the no-survey country does
 #    not have.
 #

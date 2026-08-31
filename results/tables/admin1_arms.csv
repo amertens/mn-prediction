@@ -1,119 +1,119 @@
 country,outcome,arm,n_admin2,pearson_r,r_max,r_share,mae_pp,bias_pp
-Gambia,child_vitA,"admin-2 fit (LORO), unbenchmarked",30,0.278,0.671,0.41,11.27,-2.43
-Gambia,child_vitA,admin-2 fit + national benchmark,30,0.37,0.671,0.55,16.17,14.61
-Gambia,child_vitA,admin-2 fit + ADMIN-1 benchmark (shrunk),30,0.341,0.671,0.51,9.72,0.62
-Gambia,child_vitA,admin-2 fit + ADMIN-1 benchmark (hard),30,0.399,0.671,0.59,9.51,1.13
-Gambia,women_vitA,"admin-2 fit (LORO), unbenchmarked",30,0.333,0.275,1.21,3.29,-1.3
-Gambia,women_vitA,admin-2 fit + national benchmark,30,0.33,0.275,1.2,3.26,-2.37
-Gambia,women_vitA,admin-2 fit + ADMIN-1 benchmark (shrunk),30,0.516,0.275,1.87,3.16,-1.61
-Gambia,women_vitA,admin-2 fit + ADMIN-1 benchmark (hard),30,0.523,0.275,1.9,3,-0.69
-Gambia,child_iron,"admin-2 fit (LORO), unbenchmarked",30,0.538,0.565,0.95,9.9,1.35
-Gambia,child_iron,admin-2 fit + national benchmark,30,0.528,0.565,0.93,18.68,-16.43
-Gambia,child_iron,admin-2 fit + ADMIN-1 benchmark (shrunk),30,0.6,0.565,1.06,11.12,-5.83
-Gambia,child_iron,admin-2 fit + ADMIN-1 benchmark (hard),30,0.578,0.565,1.02,9.58,-0.61
-Gambia,women_iron,"admin-2 fit (LORO), unbenchmarked",30,0.715,0.706,1.01,8.82,-0.45
-Gambia,women_iron,admin-2 fit + national benchmark,30,0.717,0.706,1.01,10.33,-7.73
-Gambia,women_iron,admin-2 fit + ADMIN-1 benchmark (shrunk),30,0.678,0.706,0.96,9.53,-6.13
-Gambia,women_iron,admin-2 fit + ADMIN-1 benchmark (hard),30,0.706,0.706,1,8.86,-3.17
-Ghana,child_vitA,"admin-2 fit (LORO), unbenchmarked",75,0.283,0.03,9.4,9.68,-4.76
-Ghana,child_vitA,admin-2 fit + national benchmark,75,0.276,0.03,9.18,9.57,1.31
-Ghana,child_vitA,admin-2 fit + ADMIN-1 benchmark (shrunk),75,0.383,0.03,12.73,8.84,1.46
-Ghana,child_vitA,admin-2 fit + ADMIN-1 benchmark (hard),75,0.477,0.03,15.86,8.63,2.75
-Ghana,women_vitA,"admin-2 fit (LORO), unbenchmarked",75,0.116,0,NA,2.15,-0.81
-Ghana,women_vitA,admin-2 fit + national benchmark,75,0.116,0,NA,2.42,-0.41
-Ghana,women_vitA,admin-2 fit + ADMIN-1 benchmark (shrunk),75,-0.119,0,NA,2.4,-0.47
-Ghana,women_vitA,admin-2 fit + ADMIN-1 benchmark (hard),75,0.296,0,NA,2.57,0.14
-Ghana,child_iron,"admin-2 fit (LORO), unbenchmarked",75,0.477,0.672,0.71,13.41,-5.32
-Ghana,child_iron,admin-2 fit + national benchmark,75,0.49,0.672,0.73,13.83,2.66
-Ghana,child_iron,admin-2 fit + ADMIN-1 benchmark (shrunk),75,0.738,0.672,1.1,10.37,1.04
-Ghana,child_iron,admin-2 fit + ADMIN-1 benchmark (hard),75,0.747,0.672,1.11,10.59,1.88
-Ghana,women_iron,"admin-2 fit (LORO), unbenchmarked",75,0.06,0,NA,10.92,-5.58
-Ghana,women_iron,admin-2 fit + national benchmark,75,0.06,0,NA,10.92,-5.55
-Ghana,women_iron,admin-2 fit + ADMIN-1 benchmark (shrunk),75,0.138,0,NA,10.44,0.09
-Ghana,women_iron,admin-2 fit + ADMIN-1 benchmark (hard),75,0.286,0,NA,10.33,2.58
-Ghana,women_folate,"admin-2 fit (LORO), unbenchmarked",75,0.176,0.627,0.28,26.89,0.75
-Ghana,women_folate,admin-2 fit + national benchmark,75,0.157,0.627,0.25,29,13.62
-Ghana,women_folate,admin-2 fit + ADMIN-1 benchmark (shrunk),75,-0.07,0.627,-0.11,26.95,3.98
-Ghana,women_folate,admin-2 fit + ADMIN-1 benchmark (hard),75,-0.061,0.627,-0.1,26.94,4.09
-Ghana,women_b12,"admin-2 fit (LORO), unbenchmarked",75,-0.098,0.367,-0.27,11.1,-5.83
-Ghana,women_b12,admin-2 fit + national benchmark,75,-0.085,0.367,-0.23,13.48,1.02
-Ghana,women_b12,admin-2 fit + ADMIN-1 benchmark (shrunk),75,0.179,0.367,0.49,10.65,-1.72
-Ghana,women_b12,admin-2 fit + ADMIN-1 benchmark (hard),75,0.275,0.367,0.75,10.02,-1.01
-SierraLeone,child_vitA,"admin-2 fit (LORO), unbenchmarked",14,0.169,0,NA,11.3,5.43
-SierraLeone,child_vitA,admin-2 fit + national benchmark,14,0.199,0,NA,10.19,-10.19
-SierraLeone,child_vitA,admin-2 fit + ADMIN-1 benchmark (shrunk),14,-0.043,0,NA,5.9,0.02
-SierraLeone,child_vitA,admin-2 fit + ADMIN-1 benchmark (hard),14,0.02,0,NA,5.78,-0.05
-SierraLeone,women_vitA,"admin-2 fit (LORO), unbenchmarked",14,0.011,0,NA,1.22,-0.24
-SierraLeone,women_vitA,admin-2 fit + national benchmark,14,0.011,0,NA,1.26,-0.05
-SierraLeone,women_vitA,admin-2 fit + ADMIN-1 benchmark (shrunk),14,0.37,0,NA,1.16,0.1
-SierraLeone,women_vitA,admin-2 fit + ADMIN-1 benchmark (hard),14,0.34,0,NA,1.19,0.1
-SierraLeone,child_iron,"admin-2 fit (LORO), unbenchmarked",14,0.468,0,NA,3.37,-1.57
-SierraLeone,child_iron,admin-2 fit + national benchmark,14,0.461,0,NA,5.58,4.77
-SierraLeone,child_iron,admin-2 fit + ADMIN-1 benchmark (shrunk),14,0.474,0,NA,3.21,-0.31
-SierraLeone,child_iron,admin-2 fit + ADMIN-1 benchmark (hard),14,0.589,0,NA,2.84,-0.32
-SierraLeone,women_iron,"admin-2 fit (LORO), unbenchmarked",14,0.424,0.167,2.54,5.13,-0.55
-SierraLeone,women_iron,admin-2 fit + national benchmark,14,0.426,0.167,2.55,5.94,-2.83
-SierraLeone,women_iron,admin-2 fit + ADMIN-1 benchmark (shrunk),14,0.591,0.167,3.54,8.34,-7.64
-SierraLeone,women_iron,admin-2 fit + ADMIN-1 benchmark (hard),14,0.616,0.167,3.69,4.07,0.81
-SierraLeone,women_folate,"admin-2 fit (LORO), unbenchmarked",14,-0.479,0.773,-0.62,13.09,3.33
-SierraLeone,women_folate,admin-2 fit + national benchmark,14,-0.451,0.773,-0.58,18.85,-17.64
-SierraLeone,women_folate,admin-2 fit + ADMIN-1 benchmark (shrunk),14,0.616,0.773,0.8,5.96,-1.62
-SierraLeone,women_folate,admin-2 fit + ADMIN-1 benchmark (hard),14,0.629,0.773,0.81,6.11,-1.63
-SierraLeone,women_b12,"admin-2 fit (LORO), unbenchmarked",14,0.445,0,NA,0.66,0.36
-SierraLeone,women_b12,admin-2 fit + national benchmark,14,0.445,0,NA,0.51,-0.1
-SierraLeone,women_b12,admin-2 fit + ADMIN-1 benchmark (shrunk),14,0.356,0,NA,0.6,0.08
-SierraLeone,women_b12,admin-2 fit + ADMIN-1 benchmark (hard),14,0.355,0,NA,0.57,0.07
-Malawi,child_vitA,"admin-2 fit (LORO), unbenchmarked",90,0.123,0,NA,8.14,-5.03
-Malawi,child_vitA,admin-2 fit + national benchmark,90,0.134,0,NA,8.53,1.88
-Malawi,child_vitA,admin-2 fit + ADMIN-1 benchmark (shrunk),90,0.328,0,NA,7.85,0.7
-Malawi,child_vitA,admin-2 fit + ADMIN-1 benchmark (hard),90,0.426,0,NA,7.42,0.56
-Malawi,women_vitA,"admin-2 fit (LORO), unbenchmarked",90,0.041,0,NA,2.13,-0.78
-Malawi,women_vitA,admin-2 fit + national benchmark,90,0.042,0,NA,3.1,0.51
-Malawi,women_vitA,admin-2 fit + ADMIN-1 benchmark (shrunk),90,-0.011,0,NA,3.17,0.6
-Malawi,women_vitA,admin-2 fit + ADMIN-1 benchmark (hard),90,0.485,0,NA,2.5,0.28
-Malawi,child_iron,"admin-2 fit (LORO), unbenchmarked",90,0.334,0.096,3.48,11.52,-4.79
-Malawi,child_iron,admin-2 fit + national benchmark,90,0.334,0.096,3.48,15.44,-14.29
-Malawi,child_iron,admin-2 fit + ADMIN-1 benchmark (shrunk),90,0.204,0.096,2.13,12.38,-9.02
-Malawi,child_iron,admin-2 fit + ADMIN-1 benchmark (hard),90,0.346,0.096,3.61,10.75,-5.02
-Malawi,women_iron,"admin-2 fit (LORO), unbenchmarked",90,-0.089,0,NA,14.74,-9.32
-Malawi,women_iron,admin-2 fit + national benchmark,90,-0.089,0,NA,14.98,-10.35
-Malawi,women_iron,admin-2 fit + ADMIN-1 benchmark (shrunk),90,-0.25,0,NA,14.72,-9.77
-Malawi,women_iron,admin-2 fit + ADMIN-1 benchmark (hard),90,0.126,0,NA,13.68,-4.19
-Malawi,women_folate,"admin-2 fit (LORO), unbenchmarked",90,0.255,0.559,0.46,17.57,-11.34
-Malawi,women_folate,admin-2 fit + national benchmark,90,0.26,0.559,0.47,16.43,-0.85
-Malawi,women_folate,admin-2 fit + ADMIN-1 benchmark (shrunk),90,0.565,0.559,1.01,13.63,-2.1
-Malawi,women_folate,admin-2 fit + ADMIN-1 benchmark (hard),90,0.593,0.559,1.06,13.4,-0.39
-Malawi,women_b12,"admin-2 fit (LORO), unbenchmarked",90,0.263,0,NA,3.42,-1.74
-Malawi,women_b12,admin-2 fit + national benchmark,90,0.263,0,NA,4,-0.48
-Malawi,women_b12,admin-2 fit + ADMIN-1 benchmark (shrunk),90,0.354,0,NA,3.65,-0.94
-Malawi,women_b12,admin-2 fit + ADMIN-1 benchmark (hard),90,0.401,0,NA,3.7,-0.13
-Malawi,child_zinc,"admin-2 fit (LORO), unbenchmarked",90,-0.32,0.672,-0.48,24.71,1.65
-Malawi,child_zinc,admin-2 fit + national benchmark,90,-0.321,0.672,-0.48,24.71,1.12
-Malawi,child_zinc,admin-2 fit + ADMIN-1 benchmark (shrunk),90,0.118,0.672,0.18,20.91,0.27
-Malawi,child_zinc,admin-2 fit + ADMIN-1 benchmark (hard),90,0.239,0.672,0.35,20.52,-0.8
-Malawi,women_zinc,"admin-2 fit (LORO), unbenchmarked",90,-0.436,0.724,-0.6,25.24,11.59
-Malawi,women_zinc,admin-2 fit + national benchmark,90,-0.445,0.724,-0.61,25.18,-0.5
-Malawi,women_zinc,admin-2 fit + ADMIN-1 benchmark (shrunk),90,0.294,0.724,0.41,20.44,-1.75
-Malawi,women_zinc,admin-2 fit + ADMIN-1 benchmark (hard),90,0.364,0.724,0.5,20.09,-3.34
-Gambia,child_vitA,ADMIN-1 fit -> admin-2 (pooled),30,0.602,0.671,0.9,9.74,-2.83
-Ghana,child_vitA,ADMIN-1 fit -> admin-2 (pooled),75,0.389,0.03,12.91,8.94,-2.12
-SierraLeone,child_vitA,ADMIN-1 fit -> admin-2 (pooled),14,0.075,0,NA,4.55,-0.65
-Malawi,child_vitA,ADMIN-1 fit -> admin-2 (pooled),90,0.302,0,NA,7.92,-2
-Gambia,women_vitA,ADMIN-1 fit -> admin-2 (pooled),30,0.496,0.275,1.8,3.26,-1.21
-Ghana,women_vitA,ADMIN-1 fit -> admin-2 (pooled),75,0.254,0,NA,2.37,-0.31
-SierraLeone,women_vitA,ADMIN-1 fit -> admin-2 (pooled),14,-0.143,0,NA,1.26,-0.46
-Malawi,women_vitA,ADMIN-1 fit -> admin-2 (pooled),90,0.248,0,NA,2.46,-0.24
-Gambia,child_iron,ADMIN-1 fit -> admin-2 (pooled),30,0.431,0.565,0.76,11.94,-5.07
-Ghana,child_iron,ADMIN-1 fit -> admin-2 (pooled),75,0.58,0.672,0.86,11.93,-2.05
-SierraLeone,child_iron,ADMIN-1 fit -> admin-2 (pooled),14,0.169,0,NA,4.12,0.55
-Malawi,child_iron,ADMIN-1 fit -> admin-2 (pooled),90,0.171,0.096,1.78,11.21,-2.2
-Gambia,women_iron,ADMIN-1 fit -> admin-2 (pooled),30,0.346,0.706,0.49,13.25,-6.94
-Ghana,women_iron,ADMIN-1 fit -> admin-2 (pooled),75,0.335,0,NA,9.12,-3.76
-SierraLeone,women_iron,ADMIN-1 fit -> admin-2 (pooled),14,0.007,0.167,0.04,6.48,-5.38
-Malawi,women_iron,ADMIN-1 fit -> admin-2 (pooled),90,0.118,0,NA,13.33,-4.25
-Ghana,women_folate,ADMIN-1 fit -> admin-2 (pooled),75,0.32,0.627,0.51,23.28,0.87
-SierraLeone,women_folate,ADMIN-1 fit -> admin-2 (pooled),14,-0.028,0.773,-0.04,19.21,-19.21
-Malawi,women_folate,ADMIN-1 fit -> admin-2 (pooled),90,0.415,0.559,0.74,16.3,-7.42
-Ghana,women_b12,ADMIN-1 fit -> admin-2 (pooled),75,0.316,0.367,0.86,9.98,-5.57
-SierraLeone,women_b12,ADMIN-1 fit -> admin-2 (pooled),14,-0.297,0,NA,0.97,0.7
-Malawi,women_b12,ADMIN-1 fit -> admin-2 (pooled),90,0.27,0,NA,3.62,-1.34
+Gambia,child_vitA,"admin-2 fit (LORO), unbenchmarked",30,0.354,0.671,0.53,11.14,-1.31
+Gambia,child_vitA,admin-2 fit + national benchmark,30,0.461,0.671,0.69,17.53,17.02
+Gambia,child_vitA,admin-2 fit + ADMIN-1 benchmark (shrunk),30,0.389,0.671,0.58,9.42,1.1
+Gambia,child_vitA,admin-2 fit + ADMIN-1 benchmark (hard),30,0.445,0.671,0.66,9.14,1.6
+Gambia,women_vitA,"admin-2 fit (LORO), unbenchmarked",30,0.52,0.275,1.89,3.01,-1.53
+Gambia,women_vitA,admin-2 fit + national benchmark,30,0.521,0.275,1.89,3.16,0.59
+Gambia,women_vitA,admin-2 fit + ADMIN-1 benchmark (shrunk),30,0.515,0.275,1.87,3.13,-1.58
+Gambia,women_vitA,admin-2 fit + ADMIN-1 benchmark (hard),30,0.519,0.275,1.89,2.94,-0.65
+Gambia,child_iron,"admin-2 fit (LORO), unbenchmarked",30,0.591,0.565,1.05,9.38,0.98
+Gambia,child_iron,admin-2 fit + national benchmark,30,0.587,0.565,1.04,14.53,-11.62
+Gambia,child_iron,admin-2 fit + ADMIN-1 benchmark (shrunk),30,0.679,0.565,1.2,10.08,-4.95
+Gambia,child_iron,admin-2 fit + ADMIN-1 benchmark (hard),30,0.663,0.565,1.17,8.93,0.25
+Gambia,women_iron,"admin-2 fit (LORO), unbenchmarked",30,0.753,0.706,1.07,8.61,-0.07
+Gambia,women_iron,admin-2 fit + national benchmark,30,0.756,0.706,1.07,9.52,-6.06
+Gambia,women_iron,admin-2 fit + ADMIN-1 benchmark (shrunk),30,0.731,0.706,1.03,9.69,-5.43
+Gambia,women_iron,admin-2 fit + ADMIN-1 benchmark (hard),30,0.753,0.706,1.07,9.15,-2.46
+Ghana,child_vitA,"admin-2 fit (LORO), unbenchmarked",75,0.295,0.03,9.8,10.35,-3.95
+Ghana,child_vitA,admin-2 fit + national benchmark,75,0.3,0.03,9.95,11.09,4.11
+Ghana,child_vitA,admin-2 fit + ADMIN-1 benchmark (shrunk),75,0.317,0.03,10.51,9.84,2.78
+Ghana,child_vitA,admin-2 fit + ADMIN-1 benchmark (hard),75,0.41,0.03,13.61,10.04,4.09
+Ghana,women_vitA,"admin-2 fit (LORO), unbenchmarked",75,0.055,0,NA,2.17,-0.8
+Ghana,women_vitA,admin-2 fit + national benchmark,75,0.056,0,NA,2.49,-0.33
+Ghana,women_vitA,admin-2 fit + ADMIN-1 benchmark (shrunk),75,-0.087,0,NA,2.42,-0.45
+Ghana,women_vitA,admin-2 fit + ADMIN-1 benchmark (hard),75,0.291,0,NA,2.6,0.18
+Ghana,child_iron,"admin-2 fit (LORO), unbenchmarked",75,0.443,0.672,0.66,14.17,-5.13
+Ghana,child_iron,admin-2 fit + national benchmark,75,0.459,0.672,0.68,14.65,3.62
+Ghana,child_iron,admin-2 fit + ADMIN-1 benchmark (shrunk),75,0.751,0.672,1.12,10.11,1.94
+Ghana,child_iron,admin-2 fit + ADMIN-1 benchmark (hard),75,0.759,0.672,1.13,10.42,2.78
+Ghana,women_iron,"admin-2 fit (LORO), unbenchmarked",75,0.071,0,NA,10.78,-5.92
+Ghana,women_iron,admin-2 fit + national benchmark,75,0.072,0,NA,10.89,-6.5
+Ghana,women_iron,admin-2 fit + ADMIN-1 benchmark (shrunk),75,0.406,0,NA,8.74,-2.93
+Ghana,women_iron,admin-2 fit + ADMIN-1 benchmark (hard),75,0.497,0,NA,8.52,-0.67
+Ghana,women_folate,"admin-2 fit (LORO), unbenchmarked",75,0.244,0.627,0.39,26.09,-1.05
+Ghana,women_folate,admin-2 fit + national benchmark,75,0.168,0.627,0.27,30.18,18.65
+Ghana,women_folate,admin-2 fit + ADMIN-1 benchmark (shrunk),75,0.018,0.627,0.03,26.51,5.81
+Ghana,women_folate,admin-2 fit + ADMIN-1 benchmark (hard),75,0.024,0.627,0.04,26.51,5.91
+Ghana,women_b12,"admin-2 fit (LORO), unbenchmarked",75,-0.105,0.367,-0.28,10.97,-5.99
+Ghana,women_b12,admin-2 fit + national benchmark,75,-0.088,0.367,-0.24,13.34,0.69
+Ghana,women_b12,admin-2 fit + ADMIN-1 benchmark (shrunk),75,0.193,0.367,0.53,10.59,-1.79
+Ghana,women_b12,admin-2 fit + ADMIN-1 benchmark (hard),75,0.287,0.367,0.78,9.97,-1.08
+SierraLeone,child_vitA,"admin-2 fit (LORO), unbenchmarked",14,0.13,0,NA,14.68,7.96
+SierraLeone,child_vitA,admin-2 fit + national benchmark,14,0.199,0,NA,10.2,-10.2
+SierraLeone,child_vitA,admin-2 fit + ADMIN-1 benchmark (shrunk),14,0.004,0,NA,5.72,-0.15
+SierraLeone,child_vitA,admin-2 fit + ADMIN-1 benchmark (hard),14,0.064,0,NA,5.59,-0.22
+SierraLeone,women_vitA,"admin-2 fit (LORO), unbenchmarked",14,-0.043,0,NA,1.21,-0.24
+SierraLeone,women_vitA,admin-2 fit + national benchmark,14,-0.043,0,NA,1.29,0.22
+SierraLeone,women_vitA,admin-2 fit + ADMIN-1 benchmark (shrunk),14,0.258,0,NA,1.19,0.08
+SierraLeone,women_vitA,admin-2 fit + ADMIN-1 benchmark (hard),14,0.26,0,NA,1.23,0.08
+SierraLeone,child_iron,"admin-2 fit (LORO), unbenchmarked",14,0.402,0,NA,3.34,-1.15
+SierraLeone,child_iron,admin-2 fit + national benchmark,14,0.386,0,NA,6.87,5.71
+SierraLeone,child_iron,admin-2 fit + ADMIN-1 benchmark (shrunk),14,0.569,0,NA,2.94,-0.3
+SierraLeone,child_iron,admin-2 fit + ADMIN-1 benchmark (hard),14,0.675,0,NA,2.43,-0.31
+SierraLeone,women_iron,"admin-2 fit (LORO), unbenchmarked",14,0.294,0.167,1.76,5.27,-0.61
+SierraLeone,women_iron,admin-2 fit + national benchmark,14,0.295,0.167,1.77,6.08,-2.72
+SierraLeone,women_iron,admin-2 fit + ADMIN-1 benchmark (shrunk),14,0.382,0.167,2.29,8.49,-7.74
+SierraLeone,women_iron,admin-2 fit + ADMIN-1 benchmark (hard),14,0.447,0.167,2.67,4.39,0.64
+SierraLeone,women_folate,"admin-2 fit (LORO), unbenchmarked",14,-0.513,0.773,-0.66,13.29,3.16
+SierraLeone,women_folate,admin-2 fit + national benchmark,14,-0.493,0.773,-0.64,18.31,-15.93
+SierraLeone,women_folate,admin-2 fit + ADMIN-1 benchmark (shrunk),14,0.55,0.773,0.71,6.98,-1.28
+SierraLeone,women_folate,admin-2 fit + ADMIN-1 benchmark (hard),14,0.577,0.773,0.75,6.89,-1.28
+SierraLeone,women_b12,"admin-2 fit (LORO), unbenchmarked",14,0.354,0,NA,1.13,0.82
+SierraLeone,women_b12,admin-2 fit + national benchmark,14,0.354,0,NA,0.41,-0.32
+SierraLeone,women_b12,admin-2 fit + ADMIN-1 benchmark (shrunk),14,0.337,0,NA,0.58,0.06
+SierraLeone,women_b12,admin-2 fit + ADMIN-1 benchmark (hard),14,0.372,0,NA,0.55,0.06
+Malawi,child_vitA,"admin-2 fit (LORO), unbenchmarked",87,0.141,0,NA,8.22,-5.15
+Malawi,child_vitA,admin-2 fit + national benchmark,87,0.141,0,NA,8.84,1.74
+Malawi,child_vitA,admin-2 fit + ADMIN-1 benchmark (shrunk),87,0.321,0,NA,7.95,0.51
+Malawi,child_vitA,admin-2 fit + ADMIN-1 benchmark (hard),87,0.447,0,NA,7.41,0.24
+Malawi,women_vitA,"admin-2 fit (LORO), unbenchmarked",87,-0.146,0,NA,2.2,-0.82
+Malawi,women_vitA,admin-2 fit + national benchmark,87,-0.147,0,NA,3.09,0.36
+Malawi,women_vitA,admin-2 fit + ADMIN-1 benchmark (shrunk),87,-0.113,0,NA,3.23,0.55
+Malawi,women_vitA,admin-2 fit + ADMIN-1 benchmark (hard),87,0.322,0,NA,2.68,0.34
+Malawi,child_iron,"admin-2 fit (LORO), unbenchmarked",87,0.291,0.096,3.03,11.79,-3.53
+Malawi,child_iron,admin-2 fit + national benchmark,87,0.259,0.096,2.7,15.26,-13.98
+Malawi,child_iron,admin-2 fit + ADMIN-1 benchmark (shrunk),87,0.151,0.096,1.58,12.52,-8.05
+Malawi,child_iron,admin-2 fit + ADMIN-1 benchmark (hard),87,0.307,0.096,3.2,11.34,-4.01
+Malawi,women_iron,"admin-2 fit (LORO), unbenchmarked",87,0.037,0,NA,15.36,-7.06
+Malawi,women_iron,admin-2 fit + national benchmark,87,0.04,0,NA,15.62,-11.85
+Malawi,women_iron,admin-2 fit + ADMIN-1 benchmark (shrunk),87,0.027,0,NA,14.28,-9.56
+Malawi,women_iron,admin-2 fit + ADMIN-1 benchmark (hard),87,0.227,0,NA,12.76,-3.91
+Malawi,women_folate,"admin-2 fit (LORO), unbenchmarked",87,0.275,0.559,0.49,16.87,-10.51
+Malawi,women_folate,admin-2 fit + national benchmark,87,0.266,0.559,0.48,16.51,-0.21
+Malawi,women_folate,admin-2 fit + ADMIN-1 benchmark (shrunk),87,0.523,0.559,0.94,13.73,-1.93
+Malawi,women_folate,admin-2 fit + ADMIN-1 benchmark (hard),87,0.586,0.559,1.05,13.26,-0.3
+Malawi,women_b12,"admin-2 fit (LORO), unbenchmarked",87,0.112,0,NA,3.6,-1.75
+Malawi,women_b12,admin-2 fit + national benchmark,87,0.114,0,NA,4.29,-0.31
+Malawi,women_b12,admin-2 fit + ADMIN-1 benchmark (shrunk),87,0.329,0,NA,3.77,-0.84
+Malawi,women_b12,admin-2 fit + ADMIN-1 benchmark (hard),87,0.4,0,NA,3.81,0.07
+Malawi,child_zinc,"admin-2 fit (LORO), unbenchmarked",87,-0.287,0.672,-0.43,26.02,0.11
+Malawi,child_zinc,admin-2 fit + national benchmark,87,-0.261,0.672,-0.39,26.18,7.14
+Malawi,child_zinc,admin-2 fit + ADMIN-1 benchmark (shrunk),87,0.168,0.672,0.25,21.22,3.73
+Malawi,child_zinc,admin-2 fit + ADMIN-1 benchmark (hard),87,0.272,0.672,0.4,20.92,2.76
+Malawi,women_zinc,"admin-2 fit (LORO), unbenchmarked",87,-0.332,0.724,-0.46,27.35,8.28
+Malawi,women_zinc,admin-2 fit + national benchmark,87,-0.332,0.724,-0.46,27.22,0.48
+Malawi,women_zinc,admin-2 fit + ADMIN-1 benchmark (shrunk),87,0.221,0.724,0.31,21.61,-2.77
+Malawi,women_zinc,admin-2 fit + ADMIN-1 benchmark (hard),87,0.312,0.724,0.43,21.01,-4.27
+Gambia,child_vitA,ADMIN-1 fit -> admin-2 (pooled),30,0.444,0.671,0.66,9.93,-2.24
+Ghana,child_vitA,ADMIN-1 fit -> admin-2 (pooled),75,0.385,0.03,12.77,8.85,-2.38
+SierraLeone,child_vitA,ADMIN-1 fit -> admin-2 (pooled),14,-0.158,0,NA,4.76,-0.89
+Malawi,child_vitA,ADMIN-1 fit -> admin-2 (pooled),87,0.327,0,NA,7.99,-1.79
+Gambia,women_vitA,ADMIN-1 fit -> admin-2 (pooled),30,0.471,0.275,1.71,3.23,-1.1
+Ghana,women_vitA,ADMIN-1 fit -> admin-2 (pooled),75,0.251,0,NA,2.4,-0.24
+SierraLeone,women_vitA,ADMIN-1 fit -> admin-2 (pooled),14,-0.186,0,NA,1.29,-0.34
+Malawi,women_vitA,ADMIN-1 fit -> admin-2 (pooled),87,0.268,0,NA,2.5,-0.25
+Gambia,child_iron,ADMIN-1 fit -> admin-2 (pooled),30,0.341,0.565,0.6,12.14,-3.16
+Ghana,child_iron,ADMIN-1 fit -> admin-2 (pooled),75,0.594,0.672,0.88,11.61,-2.24
+SierraLeone,child_iron,ADMIN-1 fit -> admin-2 (pooled),14,0.172,0,NA,4.17,0.44
+Malawi,child_iron,ADMIN-1 fit -> admin-2 (pooled),87,-0.009,0.096,-0.1,11.52,-1.46
+Gambia,women_iron,ADMIN-1 fit -> admin-2 (pooled),30,0.431,0.706,0.61,12.55,-6.21
+Ghana,women_iron,ADMIN-1 fit -> admin-2 (pooled),75,0.364,0,NA,8.9,-3.51
+SierraLeone,women_iron,ADMIN-1 fit -> admin-2 (pooled),14,0.313,0.167,1.87,6.17,-4.41
+Malawi,women_iron,ADMIN-1 fit -> admin-2 (pooled),87,0.004,0,NA,13.22,-3.72
+Ghana,women_folate,ADMIN-1 fit -> admin-2 (pooled),75,0.322,0.627,0.51,23.24,1.51
+SierraLeone,women_folate,ADMIN-1 fit -> admin-2 (pooled),14,-0.024,0.773,-0.03,18.04,-18.04
+Malawi,women_folate,ADMIN-1 fit -> admin-2 (pooled),87,0.45,0.559,0.81,15.91,-7.76
+Ghana,women_b12,ADMIN-1 fit -> admin-2 (pooled),75,0.339,0.367,0.92,9.96,-5.94
+SierraLeone,women_b12,ADMIN-1 fit -> admin-2 (pooled),14,-0.315,0,NA,1.05,0.85
+Malawi,women_b12,ADMIN-1 fit -> admin-2 (pooled),87,0.265,0,NA,3.74,-1.45
