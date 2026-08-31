@@ -138,6 +138,28 @@ all_names <- tryCatch(targets::tar_manifest()$name, error = function(e) characte
 # change that cannot be honoured for those targets is exactly the mixed-state
 # hazard these traps exist to prevent.
 apply_invalidation_traps <- function(scope = NULL) {
+  # RESUMING AN INTERRUPTED RUN.
+  #
+  # These traps invalidate on EVERY launch, because {targets} cannot see the
+  # settings they guard and so cannot tell whether one changed. That is right
+  # when a launch might carry a new configuration. It is pure destruction when
+  # resuming a run that was killed mid-flight with its configuration untouched:
+  # on 2026-08-30 a reported run died with 654 targets built, and relaunching it
+  # invalidated 71 targets whose descendants covered almost the whole graph --
+  # 765 of 849 queued again, discarding roughly four hours of completed work
+  # that was sitting valid in the store.
+  #
+  # PIPELINE_RESUME=true skips the traps for exactly that case. It is only safe
+  # when the configuration has not changed since the interrupted run, which is
+  # why it is opt-in and loud rather than automatic: nothing here can verify
+  # that claim, and a resume with a changed setting produces the mixed-state
+  # run the traps exist to prevent.
+  if (identical(tolower(Sys.getenv("PIPELINE_RESUME", "false")), "true")) {
+    say(paste("PIPELINE_RESUME=true: SKIPPING all invalidation traps.",
+              "Valid only if the configuration is unchanged since the",
+              "interrupted run -- a changed setting will now go unnoticed."))
+    return(invisible(NULL))
+  }
   in_scope <- function(nms) {
     if (is.null(scope)) return(nms)
     keep <- intersect(nms, scope)
