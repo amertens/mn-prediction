@@ -150,21 +150,19 @@ outperforms the covariate model on correlation as well as on error.
 
 | ID | Claim | As stated | Source map | Status | Resolved by |
 |:---|:---|:---|:---|:---|:---|
-| 5.1 | District, proxy arm | 16 cells, mean r 0.154, median 0.126, MAE 8.33 | `frozen_2026-09/individual_anchor.csv`, filter `unit == "district"` and `arm == "proxy"` | not yet tested | WS3a |
-| 5.2 | District, questionnaire arm | mean r 0.228, median 0.264, MAE 7.92 | same file, filter `unit == "district"` and `arm == "quest"` | not yet tested | WS3a, WS3b |
-| 5.3 | Cluster, proxy and questionnaire arms | 0.146 and 0.229 | same file, filter `unit == "cluster"` | not yet tested | WS3f |
+| 5.1 | District, proxy arm | 16 cells, mean r 0.154, median 0.126, MAE 8.33 | `frozen_2026-09/individual_anchor.csv`, filter `unit == "district"` and `arm == "proxy"` | **revised** | WS3a |
+| 5.2 | District, questionnaire arm | mean r 0.228, median 0.264, MAE 7.92 | same file, filter `unit == "district"` and `arm == "quest"` | **revised** | WS3a, WS3b |
+| 5.3 | Cluster, proxy and questionnaire arms | 0.146 and 0.229 | same file, filter `unit == "cluster"` | **revised** | WS3f |
 | 5.4 | Questionnaire better in 10 of 16 cells, mean gain +0.075 | 10 of 16, +0.075 | same file, paired on `country`, `outcome` and `unit` | **revised** | WS3b, WS3c |
-| 5.5 | Clears r = 0.4 in 3 of 16 cells | 3 of 16 | same file, column `r` | not yet tested | WS3a |
+| 5.5 | Clears r = 0.4 in 3 of 16 cells | 3 of 16 | same file, column `r` | **revised** | WS3a |
 | 5.6 | In Malawi the questionnaire adds nothing | gains 0.000, 0.000, 0.002, 0.004 | same file, filter `country == "Malawi"` | **withdrawn** | WS3b |
-| 5.7 | Maximum r anywhere across all 64 rows | 0.544 | same file, maximum of column `r` | not yet tested | WS7a |
+| 5.7 | Maximum r anywhere across all 64 rows | 0.544 | same file, maximum of column `r` | **revised** | WS7a |
 | 5.8 | The null is not explained by bad linkage, the inflammation adjustment, or overfitting | qualitative | Section 5.3 | **withdrawn** | WS3a, WS4b |
-| 5.9 | Cluster linkage does not help, and helps least in Sierra Leone | Gambia +0.017, Ghana -0.003, Malawi -0.002, Sierra Leone -0.025 | same file, `r` at `unit == "cluster"` minus `r` at `unit == "district"` | not yet tested | WS3f |
+| 5.9 | Cluster linkage does not help, and helps least in Sierra Leone | Gambia +0.017, Ghana -0.003, Malawi -0.002, Sierra Leone -0.025 | same file, `r` at `unit == "cluster"` minus `r` at `unit == "district"` | **confirmed** | WS3f |
 
-**5.1, 5.2, 5.3, 5.5, 5.7 and 5.9 remain `not yet tested`.** The re-run that
-would replace them is reduced to a 4-cell subset under the run-or-reframe rule
-and had not completed when this register was written. What is established is
-that the published numbers were computed on a **contaminated and non-nested**
-pair of arms, so they should not be quoted:
+**5.1, 5.2 and 5.9: the four-cell re-run has now completed.** The published
+numbers were computed on a **contaminated and non-nested** pair of arms and
+should not be quoted:
 
 - **Contaminated.** The questionnaire arm saw `gw_wm_whbc` and `gw_gchb`, two
   Ghana haemoglobin measurements, plus thirteen further blood-derived columns
@@ -176,6 +174,33 @@ pair of arms, so they should not be quoted:
   differed in more than the questionnaire, so the gap between them is not
   attributable to the questionnaire alone. `allowed_under_arm()` fixes this by
   scoping the filter to the concurrent survey.
+
+**Measured on four cells under the strict protocol** (source:
+`results/tables/individual_arms_2026-09_PARITY.csv`, `unit == "district"`,
+`protocol == "region_loro"`): proxy mean r **0.274**, questionnaire **0.261**,
+questionnaire plus field haemoglobin **0.342**. The questionnaire gain is
+**-0.013**, better in 2 of 4 cells, against a published **+0.075**. Section 5's
+conclusion that the questionnaire barely beats geospatial proxies is
+**strengthened**: on these cells it does not beat them.
+
+**5.9 confirmed.** Cluster minus district gains reproduce the published ordering:
+Gambia **+0.018** (published +0.017), Ghana **-0.008** (-0.003), Malawi
+**-0.001** (-0.002), Sierra Leone **-0.034** (-0.025). Sierra Leone is again the
+worst, which is the falsification Section 5.4 reports.
+
+**5.10 new.** Field haemoglobin, the deployable DHS-standard scenario, adds
+**+0.394** for Gambia women's iron (taking that cell to **0.848**) and **+0.027**
+for Ghana child iron, while adding nothing for Malawi child vitamin A and costing
+**0.150** for Sierra Leone women's iron. Mean **+0.068** over four cells. Its
+district MAE is **19.96 pp** against **10.12 pp** for the proxy arm, so it gains
+on correlation and loses on level. The pattern is outcome-specific in the
+direction physiology predicts.
+
+**A protocol finding that belongs to Section 3 as much as Section 5.** The same
+four cells score **+0.319** higher under cluster-blocked K-fold than under
+region-blocked folds for the proxy arm, **+0.348** for the questionnaire arm and
+**+0.286** for the haemoglobin arm. Fold construction alone accounts for most of
+the distance between Section 3's 0.516 and Section 5's 0.154.
 
 **5.4 revised, on the published table's own arithmetic.** The published mean gain
 of +0.075 and count of 10 of 16 reproduce exactly. Under the exclusions Section

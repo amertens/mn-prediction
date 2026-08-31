@@ -119,7 +119,42 @@ panels become usable.
 Section 6.4's oracle framing, Section 10's VMNIS row, Section 11 claim 5.
 Register rows 6.3 to 6.9, 6.11.
 
-### 1.6 Section 5's questionnaire advantage is substantially one cell
+### 1.6 The questionnaire gain reverses sign once the arms are clean
+
+Measured on four cells under the strict protocol, with the guard corrected and
+the arms nested (source: `results/tables/individual_arms_2026-09_PARITY.csv`,
+`unit == "district"`, `protocol == "region_loro"`):
+
+| Arm | Mean r | Gain over proxy |
+|:---|---:|---:|
+| proxy | 0.274 | |
+| questionnaire | 0.261 | **-0.013** |
+| questionnaire + field haemoglobin | 0.342 | +0.068 |
+
+The published gain is **+0.075**. Two changes account for the reversal: the
+questionnaire arm no longer sees haemoglobin, and the two arms are now nested,
+where before the questionnaire arm also lost the MAP sickle-cell rasters and DHS
+mean-haemoglobin aggregates that the proxy arm kept.
+
+**Section 5's conclusion is strengthened.** A household questionnaire
+administered to the same people does not beat geospatial proxies at all on these
+cells.
+
+**Field haemoglobin is the exception, and it is outcome-specific.** It adds
+**+0.394** for Gambia women's iron, taking that cell to **0.848**, and nothing
+for vitamin A. Its district MAE is 19.96 pp against 10.12 pp for the proxy arm,
+so it gains on correlation and loses on level.
+
+**The protocol effect is the larger story.** The same four cells score
+**+0.319** higher under cluster-blocked K-fold than under region-blocked folds
+for the proxy arm. Fold construction alone accounts for most of the distance
+between Section 3's 0.516 and Section 5's 0.154, and Section 3's number should
+not be quoted as an out-of-sample individual-level result without saying so.
+
+**Manuscript sentences affected:** Section 3's individual-level row, Section 5.2
+table, Section 5.5. Register rows 3.1, 5.1, 5.2, 5.10.
+
+### 1.7 Section 5's published questionnaire advantage is substantially one cell
 
 Recomputed from the published table: dropping Ghana women_iron takes the mean
 gain from **+0.075 to +0.038** and the median to **+0.004**, with the
@@ -162,7 +197,8 @@ Test suite: **37 tests, 0 failures**, via `Rscript tests/testthat.R`.
 | Item | Why |
 |:---|:---|
 | WS4a, the aggregation-level sweep | Compute. The machine ran the owner's own jobs throughout; WS3 progressed at about six of 192 fits per half hour under that load. |
-| WS3a full 2 by 2 on 16 cells | Same. Reduced to the specified 4-cell parity subset under the run-or-reframe rule. |
+| WS3a's production-stack arm | The 4-cell parity subset ran under the light NNLS stack for both protocols. The learner half of the 2 by 2 is not computed, so the PROTOCOL effect is bounded and the LEARNER effect is not. |
+| WS3f cluster-train, district-evaluate | Both variants scored here differ only in the unit of aggregation, matching the published script. Training at the cluster is not computed. |
 | WS3d, permutation importance for Ghana women_iron | Not reached. |
 | WS6c, method covariates in the LOCO VMNIS model | Not reached. The variance decomposition already shows method variance exceeding country variance for Vitamin A NPW, 2.101 against 1.173. |
 | Malawi questionnaire ingestion | Blocked on documentation. 242 columns coded `m01`/`m115a`/`m220h`, zero labels, no codebook locally; the README points to `immpact@cdc.gov`. |
