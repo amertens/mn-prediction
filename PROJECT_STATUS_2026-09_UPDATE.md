@@ -21,7 +21,7 @@ women; it correlated **0.500** with the outcome, the highest of any eligible
 column across all 48 cell-and-set combinations
 (source: `results/tables/leakage_report.csv`).
 
-A further **thirteen** columns were found by deriving the guard from Stata
+A further **thirteen** columns, **fifteen in total on this branch**, were found by deriving the guard from Stata
 variable labels: four CRP-and-AGP inflammation flags, two anaemia-malaria-
 inflammation statuses, six HbA1c recodes, and a phlebotomist ID
 (source: `results/tables/assay_guard_label_comparison.csv`). None names an
