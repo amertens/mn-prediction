@@ -3217,43 +3217,143 @@ Andrew N. Mertens, UC Davis Institute for Global Nutrition
 <tr class="odd">
 <td style="text-align: left;">District model anchored to regional totals</td>
 <td style="text-align: right;">24</td>
-<td style="text-align: right;">0.406</td>
-<td style="text-align: right;">8.86</td>
-<td style="text-align: right;">1.49</td>
+<td style="text-align: right;">0.413</td>
+<td style="text-align: right;">8.85</td>
+<td style="text-align: right;">1.59</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">District model, shrunken regional anchor</td>
 <td style="text-align: right;">24</td>
-<td style="text-align: right;">0.306</td>
-<td style="text-align: right;">9.38</td>
-<td style="text-align: right;">2.41</td>
+<td style="text-align: right;">0.318</td>
+<td style="text-align: right;">9.36</td>
+<td style="text-align: right;">2.76</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">Fit at region, extrapolated to district</td>
 <td style="text-align: right;">22</td>
-<td style="text-align: right;">0.244</td>
-<td style="text-align: right;">8.87</td>
-<td style="text-align: right;">3.42</td>
+<td style="text-align: right;">0.230</td>
+<td style="text-align: right;">8.78</td>
+<td style="text-align: right;">3.18</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">District model anchored to national total</td>
 <td style="text-align: right;">24</td>
-<td style="text-align: right;">0.176</td>
-<td style="text-align: right;">11.77</td>
-<td style="text-align: right;">5.47</td>
+<td style="text-align: right;">0.170</td>
+<td style="text-align: right;">11.98</td>
+<td style="text-align: right;">5.85</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">District model alone, no anchor</td>
 <td style="text-align: right;">24</td>
-<td style="text-align: right;">0.170</td>
-<td style="text-align: right;">10.40</td>
-<td style="text-align: right;">3.60</td>
+<td style="text-align: right;">0.164</td>
+<td style="text-align: right;">10.71</td>
+<td style="text-align: right;">3.24</td>
 </tr>
 </tbody>
 </table>
 </div>
 </div>
-<p>Anchoring more than doubles rank correlation and cuts bias from 3.60 to 1.49 pp — better in 20 of 24 cells. National anchoring buys almost nothing (+0.006).</p>
+<p>Anchoring to <em>regions</em> more than doubles rank correlation (0.164 → 0.413) and cuts bias from 3.24 to 1.59 pp — better in 20 of 24 cells. Anchoring to one <em>national</em> total adds nothing (+0.006) and makes bias worse: it moves every district by the same amount, including the ones already right.</p>
+</section>
+<section id="could-a-predicted-national-level-stand-in-where-there-is-no-survey" class="slide level2">
+<h2>Could a predicted national level stand in where there is no survey?</h2>
+<p>No — and the oracle arm shows it never could.</p>
+<table class="caption-top">
+<thead>
+<tr class="header">
+<th style="text-align: left;">Arm</th>
+<th style="text-align: right;">MAE (pp)</th>
+<th style="text-align: right;">Mean |bias| (pp)</th>
+<th style="text-align: left;">Better</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Transported, no level</td>
+<td style="text-align: right;">5.81</td>
+<td style="text-align: right;">3.35</td>
+<td style="text-align: left;">—</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">+ national null level</td>
+<td style="text-align: right;">8.22</td>
+<td style="text-align: right;">4.69</td>
+<td style="text-align: left;">1/8</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">+ VMNIS predicted level</td>
+<td style="text-align: right;">12.70</td>
+<td style="text-align: right;">10.03</td>
+<td style="text-align: left;">1/8</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">+ <strong>true</strong> national level (oracle)</td>
+<td style="text-align: right;">5.58</td>
+<td style="text-align: right;">0.73</td>
+<td style="text-align: left;">4/8</td>
+</tr>
+</tbody>
+</table>
+<p>The VMNIS model is good at ranking countries (r = 0.655 against a 0.818 ceiling, 80%). But its <em>levels</em> sit on a different scale — 40.9 pp predicted for Sierra Leone against a true 12.2 — and <strong>even a perfect national level buys 0.23 pp</strong>. No amount of national modelling can raise that.</p>
+</section>
+<section id="would-an-actual-household-survey-do-better-barely" class="slide level2">
+<h2>Would an actual household survey do better? Barely</h2>
+<p>Same rows, same folds, proxies swapped for the questionnaire administered to these very people — wealth, education, diet, WASH, illness, supplementation, ~330 columns — with every blood-assay column removed.</p>
+<table class="caption-top">
+<thead>
+<tr class="header">
+<th style="text-align: left;">Unit</th>
+<th style="text-align: left;">Predictors</th>
+<th style="text-align: right;">Mean r</th>
+<th style="text-align: right;">Median r</th>
+<th style="text-align: right;">MAE (pp)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">District</td>
+<td style="text-align: left;">geospatial proxies</td>
+<td style="text-align: right;">0.154</td>
+<td style="text-align: right;">0.126</td>
+<td style="text-align: right;">8.33</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">District</td>
+<td style="text-align: left;"><strong>household questionnaire</strong></td>
+<td style="text-align: right;">0.228</td>
+<td style="text-align: right;">0.264</td>
+<td style="text-align: right;">7.92</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Cluster</td>
+<td style="text-align: left;">geospatial proxies</td>
+<td style="text-align: right;">0.146</td>
+<td style="text-align: right;">0.126</td>
+<td style="text-align: right;">12.79</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Cluster</td>
+<td style="text-align: left;">household questionnaire</td>
+<td style="text-align: right;">0.229</td>
+<td style="text-align: right;">0.212</td>
+<td style="text-align: right;">9.27</td>
+</tr>
+</tbody>
+</table>
+<p>Clears r = 0.4 in 3 of 16 cells; adds nothing at all in Malawi.</p>
+<div class="callout callout-note callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>This is what rules out the easy explanations</strong></p>
+</div>
+<div class="callout-content">
+<p>Not bad linkage, not the inflammation adjustment, not overfitting — a questionnaire with no geospatial data in it also cannot say which <em>district</em> a deficiency is in. The signal is weak at this resolution for everyone.</p>
+</div>
+</div>
+</div>
 </section>
 <section id="national-prevalence-is-where-the-models-genuinely-work" class="slide level2">
 <h2>National prevalence is where the models genuinely work</h2>
@@ -3904,10 +4004,17 @@ Andrew N. Mertens, UC Davis Institute for Global Nutrition
 <td><strong>0.000</strong></td>
 <td>1 / 4</td>
 </tr>
+<tr class="odd">
+<td>link at the survey cluster, not the district</td>
+<td>largest where clusters most outnumber districts</td>
+<td><strong>–0.025</strong> in exactly that country</td>
+<td>3 / 8</td>
+</tr>
 </tbody>
 </table>
 <p>The raw-scale result had a strong prior: <strong>8 of 24 cells have &gt;40% of districts observed at exactly 0%</strong>, every one clamped to logit = –5.3. It still did not help this recipe. The earlier gain was largest for a <em>spatial spline</em>, which is a different model.</p>
 <p>Coordinates fail for a mechanical reason: with a top-30 correlation prescreen over 294 predictors, two coordinate columns rarely survive selection. The earlier gain came from a curated 16-variable set where coordinates were a large share of the model.</p>
+<p>Cluster linkage was predicted to pay most in <strong>Sierra Leone</strong> (58 clusters vs 14 districts). It is the country where it does <em>worst</em>. More units to fit does not help when each unit’s outcome rests on a handful of people — the units get noisier in the same proportion as they get more numerous.</p>
 <div class="callout callout-note no-icon callout-style-simple">
 <div class="callout-body">
 <div class="callout-content">

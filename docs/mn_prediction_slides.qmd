@@ -1226,9 +1226,52 @@ The model supplies the ranking; the design-based survey supplies the level.
 knitr::kable(table_anchor_arms(), align = "lrrrr")
 ```
 
-Anchoring more than doubles rank correlation and cuts bias from 3.60 to
-1.49 pp --- better in 20 of 24 cells. National anchoring buys almost nothing
-(+0.006).
+Anchoring to *regions* more than doubles rank correlation (0.164 → 0.413) and
+cuts bias from 3.24 to 1.59 pp --- better in 20 of 24 cells. Anchoring to one
+*national* total adds nothing (+0.006) and makes bias worse: it moves every
+district by the same amount, including the ones already right.
+
+---
+
+## Could a predicted national level stand in where there is no survey?
+
+No --- and the oracle arm shows it never could.
+
+| Arm | MAE (pp) | Mean \|bias\| (pp) | Better |
+|:----|---------:|-------------------:|:-------|
+| Transported, no level | 5.81 | 3.35 | --- |
+| \+ national null level | 8.22 | 4.69 | 1/8 |
+| \+ VMNIS predicted level | 12.70 | 10.03 | 1/8 |
+| \+ **true** national level (oracle) | 5.58 | 0.73 | 4/8 |
+
+The VMNIS model is good at ranking countries (r = 0.655 against a 0.818
+ceiling, 80%). But its *levels* sit on a different scale --- 40.9 pp predicted
+for Sierra Leone against a true 12.2 --- and **even a perfect national level
+buys 0.23 pp**. No amount of national modelling can raise that.
+
+---
+
+## Would an actual household survey do better? Barely
+
+Same rows, same folds, proxies swapped for the questionnaire administered to
+these very people --- wealth, education, diet, WASH, illness, supplementation,
+~330 columns --- with every blood-assay column removed.
+
+| Unit | Predictors | Mean r | Median r | MAE (pp) |
+|:-----|:-----------|-------:|---------:|---------:|
+| District | geospatial proxies | 0.154 | 0.126 | 8.33 |
+| District | **household questionnaire** | 0.228 | 0.264 | 7.92 |
+| Cluster | geospatial proxies | 0.146 | 0.126 | 12.79 |
+| Cluster | household questionnaire | 0.229 | 0.212 | 9.27 |
+
+Clears r = 0.4 in 3 of 16 cells; adds nothing at all in Malawi.
+
+::: {.callout-note}
+## This is what rules out the easy explanations
+Not bad linkage, not the inflammation adjustment, not overfitting --- a
+questionnaire with no geospatial data in it also cannot say which *district* a
+deficiency is in. The signal is weak at this resolution for everyone.
+:::
 
 ---
 
@@ -1624,6 +1667,7 @@ Reported because the negative result is the useful part.
 |---|---|---|---|
 | raw prevalence scale (drop the logit clamp) | +0.048 | **--0.020** | 2 / 4 |
 | district coordinates as predictors | +0.063 | **0.000** | 1 / 4 |
+| link at the survey cluster, not the district | largest where clusters most outnumber districts | **--0.025** in exactly that country | 3 / 8 |
 
 The raw-scale result had a strong prior: **8 of 24 cells have >40% of districts
 observed at exactly 0%**, every one clamped to logit = --5.3. It still did not
@@ -1634,6 +1678,11 @@ Coordinates fail for a mechanical reason: with a top-30 correlation prescreen
 over 294 predictors, two coordinate columns rarely survive selection. The
 earlier gain came from a curated 16-variable set where coordinates were a large
 share of the model.
+
+Cluster linkage was predicted to pay most in **Sierra Leone** (58 clusters vs 14
+districts). It is the country where it does *worst*. More units to fit does not
+help when each unit's outcome rests on a handful of people --- the units get
+noisier in the same proportion as they get more numerous.
 
 ::: {.callout-note appearance="minimal"}
 Both are kept in the code as options --- and the scale dispatcher fixed a real

@@ -83,7 +83,15 @@ abstract: |
   outside a biomarker survey), environment and climate variables carried the
   most transportable signal (median AUC contribution 0.043 and 0.034), while
   calibration of binary classifiers remained poor (median slope 0.44) and
-  required post-hoc correction.
+  required post-hoc correction. Substituting the household questionnaire
+  administered to the same respondents (all blood-assay columns removed) for the
+  geospatial proxies raised mean district r only from 0.154 to 0.228, excluding
+  imperfect linkage, inflammation adjustment and proxy overfitting as
+  explanations. The one intervention that materially helped was not a modelling
+  choice: anchoring district predictions to their region's design-based survey
+  total raised mean r from 0.164 to 0.413 and cut mean absolute bias from 3.24
+  to 1.59 pp (better in 20 of 24 cells), whereas anchoring to a national total
+  did not, and an oracle national level improved district error by only 0.23 pp.
 
   **Conclusions:** Admin-2 prediction of micronutrient deficiency from proxy
   indicators is constrained primarily by the reliability of the admin-2
@@ -98,7 +106,11 @@ abstract: |
   remains unreliable, and any admin-2 or transported estimate should be
   reported alongside its reliability ceiling and benchmarked against a
   national-mean and spatial-only null before use in resource-allocation
-  decisions.
+  decisions. Where a district map is nonetheless required, the survey should
+  supply the level and the model only the within-region pattern: regional
+  anchoring is worth more than any estimator choice we tested, and a
+  transported map for a country with no survey of its own — which has no anchor
+  available — should be read as a ranking rather than as a set of prevalences.
 ---
 
 ```{r setup}
@@ -124,6 +136,15 @@ area_compare  <- safe_read_csv(file.path(TABLE_DIR, "area_comparison_all.csv"))
 loco_metrics  <- safe_read_csv(file.path(TABLE_DIR, "transportability_area_loco_metrics.csv"))
 loco_full     <- safe_read_csv(file.path(TABLE_DIR, "area_loco_comparison.csv"))
 natl_est      <- safe_read_csv(file.path(TABLE_DIR, "national_estimates_all.csv"))
+
+# Anchoring, the individual-level anchor, and the national composition. Sourced
+# rather than read directly because table_anchor_arms() applies the same arm
+# labelling the slide deck and the dashboard use, so the three cannot disagree.
+source(here::here("R", "plot_forest.R"))
+anchor_arms   <- safe_read_csv(file.path(TABLE_DIR, "admin1_arms.csv"))
+indiv_anchor  <- safe_read_csv(file.path(TABLE_DIR, "individual_anchor.csv"))
+nat_compose   <- safe_read_csv(file.path(TABLE_DIR, "national_composition.csv"))
+nat_levels    <- safe_read_csv(file.path(TABLE_DIR, "national_composition_levels.csv"))
 
 # Benchmark results: written by the benchmark pipeline targets when available.
 bench_results <- safe_read_csv(file.path(TABLE_DIR, "benchmarks_all.csv"))
@@ -741,6 +762,65 @@ if (!is.null(natl_est)) {
 }
 ```
 
+## Can a predicted national level replace the missing survey? {#sec-national-composition}
+
+@sec-anchoring shows that a district map's level should come from a survey. A
+country without one therefore needs its level from somewhere else, and the
+natural candidate is a model fitted to national data. We built that model on the
+WHO Vitamin and Mineral Nutrition Information System [@who_vmnis], where the unit
+of observation is the country-survey rather than the district: after joining to
+World Bank national indicators, the vitamin A / preschool-children panel carries
+108 surveys across 69 countries, an order of magnitude more design points for
+the between-country relationship than aggregating a four-country district model
+can offer. Evaluation is leave-one-country-out, so no survey from the target
+country contributes at any date.
+
+The model is competent at the task it was built for. On that panel it reaches
+$r = 0.655$ against a variance-component noise ceiling of 0.818 — 80% of what is
+attainable — where the ceiling separates between-country signal from
+survey-method heterogeneity, residual temporal change and binomial sampling
+error, using the sample sizes VMNIS records. We note that two ceilings for this
+panel have previously been quoted (0.66 and 0.505); they differ only in whether
+repeat surveys are grouped by country-year or by country-year-*method*, an
+arbitrary choice that decides what counts as error, which is why we estimate the
+components directly instead.
+
+Composing nonetheless fails. We shifted each transported district map onto a
+predicted national level and scored it against the survey's own district
+prevalences, alongside a no-anchor arm, a no-covariate national level, and an
+oracle arm given the survey's true national total. Because VMNIS holds no iron
+or ferritin panel and the transport predictions cover iron and vitamin A, the
+comparison is available for vitamin A only, on 2 outcomes × 4 countries — and
+vitamin A / preschool children is VMNIS's strongest panel, so this is an upper
+bound rather than an average.
+
+| Arm | MAE (pp) | Mean \|bias\| (pp) | Better than no level |
+|:----|---------:|-------------------:|:---------------------|
+| Transported, no level | 5.81 | 3.35 | — |
+| \+ national null level | 8.22 | 4.69 | 1/8 |
+| \+ VMNIS predicted level | 12.70 | 10.03 | 1/8 |
+| \+ true national level (oracle) | 5.58 | 0.73 | 4/8 |
+
+: Composing a predicted national level onto a transported district map. {#tbl-national-composition}
+
+Two failures compound. First, the predicted level is on a different scale from
+our surveys: 40.9 pp predicted for Sierra Leone against a true 12.2, and 31.2
+against 9.2 for Malawi, with the no-covariate null beating the covariate model
+in 6 of 8 cells. This is not a weak model but a model of a different quantity —
+the same cross-survey level offset documented in @sec-zscore, since VMNIS
+records what national surveys report under their own assays and inflammation
+adjustments.
+
+Second, and decisively, **even a perfect national level buys almost nothing**:
+5.81 to 5.58 pp, better in only 4 of 8 cells. The ceiling on this entire
+approach is therefore about a quarter of a percentage point, and no further
+investment in national modelling can raise it. The reason is the one
+@sec-anchoring already gives from the other direction: a national number
+displaces every district equally, whereas the anchor that pays corrects region
+by region — and that requires a survey, which is precisely what the target
+country lacks. The national model remains useful for ranking countries; it
+cannot supply a district map's level.
+
 ## Benchmark comparison against canonical methods
 
 Twenty-one comparator methods were evaluated alongside the prescreened
@@ -928,6 +1008,89 @@ at which cases accumulate; much of the advantage is therefore a sample-size
 effect rather than evidence that covariates are more informative at that scale.
 And on absolute error rather than ranking, covariates beat geography in only 7
 of 14 admin-1 cells.
+
+## Where the level comes from {#sec-anchoring}
+
+The preceding sections ask which unit to estimate at. A separate question is
+where a district estimate's *level* comes from, as distinct from its *pattern*.
+The two are not equally well supported by the covariates, and separating them
+turns out to matter more than any modelling choice we tested.
+
+We scored five arms on identical country × outcome cells under identical
+leave-one-region-out folds, so that differences are attributable to the anchor
+and not to the fit (@tbl-anchor-arms). Each anchor rescales the same district
+predictions so that they average, within each region, to the design-based survey
+estimate for that region; the rescaling is a one-parameter shift on the logit
+scale, so it leaves the district ranking untouched by construction.
+
+```{r tbl-anchor-arms}
+#| label: tbl-anchor-arms
+#| tbl-cap: "Where a district estimate's level comes from. All arms are scored
+#|   on the same cells under the same leave-one-region-out folds, and every
+#|   anchor is a monotone shift, so the arms differ only in level. Produced by
+#|   scripts/covariates/08_admin1_arms.R."
+#| echo: false
+anchor_path <- here::here("results", "tables", "admin1_arms.csv")
+if (file.exists(anchor_path)) {
+  knitr::kable(table_anchor_arms(), align = "lrrrr")
+} else {
+  cat("Anchoring comparison not available; run scripts/covariates/08_admin1_arms.R.")
+}
+```
+
+Anchoring each region to its own design-based total lifts mean rank correlation
+from 0.164 to 0.413 and cuts mean absolute bias from 3.24 to 1.59 pp, and is
+better in 20 of 24 cells. Anchoring the country to a single **national** total
+instead adds essentially nothing to rank correlation (0.170) and makes bias
+*worse* (5.85 pp), because one number displaces every district by the same
+amount, including the districts that were already correct. Shrinking the
+regional targets toward the national value — a hedge against treating a thinly
+sampled region as an exact anchor — recovers about half the gain (0.318), so on
+these data the hard anchor is preferable despite the theoretical risk.
+
+The practical reading is that the survey supplies the level and the model
+supplies the within-region pattern. It follows that a district map for a country
+with its own survey may be read as prevalence, whereas a transported map for a
+country without one has no anchor available and should be read as a ranking
+only. @sec-national-composition tests whether a *predicted* national level can
+substitute for the missing survey.
+
+## Would a household survey do better? {#sec-anchor-individual}
+
+A district correlation near 0.15 is uninterpretable on its own. Against a noise
+ceiling it may be most of what is attainable; against a questionnaire model
+reaching 0.6 it would be a poor showing. The comparison that settles this
+replaces the geospatial proxies with the household questionnaire actually
+administered to these same respondents — wealth, education, diet, water and
+sanitation, recent illness, supplementation; roughly 330 additional columns —
+while removing every blood-assay column, so that the arm answers what a survey
+*without a blood draw* would buy. Both arms use the same learner, the same rows
+and the same leave-one-region-out folds.
+
+The questionnaire moves mean district $r$ from 0.154 to 0.228 (median 0.126 to
+0.264; MAE 8.33 to 7.92 pp). It is better in 10 of 16 cells, clears $r = 0.4$ in
+only 3, and in Malawi adds nothing measurable at all — gains of 0.000 to 0.004
+across all four outcomes.
+
+This is the most informative negative result in the paper, because it excludes
+the explanations a null result of this kind ordinarily invites. The ceiling is
+not an artefact of imperfect geospatial linkage, nor of the inflammation
+adjustment, nor of overfitting the proxy set: a questionnaire administered to
+the same individuals, carrying no geospatial information whatsoever, also fails
+to locate deficiency at district resolution. The signal is weak at this
+resolution for any predictor set we can construct, and the geospatial proxies
+recover most of the little that is there.
+
+The same run tests whether linking at the survey **cluster** rather than the
+district recovers anything, on the reasoning that the effective sample size for
+learning the predictor–outcome map is the number of clusters rather than the
+number of individuals, and that the gain should therefore be largest where
+clusters most outnumber districts. It does not: mean gains are +0.017 (The
+Gambia), −0.003 (Ghana), −0.002 (Malawi) and −0.025 (Sierra Leone). Sierra
+Leone, with 58 clusters against 14 districts, is the country where the argument
+predicted the largest gain and delivers the largest loss. Additional units do
+not help when each unit's outcome rests on a handful of respondents, because the
+units become noisier in the same proportion as they become more numerous.
 
 ## Modelling the biomarker rather than the binary {#sec-continuous}
 
@@ -1219,6 +1382,29 @@ geography already supplies, we cannot demonstrate signal. This is the same
 result as the covariate-free spatial smoother matching the full 294-predictor
 set, seen from the association side rather than the prediction side.
 
+A sixth finding bounds how far that fifth one generalises, and is the strongest
+evidence we have that the constraint is the target rather than the predictors.
+Replacing the geospatial proxies with the household questionnaire administered
+to these same respondents — minus every blood-assay column — raises mean district
+$r$ only from 0.154 to 0.228, clearing $r = 0.4$ in 3 of 16 cells and adding
+nothing measurable in Malawi (@sec-anchor-individual). A questionnaire carrying
+no geospatial information also fails to locate deficiency at district
+resolution, which excludes imperfect geospatial linkage, the inflammation
+adjustment and proxy-set overfitting as explanations for the preceding results.
+Linking at the survey cluster rather than the district does not help either, and
+helps least in the country where the sample-size argument predicted it would
+help most.
+
+Set against this, one intervention does work, and it is not a modelling choice.
+Anchoring district predictions to their region's design-based survey total
+raises mean rank correlation from 0.164 to 0.413 and cuts mean absolute bias
+from 3.24 to 1.59 pp, better in 20 of 24 cells (@sec-anchoring) — larger than
+the gap between any two estimators we compared. Anchoring to a national total
+does not work, and neither does a national level that must itself be predicted:
+even an *oracle* national level improves district error by only 0.23 pp
+(@sec-national-composition). The survey supplies the level, the model supplies
+the pattern, and the level has to be resolved regionally to be worth anything.
+
 We also quantify how much apparent accuracy is manufactured by covariate
 selection. Two otherwise identical pipelines, both cross-validated by holding
 out whole regions and differing only in whether the covariate screen saw the
@@ -1420,14 +1606,18 @@ false-positive rate. This reframes the deliverable toward the ranking signal tha
 as shown above, transports more reliably than absolute level, and is
 statistically less demanding than level estimation.
 
-Second, **anchoring to known national prevalence.** Because transport failure is
-concentrated in the national level rather than the within-country ordering
-(@fig-transport-calibration), a one-parameter level recalibration that constrains
-a transported prediction's population-weighted mean to a known or historical
-national value (e.g. from VMNIS or the BRINDA pooled analyses
-[@who_vmnis; @brinda2017overview]) should remove much of the LOCO level bias by
-construction, leaving the ranking unchanged. Such anchors are obtainable for many
-countries that lack the individual-level data needed to fit a model.
+Second, **anchoring — but to regions, not to a nation.** An earlier version of
+this paper proposed level recalibration against a known or historical national
+value (e.g. from VMNIS or the BRINDA pooled analyses
+[@who_vmnis; @brinda2017overview]) as a promising direction. We have since tested
+it and report the result rather than the proposal. Anchoring to *regional*
+design-based totals is the single most valuable step we found (@sec-anchoring);
+anchoring to a *national* total is not, and a national level that must itself be
+predicted is worse than no anchor at all (@sec-national-composition). The
+productive version of this direction is therefore the acquisition of
+regional-level anchors — a survey design question rather than a modelling one —
+and the useful methodological work lies in how few regions, and how thinly
+sampled, an anchor set can be before the gain disappears.
 
 Third, **borrowing strength across co-occurring deficiencies.** The micronutrient
 outcomes are biologically correlated but were modelled independently here.
