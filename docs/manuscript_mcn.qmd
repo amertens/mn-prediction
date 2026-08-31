@@ -1180,7 +1180,7 @@ can be expected to exceed the noise ceiling of the target it is fit to.
 
 Second, national-level aggregation is the deliverable that works. Predicted
 national prevalence fell inside the survey's own 95% confidence interval for
-all 24 country–outcome combinations (median absolute error 0.74 pp),
+all 24 country–outcome combinations (median absolute error 0.54 pp),
 because aggregating many noisy district predictions averages the district-level
 sampling noise away. We treat this, rather than the admin-2 map, as the
 result best supported by the present evidence for near-term programmatic use.

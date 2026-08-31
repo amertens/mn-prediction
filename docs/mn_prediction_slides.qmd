@@ -977,7 +977,7 @@ units per country) and should be read as an interval, not a point.
 | Metric | Value |
 |---|---|
 | Cells | 24 |
-| Median absolute error | **0.74 pp** |
+| Median absolute error | **0.54 pp** |
 | Median relative error | 8.6% |
 | Predictions inside the survey's 95% CI | **24 of 24** |
 
@@ -1072,7 +1072,7 @@ Full Rebuild slide.)
 
 **What works.** National prevalence is recovered accurately: all **24 of 24**
 country x outcome predictions fall inside the survey's own 95% CI, median
-absolute error **0.74 pp** (8.6% relative).
+absolute error **0.54 pp** (5.4% relative).
 
 **What does not.** Sub-national discrimination is weak. Median AUC across the 24
 binary cells is **0.594**; AUC correlates *negatively* with the number of events
@@ -1240,7 +1240,7 @@ forest_national()
 ```
 
 All 24 predictions fall inside the survey's own 95% CI; mean absolute error
-1.05 pp.
+0.96 pp.
 
 ---
 
@@ -1283,7 +1283,7 @@ hard to defend in review.
 
 - National prevalence, within survey error, in every cell
 - District *rankings*, anchored to design-based regional totals
-- Targeting value: above 1.0x lift in 23 of 24 combinations
+- Targeting value: above 1.0x lift in 22 of 24 combinations
 
 **Not defensible**
 
