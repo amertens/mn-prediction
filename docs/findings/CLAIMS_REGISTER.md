@@ -34,7 +34,7 @@ than Sections 4 to 6.
 
 | ID | Claim | As stated | Source map | Status | Resolved by |
 |:---|:---|:---|:---|:---|:---|
-| 3.1 | Individual-level prediction aggregated to Admin-2 | median r 0.516, r_share 0.92 | `frozen_2026-09/area_comparison_all.csv`, columns `pearson_r` and `r_share`, filter `approach == "Individual SL"` | not yet tested | WS1, WS3a |
+| 3.1 | Individual-level prediction aggregated to Admin-2 | median r 0.516, r_share 0.92 | `frozen_2026-09/area_comparison_all.csv`, columns `pearson_r` and `r_share`, filter `approach == "Individual SL"` | **revised** | WS1, WS3a |
 | 3.2 | Area-level SuperLearner does not beat the national-mean null | MAE 9.31 to 9.84 vs 9.55 pp | `frozen_2026-09/area_comparison_all.csv`, column `mae_pp`, filter on the two Area SL arms and the null | not yet tested | WS3a |
 | 3.3 | Covariate-free spatial smoother beats every covariate arm | r 0.304 to 0.393 | `frozen_2026-09/area_comparison_all.csv`, column `pearson_r`, filter `approach == "Spatial only (no covariates)"` | not yet tested | WS4a |
 | 3.4 | Covariates beat geography at Admin-2 | 6 of 24 cells | `frozen_2026-09/resolution_comparison.csv`, column `r`, filter `level == "admin-2"`, arms `covariates` against `spatial only` | not yet tested | WS4a |
@@ -45,22 +45,54 @@ than Sections 4 to 6.
 | 3.9 | Predictors surviving FDR control | 0 of 294, all 24 cells | `frozen_2026-09/bivariate_fdr.csv` | not yet tested | WS7a |
 | 3.10 | Penalised regression retained predictors | median 0; 13 of 18 cells retain none | `frozen_2026-09/penalized_retained.csv` | not yet tested | not scheduled |
 | 3.11 | SuperLearner beats the best of 21 comparators | 0 of 16 LOCO holdouts | `frozen_2026-09/benchmarks_all.csv`, filter `eval_type == "loco"` | not yet tested | not scheduled |
-| 3.12 | Positive control, earth observation predicts district education | r 0.48 to 0.71 | no committed table located; Stage 0 searched `results/`, `sensitivity/`, `sandbox_parsimony/` and `docs/` | not yet tested | WS4b |
+| 3.12 | Positive control, earth observation predicts district education | r 0.48 to 0.71 | no committed table located; Stage 0 searched `results/`, `sensitivity/`, `sandbox_parsimony/` and `docs/` | **revised** | WS4b |
+
+**3.1 revised.** The stated 0.516 does not reproduce: the committed table gives
+**0.524** and `r_share` **1.05** against the stated 0.92 (source:
+`frozen_2026-09/area_comparison_all.csv`). More consequentially, Stage 0
+established by reading the code what protocol produced it.
+`aggregate_admin2_sl()` aggregates `res$yhat_full`, which
+`src/analysis/sl_helpers.R` produces via
+`origami::make_folds(cluster_ids = id_vec, V = folds)`: a **cluster-blocked
+K-fold**, not the region-blocked leave-one-region-out that Section 5 uses. The
+preprocessing recipe is also `prep()`ed on all rows before folds are formed.
+The comment at `R/area_level_comparison.R:300` describing these rows as
+"IN-SAMPLE" is inconsistent with that code and one of the two is wrong.
+
+Measured on the smoke cell, the fold construction alone accounts for most of the
+gap: Ghana `child_iron`, proxy arm, district, scores **0.398** under
+region-blocked folds and **0.610** under cluster-blocked K-fold (source:
+`results/tables/individual_arms_2026-09_SMOKE.csv`). The corrected layer's own
+strict-protocol median is **0.031** (`protocol_reconciliation_medians.csv`,
+`indiv_region_wt`). The full 2 by 2 across four cells is **not yet computed**;
+see Part 3 of `PROJECT_STATUS_2026-09_UPDATE.md`.
+
+**3.12 revised, and the general claim it supports is withdrawn.** Education is
+predicted at **0.679 (Ghana), 0.795 (Sierra Leone) and 0.808 (Gambia)** for the
+no-education indicator, above the stated 0.48 to 0.71 (source:
+`results/tables/positive_control_targets.csv`). The specific claim therefore
+holds and is now sourced. The **use** made of it does not: stunting reaches a
+median of **-0.122**, improved water **0.014**, improved sanitation **0.007**
+and full vaccination **0.164**, all well-measured district quantities. Across 81
+DHS indicators the median achieved r is **0.071**
+(`results/tables/reliability_skill_curve.csv`). The pipeline predicts
+socioeconomic gradients, not health and nutrition outcomes, so a control built on
+education does not show that a well-measured target would be predicted well.
 
 ## Section 4. Where a district estimate's level comes from
 
 | ID | Claim | As stated | Source map | Status | Resolved by |
 |:---|:---|:---|:---|:---|:---|
-| 4.1 | Admin-1 anchor, hard | mean r 0.413, median 0.405, MAE 8.85, mean absolute bias 1.59 | `frozen_2026-09/admin1_arms.csv`, filter `arm == "admin-2 fit + ADMIN-1 benchmark (hard)"` | not yet tested | WS2 |
-| 4.2 | Admin-1 anchor, shrunk | mean r 0.318, MAE 9.36, bias 2.76 | same file, filter `arm == "admin-2 fit + ADMIN-1 benchmark (shrunk)"` | not yet tested | WS2 |
-| 4.3 | Fit at Admin-1, extrapolate to Admin-2 | mean r 0.230, 22 cells, MAE 8.78, bias 3.18 | same file, filter `arm == "ADMIN-1 fit -> admin-2 (pooled)"` | not yet tested | WS2 |
-| 4.4 | National anchor | mean r 0.170, MAE 11.98, bias 5.85 | same file, filter `arm == "admin-2 fit + national benchmark"` | not yet tested | WS2a, WS2c |
-| 4.5 | No anchor | mean r 0.164, MAE 10.71, bias 3.24 | same file, filter `arm == "admin-2 fit (LORO), unbenchmarked"` | not yet tested | WS2 |
-| 4.6 | The hard Admin-1 anchor beats no anchor | 20 of 24 cells | same file, paired on `country` and `outcome` | not yet tested | WS2b, WS2d |
-| 4.7 | The anchor is a one-parameter logit shift, so district ranking is identical in every arm | qualitative | `R/benchmark_area.R`, `benchmark_admin2_to_admin1()` | not yet tested | WS2c |
-| 4.8 | National anchoring makes mean absolute bias worse | 5.85 vs 3.24 pp | `frozen_2026-09/admin1_arms.csv`, column `bias_pp` | not yet tested | WS2c, withheld pending the implied-shift audit |
+| 4.1 | Admin-1 anchor, hard | mean r 0.413, median 0.405, MAE 8.85, mean absolute bias 1.59 | `frozen_2026-09/admin1_arms.csv`, filter `arm == "admin-2 fit + ADMIN-1 benchmark (hard)"` | **confirmed** | WS2 |
+| 4.2 | Admin-1 anchor, shrunk | mean r 0.318, MAE 9.36, bias 2.76 | same file, filter `arm == "admin-2 fit + ADMIN-1 benchmark (shrunk)"` | **confirmed** | WS2 |
+| 4.3 | Fit at Admin-1, extrapolate to Admin-2 | mean r 0.230, 22 cells, MAE 8.78, bias 3.18 | same file, filter `arm == "ADMIN-1 fit -> admin-2 (pooled)"` | **confirmed** | WS2 |
+| 4.4 | National anchor | mean r 0.170, MAE 11.98, bias 5.85 | same file, filter `arm == "admin-2 fit + national benchmark"` | **confirmed** | WS2a, WS2c |
+| 4.5 | No anchor | mean r 0.164, MAE 10.71, bias 3.24 | same file, filter `arm == "admin-2 fit (LORO), unbenchmarked"` | **confirmed** | WS2 |
+| 4.6 | The hard Admin-1 anchor beats no anchor | 20 of 24 cells | same file, paired on `country` and `outcome` | **withdrawn** | WS2b, WS2d |
+| 4.7 | The anchor is a one-parameter logit shift, so district ranking is identical in every arm | qualitative | `R/benchmark_area.R`, `benchmark_admin2_to_admin1()` | **confirmed** | WS2c |
+| 4.8 | National anchoring makes mean absolute bias worse | 5.85 vs 3.24 pp | `frozen_2026-09/admin1_arms.csv`, column `bias_pp` | **revised** | WS2c, withheld pending the implied-shift audit |
 | 4.9 | Hard beats shrunk despite the theoretical risk | 0.413 vs 0.318 | `frozen_2026-09/admin1_arms.csv` | not yet tested | WS2d |
-| 4.10 | The anchoring gain is not circular | qualitative argument in Section 4.4 | none | not yet tested | WS2a, WS2b |
+| 4.10 | The anchoring gain is not circular | qualitative argument in Section 4.4 | none | **withdrawn** | WS2a, WS2b |
 | 4.11 | The survey supplies the level; the model supplies the within-region pattern | qualitative | Sections 4 and 6 | **revised** | WS2d |
 
 **4.1 to 4.5 confirmed as reproductions.** All five published arms reproduce from
@@ -121,12 +153,63 @@ outperforms the covariate model on correlation as well as on error.
 | 5.1 | District, proxy arm | 16 cells, mean r 0.154, median 0.126, MAE 8.33 | `frozen_2026-09/individual_anchor.csv`, filter `unit == "district"` and `arm == "proxy"` | not yet tested | WS3a |
 | 5.2 | District, questionnaire arm | mean r 0.228, median 0.264, MAE 7.92 | same file, filter `unit == "district"` and `arm == "quest"` | not yet tested | WS3a, WS3b |
 | 5.3 | Cluster, proxy and questionnaire arms | 0.146 and 0.229 | same file, filter `unit == "cluster"` | not yet tested | WS3f |
-| 5.4 | Questionnaire better in 10 of 16 cells, mean gain +0.075 | 10 of 16, +0.075 | same file, paired on `country`, `outcome` and `unit` | not yet tested | WS3b, WS3c |
+| 5.4 | Questionnaire better in 10 of 16 cells, mean gain +0.075 | 10 of 16, +0.075 | same file, paired on `country`, `outcome` and `unit` | **revised** | WS3b, WS3c |
 | 5.5 | Clears r = 0.4 in 3 of 16 cells | 3 of 16 | same file, column `r` | not yet tested | WS3a |
-| 5.6 | In Malawi the questionnaire adds nothing | gains 0.000, 0.000, 0.002, 0.004 | same file, filter `country == "Malawi"` | not yet tested | WS3b |
+| 5.6 | In Malawi the questionnaire adds nothing | gains 0.000, 0.000, 0.002, 0.004 | same file, filter `country == "Malawi"` | **withdrawn** | WS3b |
 | 5.7 | Maximum r anywhere across all 64 rows | 0.544 | same file, maximum of column `r` | not yet tested | WS7a |
-| 5.8 | The null is not explained by bad linkage, the inflammation adjustment, or overfitting | qualitative | Section 5.3 | not yet tested | WS3a, WS4b |
+| 5.8 | The null is not explained by bad linkage, the inflammation adjustment, or overfitting | qualitative | Section 5.3 | **withdrawn** | WS3a, WS4b |
 | 5.9 | Cluster linkage does not help, and helps least in Sierra Leone | Gambia +0.017, Ghana -0.003, Malawi -0.002, Sierra Leone -0.025 | same file, `r` at `unit == "cluster"` minus `r` at `unit == "district"` | not yet tested | WS3f |
+
+**5.1, 5.2, 5.3, 5.5, 5.7 and 5.9 remain `not yet tested`.** The re-run that
+would replace them is reduced to a 4-cell subset under the run-or-reframe rule
+and had not completed when this register was written. What is established is
+that the published numbers were computed on a **contaminated and non-nested**
+pair of arms, so they should not be quoted:
+
+- **Contaminated.** The questionnaire arm saw `gw_wm_whbc` and `gw_gchb`, two
+  Ghana haemoglobin measurements, plus thirteen further blood-derived columns
+  found from Stata labels (WS7a, WS7b).
+- **Non-nested.** The published questionnaire arm applies
+  `is_biomarker_column()` to `Xvars_full`, which also strips the MAP sickle-cell
+  rasters and the DHS mean-haemoglobin Admin-2 aggregates that the proxy arm
+  keeps, because the proxy arm uses `Xvars` unfiltered. The two arms therefore
+  differed in more than the questionnaire, so the gap between them is not
+  attributable to the questionnaire alone. `allowed_under_arm()` fixes this by
+  scoping the filter to the concurrent survey.
+
+**5.4 revised, on the published table's own arithmetic.** The published mean gain
+of +0.075 and count of 10 of 16 reproduce exactly. Under the exclusions Section
+5.5 asks for and did not perform:
+
+| Subset | Cells | Mean gain | Median gain | Questionnaire better |
+|:---|---:|---:|---:|:---|
+| As published | 16 | +0.0748 | +0.0080 | 10 of 16 |
+| Excluding Malawi | 12 | +0.0993 | +0.0220 | 8 of 12 |
+| Excluding Ghana women_iron | 15 | **+0.0375** | **+0.0040** | 9 of 15 |
+| Excluding both | 11 | +0.0506 | +0.0200 | 7 of 11 |
+
+(source: `frozen_2026-09/individual_anchor.csv`, `unit == "district"`.) Dropping
+the one cell Section 5.5 names halves the mean gain and takes the median to
+0.004. The conclusion that the questionnaire adds little is **strengthened**.
+
+**5.6 withdrawn as a finding about Malawi.** Malawi's `GW` domain contains
+**zero** columns: `Xvars_full` equals `Xvars` at 1222 columns, against 378 `gw_`
+columns for Ghana (measured from the `outcome_data_*` targets). Its questionnaire
+arm has **fewer** predictors than its proxy arm in the published table, 1141
+against 1147, because the two differ only by the `sd > 0` filter after
+imputation. Independently, the WS7a leakage report finds Malawi's proxy and
+questionnaire maxima identical to four decimal places in all eight outcomes. The
+gains of 0.000, 0.000, 0.002 and 0.004 are the signature of one arm scored twice.
+Malawi's questionnaire data exists (242 columns in
+`data/IPD/Malawi/Malawi_merged_dataset.rds`, coded `m01` to `m2xx`) but carries
+zero labels and no local codebook, so ingestion is held as a to-do.
+
+**5.8 withdrawn.** Section 5.3 excludes three explanations for the null and
+concludes the signal is weak "for any predictor set that can be constructed".
+WS4b measures the same pipeline on 81 DHS indicators at a median achieved r of
+**0.071** against a median reliability of **0.784**, and the micronutrient cells
+sit **above** that line. The null is not specific to micronutrient targets, so
+it is not evidence about the target. It is evidence about the predictors.
 
 ## Section 6. A predicted national level cannot substitute for a survey
 
@@ -134,16 +217,16 @@ outperforms the covariate model on correlation as well as on error.
 |:---|:---|:---|:---|:---|:---|
 | 6.1 | The VMNIS LOCO model is competent | Vitamin A preschool random forest, MAE 11.75, Pearson 0.655 | `frozen_2026-09/national_vmnis_loco.csv` | not yet tested | WS6c |
 | 6.2 | The null arm's negative Pearson is an artefact, not a finding | qualitative | `frozen_2026-09/national_vmnis_loco.csv`, filter `model == "null"` | not yet tested | WS6b |
-| 6.3 | Vitamin A preschool ceiling components | sd country 1.411, method 0.564, residual 0.000, sampling 0.816 | `frozen_2026-09/national_vmnis_ceiling.csv`, row 1 | not yet tested | WS6a |
-| 6.4 | Vitamin A preschool ceiling and saturation | r_max 0.818, r_share 0.80 | same file, columns `r_max_report` and `r_share` | not yet tested | WS6a |
-| 6.5 | Correction to the record: the model is not 98 percent saturated at a ceiling of 0.66 | 80 percent of 0.818 | same file | not yet tested | WS6a |
-| 6.6 | sd_resid hits the boundary at 0.000 in two panels, so r_max is untrustworthy there | 2 of 4 panels | same file, column `sd_resid` | not yet tested | WS6b |
-| 6.7 | For Vitamin A NPW, method variance exceeds country variance | 1.996 vs 1.232 | same file, row 3 | not yet tested | WS6b |
-| 6.8 | Composition arm errors | MAE 5.81, 8.22, 12.70, 5.58 pp | `frozen_2026-09/national_composition.csv`, column `mae_pp` grouped by `arm` | not yet tested | WS6d |
-| 6.9 | Composition arm absolute bias | 3.35, 4.69, 10.03, 0.73 pp | same file, column `bias_pp` | not yet tested | WS6d |
+| 6.3 | Vitamin A preschool ceiling components | sd country 1.411, method 0.564, residual 0.000, sampling 0.816 | `frozen_2026-09/national_vmnis_ceiling.csv`, row 1 | **revised** | WS6a |
+| 6.4 | Vitamin A preschool ceiling and saturation | r_max 0.818, r_share 0.80 | same file, columns `r_max_report` and `r_share` | **revised** | WS6a |
+| 6.5 | Correction to the record: the model is not 98 percent saturated at a ceiling of 0.66 | 80 percent of 0.818 | same file | **revised** | WS6a |
+| 6.6 | sd_resid hits the boundary at 0.000 in two panels, so r_max is untrustworthy there | 2 of 4 panels | same file, column `sd_resid` | **withdrawn** | WS6b |
+| 6.7 | For Vitamin A NPW, method variance exceeds country variance | 1.996 vs 1.232 | same file, row 3 | **confirmed** | WS6b |
+| 6.8 | Composition arm errors | MAE 5.81, 8.22, 12.70, 5.58 pp | `frozen_2026-09/national_composition.csv`, column `mae_pp` grouped by `arm` | **revised** | WS6d |
+| 6.9 | Composition arm absolute bias | 3.35, 4.69, 10.03, 0.73 pp | same file, column `bias_pp` | **revised** | WS6d |
 | 6.10 | The predicted national level is on a different scale; the null beats the covariate model | 6 of 8 cells | `frozen_2026-09/national_composition_levels.csv` | not yet tested | WS6c |
-| 6.11 | Even a perfect national level buys 0.23 pp, better in only 4 of 8 cells | 5.81 to 5.58 pp | `frozen_2026-09/national_composition.csv` | not yet tested | WS6d |
-| 6.12 | Scope limitation: the VMNIS and transport outcomes intersect on vitamin A only | 2 outcomes times 4 countries, 8 cells | Section 6.5 | confirmed | WS6d |
+| 6.11 | Even a perfect national level buys 0.23 pp, better in only 4 of 8 cells | 5.81 to 5.58 pp | `frozen_2026-09/national_composition.csv` | **revised** | WS6d |
+| 6.12 | Scope limitation: the VMNIS and transport outcomes intersect on vitamin A only | 2 outcomes times 4 countries, 8 cells | Section 6.5 | **confirmed** | WS6d |
 
 **6.3 revised.** The sampling term is wrong, and by a factor of 4.7. For Vitamin
 A / preschool the published `sd_sampling` of 0.816 is the square root of the
@@ -232,10 +315,10 @@ separate reason set out in `docs/TARGET_ESTIMAND.md` section 3; WS2 tests that.
 | ID | Claim | As stated | Source map | Status | Resolved by |
 |:---|:---|:---|:---|:---|:---|
 | 11.1 | Admin-2 is below the resolution these surveys can support | median district 6 to 36 measurements; median r_max 0.098 | `frozen_2026-09/admin1_arms.csv`, column `r_max` over 24 unique cells | **revised** | WS1a, WS1b, WS4a |
-| 11.2 | The constraint is a property of the target, not the predictors | 0.154 to 0.228, and education r 0.48 to 0.71 | `frozen_2026-09/individual_anchor.csv`; the education source is not located | not yet tested | WS3, WS4b |
+| 11.2 | The constraint is a property of the target, not the predictors | 0.154 to 0.228, and education r 0.48 to 0.71 | `frozen_2026-09/individual_anchor.csv`; the education source is not located | **revised** | WS3, WS4b |
 | 11.3 | Geography carries most of what transportable signal exists | the spatial smoother matches the 294-predictor set; none survive FDR; penalised regression retains a median of zero | `frozen_2026-09/area_comparison_all.csv`, `bivariate_fdr.csv`, `penalized_retained.csv` | not yet tested | WS4a |
-| 11.4 | Level and pattern are different problems with different answers | qualitative | Sections 4 and 6 | not yet tested | WS2, WS6 |
-| 11.5 | The level must be resolved regionally to be worth anything | 0.164 to 0.413; national anchoring costs bias; an oracle level buys 0.23 pp | `frozen_2026-09/admin1_arms.csv`, `national_composition.csv` | not yet tested | WS2, WS5, WS6d |
+| 11.4 | Level and pattern are different problems with different answers | qualitative | Sections 4 and 6 | **revised** | WS2, WS6 |
+| 11.5 | The level must be resolved regionally to be worth anything | 0.164 to 0.413; national anchoring costs bias; an oracle level buys 0.23 pp | `frozen_2026-09/admin1_arms.csv`, `national_composition.csv` | **revised** | WS2, WS5, WS6d |
 | 11.6 | National estimates are the defensible deliverable; district maps are rankings | qualitative | Section 11 | not yet tested | WS8a, WS8b |
 
 **11.1 revised, and the direction of the correction matters.** The stated median
