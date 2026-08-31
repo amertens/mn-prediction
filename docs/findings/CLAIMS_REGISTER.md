@@ -79,6 +79,27 @@ DHS indicators the median achieved r is **0.071**
 socioeconomic gradients, not health and nutrition outcomes, so a control built on
 education does not show that a well-measured target would be predicted well.
 
+**3.3, 3.4 and 3.5: WS4a supplies the resolution evidence.** The sweep does not
+re-score the spatial smoother, so 3.3 and 3.4 remain `not yet tested`. Claim 3.5,
+that Admin-1 covariates beat Admin-1 spatial 0.437 to 0.209, is not directly
+re-measured either, but its premise is confirmed and sharpened: Admin-1 is the
+best of four resolutions tested, with mean out-of-fold r **0.315** against
+**0.086** at Admin-2 over the 14 cells present at all levels, best in **9 of 14**
+cells and better than Admin-2 in **13 of 14**
+(source: `results/tables/resolution_sweep.csv`, column `r_oof`).
+
+**Open question 2 answered.** Section 13 asks whether a resolution between
+Admin-1 and Admin-2 keeps covariates informative while measuring the target
+adequately. Measured across Admin-1, two-way and three-way splits of each region,
+and Admin-2, skill declines monotonically and **no intermediate level is a peak**.
+An intermediate beats both endpoints in 4 of 14 cells and never decisively.
+
+**A constraint recorded against 11.1.** Sierra Leone (4 Admin-1 regions) and
+Gambia (6) cannot support a within-country covariate model at Admin-1 at all
+under leave-one-region-out, which would train on 3 and 5 units. The resolution at
+which the survey measures the target well is the resolution at which there are
+too few units to learn a covariate map.
+
 ## Section 4. Where a district estimate's level comes from
 
 | ID | Claim | As stated | Source map | Status | Resolved by |

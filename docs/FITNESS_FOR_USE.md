@@ -47,11 +47,24 @@ reproduced by `scripts/accuracy_impact/ws1e_poststrat.R`). A district with one
 cluster has no within-district replication at all, so its estimate carries the
 full between-cluster variance with nothing to average it against.
 
-**The intermediate resolution question is open.** WS4a, which would sweep
-Admin-1 split into two and three contiguous parts, is **not yet computed**. The
-existing evidence bounds the answer between an Admin-1 error of 0.3 pp and an
-Admin-2 error of 7.4 pp, and says nothing about where in between the crossover
-sits.
+**The intermediate resolution question is now answered: there is no useful
+intermediate.** WS4a swept Admin-1, Admin-1 cut into two and three spatially
+compact parts, and Admin-2, holding the learner, folds and covariates constant.
+Over the 14 cells present at all four levels, mean out-of-fold r is **0.315**
+(Admin-1), **0.166** (two-way split), **0.093** (three-way split) and **0.086**
+(Admin-2); Admin-1 is best in **9 of 14** cells and beats Admin-2 in **13 of 14**
+(source: `results/tables/resolution_sweep.csv`, column `r_oof`). Skill falls
+monotonically with resolution and no intermediate level is a peak.
+
+Expressed as survey design: skill is highest at a median of **33 measurements per
+unit** and has halved by **19.5**. Below roughly **20 measurements per unit**
+these covariates carry very little, and Admin-2 sits at a median of **10 to 13**.
+
+**A constraint that follows from the same sweep.** Two of the four countries
+cannot support a within-country covariate model at Admin-1 at all: Sierra Leone
+has 4 regions and Gambia 6, so leave-one-region-out would train on 3 and 5 units
+respectively. Where the survey supports the estimate there are too few units to
+learn a map; where there are enough units the estimate is too noisy to trust.
 
 ---
 
@@ -133,8 +146,9 @@ From WS5 (`docs/findings/WS5_ANCHORING_BUDGET.md`):
 
 ## 7. What would change these rules
 
-- **WS4a**, the aggregation-level sweep, would locate the resolution between
-  Admin-1 and Admin-2 at which estimates become supportable. Not yet computed.
+- WS4a is now computed and found no intermediate optimum, so a finer reporting
+  geography is not the route. What would change these rules is a covariate set
+  that works at all, not a different aggregation of the current one.
 - A covariate set that predicts health and nutrition outcomes rather than
   socioeconomic gradients. WS4b measured the current set at a median r of 0.071
   across 81 DHS indicators, with education and wealth the exceptions at 0.63 to

@@ -77,9 +77,15 @@
 #'   that district to enter the correlation
 #' @param seed random seed
 #' @return one-row data.frame, or NULL when the cell cannot support the scheme
+#' @param min_units minimum number of areas that must survive a split for that
+#'   split to contribute. Defaults to 5, which is what WS1a used; the WS4a
+#'   resolution sweep lowers it to 4 so that Sierra Leone's four Admin-1 regions
+#'   can be estimated at all. A reliability from four points is noisy and the
+#'   sweep labels it as such.
 split_half_reliability <- function(d, a2_col, cl_col, w_col, y_col,
                                    scheme = c("within", "cluster"),
-                                   B = 200L, min_half = 3L, seed = 20260901L) {
+                                   B = 200L, min_half = 3L, seed = 20260901L,
+                                   min_units = 5L) {
   scheme <- match.arg(scheme)
   y  <- suppressWarnings(as.numeric(haven::zap_labels(d[[y_col]])))
   a2 <- as.character(d[[a2_col]])
@@ -94,7 +100,7 @@ split_half_reliability <- function(d, a2_col, cl_col, w_col, y_col,
 
   # Districts must be able to give both halves something to estimate from.
   keep_d <- names(which(table(a2) >= 2L * min_half))
-  if (length(keep_d) < 5) return(NULL)
+  if (length(keep_d) < min_units) return(NULL)
   sel <- a2 %in% keep_d
   y <- y[sel]; a2 <- a2[sel]; cl <- cl[sel]; w <- w[sel]
 
@@ -104,7 +110,7 @@ split_half_reliability <- function(d, a2_col, cl_col, w_col, y_col,
   n_cl_per_d <- tapply(cl, a2, function(z) length(unique(z)))
   if (scheme == "cluster") {
     keep_d2 <- names(which(n_cl_per_d >= 2L))
-    if (length(keep_d2) < 5) return(NULL)
+    if (length(keep_d2) < min_units) return(NULL)
     sel <- a2 %in% keep_d2
     y <- y[sel]; a2 <- a2[sel]; cl <- cl[sel]; w <- w[sel]
   }
@@ -140,11 +146,11 @@ split_half_reliability <- function(d, a2_col, cl_col, w_col, y_col,
     n1 <- table(factor(a2[i1], levels = lev))
     n2 <- table(factor(a2[i2], levels = lev))
     good <- lev[n1 >= min_half & n2 >= min_half]
-    if (length(good) < 5) next
+    if (length(good) < min_units) next
     p1 <- .wprev(y[i1], w[i1], factor(a2[i1], levels = lev), lev)[good]
     p2 <- .wprev(y[i2], w[i2], factor(a2[i2], levels = lev), lev)[good]
     fin <- is.finite(p1) & is.finite(p2)
-    if (sum(fin) < 5 || stats::sd(p1[fin]) == 0 || stats::sd(p2[fin]) == 0) next
+    if (sum(fin) < min_units || stats::sd(p1[fin]) == 0 || stats::sd(p2[fin]) == 0) next
     rs[b] <- suppressWarnings(stats::cor(p1[fin], p2[fin]))
     n_used[b] <- sum(fin)
   }

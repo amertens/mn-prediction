@@ -154,7 +154,30 @@ not be quoted as an out-of-sample individual-level result without saying so.
 **Manuscript sentences affected:** Section 3's individual-level row, Section 5.2
 table, Section 5.5. Register rows 3.1, 5.1, 5.2, 5.10.
 
-### 1.7 Section 5's published questionnaire advantage is substantially one cell
+### 1.7 There is no useful resolution between Admin-1 and Admin-2
+
+WS4a swept four levels with the learner, folds and covariates held constant.
+Over the 14 cells present at all four, mean out-of-fold r is **0.315** at
+Admin-1, **0.166** at a two-way split of each region, **0.093** at a three-way
+split and **0.086** at Admin-2 (source: `results/tables/resolution_sweep.csv`).
+Admin-1 is the best level in **9 of 14** cells and beats Admin-2 in **13 of 14**;
+an intermediate level beats both endpoints in only 4 of 14 and never decisively.
+
+**Open question 2 is answered in the negative.** Section 13 suggests the
+crossover lies between Admin-1 and Admin-2. Measured, skill declines
+monotonically with resolution and there is no interior peak.
+
+**A structural constraint the sweep surfaced.** Sierra Leone (4 regions) and
+Gambia (6) cannot support a within-country covariate model at Admin-1 at all,
+because leave-one-region-out would train on 3 and 5 units. Where the survey
+supports the estimate there are too few units to learn a map; where there are
+enough units the estimate is too noisy. This is the same tension WS2 reports from
+the other side, where a covariate-free regional mean beats every covariate arm.
+
+**Manuscript sentences affected:** Section 13 open question 2, Section 3's
+Admin-1 comparison row, Section 11 claim 1. Register rows 3.5, 11.1.
+
+### 1.8 Section 5's published questionnaire advantage is substantially one cell
 
 Recomputed from the published table: dropping Ghana women_iron takes the mean
 gain from **+0.075 to +0.038** and the median to **+0.004**, with the
@@ -196,7 +219,6 @@ Test suite: **37 tests, 0 failures**, via `Rscript tests/testthat.R`.
 
 | Item | Why |
 |:---|:---|
-| WS4a, the aggregation-level sweep | Compute. The machine ran the owner's own jobs throughout; WS3 progressed at about six of 192 fits per half hour under that load. |
 | WS3a's production-stack arm | The 4-cell parity subset ran under the light NNLS stack for both protocols. The learner half of the 2 by 2 is not computed, so the PROTOCOL effect is bounded and the LEARNER effect is not. |
 | WS3f cluster-train, district-evaluate | Both variants scored here differ only in the unit of aggregation, matching the published script. Training at the cluster is not computed. |
 | WS3d, permutation importance for Ghana women_iron | Not reached. |
