@@ -1,0 +1,159 @@
+domain,column,status,reason
+IHME,ihme_peoplelivingwithhiv_counts_1519years_males,kept,NA
+IHME,ihme_peoplelivingwithhiv_counts_2024years_males,kept,NA
+IHME,ihme_peoplelivingwithhiv_counts_2529years_males,kept,NA
+IHME,ihme_peoplelivingwithhiv_counts_3034years_males,kept,NA
+IHME,ihme_peoplelivingwithhiv_counts_3539years_males,kept,NA
+IHME,ihme_peoplelivingwithhiv_counts_4044years_males,kept,NA
+IHME,ihme_peoplelivingwithhiv_counts_4549years_males,kept,NA
+IHME,ihme_peoplelivingwithhiv_counts_5054years_males,kept,NA
+IHME,ihme_peoplelivingwithhiv_counts_5559years_males,kept,NA
+IHME,ihme_peoplelivingwithhiv_counts_1519years_females,kept,NA
+IHME,ihme_peoplelivingwithhiv_counts_2024years_females,kept,NA
+IHME,ihme_peoplelivingwithhiv_counts_2529years_females,kept,NA
+IHME,ihme_peoplelivingwithhiv_counts_3034years_females,kept,NA
+IHME,ihme_peoplelivingwithhiv_counts_3539years_females,kept,NA
+IHME,ihme_peoplelivingwithhiv_counts_4044years_females,kept,NA
+IHME,ihme_peoplelivingwithhiv_counts_4549years_females,kept,NA
+IHME,ihme_peoplelivingwithhiv_counts_5054years_females,kept,NA
+IHME,ihme_peoplelivingwithhiv_counts_5559years_females,kept,NA
+IHME,ihme_peoplelivingwithhiv_counts_1549years_both,kept,NA
+IHME,ihme_peoplelivingwithhiv_counts_1559years_both,kept,NA
+IHME,ihme_hivprevalence_percent_1519years_males,kept,NA
+IHME,ihme_hivprevalence_percent_2024years_males,kept,NA
+IHME,ihme_hivprevalence_percent_2529years_males,kept,NA
+IHME,ihme_hivprevalence_percent_3034years_males,kept,NA
+IHME,ihme_hivprevalence_percent_3539years_males,kept,NA
+IHME,ihme_hivprevalence_percent_4044years_males,kept,NA
+IHME,ihme_hivprevalence_percent_4549years_males,kept,NA
+IHME,ihme_hivprevalence_percent_5054years_males,kept,NA
+IHME,ihme_hivprevalence_percent_5559years_males,kept,NA
+IHME,ihme_hivprevalence_percent_1519years_females,kept,NA
+IHME,ihme_hivprevalence_percent_2024years_females,kept,NA
+IHME,ihme_hivprevalence_percent_2529years_females,kept,NA
+IHME,ihme_hivprevalence_percent_3034years_females,kept,NA
+IHME,ihme_hivprevalence_percent_3539years_females,kept,NA
+IHME,ihme_hivprevalence_percent_4044years_females,kept,NA
+IHME,ihme_hivprevalence_percent_4549years_females,kept,NA
+IHME,ihme_hivprevalence_percent_5054years_females,kept,NA
+IHME,ihme_hivprevalence_percent_5559years_females,kept,NA
+IHME,ihme_hivprevalence_percent_1549years_both,kept,NA
+IHME,ihme_hivprevalence_percent_1559years_both,kept,NA
+IHME,ihme_mcv1coverage_percent_1223months_both,kept,NA
+IHME,ihme_deaths_rate_5to14years_both,kept,NA
+IHME,ihme_deaths_rate_15plus_both,kept,NA
+IHME,ihme_deaths_rate_0to4years_both,kept,NA
+IHME,ihme_prevalence_rate_0to99years_both,kept,NA
+IHME,ihme_prevalence_rate_2to10years_both,kept,NA
+IHME,ihme_incidence_rate_0to99years_both,kept,NA
+IHME,ihme_incidence_rate_5to14years_both,kept,NA
+IHME,ihme_incidence_rate_15plus_both,kept,NA
+IHME,ihme_incidence_rate_0to4years_both,kept,NA
+IHME,ihme_prevalence_rate_allages_both,kept,NA
+IHME,ihme_prevalence_count_allages_both,kept,NA
+IHME,ihme_ebfprevalence_percent_6months_both,kept,NA
+IHME,ihme_severeanemia_percent_1549years_females,kept,NA
+IHME,ihme_moderateanemia_percent_1549years_females,kept,NA
+IHME,ihme_mildanemia_percent_1549years_females,kept,NA
+IHME,ihme_allanemia_percent_1549years_females,kept,NA
+MalariaAtlas,map_blooddisorders201201africahbcallelefrequency,kept,NA
+MalariaAtlas,map_blooddisorders201201globalduffynegativityphenotypefrequency,kept,NA
+MalariaAtlas,map_blooddisorders201201globalg6pddallelefrequency,kept,NA
+MalariaAtlas,map_blooddisorders201201globalsicklehaemoglobinhbsallelefrequency,kept,NA
+MalariaAtlas,map_interventions202106africainsecticidetreatednetaccess,kept,NA
+MalariaAtlas,map_interventions202106africainsecticidetreatednetuse,kept,NA
+MalariaAtlas,map_interventions202106africainsecticidetreatednetuserate,kept,NA
+MalariaAtlas,map_interventions202106africairscoverage,kept,NA
+MalariaAtlas,map_interventions202106globalantimalarialeffectivetreatment,kept,NA
+MalariaAtlas,map_interventions202406africainsecticidetreatednetaccess,kept,NA
+MalariaAtlas,map_interventions202406africainsecticidetreatednetuse,kept,NA
+MalariaAtlas,map_interventions202406africainsecticidetreatednetuserate,kept,NA
+MalariaAtlas,map_interventions202406globalantimalarialeffectivetreatment,kept,NA
+MalariaAtlas,map_malaria202202globalpfreproductivenumber,kept,NA
+MalariaAtlas,map_malaria202206globalpfincidencecount,kept,NA
+MalariaAtlas,map_malaria202206globalpfincidencerate,kept,NA
+MalariaAtlas,map_malaria202206globalpfmortalitycount,kept,NA
+MalariaAtlas,map_malaria202206globalpfmortalityrate,kept,NA
+MalariaAtlas,map_malaria202206globalpfparasiterate,kept,NA
+MalariaAtlas,map_malaria202206globalpvincidencecount,kept,NA
+MalariaAtlas,map_malaria202206globalpvincidencerate,kept,NA
+MalariaAtlas,map_malaria202206globalpvparasiterate,kept,NA
+MalariaAtlas,map_malaria202406globalpfincidencecount,kept,NA
+MalariaAtlas,map_malaria202406globalpfincidencerate,kept,NA
+MalariaAtlas,map_malaria202406globalpfmortalitycount,kept,NA
+MalariaAtlas,map_malaria202406globalpfmortalityrate,kept,NA
+MalariaAtlas,map_malaria202406globalpfparasiterate,kept,NA
+MalariaAtlas,map_malaria202406globalpvincidencecount,kept,NA
+MalariaAtlas,map_malaria202406globalpvincidencerate,kept,NA
+MalariaAtlas,map_malaria202406globalpvparasiterate,kept,NA
+FoodSecurity,fsec_ipc_phase_fews,kept,NA
+FoodSecurity,fsec_ipc_phase_ipcch,kept,NA
+MICS,NA,blocked,collected in Gambia and Ghana only; no data for Malawi or Sierra Leone
+LSMS,NA,blocked,Ghana only; no data for the other three
+FluNet,NA,not_applicable,"country-level weekly surveillance, constant within a country, so it carries no Admin-2 variation"
+filter,ihme_allanemia_percent_1549years_females,dropped,"absent, mostly missing or constant in at least one country"
+filter,ihme_deaths_rate_0to4years_both,dropped,"absent, mostly missing or constant in at least one country"
+filter,ihme_deaths_rate_15plus_both,dropped,"absent, mostly missing or constant in at least one country"
+filter,ihme_deaths_rate_5to14years_both,dropped,"absent, mostly missing or constant in at least one country"
+filter,ihme_ebfprevalence_percent_6months_both,dropped,"absent, mostly missing or constant in at least one country"
+filter,ihme_hivprevalence_percent_1519years_females,dropped,"absent, mostly missing or constant in at least one country"
+filter,ihme_hivprevalence_percent_1519years_males,dropped,"absent, mostly missing or constant in at least one country"
+filter,ihme_hivprevalence_percent_1549years_both,dropped,"absent, mostly missing or constant in at least one country"
+filter,ihme_hivprevalence_percent_1559years_both,dropped,"absent, mostly missing or constant in at least one country"
+filter,ihme_hivprevalence_percent_2024years_females,dropped,"absent, mostly missing or constant in at least one country"
+filter,ihme_hivprevalence_percent_2024years_males,dropped,"absent, mostly missing or constant in at least one country"
+filter,ihme_hivprevalence_percent_2529years_females,dropped,"absent, mostly missing or constant in at least one country"
+filter,ihme_hivprevalence_percent_2529years_males,dropped,"absent, mostly missing or constant in at least one country"
+filter,ihme_hivprevalence_percent_3034years_females,dropped,"absent, mostly missing or constant in at least one country"
+filter,ihme_hivprevalence_percent_3034years_males,dropped,"absent, mostly missing or constant in at least one country"
+filter,ihme_hivprevalence_percent_3539years_females,dropped,"absent, mostly missing or constant in at least one country"
+filter,ihme_hivprevalence_percent_3539years_males,dropped,"absent, mostly missing or constant in at least one country"
+filter,ihme_hivprevalence_percent_4044years_females,dropped,"absent, mostly missing or constant in at least one country"
+filter,ihme_hivprevalence_percent_4044years_males,dropped,"absent, mostly missing or constant in at least one country"
+filter,ihme_hivprevalence_percent_4549years_females,dropped,"absent, mostly missing or constant in at least one country"
+filter,ihme_hivprevalence_percent_4549years_males,dropped,"absent, mostly missing or constant in at least one country"
+filter,ihme_hivprevalence_percent_5054years_females,dropped,"absent, mostly missing or constant in at least one country"
+filter,ihme_hivprevalence_percent_5054years_males,dropped,"absent, mostly missing or constant in at least one country"
+filter,ihme_hivprevalence_percent_5559years_females,dropped,"absent, mostly missing or constant in at least one country"
+filter,ihme_hivprevalence_percent_5559years_males,dropped,"absent, mostly missing or constant in at least one country"
+filter,ihme_incidence_rate_0to4years_both,dropped,"absent, mostly missing or constant in at least one country"
+filter,ihme_incidence_rate_0to99years_both,dropped,"absent, mostly missing or constant in at least one country"
+filter,ihme_incidence_rate_15plus_both,dropped,"absent, mostly missing or constant in at least one country"
+filter,ihme_incidence_rate_5to14years_both,dropped,"absent, mostly missing or constant in at least one country"
+filter,ihme_mcv1coverage_percent_1223months_both,dropped,"absent, mostly missing or constant in at least one country"
+filter,ihme_mildanemia_percent_1549years_females,dropped,"absent, mostly missing or constant in at least one country"
+filter,ihme_moderateanemia_percent_1549years_females,dropped,"absent, mostly missing or constant in at least one country"
+filter,ihme_peoplelivingwithhiv_counts_1519years_females,dropped,"absent, mostly missing or constant in at least one country"
+filter,ihme_peoplelivingwithhiv_counts_1519years_males,dropped,"absent, mostly missing or constant in at least one country"
+filter,ihme_peoplelivingwithhiv_counts_1549years_both,dropped,"absent, mostly missing or constant in at least one country"
+filter,ihme_peoplelivingwithhiv_counts_1559years_both,dropped,"absent, mostly missing or constant in at least one country"
+filter,ihme_peoplelivingwithhiv_counts_2024years_females,dropped,"absent, mostly missing or constant in at least one country"
+filter,ihme_peoplelivingwithhiv_counts_2024years_males,dropped,"absent, mostly missing or constant in at least one country"
+filter,ihme_peoplelivingwithhiv_counts_2529years_females,dropped,"absent, mostly missing or constant in at least one country"
+filter,ihme_peoplelivingwithhiv_counts_2529years_males,dropped,"absent, mostly missing or constant in at least one country"
+filter,ihme_peoplelivingwithhiv_counts_3034years_females,dropped,"absent, mostly missing or constant in at least one country"
+filter,ihme_peoplelivingwithhiv_counts_3034years_males,dropped,"absent, mostly missing or constant in at least one country"
+filter,ihme_peoplelivingwithhiv_counts_3539years_females,dropped,"absent, mostly missing or constant in at least one country"
+filter,ihme_peoplelivingwithhiv_counts_3539years_males,dropped,"absent, mostly missing or constant in at least one country"
+filter,ihme_peoplelivingwithhiv_counts_4044years_females,dropped,"absent, mostly missing or constant in at least one country"
+filter,ihme_peoplelivingwithhiv_counts_4044years_males,dropped,"absent, mostly missing or constant in at least one country"
+filter,ihme_peoplelivingwithhiv_counts_4549years_females,dropped,"absent, mostly missing or constant in at least one country"
+filter,ihme_peoplelivingwithhiv_counts_4549years_males,dropped,"absent, mostly missing or constant in at least one country"
+filter,ihme_peoplelivingwithhiv_counts_5054years_females,dropped,"absent, mostly missing or constant in at least one country"
+filter,ihme_peoplelivingwithhiv_counts_5054years_males,dropped,"absent, mostly missing or constant in at least one country"
+filter,ihme_peoplelivingwithhiv_counts_5559years_females,dropped,"absent, mostly missing or constant in at least one country"
+filter,ihme_peoplelivingwithhiv_counts_5559years_males,dropped,"absent, mostly missing or constant in at least one country"
+filter,ihme_prevalence_count_allages_both,dropped,"absent, mostly missing or constant in at least one country"
+filter,ihme_prevalence_rate_0to99years_both,dropped,"absent, mostly missing or constant in at least one country"
+filter,ihme_prevalence_rate_2to10years_both,dropped,"absent, mostly missing or constant in at least one country"
+filter,ihme_prevalence_rate_allages_both,dropped,"absent, mostly missing or constant in at least one country"
+filter,ihme_severeanemia_percent_1549years_females,dropped,"absent, mostly missing or constant in at least one country"
+filter,map_blooddisorders201201globalduffynegativityphenotypefrequency,dropped,"absent, mostly missing or constant in at least one country"
+filter,map_malaria202206globalpvincidencecount,dropped,"absent, mostly missing or constant in at least one country"
+filter,map_malaria202206globalpvincidencerate,dropped,"absent, mostly missing or constant in at least one country"
+filter,map_malaria202206globalpvparasiterate,dropped,"absent, mostly missing or constant in at least one country"
+filter,map_malaria202406globalpvincidencecount,dropped,"absent, mostly missing or constant in at least one country"
+filter,map_malaria202406globalpvincidencerate,dropped,"absent, mostly missing or constant in at least one country"
+filter,map_malaria202406globalpvparasiterate,dropped,"absent, mostly missing or constant in at least one country"
+filter,fsec_ipc_phase_fews,dropped,"absent, mostly missing or constant in at least one country"
+filter,fsec_ipc_phase_ipcch,dropped,"absent, mostly missing or constant in at least one country"
