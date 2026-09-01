@@ -289,3 +289,81 @@ EXTRA_DERIVERS <- list(
   KR = list(derive_child_diet_groups, derive_child_preventive),
   HR = list(derive_livestock, derive_cooking_fuel)
 )
+
+# ---------------------------------------------------------------------------
+# Adult and maternal mortality, from the sibling survival history (IR).
+#
+# The mm* block is a roster: one set of columns per sibling, up to twenty. Each
+# sibling contributes sex (mm1), survival (mm2), current age (mm3), age at
+# death (mm7), years since death (mm6) and a maternal-death indicator (mm9).
+#
+# This is the only route to ADULT and MATERNAL morbidity/mortality in the
+# predictor set. Everything else covers children. Adult mortality indexes the
+# same underlying deprivation that drives micronutrient status, and maternal
+# mortality indexes obstetric care access specifically.
+#
+# COVERAGE IS 3 OF 4 AND THAT IS NOT A DEFECT TO HIDE. Ghana's DHS 2014 did not
+# field the maternal-mortality module, so these columns are absent for Ghana and
+# present for Gambia, Malawi and Sierra Leone. They are emitted with a coverage
+# flag rather than dropped, because a predictor available in three countries is
+# usable for three-country comparisons and for any country added later.
+# ---------------------------------------------------------------------------
+derive_sibling_mortality <- function(IRdata) {
+  added <- character()
+  if (is.null(IRdata) || nrow(IRdata) == 0) return(list(df = IRdata, added = added))
+  idx <- grep("^mm2_[0-9]+$", names(IRdata), value = TRUE)
+  if (!length(idx)) return(list(df = IRdata, added = added))
+  suf <- sub("^mm2_", "", idx)
+
+  gather <- function(stem) {
+    cols <- paste0(stem, "_", suf)
+    cols <- cols[cols %in% names(IRdata)]
+    if (!length(cols)) return(NULL)
+    do.call(cbind, lapply(cols, function(cc) as_num(IRdata[[cc]])))
+  }
+  M2 <- gather("mm2")   # 0 dead, 1 alive
+  if (is.null(M2)) return(list(df = IRdata, added = added))
+  M1 <- gather("mm1")   # 1 male, 2 female
+  M7 <- gather("mm7")   # age at death
+  M9 <- gather("mm9")   # 2..6 = died while pregnant / delivering / postpartum
+
+  alive <- M2 == 1; dead <- M2 == 0
+  n_sib <- rowSums(!is.na(M2))
+  n_dead <- rowSums(dead, na.rm = TRUE)
+  IRdata$w_sib_n <- ifelse(n_sib > 0, n_sib, NA_real_)
+  IRdata$w_sib_dead_prop <- ifelse(n_sib > 0, n_dead / n_sib, NA_real_)
+  added <- c(added, "w_sib_n", "w_sib_dead_prop")
+
+  # Adult deaths only: age at death 15 or above, so child mortality (already
+  # covered elsewhere) does not leak into an adult indicator.
+  if (!is.null(M7)) {
+    adult_dead <- dead & !is.na(M7) & M7 >= 15 & M7 < 95
+    n_ad <- rowSums(adult_dead, na.rm = TRUE)
+    IRdata$w_sib_adult_deaths <- n_ad
+    IRdata$w_sib_adult_death_any <- as.integer(n_ad > 0)
+    mean_age <- suppressWarnings(apply(ifelse(adult_dead, M7, NA), 1,
+                                       function(z) if (all(is.na(z))) NA_real_ else mean(z, na.rm = TRUE)))
+    IRdata$w_sib_mean_age_death <- mean_age
+    added <- c(added, "w_sib_adult_deaths", "w_sib_adult_death_any",
+               "w_sib_mean_age_death")
+  }
+  # Maternal deaths: mm9 codes 2 through 6 are pregnancy-related.
+  if (!is.null(M9)) {
+    mat <- dead & !is.na(M9) & M9 >= 2 & M9 <= 6
+    n_mat <- rowSums(mat, na.rm = TRUE)
+    IRdata$w_sib_maternal_deaths <- n_mat
+    IRdata$w_sib_maternal_any <- as.integer(n_mat > 0)
+    added <- c(added, "w_sib_maternal_deaths", "w_sib_maternal_any")
+  }
+  # Female sibling survival, the denominator a maternal-mortality ratio needs.
+  if (!is.null(M1)) {
+    fem <- !is.na(M1) & M1 == 2
+    IRdata$w_sib_female_n <- rowSums(fem, na.rm = TRUE)
+    IRdata$w_sib_female_dead <- rowSums(fem & dead, na.rm = TRUE)
+    added <- c(added, "w_sib_female_n", "w_sib_female_dead")
+  }
+  list(df = IRdata, added = added)
+}
+
+# Registered onto the IR list built above.
+EXTRA_DERIVERS$IR <- c(EXTRA_DERIVERS$IR, list(derive_sibling_mortality))
