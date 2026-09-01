@@ -1,0 +1,18 @@
+"comparison","cells","mean_a","mean_b","median_a","median_b","mean_gain","a_better_in","of"
+"FIX 1 replication: spread of one cell's r across fold draws",216,0.06,0.191,0.056,0.174,NA,NA,216
+"FIX 1 precision: unweighted MAE vs n_eff-weighted MAE (pp)",234,12.37,11.64,11.18,10.44,0.727,210,234
+"FIX 2 target [country]: continuous biomarker vs binary prevalence",43,0.161,0.06,0.2,0.106,0.102,28,43
+"FIX 2 target [infill]: continuous biomarker vs binary prevalence",126,0.259,0.15,0.32,0.152,0.109,84,126
+"FIX 2 target [region]: continuous biomarker vs binary prevalence",108,0.142,0.029,0.256,0.115,0.113,75,108
+"FIX 4 dimension [infill/level]: 18 domain scores vs 373 raw columns, same learner",18,0.272,0.308,0.262,0.352,-0.036,8,18
+"FIX 4 dimension [infill/level]: zero-tuning domain index vs 373-column elastic net",18,0.361,0.308,0.337,0.352,0.053,13,18
+"FIX 4 dimension [infill/prev]: 18 domain scores vs 373 raw columns, same learner",18,0.161,0.103,0.121,0.116,0.058,12,18
+"FIX 4 dimension [infill/prev]: zero-tuning domain index vs 373-column elastic net",18,0.285,0.103,0.257,0.116,0.182,17,18
+"FIX 4 dimension [region/level]: 18 domain scores vs 373 raw columns, same learner",18,0.159,0.194,0.132,0.327,-0.035,11,18
+"FIX 4 dimension [region/level]: zero-tuning domain index vs 373-column elastic net",18,0.346,0.194,0.302,0.327,0.151,14,18
+"FIX 4 dimension [region/prev]: 18 domain scores vs 373 raw columns, same learner",18,0.028,-0.085,0.055,-0.053,0.113,12,18
+"FIX 4 dimension [region/prev]: zero-tuning domain index vs 373-column elastic net",18,0.271,-0.085,0.235,-0.053,0.357,16,18
+"FIX 5 estimand [domain_index]: in-fill vs whole-region extrapolation",36,0.323,0.308,0.285,0.275,0.014,21,36
+"covariates vs covariate-free spatial smoother, FOLD-MATCHED (in-fill)",36,0.323,0.327,0.285,0.376,-0.004,21,36
+"FIX 5 estimand [domain_enet]: in-fill vs whole-region extrapolation",36,0.216,0.094,0.211,0.077,0.123,28,36
+"FIX 5 baseline: covariates vs JACKKNIFED regional mean (in-fill)",36,0.323,0.255,0.285,0.255,0.068,24,36
