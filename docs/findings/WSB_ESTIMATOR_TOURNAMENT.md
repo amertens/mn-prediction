@@ -144,3 +144,72 @@ and everything under `results/deliverables/` are new.
 route for `tau2` is reinstated. Suite is 72 passing.
 
 **Runtime.** About four hours for eight cells at 100 replicates and four ρ.
+
+---
+
+# Addendum, late September 2026: the tau2 route, and a target that is noisier than no target
+
+## A confound in the arm comparison, found and fixed
+
+The three empirical Bayes arms were not using the same definition of `tau2`:
+
+| arm | tau2 |
+|:---|:---|
+| `eb_blend` | `var(p) - vbar`, the **total** between-district variance |
+| `eb_covariate` | `var(p - ridge) - vbar`, residual after its own target |
+| `eb_stack` | `var(p - stack) - vbar`, residual after its own target |
+
+For a shrinkage toward target `m` the model is `theta_d = m_d + u_d`, so `tau2`
+is `Var(p - m) - vbar`. Using the total variance overstates it by the
+between-region component, which WS-E2 puts at about 40 percent of district
+variance.
+
+The consequence was not cosmetic. It meant that any comparison of `eb_stack`
+against `eb_blend` conflated **a better target** with **a better tau2 route** --
+which is the single comparison this tournament exists to make. All three arms
+now use residual-after-own-target, and the total-variance route is retained as a
+scored arm, `eb_blend_totvar`, so its cost is measured rather than assumed.
+
+## The correction's own justification was half wrong
+
+The obvious reading of the above is that `eb_blend` had been shrinking too
+little everywhere. Measured across the 24 shipped cells, that is true in about
+half of them and false in the rest:
+
+| `tau2_residual / tau2_total` | cells |
+|:---|---:|
+| both collapse to the floor | **14** |
+| residual smaller, 0.00 to 0.76 | 5 |
+| residual larger, 1.19 to 1.60 | 4 |
+| residual very much larger | **2** |
+
+Sierra Leone women_iron has a ratio of **61**, and Sierra Leone child_vitA of
+**107,004**.
+
+## What that means, and it is a real limitation of the shipped estimator
+
+A residual variance larger than the total says the jackknifed region mean is a
+**worse** predictor of a district than the grand mean is. That is not a coding
+error. Sierra Leone has 14 districts across 4 regions, so a district's
+jackknifed regional target is computed from **two or three other districts** and
+carries substantial sampling error of its own.
+
+The residual-variance formula is correct only when the target is estimated
+without error. Where districts are scarce that assumption fails, and the shipped
+estimator is then shrinking toward a quantity noisier than the national mean it
+could have used instead.
+
+This is a limitation to state rather than a defect to patch here. The fix would
+be to propagate the target's own variance into `tau2` -- shrinking toward the
+region mean only as far as the region mean is itself known -- and to let the
+national mean take weight where it is not. That is exactly what the `eb_stack`
+arm's candidate set makes available, and it is one more reason to score that arm
+rather than reason about it.
+
+## The shipped estimator does not need re-issuing on this
+
+`tau2` comes from split-half reliability in **21 of 24** shipped cells, with a
+median lambda of 0.478. Both moment routes -- total and residual -- collapse to
+the floor in **14 of 24**, which is the degeneracy WS-B3 already documented and
+the reason the reliability route was adopted in the first place. The route this
+addendum corrects is a fallback that the shipped output mostly does not take.

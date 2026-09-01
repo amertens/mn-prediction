@@ -37,7 +37,11 @@
 # WHAT IS SCORED
 #   direct        the survey's own district estimate
 #   flat_region   the region mean, jackknifed so a district never sees itself
-#   eb_blend      empirical Bayes between the two, lambda_d = tau2/(tau2 + v_d)
+#   eb_blend      empirical Bayes between the two, lambda_d = tau2/(tau2 + v_d),
+#                 with tau2 the RESIDUAL variance after the region mean
+#   eb_blend_totvar  the same, but with tau2 from TOTAL between-district
+#                 variance. This is the shipped estimator's moment fallback,
+#                 kept scored so the cost of that route is measured.
 #   ridge         the covariate ridge under leave-one-region-out
 #   region_tilt   the jackknifed region mean plus a covariate fit to
 #                 within-region residuals
@@ -77,7 +81,8 @@
 #' @return long data.frame: one row per estimator per setting
 run_tournament <- function(d, a2_col, cl_col, w_col, y_col, X_d, region,
                            rho = c(0, 0.2, 0.35, 0.6), sd_logit = 0.8,
-                           R = 200L, seed = 20260922L, k_screen = 20L) {
+                           R = 200L, seed = 20260922L, k_screen = 20L,
+                           lonlat = NULL, stack_shrink = 0.5) {
   y0 <- suppressWarnings(as.numeric(haven::zap_labels(d[[y_col]])))
   a2 <- as.character(d[[a2_col]]); cl <- as.character(d[[cl_col]])
   w  <- suppressWarnings(as.numeric(haven::zap_labels(d[[w_col]])))
@@ -128,12 +133,34 @@ run_tournament <- function(d, a2_col, cl_col, w_col, y_col, X_d, region,
         if (length(j) >= 2) fr[i] <- stats::weighted.mean(p_obs[j], pmax(n_obs[j], 1))
       }
       est$flat_region <- fr
-      # empirical Bayes toward the jackknifed region mean
+      # empirical Bayes toward the jackknifed region mean.
+      #
+      # tau2 IS THE RESIDUAL VARIANCE AFTER THE TARGET, NOT THE TOTAL.
+      # For a shrinkage p_d -> m_d the model is theta_d = m_d + u_d with
+      # u_d ~ N(0, tau2), so tau2 = Var(p - m) - vbar. An earlier version used
+      # Var(p) - vbar, the TOTAL between-district variance, which overstates
+      # tau2 by the between-REGION component -- about 40 percent of district
+      # variance by WS-E2's decomposition. That inflated lambda, made eb_blend
+      # shrink less than its own model says it should, and, because the
+      # eb_covariate and eb_stack arms below were already residual-based, it
+      # confounded "better target" with "better tau2 route" in the one
+      # comparison this tournament exists to make.
       v_d <- area_sampling_var_shrunk(p_obs, pmax(n_obs, 1), deff = 1.5)
-      tau2 <- max(stats::var(p_obs[fin]) - mean(v_d[fin]), 1e-8)
+      okb <- fin & is.finite(fr)
+      tau2 <- if (sum(okb) >= 10)
+        max(stats::var(p_obs[okb] - fr[okb]) - mean(v_d[okb]), 1e-8) else
+        max(stats::var(p_obs[fin]) - mean(v_d[fin]), 1e-8)
       lam <- tau2 / (tau2 + v_d)
       lam[!is.finite(lam)] <- 0
       est$eb_blend <- ifelse(is.finite(fr), lam * p_obs + (1 - lam) * fr, p_obs)
+      # The total-variance route, kept as a SCORED ARM rather than deleted:
+      # it is what the shipped estimator's moment fallback computes, so its
+      # cost needs to be measured rather than assumed.
+      tau2_tot <- max(stats::var(p_obs[fin]) - mean(v_d[fin]), 1e-8)
+      lam_tot <- tau2_tot / (tau2_tot + v_d)
+      lam_tot[!is.finite(lam_tot)] <- 0
+      est$eb_blend_totvar <- ifelse(is.finite(fr),
+                                    lam_tot * p_obs + (1 - lam_tot) * fr, p_obs)
       # covariate ridge, leave-one-region-out
       pr <- rep(NA_real_, length(lev))
       for (rg in unique(reg)) {
@@ -169,6 +196,31 @@ run_tournament <- function(d, a2_col, cl_col, w_col, y_col, X_d, region,
         lam_r[!is.finite(lam_r)] <- 1
         est$eb_covariate <- ifelse(is.finite(pr),
           pmin(pmax(lam_r * p_obs + (1 - lam_r) * pr, 0), 1), est$eb_blend)
+      }
+      # The stacked target: the same empirical Bayes blend, but shrinking
+      # toward a convex combination of national mean, jackknifed region mean,
+      # covariate-free spatial smooth and screened ridge, each built out of
+      # region and each RECENTRED out of region. It nests eb_blend exactly at
+      # weights (0,1,0,0), so it can only lose by paying for flexibility it
+      # does not use -- which is the thing this arm exists to measure.
+      if (exists("eb_stack_target")) {
+        st <- tryCatch(eb_stack_target(p_obs, pmax(n_obs, 1), reg, X = X_d,
+                                       lonlat = lonlat, fin = fin,
+                                       shrink = stack_shrink, k_screen = k_screen,
+                                       seed = seed + r),
+                       error = function(e) NULL)
+        if (!is.null(st) && any(is.finite(st$target))) {
+          tg <- st$target
+          okt <- fin & is.finite(tg)
+          # tau2 is the residual variance after the stacked target, so a better
+          # target leaves less to shrink and the district keeps more weight.
+          tau2_s <- if (sum(okt) >= 10)
+            max(stats::var(p_obs[okt] - tg[okt]) - mean(v_d[okt]), 1e-8) else tau2
+          lam_s <- tau2_s / (tau2_s + v_d)
+          lam_s[!is.finite(lam_s)] <- 1
+          est$eb_stack <- ifelse(is.finite(tg),
+            pmin(pmax(lam_s * p_obs + (1 - lam_s) * tg, 0), 1), est$eb_blend)
+        }
       }
 
       for (nm in names(est)) {

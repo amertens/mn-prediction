@@ -12,7 +12,10 @@ suppressPackageStartupMessages({library(dplyr); library(here)})
 Sys.setenv(COVARIATE_VOCAB = "harmonized")
 targets::tar_source(here("R"))
 PROFILE <- Sys.getenv("PROFILE", "full")
-STORE <- here("_targets_full"); SUF <- if (PROFILE == "smoke") "_SMOKE" else if (Sys.getenv("WSB2_SUBSET")=="four") "_6ARM" else ""
+STORE <- here("_targets_full")
+SUF <- if (PROFILE == "smoke") "_SMOKE" else
+  if (Sys.getenv("WSB2_RHO_EXT") == "1") "_STACK_EXTRHO" else
+  if (Sys.getenv("WSB2_SUBSET") == "four") "_6ARM" else ""
 R_REP <- as.integer(Sys.getenv("WSB2_R", if (PROFILE == "smoke") "30" else "100"))
 # The tournament costs about half an hour per cell: every replicate refits the
 # ridge and the tilt once per region. Twenty-four cells is not affordable, so the
@@ -26,7 +29,14 @@ SUBSET <- if (Sys.getenv("WSB2_SUBSET") == "four")
        c("Malawi","child_vitA"), c("Malawi","women_folate"),
        c("SierraLeone","child_iron"), c("SierraLeone","women_iron"))
 kk <- function(x) tolower(gsub("[^a-z]", "", tolower(x)))
-RHO <- c(0, 0.2, 0.35, 0.6); SEED <- 20260922L
+# The grid runs to 0.9 because the Gambia reconciliation put the crossover
+# there. Gambia's real covariate models reach r_obs 0.574 and 0.717 while the
+# tournament's ridge reaches only 0.458 and 0.444 at rho 0.6 -- so Gambia's
+# actual covariate signal share sits ABOVE the grid originally tested, and the
+# point where the ridge overtakes the blend was never observed.
+RHO <- if (Sys.getenv("WSB2_RHO_EXT") == "1")
+  c(0, 0.2, 0.35, 0.6, 0.8, 0.9) else c(0, 0.2, 0.35, 0.6)
+SEED <- 20260922L
 TDIR <- here("results","tables"); FDIR <- here("results","figures")
 dir.create(FDIR, showWarnings = FALSE, recursive = TRUE)
 
@@ -67,9 +77,22 @@ for (cn in names(cfgs)) {
     if (ncol(X) < 5) next
     rownames(X) <- m$Admin2
     reg <- stats::setNames(m$Admin1, m$Admin2)
+    # District centroids for the stack's covariate-free spatial candidate.
+    # Pair-joined on (Admin1, Admin2): Malawi's centroid table holds 243 rows
+    # under 239 distinct names, and an Admin2-only join fans districts out.
+    ll <- tryCatch({
+      cen <- sf::st_drop_geometry(load_admin2_centroids(cc$gadm_code))
+      cen <- cen[, intersect(c("Admin1","Admin2","lon","lat"), names(cen)), drop = FALSE]
+      j <- dplyr::left_join(m[, c("Admin1","Admin2")], cen,
+                            by = admin2_join_by(m, cen))
+      j <- j[!duplicated(paste(j$Admin1, j$Admin2)), , drop = FALSE]
+      if (nrow(j) == nrow(m)) as.matrix(j[, c("lon","lat")]) else NULL
+    }, error = function(e) NULL)
+    if (is.null(ll)) cat(sprintf("  [note] %s %s: no centroids, spatial candidate dropped
+", cn, ocn))
     r <- tryCatch(run_tournament(d, cc$admin2_col, cc$cluster_id, cc$weight_col,
                                  oc$binary, X, reg, rho = RHO, R = R_REP,
-                                 seed = SEED),
+                                 seed = SEED, lonlat = ll),
                   error = function(e) { message("  ", cn, " ", ocn, ": ",
                                                 conditionMessage(e)); NULL })
     if (is.null(r)) next
