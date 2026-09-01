@@ -114,6 +114,8 @@ s <- res |> group_by(rho, estimator) |>
             r_truth = round(mean(r_truth, na.rm=TRUE), 3),
             mae_truth = round(mean(mae_truth, na.rm=TRUE), 2),
             bias_truth = round(mean(bias_truth, na.rm=TRUE), 2),
+            lift = round(mean(lift_truth, na.rm=TRUE), 3),
+            lift_share = round(mean(lift_share, na.rm=TRUE), 3),
             r_obs = round(mean(r_obs, na.rm=TRUE), 3), .groups="drop") |>
   arrange(rho, desc(r_truth))
 print(as.data.frame(s), row.names = FALSE)
@@ -121,6 +123,15 @@ print(as.data.frame(s), row.names = FALSE)
 cat("\n=== winner by rho, on r against truth ===\n")
 w <- s |> group_by(rho) |> slice_max(r_truth, n = 1) |> ungroup()
 print(as.data.frame(w[, c("rho","estimator","r_truth","mae_truth")]), row.names=FALSE)
+cat("
+=== winner by rho, on TARGETING LIFT against truth ===
+")
+if ("lift" %in% names(s)) {
+  wl <- s |> group_by(rho) |> slice_max(lift, n = 1) |> ungroup()
+  print(as.data.frame(wl[, c("rho","estimator","lift","lift_share","r_truth","mae_truth")]),
+        row.names = FALSE)
+}
+
 cat("\n=== winner by rho, on MAE against truth ===\n")
 w2 <- s |> group_by(rho) |> slice_min(mae_truth, n = 1) |> ungroup()
 print(as.data.frame(w2[, c("rho","estimator","mae_truth","r_truth")]), row.names=FALSE)

@@ -229,10 +229,37 @@ run_tournament <- function(d, a2_col, cl_col, w_col, y_col, X_d, region,
       for (nm in names(est)) {
         p <- est[[nm]]; f2 <- fin & is.finite(p)
         if (sum(f2) < 10 || stats::sd(truth[f2]) == 0) next
+        # TARGETING LIFT AGAINST TRUTH.
+        #
+        # The tournament scored only error and correlation, and on that basis
+        # eb_stack looked like the winner: best MAE across the whole measured
+        # range of covariate signal. But it never won correlation, and the
+        # project's endpoint is now RANKING areas for programme allocation, not
+        # estimating each area's prevalence. An estimator that shrinks toward a
+        # smoother target compresses the ranking, which is what eb_stack's
+        # correlation drop was showing. Scoring lift here makes that visible in
+        # the tournament rather than in an argument about it afterwards.
+        #
+        # lift = mean TRUE prevalence in the areas this estimator ranks in the
+        # top fifth, over the mean across all areas. 1.0 is random allocation.
+        k <- max(1L, round(0.20 * sum(f2)))
+        sel <- order(p[f2], decreasing = TRUE)[seq_len(k)]
+        tv <- truth[f2]
+        ov <- mean(tv)
+        lift <- if (is.finite(ov) && ov > 0) mean(tv[sel]) / ov else NA_real_
+        # The ceiling: what a perfectly informed allocation would reach in this
+        # cell. Lift is scale-free but not spread-free, so a bare 1.2 means
+        # something different where the ceiling is 1.3 than where it is 5.
+        osel <- order(tv, decreasing = TRUE)[seq_len(k)]
+        lift_oracle <- if (is.finite(ov) && ov > 0) mean(tv[osel]) / ov else NA_real_
         acc[[nm]] <- rbind(acc[[nm]], data.frame(
           r_truth = suppressWarnings(stats::cor(truth[f2], p[f2])),
           mae_truth = 100 * mean(abs(p[f2] - truth[f2])),
           bias_truth = 100 * mean(p[f2] - truth[f2]),
+          lift_truth = lift,
+          lift_oracle = lift_oracle,
+          lift_share = if (is.finite(lift_oracle) && lift_oracle > 1)
+            (lift - 1) / (lift_oracle - 1) else NA_real_,
           r_obs = suppressWarnings(stats::cor(p_obs[f2], p[f2])),
           mae_obs = 100 * mean(abs(p[f2] - p_obs[f2]))))
       }
@@ -246,6 +273,13 @@ run_tournament <- function(d, a2_col, cl_col, w_col, y_col, X_d, region,
         r_truth_hi = round(stats::quantile(A$r_truth, .9, na.rm = TRUE), 4),
         mae_truth = round(mean(A$mae_truth, na.rm = TRUE), 3),
         bias_truth = round(mean(A$bias_truth, na.rm = TRUE), 3),
+        # Targeting lift, carried through the per-replicate accumulator into
+        # the returned table. Adding it to acc[] alone was not enough: this
+        # aggregation names its columns explicitly, so a new metric that is not
+        # listed here is computed and then silently discarded.
+        lift_truth = round(mean(A$lift_truth, na.rm = TRUE), 4),
+        lift_oracle = round(mean(A$lift_oracle, na.rm = TRUE), 4),
+        lift_share = round(mean(A$lift_share, na.rm = TRUE), 4),
         r_obs = round(mean(A$r_obs, na.rm = TRUE), 4),
         mae_obs = round(mean(A$mae_obs, na.rm = TRUE), 3),
         median_lambda = NA_real_, icc = round(icc, 4),
