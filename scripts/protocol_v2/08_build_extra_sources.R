@@ -250,6 +250,59 @@ if (!is.null(gf) && "country_name" %in% names(gf)) {
   } else cat("  no usable numeric GFDx columns for these countries\n")
 } else cat("  GFDx unreadable or unexpected schema\n")
 
+
+# ── 4. GEE demography and urbanisation (WorldPop age-sex, GHS-SMOD) ─────────
+# Built by scripts/protocol_v2/09_extract_gee_demography.py. The vocabulary had
+# 428 predictors and not one described WHO LIVES THERE, although age and sex
+# composition is the most direct area-level determinant of nutritional
+# REQUIREMENT. WorldPop age-sex had been used only for post-stratification
+# weights, never as a predictor.
+cat("
+[GEE demography]
+")
+dem <- tryCatch(read.csv("data/covariates/harmonized/gee_demography_admin2.csv",
+                         stringsAsFactors = FALSE), error = function(e) NULL)
+if (!is.null(dem)) {
+  blocks$demog <- dem
+  dcols <- setdiff(names(dem), c("country", "Admin1", "Admin2"))
+  add_meta(dcols, "WorldPop age-sex / JRC GHS-SMOD (Earth Engine)",
+           ifelse(grepl("smod", dcols),
+                  "Ruralness, population density, built environment",
+                  "Household assets and characteristics"),
+           TRUE,
+           "Earth Engine zonal sum at 1 km over the GADM Admin-2 polygon, expressed as a SHARE of total population so it is comparable across countries. TEMPORAL CAVEAT: the WorldPop age-sex collection carries a single 2020 vintage, so this is 2020 composition matched to surveys from 2013-2021 - a lag of up to 7 years for Sierra Leone. GHS-SMOD is the degree-of-urbanisation class, 10 rural to 30 urban centre.")
+  cat(sprintf("  -> %d demography columns
+", length(dcols)))
+} else cat("  demography CSV absent; run 09_extract_gee_demography.py first
+")
+
+
+# ── 5. Zone stratifiers (Koppen-Geiger, AEZ16) ─────────────────────────────
+# Built by scripts/protocol_v2/10_build_zone_stratifiers.R. The 41 climate and
+# 93 agriculture columns are all CONTINUOUS surfaces; a zone class is the
+# stratifier this literature actually uses, is stable rather than year-specific,
+# and encodes interactions a linear model over separate continuous columns
+# cannot reach. Classes are emitted one-hot so no learner reads class 12 as
+# greater than class 4.
+cat("
+[zone stratifiers]
+")
+zs <- tryCatch(read.csv("data/covariates/harmonized/zone_stratifiers_admin2.csv",
+                        stringsAsFactors = FALSE), error = function(e) NULL)
+if (!is.null(zs)) {
+  # the raw class CODE is an unordered category: keep purity, heterogeneity and
+  # the one-hot indicators, drop the code itself so nothing treats it as ordinal
+  zs <- zs[, !grepl("_class$", names(zs)), drop = FALSE]
+  blocks$zones <- zs
+  zcols <- setdiff(names(zs), c("country", "Admin1", "Admin2"))
+  add_meta(zcols, "Koppen-Geiger 1991-2020 / IFPRI-HarvestChoice AEZ16",
+           "Climate and weather", TRUE,
+           "Modal zone class over the Admin-2 polygon. *_purity is the share of the district in its modal class (1 = squarely inside one zone); *_n_classes counts distinct zones present; *_is_N are one-hot indicators for classes common enough to be usable. The raw ordinal class code is deliberately NOT carried, because the classes are unordered.")
+  cat(sprintf("  -> %d zone columns
+", length(zcols)))
+} else cat("  zone CSV absent; run 10_build_zone_stratifiers.R first
+")
+
 # ── assemble and append, without the four-country filter ────────────────────
 if (!length(blocks)) stop("no blocks built")
 EX <- spine
