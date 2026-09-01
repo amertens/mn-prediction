@@ -1,0 +1,49 @@
+country,outcome,arm,n_admin2,pearson_r,mae_pp,bias_pp,abs_bias_pp,r_max_emp,r_share_emp
+Ghana,child_vitA,1 no anchor (LORO),75,0.2422,10.53,-4.6,4.6,0.5923,0.409
+Ghana,child_vitA,2a flat REGIONAL mean (no covariates),75,0.502,8.03,1.04,1.04,0.5923,0.848
+Ghana,child_vitA,2a flat NATIONAL mean (no covariates),75,NA,9.48,-0.35,0.35,0.5923,NA
+Ghana,child_vitA,3 ADMIN-1 anchor (hard),75,0.4069,9.91,3.87,3.87,0.5923,0.687
+Ghana,child_vitA,3 ADMIN-1 anchor (shrunk),75,0.3173,9.76,2.55,2.55,0.5923,0.536
+Ghana,child_vitA,4 national anchor,75,0.2393,11.09,3.37,3.37,0.5923,0.404
+Ghana,child_vitA,"5 ADMIN-1 anchor (hard, JACKKNIFE)",73,0.2796,11.94,4.34,4.34,0.5923,0.472
+Ghana,child_vitA,"6 ADMIN-1 anchor (hard, SPLIT-SAMPLE)",75,0.3676,9.83,3.55,3.55,0.5923,0.621
+Ghana,women_vitA,1 no anchor (LORO),75,0.0599,2.17,-0.8,0.8,0.3925,0.153
+Ghana,women_vitA,2a flat REGIONAL mean (no covariates),75,0.3289,2.35,-0.05,0.05,0.3925,0.838
+Ghana,women_vitA,2a flat NATIONAL mean (no covariates),75,NA,2.4,-0.46,0.46,0.3925,NA
+Ghana,women_vitA,3 ADMIN-1 anchor (hard),75,0.2968,2.59,0.18,0.18,0.3925,0.756
+Ghana,women_vitA,3 ADMIN-1 anchor (shrunk),75,-0.0779,2.42,-0.45,0.45,0.3925,-0.198
+Ghana,women_vitA,4 national anchor,75,0.0601,2.48,-0.33,0.33,0.3925,0.153
+Ghana,women_vitA,"5 ADMIN-1 anchor (hard, JACKKNIFE)",50,-0.0699,3.03,1.37,1.37,0.3925,-0.178
+Ghana,women_vitA,"6 ADMIN-1 anchor (hard, SPLIT-SAMPLE)",75,0.2527,2.69,0.23,0.23,0.3925,0.644
+Ghana,child_iron,1 no anchor (LORO),75,0.4533,14.05,-5.24,5.24,0.8108,0.559
+Ghana,child_iron,2a flat REGIONAL mean (no covariates),75,0.7748,9.68,1.53,1.53,0.8108,0.956
+Ghana,child_iron,2a flat NATIONAL mean (no covariates),75,NA,14.43,-1.14,1.14,0.8108,NA
+Ghana,child_iron,3 ADMIN-1 anchor (hard),75,0.7599,10.42,2.81,2.81,0.8108,0.937
+Ghana,child_iron,3 ADMIN-1 anchor (shrunk),75,0.7526,10.11,1.97,1.97,0.8108,0.928
+Ghana,child_iron,4 national anchor,75,0.4696,14.57,3.95,3.95,0.8108,0.579
+Ghana,child_iron,"5 ADMIN-1 anchor (hard, JACKKNIFE)",72,0.653,12.32,2.27,2.27,0.8108,0.805
+Ghana,child_iron,"6 ADMIN-1 anchor (hard, SPLIT-SAMPLE)",75,0.7481,10.2,2.38,2.38,0.8108,0.923
+Ghana,women_iron,1 no anchor (LORO),75,0.0381,10.96,-5.56,5.56,0.3839,0.099
+Ghana,women_iron,2a flat REGIONAL mean (no covariates),75,0.6351,6.91,0.32,0.32,0.3839,1.654
+Ghana,women_iron,2a flat NATIONAL mean (no covariates),75,NA,10.01,-5.4,5.4,0.3839,NA
+Ghana,women_iron,3 ADMIN-1 anchor (hard),75,0.4679,8.73,-0.59,0.59,0.3839,1.219
+Ghana,women_iron,3 ADMIN-1 anchor (shrunk),75,0.3649,8.93,-2.83,2.83,0.3839,0.951
+Ghana,women_iron,4 national anchor,75,0.0393,11.07,-6.36,6.36,0.3839,0.102
+Ghana,women_iron,"5 ADMIN-1 anchor (hard, JACKKNIFE)",69,0.2465,10.86,-4.8,4.8,0.3839,0.642
+Ghana,women_iron,"6 ADMIN-1 anchor (hard, SPLIT-SAMPLE)",75,0.2948,9.82,-4.67,4.67,0.3839,0.768
+Ghana,women_folate,1 no anchor (LORO),75,0.2493,25.87,-0.46,0.46,0.7131,0.35
+Ghana,women_folate,2a flat REGIONAL mean (no covariates),75,0.6369,18.17,-0.4,0.4,0.7131,0.893
+Ghana,women_folate,2a flat NATIONAL mean (no covariates),75,NA,24.93,0.95,0.95,0.7131,NA
+Ghana,women_folate,3 ADMIN-1 anchor (hard),75,0.0478,26.5,6.02,6.02,0.7131,0.067
+Ghana,women_folate,3 ADMIN-1 anchor (shrunk),75,0.0424,26.48,5.92,5.92,0.7131,0.059
+Ghana,women_folate,4 national anchor,75,0.1738,30.25,18.52,18.52,0.7131,0.244
+Ghana,women_folate,"5 ADMIN-1 anchor (hard, JACKKNIFE)",72,0.3459,24.47,3.64,3.64,0.7131,0.485
+Ghana,women_folate,"6 ADMIN-1 anchor (hard, SPLIT-SAMPLE)",75,0.0152,26.5,5.27,5.27,0.7131,0.021
+Ghana,women_b12,1 no anchor (LORO),75,-0.1226,11.3,-5.65,5.65,0.4862,-0.252
+Ghana,women_b12,2a flat REGIONAL mean (no covariates),75,0.7305,7.35,-0.87,0.87,0.4862,1.503
+Ghana,women_b12,2a flat NATIONAL mean (no covariates),75,NA,11.26,-2.48,2.48,0.4862,NA
+Ghana,women_b12,3 ADMIN-1 anchor (hard),75,0.2682,10.06,-1.01,1.01,0.4862,0.552
+Ghana,women_b12,3 ADMIN-1 anchor (shrunk),75,0.1706,10.7,-1.72,1.72,0.4862,0.351
+Ghana,women_b12,4 national anchor,75,-0.1239,13.77,0.86,0.86,0.4862,-0.255
+Ghana,women_b12,"5 ADMIN-1 anchor (hard, JACKKNIFE)",58,0.3302,11.86,1.06,1.06,0.4862,0.679
+Ghana,women_b12,"6 ADMIN-1 anchor (hard, SPLIT-SAMPLE)",75,0.1776,10.72,-1.39,1.39,0.4862,0.365

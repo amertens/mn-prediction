@@ -142,6 +142,16 @@ for (ctry in countries) {
       x <- rowMeans(M, na.rm = TRUE); x[is.nan(x)] <- NA_real_
     }
     expect <- x * (u$multiply %||% 1) + (u$add %||% 0)
+    # The harmoniser clamps physically impossible negatives to zero for the
+    # four count/area variables below (canonicalize.R). GHSL population comes
+    # back from raster resampling with small negatives -- Ghana min -7.29 --
+    # and left alone they reach models as real data. The verifier has to apply
+    # the same clamp or it reports a 7.29 discrepancy on a deliberate fix, and
+    # a permanently red check trains everyone to ignore it.
+    if (cn %in% c("ghs_pop", "built_surface", "built_surface_nres",
+                  "grassland_frac")) {
+      expect[is.finite(expect) & expect < 0] <- 0
+    }
     got <- po[[cn]]
     d <- suppressWarnings(max(abs(expect - got), na.rm = TRUE))
     recheck[[length(recheck) + 1L]] <- data.frame(

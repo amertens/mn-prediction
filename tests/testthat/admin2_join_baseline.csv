@@ -1,0 +1,70 @@
+file,line,kind,code,audit
+dashboard/data-raw/_build_bym2_layer.R,143,by_name_only,"train <- dplyr::inner_join(all_df, surv, by = ""Admin2"")",not assessed
+dashboard/data-raw/_build_fh_layer.R,68,by_name_only,"train <- dplyr::inner_join(all_df, surv, by = ""Admin2"")",not assessed
+dashboard/data-raw/_rebuild_admin2_predictions.R,40,by_name_only,"n_survey = if(!is.na(nc)) svy[[nc]] else NA_integer_), by=""Admin2"")",not assessed
+dashboard/data-raw/_rebuild_admin2_predictions.R,49,by_name_only,"df <- df |> select(-ci_lo,-ci_hi,-ci_width) |> left_join(k, by=""Admin2"")",not assessed
+dashboard/data-raw/test_server.R,50,composite_without_admin1,"m <- merge(d_map, d_dp, by = ""Admin2"", suffixes = c(""_map"", ""_dp""))",not assessed
+dashboard/R/mod_decision_value.R,71,composite_without_admin1,"df <- merge(df, pop, by = c(""country_label"", ""Admin2""),",not assessed
+dashboard/R/mod_oos_civ.R,128,by_name_only,"by = ""Admin2"", all.x = TRUE, sort = FALSE)",not assessed
+dashboard/R/mod_transport_calibration.R,161,composite_without_admin1,"m <- merge(d, a1, by.x = c(""country_label"", ""Admin2""),",not assessed
+dashboard/R/mod_transport_calibration.R,163,composite_without_admin1,"m <- merge(m, pop, by.x = c(""country_label"", ""Admin2""),",not assessed
+R/admin2_analysis.R,816,by_name_only,"by = ""Admin2""",not assessed
+R/admin2_analysis.R,1239,by_name_only,"by = ""Admin2""",not assessed
+R/area_level_comparison.R,408,composite_without_admin1,"svy_admin2[, c(""Admin2"", ""n_svy"")], by = ""Admin2"")",not assessed
+R/corrected/area_recipe.R,48,by_name_only,"area <- merge(sv, gee[, c(""Admin2"", gcols)], by = ""Admin2"", sort = FALSE)",not assessed
+R/corrected/area_recipe.R,57,by_name_only,"area <- merge(area, cw, by = ""Admin2"", all.x = TRUE, sort = FALSE)",not assessed
+R/corrected/area_recipe.R,66,by_name_only,"area <- merge(area, agg, by = ""Admin2"", all.x = TRUE, sort = FALSE)",not assessed
+R/corrected/area_recipe.R,261,composite_without_admin1,"out <- merge(out, sv[, c(""Admin2"", ""svy_prev"", ""n_svy"")], by = ""Admin2"", all.x = TRUE, sort = FALSE)",not assessed
+R/corrected/p2_p6_methods.R,80,composite_without_admin1,"merge(agg, sv[, keep, drop = FALSE], by = c(""country"", ""Admin2""),",not assessed
+R/corrected/p2_p6_methods.R,233,by_name_only,"by = ""Admin2"", all.x = TRUE, sort = FALSE)",not assessed
+R/corrected/p2_p6_methods.R,239,composite_without_admin1,"out <- merge(out, w[, c(""Admin2"", ""pi_width"")], by = ""Admin2"",",not assessed
+R/corrected/p7_area.R,36,by_name_only,"area <- merge(sv, g, by = ""Admin2"", all.x = TRUE, sort = FALSE)",not assessed
+R/corrected/p7_area.R,97,by_name_only,"out <- merge(out, ml, by = ""Admin2"", all.x = TRUE, sort = FALSE)",not assessed
+R/corrected/p9_protocol_reconciliation.R,61,by_name_only,"stringsAsFactors = FALSE), sv, by = ""Admin2"")",not assessed
+R/corrected/p9_protocol_reconciliation.R,139,by_name_only,"area <- merge(merge(sv, cw, by = ""Admin2""),",not assessed
+R/corrected/p9_protocol_reconciliation.R,140,by_name_only,"gee_admin2[, c(""Admin2"", gcols)], by = ""Admin2"")",not assessed
+R/corrected/p9_protocol_reconciliation.R,190,by_name_only,"dd <- merge(di, av, by = ""Admin2"")",not assessed
+R/corrected/p9_protocol_reconciliation.R,211,by_name_only,"m  <- merge(data.frame(Admin2 = names(ag), pred = as.numeric(ag)), sv, by = ""Admin2"")",not assessed
+R/corrected/p9_protocol_reconciliation.R,226,by_name_only,"m   <- merge(data.frame(Admin2 = names(ag), pred = as.numeric(ag)), sv, by = ""Admin2"")",not assessed
+R/data_prep.R,374,by_name_only,"combined <- merge(wide, custom, by = ""Admin2"", all = TRUE)",not assessed
+R/external_data.R,1658,by_name_only,"result <- merge(all_admin2, agg, by = ""Admin2"", all.x = TRUE)",not assessed
+R/external_data.R,2446,by_name_only,"by = ""Admin2"", all.x = TRUE, sort = FALSE)",not assessed
+R/oos_prediction.R,520,by_name_only,"gee <- dplyr::left_join(gee, ext_df[, c(""Admin2"", ext_pred_cols)], by = ""Admin2"")",not assessed
+R/oos_prediction.R,529,by_name_only,"by = ""Admin2""",not assessed
+R/oos_prediction.R,636,by_name_only,"oos_gee <- dplyr::left_join(oos_gee, oos_ext[, c(""Admin2"", ext_pred_cols)], by = ""Admin2"")",not assessed
+R/oos_prediction.R,638,by_name_only,"oos_gee <- dplyr::left_join(oos_gee, oos_ext[, c(""Admin2"", ext_pred_cols)], by = ""Admin2"")",not assessed
+scripts/06_admin2_predictions_map.R,470,by_name_only,"dplyr::left_join(sl_admin2, by = ""Admin2"")",not assessed
+scripts/06_admin2_predictions_map.R,709,by_name_only,"dplyr::left_join(admin2_ci, by = ""Admin2"") %>%",not assessed
+scripts/06_admin2_predictions_map.R,710,by_name_only,"dplyr::left_join(sl_admin2  %>% dplyr::select(Admin2, sl_prev), by = ""Admin2"")",not assessed
+scripts/06_admin2_predictions_map.R,742,by_name_only,"dplyr::left_join(sl_admin2 %>% dplyr::select(Admin2, n_sl), by = ""Admin2"") %>%",not assessed
+scripts/06_admin2_predictions_map.R,878,by_name_only,"by = ""Admin2"")",not assessed
+scripts/06_admin2_predictions_map.R,884,by_name_only,"by = ""Admin2""",not assessed
+scripts/06_admin2_predictions_map.R,1038,by_name_only,"by = ""Admin2""",not assessed
+scripts/06_admin2_predictions_map.R,1156,by_name_only,"by = ""Admin2""",not assessed
+scripts/06_admin2_predictions_map.R,1291,by_name_only,"by = ""Admin2""",not assessed
+scripts/06_admin2_predictions_map.R,1360,by_name_only,"by = ""Admin2""",not assessed
+scripts/07_ghana_admin2_gee_dataset.R,263,by_name_only,"left_join(name_map_a2, by = c(""Admin2"" = ""survey_name"")) %>%",not assessed
+scripts/build_espen_admin2.R,159,by_name_only,"out <- Reduce(function(a,b) merge(a,b,by=""Admin2"",all=TRUE), per_disease)",not assessed
+scripts/build_gee_legacy_parity.R,103,composite_without_admin1,"by = ""Admin2"", suffix = c("".ee"", "".ras""))",not assessed
+scripts/civ_external_validation.R,195,by_name_only,"j <- dplyr::inner_join(agg, gee, by = ""Admin2"")",not assessed
+scripts/civ_external_validation.R,249,by_name_only,"by = ""Admin2"")",not assessed
+scripts/civ_external_validation_pipeline.R,55,composite_without_admin1,"civ_gee, civ_centroids_df[, c(""Admin2"", ""lon"", ""lat"")], by = ""Admin2""",not assessed
+scripts/civ_external_validation_pipeline.R,133,by_name_only,"j <- dplyr::inner_join(agg, gee, by = ""Admin2"")",not assessed
+scripts/civ_external_validation_pipeline.R,191,by_name_only,"by = ""Admin2"")",not assessed
+scripts/civ_external_validation_zscored.R,168,by_name_only,"j <- dplyr::inner_join(agg, gee, by = ""Admin2"")",not assessed
+scripts/civ_external_validation_zscored.R,233,by_name_only,"by = ""Admin2"")",not assessed
+scripts/covariates/05_smoke_test_rewire.R,71,composite_without_admin1,"m <- dplyr::inner_join(svy[, c(""Admin2"", ""svy_prev"")], mrp, by = ""Admin2"")",not assessed
+scripts/covariates/06_mrp_comparison.R,35,by_name_only,"pred_df[, c(""Admin2"", pred_col)], by = ""Admin2"")",not assessed
+scripts/covariates/09_estimator_ablation.R,163,composite_without_admin1,"tr <- dplyr::inner_join(svy[, c(""Admin2"", ""svy_prev"", ""n_svy"")], hc, by = ""Admin2"")",not assessed
+scripts/covariates/12_validate_covariates.R,190,by_name_only,"s <- dplyr::inner_join(P[P$country == ct, ], ctr, by = ""Admin2"")",not assessed
+scripts/export_admin2_predictions.R,68,by_name_only,"by = ""Admin2"")",not assessed
+scripts/export_admin2_predictions.R,73,by_name_only,"out <- out |> left_join(sl |> select(Admin2, sl_prev), by = ""Admin2"")",not assessed
+scripts/export_admin2_predictions.R,82,by_name_only,"by = ""Admin2"")",not assessed
+scripts/export_admin2_predictions.R,88,by_name_only,"by = ""Admin2"")",not assessed
+scripts/malawi_admin2_oos.R,137,by_name_only,"inner_join(svy |> select(Admin2, svy_prev), by = ""Admin2"") |>",not assessed
+scripts/malawi_admin2_oos.R,288,by_name_only,"left_join(svy |> select(Admin2, svy_prev), by = ""Admin2"")",not assessed
+scripts/malawi_admin2_oos.R,292,by_name_only,"left_join(sl |> select(Admin2, sl_prev), by = ""Admin2"")",not assessed
+scripts/malawi_admin2_oos.R,329,by_name_only,"left_join(results_df, by = ""Admin2"") |>",not assessed
+scripts/prototype_feature_engineering.R,35,by_name_only,"cov_fe[[cn]]   <- dplyr::full_join(base, fe, by = ""Admin2"")",not assessed
+scripts/refresh_gee_coverage.R,226,by_name_only,"out <- dplyr::left_join(old, new, by = ""Admin2"")",not assessed
+scripts/validate_merged_datasets.R,91,by_name_only,"by = ""Admin2"", all.x = TRUE)",not assessed

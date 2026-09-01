@@ -1,0 +1,41 @@
+country,outcome,eval,arm,n_units,n_pred,r,mae_pp,bias_pp
+Gambia,child_iron,LORO,bridge,30,9,0.1787,11.82,1.15
+Gambia,child_iron,LORO,full 294,30,294,0.6,9.28,0.8
+Gambia,child_iron,LORO,flat regional mean (jackknife),28,0,0.1187,12.83,-0.47
+Gambia,women_iron,LORO,bridge,30,9,0.509,10.74,0.14
+Gambia,women_iron,LORO,full 294,30,294,0.7481,8.74,-0.17
+Gambia,women_iron,LORO,flat regional mean (jackknife),28,0,0.4405,12.26,-3.2
+Ghana,child_iron,LORO,bridge,75,9,0.2922,15.17,-6.21
+Ghana,child_iron,LORO,full 294,75,294,0.4518,14.12,-5.03
+Ghana,child_iron,LORO,flat regional mean (jackknife),71,0,0.631,12.33,1.35
+Ghana,women_iron,LORO,bridge,75,9,0.0587,10.59,-6.58
+Ghana,women_iron,LORO,full 294,75,294,0.0664,10.87,-5.75
+Ghana,women_iron,LORO,flat regional mean (jackknife),71,0,0.3754,8.81,0.3
+Sierra Leone,child_iron,LORO,bridge,14,9,-0.3972,4.14,-1.53
+Sierra Leone,child_iron,LORO,full 294,14,293,0.4021,3.34,-1.15
+Sierra Leone,child_iron,LORO,flat regional mean (jackknife),12,0,-0.0077,4.12,-0.88
+Sierra Leone,women_iron,LORO,bridge,14,9,-0.0925,6.94,-2.5
+Sierra Leone,women_iron,LORO,full 294,14,293,0.3414,5.23,0.08
+Sierra Leone,women_iron,LORO,flat regional mean (jackknife),12,0,-0.4858,6.82,0.32
+Malawi,child_iron,LORO,bridge,87,9,-0.2378,11.97,-5.9
+Malawi,child_iron,LORO,full 294,87,293,0.2617,12.03,-2.97
+Malawi,child_iron,LORO,flat regional mean (jackknife),71,0,0.2657,10.31,-0.28
+Malawi,women_iron,LORO,bridge,87,9,-0.098,14.25,-9.29
+Malawi,women_iron,LORO,full 294,87,293,0.038,15.13,-7.32
+Malawi,women_iron,LORO,flat regional mean (jackknife),71,0,0.1131,14.05,0.1
+Gambia,child_iron,LOCO,bridge,30,9,-0.0932,49.63,-49.63
+Ghana,child_iron,LOCO,bridge,75,9,-0.1103,16.64,-9.96
+Sierra Leone,child_iron,LOCO,bridge,14,9,-0.5491,4.94,-0.02
+Malawi,child_iron,LOCO,bridge,87,9,-0.0344,15.77,5.04
+Gambia,child_iron,LOCO,full 294,30,294,0.5572,40.94,-40.94
+Ghana,child_iron,LOCO,full 294,75,294,0.5875,12.34,2.14
+Sierra Leone,child_iron,LOCO,full 294,14,294,-0.5225,66.56,66.56
+Malawi,child_iron,LOCO,full 294,87,294,0.1872,19.47,-19.25
+Gambia,women_iron,LOCO,bridge,30,9,0.4591,35.27,-35.27
+Ghana,women_iron,LOCO,bridge,75,9,0.2565,75.81,75.81
+Sierra Leone,women_iron,LOCO,bridge,14,9,-0.1471,12.38,-12.38
+Malawi,women_iron,LOCO,bridge,87,9,0.0417,13.99,-2.61
+Gambia,women_iron,LOCO,full 294,30,294,0.4668,33.35,-33.35
+Ghana,women_iron,LOCO,full 294,75,294,0.326,12.06,7.84
+Sierra Leone,women_iron,LOCO,full 294,14,294,-0.0619,13.54,-5.15
+Malawi,women_iron,LOCO,full 294,87,294,0.1414,14.17,3.34

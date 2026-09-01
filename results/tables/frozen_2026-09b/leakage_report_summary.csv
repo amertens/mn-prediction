@@ -1,0 +1,49 @@
+country,outcome,predictor_set,n_predictors,max_abs_r,n_flagged,n_under_measured,top_column,top_n_pairs
+Gambia,child_iron,proxy,1195,0.1494,0,0,gee_a2_TerraClimate_def_yoy,1013
+Gambia,child_iron,questionnaire,1522,0.2344,0,5,gw_cBirthDate,995
+Gambia,child_vitA,proxy,1195,0.211,0,0,map2_accessibility_201501_global_travel_time_to_cities,1020
+Gambia,child_vitA,questionnaire,1521,0.2477,0,4,gw_cCurrentBF,537
+Gambia,women_iron,proxy,1195,0.2219,0,0,wfp_meat_chicken,990
+Gambia,women_iron,questionnaire,1560,0.239,0,14,gw_WQ14,329
+Gambia,women_vitA,proxy,1195,0.1734,0,0,gee_ndvi_50km_seasonal_cv,1413
+Gambia,women_vitA,questionnaire,1550,0.1734,0,4,gee_ndvi_50km_seasonal_cv,1413
+Ghana,child_iron,proxy,1872,0.3343,0,0,ihme_adm1_africa_hiv_2000_2018_hiv_prevalence_females_30_34_years_females_hiv_prevalence_percent,883
+Ghana,child_iron,questionnaire,2080,0.3343,0,11,ihme_adm1_africa_hiv_2000_2018_hiv_prevalence_females_30_34_years_females_hiv_prevalence_percent,883
+Ghana,child_vitA,proxy,1872,0.2555,0,0,wfp_rice_paddy,331
+Ghana,child_vitA,questionnaire,2077,0.2555,0,8,wfp_rice_paddy,331
+Ghana,women_b12,proxy,1872,0.3144,0,0,ihme_20_24_24_female_proportion_of_population_achieving_6_11_years_education,111
+Ghana,women_b12,questionnaire,2038,0.3144,0,19,ihme_20_24_24_female_proportion_of_population_achieving_6_11_years_education,111
+Ghana,women_folate,proxy,1872,0.3881,0,0,ihme_under_5_1_both_overweight_prevalence_percent,111
+Ghana,women_folate,questionnaire,2042,0.3881,0,23,ihme_under_5_1_both_overweight_prevalence_percent,111
+Ghana,women_iron,proxy,1872,0.183,0,0,fsec_hfid_fcs_lit,301
+Ghana,women_iron,questionnaire,2039,0.183,0,15,fsec_hfid_fcs_lit,301
+Ghana,women_vitA,proxy,1872,0.1642,0,0,fsec_hfid_fcs_lit,303
+Ghana,women_vitA,questionnaire,2036,0.1786,0,14,gw_wAtRisk,971
+Malawi,child_iron,proxy,1147,0.1447,0,0,gee_a2_GHSBUILTS_2015_built_surface_nres,1116
+Malawi,child_iron,questionnaire,1141,0.1447,0,0,gee_a2_GHSBUILTS_2015_built_surface_nres,1116
+Malawi,child_vitA,proxy,1147,0.13,0,0,ihme_15_49_years_24_males_male_circumcision_prevalence_percent,1149
+Malawi,child_vitA,questionnaire,1141,0.13,0,0,ihme_15_49_years_24_males_male_circumcision_prevalence_percent,1149
+Malawi,child_zinc,proxy,1147,0.18,0,0,dhs2015_c_excl_breastfed_adm2.y,1134
+Malawi,child_zinc,questionnaire,1141,0.18,0,0,dhs2015_c_excl_breastfed_adm2.y,1134
+Malawi,women_b12,proxy,1147,0.1408,0,0,dhs2015_hh_crowding_adm2.x,839
+Malawi,women_b12,questionnaire,1141,0.1408,0,0,dhs2015_hh_crowding_adm2.x,839
+Malawi,women_folate,proxy,1147,0.2676,0,0,wfp_price_cowpeas,549
+Malawi,women_folate,questionnaire,1141,0.2676,0,0,wfp_price_cowpeas,549
+Malawi,women_iron,proxy,1147,0.1562,0,0,dhs2015_w_delivery_csection_adm2.y,781
+Malawi,women_iron,questionnaire,1141,0.1562,0,0,dhs2015_w_delivery_csection_adm2.y,781
+Malawi,women_vitA,proxy,1147,0.1385,0,0,wfp_cassava,233
+Malawi,women_vitA,questionnaire,1141,0.1385,0,0,wfp_cassava,233
+Malawi,women_zinc,proxy,1147,0.1809,0,0,gee_trmm_Feb_50km,844
+Malawi,women_zinc,questionnaire,1141,0.1809,0,0,gee_trmm_Feb_50km,844
+Sierra Leone,child_iron,proxy,1165,0.1588,0,23,dhs2013_c_small_at_birth_adm2.x,486
+Sierra Leone,child_iron,questionnaire,1533,0.2127,0,99,gw_hLandUnit,294
+Sierra Leone,child_vitA,proxy,1165,0.1233,0,23,gee_tpp_500m_25km,214
+Sierra Leone,child_vitA,questionnaire,1532,0.2964,0,98,gw_wEducLevelYears,137
+Sierra Leone,women_b12,proxy,1165,0.0755,0,0,gee_a2_GPW_Demographic_2010_gpw_v4_basic_demographic_characteristics_rev11_a065_069mt_2010_cntm_30_sec_basic_demographic_characteristics,184
+Sierra Leone,women_b12,questionnaire,1332,0.1336,0,1,gw_UICatLact,201
+Sierra Leone,women_folate,proxy,1165,0.2185,0,0,gee_tpp_1km_cropland_25km,320
+Sierra Leone,women_folate,questionnaire,1349,0.2185,0,5,gee_tpp_1km_cropland_25km,320
+Sierra Leone,women_iron,proxy,1165,0.1372,0,0,dhs2013_c_fever_2wk_adm2.x,774
+Sierra Leone,women_iron,questionnaire,1347,0.3583,0,3,gw_wAnemMalarInflamm,741
+Sierra Leone,women_vitA,proxy,1165,0.1048,0,0,gee_a2_GPW_Demographic_2010_gpw_v4_basic_demographic_characteristics_rev11_a065_069mt_2010_cntm_30_sec_basic_demographic_characteristics,197
+Sierra Leone,women_vitA,questionnaire,1344,0.2767,0,1,gw_wVitAMort,208

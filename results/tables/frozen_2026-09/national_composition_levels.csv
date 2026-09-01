@@ -1,0 +1,9 @@
+outcome,country,panel,year,true_national_pp,vmnis_level_pp,null_level_pp,vmnis_err_pp,null_err_pp
+child_vitA,gambia,Vitamin A | Preschool-age children,2021,19.78,20.27,17.19,0.49,2.59
+child_vitA,ghana,Vitamin A | Preschool-age children,2017,14.93,20.77,17.45,5.84,2.53
+child_vitA,sierraleone,Vitamin A | Preschool-age children,2013,12.19,40.9,17.45,28.72,5.27
+child_vitA,malawi,Vitamin A | Preschool-age children,2015,9.18,31.21,17.13,22.03,7.95
+women_vitA,gambia,Vitamin A | Non-pregnant women (NPW),2021,2.5,6.44,6.51,3.94,4.01
+women_vitA,ghana,Vitamin A | Non-pregnant women (NPW),2017,1.51,6.18,6.51,4.66,5
+women_vitA,sierraleone,Vitamin A | Non-pregnant women (NPW),2013,1.49,7.58,6.51,6.09,5.02
+women_vitA,malawi,Vitamin A | Non-pregnant women (NPW),2015,1.32,7.24,6.51,5.93,5.2

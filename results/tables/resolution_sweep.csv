@@ -1,0 +1,97 @@
+country,outcome,level,n_units,n_scored,median_n_per_unit,min_n_per_unit,r_max_emp,r_oof,mae_pp,r_share,n_shared_centroid_districts
+Gambia,child_vitA,admin1,6,0,158,93,0.9057,NA,NA,NA,0
+Gambia,child_vitA,admin1_split2,11,11,87,9,0.4158,0.5463,4.84,1.314,0
+Gambia,child_vitA,admin1_split3,16,16,51,9,0.6588,0.4766,7.13,0.723,0
+Gambia,child_vitA,admin2,30,30,22,9,0.7928,0.3457,11.29,0.436,0
+Gambia,women_vitA,admin1,6,0,213.5,145,0.8119,NA,NA,NA,0
+Gambia,women_vitA,admin1_split2,11,11,135,17,0.9121,0.3807,2.18,0.417,0
+Gambia,women_vitA,admin1_split3,16,16,55,15,0.8928,0.3581,2.65,0.401,0
+Gambia,women_vitA,admin2,30,30,25.5,11,0.6696,0.5026,3.01,0.751,0
+Gambia,child_iron,admin1,6,0,156.5,93,0.917,NA,NA,NA,0
+Gambia,child_iron,admin1_split2,11,11,87,9,0.7371,0.6509,6.38,0.883,0
+Gambia,child_iron,admin1_split3,16,16,51,9,0.7996,0.2078,10.19,0.26,0
+Gambia,child_iron,admin2,30,30,22,9,0.7586,0.3237,12.2,0.427,0
+Gambia,women_iron,admin1,6,0,212.5,145,0.9625,NA,NA,NA,0
+Gambia,women_iron,admin1_split2,11,11,133,17,0.943,0.4319,9.89,0.458,0
+Gambia,women_iron,admin1_split3,16,16,55,15,0.8792,0.4281,9.99,0.487,0
+Gambia,women_iron,admin2,30,30,25.5,11,0.8247,0.5068,12.25,0.615,0
+Ghana,child_vitA,admin1,16,16,63.5,14,0.7955,0.3697,5.09,0.465,0
+Ghana,child_vitA,admin1_split2,29,29,33,12,0.5655,0.1767,7.05,0.312,0
+Ghana,child_vitA,admin1_split3,36,36,25,4,0.5919,0.1097,7.98,0.185,0
+Ghana,child_vitA,admin2,75,75,14,1,0.5819,0.2481,10.44,0.426,0
+Ghana,women_vitA,admin1,16,16,45,7,0.3965,0.7425,0.97,1.873,0
+Ghana,women_vitA,admin1_split2,29,29,27,7,0.7143,0.3431,1.32,0.48,0
+Ghana,women_vitA,admin1_split3,36,36,25.5,2,0.5032,-0.0338,2.22,-0.067,0
+Ghana,women_vitA,admin2,75,75,12,2,0.4053,0.0332,2.17,0.082,0
+Ghana,child_iron,admin1,16,16,63.5,14,0.9457,0.5797,8.99,0.613,0
+Ghana,child_iron,admin1_split2,29,29,33,12,0.897,0.546,10.65,0.609,0
+Ghana,child_iron,admin1_split3,36,36,25,4,0.8657,0.7264,9.32,0.839,0
+Ghana,child_iron,admin2,75,75,14,1,0.8105,0.4541,14.01,0.56,0
+Ghana,women_iron,admin1,16,16,45,7,0.822,0.2262,4.51,0.275,0
+Ghana,women_iron,admin1_split2,29,29,27,7,0.6401,0.2443,5.49,0.382,0
+Ghana,women_iron,admin1_split3,36,36,25.5,2,0.6013,-0.1822,6.78,-0.303,0
+Ghana,women_iron,admin2,75,75,12,2,0.3903,0.0545,7,0.14,0
+Ghana,women_folate,admin1,16,16,22.5,3,0.8991,0.0792,22.27,0.088,0
+Ghana,women_folate,admin1_split2,29,29,13,3,0.8422,0.2288,21.35,0.272,0
+Ghana,women_folate,admin1_split3,36,36,11.5,1,0.8928,0.1281,26.96,0.143,0
+Ghana,women_folate,admin2,75,75,6,1,0.7072,0.2397,26,0.339,0
+Ghana,women_b12,admin1,16,16,22.5,3,0.8871,0.0957,7.16,0.108,0
+Ghana,women_b12,admin1_split2,29,29,13,3,0.7389,-0.137,12.22,-0.185,0
+Ghana,women_b12,admin1_split3,36,36,11.5,1,0.8058,-0.2079,8.79,-0.258,0
+Ghana,women_b12,admin2,75,75,6,1,0.4725,-0.0783,10.84,-0.166,0
+Sierra Leone,child_vitA,admin1,4,0,116.5,83,0,NA,NA,NA,0
+Sierra Leone,child_vitA,admin1_split2,7,0,73,34,0,NA,NA,NA,0
+Sierra Leone,child_vitA,admin1_split3,8,8,50,31,0.5134,-0.1397,5.09,-0.272,0
+Sierra Leone,child_vitA,admin2,14,14,36,14,0.2173,0.1296,14.68,0.597,0
+Sierra Leone,women_vitA,admin1,4,0,190,166,0,NA,NA,NA,0
+Sierra Leone,women_vitA,admin1_split2,7,0,85,64,0,NA,NA,NA,0
+Sierra Leone,women_vitA,admin1_split3,8,8,63.5,39,0,0.0676,12.98,NA,0
+Sierra Leone,women_vitA,admin2,14,14,54,23,0.4285,-0.0463,1.21,-0.108,0
+Sierra Leone,child_iron,admin1,4,0,116.5,83,0.0471,NA,NA,NA,0
+Sierra Leone,child_iron,admin1_split2,7,0,73,34,0.4928,NA,NA,NA,0
+Sierra Leone,child_iron,admin1_split3,8,8,50,31,0.7964,0.8006,2.23,1.005,0
+Sierra Leone,child_iron,admin2,14,14,36,14,0.2985,0.4021,3.34,1.347,0
+Sierra Leone,women_iron,admin1,4,0,190,166,0,NA,NA,NA,0
+Sierra Leone,women_iron,admin1_split2,7,0,85,64,0.813,NA,NA,NA,0
+Sierra Leone,women_iron,admin1_split3,8,8,63.5,39,0.8769,-0.1415,6.18,-0.161,0
+Sierra Leone,women_iron,admin2,14,14,54,23,0.8142,0.0338,5.9,0.042,0
+Sierra Leone,women_folate,admin1,4,0,180.5,175,0.933,NA,NA,NA,0
+Sierra Leone,women_folate,admin1_split2,7,0,90,41,0.8738,NA,NA,NA,0
+Sierra Leone,women_folate,admin1_split3,8,8,67.5,38,0.8472,-0.6388,9.74,-0.754,0
+Sierra Leone,women_folate,admin2,14,14,47,27,0.8559,-0.5132,13.29,-0.6,0
+Sierra Leone,women_b12,admin1,4,0,181.5,175,0,NA,NA,NA,0
+Sierra Leone,women_b12,admin1_split2,7,0,90,41,0,NA,NA,NA,0
+Sierra Leone,women_b12,admin1_split3,8,8,67.5,38,0,0.1385,1.05,NA,0
+Sierra Leone,women_b12,admin2,14,14,47,27,0,0.3524,1.14,NA,0
+Malawi,child_vitA,admin1,27,27,39,11,0.6596,0.168,5.49,0.255,6
+Malawi,child_vitA,admin1_split2,45,45,23,9,0.7667,0.3529,6.89,0.46,6
+Malawi,child_vitA,admin1_split3,51,51,18,8,0.5884,0.1648,7.24,0.28,6
+Malawi,child_vitA,admin2,87,87,12,1,0.6281,0.1406,8.23,0.224,6
+Malawi,women_vitA,admin1,27,27,29,8,0,0.5262,2.51,NA,6
+Malawi,women_vitA,admin1_split2,45,45,17,3,0,-0.0101,2.26,NA,6
+Malawi,women_vitA,admin1_split3,51,51,14,3,0,-0.0409,2,NA,6
+Malawi,women_vitA,admin2,87,87,8,2,0,-0.1304,2.2,NA,6
+Malawi,child_iron,admin1,27,27,39,11,0.7066,0.458,5.15,0.648,6
+Malawi,child_iron,admin1_split2,45,45,23,9,0.5676,0.4101,5.86,0.722,6
+Malawi,child_iron,admin1_split3,51,51,18,8,0.6706,0.1899,7.4,0.283,6
+Malawi,child_iron,admin2,87,87,12,1,0.468,0.4004,8.09,0.856,6
+Malawi,women_iron,admin1,27,27,27,8,0,0.2306,4.53,NA,6
+Malawi,women_iron,admin1_split2,45,45,16,3,0.1431,0.0638,6.37,0.446,6
+Malawi,women_iron,admin1_split3,51,51,13,2,0.3417,0.1148,6.86,0.336,6
+Malawi,women_iron,admin2,87,87,8,2,0.375,0.0554,8.89,0.148,6
+Malawi,women_folate,admin1,27,27,29,8,0.9109,0.5792,11.64,0.636,6
+Malawi,women_folate,admin1_split2,45,45,17,3,0.8454,0.2536,15.53,0.3,6
+Malawi,women_folate,admin1_split3,51,51,14,3,0.8453,0.3834,14.52,0.454,6
+Malawi,women_folate,admin2,87,87,8,2,0.8359,0.2824,16.66,0.338,6
+Malawi,women_b12,admin1,27,27,29,8,0.7481,0.1975,2.68,0.264,6
+Malawi,women_b12,admin1_split2,45,45,17,3,0.2592,0.1737,2.97,0.67,6
+Malawi,women_b12,admin1_split3,51,51,14,3,0.1393,0.1978,2.9,1.42,6
+Malawi,women_b12,admin2,87,87,9,2,0,0.096,3.61,NA,6
+Malawi,child_zinc,admin1,27,27,37,10,0.8438,0.1734,12.02,0.206,6
+Malawi,child_zinc,admin1_split2,45,45,22,9,0.842,5e-4,18.07,0.001,6
+Malawi,child_zinc,admin1_split3,51,51,18,8,0.8299,-0.0071,17.6,-0.009,6
+Malawi,child_zinc,admin2,87,87,11,1,0.7967,-0.2842,26.1,-0.357,6
+Malawi,women_zinc,admin1,27,27,29,8,0.8644,-0.0112,15.73,-0.013,6
+Malawi,women_zinc,admin1_split2,45,45,17,3,0.83,-0.3241,22.16,-0.391,6
+Malawi,women_zinc,admin1_split3,51,51,14,3,0.8213,-0.2342,24.38,-0.285,6
+Malawi,women_zinc,admin2,87,87,8,2,0.7908,-0.3051,27.03,-0.386,6

@@ -1,0 +1,928 @@
+{
+  "schema_version": "1.0",
+  "document": "machine-readable summary of the mn-prediction accuracy-and-impact session",
+  "generated_by": "scripts/accuracy_impact/ws9_session_summary.R",
+  "generated_on": "2026-08-31",
+  "provenance_rule": "Every numeric field is read from the result table named in its source block. Narrative fields are authored. A metric whose table is absent is null with status not_computed.",
+  "session": {
+    "repository": "mn-prediction",
+    "branch": "accuracy-and-impact-2026-09",
+    "base_commit": "f8b23d9",
+    "input_document": "docs/SESSION_FINDINGS_FOR_REVIEW.md",
+    "scope": "Predictors and biomarker-based deficiency outcomes. No dietary inadequacy, household consumption or facility data.",
+    "countries": ["Gambia", "Ghana", "Sierra Leone", "Malawi"],
+    "cells": {
+      "all_outcomes": 24,
+      "shared_outcomes": 16
+    },
+    "commits": [
+      {
+        "sha": "a4a79fe",
+        "subject": "feat(ws4a): the resolution sweep finds no useful level between Admin-1 and Admin-2"
+      },
+      {
+        "sha": "cb6d4e1",
+        "subject": "docs: two readings of the same results, and the leak count stated as fifteen"
+      },
+      {
+        "sha": "18365a8",
+        "subject": "refactor(ws6a): promote the corrected VMNIS ceiling into R/national_vmnis.R"
+      },
+      {
+        "sha": "701f322",
+        "subject": "feat(ws3): the questionnaire gain reverses once the arms are clean, and the protocol gap is measured"
+      },
+      {
+        "sha": "6c19443",
+        "subject": "docs(ws9): status note, and the claims register resolved to 31 of 53 rows"
+      },
+      {
+        "sha": "d307586",
+        "subject": "docs(ws6,ws7b,ws9): findings for the VMNIS repairs, the label guard, and the regression gate"
+      },
+      {
+        "sha": "61d384e",
+        "subject": "feat(ws8): fitness-for-use rubric and the Alliance evaluation harness"
+      },
+      {
+        "sha": "f51f5f9",
+        "subject": "feat(ws4b,ws5,ws8a): the skill curve reverses claim 11.2, and the budget curve says where to spend"
+      },
+      {
+        "sha": "150b4e2",
+        "subject": "feat(ws2,ws4b,ws6,ws7b): anchoring controls, the skill curve, and a label-derived guard that found thirteen more leaks"
+      },
+      {
+        "sha": "4790026",
+        "subject": "feat(ws1): the ceiling was biased low, and the measurement that shows it"
+      },
+      {
+        "sha": "e2e5423",
+        "subject": "feat(ws7a): three structural guards, and the eleventh instance of the leak"
+      },
+      {
+        "sha": "f7a0b46",
+        "subject": "chore(ws0): freeze the September baseline and open the claims register"
+      }
+    ]
+  },
+  "workstreams": [
+    {
+      "id": "WS0",
+      "title": "Housekeeping and baselines",
+      "status": "complete",
+      "outputs": ["results/tables/frozen_2026-09/", "docs/findings/CLAIMS_REGISTER.md"]
+    },
+    {
+      "id": "WS7a",
+      "title": "Structural defences",
+      "status": "complete",
+      "outputs": ["R/lint_admin2_joins.R", "R/unit_counts.R", "R/leakage_report.R", "tests/testthat/", "results/tables/leakage_report.csv"]
+    },
+    {
+      "id": "WS1",
+      "title": "Validate the reliability ceiling",
+      "status": "complete",
+      "outputs": ["R/reliability_empirical.R", "R/reliability_simulation.R", "docs/TARGET_ESTIMAND.md", "results/tables/reliability_empirical.csv", "results/tables/reliability_simulation.csv", "results/tables/r_share_revised.csv"]
+    },
+    {
+      "id": "WS2",
+      "title": "Anchoring controls and circularity tests",
+      "status": "complete",
+      "outputs": ["results/tables/anchor_controls.csv", "results/tables/anchor_implied_shifts.csv"]
+    },
+    {
+      "id": "WS3",
+      "title": "Section 5 under one protocol",
+      "status": "partial",
+      "partial_reason": "Reduced from 16 cells to the specified 4-cell parity subset under the run-or-reframe rule; the machine was running the repository owner's jobs and progress was about six of 192 fits per half hour.",
+      "outputs": "results/tables/individual_arms_2026-09_PARITY.csv"
+    },
+    {
+      "id": "WS4a",
+      "title": "Resolution sweep",
+      "status": "complete",
+      "outputs": ["results/tables/resolution_sweep.csv", "results/figures/resolution_sweep.png"]
+    },
+    {
+      "id": "WS4b",
+      "title": "Reliability-skill curve",
+      "status": "complete",
+      "outputs": ["results/tables/reliability_skill_curve.csv", "results/tables/positive_control_targets.csv", "results/figures/reliability_skill_curve.png"]
+    },
+    {
+      "id": "WS5",
+      "title": "Survey-design experiment",
+      "status": "complete",
+      "outputs": ["results/tables/anchoring_design_curve.csv", "results/figures/anchoring_design_curve.png"]
+    },
+    {
+      "id": "WS6",
+      "title": "National VMNIS repairs",
+      "status": "partial",
+      "partial_reason": "WS6c, method covariates in the LOCO model, not computed.",
+      "outputs": ["R/national_vmnis.R", "results/tables/vmnis_sampling_audit.csv", "results/tables/national_vmnis_ceiling_revised.csv", "results/tables/national_composition_revised.csv"]
+    },
+    {
+      "id": "WS7b",
+      "title": "Label-derived assay guard",
+      "status": "partial",
+      "partial_reason": "Malawi has no labelled source and cannot be covered.",
+      "outputs": "results/tables/assay_guard_label_comparison.csv"
+    },
+    {
+      "id": "WS8",
+      "title": "Reporting for impact",
+      "status": "complete",
+      "outputs": ["config/who_thresholds.csv", "docs/FITNESS_FOR_USE.md", "docs/EVALUATION_PROTOCOL.md", "harness/"]
+    },
+    {
+      "id": "WS9",
+      "title": "Verification and reporting",
+      "status": "complete",
+      "outputs": ["results/tables/frozen_2026-09/REGRESSION_GATE.csv", "PROJECT_STATUS_2026-09_UPDATE.md", "docs/findings/TWO_READINGS.md"]
+    }
+  ],
+  "defects_found": [
+    {
+      "id": "D1",
+      "class": "outcome_leakage",
+      "severity": "high",
+      "summary": "Haemoglobin columns passed the assay guard into the no-blood-draw arm.",
+      "columns": ["gw_wm_whbc", "gw_gchb"],
+      "mechanism": "grepl(\"Hb\", cols) is case-sensitive; whbc and gchb spell the token in lower case.",
+      "found_by": "WS7a correlation ranking",
+      "evidence": {
+        "value": 0.3881,
+        "status": "measured",
+        "source": {
+          "file": "results/tables/leakage_report_summary.csv",
+          "column": "max_abs_r",
+          "filter": "post-fix maximum across all cells and predictor sets"
+        },
+        "note": null
+      },
+      "fix": "Added ^gw_.*hb, scoped to the survey domain.",
+      "affected_production_models": false,
+      "affected_analyses": "Section 5 questionnaire arm"
+    },
+    {
+      "id": "D2",
+      "class": "outcome_leakage",
+      "severity": "high",
+      "summary": "Thirteen further blood-derived columns identified from Stata labels.",
+      "columns": ["gw_cInflammMarker", "gw_cInflammYN", "gw_wInflammMarker", "gw_wInflammYN", "gw_cAnemMalarInflamm", "gw_wAnemMalarInflamm", "gw_wHypergly6p5YN", "gw_wHypergly7p0YN", "gw_wHyperglyCat", "gw_wHyperglycemiaYN", "gw_wIntFullHyperglycemiaYN", "gw_wIntHyperglycemiaYN", "gw_cpcn"],
+      "mechanism": "None names an analyte, so no analyte-name pattern could match.",
+      "found_by": "WS7b label comparison",
+      "fix": "Added Inflamm, Hypergly and ^gw_cpcn$ patterns.",
+      "total_newly_blocked_this_branch": 15
+    },
+    {
+      "id": "D3",
+      "class": "biased_estimator",
+      "severity": "high",
+      "summary": "The analytic reliability ceiling understates the attainable correlation.",
+      "mechanism": "Design effect fixed at 1.5 where the reconciling value is about 1.0, plus a max(0,.) truncation before the square root.",
+      "found_by": "WS1"
+    },
+    {
+      "id": "D4",
+      "class": "circular_evaluation",
+      "severity": "high",
+      "summary": "Each district contributed to the regional anchor used to correct it.",
+      "mechanism": "admin1_design_based() includes the scored district's respondents.",
+      "found_by": "WS2"
+    },
+    {
+      "id": "D5",
+      "class": "arithmetic",
+      "severity": "high",
+      "summary": "The VMNIS sampling term is the arithmetic mean of a reciprocal.",
+      "mechanism": "mean(1/n) is set by the smallest surveys, not the typical one.",
+      "found_by": "WS6a"
+    },
+    {
+      "id": "D6",
+      "class": "misdiagnosis",
+      "severity": "medium",
+      "summary": "sd_resid at 0.000 was attributed to a degenerate lmer fit; it was the over-large sampling term being subtracted.",
+      "found_by": "WS6b"
+    },
+    {
+      "id": "D7",
+      "class": "non_nested_arms",
+      "severity": "medium",
+      "summary": "The questionnaire arm applied the guard to Xvars_full and so lost external columns the proxy arm kept, making the arms differ in more than the questionnaire.",
+      "found_by": "WS3",
+      "fix": "allowed_under_arm() scopes the filter to ^gw_."
+    },
+    {
+      "id": "D8",
+      "class": "self_prediction",
+      "severity": "high",
+      "summary": "WS4b's own first run predicted DHS indicators from DHS-derived covariates.",
+      "mechanism": "97 of 294 harmonised covariates are DHS aggregates.",
+      "found_by": "WS4b acceptance check",
+      "fix": "Excluded from both target families.",
+      "note": "A defect introduced by this session's work and removed before use."
+    },
+    {
+      "id": "D9",
+      "class": "unscorable_design",
+      "severity": "medium",
+      "summary": "One held-out region per country returned NA for every correlation.",
+      "mechanism": "One region gives 3 to 4 districts and a within-region-constant predictor has no variance.",
+      "found_by": "WS8c acceptance check",
+      "fix": "Held-out set widened to 30 percent of regions, floor of two.",
+      "note": "A defect in this session's own deliverable, found by running it."
+    }
+  ],
+  "key_results": {
+    "reliability_ceiling": {
+      "median_r_max_analytic": {
+        "value": 0.1315,
+        "status": "measured",
+        "source": {
+          "file": "results/tables/reliability_empirical.csv",
+          "column": "r_max_analytic",
+          "filter": "scheme == within"
+        },
+        "note": null
+      },
+      "median_r_max_empirical_within": {
+        "value": 0.6132,
+        "status": "measured",
+        "source": {
+          "file": "results/tables/reliability_empirical.csv",
+          "column": "r_max_emp",
+          "filter": "scheme == within"
+        },
+        "note": null
+      },
+      "median_r_max_empirical_cluster": {
+        "value": 0.4689,
+        "status": "measured",
+        "source": {
+          "file": "results/tables/reliability_empirical.csv",
+          "column": "r_max_emp",
+          "filter": "scheme == cluster"
+        },
+        "note": null
+      },
+      "cells_empirical_exceeds_analytic": {
+        "value": 21,
+        "status": "measured",
+        "source": {
+          "file": "results/tables/reliability_empirical.csv",
+          "column": "r_max_emp vs r_max_analytic",
+          "filter": "scheme == within"
+        },
+        "note": null
+      },
+      "cells_total": {
+        "value": 24,
+        "status": "measured",
+        "source": {
+          "file": "results/tables/reliability_empirical.csv",
+          "column": "rows",
+          "filter": "scheme == within"
+        },
+        "note": null
+      },
+      "cells_analytic_zero": {
+        "value": 10,
+        "status": "measured",
+        "source": {
+          "file": "results/tables/reliability_empirical.csv",
+          "column": "r_max_analytic == 0",
+          "filter": "scheme == within"
+        },
+        "note": null
+      },
+      "cells_empirical_zero": {
+        "value": 3,
+        "status": "measured",
+        "source": {
+          "file": "results/tables/reliability_empirical.csv",
+          "column": "r_max_emp == 0",
+          "filter": "scheme == within"
+        },
+        "note": null
+      },
+      "median_implied_design_effect": {
+        "value": 0.969,
+        "status": "measured",
+        "source": {
+          "file": "results/tables/reliability_empirical.csv",
+          "column": "implied_deff",
+          "filter": "scheme == within"
+        },
+        "note": "the formula assumes 1.5"
+      },
+      "estimator_bias_analytic": {
+        "value": -0.161,
+        "status": "measured",
+        "source": {
+          "file": "results/tables/reliability_simulation.csv",
+          "column": "bias_analytic",
+          "filter": "all cells and settings"
+        },
+        "note": null
+      },
+      "estimator_bias_empirical": {
+        "value": 0.007,
+        "status": "measured",
+        "source": {
+          "file": "results/tables/reliability_simulation.csv",
+          "column": "bias_empirical",
+          "filter": "all cells and settings"
+        },
+        "note": null
+      },
+      "supersedes": {
+        "document": "docs/SESSION_FINDINGS_FOR_REVIEW.md",
+        "section": "2.4 and 9",
+        "stated": "median r_max 0.098; 4 of 24 cells with no signal"
+      }
+    },
+    "r_share": {
+      "cells_over_one_analytic": {
+        "value": 25,
+        "status": "measured",
+        "source": {
+          "file": "results/tables/r_share_revised.csv",
+          "column": "r_share_analytic > 1",
+          "filter": "all arm-cell rows"
+        },
+        "note": null
+      },
+      "cells_over_one_empirical": {
+        "value": 7,
+        "status": "measured",
+        "source": {
+          "file": "results/tables/r_share_revised.csv",
+          "column": "r_share_empirical > 1",
+          "filter": "all arm-cell rows"
+        },
+        "note": null
+      },
+      "rows_total": {
+        "value": 118,
+        "status": "measured",
+        "source": {
+          "file": "results/tables/r_share_revised.csv",
+          "column": "rows",
+          "filter": null
+        },
+        "note": null
+      },
+      "hard_anchor_mean_empirical": {
+        "value": 0.75,
+        "status": "measured",
+        "source": {
+          "file": "results/tables/r_share_revised_summary.csv",
+          "column": "mean_share_empirical",
+          "filter": "arm contains 'hard'"
+        },
+        "note": null
+      },
+      "supersedes": {
+        "section": "9",
+        "stated": "mean r_share 2.06 for the hard anchor"
+      }
+    },
+    "anchoring": {
+      "no_anchor_mean_r": {
+        "value": 0.156,
+        "status": "measured",
+        "source": {
+          "file": "results/tables/anchor_controls.csv",
+          "column": "pearson_r",
+          "filter": "arm == 1 no anchor (LORO)"
+        },
+        "note": null
+      },
+      "hard_anchor_mean_r": {
+        "value": 0.4086,
+        "status": "measured",
+        "source": {
+          "file": "results/tables/anchor_controls.csv",
+          "column": "pearson_r",
+          "filter": "arm == 3 ADMIN-1 anchor (hard)"
+        },
+        "note": null
+      },
+      "jackknife_anchor_mean_r": {
+        "value": 0.1465,
+        "status": "measured",
+        "source": {
+          "file": "results/tables/anchor_controls.csv",
+          "column": "pearson_r",
+          "filter": "arm == 5 ADMIN-1 anchor (hard, JACKKNIFE)"
+        },
+        "note": null
+      },
+      "flat_regional_mean_r": {
+        "value": 0.5162,
+        "status": "measured",
+        "source": {
+          "file": "results/tables/anchor_controls.csv",
+          "column": "pearson_r",
+          "filter": "arm == 2a flat REGIONAL mean (no covariates)"
+        },
+        "note": null
+      },
+      "flat_regional_mae_pp": {
+        "value": 7.3817,
+        "status": "measured",
+        "source": {
+          "file": "results/tables/anchor_controls.csv",
+          "column": "mae_pp",
+          "filter": "arm == 2a flat REGIONAL mean (no covariates)"
+        },
+        "note": null
+      },
+      "national_aggregate_gap_mean_pp": {
+        "value": 9.5976,
+        "status": "measured",
+        "source": {
+          "file": "results/tables/anchor_implied_shifts.csv",
+          "column": "before vs target",
+          "filter": "arm == national"
+        },
+        "note": null
+      },
+      "national_aggregate_gap_max_pp": {
+        "value": 77.5716,
+        "status": "measured",
+        "source": {
+          "file": "results/tables/anchor_implied_shifts.csv",
+          "column": "before vs target",
+          "filter": "arm == national"
+        },
+        "note": null
+      },
+      "interpretation": "The published anchoring gain does not survive a jackknife, and a covariate-free regional arm outperforms every covariate arm.",
+      "supersedes": {
+        "section": "4",
+        "stated": "hard anchor mean r 0.413, better in 20 of 24 cells"
+      }
+    },
+    "resolution": {
+      "paired": {
+        "n_cells": 14,
+        "mean_r": {
+          "admin1": 0.3153,
+          "admin1_split2": 0.1659,
+          "admin1_split3": 0.0935,
+          "admin2": 0.0862
+        },
+        "best_level_counts": {
+          "admin1": 9,
+          "admin1_split2": 2,
+          "admin1_split3": 2,
+          "admin2": 1
+        }
+      },
+      "countries_unable_to_fit_at_admin1": ["Gambia", "Sierra Leone"],
+      "admin1_units": {
+        "Gambia": 6,
+        "Ghana": 16,
+        "Malawi": 27,
+        "Sierra Leone": 4
+      },
+      "interpretation": "Skill declines monotonically with resolution and no intermediate level is a peak. Where the survey supports the estimate there are too few units to fit a covariate model.",
+      "supersedes": {
+        "section": "13 open question 2",
+        "stated": "the crossover is somewhere between Admin-1 and Admin-2"
+      }
+    },
+    "skill_curve": {
+      "dhs_median_r": {
+        "value": 0.0708,
+        "status": "measured",
+        "source": {
+          "file": "results/tables/reliability_skill_curve.csv",
+          "column": "r_oof",
+          "filter": "family == DHS indicator"
+        },
+        "note": null
+      },
+      "dhs_median_r_max": {
+        "value": 0.7837,
+        "status": "measured",
+        "source": {
+          "file": "results/tables/reliability_skill_curve.csv",
+          "column": "r_max",
+          "filter": "family == DHS indicator"
+        },
+        "note": null
+      },
+      "micronutrient_median_r": {
+        "value": 0.2,
+        "status": "measured",
+        "source": {
+          "file": "results/tables/reliability_skill_curve.csv",
+          "column": "r_oof",
+          "filter": "family == micronutrient"
+        },
+        "note": null
+      },
+      "reliability_skill_correlation": {
+        "value": 0.0427,
+        "status": "measured",
+        "source": {
+          "file": "results/tables/reliability_skill_curve.csv",
+          "column": "cor(r_max, r_oof)",
+          "filter": "all targets"
+        },
+        "note": null
+      },
+      "education_min_r": {
+        "value": 0.679,
+        "status": "measured",
+        "source": {
+          "file": "results/tables/positive_control_targets.csv",
+          "column": "r_oof",
+          "filter": "target == education_none"
+        },
+        "note": null
+      },
+      "education_max_r": {
+        "value": 0.8081,
+        "status": "measured",
+        "source": {
+          "file": "results/tables/positive_control_targets.csv",
+          "column": "r_oof",
+          "filter": "target == education_none"
+        },
+        "note": null
+      },
+      "stunting_median_r": {
+        "value": -0.1221,
+        "status": "measured",
+        "source": {
+          "file": "results/tables/positive_control_targets.csv",
+          "column": "r_oof",
+          "filter": "target == stunting"
+        },
+        "note": null
+      },
+      "interpretation": "Well-measured district quantities are not predicted well either; the covariates track socioeconomic gradients rather than nutrition.",
+      "supersedes": {
+        "section": "11 claim 2 and 3.12",
+        "stated": "the constraint is the target, not the predictors; education r 0.48 to 0.71"
+      }
+    },
+    "survey_design": {
+      "admin1_mae_full_clusters_pp": {
+        "value": 0.2969,
+        "status": "measured",
+        "source": {
+          "file": "results/tables/anchoring_design_curve.csv",
+          "column": "mae_admin1_pp",
+          "filter": "fraction_clusters == 1 and all regions anchored"
+        },
+        "note": null
+      },
+      "admin1_mae_quarter_clusters_pp": {
+        "value": 5.9984,
+        "status": "measured",
+        "source": {
+          "file": "results/tables/anchoring_design_curve.csv",
+          "column": "mae_admin1_pp",
+          "filter": "fraction_clusters == 0.25 and all regions anchored"
+        },
+        "note": null
+      },
+      "admin2_mae_full_clusters_pp": {
+        "value": 10.8304,
+        "status": "measured",
+        "source": {
+          "file": "results/tables/anchoring_design_curve.csv",
+          "column": "mae_admin2_pp",
+          "filter": "fraction_clusters == 1 and all regions anchored"
+        },
+        "note": null
+      },
+      "admin2_mae_quarter_clusters_pp": {
+        "value": 11.8848,
+        "status": "measured",
+        "source": {
+          "file": "results/tables/anchoring_design_curve.csv",
+          "column": "mae_admin2_pp",
+          "filter": "fraction_clusters == 0.25 and all regions anchored"
+        },
+        "note": null
+      },
+      "recommendation": "Buy clusters within sampled regions, not wider region coverage."
+    },
+    "national_vmnis": {
+      "sd_sampling_published": {
+        "value": 0.8155,
+        "status": "measured",
+        "source": {
+          "file": "results/tables/vmnis_sampling_audit.csv",
+          "column": "sd_samp_from_mean",
+          "filter": "Vitamin A preschool"
+        },
+        "note": null
+      },
+      "sd_sampling_median_based": {
+        "value": 0.1721,
+        "status": "measured",
+        "source": {
+          "file": "results/tables/vmnis_sampling_audit.csv",
+          "column": "sd_samp_from_median",
+          "filter": "Vitamin A preschool"
+        },
+        "note": null
+      },
+      "implied_effective_n_published": {
+        "value": 13,
+        "status": "measured",
+        "source": {
+          "file": "results/tables/vmnis_sampling_audit.csv",
+          "column": "implied_n_from_mean",
+          "filter": "Vitamin A preschool"
+        },
+        "note": null
+      },
+      "r_max_published": {
+        "value": 0.818,
+        "status": "measured",
+        "source": {
+          "file": "results/tables/national_vmnis_ceiling_revised.csv",
+          "column": "r_max_report",
+          "filter": "version == published, Vitamin A preschool"
+        },
+        "note": null
+      },
+      "r_max_revised": {
+        "value": 0.869,
+        "status": "measured",
+        "source": {
+          "file": "results/tables/national_vmnis_ceiling_revised.csv",
+          "column": "r_max_report",
+          "filter": "version == revised, Vitamin A preschool"
+        },
+        "note": null
+      },
+      "panels_usable_after_fix": {
+        "value": 4,
+        "status": "measured",
+        "source": {
+          "file": "results/tables/national_vmnis_ceiling_revised.csv",
+          "column": "usable",
+          "filter": "version == revised"
+        },
+        "note": null
+      },
+      "oracle_gain_mae_pp_excl_degenerate": {
+        "value": 0.48,
+        "status": "measured",
+        "source": {
+          "file": "results/tables/national_composition_revised.csv",
+          "column": "MAE_pp_excl",
+          "filter": "transported no level minus oracle, excluding near-degenerate cells"
+        },
+        "note": null
+      },
+      "supersedes": {
+        "section": "6.3 and 6.4",
+        "stated": "sd_sampling 0.816; r_max 0.818; 80 percent saturated; sd_resid degenerate"
+      }
+    },
+    "individual_arms": {
+      "cells": {
+        "value": 4,
+        "status": "measured",
+        "source": {
+          "file": "results/tables/individual_arms_2026-09_PARITY.csv",
+          "column": "rows",
+          "filter": "unit == district"
+        },
+        "note": null
+      },
+      "proxy_mean_r_strict": {
+        "value": 0.2744,
+        "status": "measured",
+        "source": {
+          "file": "results/tables/individual_arms_2026-09_PARITY.csv",
+          "column": "r",
+          "filter": "unit == district, protocol == region_loro, arm == proxy"
+        },
+        "note": null
+      },
+      "questionnaire_mean_r_strict": {
+        "value": 0.2609,
+        "status": "measured",
+        "source": {
+          "file": "results/tables/individual_arms_2026-09_PARITY.csv",
+          "column": "r",
+          "filter": "unit == district, protocol == region_loro, arm == questionnaire"
+        },
+        "note": null
+      },
+      "questionnaire_hb_mean_r_strict": {
+        "value": 0.3422,
+        "status": "measured",
+        "source": {
+          "file": "results/tables/individual_arms_2026-09_PARITY.csv",
+          "column": "r",
+          "filter": "unit == district, protocol == region_loro, arm == questionnaire_hb"
+        },
+        "note": null
+      },
+      "proxy_mean_r_cluster_kfold": {
+        "value": 0.5939,
+        "status": "measured",
+        "source": {
+          "file": "results/tables/individual_arms_2026-09_PARITY.csv",
+          "column": "r",
+          "filter": "unit == district, protocol == cluster_kfold, arm == proxy"
+        },
+        "note": null
+      },
+      "protocol_gap_proxy": {
+        "value": 0.3195,
+        "status": "measured",
+        "source": {
+          "file": "results/tables/individual_arms_2026-09_PARITY.csv",
+          "column": "r",
+          "filter": "cluster_kfold minus region_loro, arm == proxy"
+        },
+        "note": null
+      },
+      "interpretation": "Fold construction accounts for most of the distance between the two published individual-level numbers. With the guard fixed and the arms nested, the questionnaire gain is negative.",
+      "supersedes": {
+        "section": "3 and 5",
+        "stated": "median r 0.516 (Section 3); questionnaire gain +0.075 (Section 5)"
+      }
+    },
+    "guards": {
+      "leakage_report_cells": {
+        "value": 48,
+        "status": "measured",
+        "source": {
+          "file": "results/tables/leakage_report_summary.csv",
+          "column": "rows",
+          "filter": "cell by predictor set"
+        },
+        "note": null
+      },
+      "leakage_flagged_columns": {
+        "value": 0,
+        "status": "measured",
+        "source": {
+          "file": "results/tables/leakage_report_summary.csv",
+          "column": "n_flagged",
+          "filter": "post-fix"
+        },
+        "note": null
+      },
+      "label_columns_compared": {
+        "value": 865,
+        "status": "measured",
+        "source": {
+          "file": "results/tables/assay_guard_label_comparison.csv",
+          "column": "rows",
+          "filter": "in_pipeline and labelled"
+        },
+        "note": null
+      },
+      "label_agreements": {
+        "value": 828,
+        "status": "measured",
+        "source": {
+          "file": "results/tables/assay_guard_label_comparison.csv",
+          "column": "agreement",
+          "filter": "agree"
+        },
+        "note": null
+      },
+      "unit_count_overcounts": {
+        "value": 0,
+        "status": "measured",
+        "source": {
+          "file": "results/tables/admin2_unit_check.csv",
+          "column": "status",
+          "filter": "OVER"
+        },
+        "note": null
+      },
+      "unit_count_checks": {
+        "value": 24,
+        "status": "measured",
+        "source": {
+          "file": "results/tables/admin2_unit_check.csv",
+          "column": "rows",
+          "filter": null
+        },
+        "note": null
+      }
+    }
+  },
+  "claims_register": {
+    "file": "docs/findings/CLAIMS_REGISTER.md",
+    "rows_total": 53,
+    "status_counts": {
+      "confirmed": 9,
+      "not yet tested": 16,
+      "revised": 23,
+      "withdrawn": 5
+    }
+  },
+  "not_computed": [
+    {
+      "id": "WS3a_production_stack",
+      "description": "The production 12-learner stack under both fold protocols.",
+      "reason": "Compute; the light NNLS stack was used for both protocols.",
+      "consequence": "The protocol effect is bounded; the learner effect is not."
+    },
+    {
+      "id": "WS3d",
+      "description": "Permutation importance for Ghana women_iron.",
+      "reason": "Not reached."
+    },
+    {
+      "id": "WS3f_cluster_train",
+      "description": "Training at the cluster and scoring after aggregation to the district.",
+      "reason": "Not reached; both variants scored differ only in aggregation unit."
+    },
+    {
+      "id": "WS6c",
+      "description": "Assay, adjustment and cut-point covariates in the LOCO VMNIS model.",
+      "reason": "Not reached.",
+      "partial_evidence": "Method variance exceeds country variance for Vitamin A NPW."
+    },
+    {
+      "id": "malawi_questionnaire_ingestion",
+      "description": "Ingest Malawi's 242 questionnaire columns.",
+      "reason": "Blocked on documentation: columns coded m01/m115a/m220h with zero variable labels and no local codebook.",
+      "request": "Malawi MNS questionnaire codebook from CDC IMMPaCt (immpact@cdc.gov), or the DHS merge via MCLUSTER/MNUMBER/M01."
+    },
+    {
+      "id": "civ_scored_validation",
+      "description": "Cote d'Ivoire as a scored external validation country.",
+      "reason": "It has rasters and oos_civ_* prediction targets but no biomarker labels.",
+      "consequence": "Exported as an unscored prediction target in the harness."
+    }
+  ],
+  "deviations_from_plan": [
+    {
+      "id": "V1",
+      "description": "WS1, WS2 and WS6 landed in one commit rather than three.",
+      "reason": "Guardrail 2 forbids history rewriting; not corrected after the fact."
+    },
+    {
+      "id": "V2",
+      "description": "One commit message was amended to correct nine to thirteen.",
+      "reason": "Guardrail 3 forbids a wrong number in a commit message; the commit was unpushed."
+    },
+    {
+      "id": "V3",
+      "description": "The Admin-2 join lint ships as a ratchet, not a ban.",
+      "reason": "69 pre-existing name-only joins; a test failing on all would be disabled."
+    },
+    {
+      "id": "V4",
+      "description": "The harness held-out set is 30 percent of regions, not one region.",
+      "reason": "One region per country returned NA for every correlation."
+    },
+    {
+      "id": "V5",
+      "description": "WS5 does not reuse scripts/run_subsample.R.",
+      "reason": "Its stratum vocabulary does not express a region-share grid."
+    },
+    {
+      "id": "V6",
+      "description": "WS4a parts are spatially compact, not graph-contiguous.",
+      "reason": "k-means on centroids gives compactness; contiguity is not guaranteed."
+    }
+  ],
+  "verification": {
+    "test_suite": {
+      "command": "Rscript tests/testthat.R",
+      "tests": 37,
+      "failures": 0,
+      "skipped": 0
+    },
+    "regression_gate": {
+      "file": "results/tables/frozen_2026-09/REGRESSION_GATE.csv",
+      "frozen_tables": 19,
+      "unchanged": 19,
+      "changed": 0,
+      "interpretation": "No table under results/tables/ was overwritten."
+    },
+    "targets_graph": {
+      "new_targets": "leakage_report",
+      "incoming_edges": 24,
+      "edge_source": "one per outcome_data_* target"
+    }
+  },
+  "reading_guidance": {
+    "two_readings": "docs/findings/TWO_READINGS.md",
+    "note": "The evidence supports both an optimistic and a pessimistic reading. They agree on the deliverable and disagree on whether the remaining headroom is worth investing in."
+  }
+}

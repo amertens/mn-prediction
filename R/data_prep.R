@@ -440,6 +440,69 @@ BIOMARKER_DERIVED_TOKENS <- c("FerAdj", "RBPAdj", "Retinol",
                               "VitADef", "VitAInsuff", "VitADefic",
                               "FeDef", "FolDef", "B12Def", "ZincDef")
 
+#' The DHS standard-recode measurement bands.
+#'
+#' THE TWELFTH INSTANCE OF THE LEAK CLASS, and the first found BEFORE the data
+#' it would have leaked was built rather than after. WS-C4 admits Malawi to the
+#' individual-level arms by joining the micronutrient survey to the DHS
+#' household roster, which means several hundred DHS-coded columns enter the
+#' pipeline under the `gw_` survey prefix for the first time.
+#'
+#' Every guard above matches on ANALYTE NAMES -- "Hb", "ferritin", "anemia".
+#' DHS recodes are named by position in the questionnaire, not by content, so
+#' not one of them fires:
+#'
+#'   hw53   child haemoglobin, g/dL, KR recode. `gw_hw53` matches neither the
+#'          case-sensitive `Hb` nor `^gw_.*hb`, so the existing classifier
+#'          returns "questionnaire" and a blood draw enters the arm whose
+#'          entire purpose is to exclude blood draws.
+#'   v453   the same for women, IR recode.
+#'   ha53 / hc53 / hb53   the same in the PR person recode.
+#'   hml35  malaria rapid-test result. A test, on blood, from the same visit.
+#'
+#' Confirmed present in the Malawi cache: ha50-ha58, hb50-hb58, hc51-hc58,
+#' hw51-hw58 and v453-v459 all exist in the recodes WS-C4 reads.
+#'
+#' Anthropometry is included deliberately. Height, weight and the z-scores
+#' derived from them are not blood draws, but they are MEASUREMENTS taken from
+#' the same respondent in the same visit rather than questionnaire responses,
+#' which is the distinction the questionnaire arm rests on. They are classed
+#' `hb_field` for the same reason field haemoglobin is: available to a survey
+#' that already sent a fieldworker, unavailable to one that did not.
+#'
+#' Scoped to the survey prefix, so DHS-derived Admin-2 aggregates from other
+#' rounds -- which are proxy covariates, available to a country that never ran a
+#' survey -- are untouched.
+#'
+#' @param cols character vector of column names
+#' @return character vector: "", "blood_draw" or "hb_field"
+dhs_measurement_class <- function(cols, survey_prefix = "^gw_") {
+  out <- rep("", length(cols))
+  if (!length(cols)) return(out)
+  stem <- sub(survey_prefix, "", cols)
+  concurrent <- grepl(survey_prefix, cols)
+
+  # Malaria parasitaemia and rapid tests: blood, drawn at the visit.
+  draw <- grepl("^hml3[2-6]$", stem)
+  # The haemoglobin and anaemia band, and the anthropometry band.
+  hb <- grepl("^(ha|hb|hc|hw)5[0-9]$", stem) |
+    grepl("^v45[3-8]$", stem) |   # v459 is a bednet question, not a measurement
+    grepl("^(hw|hc)[1-3]$", stem) |          # age, weight, height
+    grepl("^(hw|hc)7[0-9]$", stem) |         # WHO/NCHS z-scores
+    grepl("^(ha|hb)([23]|4[01])$", stem) |   # adult height, weight, BMI
+    grepl("^v4(3[7-9]|4[0-5])[a-z]?$", stem) # the IR anthropometry block:
+                                             # v437 weight, v438 height,
+                                             # v445 BMI. These survived the
+                                             # first WS-C4 build only because
+                                             # they have more distinct values
+                                             # than the level cap allows, which
+                                             # is luck rather than a guard.
+
+  out[concurrent & hb]   <- "hb_field"
+  out[concurrent & draw] <- "blood_draw"     # precedence: the draw wins
+  out
+}
+
 is_biomarker_column <- function(cols) {
   if (!length(cols)) return(logical(0))
   derived    <- paste(BIOMARKER_DERIVED_TOKENS, collapse = "|")
@@ -453,6 +516,64 @@ is_biomarker_column <- function(cols) {
     # case-SENSITIVE: matches gw_wHb / gw_cHb / gw_HbCat, but not the
     # lower-case household variables (gw_hBuy*, gw_hBirds*)
     grepl("Hb", cols) |
+    # ...and the same token in LOWER case, scoped to the survey domain.
+    #
+    # THE ELEVENTH INSTANCE OF THE LEAK CLASS, found 2026-08-31 by the WS7a
+    # leakage report. The case-sensitive `Hb` above was chosen to spare the
+    # lower-case household block (gw_hBuy*, gw_hBreadType, gw_hBirds*), where
+    # the `h` is a household prefix and the next character is upper case. That
+    # choice let TWO haemoglobin columns through:
+    #
+    #   gw_wm_whbc   Ghana, women's haemoglobin, g/dL. Measured: n 981,
+    #                range 7.0-17.0, median 12.9; mean 12.98 in non-deficient
+    #                women against 10.71 in iron-deficient women; |r| 0.500
+    #                with the outcome, the highest of any eligible column in
+    #                any of the 48 cell-by-set combinations scanned.
+    #   gw_gchb      Ghana, child haemoglobin, g/dL. Measured: n 1159,
+    #                range 6.2-15.0, median 11.4.
+    #
+    # Both sat inside the questionnaire arm of the individual anchor, the arm
+    # whose entire purpose is to answer what a household survey WITHOUT a blood
+    # draw buys. A haemoglobin reading is a blood draw.
+    #
+    # Scoping to `^gw_` keeps this away from the MAP and map2 sickle-cell and
+    # HbC allele-frequency rasters, which are geospatial covariates rather than
+    # anything drawn from these respondents. Verified against all 4,906 columns
+    # in the four surveys: this pattern matches exactly four, gw_bs2_hb,
+    # gw_bs3_hba1c, gw_gchb and gw_wm_whbc, every one of them draw-derived, and
+    # no household-block column.
+    grepl("^gw_.*hb", cols) |
+    # ...and three more classes that only a LABEL could have identified (WS7b).
+    # Derived from the original Stata files for Gambia, Ghana and Sierra Leone,
+    # 828 of 865 labelled pipeline columns agreed with the name-based guard. Of
+    # the 22 a label blocks and the name allowed, nine are genuine:
+    #
+    #   Inflamm     gw_cInflammMarker, gw_cInflammYN, gw_wInflammMarker,
+    #               gw_wInflammYN (Sierra Leone), labelled "CRP and AGP
+    #               elevation" and "Elevated CRP or AGP"; plus
+    #               gw_cAnemMalarInflamm and gw_wAnemMalarInflamm, labelled
+    #               "Status of anemia, malaria, and inflamm". Every one is
+    #               computed from the assay panel and none names an analyte.
+    #               gw_wAnemMalarInflamm was the top-ranked eligible column for
+    #               Sierra Leone women's iron in the WS7a leakage report at
+    #               |r| 0.358 and was flagged there for label verification; the
+    #               label confirms it.
+    #   Hypergly    gw_wHypergly7p0YN and gw_wHypergly6p5YN (Gambia), labelled
+    #               "RECODE of bs3_hba1c (Glycated hemoglobin (%))".
+    #   gw_cpcn     Ghana, labelled "16. Phlebotomist's ID number". The draw's
+    #               metadata goes with the draw, as gw_bs* already does.
+    #
+    # The other thirteen are knowledge and belief items the label predicate
+    # over-matched: the Gambia gw_wAnemCauses_* and gw_wAnemPrev_* blocks
+    # ("Anemia prevented by eating iron rich food??"), and gw_wFFAnemia, whose
+    # label reads "Woman says Fort Flour reduces anemia". Section 7.5 flagged
+    # gw_wFFAnemia as an ASSUMPTION that it is a fortified-food belief item.
+    # The label confirms the assumption. Also gw_cREOil_day, "Retinol Equiv (RE)
+    # consumer per day from vegetable oil", which is dietary intake and not a
+    # measurement of the respondent.
+    grepl("Inflamm", cols) |
+    grepl("Hypergly", cols) |
+    grepl("^gw_cpcn$", cols) |
     # (2) STATUS DERIVED FROM THE DRAW, AND THE DRAW ITSELF. Analyte names were
     # never the whole leak. Measured 2026-08-31 by ranking every surviving
     # column against the outcome: the top of the list was gw_cAnemiaYN
@@ -478,7 +599,127 @@ is_biomarker_column <- function(cols) {
     grepl("NoAdj", cols) |
     grepl("_[cw]ID($|_|s[TR])", cols) |
     grepl("_[cw]VAI", cols) |
-    grepl("^gw_(bs[0-9]|bis$|rpb[0-9])", cols)
+    grepl("^gw_(bs[0-9]|bis$|rpb[0-9])", cols) |
+    # (4) THE DHS STANDARD RECODE BANDS. Named by questionnaire position, so no
+    # analyte-name guard above fires on them. See dhs_measurement_class().
+    dhs_measurement_class(cols) != ""
+}
+
+
+#' Classify a column by what kind of measurement it is.
+#'
+#' WHY A CLASS AND NOT A FLAG (WS3e)
+#' ---------------------------------
+#' is_biomarker_column() answers one question: is this the blood draw? That is
+#' the right question for the primary models, which must be deployable where no
+#' draw exists. It is too coarse for the question a national programme actually
+#' faces, which is what a survey that ALREADY collects haemoglobin buys.
+#'
+#' Haemoglobin is not a micronutrient assay and is not in the same deployment
+#' class as ferritin or retinol-binding protein. It is measured in the field
+#' with a finger-prick and a portable photometer, it is standard in every DHS,
+#' and a country contemplating a micronutrient survey usually has it already.
+#' Blocking it and blocking serum ferritin with the same predicate answers a
+#' question nobody asked.
+#'
+#' Three classes:
+#'   "blood_draw"     venous or capillary panel and everything derived from it:
+#'                    ferritin, sTfR, CRP, AGP, RBP, retinol, zinc, folate, B12,
+#'                    the deficiency indicators computed from them, their
+#'                    unadjusted twins, and the blood-sample metadata block.
+#'                    Blocked in every arm that claims to need no draw.
+#'   "hb_field"       haemoglobin and the anaemia status and category derived
+#'                    from it. Blocked in the no-draw arm, permitted in the
+#'                    field-haemoglobin arm.
+#'   "questionnaire"  everything else.
+#'
+#' PRECEDENCE. blood_draw wins. gw_bs2_hb names haemoglobin but belongs to the
+#' blood-sample block, and a column that is part of the draw does not become
+#' field-measurable because of what it measures.
+#'
+#' @param cols character vector of column names
+#' @return character vector of the same length, one class per column
+biomarker_column_class <- function(cols) {
+  if (!length(cols)) return(character(0))
+
+  # The blood-sample block and the assay panel, in that order of certainty.
+  draw <- grepl("^gw_(bs[0-9]|bis$|rpb[0-9])", cols) |
+    # WS7b, identified from Stata labels; see is_biomarker_column() above.
+    grepl("Inflamm", cols) | grepl("Hypergly", cols) | grepl("^gw_cpcn$", cols) |
+    grepl(paste(BIOMARKER_DERIVED_TOKENS, collapse = "|"), cols, ignore.case = TRUE) |
+    grepl("crp|agp|stfr|ferritin|transferrin", cols, ignore.case = TRUE) |
+    grepl("FER|RBP|TFR|Ferr", cols) |
+    grepl("_(fer|rbp)([^a-z]|$)", cols) |
+    grepl("NoAdj", cols) |
+    grepl("_[cw]ID($|_|s[TR])", cols) |
+    grepl("_[cw]VAI", cols)
+
+  # Haemoglobin, and the anaemia status and category derived from it. The
+  # lower-case pattern is the one WS7a added after gw_wm_whbc and gw_gchb were
+  # found unblocked; see is_biomarker_column() above.
+  hb <- grepl("haemoglob|hemoglob", cols, ignore.case = TRUE) |
+    grepl("Hb", cols) |
+    grepl("^gw_.*hb", cols) |
+    grepl("_[cw]An[a]?emia", cols) |
+    grepl("anemia|anaemia", cols, ignore.case = TRUE)
+
+  # gw_wHeardAnemia is a knowledge item and the gw_wFF* block is beliefs about
+  # fortified food. Both name anaemia and neither is a measurement. Section 7.4
+  # verified these individually and they must survive the broader pattern above.
+  keep <- grepl("HeardAn[a]?emia", cols) | grepl("^gw_[cw]FF", cols)
+  hb <- hb & !keep
+
+  # The DHS standard recode bands (WS-C4). Applied before the local patterns
+  # so that the precedence rule below still governs.
+  dhs <- dhs_measurement_class(cols)
+  hb   <- hb   | dhs == "hb_field"
+  draw <- draw | dhs == "blood_draw"
+
+  out <- rep("questionnaire", length(cols))
+  out[hb]   <- "hb_field"
+  out[draw] <- "blood_draw"      # precedence: the draw wins
+  out
+}
+
+#' Predictor columns permitted under a named arm.
+#'
+#' THE ARMS MUST BE NESTED, AND SCOPING IS WHAT MAKES THEM SO
+#' ----------------------------------------------------------
+#' The filter applies ONLY to the concurrent survey domain (`gw_`). Everything
+#' else is permitted in every arm, and the reason is that the arms are meant to
+#' differ in ONE thing: how much of the survey administered to these respondents
+#' the model may see.
+#'
+#' biomarker_column_class() classifies by what a column measures, so it labels
+#' external sources too. Measured across the 4,906 columns, 40 of those it calls
+#' hb_field are published Admin-2 anaemia aggregates from OTHER DHS rounds and
+#' IHME anaemia rasters, and four are MAP sickle-cell and HbC allele-frequency
+#' layers. None of them is a measurement taken from these respondents, all of
+#' them are available to a country that has never run a micronutrient survey,
+#' and all of them belong in the proxy arm.
+#'
+#' Filtering them would break the nesting, because the proxy arm uses `Xvars`,
+#' which is not filtered at all. The published individual-anchor arms have
+#' exactly that defect: the questionnaire arm applies is_biomarker_column() to
+#' `Xvars_full` and so loses the MAP haemoglobin rasters and the DHS mean
+#' haemoglobin aggregates that the proxy arm keeps, which makes the two arms
+#' non-nested and the gap between them not purely attributable to the
+#' questionnaire.
+#'
+#' @param cols candidate column names
+#' @param arm "questionnaire" blocks the survey's blood_draw and hb_field
+#'   columns; "questionnaire_hb" blocks only its blood_draw columns
+#' @param survey_prefix regex identifying the concurrent survey's columns
+#' @return logical vector, TRUE where the column is permitted
+allowed_under_arm <- function(cols, arm = c("questionnaire", "questionnaire_hb"),
+                              survey_prefix = "^gw_") {
+  arm <- match.arg(arm)
+  if (!length(cols)) return(logical(0))
+  concurrent <- grepl(survey_prefix, cols)
+  cl <- biomarker_column_class(cols)
+  blocked <- concurrent & if (arm == "questionnaire")
+    cl != "questionnaire" else cl == "blood_draw"
+  !blocked
 }
 
 

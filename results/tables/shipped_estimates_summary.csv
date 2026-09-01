@@ -1,0 +1,25 @@
+country,outcome,districts,median_lambda,median_shift_pp,median_rank_width,r_max_emp,admin2_released,calibration,tau2_source
+Gambia,child_iron,30,0.615,3.74,18.5,0.753,TRUE,calibration_failed,split_half_reliability
+Gambia,child_vitA,30,0.7,1.55,15,0.797,TRUE,calibration_failed,split_half_reliability
+Gambia,women_iron,30,0.682,3.03,15.5,0.824,TRUE,passed,split_half_reliability
+Gambia,women_vitA,30,0.574,1.03,25,0.644,TRUE,passed,split_half_reliability
+Ghana,child_iron,75,0.738,2.75,42,0.811,TRUE,passed,split_half_reliability
+Ghana,child_vitA,75,0.452,4.07,53,0.592,TRUE,passed,split_half_reliability
+Ghana,women_b12,75,0.275,3.86,57,0.486,TRUE,passed,split_half_reliability
+Ghana,women_folate,75,0.536,8.77,47,0.713,TRUE,calibration_failed,split_half_reliability
+Ghana,women_iron,75,0.185,5.1,44,0.384,TRUE,passed,split_half_reliability
+Ghana,women_vitA,75,0.219,1.33,65,0.392,TRUE,passed,split_half_reliability
+Malawi,child_iron,87,0.254,6.48,61,0.449,TRUE,calibration_failed,split_half_reliability
+Malawi,child_vitA,87,0.503,2.49,66,0.634,TRUE,passed,split_half_reliability
+Malawi,child_zinc,87,0.702,4.63,53,0.798,TRUE,passed,split_half_reliability
+Malawi,women_b12,87,0,2.81,0,0,FALSE,passed,degenerate
+Malawi,women_folate,87,0.751,2.65,50,0.831,TRUE,passed,split_half_reliability
+Malawi,women_iron,87,0.192,9.69,60,0.395,TRUE,passed,split_half_reliability
+Malawi,women_vitA,87,0,0,0,0,FALSE,passed,degenerate
+Malawi,women_zinc,87,0.638,5.93,50,0.791,TRUE,passed,split_half_reliability
+Sierra Leone,child_iron,14,0.101,2.8,8,0.25,FALSE,passed,split_half_reliability
+Sierra Leone,child_vitA,14,0.033,5.02,8,0.183,FALSE,calibration_failed,split_half_reliability
+Sierra Leone,women_b12,14,0,0.63,0,0,FALSE,passed,degenerate
+Sierra Leone,women_folate,14,0.772,1.52,7,0.848,TRUE,calibration_failed,split_half_reliability
+Sierra Leone,women_iron,14,0.751,1.45,11,0.821,TRUE,passed,split_half_reliability
+Sierra Leone,women_vitA,14,0.247,1.08,12,0.452,TRUE,passed,split_half_reliability

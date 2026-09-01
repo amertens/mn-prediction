@@ -1,0 +1,7 @@
+country,outcome,aggregation,target,n_units,r,mae_pp
+Ghana,child_iron,realised,sample_mean,71,0.3984,13.02
+Ghana,child_iron,realised,svy_weighted,71,0.3984,13.03
+Ghana,child_iron,realised,svy_prev,71,0.3984,13.03
+Ghana,child_iron,poststrat,sample_mean,71,0.3984,13.02
+Ghana,child_iron,poststrat,svy_weighted,71,0.3984,13.03
+Ghana,child_iron,poststrat,svy_prev,71,0.3984,13.03

@@ -2043,6 +2043,48 @@ if (length(all_country_configs) >= 1) {
   )
 }
 
+# ── Structural guards (WS7a) ────────────────────────────────────────────────
+# The leakage report ranks every surviving predictor against the outcome in
+# every cell. Section 7 of docs/SESSION_FINDINGS_FOR_REVIEW.md records that two
+# of the three assay-guard iterations produced publishable-looking numbers that
+# were leakage, and that neither was found by reading regexes: both were found
+# by looking at the top of this ranking. WS7a found an eleventh instance the
+# same way (gw_wm_whbc, gw_gchb).
+#
+# It is a TARGET rather than a script precisely so that it depends on every
+# outcome_data_* object. A newly ingested country cannot reach a model without
+# the report being rebuilt over its columns. R/leakage_report.R explains the
+# threshold and the effective-n floor.
+guard_targets <- list()
+if (length(all_country_configs) >= 1) {
+  od_syms_g <- list()
+  for (ck in names(all_country_configs)) {
+    if (!file.exists(all_country_configs[[ck]]$data_path)) next
+    for (tag in names(all_country_configs[[ck]]$outcomes)) {
+      sfx <- paste0(tolower(ck), "_", tag)
+      od_syms_g[[sfx]] <- as.symbol(paste0("outcome_data_", sfx))
+    }
+  }
+  od_named_expr <- as.call(c(list(as.symbol("list")), od_syms_g))
+  guard_targets <- list(
+    tar_target_raw(
+      "leakage_report",
+      substitute({
+        rep <- build_leakage_report_from_list(od_list_val, get_country_configs())
+        dir.create(here::here("results", "tables"),
+                   showWarnings = FALSE, recursive = TRUE)
+        if (!is.null(rep) && nrow(rep)) {
+          readr::write_csv(rep, here::here("results", "tables", "leakage_report.csv"))
+          readr::write_csv(leakage_report_summary(rep),
+                           here::here("results", "tables", "leakage_report_summary.csv"))
+        }
+        rep
+      }, list(od_list_val = od_named_expr))
+    )
+  )
+}
+
 c(static_targets, country_targets, area_comparison_targets, area_loco_targets,
   benchmark_targets, area_transport_targets, transport_targets, oos_targets,
-  summary_targets, corrected_targets, aggregation_targets, gp_sens_targets)
+  summary_targets, corrected_targets, aggregation_targets, gp_sens_targets,
+  guard_targets)

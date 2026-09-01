@@ -92,7 +92,20 @@ aggregate_covariates_to_admin1 <- function(area_cov, weights = NULL) {
 #' Screening happens INSIDE whatever fold the caller passes, never on the full
 #' data -- selecting features on all rows and then cross-validating them is the
 #' optimism the manuscript already documents for the production recipe.
-.ds_fit <- function(X, y, k_screen = 20L, alpha = 0) {
+# `link` exists because this fitter was written for PREVALENCES and silently
+# mangles anything else. The logit line below clamps y to [0.005, 0.995]; fed a
+# ferritin concentration of 1.6 to 196 ug/L every value clamps to 0.995, the
+# outcome becomes constant, and the fit fails or returns a degenerate model. Fed
+# an RBP of 0.25 to 1.99 it partially survives, which is worse, because it
+# returns a plausible number computed on a truncated outcome.
+#
+#   "logit"     the original behaviour, for proportions. DEFAULT, unchanged.
+#   "log"       for positive right-skewed concentrations, which is what every
+#               biomarker level in this project is (skew 0.29 to 9.28).
+#   "identity"  no transform.
+.ds_fit <- function(X, y, k_screen = 20L, alpha = 0,
+                    link = c("logit", "log", "identity")) {
+  link <- match.arg(link)
   keep <- apply(X, 2, function(c) { v <- stats::var(c, na.rm = TRUE)
                                     is.finite(v) && v > 0 })
   X <- X[, keep, drop = FALSE]
@@ -108,13 +121,17 @@ aggregate_covariates_to_admin1 <- function(area_cov, weights = NULL) {
   ctr <- attr(Xs, "scaled:center"); scl <- attr(Xs, "scaled:scale")
   scl[!is.finite(scl) | scl == 0] <- 1
   if (!requireNamespace("glmnet", quietly = TRUE)) return(NULL)
-  ylg <- stats::qlogis(pmin(pmax(y, 0.005), 0.995))
+  ylg <- switch(link,
+    logit = stats::qlogis(pmin(pmax(y, 0.005), 0.995)),
+    log = log(pmax(y, .Machine$double.eps)),
+    identity = y)
+  if (!all(is.finite(ylg)) || stats::sd(ylg[is.finite(ylg)]) == 0) return(NULL)
   fit <- tryCatch(
     glmnet::cv.glmnet(Xs, ylg, alpha = alpha,
                       nfolds = max(3L, min(10L, floor(length(ylg) / 3)))),
     error = function(e) NULL)
   if (is.null(fit)) return(NULL)
-  list(fit = fit, sel = sel, center = ctr, scale = scl)
+  list(fit = fit, sel = sel, center = ctr, scale = scl, link = link)
 }
 
 .ds_predict <- function(m, X) {
@@ -126,7 +143,12 @@ aggregate_covariates_to_admin1 <- function(area_cov, weights = NULL) {
     x[!is.finite(x)] <- m$center[j]
     Z[, j] <- (x - m$center[j]) / m$scale[j]
   }
-  as.numeric(stats::plogis(stats::predict(m$fit, newx = Z, s = "lambda.min")))
+  eta <- as.numeric(stats::predict(m$fit, newx = Z, s = "lambda.min"))
+  # Back-transform on the same link the fit used. An older version always
+  # applied plogis(), which silently squashed any non-prevalence prediction
+  # into [0, 1].
+  lk <- m$link %||% "logit"
+  switch(lk, logit = stats::plogis(eta), log = exp(eta), identity = eta)
 }
 
 #' Fit admin-1, predict admin-2.

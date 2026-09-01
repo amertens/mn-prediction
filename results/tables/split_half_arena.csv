@@ -1,0 +1,191 @@
+country,outcome,estimator,splits,r,mae_pp,lift
+Gambia,child_vitA,direct,20,0.4405,11.927,1.4859
+Gambia,child_vitA,flat_region,20,0.3802,12.072,1.3665
+Gambia,child_vitA,eb_blend,20,0.4085,11.433,1.4232
+Gambia,child_vitA,ridge,20,0.2602,13.404,1.4023
+Gambia,child_vitA,rf,20,0.301,12.095,1.3417
+Gambia,child_vitA,spatial,20,0.347,13.897,1.4036
+Gambia,child_vitA,ensemble,20,0.3954,11.997,1.4687
+Gambia,child_vitA,eb_ensemble,20,0.4103,11.823,1.441
+Gambia,women_vitA,direct,20,0.2702,4.441,1.8379
+Gambia,women_vitA,flat_region,20,-0.0613,5.214,0.6972
+Gambia,women_vitA,eb_blend,20,-0.0271,4.927,0.7359
+Gambia,women_vitA,ridge,20,0.3202,3.567,1.9288
+Gambia,women_vitA,rf,20,0.3123,4.518,2.0395
+Gambia,women_vitA,spatial,20,0.3575,4.719,1.9126
+Gambia,women_vitA,ensemble,20,0.3677,3.782,1.9532
+Gambia,women_vitA,eb_ensemble,20,0.3677,3.782,1.9532
+Gambia,child_iron,direct,20,0.3826,16.913,1.1938
+Gambia,child_iron,flat_region,20,0.1692,16.861,1.1281
+Gambia,child_iron,eb_blend,20,0.3066,15.506,1.2229
+Gambia,child_iron,ridge,20,0.1451,16.923,1.0754
+Gambia,child_iron,rf,20,0.2026,16.405,1.0922
+Gambia,child_iron,spatial,20,0.28,17.261,1.1095
+Gambia,child_iron,ensemble,20,0.2803,16.026,1.149
+Gambia,child_iron,eb_ensemble,20,0.3827,15.082,1.1989
+Gambia,women_iron,direct,20,0.5147,14.433,1.4252
+Gambia,women_iron,flat_region,20,0.3648,14.568,1.0326
+Gambia,women_iron,eb_blend,20,0.5387,12.655,1.2625
+Gambia,women_iron,ridge,20,0.4289,14.126,1.3233
+Gambia,women_iron,rf,20,0.4352,14.075,1.3006
+Gambia,women_iron,spatial,20,0.4118,16.509,1.3173
+Gambia,women_iron,ensemble,20,0.4636,13.831,1.3095
+Gambia,women_iron,eb_ensemble,20,0.4931,13.378,1.353
+Ghana,child_vitA,direct,20,0.1793,12.492,1.3556
+Ghana,child_vitA,flat_region,20,0.1528,13.238,1.2707
+Ghana,child_vitA,eb_blend,20,0.1682,12.882,1.3407
+Ghana,child_vitA,ridge,20,0.1982,12.714,1.3899
+Ghana,child_vitA,rf,20,0.2257,12.47,1.4078
+Ghana,child_vitA,spatial,20,0.0925,12.921,1.2174
+Ghana,child_vitA,ensemble,20,0.2508,12.146,1.4319
+Ghana,child_vitA,eb_ensemble,20,0.2508,12.146,1.4319
+Ghana,women_vitA,direct,20,0.0633,2.688,1.1
+Ghana,women_vitA,flat_region,20,-0.0852,3.211,0.5834
+Ghana,women_vitA,eb_blend,20,-0.0733,3.037,0.5756
+Ghana,women_vitA,ridge,20,0.0105,2.225,1.0447
+Ghana,women_vitA,rf,20,0.0708,3.235,1.668
+Ghana,women_vitA,spatial,20,0.1224,2.162,1.9493
+Ghana,women_vitA,ensemble,20,0.0746,2.292,1.5417
+Ghana,women_vitA,eb_ensemble,20,0.0652,2.342,1.5112
+Ghana,child_iron,direct,20,0.4528,16.23,1.8094
+Ghana,child_iron,flat_region,20,0.5097,16.36,2.0147
+Ghana,child_iron,eb_blend,20,0.5341,15.664,2.049
+Ghana,child_iron,ridge,20,0.3625,17.384,1.5667
+Ghana,child_iron,rf,20,0.3482,17.208,1.5447
+Ghana,child_iron,spatial,20,0.3234,17.798,1.4556
+Ghana,child_iron,ensemble,20,0.409,16.595,1.657
+Ghana,child_iron,eb_ensemble,20,0.4467,16.121,1.7369
+Ghana,women_iron,direct,20,0.1051,9.394,1.2376
+Ghana,women_iron,flat_region,20,0.199,9.242,1.3476
+Ghana,women_iron,eb_blend,20,0.203,9.032,1.336
+Ghana,women_iron,ridge,20,0.0404,8.08,1.0086
+Ghana,women_iron,rf,20,0.1016,9.473,1.2773
+Ghana,women_iron,spatial,20,-0.0144,8.363,0.9659
+Ghana,women_iron,ensemble,20,0.0906,8.584,1.1942
+Ghana,women_iron,eb_ensemble,20,0.0906,8.584,1.1942
+Ghana,women_folate,direct,20,0.3,30.453,1.1984
+Ghana,women_folate,flat_region,20,0.2023,29.118,1.1203
+Ghana,women_folate,eb_blend,20,0.3371,26.807,1.2544
+Ghana,women_folate,ridge,20,0.128,33.352,1.1076
+Ghana,women_folate,rf,20,0.1326,29.75,1.1631
+Ghana,women_folate,spatial,20,0.2469,30.745,1.1652
+Ghana,women_folate,ensemble,20,0.2493,29.077,1.1607
+Ghana,women_folate,eb_ensemble,20,0.2937,28.483,1.2072
+Ghana,women_b12,direct,20,0.3346,12.451,1.742
+Ghana,women_b12,flat_region,20,0.352,12.671,2.4754
+Ghana,women_b12,eb_blend,20,0.3554,12.178,2.4938
+Ghana,women_b12,ridge,20,-0.0286,12.077,1.0219
+Ghana,women_b12,rf,20,0.0628,15.952,1.3097
+Ghana,women_b12,spatial,20,0.0548,12.301,1.6462
+Ghana,women_b12,ensemble,20,0.1041,13.615,1.4558
+Ghana,women_b12,eb_ensemble,20,0.1041,13.615,1.4558
+Sierra Leone,child_vitA,direct,20,0.0881,9.085,1.0718
+Sierra Leone,child_vitA,flat_region,20,-0.338,8.602,0.7282
+Sierra Leone,child_vitA,eb_blend,20,-0.4054,8.909,0.7287
+Sierra Leone,child_vitA,spatial,7,-0.003,8.179,0.8767
+Sierra Leone,child_vitA,ridge,5,0.0885,11.161,1.199
+Sierra Leone,child_vitA,rf,5,0.0845,7.277,1.1299
+Sierra Leone,child_vitA,ensemble,1,0.0169,6.169,0.6447
+Sierra Leone,child_vitA,eb_ensemble,1,0.0169,6.169,0.6447
+Sierra Leone,women_vitA,direct,20,0.0939,1.741,1.1381
+Sierra Leone,women_vitA,flat_region,20,-0.2596,2.103,0.4911
+Sierra Leone,women_vitA,eb_blend,20,-0.258,2.058,0.4884
+Sierra Leone,women_vitA,rf,7,-0.0367,1.795,1.1307
+Sierra Leone,women_vitA,ridge,7,0.1028,3.676,0.8718
+Sierra Leone,women_vitA,spatial,5,0.2518,1.536,1.4752
+Sierra Leone,women_vitA,ensemble,1,0.2785,1.501,0.8331
+Sierra Leone,women_vitA,eb_ensemble,1,0.2785,1.501,0.8331
+Sierra Leone,child_iron,direct,20,0.0578,7.397,1.0249
+Sierra Leone,child_iron,flat_region,20,0.0771,5.847,1.1172
+Sierra Leone,child_iron,eb_blend,20,0.0231,5.951,1.0054
+Sierra Leone,child_iron,spatial,7,0.1321,7.637,1.3076
+Sierra Leone,child_iron,ridge,5,0.2818,4.891,1.7101
+Sierra Leone,child_iron,rf,5,0.0717,5.831,1.07
+Sierra Leone,child_iron,ensemble,1,0.7092,3.401,2.0815
+Sierra Leone,child_iron,eb_ensemble,1,0.7092,3.401,2.0815
+Sierra Leone,women_iron,direct,20,0.4976,6.371,1.5436
+Sierra Leone,women_iron,flat_region,20,-0.4944,8.368,0.5332
+Sierra Leone,women_iron,eb_blend,20,0.1954,6.283,1.0759
+Sierra Leone,women_iron,ridge,10,0.0333,7.009,1.0021
+Sierra Leone,women_iron,rf,7,-0.0419,7.339,0.9404
+Sierra Leone,women_iron,spatial,5,-0.1876,11.285,0.9065
+Sierra Leone,women_iron,ensemble,1,-0.0121,6.258,1.1592
+Sierra Leone,women_iron,eb_ensemble,1,0.0923,6.194,1.1592
+Sierra Leone,women_folate,direct,20,0.5309,9.563,1.1217
+Sierra Leone,women_folate,flat_region,20,0.248,10.905,1.0279
+Sierra Leone,women_folate,eb_blend,20,0.4851,9.032,1.118
+Sierra Leone,women_folate,rf,6,-0.448,13.529,0.9594
+Sierra Leone,women_folate,ridge,8,-0.3284,14.472,0.9492
+Sierra Leone,women_folate,spatial,6,-0.3966,15.459,0.9033
+Sierra Leone,women_b12,direct,20,-0.1491,0.838,0.5708
+Sierra Leone,women_b12,flat_region,20,-0.2688,0.882,0.4673
+Sierra Leone,women_b12,eb_blend,20,-0.2476,0.938,0.261
+Sierra Leone,women_b12,rf,5,0.2615,0.799,2.7276
+Sierra Leone,women_b12,ridge,1,0.0269,1.024,0
+Sierra Leone,women_b12,spatial,3,-0.1533,1.306,0.737
+Sierra Leone,women_b12,ensemble,1,0.0765,0.802,0
+Sierra Leone,women_b12,eb_ensemble,1,0.0765,0.802,0
+Malawi,child_vitA,direct,20,0.3002,9.223,1.6452
+Malawi,child_vitA,flat_region,20,0.0059,11.423,1.1416
+Malawi,child_vitA,eb_blend,20,0.1057,10.787,1.318
+Malawi,child_vitA,ridge,20,0.0956,9.179,1.2524
+Malawi,child_vitA,rf,20,0.1037,10.822,1.2045
+Malawi,child_vitA,spatial,20,0.1325,8.917,1.3956
+Malawi,child_vitA,ensemble,20,0.1621,9.387,1.3874
+Malawi,child_vitA,eb_ensemble,20,0.1621,9.387,1.3874
+Malawi,women_vitA,direct,20,-0.0559,3.287,0.9718
+Malawi,women_vitA,flat_region,20,0.0491,2.38,1.5209
+Malawi,women_vitA,eb_blend,20,-0.0141,2.985,1.3001
+Malawi,women_vitA,ridge,20,-0.0183,2.263,0.7347
+Malawi,women_vitA,rf,20,-0.0491,3.387,0.742
+Malawi,women_vitA,spatial,20,0.1234,2.195,1.5942
+Malawi,women_vitA,ensemble,20,0.0703,2.199,1.3196
+Malawi,women_vitA,eb_ensemble,20,0.047,2.266,1.2876
+Malawi,child_iron,direct,20,0.073,13.611,1.1741
+Malawi,child_iron,flat_region,20,0.0661,12.052,1.193
+Malawi,child_iron,eb_blend,20,0.0678,12.674,1.2011
+Malawi,child_iron,ridge,20,0.1732,11.105,1.4124
+Malawi,child_iron,rf,20,0.1502,12.611,1.4144
+Malawi,child_iron,spatial,20,-0.0133,11.17,0.9247
+Malawi,child_iron,ensemble,20,0.1527,11.49,1.3721
+Malawi,child_iron,eb_ensemble,20,0.1527,11.49,1.3721
+Malawi,women_iron,direct,20,0.2346,12.483,1.5653
+Malawi,women_iron,flat_region,20,0.0163,13.207,0.9742
+Malawi,women_iron,eb_blend,20,-0.0384,13.46,0.8792
+Malawi,women_iron,ridge,20,0.1192,9.875,1.5221
+Malawi,women_iron,rf,20,0.1185,12.791,1.3322
+Malawi,women_iron,spatial,20,0.0018,9.829,1.0335
+Malawi,women_iron,ensemble,20,0.0957,10.291,1.2402
+Malawi,women_iron,eb_ensemble,20,0.0957,10.291,1.2402
+Malawi,women_folate,direct,20,0.407,17.259,1.7752
+Malawi,women_folate,flat_region,20,0.4102,18.915,1.9344
+Malawi,women_folate,eb_blend,20,0.4188,18.065,1.917
+Malawi,women_folate,ridge,20,0.1855,19.692,1.4954
+Malawi,women_folate,rf,20,0.219,20.793,1.4067
+Malawi,women_folate,spatial,20,0.0747,19.982,1.1432
+Malawi,women_folate,ensemble,20,0.2375,19.868,1.5026
+Malawi,women_folate,eb_ensemble,20,0.2934,19.268,1.593
+Malawi,women_b12,direct,20,0.0368,5.167,1.2136
+Malawi,women_b12,flat_region,20,0.0835,4.91,1.3866
+Malawi,women_b12,eb_blend,20,0.0843,4.849,1.4813
+Malawi,women_b12,ridge,20,0.0734,3.502,1.3854
+Malawi,women_b12,rf,20,0.0363,5.406,1.2573
+Malawi,women_b12,spatial,20,0.1861,3.508,1.7541
+Malawi,women_b12,ensemble,20,0.1135,3.802,1.6123
+Malawi,women_b12,eb_ensemble,20,0.1135,3.802,1.6123
+Malawi,child_zinc,direct,20,0.42,22.425,1.2584
+Malawi,child_zinc,flat_region,20,0.1234,25.702,1.0956
+Malawi,child_zinc,eb_blend,20,0.3993,21.699,1.259
+Malawi,child_zinc,ridge,20,-0.1115,29.613,0.9051
+Malawi,child_zinc,rf,20,-0.1067,25.268,0.8759
+Malawi,child_zinc,spatial,20,-0.0436,26.261,0.9875
+Malawi,child_zinc,ensemble,20,-0.0893,25.008,0.9488
+Malawi,child_zinc,eb_ensemble,20,0.3705,21.364,1.2019
+Malawi,women_zinc,direct,20,0.4934,22.051,1.3191
+Malawi,women_zinc,flat_region,20,0.1686,27.142,1.0103
+Malawi,women_zinc,eb_blend,20,0.4001,23.459,1.2315
+Malawi,women_zinc,ridge,20,-0.1481,32.503,0.9529
+Malawi,women_zinc,rf,20,-0.1638,28.201,0.9054
+Malawi,women_zinc,spatial,20,-0.1513,30.655,0.8959
+Malawi,women_zinc,ensemble,20,-0.1705,28.299,0.88
+Malawi,women_zinc,eb_ensemble,20,0.3588,23.585,1.2476

@@ -1,0 +1,11 @@
+country,outcome,n_areas,band_authority,n_bands,agree_prev,agree_level,agree_null,level_minus_prev,level_via
+Gambia,child_vitA,30,"WHO, preschool children",4,0.167,0.3,0.467,0.133,"isotonic level->prevalence, fitted out of fold"
+Gambia,women_vitA,30,WHO bands borrowed from preschool children; NOT WHO-defined for women,3,0.7,0.5,0.567,-0.2,"isotonic level->prevalence, fitted out of fold"
+Ghana,child_vitA,75,"WHO, preschool children",4,0.187,0.24,0.32,0.053,"isotonic level->prevalence, fitted out of fold"
+Ghana,women_vitA,75,WHO bands borrowed from preschool children; NOT WHO-defined for women,4,0.827,0.667,0.84,-0.16,"isotonic level->prevalence, fitted out of fold"
+Sierra Leone,child_vitA,14,"WHO, preschool children",3,0.5,0.5,0.571,0,"isotonic level->prevalence, fitted out of fold"
+Sierra Leone,women_vitA,14,WHO bands borrowed from preschool children; NOT WHO-defined for women,2,0.786,0.714,0.714,-0.071,"isotonic level->prevalence, fitted out of fold"
+Malawi,child_vitA,87,"WHO, preschool children",4,0.264,0.172,0.448,-0.092,"isotonic level->prevalence, fitted out of fold"
+Malawi,women_vitA,87,WHO bands borrowed from preschool children; NOT WHO-defined for women,4,0.874,0.851,0.874,-0.023,"isotonic level->prevalence, fitted out of fold"
+Malawi,child_zinc,87,IZiNCG for the 20% line ONLY; 10% and 30% are project extensions,2,0.92,0.931,0.931,0.011,"isotonic level->prevalence, fitted out of fold"
+Malawi,women_zinc,87,IZiNCG for the 20% line ONLY; see child_zinc,2,0.954,0.954,0.954,0,"isotonic level->prevalence, fitted out of fold"

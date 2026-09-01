@@ -1,0 +1,251 @@
+"country","outcome","approach","n_admin2","mae_pp","rmse_pp","pearson_r","mean_bias_pp","r_max","r_max_hi","r_share","signal","national_design_pp","national_err_pp","pearson_r_raw","r_share_raw"
+"Gambia","child_vitA","Individual SL",30,7.81,9.53,0.703,-0.36,0.671,0.823,1.05,TRUE,17.25,2.42,0.703,1.05
+"Gambia","child_vitA","Area SL (MSE)",30,10.13,13.31,0.27,0.57,0.671,0.823,0.4,TRUE,17.25,1.71,0.27,0.4
+"Gambia","child_vitA","Area SL (NLL)",30,11.26,15.17,0.298,-5.32,0.671,0.823,0.44,TRUE,17.25,-3.57,0.298,0.44
+"Gambia","child_vitA","MRP",30,5.47,7.71,0.845,1.81,0.671,0.823,1.26,TRUE,17.25,NA,0.845,1.26
+"Gambia","child_vitA","Area wSL, precision-weighted (OOF)",30,9.62,11.95,0.46,1.99,0.671,0.823,0.69,TRUE,17.25,NA,0.46,0.69
+"Gambia","child_vitA","Area wSL, unweighted (OOF)",30,11.25,14.07,0.24,-5.69,0.671,0.823,0.36,TRUE,17.25,NA,0.24,0.36
+"Gambia","child_vitA","Area wSL, literature covariates (OOF)",30,9.25,11.81,0.577,3.31,0.671,0.823,0.86,TRUE,17.25,NA,0.577,0.86
+"Gambia","child_vitA","Area wSL, prescreen in-fold (OOF)",30,9.38,11.6,0.505,1.81,0.671,0.823,0.75,TRUE,17.25,NA,0.505,0.75
+"Gambia","child_vitA","Area wSL, prescreen on ALL data (OPTIMISTIC)",30,8.69,10.74,0.618,2.43,0.671,0.823,0.92,TRUE,17.25,NA,0.618,0.92
+"Gambia","child_vitA","National mean (null)",30,10.79,13.3,NA,1.03,0.671,0.823,NA,TRUE,17.25,NA,NA,NA
+"Gambia","child_vitA","Spatial only (no covariates)",30,9.43,11.74,0.52,-1.56,0.671,0.823,0.77,TRUE,17.25,NA,0.52,0.77
+"Gambia","women_vitA","Individual SL",30,3.04,4.24,0.494,-0.39,0.275,0.64,1.79,TRUE,1.7,0.83,0.494,1.79
+"Gambia","women_vitA","Area SL (MSE)",30,3.54,4.56,0.35,0.15,0.275,0.64,1.27,TRUE,1.7,1.38,0.35,1.27
+"Gambia","women_vitA","Area SL (NLL)",30,3.18,5.14,0.286,-2.23,0.275,0.64,1.04,TRUE,1.7,-0.59,0.286,1.04
+"Gambia","women_vitA","MRP",30,2.18,2.97,0.796,0.11,0.275,0.64,2.89,TRUE,1.7,NA,0.796,2.89
+"Gambia","women_vitA","Area wSL, precision-weighted (OOF)",30,3.36,4.31,0.472,0.64,0.275,0.64,1.71,TRUE,1.7,NA,0.472,1.71
+"Gambia","women_vitA","Area wSL, unweighted (OOF)",30,3.12,4.77,0.431,-1.58,0.275,0.64,1.57,TRUE,1.7,NA,0.431,1.57
+"Gambia","women_vitA","Area wSL, literature covariates (OOF)",30,3.88,5.18,0.117,0.41,0.275,0.64,0.42,TRUE,1.7,NA,0.117,0.42
+"Gambia","women_vitA","Area wSL, prescreen in-fold (OOF)",30,4.2,5.76,0.184,0.86,0.275,0.64,0.67,TRUE,1.7,NA,0.184,0.67
+"Gambia","women_vitA","Area wSL, prescreen on ALL data (OPTIMISTIC)",30,4.04,5.59,0.453,1.81,0.275,0.64,1.64,TRUE,1.7,NA,0.453,1.64
+"Gambia","women_vitA","National mean (null)",30,3.59,4.93,NA,-0.99,0.275,0.64,NA,TRUE,1.7,NA,NA,NA
+"Gambia","women_vitA","Spatial only (no covariates)",30,2.97,4.54,0.503,-1.41,0.275,0.64,1.83,TRUE,1.7,NA,0.503,1.83
+"Gambia","child_iron","Individual SL",30,22.75,26.63,-0.157,-21.75,0.565,0.753,-0.28,TRUE,57.3,-15.21,-0.157,-0.28
+"Gambia","child_iron","Area SL (MSE)",30,12.8,15.93,0.345,1.66,0.565,0.753,0.61,TRUE,57.3,6.51,0.345,0.61
+"Gambia","child_iron","Area SL (NLL)",30,12.33,15.8,0.281,2.06,0.565,0.753,0.5,TRUE,57.3,7.57,0.281,0.5
+"Gambia","child_iron","MRP",30,7.37,9.7,0.788,0.52,0.565,0.753,1.4,TRUE,57.3,NA,0.788,1.4
+"Gambia","child_iron","Area wSL, precision-weighted (OOF)",30,10.82,13.3,0.518,-1.07,0.565,0.753,0.92,TRUE,57.3,NA,0.518,0.92
+"Gambia","child_iron","Area wSL, unweighted (OOF)",30,10.75,13.83,0.473,2.89,0.565,0.753,0.84,TRUE,57.3,NA,0.473,0.84
+"Gambia","child_iron","Area wSL, literature covariates (OOF)",30,10.37,12.95,0.574,-0.61,0.565,0.753,1.02,TRUE,57.3,NA,0.574,1.02
+"Gambia","child_iron","Area wSL, prescreen in-fold (OOF)",30,10.49,12.96,0.539,-0.74,0.565,0.753,0.95,TRUE,57.3,NA,0.539,0.95
+"Gambia","child_iron","Area wSL, prescreen on ALL data (OPTIMISTIC)",30,10.51,12.86,0.583,-2.04,0.565,0.753,1.03,TRUE,57.3,NA,0.583,1.03
+"Gambia","child_iron","National mean (null)",30,12.45,15.37,NA,-1.56,0.565,0.753,NA,TRUE,57.3,NA,NA,NA
+"Gambia","child_iron","Spatial only (no covariates)",30,11.76,14.11,0.441,-0.71,0.565,0.753,0.78,TRUE,57.3,NA,0.441,0.78
+"Gambia","women_iron","Individual SL",30,18.79,22.34,0.682,-18.79,0.706,0.796,0.97,TRUE,41.49,-12.63,0.682,0.97
+"Gambia","women_iron","Area SL (MSE)",30,10.35,12.78,0.621,-0.43,0.706,0.796,0.88,TRUE,41.49,6.28,0.621,0.88
+"Gambia","women_iron","Area SL (NLL)",30,10.33,12.96,0.612,-0.31,0.706,0.796,0.87,TRUE,41.49,6.62,0.612,0.87
+"Gambia","women_iron","MRP",30,8.27,10.01,0.817,-1.8,0.706,0.796,1.16,TRUE,41.49,NA,0.817,1.16
+"Gambia","women_iron","Area wSL, precision-weighted (OOF)",30,10.26,12.98,0.641,-0.9,0.706,0.796,0.91,TRUE,41.49,NA,0.641,0.91
+"Gambia","women_iron","Area wSL, unweighted (OOF)",30,10.32,13.01,0.602,0.55,0.706,0.796,0.85,TRUE,41.49,NA,0.602,0.85
+"Gambia","women_iron","Area wSL, literature covariates (OOF)",30,10.05,13.12,0.623,-1.66,0.706,0.796,0.88,TRUE,41.49,NA,0.623,0.88
+"Gambia","women_iron","Area wSL, prescreen in-fold (OOF)",30,9.18,11.77,0.717,-1.77,0.706,0.796,1.01,TRUE,41.49,NA,0.717,1.01
+"Gambia","women_iron","Area wSL, prescreen on ALL data (OPTIMISTIC)",30,8.82,11.75,0.815,-4.99,0.706,0.796,1.15,TRUE,41.49,NA,0.815,1.15
+"Gambia","women_iron","National mean (null)",30,14.19,17.42,NA,-6.28,0.706,0.796,NA,TRUE,41.49,NA,NA,NA
+"Gambia","women_iron","Spatial only (no covariates)",30,10.31,12.97,0.634,-3.15,0.706,0.796,0.9,TRUE,41.49,NA,0.634,0.9
+"Ghana","child_vitA","Individual SL",75,9.96,11.96,-0.326,1.44,0.03,0.498,NA,TRUE,13.18,1.71,-0.326,NA
+"Ghana","child_vitA","Area SL (MSE)",75,8.81,10.8,0.346,0.24,0.03,0.498,NA,TRUE,13.18,0.71,0.346,NA
+"Ghana","child_vitA","Area SL (NLL)",75,11.73,14.08,0.115,-7.31,0.03,0.498,NA,TRUE,13.18,-6.47,0.115,NA
+"Ghana","child_vitA","MRP",75,6.89,8.12,0.722,0.67,0.03,0.498,NA,TRUE,13.18,NA,0.722,NA
+"Ghana","child_vitA","Area wSL, precision-weighted (OOF)",75,10.12,12.17,0.326,5.3,0.03,0.498,NA,TRUE,13.18,NA,0.326,NA
+"Ghana","child_vitA","Area wSL, unweighted (OOF)",75,10.78,13.4,0.062,-6.58,0.03,0.498,NA,TRUE,13.18,NA,0.062,NA
+"Ghana","child_vitA","Area wSL, literature covariates (OOF)",75,9.98,11.95,0.318,4.96,0.03,0.498,NA,TRUE,13.18,NA,0.318,NA
+"Ghana","child_vitA","Area wSL, prescreen in-fold (OOF)",75,10.06,11.86,0.332,4.75,0.03,0.498,NA,TRUE,13.18,NA,0.332,NA
+"Ghana","child_vitA","Area wSL, prescreen on ALL data (OPTIMISTIC)",75,9.94,11.77,0.376,4.99,0.03,0.498,NA,TRUE,13.18,NA,0.376,NA
+"Ghana","child_vitA","National mean (null)",75,9.59,11.54,NA,1.4,0.03,0.498,NA,TRUE,13.18,NA,NA,NA
+"Ghana","child_vitA","Spatial only (no covariates)",75,9.39,11.79,0.236,-3.57,0.03,0.498,NA,TRUE,13.18,NA,0.236,NA
+"Ghana","women_vitA","Individual SL",75,2.92,4.46,NA,0.28,0,0.055,NA,FALSE,1.15,0.64,-0.026,NA
+"Ghana","women_vitA","Area SL (MSE)",75,2.92,4.42,NA,0.14,0,0.055,NA,FALSE,1.15,0.54,-0.082,NA
+"Ghana","women_vitA","Area SL (NLL)",75,1.85,4.38,NA,-1.33,0,0.055,NA,FALSE,1.15,-0.87,-0.188,NA
+"Ghana","women_vitA","MRP",75,2.12,3.41,NA,0.04,0,0.055,NA,FALSE,1.15,NA,0.567,NA
+"Ghana","women_vitA","Area wSL, precision-weighted (OOF)",75,7.66,8,NA,6.73,0,0.055,NA,FALSE,1.15,NA,-0.183,NA
+"Ghana","women_vitA","Area wSL, unweighted (OOF)",75,2.17,4.22,NA,-0.81,0,0.055,NA,FALSE,1.15,NA,-0.159,NA
+"Ghana","women_vitA","Area wSL, literature covariates (OOF)",75,7.57,7.93,NA,6.45,0,0.055,NA,FALSE,1.15,NA,-0.218,NA
+"Ghana","women_vitA","Area wSL, prescreen in-fold (OOF)",75,5.53,5.98,NA,4.19,0,0.055,NA,FALSE,1.15,NA,0.127,NA
+"Ghana","women_vitA","Area wSL, prescreen on ALL data (OPTIMISTIC)",75,5.27,5.76,NA,3.96,0,0.055,NA,FALSE,1.15,NA,0.22,NA
+"Ghana","women_vitA","National mean (null)",75,2.64,4.13,NA,-0.1,0,0.055,NA,FALSE,1.15,NA,NA,NA
+"Ghana","women_vitA","Spatial only (no covariates)",75,2.21,4.21,NA,-0.74,0,0.055,NA,FALSE,1.15,NA,0.004,NA
+"Ghana","child_iron","Individual SL",75,9.76,12.62,0.734,0.79,0.672,0.79,1.09,TRUE,20.2,3.34,0.734,1.09
+"Ghana","child_iron","Area SL (MSE)",75,11.84,15.05,0.59,0.92,0.672,0.79,0.88,TRUE,20.2,2.81,0.59,0.88
+"Ghana","child_iron","Area SL (NLL)",75,13.33,16.17,0.624,-6.33,0.672,0.79,0.93,TRUE,20.2,-4.71,0.624,0.93
+"Ghana","child_iron","MRP",75,6.84,8.8,0.886,0.93,0.672,0.79,1.32,TRUE,20.2,NA,0.886,1.32
+"Ghana","child_iron","Area wSL, precision-weighted (OOF)",75,14.18,17.69,0.375,4.42,0.672,0.79,0.56,TRUE,20.2,NA,0.375,0.56
+"Ghana","child_iron","Area wSL, unweighted (OOF)",75,13.98,18.05,0.416,-6.24,0.672,0.79,0.62,TRUE,20.2,NA,0.416,0.62
+"Ghana","child_iron","Area wSL, literature covariates (OOF)",75,14.53,17.68,0.415,5.35,0.672,0.79,0.62,TRUE,20.2,NA,0.415,0.62
+"Ghana","child_iron","Area wSL, prescreen in-fold (OOF)",75,12.67,16.18,0.535,4.38,0.672,0.79,0.8,TRUE,20.2,NA,0.535,0.8
+"Ghana","child_iron","Area wSL, prescreen on ALL data (OPTIMISTIC)",75,12.6,15.72,0.585,4.87,0.672,0.79,0.87,TRUE,20.2,NA,0.585,0.87
+"Ghana","child_iron","National mean (null)",75,15.23,18.61,NA,2.56,0.672,0.79,NA,TRUE,20.2,NA,NA,NA
+"Ghana","child_iron","Spatial only (no covariates)",75,12.59,15.88,0.558,-1.85,0.672,0.79,0.83,TRUE,20.2,NA,0.558,0.83
+"Ghana","women_iron","Individual SL",75,8.63,10.86,0.521,-3.93,0,0.33,NA,TRUE,12.44,-3.35,0.521,NA
+"Ghana","women_iron","Area SL (MSE)",75,8.31,10.52,0.452,-0.31,0,0.33,NA,TRUE,12.44,0.49,0.452,NA
+"Ghana","women_iron","Area SL (NLL)",75,9.96,13.19,0.319,-6.84,0,0.33,NA,TRUE,12.44,-5.98,0.319,NA
+"Ghana","women_iron","MRP",75,7,9.24,0.617,0.07,0,0.33,NA,TRUE,12.44,NA,0.617,NA
+"Ghana","women_iron","Area wSL, precision-weighted (OOF)",75,9.3,11.27,0.424,3.72,0,0.33,NA,TRUE,12.44,NA,0.424,NA
+"Ghana","women_iron","Area wSL, unweighted (OOF)",75,10.16,13.27,0.213,-6.56,0,0.33,NA,TRUE,12.44,NA,0.213,NA
+"Ghana","women_iron","Area wSL, literature covariates (OOF)",75,9.83,12.02,0.344,4.39,0,0.33,NA,TRUE,12.44,NA,0.344,NA
+"Ghana","women_iron","Area wSL, prescreen in-fold (OOF)",75,10.07,12.08,0.241,3.18,0,0.33,NA,TRUE,12.44,NA,0.241,NA
+"Ghana","women_iron","Area wSL, prescreen on ALL data (OPTIMISTIC)",75,9.55,11.37,0.441,4.23,0,0.33,NA,TRUE,12.44,NA,0.441,NA
+"Ghana","women_iron","National mean (null)",75,9.51,11.76,NA,0.56,0,0.33,NA,TRUE,12.44,NA,NA,NA
+"Ghana","women_iron","Spatial only (no covariates)",75,8.07,10.6,0.546,-3.74,0,0.33,NA,TRUE,12.44,NA,0.546,NA
+"Ghana","women_folate","Individual SL",75,21.17,25.5,0.489,-0.76,0.627,0.755,0.78,TRUE,54.59,-0.21,0.489,0.78
+"Ghana","women_folate","Area SL (MSE)",75,21.87,26.29,0.437,-0.12,0.627,0.755,0.7,TRUE,54.59,-0.6,0.437,0.7
+"Ghana","women_folate","Area SL (NLL)",75,23.23,30.39,0.377,0.72,0.627,0.755,0.6,TRUE,54.59,0.84,0.377,0.6
+"Ghana","women_folate","MRP",75,16.83,21.08,0.696,0.19,0.627,0.755,1.11,TRUE,54.59,NA,0.696,1.11
+"Ghana","women_folate","Area wSL, precision-weighted (OOF)",75,24.34,28.92,0.152,1.14,0.627,0.755,0.24,TRUE,54.59,NA,0.152,0.24
+"Ghana","women_folate","Area wSL, unweighted (OOF)",75,25.52,31.91,0.223,-1.04,0.627,0.755,0.36,TRUE,54.59,NA,0.223,0.36
+"Ghana","women_folate","Area wSL, literature covariates (OOF)",75,26.22,31.12,-0.002,3.05,0.627,0.755,0,TRUE,54.59,NA,-0.002,0
+"Ghana","women_folate","Area wSL, prescreen in-fold (OOF)",75,24.69,29.74,0.153,-0.14,0.627,0.755,0.24,TRUE,54.59,NA,0.153,0.24
+"Ghana","women_folate","Area wSL, prescreen on ALL data (OPTIMISTIC)",75,24.31,29.4,0.165,0.79,0.627,0.755,0.26,TRUE,54.59,NA,0.165,0.26
+"Ghana","women_folate","National mean (null)",75,24.92,29.24,NA,1.02,0.627,0.755,NA,TRUE,54.59,NA,NA,NA
+"Ghana","women_folate","Spatial only (no covariates)",75,21.73,27.51,0.482,-0.01,0.627,0.755,0.77,TRUE,54.59,NA,0.482,0.77
+"Ghana","women_b12","Individual SL",75,9.02,12.93,0.657,-0.13,0.367,0.787,1.79,TRUE,7.01,1.95,0.657,1.79
+"Ghana","women_b12","Area SL (MSE)",75,11,16.06,0.256,-0.06,0.367,0.787,0.7,TRUE,7.01,2.29,0.256,0.7
+"Ghana","women_b12","Area SL (NLL)",75,9.74,18.05,0.137,-7.02,0.367,0.787,0.37,TRUE,7.01,-4.12,0.137,0.37
+"Ghana","women_b12","MRP",75,7.7,11.41,0.749,-0.86,0.367,0.787,2.04,TRUE,7.01,NA,0.749,2.04
+"Ghana","women_b12","Area wSL, precision-weighted (OOF)",75,15.42,18.11,0.216,8.42,0.367,0.787,0.59,TRUE,7.01,NA,0.216,0.59
+"Ghana","women_b12","Area wSL, unweighted (OOF)",75,11.29,18.34,-0.101,-5.42,0.367,0.787,-0.27,TRUE,7.01,NA,-0.101,-0.27
+"Ghana","women_b12","Area wSL, literature covariates (OOF)",75,16.29,18.99,0.085,9.4,0.367,0.787,0.23,TRUE,7.01,NA,0.085,0.23
+"Ghana","women_b12","Area wSL, prescreen in-fold (OOF)",75,16.74,19.94,-0.122,8.75,0.367,0.787,-0.33,TRUE,7.01,NA,-0.122,-0.33
+"Ghana","women_b12","Area wSL, prescreen on ALL data (OPTIMISTIC)",75,15.64,18.55,0.27,9.63,0.367,0.787,0.73,TRUE,7.01,NA,0.27,0.73
+"Ghana","women_b12","National mean (null)",75,11.63,16.44,NA,-1.03,0.367,0.787,NA,TRUE,7.01,NA,NA,NA
+"Ghana","women_b12","Spatial only (no covariates)",75,9.66,16.62,0.393,-6.16,0.367,0.787,1.07,TRUE,7.01,NA,0.393,1.07
+"Sierra Leone","child_vitA","Individual SL",14,4.19,5.05,0.625,2.28,0,0.416,NA,TRUE,12.01,1.94,0.625,NA
+"Sierra Leone","child_vitA","Area SL (MSE)",14,5.74,6.91,-0.477,-0.02,0,0.416,NA,TRUE,12.01,-0.95,-0.477,NA
+"Sierra Leone","child_vitA","Area SL (NLL)",14,5.82,6.87,-0.37,-1.64,0,0.416,NA,TRUE,12.01,-2.49,-0.37,NA
+"Sierra Leone","child_vitA","MRP",14,3.76,4.45,0.643,1.09,0,0.416,NA,TRUE,12.01,NA,0.643,NA
+"Sierra Leone","child_vitA","Area wSL, precision-weighted (OOF)",14,5.02,6.13,-0.081,2.22,0,0.416,NA,TRUE,12.01,NA,-0.081,NA
+"Sierra Leone","child_vitA","Area wSL, unweighted (OOF)",14,4.85,6.16,0.019,-1.51,0,0.416,NA,TRUE,12.01,NA,0.019,NA
+"Sierra Leone","child_vitA","Area wSL, literature covariates (OOF)",14,4.89,6.05,-0.093,1.85,0,0.416,NA,TRUE,12.01,NA,-0.093,NA
+"Sierra Leone","child_vitA","Area wSL, prescreen in-fold (OOF)",14,8.1,11.03,0.101,5.2,0,0.416,NA,TRUE,12.01,NA,0.101,NA
+"Sierra Leone","child_vitA","Area wSL, prescreen on ALL data (OPTIMISTIC)",14,7.39,10.5,0.218,4.96,0,0.416,NA,TRUE,12.01,NA,0.218,NA
+"Sierra Leone","child_vitA","National mean (null)",14,4.63,5.71,NA,0.97,0,0.416,NA,TRUE,12.01,NA,NA,NA
+"Sierra Leone","women_vitA","Individual SL",14,1.23,1.42,0.679,0.52,0,0.439,NA,TRUE,1.42,0.42,0.679,NA
+"Sierra Leone","women_vitA","Area SL (MSE)",14,1.27,1.62,-0.43,0.05,0,0.439,NA,TRUE,1.42,-0.09,-0.43,NA
+"Sierra Leone","women_vitA","Area SL (NLL)",14,1.32,1.75,-0.313,-0.65,0,0.439,NA,TRUE,1.42,-0.76,-0.313,NA
+"Sierra Leone","women_vitA","MRP",14,0.54,0.67,0.931,0.37,0,0.439,NA,TRUE,1.42,NA,0.931,NA
+"Sierra Leone","women_vitA","Area wSL, precision-weighted (OOF)",14,1.58,1.86,-0.259,0.8,0,0.439,NA,TRUE,1.42,NA,-0.259,NA
+"Sierra Leone","women_vitA","Area wSL, unweighted (OOF)",14,1.21,1.54,0.032,-0.23,0,0.439,NA,TRUE,1.42,NA,0.032,NA
+"Sierra Leone","women_vitA","Area wSL, literature covariates (OOF)",14,1.77,2.07,-0.004,1.07,0,0.439,NA,TRUE,1.42,NA,-0.004,NA
+"Sierra Leone","women_vitA","Area wSL, prescreen in-fold (OOF)",14,1.43,1.64,0,0.38,0,0.439,NA,TRUE,1.42,NA,0,NA
+"Sierra Leone","women_vitA","Area wSL, prescreen on ALL data (OPTIMISTIC)",14,1.32,1.5,0.509,0.7,0,0.439,NA,TRUE,1.42,NA,0.509,NA
+"Sierra Leone","women_vitA","National mean (null)",14,1.26,1.54,NA,0.19,0,0.439,NA,TRUE,1.42,NA,NA,NA
+"Sierra Leone","child_iron","Individual SL",14,2.83,3.89,0.63,-0.78,0,0.269,NA,TRUE,5.15,0.04,0.63,NA
+"Sierra Leone","child_iron","Area SL (MSE)",14,4.74,5.64,-0.445,0.41,0,0.269,NA,TRUE,5.15,1.38,-0.445,NA
+"Sierra Leone","child_iron","Area SL (NLL)",14,4.51,5.86,-0.345,-1.56,0,0.269,NA,TRUE,5.15,-0.59,-0.345,NA
+"Sierra Leone","child_iron","MRP",14,2.37,3.08,0.77,-0.14,0,0.269,NA,TRUE,5.15,NA,0.77,NA
+"Sierra Leone","child_iron","Area wSL, precision-weighted (OOF)",14,4.58,5.1,0.016,0.26,0,0.269,NA,TRUE,5.15,NA,0.016,NA
+"Sierra Leone","child_iron","Area wSL, unweighted (OOF)",14,4.46,5.42,-0.325,-1.38,0,0.269,NA,TRUE,5.15,NA,-0.325,NA
+"Sierra Leone","child_iron","Area wSL, literature covariates (OOF)",14,4.2,4.93,0.176,0.64,0,0.269,NA,TRUE,5.15,NA,0.176,NA
+"Sierra Leone","child_iron","Area wSL, prescreen in-fold (OOF)",14,5.46,5.94,0.118,1.4,0,0.269,NA,TRUE,5.15,NA,0.118,NA
+"Sierra Leone","child_iron","Area wSL, prescreen on ALL data (OPTIMISTIC)",14,3.68,4.16,0.503,0.83,0,0.269,NA,TRUE,5.15,NA,0.503,NA
+"Sierra Leone","child_iron","National mean (null)",14,3.8,4.69,NA,-0.69,0,0.269,NA,TRUE,5.15,NA,NA,NA
+"Sierra Leone","women_iron","Individual SL",14,8.47,9.91,0.551,-8.18,0.167,0.623,3.3,TRUE,18.02,-8.48,0.551,3.3
+"Sierra Leone","women_iron","Area SL (MSE)",14,6.69,8.59,-0.378,-0.43,0.167,0.623,-2.26,TRUE,18.02,-0.87,-0.378,-2.26
+"Sierra Leone","women_iron","Area SL (NLL)",14,6.66,8.48,-0.346,-2.04,0.167,0.623,-2.07,TRUE,18.02,-2.38,-0.346,-2.07
+"Sierra Leone","women_iron","MRP",14,3.63,4.23,0.773,0.28,0.167,0.623,4.63,TRUE,18.02,NA,0.773,4.63
+"Sierra Leone","women_iron","Area wSL, precision-weighted (OOF)",14,5.46,6.87,-0.034,1.09,0.167,0.623,-0.2,TRUE,18.02,NA,-0.034,-0.2
+"Sierra Leone","women_iron","Area wSL, unweighted (OOF)",14,5.75,7.09,0.018,-0.57,0.167,0.623,0.11,TRUE,18.02,NA,0.018,0.11
+"Sierra Leone","women_iron","Area wSL, literature covariates (OOF)",14,5.7,6.81,0.06,0.52,0.167,0.623,0.36,TRUE,18.02,NA,0.06,0.36
+"Sierra Leone","women_iron","Area wSL, prescreen in-fold (OOF)",14,5.52,6.49,0.345,1.79,0.167,0.623,2.06,TRUE,18.02,NA,0.345,2.06
+"Sierra Leone","women_iron","Area wSL, prescreen on ALL data (OPTIMISTIC)",14,4.5,5.56,0.646,0.66,0.167,0.623,3.87,TRUE,18.02,NA,0.646,3.87
+"Sierra Leone","women_iron","National mean (null)",14,5.08,6.66,NA,0.47,0.167,0.623,NA,TRUE,18.02,NA,NA,NA
+"Sierra Leone","women_folate","Individual SL",14,4.36,5.39,0.9,-2.85,0.773,0.859,1.16,TRUE,79.16,-1.44,0.9,1.16
+"Sierra Leone","women_folate","Area SL (MSE)",14,9.47,12.86,-0.184,-0.85,0.773,0.859,-0.24,TRUE,79.16,1.84,-0.184,-0.24
+"Sierra Leone","women_folate","Area SL (NLL)",14,9.75,12.81,0.153,-0.79,0.773,0.859,0.2,TRUE,79.16,1.86,0.153,0.2
+"Sierra Leone","women_folate","MRP",14,2.85,3.76,0.942,-0.62,0.773,0.859,1.22,TRUE,79.16,NA,0.942,1.22
+"Sierra Leone","women_folate","Area wSL, precision-weighted (OOF)",14,11.33,13.06,-0.518,-3.09,0.773,0.859,-0.67,TRUE,79.16,NA,-0.518,-0.67
+"Sierra Leone","women_folate","Area wSL, unweighted (OOF)",14,13.45,14.72,-0.466,1.82,0.773,0.859,-0.6,TRUE,79.16,NA,-0.466,-0.6
+"Sierra Leone","women_folate","Area wSL, literature covariates (OOF)",14,11.55,12.71,-0.393,-3.15,0.773,0.859,-0.51,TRUE,79.16,NA,-0.393,-0.51
+"Sierra Leone","women_folate","Area wSL, prescreen in-fold (OOF)",14,12.01,13.53,-0.471,1.19,0.773,0.859,-0.61,TRUE,79.16,NA,-0.471,-0.61
+"Sierra Leone","women_folate","Area wSL, prescreen on ALL data (OPTIMISTIC)",14,9.58,12.18,-0.061,-4.25,0.773,0.859,-0.08,TRUE,79.16,NA,-0.061,-0.08
+"Sierra Leone","women_folate","National mean (null)",14,8.85,10.33,NA,-1.53,0.773,0.859,NA,TRUE,79.16,NA,NA,NA
+"Sierra Leone","women_b12","Individual SL",14,0.67,0.71,NA,0.1,0,0.085,NA,FALSE,0.52,-0.01,-0.29,NA
+"Sierra Leone","women_b12","Area SL (MSE)",14,0.74,0.82,NA,0.1,0,0.085,NA,FALSE,0.52,-0.03,-0.496,NA
+"Sierra Leone","women_b12","Area SL (NLL)",14,0.54,0.72,NA,-0.16,0,0.085,NA,FALSE,0.52,-0.26,-0.088,NA
+"Sierra Leone","women_b12","MRP",14,0.26,0.56,NA,0,0,0.085,NA,FALSE,0.52,NA,0.72,NA
+"Sierra Leone","women_b12","Area wSL, precision-weighted (OOF)",14,0.96,1.04,NA,0.73,0,0.085,NA,FALSE,0.52,NA,0.329,NA
+"Sierra Leone","women_b12","Area wSL, unweighted (OOF)",14,1.62,3.31,NA,1.33,0,0.085,NA,FALSE,0.52,NA,0.349,NA
+"Sierra Leone","women_b12","Area wSL, literature covariates (OOF)",14,3.48,9.91,NA,3.22,0,0.085,NA,FALSE,0.52,NA,0.347,NA
+"Sierra Leone","women_b12","Area wSL, prescreen in-fold (OOF)",14,5.83,17.96,NA,5.56,0,0.085,NA,FALSE,0.52,NA,0.345,NA
+"Sierra Leone","women_b12","Area wSL, prescreen on ALL data (OPTIMISTIC)",14,1.08,1.68,NA,0.82,0,0.085,NA,FALSE,0.52,NA,0.412,NA
+"Sierra Leone","women_b12","National mean (null)",14,0.68,0.71,NA,0.19,0,0.085,NA,FALSE,0.52,NA,NA,NA
+"Malawi","child_vitA","Individual SL",87,8.02,10.71,0.275,0.89,0,0.578,NA,TRUE,10.17,-0.67,0.275,NA
+"Malawi","child_vitA","Area SL (MSE)",87,8.24,11.35,0.117,0.45,0,0.578,NA,TRUE,10.17,-0.97,0.117,NA
+"Malawi","child_vitA","Area SL (NLL)",87,8.17,12.46,0.185,-6.17,0,0.578,NA,TRUE,10.17,-7.43,0.185,NA
+"Malawi","child_vitA","Area wSL, precision-weighted (OOF)",87,10.56,12.58,0.082,5.97,0,0.578,NA,TRUE,10.17,NA,0.082,NA
+"Malawi","child_vitA","Area wSL, unweighted (OOF)",87,8.22,11.94,0.132,-4.81,0,0.578,NA,TRUE,10.17,NA,0.132,NA
+"Malawi","child_vitA","Area wSL, literature covariates (OOF)",87,10.78,12.93,0.009,6.23,0,0.578,NA,TRUE,10.17,NA,0.009,NA
+"Malawi","child_vitA","Area wSL, prescreen in-fold (OOF)",87,10.08,12.42,0.116,5.09,0,0.578,NA,TRUE,10.17,NA,0.116,NA
+"Malawi","child_vitA","Area wSL, prescreen on ALL data (OPTIMISTIC)",87,9.84,11.98,0.224,5.1,0,0.578,NA,TRUE,10.17,NA,0.224,NA
+"Malawi","child_vitA","National mean (null)",87,8.47,11.01,NA,0.5,0,0.578,NA,TRUE,10.17,NA,NA,NA
+"Malawi","child_vitA","Spatial only (no covariates)",87,7.93,11.6,0.16,-4.02,0,0.578,NA,TRUE,10.17,NA,0.16,NA
+"Malawi","women_vitA","Individual SL",87,2.74,4.74,NA,0.02,0,0,NA,FALSE,2.17,-0.53,0.058,NA
+"Malawi","women_vitA","Area SL (MSE)",87,3.08,4.87,NA,0.25,0,0,NA,FALSE,2.17,-0.26,-0.118,NA
+"Malawi","women_vitA","Area SL (NLL)",87,1.81,4.78,NA,-1.35,0,0,NA,FALSE,2.17,-1.91,-0.125,NA
+"Malawi","women_vitA","Area wSL, precision-weighted (OOF)",87,8.14,8.65,NA,7.18,0,0,NA,FALSE,2.17,NA,0.058,NA
+"Malawi","women_vitA","Area wSL, unweighted (OOF)",87,2.18,4.65,NA,-0.84,0,0,NA,FALSE,2.17,NA,-0.416,NA
+"Malawi","women_vitA","Area wSL, literature covariates (OOF)",87,7.8,8.47,NA,6.66,0,0,NA,FALSE,2.17,NA,-0.022,NA
+"Malawi","women_vitA","Area wSL, prescreen in-fold (OOF)",87,5.93,7.02,NA,3.95,0,0,NA,FALSE,2.17,NA,-0.109,NA
+"Malawi","women_vitA","Area wSL, prescreen on ALL data (OPTIMISTIC)",87,6.19,7.09,NA,4.65,0,0,NA,FALSE,2.17,NA,0.052,NA
+"Malawi","women_vitA","National mean (null)",87,2.59,4.57,NA,-0.29,0,0,NA,FALSE,2.17,NA,NA,NA
+"Malawi","women_vitA","Spatial only (no covariates)",87,2.16,4.6,NA,-0.83,0,0,NA,FALSE,2.17,NA,0.156,NA
+"Malawi","child_iron","Individual SL",87,12.2,16.35,0.431,-9.11,0.096,0.518,4.49,TRUE,21.52,-10.49,0.431,4.49
+"Malawi","child_iron","Area SL (MSE)",87,10.46,13.95,0.373,-0.41,0.096,0.518,3.89,TRUE,21.52,-2.24,0.373,3.89
+"Malawi","child_iron","Area SL (NLL)",87,11.95,15.74,0.377,-7,0.096,0.518,3.93,TRUE,21.52,-8.68,0.377,3.93
+"Malawi","child_iron","Area wSL, precision-weighted (OOF)",87,12.11,15.43,0.106,2.15,0.096,0.518,1.1,TRUE,21.52,NA,0.106,1.1
+"Malawi","child_iron","Area wSL, unweighted (OOF)",87,11.82,15.93,0.155,-5.2,0.096,0.518,1.62,TRUE,21.52,NA,0.155,1.62
+"Malawi","child_iron","Area wSL, literature covariates (OOF)",87,12.62,15.91,0.13,2.53,0.096,0.518,1.36,TRUE,21.52,NA,0.13,1.36
+"Malawi","child_iron","Area wSL, prescreen in-fold (OOF)",87,11.18,14.3,0.375,3.18,0.096,0.518,3.91,TRUE,21.52,NA,0.375,3.91
+"Malawi","child_iron","Area wSL, prescreen on ALL data (OPTIMISTIC)",87,10.95,14.1,0.41,3.2,0.096,0.518,4.27,TRUE,21.52,NA,0.41,4.27
+"Malawi","child_iron","National mean (null)",87,11.58,15.01,NA,0.13,0.096,0.518,NA,TRUE,21.52,NA,NA,NA
+"Malawi","child_iron","Spatial only (no covariates)",87,11.61,16.1,0.112,-4.16,0.096,0.518,1.17,TRUE,21.52,NA,0.112,1.17
+"Malawi","women_iron","Individual SL",87,13.61,18.21,0.254,-8.07,0,0.526,NA,TRUE,15.94,-6.58,0.254,NA
+"Malawi","women_iron","Area SL (MSE)",87,14.11,17.55,0.014,0.43,0,0.526,NA,TRUE,15.94,1.54,0.014,NA
+"Malawi","women_iron","Area SL (NLL)",87,15.69,21.18,-0.054,-12.24,0,0.526,NA,TRUE,15.94,-11.1,-0.054,NA
+"Malawi","women_iron","Area wSL, precision-weighted (OOF)",87,15.1,18.27,0.028,6.36,0,0.526,NA,TRUE,15.94,NA,0.028,NA
+"Malawi","women_iron","Area wSL, unweighted (OOF)",87,14.39,19.44,-0.023,-9.47,0,0.526,NA,TRUE,15.94,NA,-0.023,NA
+"Malawi","women_iron","Area wSL, literature covariates (OOF)",87,15.5,18.62,-0.032,7.15,0,0.526,NA,TRUE,15.94,NA,-0.032,NA
+"Malawi","women_iron","Area wSL, prescreen in-fold (OOF)",87,15.22,18.24,0.068,6.33,0,0.526,NA,TRUE,15.94,NA,0.068,NA
+"Malawi","women_iron","Area wSL, prescreen on ALL data (OPTIMISTIC)",87,14.53,17.62,0.192,5.95,0,0.526,NA,TRUE,15.94,NA,0.192,NA
+"Malawi","women_iron","National mean (null)",87,13.47,16.88,NA,0.38,0,0.526,NA,TRUE,15.94,NA,NA,NA
+"Malawi","women_iron","Spatial only (no covariates)",87,13.93,18.42,0.077,-7.38,0,0.526,NA,TRUE,15.94,NA,0.077,NA
+"Malawi","women_folate","Individual SL",87,12.96,18.09,0.527,-1.61,0.559,0.742,0.94,TRUE,18.6,1.02,0.527,0.94
+"Malawi","women_folate","Area SL (MSE)",87,14.42,18.53,0.465,-0.17,0.559,0.742,0.83,TRUE,18.6,1.52,0.465,0.83
+"Malawi","women_folate","Area SL (NLL)",87,17.36,23.98,0.268,-11.9,0.559,0.742,0.48,TRUE,18.6,-10.92,0.268,0.48
+"Malawi","women_folate","Area wSL, precision-weighted (OOF)",87,16.92,20.34,0.414,7.12,0.559,0.742,0.74,TRUE,18.6,NA,0.414,0.74
+"Malawi","women_folate","Area wSL, unweighted (OOF)",87,16.98,22.99,0.242,-10.7,0.559,0.742,0.43,TRUE,18.6,NA,0.242,0.43
+"Malawi","women_folate","Area wSL, literature covariates (OOF)",87,17.22,21,0.396,8.24,0.559,0.742,0.71,TRUE,18.6,NA,0.396,0.71
+"Malawi","women_folate","Area wSL, prescreen in-fold (OOF)",87,18.55,22.35,0.258,9.28,0.559,0.742,0.46,TRUE,18.6,NA,0.258,0.46
+"Malawi","women_folate","Area wSL, prescreen on ALL data (OPTIMISTIC)",87,18.25,21.62,0.359,9.24,0.559,0.742,0.64,TRUE,18.6,NA,0.359,0.64
+"Malawi","women_folate","National mean (null)",87,17.23,20.91,NA,-0.27,0.559,0.742,NA,TRUE,18.6,NA,NA,NA
+"Malawi","women_folate","Spatial only (no covariates)",87,16.05,22.1,0.3,-8.47,0.559,0.742,0.54,TRUE,18.6,NA,0.3,0.54
+"Malawi","women_b12","Individual SL",87,4.17,5.73,NA,0.27,0,0,NA,FALSE,2.28,0.75,0.309,NA
+"Malawi","women_b12","Area SL (MSE)",87,4.49,6.35,NA,0.08,0,0,NA,FALSE,2.28,0.62,0.039,NA
+"Malawi","women_b12","Area SL (NLL)",87,3.17,6.48,NA,-2.56,0,0,NA,FALSE,2.28,-1.87,0.121,NA
+"Malawi","women_b12","Area wSL, precision-weighted (OOF)",87,5.87,6.62,NA,3.44,0,0,NA,FALSE,2.28,NA,0.341,NA
+"Malawi","women_b12","Area wSL, unweighted (OOF)",87,3.53,6.16,NA,-1.83,0,0,NA,FALSE,2.28,NA,0.265,NA
+"Malawi","women_b12","Area wSL, literature covariates (OOF)",87,7.2,7.89,NA,5.18,0,0,NA,FALSE,2.28,NA,0.246,NA
+"Malawi","women_b12","Area wSL, prescreen in-fold (OOF)",87,6.74,7.66,NA,4.83,0,0,NA,FALSE,2.28,NA,0.283,NA
+"Malawi","women_b12","Area wSL, prescreen on ALL data (OPTIMISTIC)",87,6.58,7.6,NA,5.07,0,0,NA,FALSE,2.28,NA,0.391,NA
+"Malawi","women_b12","National mean (null)",87,4.5,5.99,NA,-0.22,0,0,NA,FALSE,2.28,NA,NA,NA
+"Malawi","women_b12","Spatial only (no covariates)",87,3.51,6.03,NA,-1.67,0,0,NA,FALSE,2.28,NA,0.277,NA
+"Malawi","child_zinc","Individual SL",87,20.1,24.11,-0.23,1.29,0.672,0.784,-0.34,TRUE,61.14,-2.09,-0.23,-0.34
+"Malawi","child_zinc","Area SL (MSE)",87,20.55,24.73,0.006,-0.32,0.672,0.784,0.01,TRUE,61.14,-3.64,0.006,0.01
+"Malawi","child_zinc","Area SL (NLL)",87,21,25.98,-0.023,1.61,0.672,0.784,-0.03,TRUE,61.14,-1.65,-0.023,-0.03
+"Malawi","child_zinc","Area wSL, precision-weighted (OOF)",87,20.89,24.7,-0.166,0.75,0.672,0.784,-0.25,TRUE,61.14,NA,-0.166,-0.25
+"Malawi","child_zinc","Area wSL, unweighted (OOF)",87,20.16,24.73,0.054,1.92,0.672,0.784,0.08,TRUE,61.14,NA,0.054,0.08
+"Malawi","child_zinc","Area wSL, literature covariates (OOF)",87,21.13,24.96,-0.191,0.43,0.672,0.784,-0.28,TRUE,61.14,NA,-0.191,-0.28
+"Malawi","child_zinc","Area wSL, prescreen in-fold (OOF)",87,20.2,24.23,0.084,0.42,0.672,0.784,0.12,TRUE,61.14,NA,0.084,0.12
+"Malawi","child_zinc","Area wSL, prescreen on ALL data (OPTIMISTIC)",87,19.75,24,0.089,0.96,0.672,0.784,0.13,TRUE,61.14,NA,0.089,0.13
+"Malawi","child_zinc","National mean (null)",87,19.82,23.84,NA,1.35,0.672,0.784,NA,TRUE,61.14,NA,NA,NA
+"Malawi","child_zinc","Spatial only (no covariates)",87,20.54,25.03,-0.062,2.94,0.672,0.784,-0.09,TRUE,61.14,NA,-0.062,-0.09
+"Malawi","women_zinc","Individual SL",87,23,26.26,-0.246,-2.13,0.724,0.797,-0.34,TRUE,64.11,-2.18,-0.246,-0.34
+"Malawi","women_zinc","Area SL (MSE)",87,24.01,27.8,-0.239,-0.51,0.724,0.797,-0.33,TRUE,64.11,0.36,-0.239,-0.33
+"Malawi","women_zinc","Area SL (NLL)",87,26.19,33.24,-0.139,16.94,0.724,0.797,-0.19,TRUE,64.11,17.47,-0.139,-0.19
+"Malawi","women_zinc","Area wSL, precision-weighted (OOF)",87,23.91,27.45,-0.274,-8.04,0.724,0.797,-0.38,TRUE,64.11,NA,-0.274,-0.38
+"Malawi","women_zinc","Area wSL, unweighted (OOF)",87,24.46,30.03,-0.482,12.78,0.724,0.797,-0.67,TRUE,64.11,NA,-0.482,-0.67
+"Malawi","women_zinc","Area wSL, literature covariates (OOF)",87,23.61,27.3,-0.161,-7.97,0.724,0.797,-0.22,TRUE,64.11,NA,-0.161,-0.22
+"Malawi","women_zinc","Area wSL, prescreen in-fold (OOF)",87,24.5,28.19,-0.335,-7.98,0.724,0.797,-0.46,TRUE,64.11,NA,-0.335,-0.46
+"Malawi","women_zinc","Area wSL, prescreen on ALL data (OPTIMISTIC)",87,23.81,27.07,-0.014,-7.64,0.724,0.797,-0.02,TRUE,64.11,NA,-0.014,-0.02
+"Malawi","women_zinc","National mean (null)",87,22.69,25.85,NA,-1.98,0.724,0.797,NA,TRUE,64.11,NA,NA,NA
+"Malawi","women_zinc","Spatial only (no covariates)",87,23.91,28.05,-0.347,6.81,0.724,0.797,-0.48,TRUE,64.11,NA,-0.347,-0.48

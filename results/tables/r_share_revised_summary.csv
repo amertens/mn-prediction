@@ -1,0 +1,6 @@
+arm,cells,mean_r,n_analytic,mean_share_analytic,med_share_analytic,n_empirical,mean_share_empirical,med_share_empirical,n_over_1_analytic,n_over_1_empirical
+ADMIN-1 fit -> admin-2 (pooled),22,0.23,11,0.77,0.66,19,0.38,0.52,2,0
+"admin-2 fit (LORO), unbenchmarked",24,0.164,13,0.69,0.53,21,0.33,0.34,5,1
+admin-2 fit + ADMIN-1 benchmark (hard),24,0.413,13,1.17,1.05,21,0.75,0.68,7,2
+admin-2 fit + ADMIN-1 benchmark (shrunk),24,0.318,13,0.96,0.94,21,0.56,0.51,6,2
+admin-2 fit + national benchmark,24,0.17,13,0.68,0.68,21,0.35,0.32,5,2
