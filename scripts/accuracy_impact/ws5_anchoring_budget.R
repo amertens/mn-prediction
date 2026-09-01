@@ -45,10 +45,24 @@ Sys.setenv(COVARIATE_VOCAB = "harmonized")
 targets::tar_source(here("R"))
 
 PROFILE <- Sys.getenv("PROFILE", "full")
-STORE <- here("_targets_full"); SUF <- if (PROFILE == "smoke") "_SMOKE" else ""
+STORE <- here("_targets_full")   # SUF is set below, once DENSE is known
 REPS <- as.integer(Sys.getenv("WS5_REPS", if (PROFILE == "smoke") "5" else "25"))
 SEED <- 20260908L
-FRACTIONS <- c(0.25, 0.5, 0.75, 1.0)
+# DENSE grid, off by default so the original curve stays reproducible.
+#
+# The four-by-four grid produced a curve that is NOT MONOTONE in region
+# coverage: configurations at region_share 0.33 and 0.67 carried biases of
+# -10.7 to -12.3 pp against -1 to -3 pp elsewhere. Those shares arise only from
+# countries with six Admin-1 regions, where sampling two or four of them gives a
+# national mean estimated from very few regions, so the spikes were most likely
+# Monte Carlo noise plus a small-region-count artefact rather than a property of
+# the design. A grant document that quotes a point on this curve should not be
+# resting on four region settings at 25 replicates.
+DENSE <- Sys.getenv("WS5_DENSE") == "1"
+FRACTIONS <- if (DENSE) c(0.15, 0.25, 0.4, 0.6, 0.8, 1.0) else c(0.25, 0.5, 0.75, 1.0)
+REGION_GRID <- if (DENSE) seq(0.2, 1.0, by = 0.1) else c(0.25, 0.5, 0.75, 1.0)
+if (DENSE && !nzchar(Sys.getenv("WS5_REPS"))) REPS <- 40L
+SUF <- if (PROFILE == "smoke") "_SMOKE" else if (DENSE) "_DENSE" else ""
 TDIR <- here("results", "tables"); FDIR <- here("results", "figures")
 dir.create(FDIR, showWarnings = FALSE, recursive = TRUE)
 num <- function(x) suppressWarnings(as.numeric(haven::zap_labels(x)))
@@ -89,8 +103,7 @@ for (cn in names(cfgs)) {
       stats::weighted.mean(y[a1 == r], w[a1 == r]), numeric(1))
     dist_reg <- tapply(a1, paste(a1, a2), function(z) z[1])
 
-    n_reg_grid <- unique(pmax(2L, round(length(regions) *
-                                          c(0.25, 0.5, 0.75, 1.0))))
+    n_reg_grid <- unique(pmax(2L, round(length(regions) * REGION_GRID)))
     for (nr in n_reg_grid) for (fr in FRACTIONS) for (rep in seq_len(REPS)) {
       keep_reg <- sample(regions, nr)
       # retain a fraction of each kept region's clusters
@@ -175,7 +188,11 @@ if (nrow(full)) {
   cat(sprintf("\nfull-anchor Admin-2 MAE: %.3f pp\n", ref))
   cat(sprintf("smallest budget within %.1f pp of it: %.1f%% of the survey ",
               tol, ok$pct_survey[1]))
-  cat(sprintf("(%d of %d regions, %.0f%% of clusters), MAE %.3f pp [%.3f, %.3f]\n",
+  # The format previously declared six placeholders and was given five, with a
+  # region SHARE passed where a region COUNT was formatted. It only fired when
+  # some configuration actually landed within tolerance, which is why it
+  # survived the earlier runs.
+  cat(sprintf("(%.0f%% of regions, %.0f%% of clusters), MAE %.3f pp [%.3f, %.3f]\n",
               100 * ok$region_share[1],
               100 * ok$fraction_clusters[1], ok$mae_a2[1],
               ok$mae_a2_lo[1], ok$mae_a2_hi[1]))
