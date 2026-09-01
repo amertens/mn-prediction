@@ -1,5 +1,31 @@
 # Micronutrient prediction: methods, findings, and interpretation
 
+> **CORRECTIONS PENDING — read before quoting any number here.**
+
+A methods audit on 2026-09-01 (31 agents, every critical finding independently
+verified) found that several load-bearing numbers in this document are
+artifacts of the evaluation design rather than measurements. **The status of
+every affected claim is tabulated in `docs/findings/TWO_READINGS_2026-09c.md`;
+corrected figures are in `docs/findings/PROTOCOL_V2.md`.** In particular:
+
+- **`median r 0.058`** rests on one unreplicated 3-fold region draw sitting in
+  the bottom decile of its own protocol's distribution. Replicated: **0.217**;
+  leave-one-region-out: **0.235**.
+- **`0 of 294 predictors survive FDR`** was unattainable by construction — at
+  999 permutations a single true predictor of arbitrary strength receives
+  BH q >= 0.296. The same table's conventional-null columns carry 476
+  within-cell survivors.
+- **The regional-anchoring gain (0.164 -> 0.413)** was withdrawn by the
+  project's own jackknife control (0.147 vs 0.156 unanchored).
+- **The covariate-free baseline r = 0.516** reads the held-out district's own
+  survey responses; jackknifed it scores **0.076** and loses to the covariate
+  model at 0.156.
+- **The analytic noise ceiling (median r_max 0.098)** was proven ~4.7x biased
+  low. The binding empirical ceiling is **0.47-0.61**.
+- **"covariates beat geography in 10 of 24 [corrected 2026-09-01; the source table gives 10, not 6] cells"** is a miscount against its
+  own source table; the correct count is **10 of 24**.
+
+
 **Prepared for independent methods review.**
 Date: 2026-08-31. Repository: `mn-prediction`, branch `covariate-harmonisation-and-honest-baselines`.
 Relevant commits from the session this documents: `fe30fa8`, `59f4510`, `9eb8bb6`, `b15d723`.
@@ -140,7 +166,7 @@ These frame everything below. None were re-verified this session.
 | Individual-level prediction aggregated to Admin-2 | median r 0.516, r_share 0.92 |
 | Area-level SuperLearner vs national-mean null | MAE 9.31–9.84 vs 9.55 pp — does **not** beat null |
 | Covariate-free spatial smoother | r 0.304–0.393, beats every covariate arm |
-| Covariates beat geography at Admin-2 | 6 of 24 cells |
+| Covariates beat geography at Admin-2 | 10 of 24 [corrected 2026-09-01; the source table gives 10, not 6] cells |
 | Admin-1 covariates vs Admin-1 spatial | 0.437 vs 0.209 |
 | WHO category accuracy, Admin-2 | 33% vs 32% null — no better than null |
 | WHO category accuracy, Admin-1 | 56% vs 35% null |

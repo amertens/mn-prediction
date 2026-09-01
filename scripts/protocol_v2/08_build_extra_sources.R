@@ -303,6 +303,42 @@ if (!is.null(zs)) {
 } else cat("  zone CSV absent; run 10_build_zone_stratifiers.R first
 ")
 
+
+# ── 6. Relative Wealth Index, year-matched density, GPW 2010 age-sex ────────
+# Built by scripts/protocol_v2/11_extract_gee_rwi_density.py.
+# RWI is the highest-resolution SES surface publicly available for these
+# countries (2.4 km, validated against DHS wealth), against a current SES block
+# of nine prior-round DHS aggregates. Density is taken at each country's OWN
+# survey year, which supersedes the 2020-only density from step 09. GPW 2010
+# age-sex is carried as the second temporal bracket: checked against the
+# catalogue, WorldPop age-sex exists only for 2020 and GPW only for 2010, there
+# is no annual age-sex product, and those two vintages bracket the 2013-2021
+# survey window.
+cat("
+[RWI / density / GPW]
+")
+rw <- tryCatch(read.csv("data/covariates/harmonized/gee_rwi_density_admin2.csv",
+                        stringsAsFactors = FALSE), error = function(e) NULL)
+if (!is.null(rw)) {
+  rw$wpop_density_year <- NULL   # provenance, not a predictor
+  blocks$rwi <- rw
+  rcols <- setdiff(names(rw), c("country", "Admin1", "Admin2"))
+  add_meta(rcols,
+           "Meta/Data for Good RWI; WorldPop; CIESIN GPW v4.11 (Earth Engine)",
+           ifelse(grepl("^gpw2010", rcols), "Household assets and characteristics",
+           ifelse(grepl("^rwi", rcols), "Education, employment, SES",
+                  "Ruralness, population density, built environment")),
+           TRUE,
+           ifelse(grepl("^rwi", rcols),
+             "Relative Wealth Index, mean/SD/count of Meta 2.4 km points falling inside the Admin-2 polygon. rwi_n_points says how many points the district estimate rests on, so a district resting on three is distinguishable from one resting on three hundred.",
+           ifelse(grepl("^gpw2010", rcols),
+             "GPW v4.11 2010 age-sex share. SECOND TEMPORAL BRACKET: WorldPop age-sex exists only for 2020 and GPW only for 2010; there is no annual age-sex product, and these two vintages bracket the 2013-2021 survey window. Composition moves slowly, so the bracket is an honest representation of what is knowable.",
+             "WorldPop population density at each country's OWN survey year (Ghana 2017, Malawi 2015, Sierra Leone 2013, Gambia 2020) - the time-matched replacement for the 2020-only density.")))
+  cat(sprintf("  -> %d RWI/density/GPW columns
+", length(rcols)))
+} else cat("  RWI CSV absent; run 11_extract_gee_rwi_density.py first
+")
+
 # ── assemble and append, without the four-country filter ────────────────────
 if (!length(blocks)) stop("no blocks built")
 EX <- spine

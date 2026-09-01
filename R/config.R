@@ -134,7 +134,17 @@ get_country_configs <- function() {
       admin1_col    = "Admin1",
       admin2_col    = "Admin2",
       psu_col       = "gw_cnum",
-      weight_col    = "gw_sWeight",
+      # 2026-09-01 CORRECTION. gw_sWeight is only the STRATUM component of the
+      # design weight - it takes 3 distinct values, one per stratum. The Ghana
+      # Micronutrient Survey 2017 report, Appendix 11 ("Description of Survey
+      # Weights"), documents a three-step construction and states that "the
+      # final survey weights for each PSU were calculated by multiplying the
+      # standardized PSU weights by the standardized stratum weights".
+      # Verified in the data: gw_PSU_weight * gw_sWeight == gw_PSUStrat_weight
+      # to 2e-06. Using gw_sWeight alone ignores PSU selection probability and
+      # shifts national prevalence by 1.3-1.5 pp (child iron 0.202 -> 0.215,
+      # women iron 0.124 -> 0.140) and individual districts by up to 4.8 pp.
+      weight_col    = "gw_PSUStrat_weight",
       strata_col    = "gw_strata",
       child_flag    = "gw_child_flag",   # derived in load_merged_data()
 

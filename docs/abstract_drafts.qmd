@@ -3,6 +3,18 @@ title: "Abstract Drafts: Micronutrient Deficiency Prediction"
 format: html
 ---
 
+::: {.callout-warning}
+## SUPERSEDED — do not submit or quote
+
+These abstracts date from 2026-05-12 and report district correlations of
+**r = 0.73-0.97** and "20-50% improvement" from area-level aggregation. Those
+figures come from the pre-audit era and the project has since attributed them
+to leaky cross-validation and outcome leakage: the corrected protocol's median
+is **r 0.058** as published and **0.22-0.34** once folds are replicated. The
+current abstract pair is `docs/findings/TWO_READINGS_2026-09c.md`.
+:::
+
+
 ## Version 1: Methods-Forward (Emphasizes the Modeling Framework)
 
 **Background:** Micronutrient deficiencies affect billions globally, yet subnational prevalence estimates remain scarce in sub-Saharan Africa due to the cost and infrequency of biomarker surveys. We developed a scalable machine learning framework to predict vitamin and mineral deficiency prevalences using routinely available proxy indicators.

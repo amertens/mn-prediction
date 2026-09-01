@@ -25,6 +25,34 @@ knitr:
     fig.align: "center"
 ---
 
+::: {.callout-important}
+## Corrections pending — read before quoting any number here
+
+A methods audit on 2026-09-01 (31 agents, every critical finding independently
+verified) found that several load-bearing numbers in this document are
+artifacts of the evaluation design rather than measurements. **The status of
+every affected claim is tabulated in `docs/findings/TWO_READINGS_2026-09c.md`;
+corrected figures are in `docs/findings/PROTOCOL_V2.md`.** In particular:
+
+- **`median r 0.058`** rests on one unreplicated 3-fold region draw sitting in
+  the bottom decile of its own protocol's distribution. Replicated: **0.217**;
+  leave-one-region-out: **0.235**.
+- **`0 of 294 predictors survive FDR`** was unattainable by construction — at
+  999 permutations a single true predictor of arbitrary strength receives
+  BH q >= 0.296. The same table's conventional-null columns carry 476
+  within-cell survivors.
+- **The regional-anchoring gain (0.164 -> 0.413)** was withdrawn by the
+  project's own jackknife control (0.147 vs 0.156 unanchored).
+- **The covariate-free baseline r = 0.516** reads the held-out district's own
+  survey responses; jackknifed it scores **0.076** and loses to the covariate
+  model at 0.156.
+- **The analytic noise ceiling (median r_max 0.098)** was proven ~4.7x biased
+  low. The binding empirical ceiling is **0.47-0.61**.
+- **"covariates beat geography in 6 of 24 cells"** is a miscount against its
+  own source table; the correct count is **10 of 24**.
+:::
+
+
 ```{r setup, include=FALSE}
 library(dplyr)
 library(tidyr)

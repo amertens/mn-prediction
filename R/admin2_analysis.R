@@ -810,10 +810,21 @@ fit_area_level_model <- function(svy_admin2, area_cov, cc, oc, params) {
 
   # Training set: surveyed areas with GEE covariates
 
+  # PAIR KEY, not the bare name. Malawi has Admin-2 names that repeat across
+  # Admin-1 regions (TA Lundu, TA Pemba, TA Malemia, TA Ngabu), and
+  # area_covariates_malawi$gee_admin2 is deliberately kept in polygon order
+  # rather than deduplicated, so a `by = "Admin2"` join fans Malawi's 87
+  # surveyed districts to 90 training rows - three districts double-weighted,
+  # one copy of each wearing the other region's covariates, and in the LOO each
+  # held-out copy leaves its identical twin in training. admin2_join_by() falls
+  # back to the bare name when a caller's table has no Admin1, so this is safe
+  # for the countries that do not need the pair key.
+  .join_by <- admin2_join_by(gee_admin2, svy_admin2)
   train_df <- gee_admin2 %>%
     dplyr::inner_join(
-      svy_admin2 %>% dplyr::select(Admin2, svy_prev, svy_prev_se, n_svy),
-      by = "Admin2"
+      svy_admin2 %>% dplyr::select(dplyr::any_of(c("Admin1", "Admin2")),
+                                   svy_prev, svy_prev_se, n_svy),
+      by = .join_by
     ) %>%
     dplyr::filter(!is.na(svy_prev), is.finite(svy_prev))
 

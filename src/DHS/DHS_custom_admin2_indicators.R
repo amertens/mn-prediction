@@ -661,7 +661,15 @@ derive_wash <- function(HRdata) {
   # Water on premises / <=30 min (hv204 = time to water source in minutes)
   if ("hv204" %in% names(HRdata)) {
     t <- as_num(HRdata$hv204)
-    t <- ifelse(t >= 0 & t < 996, t, NA_real_)
+    # DHS codes 996 as "water on premises", NOT as missing. The old filter
+    # `t >= 0 & t < 996` sent every on-premises household to NA, which made
+    # hh_water_onpremise almost entirely FALSE-by-omission and biased
+    # hh_water_30min differently in each country according to how many
+    # households have water on the premises. 998/999 remain genuine
+    # missing/don't-know codes.
+    on_premises <- !is.na(t) & t == 996
+    t <- ifelse(!is.na(t) & t >= 0 & t < 996, t, NA_real_)
+    t[on_premises] <- 0                      # on premises = zero minutes away
     HRdata$hh_water_onpremise <- ifelse(is.na(t), NA_integer_, ifelse(t == 0, 1L, 0L))
     HRdata$hh_water_30min     <- ifelse(is.na(t), NA_integer_, ifelse(t <= 30, 1L, 0L))
     added <- c(added, "hh_water_onpremise", "hh_water_30min")

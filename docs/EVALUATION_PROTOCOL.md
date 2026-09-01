@@ -85,12 +85,26 @@ own regional or national totals. An arm that anchors on the survey's regional
 estimate is not comparable with one that does not, and the ceiling does not
 bound it (`docs/TARGET_ESTIMAND.md` section 3).
 
-**3.6 Beat the covariate-free baseline or say you did not.** Assigning each
-district its region's design-based survey estimate, with no covariates, scores
-mean r **0.516**, MAE **7.38 pp** and absolute bias **0.77 pp** across the 24
-cells (source: `results/tables/anchor_controls.csv`, arm
-`2a flat REGIONAL mean (no covariates)`). It beats every covariate arm this
-project has tested. It is the number to beat.
+**3.6 Beat the covariate-free baseline or say you did not.**
+
+> **CORRECTED 2026-09-01.** This rule previously named the *un-jackknifed*
+> flat regional mean (mean r **0.516**, MAE 7.38 pp) as "the number to beat"
+> and stated that it beats every covariate arm. **That arm is WITHDRAWN.** It
+> assigns each held-out district its region's design-based survey estimate
+> computed from *all* of the region's respondents **including the scored
+> district's own** — information no covariate arm under LORO can see, and
+> which rule 3.5 itself says makes an arm non-comparable. The project ran the
+> symmetric control (`anchor_controls_B1.csv`, arm `2b flat REGIONAL mean
+> (JACKKNIFE)`) and withdrew the claim: jackknifed, the arm scores mean r
+> **0.076**, MAE 10.87 pp, and **loses to the covariate arm** (r 0.156).
+> It is also uncomputable by a rule-compliant submitter, since it requires the
+> withheld survey values that rule 3.2 forbids touching.
+
+The covariate-free comparator is therefore the **jackknifed** regional mean —
+each district predicted by the mean of the *other* surveyed districts in its
+region. Scored across the 24 cells that arm gives mean r **0.076**, and the
+honest covariate arm gives **0.156**. Report against that, and state whether
+your arm saw any survey information from the held-out unit.
 
 ## 4. Metrics returned
 
