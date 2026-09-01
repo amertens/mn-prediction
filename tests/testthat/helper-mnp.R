@@ -6,7 +6,8 @@ suppressPackageStartupMessages(library(here))
 for (f in c("lint_admin2_joins.R", "unit_counts.R",
             "area_reliability.R", "reliability_empirical.R",
             "calibration_gate.R", "eb_district_estimator.R",
-            "downscale_admin1.R", "eb_stack_target.R")) {
+            "downscale_admin1.R", "eb_stack_target.R",
+            "loco_outlyingness.R")) {
   source(here::here("R", f))
 }
 

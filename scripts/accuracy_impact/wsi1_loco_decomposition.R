@@ -98,9 +98,30 @@ for (ocn in OUTCOMES) {
     spread <- loco_training_spread(tr$svy_prev, tr$country)
     if (!is.finite(spread)) spread <- stats::sd(tr$svy_prev, na.rm = TRUE)
 
+    # Extrapolation diagnostic, fitted on the SAME training rows the model saw.
+    # This asks whether the model was interpolating badly or being handed a
+    # question outside its training range, which call for different responses:
+    # the first needs a better model, the second needs the estimate withheld.
+    lo <- tryCatch(loco_outlyingness(Xtr, Xte), error = function(e) NULL)
+    mo <- tryCatch(loco_marginal_out(Xtr, Xte), error = function(e) NA_real_)
+
     sc <- loco_score_decomposition(te$svy_prev, pred, anchor_true, anchor_blind,
                                    spread, tilts = TILTS)
     if (is.null(sc)) next
+    if (!is.null(lo)) {
+      sc$frac_flagged   <- round(mean(lo$flag_test, na.rm = TRUE), 3)
+      sc$frac_score_out <- round(mean(lo$sd_test > lo$cut_sd, na.rm = TRUE), 3)
+      sc$frac_orth_out  <- round(mean(lo$od_test > lo$cut_od, na.rm = TRUE), 3)
+      sc$od_ratio <- round(stats::median(lo$od_test, na.rm = TRUE) / lo$cut_od, 2)
+      sc$sd_ratio <- round(stats::median(lo$sd_test, na.rm = TRUE) / lo$cut_sd, 2)
+      sc$n_pc           <- lo$n_pc
+      sc$cond_number    <- signif(lo$cond_number, 3)
+    } else {
+      sc$frac_flagged <- NA_real_; sc$frac_score_out <- NA_real_
+      sc$frac_orth_out <- NA_real_; sc$n_pc <- NA_integer_
+      sc$cond_number <- NA_real_; sc$od_ratio <- NA_real_; sc$sd_ratio <- NA_real_
+    }
+    sc$frac_marginal_out <- round(mo, 3)
     sc$outcome <- ocn; sc$held_out <- ho; sc$n_districts <- nrow(te)
     sc$n_cov <- length(usable); sc$spread_assumed <- round(spread, 4)
     sc$anchor_true_pp  <- round(100 * anchor_true, 2)
@@ -140,6 +161,22 @@ b0 <- out[out$anchor == "true"  & out$tilt == 0, ]
 bb <- out[out$anchor == "blind" & out$tilt == 0, ]
 cat(sprintf("anchor only (true):   MAE %.2f pp\n", mean(b0$mae_pp, na.rm = TRUE)))
 cat(sprintf("anchor only (blind):  MAE %.2f pp\n", mean(bb$mae_pp, na.rm = TRUE)))
+
+cat("\n=== extrapolation: is the model being asked an out-of-range question? ===\n")
+ex <- out |> distinct(outcome, held_out, frac_flagged, frac_score_out,
+                      frac_orth_out, od_ratio, sd_ratio, frac_marginal_out,
+                      n_pc, cond_number)
+exs <- ex |> group_by(held_out) |>
+  summarise(cells = dplyr::n(),
+            flagged = round(mean(frac_flagged, na.rm = TRUE), 3),
+            score_out = round(mean(frac_score_out, na.rm = TRUE), 3),
+            orth_out = round(mean(frac_orth_out, na.rm = TRUE), 3),
+            od_ratio = round(mean(od_ratio, na.rm = TRUE), 2),
+            sd_ratio = round(mean(sd_ratio, na.rm = TRUE), 2),
+            marginal = round(mean(frac_marginal_out, na.rm = TRUE), 3),
+            .groups = "drop") |> arrange(desc(sd_ratio))
+print(as.data.frame(exs), row.names = FALSE)
+readr::write_csv(ex, file.path(TDIR, "loco_extrapolation.csv"))
 
 cat("\n=== best tilt per held-out country, true anchor ===\n")
 bt <- out |> filter(anchor == "true") |> group_by(held_out, tilt) |>
