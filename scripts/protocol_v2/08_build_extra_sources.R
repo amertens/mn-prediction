@@ -153,11 +153,11 @@ if (length(ihme_blocks)) {
   # close to the outcome; flagged so they can be excluded from primary models.
   near <- grepl("anemia|anaemia|stunting|wasting|underweight", keep)
   add_meta(keep, "IHME (modelled surfaces)",
-           ifelse(near, "Nutrition status (NEAR-OUTCOME)",
+           ifelse(near, "Nutrition status (MODELLED SURFACE)",
                   "Infant and child morbidity/mortality"),
            TRUE,
            ifelse(near,
-                  "IHME modelled Admin-2 surface, year nearest survey, population-weighted over age and sex. NEAR-OUTCOME: a modelled estimate of nearly the outcome - exclude from primary models unless deliberately chosen.",
+                  "IHME modelled Admin-2 surface, year nearest survey, population-weighted over age and sex. MODELLED SURFACE: an estimate produced by someone else's model, not a direct measurement. Provenance checked: not fitted to the surveys scored here. Included by default; V2_DROP_MODELLED=1 excludes for sensitivity.",
                   "IHME modelled Admin-2 surface, year nearest survey, population-weighted over age and sex. Malawi joins at Admin-1 (its adm2_name is the district) and is broadcast to Traditional Authorities."))
   cat(sprintf("  -> %d IHME columns kept (%d flagged NEAR-OUTCOME)\n",
               length(keep), sum(near)))
@@ -241,10 +241,10 @@ if (!is.null(gf) && "country_name" %in% names(gf)) {
     blocks$gfdx <- spine |> left_join(g, by = "country")
     gnear <- grepl("anemia|anaemia|zinc_def|deficien", vn)
     add_meta(paste0("gfdx_", vn), "GFDx",
-             ifelse(gnear, "Nutrition status (NEAR-OUTCOME)",
+             ifelse(gnear, "Nutrition status (MODELLED SURFACE)",
                     "Food fortification and supplementation"), FALSE,
              ifelse(gnear,
-               "GFDx NATIONAL prevalence broadcast to every district. NEAR-OUTCOME: a national estimate of nearly the outcome - exclude from primary models unless deliberately chosen. No within-country variation.",
+               "GFDx NATIONAL prevalence broadcast to every district; no within-country variation. Anaemia is WHO 2011 (pre-dates every survey here); zinc is Wessells & Brown 2012 from FAO food-balance-sheet availability, so neither is fitted to these surveys.",
                "Global Fortification Data Exchange, NATIONAL value broadcast to every district: no within-country variation. Kept for cross-country (LOCO) information only."))
     cat(sprintf("  -> %d GFDx columns (national, broadcast)\n", length(vn)))
   } else cat("  no usable numeric GFDx columns for these countries\n")

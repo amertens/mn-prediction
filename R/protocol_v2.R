@@ -508,29 +508,51 @@ score_v2 <- function(obs, pred, w = NULL, scale = c("prev", "level")) {
   )
 }
 
-# ── near-outcome guard ──────────────────────────────────────────────────────
+# ── modelled-surface handling ───────────────────────────────────────────────
 
-#' Drop predictors that are modelled estimates of nearly the outcome
+#' Optionally drop predictors that are themselves modelled surfaces
 #'
-#' IHME's anaemia / stunting / wasting / underweight surfaces and GFDx's
-#' national anaemia and zinc-deficiency prevalences are MODEL OUTPUTS whose
-#' training data plausibly includes the very surveys this project scores
-#' against. Predicting an iron biomarker from someone else's modelled anaemia
-#' surface is not a proxy model; it is a comparison of two models of the same
-#' thing, and it would flatter every metric in the project.
+#' These columns are INCLUDED BY DEFAULT. An earlier version of this function
+#' excluded them on the suspicion that they were trained on the same surveys
+#' this project scores against. That suspicion was checked against source
+#' documentation and does not hold:
 #'
-#' They are therefore built into the vocabulary, flagged in the metadata with
-#' the domain "Nutrition status (NEAR-OUTCOME)", and EXCLUDED BY DEFAULT here.
-#' Set V2_INCLUDE_NEAR_OUTCOME=1 to include them deliberately - for instance to
-#' measure how much headroom an outcome-adjacent predictor would buy, which is
-#' a legitimate question asked on purpose rather than by accident.
+#'   GFDx anaemia  = WHO, "The global prevalence of anaemia in 2011" (2015).
+#'                   It PRE-DATES every survey here (Gambia 2021, Ghana 2017,
+#'                   Malawi 2015-16, Sierra Leone 2013), so it cannot have been
+#'                   fitted to them.
+#'   GFDx zinc     = Wessells & Brown (2012), estimated from FAO food-balance
+#'                   -sheet zinc availability and stunting. It uses no
+#'                   biomarker survey at all, which makes it a food-supply
+#'                   proxy - the mechanistically desirable kind of predictor.
+#'   IHME stunting/wasting/underweight = anthropometry. A different construct
+#'                   from every micronutrient biomarker modelled here.
+#'   IHME anaemia  = the LBD "global anemia prev geospatial estimates
+#'                   2000-2019" surface for women 15-49, defined on
+#'                   HAEMOGLOBIN. This project's outcomes are ferritin-based
+#'                   iron deficiency, RBP-based vitamin A deficiency, folate,
+#'                   B12 and zinc. Haemoglobin is a different biomarker and
+#'                   anaemia a different condition - the project's own audit
+#'                   makes exactly this point when criticising the WHO anaemia
+#'                   bands applied to ferritin-based iron deficiency.
+#'
+#' The residual caveat is narrow and worth stating rather than acting on: IHME
+#' anaemia is fitted partly to DHS haemoglobin from survey rounds that in some
+#' countries ran alongside the micronutrient surveys used here, and haemoglobin
+#' correlates with iron status. So for the IRON outcomes specifically there is a
+#' weak shared-information channel; for vitamin A, folate, B12 and zinc there is
+#' effectively none. That is a sensitivity analysis, not grounds for exclusion -
+#' and a modelled haemoglobin surface is in fact an attractive predictor, since
+#' the project has measured a +0.174 gain from FIELD haemoglobin, which needs a
+#' blood draw, whereas this surface needs no survey at all.
+#'
+#' Set V2_DROP_MODELLED=1 to exclude them for a sensitivity run.
 drop_near_outcome_v2 <- function(preds, meta) {
-  if (identical(Sys.getenv("V2_INCLUDE_NEAR_OUTCOME", "0"), "1")) return(preds)
+  if (!identical(Sys.getenv("V2_DROP_MODELLED", "0"), "1")) return(preds)
   if (!"domain" %in% names(meta)) return(preds)
-  bad <- meta$column[grepl("NEAR-OUTCOME", meta$domain, fixed = TRUE)]
+  bad <- meta$column[grepl("MODELLED SURFACE", meta$domain, fixed = TRUE)]
   keep <- setdiff(preds, bad)
   n <- length(preds) - length(keep)
-  if (n) message(sprintf("[protocol v2] excluded %d NEAR-OUTCOME predictors ",
-                         n), "(set V2_INCLUDE_NEAR_OUTCOME=1 to keep them)")
+  if (n) message(sprintf("[protocol v2] sensitivity: excluded %d modelled-surface predictors", n))
   keep
 }
