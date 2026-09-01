@@ -1,5 +1,18 @@
 # Two readings of the same results — 1 September 2026
 
+> **SUPERSEDED by `TWO_READINGS_2026-09c.md`.** A 31-agent methods audit and a
+> six-probe signal battery established that several numbers below are artifacts
+> of the evaluation design rather than measurements: the `median r 0.058`
+> headline rests on one unlucky fold draw (replicated: 0.217–0.235), the
+> `0 of 294 survive FDR` result was mathematically unattainable at 999
+> permutations, the `2.80 pp` null-choice figure does not reproduce, the WS-F
+> "no mechanistic predictor survives" set is in fact enriched 4.8×, and the
+> domain-ablation wording overstates its own table. Revision c also adds the
+> positive finding this document could not have had: covariate signal replicates
+> across all four countries and transports to a held-out country at mean
+> Spearman 0.309 (p = 0.0005). **Do not quote numbers from this file without
+> checking the status table at the end of revision c.**
+
 This supersedes the late-September revision, which is preserved in git history.
 Both abstracts describe the **same** measurements. Neither contains a claim the
 other contradicts. Every number is now produced under **one protocol**:
