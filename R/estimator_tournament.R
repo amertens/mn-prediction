@@ -204,10 +204,13 @@ run_tournament <- function(d, a2_col, cl_col, w_col, y_col, X_d, region,
       # weights (0,1,0,0), so it can only lose by paying for flexibility it
       # does not use -- which is the thing this arm exists to measure.
       if (exists("eb_stack_target")) {
+        # `pr` is the ridge arm's own out-of-region prediction, computed
+        # above. Reusing it keeps the stack's covariate candidate identical to
+        # the arm it is scored against, and halves the glmnet cost.
         st <- tryCatch(eb_stack_target(p_obs, pmax(n_obs, 1), reg, X = X_d,
                                        lonlat = lonlat, fin = fin,
                                        shrink = stack_shrink, k_screen = k_screen,
-                                       seed = seed + r),
+                                       seed = seed + r, ridge_pred = pr),
                        error = function(e) NULL)
         if (!is.null(st) && any(is.finite(st$target))) {
           tg <- st$target

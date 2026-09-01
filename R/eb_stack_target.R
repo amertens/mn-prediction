@@ -75,9 +75,15 @@
 #' @param fin logical, which districts are usable
 #' @param k_screen covariates retained by the in-fold screen
 #' @return named list of numeric vectors, each the same length as p
+#' @param ridge_pred optional precomputed out-of-region ridge prediction. When
+#'   the caller has already fitted one -- the tournament scores a `ridge` arm
+#'   from exactly this fit -- passing it here avoids refitting and, more
+#'   importantly, makes the stack's covariate candidate IDENTICAL to the ridge
+#'   arm it is being compared against, rather than a second fit that differs by
+#'   glmnet's fold draw.
 eb_stack_candidates <- function(p, n, reg, X = NULL, lonlat = NULL,
                                 fin = NULL, k_screen = 20L,
-                                seed = 20260925L) {
+                                seed = 20260925L, ridge_pred = NULL) {
   if (is.null(fin)) fin <- is.finite(p) & is.finite(n) & n > 0
   m <- length(p)
   regs <- unique(reg)
@@ -129,8 +135,11 @@ eb_stack_candidates <- function(p, n, reg, X = NULL, lonlat = NULL,
     cand$spatial <- sp
   }
 
-  # (4) The covariate ridge, out of region, screened in fold.
-  if (!is.null(X) && ncol(X) >= 2 && exists(".ds_fit")) {
+  # (4) The covariate ridge, out of region, screened in fold. Reused when the
+  # caller supplies one.
+  if (!is.null(ridge_pred) && length(ridge_pred) == m) {
+    cand$ridge <- ridge_pred
+  } else if (!is.null(X) && ncol(X) >= 2 && exists(".ds_fit")) {
     pr <- rep(NA_real_, m)
     for (ri in seq_along(regs)) {
       rg <- regs[ri]
@@ -225,10 +234,12 @@ eb_stack_weights <- function(cand, p, n, reg, fin, shrink = 0.5) {
 #'
 #' @return list with `target` (numeric vector), `weights`, `candidates`
 eb_stack_target <- function(p, n, reg, X = NULL, lonlat = NULL, fin = NULL,
-                            shrink = 0.5, k_screen = 20L, seed = 20260925L) {
+                            shrink = 0.5, k_screen = 20L, seed = 20260925L,
+                            ridge_pred = NULL) {
   if (is.null(fin)) fin <- is.finite(p) & is.finite(n) & n > 0
   cand <- eb_stack_candidates(p, n, reg, X = X, lonlat = lonlat,
-                              fin = fin, k_screen = k_screen, seed = seed)
+                              fin = fin, k_screen = k_screen, seed = seed,
+                              ridge_pred = ridge_pred)
   # A candidate that is missing everywhere is dropped rather than imputed: a
   # zero-variance column would take stack weight for no reason.
   keep <- vapply(cand, function(v) sum(is.finite(v)) >= 8L &&
