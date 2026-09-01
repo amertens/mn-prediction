@@ -1,5 +1,15 @@
 # Two readings of the same results — 1 September 2026 (revision c)
 
+> **SUPERSEDED by `TWO_READINGS_2026-09d.md`.** Revision c reported the methods
+> audit. Revision d reports what happened when its five recommendations were
+> implemented and measured, when the unused data sources were wired in, and when
+> two further defects were found in the process — a Ghana survey weight that was
+> step 1 of a documented 3-step construction, and a modelled surface joined at
+> the wrong administrative level. Revision c's `median r 0.058 / 0.206` is
+> **superseded**; under the corrected protocol the figures are 0.286 and 0.398.
+> A status table for every revision-c claim is at the end of revision d.
+
+
 This supersedes `TWO_READINGS_2026-09b.md`, which is preserved beside it and now
 carries a supersession banner. Both abstracts below describe the **same**
 measurements. Neither contains a claim the other contradicts.
