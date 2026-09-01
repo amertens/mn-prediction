@@ -274,6 +274,108 @@ on the logit clamp.
 
 ---
 
+---
+
+## Reading the leaderboard: what each arm is, in plain terms
+
+Written for a collaborator who is not going to read the code. Every arm below
+is scored on exactly the same districts, the same folds and the same outcome,
+so the only thing that differs between two rows is the sentence describing it.
+
+### The question each estimand asks
+
+**A. In-fill.** *We surveyed a country but not every district. Can we fill in
+the gaps?* Districts are held out at random, so a held-out district usually has
+surveyed neighbours in its own region. This is the easiest of the three and it
+is the one most published work implicitly reports.
+
+**B. Region extrapolation.** *Can we predict a region we did not visit at all?*
+Whole Admin-1 regions are held out, so the model must reach somewhere it has no
+nearby information about. Harder, and the honest test for a survey that skipped
+regions.
+
+**C. Transport.** *Can a model built in three countries rank districts in a
+fourth it has never seen?* This is the deployment case for a country with no
+survey. Only RANKING is scored here: biomarker levels differ so much between
+surveys - different assays, different adjustments - that a transported
+prevalence is not a quantity this design can validate. A ranked priority list
+is.
+
+### The arms, from least to most information
+
+**null_train_mean** - "give every district the average of the districts we
+trained on." It uses no covariates and no geography. It exists to answer *would
+a model have been better than assuming everything is average?* Its correlation
+is always about -0.5 and that number is meaningless: a near-constant prediction
+has no ranking, so its r is dominated by trivial fold-to-fold wobble. **Read
+its error (MAE), never its correlation.**
+
+**region_mean_jk** - "give every district the average of the OTHER surveyed
+districts in its own region." This is the covariate-free comparator that
+actually matters: it is what a survey statistician would do without any model,
+and it is the honest version of a baseline this project previously reported at
+r 0.516. That earlier version let each district see its own survey response,
+which no covariate model can do; jackknifing removes that and the number drops
+to 0.076 nationally. Available only under in-fill, because it needs other
+surveyed districts inside the held-out unit's own region.
+
+**spatial** - "fit a smooth surface over the map and read off the value." A
+generalised additive model on district centroid coordinates. No covariates at
+all - just the observation that neighbouring districts resemble each other.
+This is the arm to beat, because if geography alone does the job then the whole
+covariate programme buys nothing. Note it CANNOT be used for transport: a
+smoother needs observed outcomes nearby, and an unsurveyed country has none.
+
+**domain_index** - the deliberately simple covariate model. Each of the 18
+conceptual domains (soil, climate, agriculture, water and sanitation, and so
+on) is summarised into a few numbers; each summary is weighted by how strongly
+it tracks the outcome in the training data; the weighted values are added up.
+**Nothing is selected and nothing is tuned**, so there is no opportunity to
+overfit. It is the arm that has held up best across every version of this
+analysis.
+
+**domain_enet** - the same domain summaries, but handed to a penalised
+regression (elastic net) that decides which to keep and how much to shrink
+them. More flexible than the index, and at these sample sizes that flexibility
+is usually a liability rather than an asset.
+
+**raw_enet** - the same penalised regression given ALL 451 raw predictor
+columns instead of the domain summaries. This is closest to what the project
+used to do. It is the clearest demonstration of the small-sample problem: with
+14 to 87 districts and 451 columns, the model spends its effort choosing
+between predictors rather than learning from them, and under region
+extrapolation on the prevalence target it goes NEGATIVE.
+
+**spatial_plus_domain** - fit the smooth spatial surface first, then let the
+covariates explain what is left over. This is the sensible combination for a
+country that HAS a survey, and it is usually the best or joint-best arm in
+estimands A and B.
+
+### The two targets
+
+**level** is the district mean of the biomarker concentration itself (log
+ferritin, log RBP, and so on). **prev** is the share of people below the
+deficiency cut-off. The level target carries roughly 0.10 more correlation
+everywhere, because dichotomising throws away information - a district where
+everyone sits just above the cut-off looks identical to one where everyone sits
+far above it.
+
+### The columns
+
+**mean r / median r** - Spearman rank correlation between predicted and
+observed district values, averaged over cells. Rank rather than Pearson because
+the deliverable is a priority ordering.
+
+**positive** - in how many of the country-outcome cells the correlation was
+above zero. A mean of 0.28 built from 21 positive cells is a very different
+claim from the same mean built from 12 positive and 12 negative.
+
+**topk (top-quartile capture)** - of the districts that truly are in the worst
+quarter, what share does the model also place in its worst quarter. **Chance is
+0.25.** This is the most decision-relevant number in the table: 0.44 means that
+targeting the model's worst quarter reaches about 1.75 times as much of the
+real burden as picking districts at random.
+
 ## How to re-run
 
 ```bash
