@@ -43,7 +43,7 @@ TG <- read.csv(file.path(OUTDIR, "targets_v2.csv"), stringsAsFactors = FALSE)
 S  <- read.csv("data/covariates/harmonized/predictors_admin2_shared.csv",
                check.names = FALSE)
 MD <- read.csv("data/covariates/harmonized/predictors_admin2_shared_metadata.csv")
-PREDS <- intersect(MD$column, names(S))
+PREDS <- drop_near_outcome_v2(intersect(MD$column, names(S)), MD)
 domain_of <- stats::setNames(MD$domain, MD$column)
 COUNTRIES <- c("Gambia", "Ghana", "Malawi", "SierraLeone")
 set.seed(20260981L)

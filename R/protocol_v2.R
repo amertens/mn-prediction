@@ -507,3 +507,30 @@ score_v2 <- function(obs, pred, w = NULL, scale = c("prev", "level")) {
     topk = length(intersect(worst_true, worst_pred)) / q
   )
 }
+
+# ── near-outcome guard ──────────────────────────────────────────────────────
+
+#' Drop predictors that are modelled estimates of nearly the outcome
+#'
+#' IHME's anaemia / stunting / wasting / underweight surfaces and GFDx's
+#' national anaemia and zinc-deficiency prevalences are MODEL OUTPUTS whose
+#' training data plausibly includes the very surveys this project scores
+#' against. Predicting an iron biomarker from someone else's modelled anaemia
+#' surface is not a proxy model; it is a comparison of two models of the same
+#' thing, and it would flatter every metric in the project.
+#'
+#' They are therefore built into the vocabulary, flagged in the metadata with
+#' the domain "Nutrition status (NEAR-OUTCOME)", and EXCLUDED BY DEFAULT here.
+#' Set V2_INCLUDE_NEAR_OUTCOME=1 to include them deliberately - for instance to
+#' measure how much headroom an outcome-adjacent predictor would buy, which is
+#' a legitimate question asked on purpose rather than by accident.
+drop_near_outcome_v2 <- function(preds, meta) {
+  if (identical(Sys.getenv("V2_INCLUDE_NEAR_OUTCOME", "0"), "1")) return(preds)
+  if (!"domain" %in% names(meta)) return(preds)
+  bad <- meta$column[grepl("NEAR-OUTCOME", meta$domain, fixed = TRUE)]
+  keep <- setdiff(preds, bad)
+  n <- length(preds) - length(keep)
+  if (n) message(sprintf("[protocol v2] excluded %d NEAR-OUTCOME predictors ",
+                         n), "(set V2_INCLUDE_NEAR_OUTCOME=1 to keep them)")
+  keep
+}
