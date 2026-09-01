@@ -14,16 +14,26 @@
 # The distinction is not cosmetic, because the two behave completely differently
 # under the fold protocol that decides whether a result is deployable:
 #
-#                                     targeting lift   correlation
-#   within country, cluster-blocked            1.32          0.416
-#   within country, region-blocked             1.21          0.154
-#   leave-one-country-out                      1.23          0.184
+#                                        targeting lift
+#   within country, cluster-blocked               1.32
+#   within country, leave-one-unit-out            1.21
+#   LEAVE-ONE-COUNTRY-OUT                         1.23
 #
-# Correlation loses 63 percent of its value when neighbouring areas are removed
-# from the training set. Targeting lift barely moves, and it is the SAME at
-# leave-one-country-out as it is within a country. Lift is a coarser functional
-# of the prediction: it depends only on which areas land in the top of the
-# ranking, so it tolerates the monotone distortion that destroys a correlation.
+# THE FIRST TWO ARE BOTH PERMISSIVE, and an earlier version of this file
+# mislabelled the middle row as region-blocked. It is not.
+# scripts/covariates/13_resolution_comparison.R runs a LEAVE-ONE-UNIT-OUT loop
+# and scores against a null that is the mean of the TRAINING units only. Both
+# choices favour the covariate arm: leave-one-unit-out keeps a held-out area's
+# neighbours in training, and a training-mean null is weaker than the full-data
+# national mean that area_comparison_all.csv scores against. Under THAT stricter
+# pairing the covariate models lose to the national mean, which remains the
+# project's headline on prevalence.
+#
+# So the load-bearing row is the third one. Leave-one-country-out is genuinely
+# strict, and lift there (1.23) matches the permissive within-country figures.
+# Lift is a coarser functional of the prediction than a correlation: it depends
+# only on which areas reach the top of the ranking, so it tolerates monotone
+# distortion. Correlation over the same protocols runs 0.416, 0.154 and 0.184.
 #
 # That is the empirical case for reporting targeting as a primary endpoint. The
 # principled case has to be made in advance and on decision-relevance grounds,
@@ -71,7 +81,9 @@ if (file.exists(rp)) {
         if (!arm %in% names(v)) next
         L <- targeting_lift(v$obs, v[[arm]])
         if (is.null(L)) next
-        L$protocol <- "within_country_region_blocked"; L$level <- lv
+        # NOT region-blocked: 13_resolution_comparison.R is leave-one-unit-out
+        # against a training-mean null. Labelled for what it is.
+        L$protocol <- "within_country_leave_one_unit_out"; L$level <- lv
         L$arm <- arm; L$country <- v$country[1]; L$outcome <- v$outcome[1]
         rows[[length(rows) + 1L]] <- L
       }
