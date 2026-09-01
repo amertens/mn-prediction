@@ -187,6 +187,11 @@ build_domain_scores_v2 <- function(Xr, domain_of, sign_rows = NULL) {
     sgn[cc] <- ifelse(ld >= 0, 1, -1)
   }
   if (!length(domains)) return(matrix(numeric(0), nrow = nrow(Xr), ncol = 0))
+  # NOTE: this single-score representation is retained for comparability with
+  # earlier runs, but it is NOT the default any more. Measured over 22
+  # leave-one-country-out cells it is the WORST of seven representations
+  # (index 0.151 on the level target); build_domain_pcs_v2() reaches 0.255.
+  # See docs/findings/PROTOCOL_V2.md, "domain representation".
   S <- sweep(Xr, 2, sgn[cols], "*")
   D <- matrix(0, nrow = nrow(Xr), ncol = length(domains),
               dimnames = list(NULL, domains))
@@ -197,6 +202,80 @@ build_domain_scores_v2 <- function(Xr, domain_of, sign_rows = NULL) {
   }
   D[!is.finite(D)] <- 0
   D
+}
+
+#' Principal-component representation of each domain — THE DEFAULT
+#'
+#' One score per domain throws away most of the largest domains: PC1 explains
+#' 0.13 of the variance in infant/child morbidity (37 members) and 0.17 in
+#' agriculture (93), against 0.84 in Ruralness. Keeping as many components as
+#' reach `var_target` of each domain's variance adapts the representation to
+#' the domain instead of assuming every domain is one factor.
+#'
+#' Measured over 22 leave-one-country-out cells, mean Spearman on the level
+#' target: sign-aligned mean 0.151, PC1 0.218, PC1-2 0.244, PCs-to-80% 0.255.
+#' Supervised weighting adds nothing (0.196), so the gain comes from
+#' representing more of each domain's variance, not from aiming it at the
+#' outcome — which also keeps this step outcome-independent and leak-free.
+#'
+#' Rotations are learned from `sign_rows` (pass the training rows) and applied
+#' to every row, so no held-out information reaches the basis.
+#'
+#' @param var_target cumulative variance share to retain per domain
+#' @param max_pc hard cap per domain, so one huge domain cannot dominate
+build_domain_pcs_v2 <- function(Xr, domain_of, sign_rows = NULL,
+                                var_target = 0.80, max_pc = 12L) {
+  cols <- colnames(Xr)
+  domains <- sort(unique(stats::na.omit(domain_of[cols])))
+  if (!length(domains)) return(matrix(numeric(0), nrow = nrow(Xr), ncol = 0))
+  if (is.null(sign_rows)) sign_rows <- seq_len(nrow(Xr))
+  blocks <- list()
+  for (dm in domains) {
+    cc <- cols[which(domain_of[cols] == dm)]
+    if (!length(cc)) next
+    M <- Xr[, cc, drop = FALSE]
+    if (length(cc) == 1) {
+      b <- M
+      colnames(b) <- paste0(make.names(substr(dm, 1, 12)), "_PC1")
+      blocks[[dm]] <- b
+      next
+    }
+    Mtr <- M[sign_rows, , drop = FALSE]
+    if (nrow(Mtr) < 3) next
+    pc <- tryCatch(stats::prcomp(Mtr, center = TRUE, scale. = FALSE),
+                   error = function(e) NULL)
+    if (is.null(pc)) next
+    ve <- pc$sdev^2 / sum(pc$sdev^2)
+    npc <- max(1L, which(cumsum(ve) >= var_target)[1])
+    if (!is.finite(npc)) npc <- 1L
+    npc <- min(npc, max_pc, ncol(pc$rotation), length(cc), nrow(Mtr) - 1L)
+    if (npc < 1) next
+    sc <- scale(M, center = pc$center, scale = FALSE) %*%
+      pc$rotation[, seq_len(npc), drop = FALSE]
+    # orient each component so the majority of its loadings are positive, for
+    # cross-country comparability of the sign (the per-country orientation
+    # hazard documented in PROTOCOL_V2.md)
+    flip <- ifelse(colMeans(pc$rotation[, seq_len(npc), drop = FALSE] > 0) < 0.5,
+                   -1, 1)
+    sc <- sweep(sc, 2, flip, "*")
+    colnames(sc) <- paste0(make.names(substr(dm, 1, 12)), "_PC", seq_len(npc))
+    blocks[[dm]] <- sc
+  }
+  if (!length(blocks)) return(matrix(numeric(0), nrow = nrow(Xr), ncol = 0))
+  out <- do.call(cbind, blocks)
+  out[!is.finite(out)] <- 0
+  out
+}
+
+#' The project's default domain representation.
+#'
+#' Switch back to the single-score version with
+#' `Sys.setenv(V2_DOMAIN_REP = "mean1")` when reproducing pre-2026-09-01 runs.
+domain_representation_v2 <- function(Xr, domain_of, sign_rows = NULL) {
+  if (identical(Sys.getenv("V2_DOMAIN_REP", "pcvar"), "mean1"))
+    build_domain_scores_v2(Xr, domain_of, sign_rows = sign_rows)
+  else
+    build_domain_pcs_v2(Xr, domain_of, sign_rows = sign_rows)
 }
 
 # ── FIX 1 & 5. Folds for the three estimands ────────────────────────────────

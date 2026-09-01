@@ -93,7 +93,7 @@ for (target in c("prev", "level")) {
         te <- which(folds == f); tr <- which(folds != f)
         if (length(tr) < 20) next
         # orientation learned from TRAINING countries only, then applied to all
-        Dm <- build_domain_scores_v2(Xm, domain_of, sign_rows = tr)
+        Dm <- domain_representation_v2(Xm, domain_of, sign_rows = tr)
         p <- tryCatch(fn(tr, te, Y, Xm, Dm, aux),
                       error = function(e) rep(NA_real_, length(te)))
         if (length(p) == length(te)) pred[te] <- p

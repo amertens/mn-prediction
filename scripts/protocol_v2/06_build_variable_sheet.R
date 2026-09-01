@@ -21,9 +21,15 @@
 #     the 18-domain taxonomy the domain scores actually use.
 #   4 the data itself, for type, levels, IQR and per-country coverage.
 #
+# ONE SHEET, NOT TWO. Everything an RA needs is in a single table: the rows
+# needing work are flagged, prioritised and sorted to the top, rather than
+# split into a separate gaps file that can drift out of sync with the main one.
+# The .xlsx carries real cell highlighting; the .csv carries the same
+# information in FLAG_* columns for anything that reads it programmatically.
+#
 #   Rscript scripts/protocol_v2/06_build_variable_sheet.R
 # -> results/tables/protocol_v2/variable_sheet.csv
-# -> results/tables/protocol_v2/variable_sheet_gaps.csv   (what an RA must fill)
+# -> results/tables/protocol_v2/variable_sheet.xlsx   (highlighted worksheet)
 # =============================================================================
 suppressPackageStartupMessages({library(dplyr)})
 setwd("C:/Users/andre/OneDrive/Documents/mn-prediction")
@@ -153,9 +159,62 @@ sheet <- prof |>
     ra_measurement_year = NA_character_,
     ra_notes = NA_character_)
 
+# ── flags: what needs an RA's attention, and why ────────────────────────────
+# A domain whose variables all propose the SAME sub-domain has no internal
+# structure; one where every variable proposes its OWN has no grouping. Both
+# mean the proposal is useless and the sub-domain must be authored by hand.
+dom_stats <- sheet |> filter(in_shared_373) |> group_by(assigned_domain) |>
+  summarise(dom_n = n(), dom_subdomains = n_distinct(proposed_subdomain),
+            .groups = "drop") |>
+  mutate(subdomain_proposal_useless = dom_n >= 6 &
+           (dom_subdomains == 1 | dom_subdomains == dom_n))
+
 sheet <- sheet |>
-  select(variable, data_origin, data_origin_source,
-         assigned_domain, dd_domain, inv_domain,
+  left_join(dom_stats, by = "assigned_domain") |>
+  mutate(
+    FLAG_definition_missing   = definition_source == "MISSING_needs_RA",
+    FLAG_unit_missing         = unit_source == "MISSING_needs_RA",
+    FLAG_subdomain_useless    = tidyr::replace_na(subdomain_proposal_useless, FALSE),
+    FLAG_domain_too_large     = tidyr::replace_na(dom_n >= 30, FALSE),
+    FLAG_absent_in_a_country  = worst_country_pct_missing >= 100,
+    FLAG_constant_in_country  = constant_in_some_country,
+    FLAG_high_missingness     = pct_missing_overall >= 25,
+    FLAG_empty                = var_type == "empty",
+    n_flags = 0)
+flagcols <- grep("^FLAG_", names(sheet), value = TRUE)
+sheet$n_flags <- rowSums(as.matrix(sheet[, flagcols]), na.rm = TRUE)
+
+sheet <- sheet |>
+  mutate(
+    ra_priority = dplyr::case_when(
+      FLAG_empty ~ 1L,
+      FLAG_definition_missing | FLAG_unit_missing ~ 1L,
+      FLAG_subdomain_useless | FLAG_domain_too_large ~ 2L,
+      FLAG_absent_in_a_country | FLAG_constant_in_country ~ 2L,
+      FLAG_high_missingness ~ 3L,
+      TRUE ~ 3L),
+    ra_action = dplyr::case_when(
+      FLAG_empty ~
+        "EMPTY: no finite values anywhere. Confirm whether extraction failed, then drop or repair.",
+      FLAG_definition_missing & FLAG_subdomain_useless ~
+        "Find the provider's definition AND author a real sub-domain (the proposal is degenerate).",
+      FLAG_definition_missing ~
+        "Find the provider's definition, unit, measurement year and native resolution; cite the source.",
+      FLAG_subdomain_useless ~
+        "Author a real sub-domain: the name-rule proposal gives no usable grouping for this domain.",
+      FLAG_domain_too_large ~
+        "Large domain: split into coherent sub-domains of roughly 3-15 members.",
+      FLAG_absent_in_a_country | FLAG_constant_in_country ~
+        "Absent or constant in at least one country: confirm this is real, not an extraction failure. It is what the all-four-countries filter deletes on.",
+      FLAG_high_missingness ~
+        "High missingness: confirm the coverage is genuine before it is imputed.",
+      TRUE ~
+        "Verify the proposed sub-domain, then add mechanism tags and the distal-proximal rating."))
+
+sheet <- sheet |>
+  select(ra_priority, ra_action, n_flags,
+         variable, data_origin, data_origin_source,
+         assigned_domain, dom_n, dd_domain, inv_domain,
          proposed_subdomain, inv_subdomain, subdomain_source,
          definition, definition_source,
          unit, unit_source, dd_temporal, dd_collapse, dd_source_columns,
@@ -163,19 +222,96 @@ sheet <- sheet |>
          pct_missing_overall, worst_country_pct_missing,
          countries_present, n_countries_present, country_specific,
          constant_in_some_country, in_shared_373, in_harmonized_294,
-         dd_note, inv_note,
+         all_of(flagcols), dd_note, inv_note,
          ra_verified_definition, ra_verified_subdomain, ra_mechanism_tag,
          ra_distal_proximal, ra_measurement_year, ra_notes) |>
-  arrange(assigned_domain, proposed_subdomain, variable)
+  arrange(ra_priority, desc(n_flags), assigned_domain, proposed_subdomain,
+          variable)
 
 write.csv(sheet, file.path(OUTDIR, "variable_sheet.csv"), row.names = FALSE)
 
-gaps <- sheet |>
-  filter(in_shared_373,
-         definition_source == "MISSING_needs_RA" | unit_source == "MISSING_needs_RA") |>
-  select(variable, assigned_domain, proposed_subdomain, data_origin,
-         definition_source, unit_source, var_type, countries_present)
-write.csv(gaps, file.path(OUTDIR, "variable_sheet_gaps.csv"), row.names = FALSE)
+# ── highlighted worksheet ───────────────────────────────────────────────────
+if (requireNamespace("openxlsx", quietly = TRUE)) {
+  wb <- openxlsx::createWorkbook()
+  openxlsx::addWorksheet(wb, "variables")
+  openxlsx::writeData(wb, "variables", sheet, withFilter = TRUE)
+  nr <- nrow(sheet)
+  cn <- function(x) which(names(sheet) == x)
+
+  red    <- openxlsx::createStyle(bgFill = "#F4CCCC")  # must be filled
+  amber  <- openxlsx::createStyle(bgFill = "#FCE5CD")  # must be checked
+  blue   <- openxlsx::createStyle(bgFill = "#CFE2F3")  # RA writes here
+  grey   <- openxlsx::createStyle(fgFill = "#EFEFEF", textDecoration = "italic")
+  header <- openxlsx::createStyle(textDecoration = "bold", fgFill = "#D9D9D9",
+                                  halign = "left", border = "bottom")
+  openxlsx::addStyle(wb, "variables", header, rows = 1,
+                     cols = seq_along(sheet), gridExpand = TRUE)
+
+  # red: the cells that are actually missing
+  for (v in c("definition", "unit")) {
+    src <- paste0(sub("^(.*)$", "\\1", v), "_source")
+    openxlsx::conditionalFormatting(
+      wb, "variables", cols = cn(v), rows = 2:(nr + 1),
+      rule = sprintf('INDIRECT(ADDRESS(ROW(),%d))="MISSING_needs_RA"', cn(src)),
+      style = red)
+  }
+  # amber: unverified proposals and coverage oddities the RA must confirm
+  openxlsx::conditionalFormatting(
+    wb, "variables", cols = cn("proposed_subdomain"), rows = 2:(nr + 1),
+    rule = sprintf('INDIRECT(ADDRESS(ROW(),%d))=TRUE', cn("FLAG_subdomain_useless")),
+    style = amber)
+  for (v in c("countries_present", "constant_in_some_country",
+              "pct_missing_overall", "worst_country_pct_missing")) {
+    openxlsx::conditionalFormatting(
+      wb, "variables", cols = cn(v), rows = 2:(nr + 1),
+      rule = sprintf('OR(INDIRECT(ADDRESS(ROW(),%d))=TRUE,INDIRECT(ADDRESS(ROW(),%d))=TRUE)',
+                     cn("FLAG_absent_in_a_country"), cn("FLAG_constant_in_country")),
+      style = amber)
+  }
+  # blue: the columns the RA fills in
+  openxlsx::addStyle(wb, "variables", blue,
+                     rows = 2:(nr + 1),
+                     cols = cn("ra_verified_definition"):cn("ra_notes"),
+                     gridExpand = TRUE, stack = TRUE)
+  # grey: machine-computed context, not to be edited
+  openxlsx::addStyle(wb, "variables", grey, rows = 2:(nr + 1),
+                     cols = cn("var_type"):cn("in_harmonized_294"),
+                     gridExpand = TRUE, stack = TRUE)
+
+  openxlsx::freezePane(wb, "variables", firstActiveRow = 2, firstActiveCol = 5)
+  openxlsx::setColWidths(wb, "variables", cols = seq_along(sheet),
+                         widths = "auto")
+  openxlsx::setColWidths(wb, "variables",
+                         cols = c(cn("ra_action"), cn("definition")), widths = 60)
+
+  openxlsx::addWorksheet(wb, "legend")
+  legend <- data.frame(
+    colour = c("red", "amber", "blue", "grey", "", "priority 1", "priority 2",
+               "priority 3"),
+    meaning = c(
+      "Missing. No documented value exists; find it from the provider and record it.",
+      "Unverified or odd. A machine proposal with no usable structure, or a coverage pattern that decides whether the variable survives the all-four-countries filter. Confirm it is real.",
+      "Yours to fill. The ra_* columns are the deliverable.",
+      "Computed from the data. Context only - do not edit.",
+      "",
+      "No documented definition or unit, or the variable is empty.",
+      "The sub-domain proposal is unusable, the domain is too large to be one score, or coverage needs confirming.",
+      "Routine verification: check the proposed sub-domain, add mechanism tags and the distal-proximal rating."),
+    stringsAsFactors = FALSE)
+  openxlsx::writeData(wb, "legend", legend)
+  openxlsx::addStyle(wb, "legend", header, rows = 1, cols = 1:2, gridExpand = TRUE)
+  openxlsx::addStyle(wb, "legend", red,   rows = 2, cols = 1)
+  openxlsx::addStyle(wb, "legend", amber, rows = 3, cols = 1)
+  openxlsx::addStyle(wb, "legend", blue,  rows = 4, cols = 1)
+  openxlsx::addStyle(wb, "legend", grey,  rows = 5, cols = 1)
+  openxlsx::setColWidths(wb, "legend", cols = 1:2, widths = c(14, 110))
+
+  openxlsx::saveWorkbook(wb, file.path(OUTDIR, "variable_sheet.xlsx"),
+                         overwrite = TRUE)
+  cat("wrote highlighted worksheet: variable_sheet.xlsx\n")
+}
+# the separate gaps file is retired: everything is in the one sheet now
+unlink(file.path(OUTDIR, "variable_sheet_gaps.csv"))
 
 cat("\n=== sheet:", nrow(sheet), "variables x", ncol(sheet), "fields ===\n")
 cat("\ndefinition provenance (all rows):\n")
@@ -192,5 +328,10 @@ cat("\nproposed sub-domains per assigned domain (the 373):\n")
 print(as.data.frame(sheet |> filter(in_shared_373) |> group_by(assigned_domain) |>
   summarise(vars = n(), proposed_subdomains = n_distinct(proposed_subdomain),
             .groups = "drop") |> arrange(desc(vars))), row.names = FALSE)
-cat("\nrows an RA must fill (in the modelled set):", nrow(gaps), "\n")
+cat("\nRA workload, by priority (the 373 modelled):\n")
+print(as.data.frame(sheet |> filter(in_shared_373) |>
+  count(ra_priority, name = "variables")), row.names = FALSE)
+cat("\nflag counts (the 373):\n")
+for (f in flagcols)
+  cat(sprintf("  %-26s %d\n", f, sum(sheet[[f]][sheet$in_shared_373], na.rm = TRUE)))
 cat("\nDONE\n")

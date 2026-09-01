@@ -87,7 +87,7 @@ build_cell <- function(cn, on, target) {
   if (nrow(m) < 12 || dplyr::n_distinct(m$Admin1) < 3) return(NULL)
   Xr <- prep_predictors_v2(as.matrix(m[, PREDS, drop = FALSE]))   # FIX 3
   if (ncol(Xr) < 20) return(NULL)
-  D  <- build_domain_scores_v2(Xr, domain_of)                     # FIX 4
+  D  <- domain_representation_v2(Xr, domain_of)                   # FIX 4
   y_nat <- m[[ycol]]
   y_mod <- if (target == "prev") .v2_logit(y_nat) else y_nat
   list(country = cn, outcome = on, target = target,
