@@ -1,73 +1,73 @@
 "country","outcome","calibration","brier","calib_intercept","calib_slope"
-"Gambia","child_vitA","raw (uncalibrated)",0.1606,-0.694,0.438
-"Gambia","child_vitA","in-sample Platt (optimistic)",0.1583,0,1
-"Gambia","child_vitA","out-of-fold Platt (honest)",0.1632,-1.128,0.174
-"Gambia","women_vitA","raw (uncalibrated)",0.0261,-1.311,0.591
-"Gambia","women_vitA","in-sample Platt (optimistic)",0.026,0,1
-"Gambia","women_vitA","out-of-fold Platt (honest)",0.0263,-2.445,0.312
-"Gambia","child_iron","raw (uncalibrated)",0.2484,-0.27,0.155
-"Gambia","child_iron","in-sample Platt (optimistic)",0.2433,0,1
-"Gambia","child_iron","out-of-fold Platt (honest)",0.2449,-0.6,-0.81
-"Gambia","women_iron","raw (uncalibrated)",0.2076,-0.199,0.752
-"Gambia","women_iron","in-sample Platt (optimistic)",0.2068,0,1
-"Gambia","women_iron","out-of-fold Platt (honest)",0.208,-0.051,0.917
-"Ghana","child_vitA","raw (uncalibrated)",0.1262,-0.946,0.444
-"Ghana","child_vitA","in-sample Platt (optimistic)",0.1255,0,1
-"Ghana","child_vitA","out-of-fold Platt (honest)",0.126,-0.585,0.661
-"Ghana","women_vitA","raw (uncalibrated)",0.0153,-4.252,-0.011
+"Gambia","child_vitA","raw (uncalibrated)",0.1617,-0.665,0.462
+"Gambia","child_vitA","in-sample Platt (optimistic)",0.1586,0,1
+"Gambia","child_vitA","out-of-fold Platt (honest)",0.1637,-1.104,0.193
+"Gambia","women_vitA","raw (uncalibrated)",0.026,-1.028,0.659
+"Gambia","women_vitA","in-sample Platt (optimistic)",0.0259,0,1
+"Gambia","women_vitA","out-of-fold Platt (honest)",0.0262,-1.639,0.53
+"Gambia","child_iron","raw (uncalibrated)",0.2429,-0.121,0.534
+"Gambia","child_iron","in-sample Platt (optimistic)",0.2416,0,1
+"Gambia","child_iron","out-of-fold Platt (honest)",0.2424,-0.047,0.81
+"Gambia","women_iron","raw (uncalibrated)",0.2066,-0.14,0.819
+"Gambia","women_iron","in-sample Platt (optimistic)",0.2062,0,1
+"Gambia","women_iron","out-of-fold Platt (honest)",0.2072,-0.03,0.944
+"Ghana","child_vitA","raw (uncalibrated)",0.1261,-0.664,0.597
+"Ghana","child_vitA","in-sample Platt (optimistic)",0.1258,0,1
+"Ghana","child_vitA","out-of-fold Platt (honest)",0.1266,-0.642,0.626
+"Ghana","women_vitA","raw (uncalibrated)",0.0154,-4.749,-0.079
 "Ghana","women_vitA","in-sample Platt (optimistic)",0.0149,0,1
-"Ghana","women_vitA","out-of-fold Platt (honest)",0.015,-17.896,-3.285
-"Ghana","child_iron","raw (uncalibrated)",0.1702,-0.235,0.78
-"Ghana","child_iron","in-sample Platt (optimistic)",0.1695,0,1
-"Ghana","child_iron","out-of-fold Platt (honest)",0.1722,-0.165,0.839
-"Ghana","women_iron","raw (uncalibrated)",0.0771,-1.052,0.539
+"Ghana","women_vitA","out-of-fold Platt (honest)",0.0152,-8.712,-1.064
+"Ghana","child_iron","raw (uncalibrated)",0.172,-0.243,0.757
+"Ghana","child_iron","in-sample Platt (optimistic)",0.1712,0,1
+"Ghana","child_iron","out-of-fold Platt (honest)",0.1741,-0.202,0.806
+"Ghana","women_iron","raw (uncalibrated)",0.0772,-1.195,0.479
 "Ghana","women_iron","in-sample Platt (optimistic)",0.077,0,1
-"Ghana","women_iron","out-of-fold Platt (honest)",0.0775,-1.618,0.318
-"Ghana","women_folate","raw (uncalibrated)",0.2476,0.123,0.388
-"Ghana","women_folate","in-sample Platt (optimistic)",0.2413,0,1
-"Ghana","women_folate","out-of-fold Platt (honest)",0.2445,0.081,0.623
-"Ghana","women_b12","raw (uncalibrated)",0.0762,-1.82,0.213
-"Ghana","women_b12","in-sample Platt (optimistic)",0.0767,0,1
-"Ghana","women_b12","out-of-fold Platt (honest)",0.0785,-2.718,-0.131
-"Sierra Leone","child_vitA","raw (uncalibrated)",0.1157,-2.028,-0.037
-"Sierra Leone","child_vitA","in-sample Platt (optimistic)",0.1097,0,1
-"Sierra Leone","child_vitA","out-of-fold Platt (honest)",0.1132,-4.048,-1.096
-"Sierra Leone","women_vitA","raw (uncalibrated)",0.0186,-4.569,-0.093
+"Ghana","women_iron","out-of-fold Platt (honest)",0.0776,-1.878,0.209
+"Ghana","women_folate","raw (uncalibrated)",0.2498,0.154,0.269
+"Ghana","women_folate","in-sample Platt (optimistic)",0.2418,0,1
+"Ghana","women_folate","out-of-fold Platt (honest)",0.2458,0.147,0.273
+"Ghana","women_b12","raw (uncalibrated)",0.0771,-1.385,0.388
+"Ghana","women_b12","in-sample Platt (optimistic)",0.0761,0,1
+"Ghana","women_b12","out-of-fold Platt (honest)",0.0783,-2.344,0.015
+"Sierra Leone","child_vitA","raw (uncalibrated)",0.1151,-2.283,-0.145
+"Sierra Leone","child_vitA","in-sample Platt (optimistic)",0.1094,0,1
+"Sierra Leone","child_vitA","out-of-fold Platt (honest)",0.1109,-2.627,-0.353
+"Sierra Leone","women_vitA","raw (uncalibrated)",0.0185,-4.57,-0.09
 "Sierra Leone","women_vitA","in-sample Platt (optimistic)",0.0177,0,1
-"Sierra Leone","women_vitA","out-of-fold Platt (honest)",0.0179,-4.513,-0.128
-"Sierra Leone","child_iron","raw (uncalibrated)",0.0553,-2.882,-0.021
+"Sierra Leone","women_vitA","out-of-fold Platt (honest)",0.0179,-4.051,-0.014
+"Sierra Leone","child_iron","raw (uncalibrated)",0.055,-2.885,-0.022
 "Sierra Leone","child_iron","in-sample Platt (optimistic)",0.0543,0,1
-"Sierra Leone","child_iron","out-of-fold Platt (honest)",0.0548,-9.714,-2.409
-"Sierra Leone","women_iron","raw (uncalibrated)",0.0901,-1.833,0.184
-"Sierra Leone","women_iron","in-sample Platt (optimistic)",0.0853,0,1
-"Sierra Leone","women_iron","out-of-fold Platt (honest)",0.086,-3.986,-0.768
-"Sierra Leone","women_folate","raw (uncalibrated)",0.1843,1.165,0.115
-"Sierra Leone","women_folate","in-sample Platt (optimistic)",0.1635,0,1
-"Sierra Leone","women_folate","out-of-fold Platt (honest)",0.1663,4.332,-2.175
-"Sierra Leone","women_b12","raw (uncalibrated)",0.0054,-45.708,-3
-"Sierra Leone","women_b12","in-sample Platt (optimistic)",0.0051,3.9,1.916
-"Sierra Leone","women_b12","out-of-fold Platt (honest)",0.0051,-1.744,0.599
-"Malawi","child_vitA","raw (uncalibrated)",0.0874,-2.114,0.057
-"Malawi","child_vitA","in-sample Platt (optimistic)",0.0844,0,1
-"Malawi","child_vitA","out-of-fold Platt (honest)",0.0847,-1.972,0.13
-"Malawi","women_vitA","raw (uncalibrated)",0.014,-3.742,0.09
+"Sierra Leone","child_iron","out-of-fold Platt (honest)",0.0549,-8.404,-1.967
+"Sierra Leone","women_iron","raw (uncalibrated)",0.0892,-1.613,0.284
+"Sierra Leone","women_iron","in-sample Platt (optimistic)",0.0851,0,1
+"Sierra Leone","women_iron","out-of-fold Platt (honest)",0.0863,-1.541,0.32
+"Sierra Leone","women_folate","raw (uncalibrated)",0.1771,1.217,0.088
+"Sierra Leone","women_folate","in-sample Platt (optimistic)",0.1636,0,1
+"Sierra Leone","women_folate","out-of-fold Platt (honest)",0.1682,4.11,-2.005
+"Sierra Leone","women_b12","raw (uncalibrated)",0.0053,-47.857,-3.149
+"Sierra Leone","women_b12","in-sample Platt (optimistic)",0.0051,4.03,1.925
+"Sierra Leone","women_b12","out-of-fold Platt (honest)",0.0051,-1.682,0.621
+"Malawi","child_vitA","raw (uncalibrated)",0.0881,-2.063,0.08
+"Malawi","child_vitA","in-sample Platt (optimistic)",0.0843,0,1
+"Malawi","child_vitA","out-of-fold Platt (honest)",0.0847,-2.044,0.101
+"Malawi","women_vitA","raw (uncalibrated)",0.0181,-3.735,0.09
 "Malawi","women_vitA","in-sample Platt (optimistic)",0.013,0,1
-"Malawi","women_vitA","out-of-fold Platt (honest)",0.013,-5.824,-0.342
-"Malawi","child_iron","raw (uncalibrated)",0.0874,-1.341,0.385
-"Malawi","child_iron","in-sample Platt (optimistic)",0.086,0,1
-"Malawi","child_iron","out-of-fold Platt (honest)",0.0866,-1.159,0.481
-"Malawi","women_iron","raw (uncalibrated)",0.0907,-2.053,0.061
-"Malawi","women_iron","in-sample Platt (optimistic)",0.0898,0,1
-"Malawi","women_iron","out-of-fold Platt (honest)",0.0904,-2.505,-0.135
-"Malawi","women_folate","raw (uncalibrated)",0.164,-0.79,0.4
-"Malawi","women_folate","in-sample Platt (optimistic)",0.1599,0,1
-"Malawi","women_folate","out-of-fold Platt (honest)",0.1618,-0.48,0.629
-"Malawi","women_b12","raw (uncalibrated)",0.0277,-2.449,0.267
+"Malawi","women_vitA","out-of-fold Platt (honest)",0.013,-5.194,-0.198
+"Malawi","child_iron","raw (uncalibrated)",0.0885,-2.273,-0.009
+"Malawi","child_iron","in-sample Platt (optimistic)",0.0866,0,1
+"Malawi","child_iron","out-of-fold Platt (honest)",0.0872,-2.411,-0.068
+"Malawi","women_iron","raw (uncalibrated)",0.0902,-2.132,0.028
+"Malawi","women_iron","in-sample Platt (optimistic)",0.0899,0,1
+"Malawi","women_iron","out-of-fold Platt (honest)",0.0905,-2.451,-0.11
+"Malawi","women_folate","raw (uncalibrated)",0.164,-0.788,0.402
+"Malawi","women_folate","in-sample Platt (optimistic)",0.1598,0,1
+"Malawi","women_folate","out-of-fold Platt (honest)",0.1618,-0.472,0.634
+"Malawi","women_b12","raw (uncalibrated)",0.0276,-1.64,0.493
 "Malawi","women_b12","in-sample Platt (optimistic)",0.0266,0,1
-"Malawi","women_b12","out-of-fold Platt (honest)",0.0267,-2.026,0.426
-"Malawi","child_zinc","raw (uncalibrated)",0.2752,0.438,-0.232
-"Malawi","child_zinc","in-sample Platt (optimistic)",0.2401,0,1
-"Malawi","child_zinc","out-of-fold Platt (honest)",0.2449,0.592,-0.596
-"Malawi","women_zinc","raw (uncalibrated)",0.2637,0.471,0.02
+"Malawi","women_b12","out-of-fold Platt (honest)",0.0269,-1.321,0.622
+"Malawi","child_zinc","raw (uncalibrated)",0.272,0.409,-0.169
+"Malawi","child_zinc","in-sample Platt (optimistic)",0.2409,0,1
+"Malawi","child_zinc","out-of-fold Platt (honest)",0.2466,0.965,-1.588
+"Malawi","women_zinc","raw (uncalibrated)",0.258,0.449,0.055
 "Malawi","women_zinc","in-sample Platt (optimistic)",0.2359,0,1
-"Malawi","women_zinc","out-of-fold Platt (honest)",0.2378,1.545,-2.13
+"Malawi","women_zinc","out-of-fold Platt (honest)",0.2384,1.116,-1.274

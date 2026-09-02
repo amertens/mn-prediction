@@ -1,9 +1,9 @@
 "estimand","target","arm","cells","mean_spearman","median_spearman","cells_positive","mean_wmae","mean_topk"
-"country","level","domain_enet",22,0.288,0.276,21,NA,0.419
+"country","level","domain_enet",22,0.281,0.218,21,NA,0.424
 "country","level","domain_index",22,0.252,0.238,17,NA,0.435
 "country","level","null_train_mean",22,NA,NA,0,NA,0.215
+"country","prev","domain_enet",22,0.179,0.176,14,NA,0.304
 "country","prev","domain_index",22,0.151,0.16,15,NA,0.341
-"country","prev","domain_enet",22,0.136,0.164,12,NA,0.268
 "country","prev","null_train_mean",22,NA,NA,0,NA,0.241
 "infill","level","spatial_plus_domain",24,0.398,0.454,17,0.17,0.421
 "infill","level","spatial",24,0.391,0.458,17,0.18,0.412

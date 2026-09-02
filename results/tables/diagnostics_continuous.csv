@@ -1,25 +1,25 @@
 n,rmse,mae,r2,r,prev_obs,prev_pred,prev_pred_point,prev_bias,model_type,country,outcome
-1020,0.2373,0.1831,0.0411,0.2031,0.7392,0.7294,1,-0.0098,continuous,Gambia,child_vitA
-1413,0.488,0.3295,0.0152,0.1682,0.9703,0.9525,1,-0.0178,continuous,Gambia,women_vitA
-1013,0.8505,0.6912,-0.0335,0.0378,0.3771,0.3721,0.1767,-0.005,continuous,Gambia,child_iron
-1402,0.9138,0.7487,0.0215,0.1618,0.5485,0.5469,0.674,-0.0016,continuous,Gambia,women_iron
-1165,0.299,0.2247,0.0105,0.1481,0.794,0.7768,1,-0.0172,continuous,Ghana,child_vitA
-992,0.5897,0.4438,0.0142,0.2082,0.9869,0.9593,1,-0.0276,continuous,Ghana,women_vitA
-1165,26.2379,19.9445,0.0444,0.2286,0.7614,0.7808,1,0.0194,continuous,Ghana,child_iron
-981,34.846,27.2948,0.0072,0.1408,0.8644,0.8631,1,-0.0013,continuous,Ghana,women_iron
-475,9.1263,6.9324,0.0461,0.2355,0.4526,0.5147,0.8168,0.0621,continuous,Ghana,women_folate
-473,236.6909,184.6722,0.085,0.2959,0.9175,0.9014,1,-0.0161,continuous,Ghana,women_b12
+1020,0.2376,0.1833,0.039,0.1982,0.7392,0.7301,1,-0.0091,continuous,Gambia,child_vitA
+1413,0.4881,0.3296,0.0149,0.1668,0.9703,0.9526,1,-0.0177,continuous,Gambia,women_vitA
+1013,0.8497,0.6909,-0.0317,0.0396,0.3771,0.3703,0.1915,-0.0068,continuous,Gambia,child_iron
+1402,0.9126,0.7485,0.0242,0.1657,0.5485,0.5487,0.6976,2e-4,continuous,Gambia,women_iron
+1165,0.2986,0.2246,0.0127,0.1549,0.794,0.7767,1,-0.0173,continuous,Ghana,child_vitA
+992,0.5897,0.4439,0.0144,0.2089,0.9869,0.9596,1,-0.0273,continuous,Ghana,women_vitA
+1165,26.193,19.9148,0.0477,0.234,0.7614,0.7807,1,0.0193,continuous,Ghana,child_iron
+981,34.8245,27.2921,0.0084,0.1413,0.8644,0.8637,1,-7e-4,continuous,Ghana,women_iron
+475,9.0983,6.9155,0.0519,0.2424,0.4526,0.511,0.7621,0.0584,continuous,Ghana,women_folate
+473,237.79,184.65,0.0765,0.284,0.9175,0.9004,1,-0.0171,continuous,Ghana,women_b12
 486,0.3638,0.2596,-0.0197,0.0171,0.8169,0.8116,1,-0.0053,continuous,Sierra Leone,child_vitA
-774,0.5224,0.3832,-0.0532,0.0376,0.9767,0.9599,1,-0.0168,continuous,Sierra Leone,women_vitA
-486,44.7427,35.6116,-0.0297,0.1312,0.9424,0.8731,1,-0.0693,continuous,Sierra Leone,child_iron
-774,35.1437,25.3715,-0.0249,-0.0265,0.8269,0.8194,1,-0.0075,continuous,Sierra Leone,women_iron
-766,5.0458,2.7091,0.0054,0.134,0.2063,0.2378,0.1266,0.0315,continuous,Sierra Leone,women_folate
-768,262.504,200.8142,0.0017,0.1659,0.9961,0.9745,1,-0.0216,continuous,Sierra Leone,women_b12
-1149,0.2782,0.2218,-0.0031,0.1097,0.7589,0.7424,1,-0.0165,continuous,Malawi,child_vitA
-836,0.4445,0.3432,-0.0053,-0.0967,0.9785,0.9744,1,-0.0041,continuous,Malawi,women_vitA
-1149,22.3235,17.0724,0.0244,0.1693,0.799,0.8106,1,0.0116,continuous,Malawi,child_iron
-781,37.7408,22.3963,-0.0053,-0.0945,0.822,0.8268,1,0.0048,continuous,Malawi,women_iron
-828,13.9609,10.246,0.1165,0.3489,0.7923,0.7747,0.9783,-0.0176,continuous,Malawi,women_folate
-839,309.2777,202.3467,0.19,0.4623,0.9726,0.8697,1,-0.1029,continuous,Malawi,women_b12
+774,0.5227,0.3854,-0.0547,0.0363,0.9767,0.959,1,-0.0177,continuous,Sierra Leone,women_vitA
+486,44.7935,35.607,-0.032,0.1295,0.9424,0.8748,1,-0.0676,continuous,Sierra Leone,child_iron
+774,35.1438,25.3716,-0.0249,-0.0265,0.8269,0.8194,1,-0.0075,continuous,Sierra Leone,women_iron
+766,5.0306,2.7191,0.0114,0.1492,0.2063,0.2405,0.1358,0.0342,continuous,Sierra Leone,women_folate
+768,263.0928,201.5187,-0.0028,0.1587,0.9961,0.9753,1,-0.0208,continuous,Sierra Leone,women_b12
+1149,0.2784,0.2218,-0.0042,0.1067,0.7589,0.7418,1,-0.0171,continuous,Malawi,child_vitA
+836,0.4455,0.3427,-0.0099,0.1122,0.9785,0.9703,1,-0.0082,continuous,Malawi,women_vitA
+1149,22.251,16.9812,0.0307,0.1838,0.799,0.8117,1,0.0127,continuous,Malawi,child_iron
+781,38.2175,23.377,-0.0308,0.0582,0.822,0.8113,1,-0.0107,continuous,Malawi,women_iron
+828,13.9266,10.1999,0.1209,0.3521,0.7923,0.7775,1,-0.0148,continuous,Malawi,women_folate
+839,305.7052,196.3478,0.2086,0.4617,0.9726,0.8928,1,-0.0798,continuous,Malawi,women_b12
 1134,22.799,13.5244,-0.0046,-0.0924,0.3228,0.3092,0,-0.0136,continuous,Malawi,child_zinc
 844,21.5102,13.1691,-0.0044,-0.0909,0.2571,0.2739,0,0.0168,continuous,Malawi,women_zinc

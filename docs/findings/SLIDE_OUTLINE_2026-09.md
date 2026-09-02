@@ -5,6 +5,38 @@ protocol v2, and the data-source expansion. Companion to
 `docs/findings/TWO_READINGS_2026-09d.md` (abstracts + paper outline) and
 `docs/findings/PROTOCOL_V2.md` (numbers and the plain-language arm guide).
 
+## What "protocol" means here
+
+Throughout this outline and in `PROTOCOL_V2.md`, **protocol** means the set of
+decisions about HOW A MODEL IS EVALUATED, as distinct from the model itself:
+
+- how the data is split into training and test, and whether that split is
+  replicated or reported from a single draw;
+- what the model is compared against, and **what information that comparator is
+  allowed to see** - a baseline that reads the held-out district's own survey is
+  not comparable with a model that cannot;
+- which quantity is predicted (deficiency prevalence, or the underlying
+  biomarker concentration);
+- how districts are weighted when scoring - equally, or by how much information
+  each actually carries;
+- which null distribution a significance claim is judged against;
+- and which deployment question is being answered: filling gaps inside a
+  surveyed country, reaching an unvisited region, or transporting to a country
+  with no survey at all.
+
+The analogy is a clinical trial, where the protocol - endpoint, comparator,
+analysis plan - is registered before enrolment, and the drug is the
+intervention. In prediction work the model is the intervention and the
+evaluation design is the protocol, but nobody pre-registers it, so it usually
+gets settled after the results are in, often without anyone noticing a choice
+was made.
+
+The project's central empirical finding is that **the protocol moved results
+more than any model choice tested**. Fold draw alone moved a headline from 0.058
+to 0.217. The choice of baseline moved a comparison from "covariates lose to a
+survey mean" to "covariates win". No estimator in the tournament moved anything
+by that much.
+
 ## The problem with the current deck
 
 It is 74 slides in four accreted colour-coded eras — the original build, then
@@ -40,9 +72,15 @@ transferable thing the project has produced.
 2. **One estimand per claim.** Every performance number gets labelled with which
    of the three deployment questions it answers. Most historical confusion in
    this project came from mixing them.
-3. **Corrections as method, not apology.** "Here is what a careless protocol
-   costs, measured on our own data" is a stronger and more useful talk than
-   "here are things we got wrong."
+3. **Corrections as method, not apology.** The framing is "here is what the
+   field's DEFAULT evaluation choices cost, measured on our own data" - not
+   "here is what we did carelessly." That distinction is both kinder and more
+   accurate. A single unreplicated fold draw, a design effect assumed at 1.5, a
+   baseline computed from all the data: these are the ordinary choices almost
+   every paper in this literature makes, which is exactly why measuring their
+   cost is worth a talk. This project caught several of them itself - the
+   jackknife control that withdrew the 0.516 baseline was run here, before any
+   external audit.
 
 ---
 

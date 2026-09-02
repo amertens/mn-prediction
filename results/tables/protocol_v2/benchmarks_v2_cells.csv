@@ -1,5 +1,5 @@
 "country","outcome","target","estimand","arm","reps","n_areas","spearman","spearman_sd","spearman_lo","spearman_hi","pearson","mae","wmae","bias","topk"
-"Gambia","child_iron","level","country","domain_enet",1,30,0.467408231368187,NA,NA,NA,0.408526046541706,NA,NA,NA,0.5
+"Gambia","child_iron","level","country","domain_enet",1,30,0.330812013348165,NA,NA,NA,0.295988318718567,NA,NA,NA,0.375
 "Gambia","child_iron","level","country","domain_index",1,30,0.469632925472747,NA,NA,NA,0.467895799999203,NA,NA,NA,0.5
 "Gambia","child_iron","level","country","null_train_mean",1,30,NA,NA,NA,NA,NA,NA,NA,NA,0.25
 "Gambia","child_iron","level","infill","domain_enet",10,30,0.35229767364226,NA,0.35229767364226,0.35229767364226,0.344106611950321,0.222815107250443,0.184954641764236,0.00767323452361153,0.25
@@ -63,7 +63,7 @@
 "Gambia","child_vitA","prev","region","raw_enet",1,30,-0.633117015572094,NA,NA,NA,-0.506143323294115,13.583156217578,12.1007704318845,-5.96982840534271,0
 "Gambia","child_vitA","prev","region","spatial",1,30,0.537253994875681,NA,NA,NA,0.531544776851978,10.4605050119194,9.2079298407587,-3.70362819857734,0.375
 "Gambia","child_vitA","prev","region","spatial_plus_domain",1,30,0.564428533588298,NA,NA,NA,0.551789197453255,10.2004848369269,8.83747995200437,-3.88504915972645,0.5
-"Gambia","women_iron","level","country","domain_enet",1,30,0.305450500556174,NA,NA,NA,0.316231918922611,NA,NA,NA,0.5
+"Gambia","women_iron","level","country","domain_enet",1,30,0.370856507230256,NA,NA,NA,0.353616403736824,NA,NA,NA,0.5
 "Gambia","women_iron","level","country","domain_index",1,30,0.171968854282536,NA,NA,NA,0.235731941863599,NA,NA,NA,0.25
 "Gambia","women_iron","level","country","null_train_mean",1,30,NA,NA,NA,NA,NA,NA,NA,NA,0.25
 "Gambia","women_iron","level","infill","domain_enet",10,30,0.592436040044494,NA,0.592436040044494,0.592436040044494,0.555333867833217,0.227769109407256,0.210679265513706,-0.000555849822126847,0.3875
@@ -79,7 +79,7 @@
 "Gambia","women_iron","level","region","raw_enet",1,30,0.394438264738598,NA,NA,NA,0.432536653289153,0.261016595135425,0.186788884549131,-0.0186969372843799,0.5
 "Gambia","women_iron","level","region","spatial",1,30,0.670745272525028,NA,NA,NA,0.647091365360264,0.227781387057788,0.247640858744143,-0.0101397902607952,0.5
 "Gambia","women_iron","level","region","spatial_plus_domain",1,30,0.670745272525028,NA,NA,NA,0.647091365359695,0.227781387058529,0.247640858745243,-0.0101397902596741,0.5
-"Gambia","women_iron","prev","country","domain_enet",1,30,0.715763715631695,NA,NA,NA,0.673946036126279,NA,NA,NA,0.625
+"Gambia","women_iron","prev","country","domain_enet",1,30,0.711758820735404,NA,NA,NA,0.656240949734273,NA,NA,NA,0.5
 "Gambia","women_iron","prev","country","domain_index",1,30,0.107242185556257,NA,NA,NA,0.190077971282185,NA,NA,NA,0.125
 "Gambia","women_iron","prev","country","null_train_mean",1,30,NA,NA,NA,NA,NA,NA,NA,NA,0.125
 "Gambia","women_iron","prev","infill","domain_enet",10,30,0.687751700773744,NA,0.687751700773744,0.687751700773744,0.678269478876925,9.60643965590815,8.95737142360123,0.711949843177666,0.55
@@ -95,7 +95,7 @@
 "Gambia","women_iron","prev","region","raw_enet",1,30,0.550450554079209,NA,NA,NA,0.55352480154632,10.7642430612096,7.09281093651513,-1.047934540013,0.5
 "Gambia","women_iron","prev","region","spatial",1,30,0.742463014940307,NA,NA,NA,0.743870191822752,8.84359476488674,9.81764988167407,0.711154654378929,0.5
 "Gambia","women_iron","prev","region","spatial_plus_domain",1,30,0.746467909836599,NA,NA,NA,0.735030642989373,9.17962538149933,10.0803765436351,1.00845000887823,0.5
-"Gambia","women_vitA","level","country","domain_enet",1,30,0.737931034482759,NA,NA,NA,0.74142484746326,NA,NA,NA,0.625
+"Gambia","women_vitA","level","country","domain_enet",1,30,0.702335928809789,NA,NA,NA,0.695299034215952,NA,NA,NA,0.5
 "Gambia","women_vitA","level","country","domain_index",1,30,0.72146829810901,NA,NA,NA,0.729854175580391,NA,NA,NA,0.625
 "Gambia","women_vitA","level","country","null_train_mean",1,30,NA,NA,NA,NA,NA,NA,NA,NA,0.375
 "Gambia","women_vitA","level","infill","domain_enet",10,30,0.623047830923248,NA,0.623047830923248,0.623047830923248,0.655009058245177,0.0751122550752287,0.0719995198324307,0.00514027002153778,0.425
@@ -127,7 +127,7 @@
 "Gambia","women_vitA","prev","region","raw_enet",1,30,0.093688713710402,NA,NA,NA,0.0258952002057891,3.46955542917905,2.128452465134,-1.85408152253193,0.375
 "Gambia","women_vitA","prev","region","spatial",1,30,0.508279883490182,NA,NA,NA,0.527007951885329,2.93030807969996,2.38677708698731,-1.08368729120217,0.5
 "Gambia","women_vitA","prev","region","spatial_plus_domain",1,30,0.508279883490182,NA,NA,NA,0.527007951886223,2.93030807970103,2.38677708698748,-1.08368729119715,0.5
-"Ghana","child_iron","level","country","domain_enet",1,75,0.436813655761024,NA,NA,NA,0.437339443904296,NA,NA,NA,0.315789473684211
+"Ghana","child_iron","level","country","domain_enet",1,75,0.461052631578947,NA,NA,NA,0.477498354335308,NA,NA,NA,0.526315789473684
 "Ghana","child_iron","level","country","domain_index",1,75,0.475135135135135,NA,NA,NA,0.509168677836503,NA,NA,NA,0.578947368421053
 "Ghana","child_iron","level","country","null_train_mean",1,75,NA,NA,NA,NA,NA,NA,NA,NA,0.105263157894737
 "Ghana","child_iron","level","infill","domain_enet",10,75,0.518219061166429,NA,0.518219061166429,0.518219061166429,0.567185492696528,0.290794968680423,0.270975118721576,-0.0030277067756622,0.58421052631579
@@ -143,7 +143,7 @@
 "Ghana","child_iron","level","region","raw_enet",1,75,0.381081081081081,NA,NA,NA,0.381027206553601,0.321351564497402,0.302584110159591,-0.0165022729616298,0.473684210526316
 "Ghana","child_iron","level","region","spatial",1,75,0.532517780938834,NA,NA,NA,0.461042324635411,0.338005525753571,0.318063402757885,-0.115293755710211,0.578947368421053
 "Ghana","child_iron","level","region","spatial_plus_domain",1,75,0.527453769559033,NA,NA,NA,0.458380459301997,0.338581286448379,0.318370678993833,-0.116035313548909,0.578947368421053
-"Ghana","child_iron","prev","country","domain_enet",1,75,0.528548262797948,NA,NA,NA,0.58297750563605,NA,NA,NA,0.526315789473684
+"Ghana","child_iron","prev","country","domain_enet",1,75,0.55411972444389,NA,NA,NA,0.584105780970988,NA,NA,NA,0.578947368421053
 "Ghana","child_iron","prev","country","domain_index",1,75,0.528719595874303,NA,NA,NA,0.544937554199803,NA,NA,NA,0.578947368421053
 "Ghana","child_iron","prev","country","null_train_mean",1,75,NA,NA,NA,NA,NA,NA,NA,NA,0.105263157894737
 "Ghana","child_iron","prev","infill","domain_enet",10,75,0.528108507901971,NA,0.528108507901971,0.528108507901971,0.58655495117902,12.3621075277429,12.3337349778385,-5.55056344264096,0.542105263157895
@@ -159,7 +159,7 @@
 "Ghana","child_iron","prev","region","raw_enet",1,75,0.451791044591034,NA,NA,NA,0.433965318012048,13.9986146773294,14.420944887818,-7.52084263239595,0.526315789473684
 "Ghana","child_iron","prev","region","spatial",1,75,0.49258259451982,NA,NA,NA,0.449160634844853,13.6537545859211,13.7538119502792,-4.79419991435256,0.473684210526316
 "Ghana","child_iron","prev","region","spatial_plus_domain",1,75,0.49258259451982,NA,NA,NA,0.44916063484485,13.6537545859211,13.7538119502793,-4.79419991435257,0.473684210526316
-"Ghana","child_vitA","level","country","domain_enet",1,75,0.212944523470839,NA,NA,NA,0.181498463268374,NA,NA,NA,0.421052631578947
+"Ghana","child_vitA","level","country","domain_enet",1,75,0.197268847795164,NA,NA,NA,0.151147310825667,NA,NA,NA,0.421052631578947
 "Ghana","child_vitA","level","country","domain_index",1,75,0.356273115220484,NA,NA,NA,0.415891502434562,NA,NA,NA,0.578947368421053
 "Ghana","child_vitA","level","country","null_train_mean",1,75,NA,NA,NA,NA,NA,NA,NA,NA,0.0526315789473684
 "Ghana","child_vitA","level","infill","domain_enet",10,75,0.310909889635922,NA,0.310909889635922,0.310909889635922,0.348081884599115,0.10505954290896,0.0962059920411921,-0.00199796584293069,0.463157894736842
@@ -175,7 +175,7 @@
 "Ghana","child_vitA","level","region","raw_enet",1,75,0.25877667140825,NA,NA,NA,0.125604129246278,0.110393139453162,0.103956926682947,0.00605490947465167,0.526315789473684
 "Ghana","child_vitA","level","region","spatial",1,75,0.252660028449502,NA,NA,NA,0.262222103264349,0.109216612397552,0.0954176784075536,0.0138480328918203,0.578947368421053
 "Ghana","child_vitA","level","region","spatial_plus_domain",1,75,0.235846372688478,NA,NA,NA,0.253139254611937,0.11045387830609,0.0964917174720974,0.0131426357162977,0.578947368421053
-"Ghana","child_vitA","prev","country","domain_enet",1,75,0.19869059131502,NA,NA,NA,0.235466621655277,NA,NA,NA,0.368421052631579
+"Ghana","child_vitA","prev","country","domain_enet",1,75,0.200344907706652,NA,NA,NA,0.227754220915701,NA,NA,NA,0.315789473684211
 "Ghana","child_vitA","prev","country","domain_index",1,75,0.343752560821294,NA,NA,NA,0.402952916607987,NA,NA,NA,0.526315789473684
 "Ghana","child_vitA","prev","country","null_train_mean",1,75,NA,NA,NA,NA,NA,NA,NA,NA,0.157894736842105
 "Ghana","child_vitA","prev","infill","domain_enet",10,75,0.12188951383119,NA,0.12188951383119,0.12188951383119,0.165374104521201,10.6632806185216,10.6108525428948,-6.25897928851441,0.38421052631579
@@ -191,7 +191,7 @@
 "Ghana","child_vitA","prev","region","raw_enet",1,75,-0.00916960678689783,NA,NA,NA,0.148151485770545,10.7078562118629,10.3701086808677,-5.41779413474865,0.421052631578947
 "Ghana","child_vitA","prev","region","spatial",1,75,0.211148313012008,NA,NA,NA,0.113338743702572,10.6134710653067,10.6992295033662,-5.69022689641581,0.473684210526316
 "Ghana","child_vitA","prev","region","spatial_plus_domain",1,75,0.207235495111799,NA,NA,NA,0.173499171794903,10.4912226730427,10.4666786887939,-5.25716078611876,0.473684210526316
-"Ghana","women_b12","level","country","domain_enet",1,75,0.572091038406828,NA,NA,NA,0.50626028082566,NA,NA,NA,0.421052631578947
+"Ghana","women_b12","level","country","domain_enet",1,75,0.634566145092461,NA,NA,NA,0.564514000054967,NA,NA,NA,0.526315789473684
 "Ghana","women_b12","level","country","domain_index",1,75,0.585917496443812,NA,NA,NA,0.540064717538847,NA,NA,NA,0.526315789473684
 "Ghana","women_b12","level","country","null_train_mean",1,75,NA,NA,NA,NA,NA,NA,NA,NA,0.105263157894737
 "Ghana","women_b12","level","infill","domain_enet",10,75,0.498125177809388,NA,0.498125177809388,0.498125177809388,0.461742662363553,0.253057836178434,0.235081754468393,0.00209166190082282,0.536842105263158
@@ -239,7 +239,7 @@
 "Ghana","women_folate","level","region","raw_enet",1,75,0.237724039829303,NA,NA,NA,0.214620667944818,0.324326936661772,0.306460920166929,0.00801707619091379,0.263157894736842
 "Ghana","women_folate","level","region","spatial",1,75,0.446799431009957,NA,NA,NA,0.510020273974974,0.267561678532805,0.248856360661276,0.0392314219525092,0.526315789473684
 "Ghana","women_folate","level","region","spatial_plus_domain",1,75,0.430554765291607,NA,NA,NA,0.487359769488984,0.271169612921692,0.250794440718758,0.0295947152775104,0.473684210526316
-"Ghana","women_folate","prev","country","domain_enet",1,75,-0.0768327725822633,NA,NA,NA,-0.0781391757462884,NA,NA,NA,0.105263157894737
+"Ghana","women_folate","prev","country","domain_enet",1,75,0.163314179376768,NA,NA,NA,0.146406034768151,NA,NA,NA,0.210526315789474
 "Ghana","women_folate","prev","country","domain_index",1,75,-0.0551126565712506,NA,NA,NA,-0.0554960517418754,NA,NA,NA,0.210526315789474
 "Ghana","women_folate","prev","country","null_train_mean",1,75,NA,NA,NA,NA,NA,NA,NA,NA,0.263157894736842
 "Ghana","women_folate","prev","infill","domain_enet",10,75,0.184289358999375,NA,0.184289358999375,0.184289358999375,0.219951850026225,25.7637688092343,23.0858684068483,-1.17964709351025,0.28421052631579
@@ -255,7 +255,7 @@
 "Ghana","women_folate","prev","region","raw_enet",1,75,0.0245462111696797,NA,NA,NA,0.00265944866098266,27.7674001539368,23.8900578162906,-1.17348559639197,0.210526315789474
 "Ghana","women_folate","prev","region","spatial",1,75,0.321554630866449,NA,NA,NA,0.36302037763246,24.5937135117659,22.1113158188686,3.41003849137604,0.368421052631579
 "Ghana","women_folate","prev","region","spatial_plus_domain",1,75,0.321554630866449,NA,NA,NA,0.36302037763246,24.5937135117659,22.1113158188686,3.41003849137603,0.368421052631579
-"Ghana","women_iron","level","country","domain_enet",1,75,0.246714082503556,NA,NA,NA,0.246639404504937,NA,NA,NA,0.368421052631579
+"Ghana","women_iron","level","country","domain_enet",1,75,0.238264580369843,NA,NA,NA,0.269927447379223,NA,NA,NA,0.578947368421053
 "Ghana","women_iron","level","country","domain_index",1,75,0.228079658605974,NA,NA,NA,0.28246411425569,NA,NA,NA,0.526315789473684
 "Ghana","women_iron","level","country","null_train_mean",1,75,NA,NA,NA,NA,NA,NA,NA,NA,0
 "Ghana","women_iron","level","infill","domain_enet",10,75,0.20451493598862,NA,0.20451493598862,0.20451493598862,0.209073814229865,0.277721288033242,0.25532103388458,-0.00269193718264614,0.389473684210526
@@ -287,7 +287,7 @@
 "Ghana","women_iron","prev","region","raw_enet",1,75,-0.124519192018086,NA,NA,NA,0.00324870497121719,10.6792845537185,10.0817396357517,-6.02422220005218,0.210526315789474
 "Ghana","women_iron","prev","region","spatial",1,75,0.405156928825478,NA,NA,NA,0.360787967402611,9.17104144421553,8.60662288051436,-4.59806580094454,0.315789473684211
 "Ghana","women_iron","prev","region","spatial_plus_domain",1,75,0.405156928825478,NA,NA,NA,0.36007402152919,9.17806262027291,8.61332553134498,-4.60116314684122,0.315789473684211
-"Ghana","women_vitA","level","country","domain_enet",1,75,0.382275960170697,NA,NA,NA,0.393365896658695,NA,NA,NA,0.473684210526316
+"Ghana","women_vitA","level","country","domain_enet",1,75,0.371806543385491,NA,NA,NA,0.397567922403821,NA,NA,NA,0.473684210526316
 "Ghana","women_vitA","level","country","domain_index",1,75,0.272859174964438,NA,NA,NA,0.383620720050097,NA,NA,NA,0.526315789473684
 "Ghana","women_vitA","level","country","null_train_mean",1,75,NA,NA,NA,NA,NA,NA,NA,NA,0.0526315789473684
 "Ghana","women_vitA","level","infill","domain_enet",10,75,0.365217638691323,NA,0.365217638691323,0.365217638691323,0.330288920668062,0.124040615247455,0.118693508736607,0.00297181201969327,0.405263157894737
@@ -335,7 +335,7 @@
 "Malawi","child_iron","level","region","raw_enet",1,87,0.331213093241962,NA,NA,NA,0.376601493802502,0.248344960228332,0.251426816409209,0.000772997448746102,0.454545454545455
 "Malawi","child_iron","level","region","spatial",1,87,0.0195924764890282,NA,NA,NA,-0.0265831832647881,0.300909030308589,0.301937989691683,-0.00170309899289527,0.0909090909090909
 "Malawi","child_iron","level","region","spatial_plus_domain",1,87,0.296147116716483,NA,NA,NA,0.293143923435506,0.26258764296576,0.267088109797612,-0.0112329955582108,0.363636363636364
-"Malawi","child_iron","prev","country","domain_enet",1,87,-0.0149942595373166,NA,NA,NA,-0.131124665442052,NA,NA,NA,0.272727272727273
+"Malawi","child_iron","prev","country","domain_enet",1,87,-0.01290564309325,NA,NA,NA,-0.120212239778463,NA,NA,NA,0.272727272727273
 "Malawi","child_iron","prev","country","domain_index",1,87,-0.149158224132163,NA,NA,NA,-0.264171180342809,NA,NA,NA,0.227272727272727
 "Malawi","child_iron","prev","country","null_train_mean",1,87,NA,NA,NA,NA,NA,NA,NA,NA,0.227272727272727
 "Malawi","child_iron","prev","infill","domain_enet",10,87,0.0117426913436278,NA,0.0117426913436278,0.0117426913436278,0.0932922613202626,11.8787665770578,11.6159247495751,-5.64684643931569,0.295454545454545
@@ -351,7 +351,7 @@
 "Malawi","child_iron","prev","region","raw_enet",1,87,0.220453921701021,NA,NA,NA,0.233685475941656,11.7379515126574,11.5056328895259,-5.46038868710086,0.409090909090909
 "Malawi","child_iron","prev","region","spatial",1,87,0.0588734460543665,NA,NA,NA,-0.00947872670043661,12.1735747710238,11.772047253909,-5.77705159771724,0.272727272727273
 "Malawi","child_iron","prev","region","spatial_plus_domain",1,87,0.0834260900169311,NA,NA,NA,0.0780329283035755,12.1038618499791,11.6262532041046,-5.62464577196437,0.272727272727273
-"Malawi","child_vitA","level","country","domain_enet",1,87,0.018590070715171,NA,NA,NA,0.0634069133361828,NA,NA,NA,0.272727272727273
+"Malawi","child_vitA","level","country","domain_enet",1,87,0.0853320696945396,NA,NA,NA,0.102719297564436,NA,NA,NA,0.272727272727273
 "Malawi","child_vitA","level","country","domain_index",1,87,0.186538601735073,NA,NA,NA,0.170563634885327,NA,NA,NA,0.363636363636364
 "Malawi","child_vitA","level","country","null_train_mean",1,87,NA,NA,NA,NA,NA,NA,NA,NA,0.227272727272727
 "Malawi","child_vitA","level","infill","domain_enet",10,87,-0.0804001181779111,NA,-0.0804001181779111,-0.0804001181779111,-0.0717255570221954,0.093100149305359,0.089567250279088,-0.000862075395927148,0.195454545454545
@@ -367,7 +367,7 @@
 "Malawi","child_vitA","level","region","raw_enet",1,87,-0.345959094547715,NA,NA,NA,-0.250869504685302,0.0947030165436396,0.0897845687111442,0.0041099663090069,0.0909090909090909
 "Malawi","child_vitA","level","region","spatial",1,87,0.0418823357877087,NA,NA,NA,0.0776236001328375,0.0927782664461968,0.088934601259781,9.82881567210609e-05,0.227272727272727
 "Malawi","child_vitA","level","region","spatial_plus_domain",1,87,0.0350112998469053,NA,NA,NA,0.0651299676026651,0.0931597374602798,0.0892095023867188,0.000102599859452386,0.227272727272727
-"Malawi","child_vitA","prev","country","domain_enet",1,87,-0.0712898987798651,NA,NA,NA,-0.082904625020604,NA,NA,NA,0.0909090909090909
+"Malawi","child_vitA","prev","country","domain_enet",1,87,-0.0107282301942727,NA,NA,NA,0.00229128882331029,NA,NA,NA,0.136363636363636
 "Malawi","child_vitA","prev","country","domain_index",1,87,0.222218106171341,NA,NA,NA,0.181054206815949,NA,NA,NA,0.409090909090909
 "Malawi","child_vitA","prev","country","null_train_mean",1,87,NA,NA,NA,NA,NA,NA,NA,NA,0.181818181818182
 "Malawi","child_vitA","prev","infill","domain_enet",10,87,0.0458854005227097,NA,0.0458854005227097,0.0458854005227097,0.0453791280998926,8.41030760282358,8.35464697559544,-4.88369412135741,0.345454545454546
@@ -409,7 +409,7 @@
 "Malawi","child_zinc","prev","region","raw_enet",1,87,-0.563918409126347,NA,NA,NA,-0.577844736489385,20.1771040339809,19.8969635213896,1.58860407952473,0.0454545454545455
 "Malawi","child_zinc","prev","region","spatial",1,87,-0.0985724248730774,NA,NA,NA,-0.0884319153550273,22.8871294534713,22.392355718884,-0.058766250100417,0.181818181818182
 "Malawi","child_zinc","prev","region","spatial_plus_domain",1,87,-0.0685348645330432,NA,NA,NA,-0.063516098722525,22.5874846239371,22.1389302718916,-0.334709846906779,0.181818181818182
-"Malawi","women_b12","level","country","domain_enet",1,87,0.500729022380987,NA,NA,NA,0.45220395850356,NA,NA,NA,0.454545454545455
+"Malawi","women_b12","level","country","domain_enet",1,87,0.458117664212291,NA,NA,NA,0.399659595945434,NA,NA,NA,0.545454545454545
 "Malawi","women_b12","level","country","domain_index",1,87,0.431982211853904,NA,NA,NA,0.341240639693757,NA,NA,NA,0.545454545454545
 "Malawi","women_b12","level","country","null_train_mean",1,87,NA,NA,NA,NA,NA,NA,NA,NA,0.272727272727273
 "Malawi","women_b12","level","infill","domain_enet",10,87,0.67737114529416,NA,0.67737114529416,0.67737114529416,0.682016940325497,0.246054867311769,0.231719625036245,0.00419095836035421,0.509090909090909
@@ -425,7 +425,7 @@
 "Malawi","women_b12","level","region","raw_enet",1,87,0.688105999854195,NA,NA,NA,0.72131092808737,0.24407835879498,0.221305403497279,0.000597599699151058,0.454545454545455
 "Malawi","women_b12","level","region","spatial",1,87,0.602300065612014,NA,NA,NA,0.642556740209818,0.268684838274855,0.238416658535859,0.0320791949419366,0.409090909090909
 "Malawi","women_b12","level","region","spatial_plus_domain",1,87,0.637110884304148,NA,NA,NA,0.662438686679656,0.261914540689895,0.238982459152828,0.0351608278489605,0.454545454545455
-"Malawi","women_b12","prev","country","domain_enet",1,87,-0.0508296355583312,NA,NA,NA,-0.10284514538462,NA,NA,NA,0.227272727272727
+"Malawi","women_b12","prev","country","domain_enet",1,87,-0.0727515387071809,NA,NA,NA,-0.104556423822842,NA,NA,NA,0.181818181818182
 "Malawi","women_b12","prev","country","domain_index",1,87,0.25197206106622,NA,NA,NA,0.258528011992961,NA,NA,NA,0.363636363636364
 "Malawi","women_b12","prev","country","null_train_mean",1,87,NA,NA,NA,NA,NA,NA,NA,NA,0.409090909090909
 "Malawi","women_b12","prev","infill","domain_enet",10,87,0.195968026145573,NA,0.195968026145573,0.195968026145573,0.102144687580626,3.599848029311,3.35984234332681,-1.7894893392261,0.313636363636364
@@ -489,7 +489,7 @@
 "Malawi","women_iron","level","region","raw_enet",1,87,0.361668003207698,NA,NA,NA,0.434590049689701,0.24364823130468,0.225248433106516,0.000915838222711256,0.454545454545455
 "Malawi","women_iron","level","region","spatial",1,87,0.181854632937231,NA,NA,NA,0.198844361683407,0.261689910838657,0.24188119413124,-0.0107391953910934,0.272727272727273
 "Malawi","women_iron","level","region","spatial_plus_domain",1,87,0.18590070715171,NA,NA,NA,0.200642214093567,0.261485569262378,0.241737328951673,-0.010632979075043,0.272727272727273
-"Malawi","women_iron","prev","country","domain_enet",1,87,0.245161713207091,NA,NA,NA,0.222822093871839,NA,NA,NA,0.363636363636364
+"Malawi","women_iron","prev","country","domain_enet",1,87,0.269792662344147,NA,NA,NA,0.24949995701947,NA,NA,NA,0.409090909090909
 "Malawi","women_iron","prev","country","domain_index",1,87,0.120766626603221,NA,NA,NA,0.0652971887476702,NA,NA,NA,0.409090909090909
 "Malawi","women_iron","prev","country","null_train_mean",1,87,NA,NA,NA,NA,NA,NA,NA,NA,0.272727272727273
 "Malawi","women_iron","prev","infill","domain_enet",10,87,-0.114861844879669,NA,-0.114861844879669,-0.114861844879669,-0.0547346081147173,14.536526092788,13.4899765205248,-9.2362421664385,0.2
@@ -505,7 +505,7 @@
 "Malawi","women_iron","prev","region","raw_enet",1,87,-0.176843478072843,NA,NA,NA,-0.134612024821308,14.8509809887957,13.7708515124248,-9.21034662029596,0.0909090909090909
 "Malawi","women_iron","prev","region","spatial",1,87,0.104086818130851,NA,NA,NA,0.100060525103966,14.2935118769029,13.0497650890048,-9.27101730595602,0.272727272727273
 "Malawi","women_iron","prev","region","spatial_plus_domain",1,87,0.0529829210298794,NA,NA,NA,0.0638995706836029,14.438832504255,13.199618539358,-9.27512996855453,0.227272727272727
-"Malawi","women_vitA","level","country","domain_enet",1,87,0.153750820150179,NA,NA,NA,0.174480609728799,NA,NA,NA,0.227272727272727
+"Malawi","women_vitA","level","country","domain_enet",1,87,0.193118028723482,NA,NA,NA,0.214881824083943,NA,NA,NA,0.227272727272727
 "Malawi","women_vitA","level","country","domain_index",1,87,0.240996573594809,NA,NA,NA,0.260019298027363,NA,NA,NA,0.318181818181818
 "Malawi","women_vitA","level","country","null_train_mean",1,87,NA,NA,NA,NA,NA,NA,NA,NA,0.318181818181818
 "Malawi","women_vitA","level","infill","domain_enet",10,87,0.165549368456793,NA,0.165549368456793,0.165549368456793,0.119357586300974,0.105159109112408,0.087650002458399,-7.98347535965285e-05,0.3
@@ -563,7 +563,7 @@
 "Malawi","women_zinc","prev","region","raw_enet",1,87,-0.476938723618802,NA,NA,NA,-0.363605416693313,23.9781077366803,23.2686548084349,12.5099393580314,0.0909090909090909
 "Malawi","women_zinc","prev","region","spatial",1,87,-0.530464668772376,NA,NA,NA,-0.432790783138628,25.2880973523915,23.8234382524555,11.4093860590408,0.0454545454545455
 "Malawi","women_zinc","prev","region","spatial_plus_domain",1,87,-0.530464668772376,NA,NA,NA,-0.432790783141823,25.2880973524257,23.8234382524873,11.4093860590478,0.0454545454545455
-"SierraLeone","child_iron","level","country","domain_enet",1,14,0.38021978021978,NA,NA,NA,0.315302801709948,NA,NA,NA,0.25
+"SierraLeone","child_iron","level","country","domain_enet",1,14,0.367032967032967,NA,NA,NA,0.23320515135755,NA,NA,NA,0.25
 "SierraLeone","child_iron","level","country","domain_index",1,14,0.261538461538461,NA,NA,NA,0.237654855336182,NA,NA,NA,0.25
 "SierraLeone","child_iron","level","country","null_train_mean",1,14,NA,NA,NA,NA,NA,NA,NA,NA,0.25
 "SierraLeone","child_iron","level","infill","domain_enet",10,14,NA,NA,NA,NA,NA,NA,NA,NA,NA
@@ -579,7 +579,7 @@
 "SierraLeone","child_iron","level","region","raw_enet",1,14,NA,NA,NA,NA,NA,NA,NA,NA,NA
 "SierraLeone","child_iron","level","region","spatial",1,14,NA,NA,NA,NA,NA,NA,NA,NA,NA
 "SierraLeone","child_iron","level","region","spatial_plus_domain",1,14,NA,NA,NA,NA,NA,NA,NA,NA,NA
-"SierraLeone","child_iron","prev","country","domain_enet",1,14,0.173626373626374,NA,NA,NA,0.199672749270464,NA,NA,NA,0.25
+"SierraLeone","child_iron","prev","country","domain_enet",1,14,0.204395604395604,NA,NA,NA,0.22409798243474,NA,NA,NA,0.25
 "SierraLeone","child_iron","prev","country","domain_index",1,14,0.2,NA,NA,NA,0.212991151473524,NA,NA,NA,0.25
 "SierraLeone","child_iron","prev","country","null_train_mean",1,14,NA,NA,NA,NA,NA,NA,NA,NA,0.25
 "SierraLeone","child_iron","prev","infill","domain_enet",10,14,NA,NA,NA,NA,NA,NA,NA,NA,NA
@@ -595,7 +595,7 @@
 "SierraLeone","child_iron","prev","region","raw_enet",1,14,NA,NA,NA,NA,NA,NA,NA,NA,NA
 "SierraLeone","child_iron","prev","region","spatial",1,14,NA,NA,NA,NA,NA,NA,NA,NA,NA
 "SierraLeone","child_iron","prev","region","spatial_plus_domain",1,14,NA,NA,NA,NA,NA,NA,NA,NA,NA
-"SierraLeone","child_vitA","level","country","domain_enet",1,14,-0.0197802197802198,NA,NA,NA,-0.055172452312108,NA,NA,NA,0.5
+"SierraLeone","child_vitA","level","country","domain_enet",1,14,-0.0681318681318681,NA,NA,NA,-0.110895413945271,NA,NA,NA,0.5
 "SierraLeone","child_vitA","level","country","domain_index",1,14,0.0505494505494506,NA,NA,NA,-0.0329470611541795,NA,NA,NA,0.5
 "SierraLeone","child_vitA","level","country","null_train_mean",1,14,NA,NA,NA,NA,NA,NA,NA,NA,0
 "SierraLeone","child_vitA","level","infill","domain_enet",10,14,NA,NA,NA,NA,NA,NA,NA,NA,NA
@@ -611,7 +611,7 @@
 "SierraLeone","child_vitA","level","region","raw_enet",1,14,NA,NA,NA,NA,NA,NA,NA,NA,NA
 "SierraLeone","child_vitA","level","region","spatial",1,14,NA,NA,NA,NA,NA,NA,NA,NA,NA
 "SierraLeone","child_vitA","level","region","spatial_plus_domain",1,14,NA,NA,NA,NA,NA,NA,NA,NA,NA
-"SierraLeone","child_vitA","prev","country","domain_enet",1,14,-0.27032967032967,NA,NA,NA,-0.306892519004512,NA,NA,NA,0.25
+"SierraLeone","child_vitA","prev","country","domain_enet",1,14,0.147252747252747,NA,NA,NA,0.194242866672074,NA,NA,NA,0.5
 "SierraLeone","child_vitA","prev","country","domain_index",1,14,-0.16043956043956,NA,NA,NA,-0.173901250894349,NA,NA,NA,0.25
 "SierraLeone","child_vitA","prev","country","null_train_mean",1,14,NA,NA,NA,NA,NA,NA,NA,NA,0
 "SierraLeone","child_vitA","prev","infill","domain_enet",10,14,NA,NA,NA,NA,NA,NA,NA,NA,NA
@@ -627,7 +627,7 @@
 "SierraLeone","child_vitA","prev","region","raw_enet",1,14,NA,NA,NA,NA,NA,NA,NA,NA,NA
 "SierraLeone","child_vitA","prev","region","spatial",1,14,NA,NA,NA,NA,NA,NA,NA,NA,NA
 "SierraLeone","child_vitA","prev","region","spatial_plus_domain",1,14,NA,NA,NA,NA,NA,NA,NA,NA,NA
-"SierraLeone","women_b12","level","country","domain_enet",1,14,0.134065934065934,NA,NA,NA,0.378143264164563,NA,NA,NA,0.25
+"SierraLeone","women_b12","level","country","domain_enet",1,14,0.178021978021978,NA,NA,NA,0.416790382075156,NA,NA,NA,0.25
 "SierraLeone","women_b12","level","country","domain_index",1,14,0.402197802197802,NA,NA,NA,0.644536171899827,NA,NA,NA,0.5
 "SierraLeone","women_b12","level","country","null_train_mean",1,14,NA,NA,NA,NA,NA,NA,NA,NA,0
 "SierraLeone","women_b12","level","infill","domain_enet",10,14,NA,NA,NA,NA,NA,NA,NA,NA,NA
@@ -659,7 +659,7 @@
 "SierraLeone","women_b12","prev","region","raw_enet",1,14,NA,NA,NA,NA,NA,NA,NA,NA,NA
 "SierraLeone","women_b12","prev","region","spatial",1,14,NA,NA,NA,NA,NA,NA,NA,NA,NA
 "SierraLeone","women_b12","prev","region","spatial_plus_domain",1,14,NA,NA,NA,NA,NA,NA,NA,NA,NA
-"SierraLeone","women_folate","level","country","domain_enet",1,14,0.318681318681319,NA,NA,NA,0.405112522596921,NA,NA,NA,0.75
+"SierraLeone","women_folate","level","country","domain_enet",1,14,0.164835164835165,NA,NA,NA,0.179055368828052,NA,NA,NA,0.5
 "SierraLeone","women_folate","level","country","domain_index",1,14,0.12967032967033,NA,NA,NA,0.209625936705289,NA,NA,NA,0.5
 "SierraLeone","women_folate","level","country","null_train_mean",1,14,NA,NA,NA,NA,NA,NA,NA,NA,0.5
 "SierraLeone","women_folate","level","infill","domain_enet",10,14,NA,NA,NA,NA,NA,NA,NA,NA,NA
@@ -707,7 +707,7 @@
 "SierraLeone","women_iron","level","region","raw_enet",1,14,NA,NA,NA,NA,NA,NA,NA,NA,NA
 "SierraLeone","women_iron","level","region","spatial",1,14,NA,NA,NA,NA,NA,NA,NA,NA,NA
 "SierraLeone","women_iron","level","region","spatial_plus_domain",1,14,NA,NA,NA,NA,NA,NA,NA,NA,NA
-"SierraLeone","women_iron","prev","country","domain_enet",1,14,0.147252747252747,NA,NA,NA,0.0437254018587533,NA,NA,NA,0
+"SierraLeone","women_iron","prev","country","domain_enet",1,14,0.182417582417582,NA,NA,NA,0.0724136810902639,NA,NA,NA,0.25
 "SierraLeone","women_iron","prev","country","domain_index",1,14,-0.191208791208791,NA,NA,NA,-0.20747652499273,NA,NA,NA,0
 "SierraLeone","women_iron","prev","country","null_train_mean",1,14,NA,NA,NA,NA,NA,NA,NA,NA,0.5
 "SierraLeone","women_iron","prev","infill","domain_enet",10,14,NA,NA,NA,NA,NA,NA,NA,NA,NA
@@ -739,7 +739,7 @@
 "SierraLeone","women_vitA","level","region","raw_enet",1,14,NA,NA,NA,NA,NA,NA,NA,NA,NA
 "SierraLeone","women_vitA","level","region","spatial",1,14,NA,NA,NA,NA,NA,NA,NA,NA,NA
 "SierraLeone","women_vitA","level","region","spatial_plus_domain",1,14,NA,NA,NA,NA,NA,NA,NA,NA,NA
-"SierraLeone","women_vitA","prev","country","domain_enet",1,14,-0.285943131794798,NA,NA,NA,-0.479316130897136,NA,NA,NA,0
+"SierraLeone","women_vitA","prev","country","domain_enet",1,14,-0.194441329620463,NA,NA,NA,-0.387929109726558,NA,NA,NA,0.25
 "SierraLeone","women_vitA","prev","country","domain_index",1,14,-0.0937893472286939,NA,NA,NA,-0.144546971045273,NA,NA,NA,0.25
 "SierraLeone","women_vitA","prev","country","null_train_mean",1,14,NA,NA,NA,NA,NA,NA,NA,NA,0.25
 "SierraLeone","women_vitA","prev","infill","domain_enet",10,14,NA,NA,NA,NA,NA,NA,NA,NA,NA
