@@ -38,71 +38,89 @@ ui <- page_navbar(
   # across every screen tells the reader nothing they can act on.
   header = site_banner,
 
+  # ── Navigation: three questions, in the order a reader asks them ──────────
+  # RESTRUCTURED 2026-09-02. The previous top row was nine sibling tabs plus a
+  # "Technical appendix" menu, which made every tab look equally important and
+  # gave no clue which ones answer a programme question and which check the
+  # modelling. Tabs are now grouped under the three questions this project
+  # actually answers, so the menu itself tells the reader what the work is for:
+  #
+  #   Where is deficiency?   the estimates themselves
+  #   What travels with it?  the associations, and what drives an estimate
+  #   Can we trust it?       benchmarks, diagnostics, transport, methods
+  #
+  # "Start here" and "Plan a survey" stay top-level: the first is the entry
+  # point, the second is the one tab that answers a budget question rather than
+  # a scientific one, and burying it under a question heading hides it from the
+  # person most likely to need it.
+
   nav_panel(
     title = "Start here",
     icon  = bsicons::bs_icon("signpost-2"),
     mod_start_here_ui("start")
   ),
 
-  nav_panel(
-    title = "Map explorer",
-    icon  = bsicons::bs_icon("map"),
-    mod_map_explorer_ui("map")
-  ),
-
-  nav_panel(
-    title = "District profiles",
-    icon  = bsicons::bs_icon("file-earmark-medical"),
-    mod_district_profile_ui("district")
-  ),
-
-  nav_panel(
-    title = "National burden",
-    icon  = bsicons::bs_icon("graph-up"),
-    mod_national_burden_ui("burden")
-  ),
-
-  nav_panel(
-    title = "Decision value",
-    icon  = bsicons::bs_icon("bullseye"),
-    mod_decision_value_ui("decision")
-  ),
-
-  nav_panel(
-    title = "Scenarios",
-    icon  = bsicons::bs_icon("sliders"),
-    mod_scenarios_ui("scenarios")
-  ),
-
-  nav_panel(
-    title = "What drives the estimate",
-    icon  = bsicons::bs_icon("bar-chart-line"),
-    mod_importance_ui("importance")
-  ),
-
-  nav_panel(
-    title = "Methods",
-    icon  = bsicons::bs_icon("info-circle"),
-    mod_methods_ui("methods")
-  ),
-
-  # Everything below is for analysts checking the modelling. Grouping it under
-  # one menu keeps the top row to the seven tabs a program decision actually
-  # needs, instead of fourteen with no signal about which are which.
   nav_menu(
-    title = "Technical appendix",
-    icon  = bsicons::bs_icon("wrench-adjustable"),
+    title = "Where is deficiency?",
+    icon  = bsicons::bs_icon("map"),
 
     nav_panel(
-      title = "Model diagnostics",
-      icon  = bsicons::bs_icon("clipboard-data"),
-      mod_diagnostics_ui("diagnostics")
+      title = "Map explorer",
+      icon  = bsicons::bs_icon("map"),
+      mod_map_explorer_ui("map")
     ),
+
+    nav_panel(
+      title = "District profiles",
+      icon  = bsicons::bs_icon("file-earmark-medical"),
+      mod_district_profile_ui("district")
+    ),
+
+    nav_panel(
+      title = "National burden",
+      icon  = bsicons::bs_icon("graph-up"),
+      mod_national_burden_ui("burden")
+    ),
+
+    nav_panel(
+      title = "Decision value",
+      icon  = bsicons::bs_icon("bullseye"),
+      mod_decision_value_ui("decision")
+    )
+  ),
+
+  nav_menu(
+    title = "What travels with it?",
+    icon  = bsicons::bs_icon("clipboard2-pulse"),
+
+    nav_panel(
+      title = "What tracks which nutrient",
+      icon  = bsicons::bs_icon("clipboard2-pulse"),
+      value = "nutrient",
+      mod_nutrient_signal_ui("nutrient")
+    ),
+
+    nav_panel(
+      title = "What drives the estimate",
+      icon  = bsicons::bs_icon("bar-chart-line"),
+      mod_importance_ui("importance")
+    )
+  ),
+
+  nav_menu(
+    title = "Can we trust it?",
+    icon  = bsicons::bs_icon("shield-check"),
 
     nav_panel(
       title = "Benchmarks",
       icon  = bsicons::bs_icon("trophy"),
       mod_benchmarks_ui("benchmarks")
+    ),
+
+    nav_panel(
+      title = "Model diagnostics",
+      icon  = bsicons::bs_icon("clipboard-data"),
+      mod_diagnostics_ui("diagnostics")
     ),
 
     nav_panel(
@@ -135,7 +153,20 @@ ui <- page_navbar(
       title = "Methods comparison",
       icon  = bsicons::bs_icon("clipboard2-check"),
       mod_methods_comparison_ui("methods_comp")
+    ),
+
+    nav_panel(
+      title = "Methods",
+      icon  = bsicons::bs_icon("info-circle"),
+      mod_methods_ui("methods")
     )
+  ),
+
+  nav_panel(
+    title = "Plan a survey",
+    icon  = bsicons::bs_icon("cash-coin"),
+    value = "planning",
+    mod_survey_planning_ui("planning")
   ),
 
   nav_spacer(),
@@ -193,8 +224,9 @@ server <- function(input, output, session) {
   mod_district_profile_server("district")
   mod_national_burden_server("burden")
   mod_decision_value_server("decision")
-  mod_scenarios_server("scenarios")
+  mod_survey_planning_server("planning")
   mod_importance_server("importance")
+  mod_nutrient_signal_server("nutrient")
   mod_diagnostics_server("diagnostics")
   mod_benchmarks_server("benchmarks")
   mod_resolution_server("resolution")

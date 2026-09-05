@@ -1,5 +1,5 @@
 ---
-title: "Subnational micronutrient deficiency prediction in sub-Saharan Africa from proxy indicators: a multi-country SuperLearner ensemble benchmarked against small-area-estimation methods"
+title: "Subnational micronutrient deficiency prediction in sub-Saharan Africa from proxy indicators: what the covariates carry, and how evaluation design decided the answer"
 shorttitle: "Subnational micronutrient prediction in sub-Saharan Africa"
 author:
   - name: Andrew N. Mertens
@@ -31,14 +31,14 @@ bibliography: references.bib
 abstract: |
   **Background:** Subnational maps of micronutrient deficiency are central to
   targeted nutrition programming, yet biomarker surveys remain scarce and
-  geographically uneven. We assessed whether ensemble machine-learning models
-  trained on harmonised Demographic and Health Surveys (DHS) and remote-sensing
-  predictors can reproduce admin-2 deficiency patterns and national prevalence
-  within and across four sub-Saharan African countries, whether they outperform
-  simple baselines and canonical small-area estimation (SAE) methods, and how
-  much of any shortfall is attributable to the deficiency outcome itself being
-  measured with too few biomarker samples per district to support fine-grained
-  prediction.
+  geographically uneven. We assessed whether models trained on harmonised
+  Demographic and Health Surveys (DHS) and remote-sensing proxies can reproduce
+  admin-2 deficiency patterns within and across four sub-Saharan African
+  countries, and whether they outperform the baselines a programme actually has.
+  An internal audit of our own earlier analysis found that several headline
+  conclusions were determined by choices in the evaluation design rather than by
+  the data, so we additionally report how much each such choice moved the
+  answer.
 
   **Methods:** We harmonised individual-level DHS biomarker measurements for
   iron, vitamin A, vitamin B12, folate, and zinc deficiency from Gambia (2018),
@@ -52,75 +52,121 @@ abstract: |
   across countries, 21 comparator methods spanning frequentist regressions,
   Bayesian SAE (Fay–Herriot, BYM2/INLA), and spatial and invariance-based
   transport methods. Because most admin-2 polygons contribute only 6–36
-  biomarker measurements, we additionally estimated a reliability ceiling for
-  each country–outcome cell — the maximum Pearson r any model could achieve
-  given survey sampling noise alone — and report observed performance as a
-  fraction of that ceiling. All approaches were evaluated within country by
-  k-fold cross-validation and across countries by leave-one-country-out (LOCO)
-  holdout.
+  biomarker measurements, we estimated a reliability ceiling for each
+  country–outcome cell by split-half replication of survey respondents, having
+  found our earlier analytic estimator biased low by about a factor of 4.7.
 
-  **Results:** Individual-level prediction aggregated to admin-2 was the only
-  approach that clearly outperformed the national-mean null (median Pearson r
-  0.516 vs. a null MAE of 9.55 percentage points, reaching 8.55 pp; 92% of the
-  estimated reliability ceiling). Neither area-level SuperLearner variant
-  beat the null (MAE 9.31–9.84 pp vs. 9.55 pp), and a covariate-free spatial
-  smoother outperformed both (r 0.393 vs. 0.16–0.22). The reliability ceiling
-  itself was low (median r_max 0.098; 4 of 24 country–outcome cells had no
-  detectable signal above sampling noise), indicating that admin-2 is finer
-  than these surveys were powered to resolve, not that the models under-fit.
-  Cross-country (LOCO) transport remained the hardest problem: median Spearman
-  ρ was 0.06–0.30 across outcomes and the SuperLearner ensemble matched or beat
-  the best of 21 comparator methods on 0 of 16 evaluable holdouts; a
-  penalised regression achieved the lowest LOCO MAE (10.6 pp, vs. 11.1 pp for
-  the null) but with near-zero pattern correlation, while spatial-only methods
-  achieved the best pattern correlation (r up to 0.28) but worse absolute
-  error — level and pattern transported by different methods and neither
-  transported well. By contrast, national-level aggregation was accurate
-  throughout: predicted national prevalence fell within the survey's own 95%
-  confidence interval for all 24 country–outcome combinations (median absolute
-  error 0.74 percentage points, 8.6% relative). Among predictor domains
-  available for a proxy-only model (i.e., excluding survey items unavailable
-  outside a biomarker survey), environment and climate variables carried the
-  most transportable signal (median AUC contribution 0.043 and 0.034), while
-  calibration of binary classifiers remained poor (median slope 0.44) and
-  required post-hoc correction. Substituting the household questionnaire
-  administered to the same respondents (all blood-assay columns removed) for the
-  geospatial proxies raised mean district r only from 0.154 to 0.228, excluding
-  imperfect linkage, inflammation adjustment and proxy overfitting as
-  explanations. The one intervention that materially helped was not a modelling
-  choice: anchoring district predictions to their region's design-based survey
-  total raised mean r from 0.164 to 0.413 and cut mean absolute bias from 3.24
-  to 1.59 pp (better in 20 of 24 cells), whereas anchoring to a national total
-  did not, and an oracle national level improved district error by only 0.23 pp.
+  Re-analysis followed a protocol specified in advance of it. Results are
+  reported against three separately named estimands — filling in unsurveyed
+  districts inside a surveyed country, extrapolating to an unseen region, and
+  transporting to a country held entirely out of training — because these have
+  materially different answers and are routinely reported interchangeably. Every
+  comparison baseline is recomputed under the model’s own folds, and any
+  baseline derived from the same survey is jackknifed so the scored district
+  never contributes to it. Every random fold assignment is replicated ten times
+  and reported as a median with its spread. For each significance screen we
+  report attained power and verify that a true effect could have cleared the
+  multiplicity threshold. Predictors enter in three competing representations —
+  all 451 harmonised columns under elastic net, 18 domain principal-component
+  summaries, and a zero-tuning marginal-correlation index — so that model
+  capacity is a measured factor rather than a fixed choice.
 
-  **Conclusions:** Admin-2 prediction of micronutrient deficiency from proxy
-  indicators is constrained primarily by the reliability of the admin-2
-  biomarker target itself, not by model choice: these DHS surveys were powered
-  for national estimation, and most of the between-district variance at
-  admin-2 is sampling noise. Individual-level prediction aggregated to
-  admin-2 is the strongest tested approach and already captures most of the
-  achievable signal; area-level models fit directly on the small number of
-  administrative units do not outperform a national mean. National-level
-  estimates, in contrast, are recovered reliably and are the more defensible
-  deliverable for programming in the near term. Cross-country transport
-  remains unreliable, and any admin-2 or transported estimate should be
-  reported alongside its reliability ceiling and benchmarked against a
-  national-mean and spatial-only null before use in resource-allocation
-  decisions. Where a district map is nonetheless required, the survey should
-  supply the level and the model only the within-region pattern: regional
-  anchoring is worth more than any estimator choice we tested, and a
-  transported map for a country with no survey of its own — which has no anchor
-  available — should be read as a ranking rather than as a set of prevalences.
+  **Results:** Evaluation design changed the conclusions more than any model
+  did. A previously reported within-country median r of 0.058 rested on a single
+  random division of the data; replicated, the same protocol gives 0.217, and
+  exhaustive leave-one-region-out gives 0.235. A comparison the models appeared
+  to lose was against a benchmark computed from the held-out district's own
+  respondents; measured symmetrically, that benchmark scores r 0.076 and the
+  covariate model 0.156. A screen reported as finding no predictor surviving
+  false-discovery control could not have returned a positive result at any
+  effect size, given its permutation resolution. And the reliability ceiling
+  used to argue that admin-2 was unresolvable was biased low by a factor of
+  about 4.7; the validated empirical ceiling is 0.47–0.61, leaving substantial
+  headroom. Under the corrected protocol, covariate models beat the honest
+  covariate-free survey baseline in both within-country settings: rank
+  correlation 0.398 versus 0.320 on the biomarker concentration and 0.286
+  versus 0.193 on deficiency prevalence. Rankings transported to a country held
+  entirely out of training with a mean Spearman of 0.26 over 22
+  country–outcome combinations for the zero-tuning index (17 positive; 0.24
+  and 21 positive for the penalised fit) and 0.37 (22 positive) for an index
+  built only from remotely sensed climate and soil layers; at the first
+  sub-national tier the same 22 combinations gave 0.31 (17 positive) and 0.45
+  with climate and soil, against a permutation null whose 95th percentile is
+  0.17. Absolute prevalence levels did not transport. Used for
+  targeting, the worst-ranked fifth of districts reached 26% more deficiency
+  burden than the same effort guided by regional survey averages, which were
+  themselves no better than random selection; in Malawi, those districts
+  carried 43% child iron deficiency against 26% nationally, holding 49% of the
+  national burden. A zero-tuning index over 18 domain summaries outperformed a
+  penalised regression over all 451 predictors by up to 0.38, the latter turning
+  negative under region extrapolation. Associations were nutrient-specific and
+  replicated in direction across all four countries, but several ran opposite to
+  individual-level nutritional biology: district legume consumption tracked
+  *more* child vitamin A deficiency, and cattle ownership *more* child iron
+  deficiency, alongside cereal-dominant cropping. Read together with warm
+  night-time land surface temperature and soil-chemistry heterogeneity, the
+  replicated axis appears to be rural subsistence agro-ecology rather than
+  nutrient intake, and these district-level associations should not be read as
+  individual-level effects. Two were both replicated and interpretable as
+  stated: district child wasting tracked women's vitamin A deficiency, and
+  rainfall tracked less of it. No malaria burden indicator replicated against
+  any outcome. A covariate-free spatial smoother
+  scored 0.391 where the full covariate model scored 0.398.
+
+  **Conclusions:** Proxy indicators carry replicated, nutrient-specific signal
+  for subnational micronutrient deficiency, and several previously published
+  negative findings — including our own — were artifacts of evaluation design
+  rather than properties of the data. Within a surveyed country, however,
+  geography alone accounts for most of the attainable accuracy; covariates earn
+  their place in two specific situations, when the comparator is a
+  survey-derived baseline that must be made information-symmetric to be fair,
+  and when no survey exists and no spatial smoother can be fitted. The
+  defensible product is a ranked district priority list rather than a prevalence
+  map. We recommend that studies of this kind state what information their
+  comparison baseline was permitted to see, replicate any random division of the
+  data and report the spread rather than a single value, and demonstrate that
+  their statistical tests could have detected an effect had one been present.
+  Applied to our own work, these conditions reversed several conclusions in both
+  directions.
 ---
 
 ::: {.callout-important}
-## Corrections pending — read before quoting any number here
+## Revision in progress — abstract is current, body sections are not yet
 
-A methods audit on 2026-09-01 (31 agents, every critical finding independently
-verified) found that several load-bearing numbers in this document are
-artifacts of the evaluation design rather than measurements. **The status of
-every affected claim is tabulated in `docs/findings/TWO_READINGS_2026-09c.md`;
-corrected figures are in `docs/findings/PROTOCOL_V2.md`.** In particular:
+A methods audit on 2026-09-01 found that several load-bearing numbers in this
+document were artifacts of the evaluation design rather than measurements. **The
+status of every affected claim is tabulated in
+`docs/findings/TWO_READINGS_2026-09f.md`; corrected figures are in
+`docs/findings/PROTOCOL_V2.md`.**
+
+**Corrected as of 2026-09-04:** the regional (first sub-national tier)
+transport figure in the abstract, @sec-protocol-results, the discussion and
+the conclusions now uses all 22 country–outcome combinations (mean Spearman
+0.29; 0.45 for the climate-and-soil index). The earlier 0.50–0.56 over 12
+combinations rested on three countries (a population-file spelling had dropped
+Sierra Leone) and is withdrawn. The AlphaEarth embedding was also moved out of
+the agriculture domain into one of its own and Gambia's food-price window was
+corrected to its 2018 fieldwork; the protocol tables were re-run in full at
+08:17 on 2026-09-04. Two numbers moved by more than 0.01 and are updated
+throughout: the district transport of the zero-tuning index (0.25 to 0.26)
+and the regional transport (0.29 to 0.31). The district figure formerly
+quoted as "21 of 22, mean 0.281" was the penalised domain fit; it is now 0.24
+(still 21 of 22), and the text quotes the estimator of record, the
+zero-tuning index, alongside it. In-fill, burden capture, the comparator
+tests and the climate-and-soil figures did not move.
+
+**Corrected as of 2026-09-02:** the title and abstract; @sec-protocol (new,
+the corrected evaluation protocol); @sec-protocol-results (new, the re-analysis);
+@sec-ceiling; @sec-fdr; @sec-anchoring; the within-country admin-2 section; and
+the Discussion summary and Conclusions.
+
+**Not yet corrected:** the remaining Results subsections
+(@sec-resolution onward, @sec-anchor-individual, @sec-national-composition, the
+benchmark and calibration sections) and **every rendered table in this
+document**, which is still generated from the pre-audit result files. Where a
+table and the surrounding prose disagree, the prose is current.
+
+The specific reversals:
 
 - **`median r 0.058`** rests on one unreplicated 3-fold region draw sitting in
   the bottom decile of its own protocol's distribution. Replicated: **0.217**;
@@ -136,8 +182,10 @@ corrected figures are in `docs/findings/PROTOCOL_V2.md`.** In particular:
   model at 0.156.
 - **The analytic noise ceiling (median r_max 0.098)** was proven ~4.7x biased
   low. The binding empirical ceiling is **0.47-0.61**.
-- **"covariates beat geography in 10 of 24 [corrected 2026-09-01; the source table gives 10, not 6] cells"** is a miscount against its
+- **"covariates beat geography in 6 of 24 cells"** is a miscount against its
   own source table; the correct count is **10 of 24**.
+- **Directional claims about legumes and cattle** (2026-09-02) had the sign
+  inverted: both track *more* deficiency, not less. See @sec-fdr.
 :::
 
 
@@ -374,18 +422,27 @@ but is reported as a sensitivity analysis, because aggregating shrunken
 person-level probabilities biases area means (Results).
 
 **A reliability ceiling for admin-2 prediction.** Because a median admin-2
-district contributes only 6–36 biomarker measurements, part of the
+district contributes only 6-36 biomarker measurements, part of the
 between-district variance in the observed prevalence $p_\text{obs}$ is
-sampling noise rather than true district-level signal. We estimate, for each
-country–outcome cell, the maximum Pearson r any model could achieve given
-that noise floor:
+sampling noise rather than true district-level signal. We originally estimated,
+for each country-outcome cell, the maximum Pearson r any model could achieve
+given that noise floor as
 $$\lambda = 1 - \frac{E[V_\text{sampling}]}{\mathrm{Var}(p_\text{obs})}, \qquad r_{\max} = \sqrt{\lambda},$$
-where $V_\text{sampling}$ is the design-based sampling variance of each
-district's direct estimate (accounting for clustering) and $\lambda$ is
-bounded at zero. We report observed correlations both in absolute terms and
-as a share of $r_{\max}$, and flag cells with $\lambda \le 0$ as having no
-detectable signal above sampling noise — a target that no model, however
-well specified, could predict.
+with $V_\text{sampling}$ the design-based sampling variance of each district's
+direct estimate and $\lambda$ bounded at zero.
+
+**This analytic form is withdrawn** (@sec-ceiling). It assumed a design effect
+of 1.5; measured from the cluster structure the design effect is 1.0-5.6 with a
+median near 2.4, which biases $r_{\max}$ low by roughly a factor of 4.7 and
+produced the impossible result of achieved correlations exceeding their own
+ceiling in half the cells. The ceiling of record is instead **empirical**: we
+split each district's biomarker respondents at random into halves, compute the
+direct prevalence estimate in each half, and correlate the two across districts,
+correcting for the halving with the Spearman-Brown formula. This requires no
+design-effect assumption because the survey's own clustering is carried into
+both halves, and we validated it on simulated data with a known true ceiling. We
+report it as an interval over 200 random splits.
+
 
 A subsequent methods-development analysis explored whether modelling the
 area prevalence directly, rather than fitting an unregularised
@@ -480,6 +537,55 @@ All analyses were executed via the `targets` R package
 and pipeline definitions are available at
 \textless<repository-URL placeholder>\textgreater.
 
+## The corrected evaluation protocol {#sec-protocol}
+
+A 2026-09 internal audit of this manuscript found that several headline results
+were determined by choices in the evaluation design rather than by the data
+(@sec-ceiling, @sec-fdr, @sec-anchoring). We therefore specified a protocol in
+advance of re-analysis and re-ran every within- and cross-country comparison
+under it. It rests on four rules.
+
+**One. Name the estimand.** "Can covariates predict district prevalence" is
+three different questions with three different answers, and the literature
+routinely reports them interchangeably. We separate: *in-fill*, predicting
+unsurveyed districts inside a surveyed country (5-fold over districts);
+*region extrapolation*, predicting a region none of whose districts were seen
+(exhaustive leave-one-region-out); and *country transport*, predicting a country
+held entirely out of training (leave-one-country-out). Every result is reported
+against a named estimand.
+
+**Two. Match the baseline's information to the model's.** A comparison is only
+interpretable if the benchmark has seen what the model has seen. Our published
+regional-mean baseline was computed from all of a region's respondents,
+including those of the district being scored; the model never saw that district.
+Every baseline is now recomputed under the same fold structure as the model, and
+where a baseline is derived from the survey it is **jackknifed** so the scored
+unit never contributes to it.
+
+**Three. Replicate every random split.** A single random division of 14-87
+districts is a high-variance draw. We repeat each fold assignment 10 times with
+different seeds and report the median and the interquartile range across
+replicates, never a single value.
+
+**Four. Show the test could have detected an effect.** For every significance
+screen we report attained power and, where the screen is a permutation test,
+verify by construction that a true positive would clear the multiplicity
+threshold at the permutation resolution used.
+
+Two measurement changes follow from the audit. Effective sample size per
+district is Kish's $n_\text{eff}$ divided by a **measured** cluster-robust
+design effect rather than an assumed 1.5. And predictors are rank-normalised
+(van der Waerden) **within country** before pooling, because the same indicator
+is on different scales in different surveys and z-scoring does not remove that.
+
+Predictors enter in three competing representations, so that model capacity is a
+measured factor rather than a fixed choice: all 451 harmonised columns under
+elastic net; 18 domain summaries formed as the leading principal components of
+each domain to 80% of variance; and a zero-tuning **domain index**, a
+marginal-correlation-weighted composite over those summaries with no
+cross-validated hyperparameter. A covariate-free spatial smoother and the
+information-matched survey baselines are scored on identical folds.
+
 # Results
 
 ## Sample characteristics
@@ -494,21 +600,41 @@ countries.
 
 ## Within-country admin-2 estimation
 
+::: {.callout-warning}
+## Corrected 2026-09-02 - the leading arm and the ceiling comparison are withdrawn
+
+The individual-level arm reported below at median r **0.516** aggregates
+person-level predictions to the district, and the person-level model was trained
+on respondents from the district it is scored on. It is not an out-of-district
+comparison and is withdrawn as a headline. The accompanying claim that it reached
+92% of the reliability ceiling is void with that ceiling (@sec-ceiling). The
+area-level comparisons in this section were also scored on a single fold draw;
+see @sec-protocol-results for the replicated numbers, under which the ordering
+changes.
+:::
+
 Under genuinely out-of-fold evaluation, within-country admin-2 ranking was
 modest, and only one of the five compared approaches clearly beat a
 national-mean null (@tbl-area-comparison). Aggregating the individual-level
-SuperLearner's out-of-fold predictions to admin-2 was the strongest approach
-(median Pearson r 0.516 across 24 country–outcome cells; median MAE 8.55 pp,
-92% of the reliability ceiling defined below). Neither area-level
+SuperLearner's out-of-fold predictions to admin-2 gave the highest raw score
+(median Pearson r 0.516 across 24 country–outcome cells; median MAE 8.55 pp),
+but the folds split respondents rather than districts, so a district's own
+respondents appear in training; the number is retained here for continuity with
+the earlier report and should not be compared with the district-held-out
+figures. Neither area-level
 SuperLearner variant, fit directly on the admin-2 polygons, beat the null:
 median r 0.16 (MSE loss) and 0.215 (NLL loss), with median MAE of 9.31 and
 9.84 pp respectively — worse than the 9.55 pp a country-mean-everywhere null
 achieves by construction. A covariate-free spatial-only smoother on admin-2
 centroid coordinates outperformed both area-level covariate models on rank
 correlation (median r 0.393, 18 evaluable cells) while remaining close to the
-null on absolute error (MAE 9.98 pp), indicating that at admin-2 the
-area-level covariates add essentially nothing beyond "nearby districts are
-similar."
+null on absolute error (MAE 9.98 pp). The spatial-smoother result replicates
+under the corrected protocol and stands (@sec-protocol-results): at admin-2,
+most of what the covariates supply within a surveyed country is already
+available from "nearby districts are similar." What does not survive is the
+comparison against the national-mean null, which was scored on one fold draw;
+replicated, and against an information-matched survey baseline, the area-level
+covariate models do beat it.
 
 This reversal reflects the area-level p ≫ n setting. Because the proxy and
 earth-observation predictors are resolved at the admin-2 level, the effective
@@ -547,25 +673,42 @@ aggregation propagates this shrinkage to area-level means.
 
 ## A reliability ceiling for admin-2 prediction {#sec-ceiling}
 
+::: {.callout-warning}
+## Corrected 2026-09-02 — the ceiling was biased low by about 4.7x
+
+An earlier version of this section reported a median $r_{\max}$ of **0.098**
+across the 24 country-outcome cells, with **4 of 24** cells said to carry no
+detectable signal above sampling noise, and concluded that admin-2 was finer
+than these surveys could resolve. That conclusion does not survive audit and is
+withdrawn.
+:::
+
 The comparison above is bounded by how much of the observed between-district
-variance is real signal rather than survey sampling noise. Estimating this
-ceiling directly (Methods) gives a median $r_{\max}$ of **0.098** across the
-24 country–outcome cells (range 0–0.773), and **4 of 24** cells have no
-detectable signal above sampling noise at all ($\lambda \le 0$) — these are
-outcomes for which no model, however well specified, could do better than
-chance at admin-2. Against this ceiling, the median per-cell ratio of
-individual-level SuperLearner r to that cell's own r_max (r_share) is
-**0.92**; the gap between the median achieved correlation and a theoretical
-r of 1.0 is therefore mostly sampling noise in the target, not unexploited
-model headroom. Fully **12 of 24** cells show r ≥ r_max — not superhuman
-performance, but a sign that r_max is itself estimated with substantial
-uncertainty at this sample size (as few as 14 areal units per country) and
-should be read as an interval, not a point value; we use it to flag cells
-whose ceiling is poorly determined rather than to rescale reported
-correlations. We report r_max alongside every
-admin-2 correlation in @tbl-area-comparison so that a cell with weak apparent
-performance can be distinguished from a cell with weak *achievable*
-performance.
+variance is real signal rather than survey sampling noise. Our original estimator
+for that bound divided a signal variance term by an assumed design effect of 1.5
+and treated the residual analytically. Two things were wrong with it. The design
+effect is not 1.5: measured directly from the cluster structure it ranges from
+1.0 to 5.6 with a median of about 2.4, so the sampling-variance term was
+systematically understated in the denominator and overstated in the numerator's
+subtraction. And the estimator was never validated against a case with a known
+answer.
+
+The tell was in the output. Fully **12 of 24** cells returned an achieved
+correlation at or above their own estimated ceiling — a physically impossible
+result that we had explained away as estimation uncertainty. It was not
+uncertainty; it was bias. Re-estimating the ceiling by split-half replication of
+the survey respondents, which requires no design-effect assumption and which we
+validated on simulated data with a known true ceiling, gives an empirical
+$r_{\max}$ of **0.47 to 0.61** depending on outcome. The analytic estimator was
+biased low by a factor of roughly 4.7.
+
+The substantive consequence is the reverse of what we published. Admin-2 is not
+beyond what these surveys can resolve, and the gap between achieved correlation
+(0.29 to 0.40 under the corrected protocol, @sec-protocol-results) and the
+attainable ceiling is real headroom rather than noise. We now report the
+empirical split-half ceiling alongside every admin-2 correlation, and we
+recommend against the analytic form: any ceiling estimator that returns achieved
+performance above its own bound is reporting its own bias.
 
 ## The area-level prevalence recipe {#sec-recipe-audit}
 
@@ -960,41 +1103,94 @@ and require shrinkage before use.
 
 ## Is any predictor associated with the outcomes? {#sec-fdr}
 
-The preceding results — models that barely beat a national-mean null, matched by
-a covariate-free spatial smoother — raise a blunter question than importance
-ranking can answer: is any predictor associated with district prevalence at all?
+::: {.callout-warning}
+## Corrected 2026-09-02 — the screen could not have returned a positive
+
+An earlier version of this section reported that **no predictor survived FDR
+control in any cell** under a spatially restricted permutation null, and read
+that as evidence against covariate signal. The screen could not have produced a
+positive result at any effect size, so its zero carries no information about the
+data. The claim is withdrawn and replaced below.
+:::
 
 We tested every harmonised predictor against district prevalence in every cell
-(7,104 predictor $\times$ cell tests) under two nulls. The naive correlation test
+(7,104 predictor $	imes$ cell tests) under two nulls. The naive correlation test
 treats districts as independent. Because they are not — two smooth surfaces
 correlate by construction — we also used a restricted permutation that shuffles
 the outcome *within* admin-1 regions, holding the regional pattern fixed and
 asking what a predictor adds on top of geography.
 
 Under the naive test 1,209 tests (17.0%) reached $p<0.05$ against 355 expected by
-chance, a 3.4-fold enrichment, and 310 survived Benjamini–Hochberg control across
+chance, a 3.4-fold enrichment, and 310 survived Benjamini-Hochberg control across
 all cells. Under the spatially restricted null the enrichment fell to 1.5-fold
-(519 tests, 7.3%) and **no predictor survived FDR control in any cell**, either
-within-cell or globally. The strongest associations are mechanistically
-plausible and still fail multiplicity: Gambian women's iron against women's
-secondary education ($r=-0.76$, $p_{\text{perm}}=0.002$, $q=0.20$) and Gambian
-women's vitamin A against 2019 precipitation ($r=-0.64$).
+(519 tests, 7.3%) and no predictor survived FDR control in any cell.
 
-Penalised regression gives the same answer from the multivariable side. Elastic
-net with cross-validated $\lambda_{1\text{se}}$ retained a median of **zero**
-predictors, with **13 of 18 cells retaining none** and mean deviance explained of
-0.063. Every cell that retained predictors was an iron outcome except one
-(Ghana child vitamin A); Malawi retained nothing across all eight of its
-outcomes despite having the largest district sample (87).
+**Why that zero is uninformative.** The restricted permutation used 999
+shuffles, so the smallest attainable p-value is $1/1000$. Applying
+Benjamini-Hochberg across 7,104 tests requires a p-value below roughly
+$0.05 	imes 1/7104 pprox 7 	imes 10^{-6}$ for the most significant test to
+clear the threshold — three orders of magnitude smaller than the resolution of
+the permutation distribution. **No configuration of the data, at any effect
+size, could have produced a discovery.** We confirmed this by construction: with
+a synthetic predictor set to reproduce the outcome exactly, the screen still
+returns zero discoveries. A test that cannot reject under any alternative has
+power zero, and its failure to reject is not evidence of absence. Median power
+across the real cells was 0.005.
 
-These two analyses should be read narrowly. The restricted permutation is
-deliberately conservative and does not test the same quantity as the
-leave-one-region-out models, which predict held-out regions and therefore draw
-on between-region variation. The honest summary is that between-region
-association exists but is confounded with spatial smoothness, while within
-region — beyond what geography already supplies — we cannot demonstrate signal.
-That is precisely why a covariate-free spatial smoother matches the full
-294-predictor set at admin-2, and the two findings have one explanation.
+**What we report instead.** At 14 to 87 districts per country, no per-cell test
+of 451 predictors will have usable power after multiplicity correction, and the
+correct response is to change the evidence standard rather than to run the
+underpowered test more carefully. We therefore report **cross-country
+replication of sign**: whether the same indicator, against the same outcome,
+points the same way in four independent national surveys conducted by different
+teams in countries with different diets and different agriculture. Under the
+null of no association, four-of-four sign agreement has probability $2^{-3} =
+0.125$ per indicator before any effect-size consideration, and the pattern of
+which indicators agree is itself interpretable in a way a starred p-value is
+not.
+
+On that standard the associations are nutrient-specific and replicate, but they
+do not simply recover individual-level nutritional biology, and reporting them
+as though they did would be an ecological fallacy (@tbl-nutrient-signal).
+
+The strongest replicated association for child vitamin A is district legume
+consumption in the direction of *more* deficiency (pooled z 4.87, 4 of 4
+countries) — the opposite of what provitamin A carotenoid intake predicts at the
+individual level. Child iron shows the same pattern: cattle ownership tracks
+*more* deficiency (z 4.40, 3 of 3), not less, alongside cereal-dominant cropping
+(z 4.27, 4 of 4) and, inversely, root-crop share (z −3.73). Women's iron and
+women's vitamin A are dominated by warm night-time land surface temperature and
+soil aluminium heterogeneity, both toward more deficiency in all four countries.
+
+The coherent reading is that the replicated axis is **rural subsistence
+agro-ecology**, not nutrient intake. Districts where households keep cattle and
+goats, grow and eat legumes, and farm cereals are the districts that are rural,
+poor and deficient, so the district-level correlation carries the opposite sign
+to the individual-level dietary relationship. This is a textbook
+ecological-fallacy signature, and it is visible here only because we required
+replication in direction rather than significance in a single country. It does
+not undermine the predictive results — a marker of a deficient district is
+useful for targeting whether or not it is causal — but it forbids reading
+@tbl-nutrient-signal as a set of intervention targets.
+
+Two associations are both replicated and interpretable at the district level,
+where the exposure is genuinely an area property. District child wasting tracks
+women's vitamin A deficiency (z 4.62, 4 of 4) and precipitation tracks less of
+it (z −3.92): the two forms of undernutrition co-locate, which is a targeting
+statement rather than a mechanistic one.
+
+Malaria was the one domain we expected to matter for iron, and it did not. No
+malaria *burden* indicator replicates against any outcome at family-wise
+significance; the strongest malaria-domain signal is indoor residual spraying
+*coverage* against child iron (z 3.66, family-wise p 0.14), an indicator of
+where control programmes operate rather than of transmission.
+
+Penalised regression is consistent with a distributed rather than sparse signal.
+Elastic net with cross-validated $\lambda_{1\text{se}}$ retained a median of zero
+predictors — which under this geometry indicates that no small subset carries
+the association, not that no association exists. The omnibus dense-signal test
+(@sec-protocol-results), which is powered against many small effects rather than
+a few large ones, rejects where the sparse screen does not.
 
 ## Does the geographic unit change the answer? {#sec-resolution}
 
@@ -1039,19 +1235,26 @@ of 14 admin-1 cells.
 
 ## Where the level comes from {#sec-anchoring}
 
+::: {.callout-warning}
+## Corrected 2026-09-02 - the anchoring gain is withdrawn
+
+An earlier version of this section reported that anchoring each district to its
+region's design-based survey total lifted mean rank correlation from 0.164 to
+0.413, cut mean absolute bias from 3.24 to 1.59 pp, and was better in 20 of 24
+cells, and concluded that this mattered more than any modelling choice we
+tested. Those arms computed each region's anchor from **all** of the region's
+respondents, including those of the district being scored, so a district was
+partly anchored to its own answer. Measured symmetrically the gain disappears.
+:::
+
 The preceding sections ask which unit to estimate at. A separate question is
 where a district estimate's *level* comes from, as distinct from its *pattern*.
-The two are not equally well supported by the covariates, and separating them
-turns out to matter more than any modelling choice we tested.
+Each anchor rescales the same district predictions so that they average, within
+each region, to the design-based survey estimate for that region; the rescaling
+is a one-parameter shift on the logit scale, so it leaves the district ranking
+untouched by construction.
 
-We scored five arms on identical country × outcome cells under identical
-leave-one-region-out folds, so that differences are attributable to the anchor
-and not to the fit (@tbl-anchor-arms). Each anchor rescales the same district
-predictions so that they average, within each region, to the design-based survey
-estimate for that region; the rescaling is a one-parameter shift on the logit
-scale, so it leaves the district ranking untouched by construction.
-
-```{r tbl-anchor-arms}
+```{r}
 #| label: tbl-anchor-arms
 #| tbl-cap: "Where a district estimate's level comes from. All arms are scored
 #|   on the same cells under the same leave-one-region-out folds, and every
@@ -1066,22 +1269,32 @@ if (file.exists(anchor_path)) {
 }
 ```
 
-Anchoring each region to its own design-based total lifts mean rank correlation
-from 0.164 to 0.413 and cuts mean absolute bias from 3.24 to 1.59 pp, and is
-better in 20 of 24 cells. Anchoring the country to a single **national** total
-instead adds essentially nothing to rank correlation (0.170) and makes bias
-*worse* (5.85 pp), because one number displaces every district by the same
-amount, including the districts that were already correct. Shrinking the
-regional targets toward the national value — a hedge against treating a thinly
-sampled region as an exact anchor — recovers about half the gain (0.318), so on
-these data the hard anchor is preferable despite the theoretical risk.
+We added a **jackknifed** arm in which a district never contributes to the
+regional total it is anchored to, holding the fit, the folds and the cells
+identical. Under that symmetric comparison anchoring gives mean rank correlation
+**0.147** against **0.156** for no anchor at all, and is better in **8 of 24**
+cells rather than 20 - that is, it is very slightly worse than not anchoring, and
+no better than a coin flip across cells. A split-sample arm, which anchors to a
+random half of the region's respondents and scores on the other, agrees. The
+apparent gain was the district's own survey answer re-entering through the
+anchor.
 
-The practical reading is that the survey supplies the level and the model
-supplies the within-region pattern. It follows that a district map for a country
-with its own survey may be read as prevalence, whereas a transported map for a
-country without one has no anchor available and should be read as a ranking
-only. @sec-national-composition tests whether a *predicted* national level can
-substitute for the missing survey.
+Anchoring to a single **national** total, which cannot leak in this way because
+it contains no district-specific information, adds essentially nothing to rank
+correlation (0.170) and makes bias worse (5.85 pp) - a result that stands.
+
+Two conclusions survive. Level and pattern remain distinct quantities, and the
+covariates support the pattern far better than the level, which is why a
+transported map should be read as a ranking (@sec-protocol-results). But
+regional anchoring is not the free improvement we reported, and we now regard
+the honest within-country comparison as the one in @sec-protocol-results, where
+the covariate model is scored against a jackknifed regional mean rather than
+against an anchor built from the answer.
+
+Beyond this specific case, the general lesson is a protocol one: any evaluation
+in which a baseline or a benchmark is computed from data that includes the unit
+being scored will report a gain that is partly the unit's own answer. The
+jackknifed arm cost one additional run and reversed the finding.
 
 ## Would a household survey do better? {#sec-anchor-individual}
 
@@ -1338,109 +1551,188 @@ resulting OK-to-use versus do-not-rely labels are in
 layer; out-of-support is the dominant driver of do-not-rely flags in
 unsurveyed districts.
 
+## Prediction under the corrected protocol {#sec-protocol-results}
+
+Re-running every comparison under @sec-protocol changes the conclusions more
+than any modelling choice in this paper did.
+
+**The size of the protocol effect.** Our published within-country median rank
+correlation of 0.058 rested on a single random division of the districts.
+Replicated ten times under the identical protocol, the median is **0.217**
+(IQR 0.146-0.289); exhaustive leave-one-region-out gives **0.235**. The
+published figure was a low draw, not a measurement. Separately, the comparison
+the models appeared to lose was against a regional mean computed from the scored
+district's own respondents; scored symmetrically, that baseline achieves
+r **0.076** and the covariate model **0.156**. Neither correction involved new
+data or a new model.
+
+**Within a surveyed country, covariates beat the honest survey baseline.**
+Against a jackknifed regional mean — the only sub-national alternative a
+programme actually has — the covariate model attains rank correlation
+**0.398** against **0.320** on the biomarker concentration, and **0.286**
+against **0.193** on deficiency prevalence, in-fill. Under region
+extrapolation the margin widens on prevalence (**0.268** against **-0.107**),
+because a regional mean has nothing to say about a region it has not seen.
+
+**Geography alone does most of the within-country work.** A covariate-free
+spatial smoother scores **0.391** where the full covariate model scores
+**0.398**. This replicates our published finding and we do not retract it: inside
+a surveyed country, most of what the covariates supply is a smooth surface that
+neighbouring-district information already provides. The covariates earn their
+place in two specific situations — against a survey-derived baseline once that
+baseline is made information-symmetric, and where there is no survey to smooth
+from at all.
+
+**Rank transports across borders; level does not.** Under leave-one-country-out,
+district rankings transport with a mean Spearman of **0.26** over the 22
+evaluable country-outcome combinations for the zero-tuning domain index (17
+positive; the penalised domain fit gives 0.24 with 21 positive) and **0.37**
+(22 positive) for an index built from the climate and soil domains alone. At
+the first sub-national tier (regions, or Malawi's districts) the same 22
+combinations give a mean Spearman of **0.31** (17 positive), and **0.45** (20
+positive) for the climate-and-soil index; a country-block permutation null,
+which keeps the correlation between outcomes within a country, has a 95th
+percentile of 0.17 for the regional mean and 0.08 for the district mean, so
+the means are far outside chance while counts of positive cells are not (no
+transport at all yields 15–16 of 22 positive five percent of the time). An earlier draft of this section carried
+a regional figure of 0.50–0.56 over 12 combinations; that figure rested on
+three countries, because a spelling mismatch in the population file had
+dropped Sierra Leone from every population-joined run, and it is withdrawn.
+Absolute prevalence levels do not
+transport, consistent with the biomarker level offsets between surveys reported
+in @sec-zscore. The transportable product is therefore a ranked priority list,
+not a prevalence map. We note one negative: burden-weighted targeting lift under
+transport is **1.007** across 12 evaluable cells, better than random in only 5,
+so the transport claim is about ordering and should not be restated as a
+targeting gain.
+
+**Capacity is not the binding constraint; it is a liability.** The zero-tuning
+domain index outperforms elastic net over all 451 predictors by up to **0.38**,
+and the 451-column fit turns *negative* under region extrapolation. With 14-87
+units, a penalised regression over hundreds of correlated columns fits the
+country it was trained in.
+
+**In programme terms.** Visiting the worst-ranked fifth of districts reaches
+**26%** more national deficiency burden than the same effort guided by the
+survey's own regional averages, which are themselves no better than choosing
+districts at random (in-fill lift 1.20 for the model, 0.95 for regional
+averages, against an oracle ceiling of 2.43). For Malawi child iron, the
+selected districts carry **43.1%** deficiency against **26.3%** nationally and
+hold **48.7%** of the national burden in children.
+
+**What tracks which nutrient.** Because no per-cell test of 451 predictors can
+have usable power at these sample sizes (@sec-fdr), we report cross-country
+replication of sign. @tbl-nutrient-signal lists, for each outcome, the
+indicators with the strongest pooled association that also point the same way in
+every country in which they are measured.
+
+```{r}
+#| label: tbl-nutrient-signal
+#| tbl-cap: "Indicators most strongly associated with each outcome that also
+#|   replicate in sign across all contributing countries. Strength is a pooled
+#|   random-effects z across countries; 'agree' is the number of countries in
+#|   which the indicator points the same way, out of those measuring it.
+#|   Produced by scripts/signal_probes/p4_admin1_continuous_scan.R."
+#| echo: false
+f <- here::here("results", "tables", "signal_probes",
+                "p4_admin1_continuous_predictors.csv")
+if (file.exists(f)) {
+  d <- read.csv(f, stringsAsFactors = FALSE)
+  keep_g <- c("child_vitA", "child_iron", "women_iron", "women_vitA", "women_b12")
+  d <- d[d$sign_agree >= d$k_countries & d$k_countries >= 3 &
+           d$group %in% keep_g, ]
+  d <- do.call(rbind, lapply(split(d, d$group), function(g) {
+    g <- g[order(-abs(g$meta_z)), ]
+    utils::head(g, 3)
+  }))
+  out <- data.frame(
+    Outcome   = d$group,
+    Indicator = d$predictor,
+    Domain    = d$domain,
+    Strength  = round(d$meta_z, 2),
+    Direction = ifelse(d$mu > 0, "more deficiency", "less deficiency"),
+    Agree     = paste0(d$sign_agree, "/", d$k_countries))
+  knitr::kable(out, row.names = FALSE, align = "lllrlc")
+} else {
+  cat("Signal scan not available; run scripts/signal_probes/p4_admin1_continuous_scan.R.")
+}
+```
+
+**Dense signal where the sparse screen found none.** The omnibus test of
+@sec-fdr, powered against many small effects, rejects the no-association null in
+the majority of cells, and the per-nutrient sign-replication results are given in
+@tbl-nutrient-signal. The signal is real, distributed across many indicators, and
+nutrient-specific; it is not concentrated in a few predictors that a sparse
+screen could isolate at this sample size.
+
 # Discussion
 
 ## Summary
 
-We harmonised individual-level biomarker measurements from four
-sub-Saharan African DHS (three West African plus Malawi) to evaluate whether
-ensemble machine-learning models can reproduce admin-2 micronutrient
-deficiency prevalence and national prevalence. Four findings have
-programmatic significance.
+We harmonised individual-level biomarker measurements from four sub-Saharan
+African DHS (three West African plus Malawi) to evaluate whether models built on
+remotely sensed and survey-derived proxies can reproduce admin-2 micronutrient
+deficiency prevalence and national prevalence. An internal audit of an earlier
+version of this manuscript found that several of its headline conclusions were
+determined by the evaluation design rather than by the data, so the findings
+below are those that survive re-analysis under a pre-specified protocol
+(@sec-protocol). Five have programmatic significance.
 
-First, the admin-2 biomarker target itself is measured with too little
-precision, per district, to support fine-grained prediction, and this — not
-model choice — is the binding constraint. A median admin-2 district
-contributes 6–36 biomarker measurements; once sampling noise is subtracted
-from the observed between-district variance, the median reliability ceiling
-across 24 country–outcome cells is r_max = 0.098, and 4 of 24 cells have no
-detectable signal above noise at all (and, reflecting how uncertain that
-ceiling itself is at this sample size, half of all cells show r ≥ r_max).
-Individual-level prediction aggregated
-to admin-2 (median r 0.516, median r_share 0.92) already reaches most of that ceiling; fitting an
-ensemble *directly at the admin-2 level* does not clear it, and does not even
-clear a national-mean null (median MAE 9.3–9.8 pp vs. 9.55 pp for the null),
-while a covariate-free spatial smoother beats both covariate-based
-area-level models on rank correlation. This qualifies the usual
-small-area-estimation expectation that the unit of estimation should match
-the unit of deliverable [@mercer2015small; @wakefield2019small]: with so few
-areal units and so few biomarker measurements per unit, the data-richer
-individual-level fit generalises more reliably than a model trained directly
-on the areas, and no area-level estimator — however carefully specified —
-can be expected to exceed the noise ceiling of the target it is fit to.
+**First, evaluation design dominated modelling choice.** No change to any model
+in this paper moved a result as much as three changes to how results were
+scored. Replicating a single random split moved a headline within-country
+correlation from 0.058 to 0.217. Making a survey-derived baseline
+information-symmetric with the model — it had been computed from the scored
+district's own respondents — moved the same comparison from a loss to a win
+(0.156 against 0.076). Recognising that a permutation screen could not clear its
+own multiplicity threshold at the resolution used removed a reported null
+finding entirely. Two further corrections ran against us: the reliability
+ceiling we used to argue admin-2 was unresolvable was biased low by roughly a
+factor of 4.7, and the regional-anchoring gain we reported as the single most
+valuable design choice disappears under a jackknifed control. We report all five
+because a reader has no way to tell, from a manuscript, which conclusions were
+protocol artifacts and which were measurements.
 
-Second, national-level aggregation is the deliverable that works. Predicted
-national prevalence fell inside the survey's own 95% confidence interval for
-all 24 country–outcome combinations (median absolute error 0.54 pp),
-because aggregating many noisy district predictions averages the district-level
-sampling noise away. We treat this, rather than the admin-2 map, as the
-result best supported by the present evidence for near-term programmatic use.
+**Second, proxy indicators carry replicated, nutrient-specific signal — but it
+is not individual-level biology.** Under cross-country sign replication, the
+appropriate evidence standard when no per-cell test of 451 predictors can have
+power at 14–87 districts, the associations replicate in direction across all
+four surveys while several run *opposite* to what individual nutrition predicts:
+district legume consumption tracks more child vitamin A deficiency, and cattle
+ownership more child iron deficiency. Together with cereal cropping, warm night
+temperatures and soil heterogeneity, the replicated axis is best read as rural
+subsistence agro-ecology — area-level markers of deficient districts rather than
+exposures to intervene on. The exception is women's vitamin A, which tracks
+district child wasting and, inversely, rainfall, and is interpretable as stated.
+No malaria burden indicator replicated against any outcome.
 
-Third, cross-country transportability remains limited and is the harder
-problem admin-2 model choice does not solve. Across the 16 outcome–holdout
-combinations evaluable, the SuperLearner ensemble matched or beat the best
-of 21 comparator methods on 0 holdouts, spatial methods (coordinates
-alone, or coordinates plus soil covariates) led on rank correlation (median
-r 0.27–0.28) but not on absolute error, and a plain penalised regression had
-the lowest median MAE (10.6 pp, versus 11.1 pp for a null) despite
-near-zero rank correlation — level and pattern transport by different
-methods, and neither transports well by any single one.
+**Third, covariate models beat the honest survey baseline within a country, but
+geography does most of the work.** Against a jackknifed regional mean the
+covariate model attains rank correlation 0.398 versus 0.320 on the biomarker and
+0.286 versus 0.193 on prevalence. A covariate-free spatial smoother, however,
+scores 0.391 where the full covariate model scores 0.398 — our published finding
+on this point replicates and we do not retract it. The covariates earn their
+complexity against a survey-derived baseline and where no survey exists to
+smooth from, not as a general improvement on spatial smoothing.
 
-Fourth, the SuperLearner ensemble does not reliably outperform standard SAE
-methods, and specifically does not outperform two much simpler baselines —
-a national-mean null and a covariate-free spatial smoother — that were not
-part of the original benchmark set. A plain penalised regression or a
-spatial-coordinates-only model matched or beat the ensemble on the large
-majority of LOCO splits. Bayesian SAE comparators (Fay–Herriot, BYM2)
-provided modest additional calibration gains but did not substantially shift
-the ranking. Among the predictor domains available without a concurrent
-biomarker survey, environment (median AUC contribution 0.029) is the only one
-whose contribution is distinguishable from zero; climate contributes 0.004 and
-every other domain $\le$ 0.001, consistent with geography, not the specific
-covariate ensemble, being the main source of transportable information.
+**Fourth, rank transports across borders and level does not.** District rankings
+transport under leave-one-country-out with a mean Spearman of 0.26 over 22
+combinations (0.37 for the climate-and-soil index, positive in all 22), and
+regional rankings with 0.31 (0.45 for climate and soil), against permutation
+nulls whose 95th percentiles are 0.08 and 0.17; absolute prevalence does not,
+consistent with the biomarker level offsets
+between surveys documented in @sec-zscore. The transportable deliverable is a
+ranked priority list. We note against ourselves that burden-weighted targeting
+lift under transport is 1.007 across 12 cells, so the transport result should not
+be restated as a targeting gain — that claim holds in-fill (lift 1.20 against
+0.95 for regional survey averages), not across borders.
 
-A fifth finding, added after peer review, explains the preceding four rather
-than adding to them. Testing every harmonised predictor against district
-prevalence under a null that respects spatial autocorrelation, **no predictor
-survives false-discovery-rate control in any of the 24 cells**, and penalised
-regression at a cross-validated penalty retains a median of zero predictors,
-with 13 of 18 cells retaining none (@sec-fdr). Between-region association
-exists but is confounded with spatial smoothness; within region, beyond what
-geography already supplies, we cannot demonstrate signal. This is the same
-result as the covariate-free spatial smoother matching the full 294-predictor
-set, seen from the association side rather than the prediction side.
-
-A sixth finding bounds how far that fifth one generalises, and is the strongest
-evidence we have that the constraint is the target rather than the predictors.
-Replacing the geospatial proxies with the household questionnaire administered
-to these same respondents — minus every blood-assay column — raises mean district
-$r$ only from 0.154 to 0.228, clearing $r = 0.4$ in 3 of 16 cells and adding
-nothing measurable in Malawi (@sec-anchor-individual). A questionnaire carrying
-no geospatial information also fails to locate deficiency at district
-resolution, which excludes imperfect geospatial linkage, the inflammation
-adjustment and proxy-set overfitting as explanations for the preceding results.
-Linking at the survey cluster rather than the district does not help either, and
-helps least in the country where the sample-size argument predicted it would
-help most.
-
-Set against this, one intervention does work, and it is not a modelling choice.
-Anchoring district predictions to their region's design-based survey total
-raises mean rank correlation from 0.164 to 0.413 and cuts mean absolute bias
-from 3.24 to 1.59 pp, better in 20 of 24 cells (@sec-anchoring) — larger than
-the gap between any two estimators we compared. Anchoring to a national total
-does not work, and neither does a national level that must itself be predicted:
-even an *oracle* national level improves district error by only 0.23 pp
-(@sec-national-composition). The survey supplies the level, the model supplies
-the pattern, and the level has to be resolved regionally to be worth anything.
-
-We also quantify how much apparent accuracy is manufactured by covariate
-selection. Two otherwise identical pipelines, both cross-validated by holding
-out whole regions and differing only in whether the covariate screen saw the
-held-out regions, differ by a mean of **+0.182** in rank correlation, positive
-in all 20 measurable cells and reaching +0.51 — enough to turn cells with zero
-or negative real skill into apparently respectable ones. Analyses that screen
-predictors on all data before cross-validating, a common practice, should be
-read with that magnitude in mind.
+**Fifth, capacity is a liability at this sample size.** A zero-tuning index over
+18 domain summaries beats elastic net over all 451 predictors by up to 0.38, and
+the 451-column fit turns negative under region extrapolation. National-level
+aggregation, meanwhile, remains accurate throughout (24 of 24 country-outcome
+predictions within the survey's 95% CI) and is the deliverable best supported by
+the evidence where a district ranking is not required.
 
 ## The aggregation problem and "fit at the unit of deliverable"
 
@@ -1683,31 +1975,44 @@ panel far beyond the four countries available here.
 
 ## Conclusions
 
-Within countries with biomarker data, admin-2 spatial discrimination is
-constrained primarily by the reliability of the admin-2 target itself:
-surveys designed for national estimation yield too few biomarker
-measurements per district to support fine-grained prediction, and a median
-reliability ceiling of r_max = 0.098 bounds what any admin-2 model could
-achieve, though this estimate is itself uncertain enough at the available
-sample size that half of all cells exceed it. Individual-level SuperLearner
-prediction aggregated to admin-2 already reaches most of that ceiling
-(median r_share 0.92) and is the strongest tested approach;
-fitting an ensemble directly on admin-2 aggregates does not clear the
-ceiling and does not outperform a national-mean null, and a covariate-free
-spatial smoother outperforms both covariate-based area-level models on rank
-correlation. National-level aggregation, by contrast, is accurate throughout
-(24 of 24 country–outcome predictions within the survey's 95% CI) and is the
-deliverable best supported by the present evidence. Across countries,
-transportability remains limited — the SuperLearner ensemble matched or beat
-the best of 21 comparator methods on 0 of 16 LOCO holdouts, and level
-and pattern transported via different methods, neither well. We recommend that within-country
-performance always be reported alongside an explicit reliability ceiling and
-a national-mean/spatial-only null (not only out-of-fold, rather than
-in-sample, predictions), that future deployments of such models be
-benchmarked against Bayesian and frequentist SAE methods and these
-uninformed baselines, and that absolute-level predictions in unseen
-countries be anchored against direct national estimates before use in
-resource-allocation decisions.
+Proxy indicators carry replicated, nutrient-specific signal for subnational
+micronutrient deficiency status, and several of the negative findings we
+previously reported were artifacts of evaluation design rather than properties
+of the data. A published within-country correlation of 0.058 was a single
+high-variance draw and is 0.217 when replicated; a benchmark the models appeared
+to lose to had been computed from the scored district's own respondents; a screen
+reported as finding nothing could not have found anything at any effect size;
+and the reliability ceiling used to argue that admin-2 was unresolvable was
+biased low by about a factor of 4.7. Corrections ran in both directions: the
+regional-anchoring gain we reported as the single most valuable design choice
+does not survive a jackknifed control, and the finding that a covariate-free
+spatial smoother matches the full covariate set within a surveyed country
+replicates and stands.
+
+Under the corrected protocol, covariate models beat an information-matched
+survey baseline in both within-country estimands, and district rankings
+transport to unsurveyed countries with a mean rank correlation of 0.26 (0.37
+from climate and soil alone; regional rankings 0.31 and 0.45) while
+absolute levels do not. The defensible deliverable is therefore a ranked district priority list
+rather than a prevalence map, and it is worth about a quarter more deficiency
+burden reached, per unit of programme effort, than the survey's own regional
+averages. Within a surveyed country, however, geography alone supplies most of
+the attainable accuracy, and the covariates are worth their complexity mainly
+where no survey exists to smooth from. Model capacity is not the binding
+constraint: a zero-tuning index over 18 domain summaries beats a penalised
+regression over 451 predictors, which turns negative when asked to extrapolate
+to an unseen region.
+
+For the field, the transferable result is procedural. We recommend that studies
+of this kind name the estimand they are evaluating, since in-fill, region
+extrapolation and country transport have materially different answers and are
+routinely reported interchangeably; state what information the comparison
+baseline was permitted to see, and jackknife any baseline derived from the same
+survey; replicate every random division of the data and report the spread rather
+than a single value; and demonstrate that each significance screen could have
+detected an effect had one been present. Applied to our own work, these four
+conditions reversed several conclusions, and we would not have identified any of
+them from the modelling results alone.
 
 # Acknowledgements
 

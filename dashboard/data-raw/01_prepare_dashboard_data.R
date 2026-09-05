@@ -716,18 +716,25 @@ cat(sprintf("  comparison rows: %d, LOCO rows: %d\n",
 
 
 # =============================================================================
-# 7b-ii. WHERE THE LEVEL COMES FROM — anchoring, and the choice of unit
+# 7b-ii. WHERE THE LEVEL COMES FROM - anchoring, and the choice of unit
 # =============================================================================
-# The single design choice that most affects the district map, and until now the
-# app showed its OUTPUT without ever showing the choice. Anchoring each district
-# prediction to its region's design-based survey total more than doubles rank
-# correlation (0.164 -> 0.413) and cuts mean absolute bias from 3.2 to 1.6 pp,
-# better in 20 of 24 country x outcome cells; anchoring to the NATIONAL total
-# instead buys almost nothing (+0.006). Read together with the resolution
-# comparison, these say the model supplies the pattern and the survey supplies
-# the level -- which is also why a transported map for a country with no survey
-# of its own can be read as a ranking but not as a set of prevalences.
-anchor_path <- here::here("results", "tables", "admin1_arms.csv")
+# CORRECTED 2026-09-02. This block previously described anchoring as more than
+# doubling rank correlation (0.164 -> 0.413) and cutting bias from 3.2 to
+# 1.6 pp, better in 20 of 24 cells. THAT RESULT IS WITHDRAWN. Those arms anchor
+# each district to a regional survey total computed from ALL of the region's
+# respondents INCLUDING the scored district's own, so a district is partly
+# anchored to its own answer. The project ran the symmetric control - arm
+# "5 ADMIN-1 anchor (hard, JACKKNIFE)", in which a district never contributes
+# to its own anchor - and the gain does not survive it: mean r 0.147 against
+# 0.156 for no anchor at all, better in 8 of 24 cells rather than 20.
+#
+# The bundle therefore carries anchor_controls.csv, which contains the
+# jackknifed arm, instead of admin1_arms.csv, which does not. The Resolution
+# panel shows both, so a reader sees the size of the correction rather than
+# being handed a conclusion.
+anchor_path <- here::here("results", "tables", "anchor_controls.csv")
+if (!file.exists(anchor_path))
+  anchor_path <- here::here("results", "tables", "admin1_arms.csv")
 resolution_path <- here::here("results", "tables", "resolution_comparison.csv")
 anchor_arms <- if (file.exists(anchor_path))
   read.csv(anchor_path, stringsAsFactors = FALSE) else NULL
@@ -735,10 +742,17 @@ resolution_levels <- if (file.exists(resolution_path))
   read.csv(resolution_path, stringsAsFactors = FALSE) else NULL
 
 saveRDS(list(arms = anchor_arms, levels = resolution_levels,
+             withdrawn_note = paste(
+               "The un-jackknifed Admin-1 anchoring gain is WITHDRAWN:",
+               "those arms let a district contribute to its own anchor.",
+               "Jackknifed, mean r is 0.147 against 0.156 for no anchor."),
              build_time = Sys.time()),
         file.path(DASHBOARD_DATA, "anchoring.rds"))
-cat(sprintf("\n-- Anchoring / level --\n  anchor arms: %d rows | resolution rows: %d\n",
-            nrow(anchor_arms %||% data.frame()),
+cat(sprintf("
+-- Anchoring / level --
+  anchor arms: %d rows (%s) | resolution rows: %d
+",
+            nrow(anchor_arms %||% data.frame()), basename(anchor_path),
             nrow(resolution_levels %||% data.frame())))
 
 

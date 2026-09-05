@@ -81,7 +81,11 @@ DOMAIN_RULES <- list(
   c("^fsec_",                                   "Food prices and food security",  "FEWS NET / HFID"),
   c("^wfp_",                                    "Food prices and food security",  "WFP"),
   c("^soilgrids_|^soil_",                       "Soil characteristics",           "SoilGrids / iSDA"),
-  c("^spam_|^aef_",                             "Agricultural production, land use","MapSPAM / AEF"),
+  # 2026-09-04: the 64 AlphaEarth embedding dimensions were filed under
+  # agriculture (64 of that domain's 93 columns). They are a satellite
+  # embedding, not a crop layer, and get a domain of their own.
+  c("^aef_",                                    "Satellite embedding",            "AlphaEarth (GEE)"),
+  c("^spam_",                                   "Agricultural production, land use","MapSPAM"),
   c("^ndvi|^evi|^lai|^npp|^wapor|^grassland",   "Ecosystem productivity/greenness","GEE"),
   c("^tclim|^precip|^lst|^aod",                 "Climate and weather",            "GEE"),
   c("^popdens|^ghs|^built|^wsf|^ntl|^human",    "Ruralness, population density, built environment","GEE"),

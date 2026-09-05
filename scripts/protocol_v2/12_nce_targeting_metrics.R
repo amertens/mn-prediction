@@ -55,6 +55,7 @@ MD <- read.csv("data/covariates/harmonized/predictors_admin2_shared_metadata.csv
 PREDS <- drop_near_outcome_v2(intersect(MD$column, names(S)), MD)
 domain_of <- stats::setNames(MD$domain, MD$column)
 POP <- readRDS("dashboard/data/admin2_population.rds")
+POP$country <- gsub(" ", "", POP$country)  # FIX 2026-09-04: the file spells "Sierra Leone" with a space; without this the join silently dropped the country
 BND <- readRDS("dashboard/data/admin2_boundaries.rds")
 COUNTRIES <- c(gambia = "Gambia", ghana = "Ghana", malawi = "Malawi",
                sierraleone = "SierraLeone")

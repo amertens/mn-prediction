@@ -1,0 +1,33 @@
+"country","unit","outcome","ours","theirs","n","rho","p","q"
+"Cote d'Ivoire","33 regions (= our Admin2)","women_vitA","model prediction (out-of-sample)","vitA_pct",33,0.495,0.0043,0.138
+"Ghana","10 pre-2018 regions","child_iron","observed survey","mpi",10,0.738,0.0177,0.189
+"Ghana","10 pre-2018 regions","child_iron","model prediction","mpi",10,0.732,0.0204,0.189
+"Cote d'Ivoire","33 regions (= our Admin2)","child_vitA","model prediction (out-of-sample)","vitA_pct",33,0.395,0.0236,0.189
+"Ghana","10 pre-2018 regions","women_vitA","observed survey","mpi",10,0.543,0.1083,0.534
+"Ghana","10 pre-2018 regions","women_b12","model prediction","b12_pct",10,0.539,0.1142,0.534
+"Ghana","10 pre-2018 regions","women_b12","model prediction","mpi",10,0.524,0.1202,0.534
+"Ghana","10 pre-2018 regions","women_folate","observed survey","folate_pct",10,-0.503,0.1428,0.534
+"Ghana","10 pre-2018 regions","child_iron","observed survey","iron_pct",10,0.482,0.1659,0.534
+"Ghana","10 pre-2018 regions","women_folate","model prediction","mpi",10,-0.451,0.1937,0.534
+"Ghana","10 pre-2018 regions","women_vitA","observed survey","vitA_pct",10,0.426,0.2199,0.534
+"Ghana","10 pre-2018 regions","women_folate","model prediction","folate_pct",10,-0.418,0.2317,0.534
+"Ghana","10 pre-2018 regions","child_iron","model prediction","iron_pct",10,0.421,0.2319,0.534
+"Ghana","10 pre-2018 regions","women_vitA","model prediction","vitA_pct",10,0.415,0.2337,0.534
+"Ghana","10 pre-2018 regions","women_vitA","model prediction","mpi",10,0.402,0.2517,0.537
+"Cote d'Ivoire","33 regions (= our Admin2)","child_vitA","model prediction (out-of-sample)","mpi",33,0.18,0.3132,0.606
+"Cote d'Ivoire","33 regions (= our Admin2)","child_iron","model prediction (out-of-sample)","iron_pct",33,0.178,0.3218,0.606
+"Ghana","10 pre-2018 regions","women_iron","model prediction","iron_pct",10,-0.274,0.4457,0.77
+"Ghana","10 pre-2018 regions","child_vitA","model prediction","mpi",10,0.262,0.457,0.77
+"Cote d'Ivoire","33 regions (= our Admin2)","women_iron","model prediction (out-of-sample)","mpi",33,-0.12,0.5067,0.811
+"Ghana","10 pre-2018 regions","child_vitA","model prediction","vitA_pct",10,0.207,0.5621,0.822
+"Cote d'Ivoire","33 regions (= our Admin2)","women_vitA","model prediction (out-of-sample)","mpi",33,0.102,0.5654,0.822
+"Ghana","10 pre-2018 regions","women_b12","observed survey","b12_pct",10,0.146,0.689,0.883
+"Ghana","10 pre-2018 regions","women_iron","observed survey","iron_pct",10,-0.134,0.7131,0.883
+"Ghana","10 pre-2018 regions","women_b12","observed survey","mpi",10,0.125,0.7256,0.883
+"Ghana","10 pre-2018 regions","child_vitA","observed survey","mpi",10,0.122,0.741,0.883
+"Ghana","10 pre-2018 regions","women_iron","observed survey","mpi",10,0.116,0.7523,0.883
+"Cote d'Ivoire","33 regions (= our Admin2)","women_iron","model prediction (out-of-sample)","iron_pct",33,0.053,0.7723,0.883
+"Ghana","10 pre-2018 regions","child_vitA","observed survey","vitA_pct",10,0.091,0.8038,0.887
+"Cote d'Ivoire","33 regions (= our Admin2)","child_iron","model prediction (out-of-sample)","mpi",33,-0.028,0.8764,0.935
+"Ghana","10 pre-2018 regions","women_iron","model prediction","mpi",10,-0.037,0.9253,0.955
+"Ghana","10 pre-2018 regions","women_folate","observed survey","mpi",10,0.018,0.9655,0.966

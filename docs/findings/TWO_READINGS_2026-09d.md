@@ -1,5 +1,15 @@
 # Two readings of the same results — 1 September 2026 (revision d)
 
+> **Superseded 2026-09-03 by [TWO_READINGS_2026-09e.md](TWO_READINGS_2026-09e.md)**, which
+> folds in the sandbox experiments (transport carried by climate + soil; null
+> calibration of the "N of N" counts; burden margin small; no survey-sample
+> substitution; single-cluster inflation of the ceiling). Numbers below are
+> preserved for the record; quote from revision e.
+
+
+> **Amended 2026-09-02** with a directional correction: the legume and cattle
+> associations had their signs inverted. See "Correction of 2026-09-02" below.
+
 Supersedes `TWO_READINGS_2026-09c.md`, which is preserved beside it. Revision c
 reported the methods audit. This revision reports what happened when the audit's
 five recommendations were **implemented and measured**, when the unused data
@@ -167,7 +177,51 @@ domain's variance rather than from aiming it at the outcome.
 | Transport 0.309 at Admin-1 (probe P3a) | **Complemented** by 0.288 at Admin-2 under the full protocol, positive in 21 of 22. |
 | Ceiling 0.47–0.61 binding | **Stands.** |
 | "6 of 24" miscount → 10 of 24 | **Stands**, corrected in three documents. |
-| Malaria null; Sierra Leone uninformative | **Stands.** |
+| Malaria null; Sierra Leone uninformative | **Stands, with a qualification.** No malaria *burden* indicator replicates against any outcome. The strongest malaria-domain signal is IRS *coverage* against child iron (z 3.66, family-wise p 0.14) — a programme-placement marker, not transmission. |
+| Burden captured by the model's worst fifth: 24% vs 19% for regional survey averages | **Qualified 2026-09-03 (CF-01, R6-02).** Correct as computed; per-cell the model beats the jackknifed regional mean in only 8–11 of 18, the margin concentrates where regions hold 3–5 districts, and a regional mean that includes the district captures 30%. Quote only for districts a survey did not reach; the ranking claim (15 of 18) is the robust one. |
+| "Survey sample may be substantially smaller when supplemented by the model" | **Answered in the negative 2026-09-03 (G4-02).** Fitted symmetrically on a reduced survey, the model degrades in lockstep with the survey (+3.36 vs +3.33 pp, 100% → 15%). It adds ~0.6 pp and better ordering at a given sample size; it does not replace sample. |
+| Empirical ceiling 0.47–0.61 and "two-thirds of the attainable" headroom | **Upper bound (CE-01).** 57–85% of Admin-2 units are single clusters; on multi-cluster units ~16% of the within-split ceiling is cluster effect, more for iron in Gambia and Sierra Leone. |
+| Transport carried by all 18 domains | **Refined (DA-01/02/03, TC-02).** Climate + soil carry it; ten survey-derived domains are dead weight or harmful at the district rung. Two-domain index ≥ full index — pre-registered for Ethiopia/Pakistan, not quoted as a result. |
+| Directional claims: legumes/fruit-veg protective for child vitamin A; cattle protective for child iron | **WITHDRAWN 2026-09-02 — the signs were inverted.** In both scans a positive `meta_z` means MORE deficiency (p4 negates the biomarker: `y = -wmean(t, w)`). Legumes are +4.87 (4/4) and cattle +4.40 (3/3), so both track *more* deficiency. Replicated in the independent binary scan p1. |
+
+---
+
+## Correction of 2026-09-02: the associations are agro-ecological, not dietary
+
+The directional error above is worth more than a table row, because fixing it
+changes what Section 2 of the talk and the paper is *about*.
+
+The replicated indicators — legume consumption, cattle and goat ownership,
+cereal-dominant cropping, vegetable production, warm night-time land surface
+temperature, soil heterogeneity — all point the same way once the sign is read
+correctly: **the districts that look agriculturally self-provisioning are the
+districts that are deficient.** That is a coherent rural-subsistence axis, and it
+is the *opposite* sign to the individual-level dietary relationship for legumes
+and animal-source foods.
+
+This is a textbook **ecological fallacy** signature, and the project only caught
+it because the evidence standard was cross-country sign replication rather than
+per-country significance: an inverted sign that replicates 4/4 is conspicuous in
+a way that an inverted sign with p = 0.03 in one country is not.
+
+**Consequences.**
+
+- The predictive and targeting results are **unaffected**. A marker of a
+  deficient district is useful for targeting whether or not it is causal.
+- The claim that the scan "recovers known biology" is **withdrawn**. It recovers
+  a poverty/agro-ecology gradient.
+- Any presentation of these associations must carry the ecological-fallacy
+  warning explicitly. "Legume consumption tracks more child vitamin A
+  deficiency" will be heard as an attack on legumes by a nutrition audience if
+  it is not framed as an area-level marker.
+- Two associations survive as interpretable at the district level, because both
+  sides are genuine area properties: **district child wasting ↔ women's vitamin
+  A deficiency** (z 4.62, 4/4) and **rainfall ↔ less of it** (z −3.92).
+
+Corrected in: `docs/manuscript_mcn.qmd` (abstract, @sec-fdr, Discussion),
+`docs/findings/SLIDE_OUTLINE_2026-09.md`,
+`dashboard/data-raw/03_build_nutrient_signal.R`, and
+`dashboard/R/mod_nutrient_signal.R`.
 
 ---
 

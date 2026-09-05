@@ -31,7 +31,8 @@
 # anchor, an anchor too coarse to help, the two that work, then the alternative
 # of not modeling districts at all.
 .RES_ARM_ORDER <- c("No anchor", "National anchor", "Admin-1 anchor (shrunk)",
-                    "Admin-1 anchor (hard)", "Fit at Admin-1")
+                    "Admin-1 anchor (hard)", "Admin-1 anchor (hard, JACKKNIFE)",
+                    "Fit at Admin-1")
 
 .res_arm_label <- function(x) {
   x <- trimws(gsub('"', "", x))
@@ -125,14 +126,36 @@ mod_resolution_ui <- function(id) {
           "Every district map elsewhere in this dashboard therefore takes its ",
           "level from the survey and only its pattern from the model. This ",
           "panel is the evidence for that choice."),
+        div(style = paste0("background:#F5E6E1;border-left:4px solid #A04B3C;",
+                           "padding:0.8rem 1rem;border-radius:0 6px 6px 0;",
+                           "margin:0.8rem 0;"),
+          tags$strong("Correction, 2 September 2026. "),
+          "This panel previously reported that anchoring to Admin-1 more than ",
+          "doubles rank agreement (0.164 to 0.413) and halves bias, better in ",
+          "20 of 24 cells. ", tags$strong("That result is withdrawn."), " Those ",
+          "arms anchor each district to a regional survey total computed from ",
+          "every respondent in the region ", tags$em("including the scored ",
+          "district's own"), ", so a district is partly anchored to its own ",
+          "answer. Under the symmetric control, where a district never ",
+          "contributes to its own anchor, the gain disappears: mean r ",
+          tags$strong("0.147"), " against ", tags$strong("0.156"),
+          " for no anchor at all, and better in 8 of 24 cells rather than 20. ",
+          "The jackknifed arm is shown below alongside the original so the size ",
+          "of the correction is visible."),
         p("Each arm below re-scales the same district predictions so they ",
           "average, within each region, to the design-based survey estimate for ",
-          "that region — the ", tags$em("anchor"), ". Anchoring to Admin-1 ",
-          "more than doubles rank agreement and cuts absolute bias by more than ",
-          "half. Anchoring to the national total instead adds nothing to skill ",
-          "and makes bias worse, because one number cannot correct a level that ",
-          "is wrong region by region — it moves every district by the same ",
-          "amount, including the ones that were already right."),
+          "that region — the ", tags$em("anchor"), ". Compare the two Admin-1 ",
+          "hard arms: the difference between them is entirely whether a district ",
+          "was allowed to see its own survey response. Anchoring to the national ",
+          "total adds nothing to skill and makes bias worse in either version, ",
+          "because one number moves every district by the same amount, including ",
+          "the ones that were already right."),
+        p(class = "text-muted",
+          "What survives: the district map still takes its ", tags$em("level"),
+          " from the survey and its ", tags$em("pattern"), " from the model, and ",
+          "a transported map for a country with no survey remains readable as a ",
+          "ranking but not as a set of prevalences. What does not survive is the ",
+          "claim that anchoring improves skill."),
         layout_columns(
           col_widths = c(5, 7),
           radioButtons(ns("anchor_metric"), "Metric",

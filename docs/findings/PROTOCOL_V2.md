@@ -393,3 +393,49 @@ four countries run in parallel; with no argument it runs everything in one
 process. `PROFILE=smoke` runs Ghana at 3 replications. `V2_REPS` overrides the
 replication count (default 10). Seeds are fixed; re-running reproduces the
 tables.
+
+---
+
+## Addendum 2026-09-03 — production SuperLearner and the sandbox programme
+
+**Production change (on request).** `fit_predict_sl_prescreened()` in
+`R/benchmark_models.R` no longer calls `mlr3superlearner`. Reading that
+package's source showed it has no observation-weight argument, silently ignores
+`group=` for regression tasks (`make_mlr3_resampling()` returns plain
+`rsmp("cv")` for a `TaskRegr` before checking the group column), and cannot
+take a custom learner. The function now calls `fit_area_superlearner()` in
+`R/area_superlearner.R` (classic `SuperLearner`): survey weights `n_svy`, folds
+blocked by `country × Admin1`, the same six learners, discrete pick. Regenerated
+`results/tables/sl_prescreened_main.csv`: MAE 18.1 → 15.0 pp, |bias| 13.5 →
+10.8 pp, correlation essentially unchanged. The helper exposes alternative
+meta-learner losses (`meta = "rank" | "wrank" | "burden"`, and `ASL_META` for
+the production driver); tested and **not** adopted as default — see the
+sandbox log. Three `mlr3superlearner` sites in `R/area_level_comparison.R`
+still carry the original defects (spawned as a follow-up task).
+
+**Sandbox programme.** All further methodological work on 2026-09-03 ran in
+`scripts/protocol_v2/19`–`32`, outside the targets pipeline, and is recorded
+with results and interpretation in
+[SANDBOX_LOG_2026-09.md](SANDBOX_LOG_2026-09.md). Predictions for the next
+countries are fixed in
+[PREREGISTRATION_NEW_COUNTRIES_2026-09.md](PREREGISTRATION_NEW_COUNTRIES_2026-09.md).
+Items that qualify or extend this document's claims:
+
+- **Burden-capture margin over the survey baseline is small and partly a
+  jackknife artefact at 3–5 districts per region** (CF-01, R6-02). The ranking
+  advantage (0.29 vs 0.19; 15 of 18) stands; quote the burden margin only for
+  districts a survey did not reach.
+- **The model does not substitute for survey sample** (G4-02): fitted on a
+  reduced survey it degrades in lockstep with the survey-only estimate.
+- **Most Admin-2 units are single survey clusters** (Gambia 57%, Ghana 83%,
+  Malawi 85%), so the empirical ceiling counts cluster effects as geography;
+  on multi-cluster units ~16% of the within-split ceiling is cluster effect
+  (CE-01). Headroom is an upper bound.
+- **Transport is carried by remotely sensed climate and soil** (DA-01/02/03,
+  TC-02); a two-domain index transports at least as well as the full index at
+  the district rung and equally at Admin-1 — a pre-registered prediction, not
+  a result, because the set was chosen on these countries.
+- **An ensemble cannot beat the zero-tuning index at n = 14–87** under four
+  meta-learner losses (SL-01…04); rank-aligned losses fix the SuperLearner
+  relative to MSE but only recover the index's performance.
+

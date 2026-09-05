@@ -1473,7 +1473,11 @@ fit_predict_sl_prescreened <- function(train, test, vars,
                                           cor_threshold   = 0.85,
                                           sl_folds = 5L,
                                           include_coords = TRUE) {
-  if (!requireNamespace("mlr3superlearner", quietly = TRUE)) {
+  # 2026-09-03: switched from mlr3superlearner to fit_area_superlearner()
+  # (R/area_superlearner.R). mlr3superlearner has no weights argument and
+  # silently ignores `group=` for regression tasks, so this SL had been fitting
+  # districts with effective n from 6 to 500+ as equals, with unblocked folds.
+  if (!requireNamespace("SuperLearner", quietly = TRUE)) {
     return(fit_predict_spatial_plus_soil(train, test, vars))
   }
   vars <- intersect(vars, colnames(train))
@@ -1542,34 +1546,38 @@ fit_predict_sl_prescreened <- function(train, test, vars,
     fit_df$lon <- train$lon; fit_df$lat <- train$lat
     test_df$lon <- test$lon; test_df$lat <- test$lat
   }
-  library_fast <- list(
-    list("glmnet", alpha = 1,   id = "lasso"),
-    list("glmnet", alpha = 0.5, id = "elastic_net"),
-    list("glmnet", alpha = 0,   id = "ridge"),
-    list("ranger", num.trees = 250, min.node.size = 5, id = "ranger"),
-    list("xgboost", max_depth = 4, eta = 0.05, nrounds = 150,
-          subsample = 0.8, colsample_bytree = 0.8, id = "xgb"),
-    list("mean", id = "mean")
-  )
-  n_folds <- min(nrow(fit_df), sl_folds)
-  fit <- tryCatch(.with_benchmark_seed(suppressMessages(suppressWarnings(
-    mlr3superlearner::mlr3superlearner(
-      data = fit_df, target = "Y", library = library_fast,
-      outcome_type = "continuous", folds = n_folds)))),
+  # Same six learners as the former mlr3superlearner library, now with
+  # survey weights (n_svy) and folds blocked by region so neighbouring
+  # districts are held out together. Discrete pick, as before.
+  library_fast <- c("mean", "lasso", "enet", "ridge", "ranger", "xgb")
+  wts <- if ("n_svy" %in% colnames(train)) pmax(train$n_svy, 1) else NULL
+  block <- if (all(c("country", "Admin1") %in% colnames(train)))
+             paste(train$country, train$Admin1)
+           else if ("country" %in% colnames(train) &&
+                    length(unique(train$country)) > 1) train$country
+           else NULL
+  Xtr <- fit_df[, setdiff(colnames(fit_df), "Y"), drop = FALSE]
+  Xte <- test_df[, setdiff(colnames(test_df), "Y"), drop = FALSE]
+  fit <- tryCatch(.with_benchmark_seed(
+    fit_area_superlearner(Y = train$svy_prev, X = Xtr, newX = Xte,
+                          weights = wts, block = block, library = library_fast,
+                          V = sl_folds, discrete = TRUE,
+                          # meta-learner loss. "mse" is the historical default;
+                          # "rank" selects/combines learners by cross-validated
+                          # Spearman (scripts/protocol_v2/20_sl_rank_loss.R).
+                          # Read from ASL_META so the two can be compared on
+                          # the production benchmark without code edits.
+                          meta = Sys.getenv("ASL_META", "mse"))),
     error = function(e) {
-      cat(sprintf("    [sl_prescreened] SL fit failed: %s\n",
+      cat(sprintf("    [sl_prescreened] SL fit failed: %s
+",
                   conditionMessage(e))); NULL
     })
   if (is.null(fit)) return(NULL)
-  pred_tr <- tryCatch(as.numeric(stats::predict(fit, fit_df)),
-                       error = function(e) rep(mean(train$svy_prev), nrow(fit_df)))
-  pred_te <- tryCatch(as.numeric(stats::predict(fit, test_df)),
-                       error = function(e) NULL)
-  if (is.null(pred_te)) return(NULL)
-  list(pred = .bound01(pred_te), train_pred = .bound01(pred_tr),
-       method_note = sprintf("prescreened SL (%d vars survived; %d learners)",
-                              length(vars), length(library_fast)),
-       selected_vars = vars)
+  list(pred = .bound01(fit$pred_new), train_pred = .bound01(fit$pred_train),
+       method_note = sprintf("prescreened SL (%d vars survived; %d learners; %s)",
+                              length(vars), length(library_fast), fit$note),
+       selected_vars = vars, sl_pick = fit$pick, sl_coef = fit$coef)
 }
 
 

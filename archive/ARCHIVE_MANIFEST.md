@@ -93,6 +93,12 @@ To restore a file: `git mv archive/<path> <original-path>` (tracked) or
 | `dashboard/data-raw/test_endpoints_v2.R` | same | Ad-hoc endpoint smoke test (v2). Manual dev tool, not deployed. |
 | `dashboard/data-raw/test_server.R` | same | Ad-hoc server smoke test. Manual dev tool, not deployed. |
 
+## Retired 2026-09-02
+
+| File | Archived as | Why |
+|---|---|---|
+| `dashboard/R/mod_scenarios.R` | same | The "Scenarios" dashboard tab. Retired when the navigation was restructured. Its projections multiplied this project's district estimates by literature-default coverage and effect sizes that were not estimated here, so the output restated the user's own assumptions; its "what-if explorer" mode scaled prevalence by an arbitrary user-chosen shift, which read as a forecast. Replaced by `dashboard/R/mod_survey_planning.R`, which answers the budget question the audience actually has using measured design-curve data from `scripts/accuracy_impact/ws5_anchoring_budget.R`. Restore by moving it back into `dashboard/R/` and re-adding `mod_scenarios_ui`/`mod_scenarios_server` to `dashboard/app.R`. |
+
 ## Previously removed (before this pass)
 For completeness — these were removed in earlier sessions and are **not** in this
 archive:

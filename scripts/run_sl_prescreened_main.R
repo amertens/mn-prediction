@@ -23,9 +23,11 @@ suppressMessages({
   library(targets); library(dplyr); library(here); library(sf)
 })
 
-source(here::here("R", "benchmark_models.R"))
-source(here::here("R", "area_level_comparison.R"))
-source(here::here("R", "config.R"))
+# 2026-09-03: load R/ the way the pipeline does. Hand-picked source() lines
+# missed helpers that build_area_loco_dataset() depends on (e.g.
+# prune_gee_covariates) and would miss R/area_superlearner.R, the weighted,
+# blocked SL that fit_predict_sl_prescreened now calls.
+targets::tar_source(here::here("R"))
 
 STORE <- here::here("_targets_full")
 
