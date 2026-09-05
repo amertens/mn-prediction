@@ -16,15 +16,19 @@ comparator-fairness test, the consistent-rung baseline, the admin-1 transport
 and aggregation runs) silently dropped the country. The "12 of 12 regional
 cells at 0.50–0.56" of revisions d and e was therefore four outcomes in three
 countries. Re-run on all 22 cells the regional transport is **mean Spearman
-0.31, 17 of 22 positive** (0.43 and 12 of 12 in the two countries with eight
+0.30, 17 of 22 positive** (0.42 and 12 of 12 in the two countries with eight
 or more regions). The district-level, in-fill and burden numbers were not
 affected: the in-fill folds cannot be cut for Sierra Leone's 14 districts, so
 its absence changed nothing there.
 
-*Numbers refreshed at 08:17 on 4 September after the AlphaEarth embedding was
-moved out of the agriculture domain and Gambia's food-price window was
-corrected to its 2018 fieldwork: the regional full-index transport moved from
-0.29 to 0.31 and the district full-index transport from 0.25 to 0.26; no
+*Numbers refreshed twice on 4 September. At 08:17, after the AlphaEarth
+embedding was moved out of the agriculture domain and Gambia's food-price
+window was corrected to its 2018 fieldwork, the regional full-index transport
+moved from 0.29 to 0.31 and the district full-index transport from 0.25 to
+0.26. At 23:25, after Gambia's missing IHME block was restored (15 of 25 empty
+columns; sandbox log IH-01), the regional full-index transport settled at
+0.30, the penalised district fit moved from 0.24 (21 of 22) to 0.27 (19 of 22)
+and the regional permutation null's 95th percentile from 0.17 to 0.16; no
 other figure in this document moved by more than 0.01.*
 
 Every number comes from `results/tables/protocol_v2/` under one protocol:
@@ -66,9 +70,9 @@ under one harness.
 (0.398 vs 0.320 on the biomarker level, 0.286 vs 0.193 on prevalence, 15 of
 18 cells). **Rankings transport to a country never seen in training**:
 district-level mean Spearman 0.25–0.31 with the full vocabulary and 0.37 with
-climate and soil alone (22 of 22 positive); regional-level 0.31 over all 22
+climate and soil alone (22 of 22 positive); regional-level 0.30 over all 22
 cells and 0.45 with climate and soil (20 of 22), against a permutation null
-whose 95th percentile is 0.17. **It is not an urban–rural map**: partialling
+whose 95th percentile is 0.16. **It is not an urban–rural map**: partialling
 out night lights, population density, built surface and travel time moves
 the climate + soil transport by less than 0.02, and urbanicity alone does not
 transport (−0.07). **A national anchor is enough to put levels on the
@@ -108,7 +112,7 @@ was not selected on.
 
 *Results.* **The regional headline was a subset.** "Twelve of twelve at
 0.50–0.56" was three countries and four outcomes; on all 22 cells the regional
-transport is 0.31, 17 positive, the same figure the null calibration had
+transport is 0.30, 17 positive, the same figure the null calibration had
 reported all along. **Within a surveyed country geography is sufficient**: a
 covariate-free smoother scores 0.391 to the full model's 0.398 and covariates
 add nothing to its residuals. **The reliability ceiling was inflated by cluster
@@ -149,8 +153,8 @@ should be read as an upper bound or withdrawn.
 
 | Revision e claim | Status in f |
 |:---|:---|
-| Regional transport 0.50–0.56, 12 of 12 | **Corrected (BUG-01).** Three countries only. All 22 cells: 0.31 mean, 17 positive; climate + soil 0.45 (20 of 22); 0.43 and 12 of 12 in countries with ≥ 8 regions. |
-| DA-03: climate + soil "a wash" at Admin-1 | **Reversed.** Same bug. On 22 cells climate + soil 0.45 vs full 0.31 on the level, 0.38 vs 0.32 on prevalence. |
+| Regional transport 0.50–0.56, 12 of 12 | **Corrected (BUG-01).** Three countries only. All 22 cells: 0.30 mean, 17 positive; climate + soil 0.45 (20 of 22); 0.42 and 12 of 12 in countries with ≥ 8 regions. |
+| DA-03: climate + soil "a wash" at Admin-1 | **Reversed.** Same bug. On 22 cells climate + soil 0.45 vs full 0.30 on the level, 0.38 vs 0.31 on prevalence. |
 | District transport 0.28–0.31 (full), 0.368 (climate + soil) | **Stands.** No population join involved. |
 | Burden capture 24 / 19 / 20 percent; in-fill 15 of 18; CF-01 | **Stand.** Sierra Leone's 14 districts cannot be folded, so its absence changed nothing. |
 | Reliability ceiling "an upper bound; 16–27% cluster effect on multi-cluster units" | **Quantified on all units (VC-01).** Honest ceiling 0.44 vs 0.54; 21% cluster share; model at ceiling in 5 of 24 cells; child zinc ceiling 0.27 / 0.00. |

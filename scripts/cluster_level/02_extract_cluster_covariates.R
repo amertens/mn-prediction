@@ -140,7 +140,7 @@ for (cn in names(CFG)) { cf <- CFG[[cn]]; cl <- CL[CL$country == cn, ]; if (!nro
   if (length(trf) >= 3) { A <- do.call(cbind, lapply(trf, function(f) ex(f, v))); if (!is.null(A)) X <- addf(X, data.frame(trmm_clim_mean = rowMeans(A, na.rm = TRUE), trmm_clim_cv = apply(A, 1, stats::sd, na.rm = TRUE) / pmax(rowMeans(A, na.rm = TRUE), 1e-6)), "Climate and weather", "static", "TRMM (GEE)") }
   X <- add(X, ex(pick_year(d, "AerosolOptical", tg, Y), v), "aod", "Climate and weather", "dynamic", "MODIS AOD (GEE)")
   X <- add(X, ex(pick_year(d, "PopDensity", tg, Y), v), "popdens", "Ruralness, population density, built environment", "slow", "GPW (GEE)")
-  X <- add(X, ex(find_file(file.path("data/external_cache/worldpop", cf$iso), "^worldpop_"), v), "worldpop", "Ruralness, population density, built environment", "slow", "WorldPop")
+  m <- ex(find_file(file.path("data/external_cache/worldpop", cf$iso), "^worldpop_"), v); if (!is.null(m)) { colnames(m) <- ""; X <- add(X, m, "worldpop", "Ruralness, population density, built environment", "slow", "WorldPop") }   # one shared column; the band name is the country file name, which gave worldpop_<file> per country (all-NA elsewhere) in the 2026-09-04 extraction
   X <- add(X, ex(find_file(file.path("data/external_cache/nightlights", cf$iso), "^ntl_"), v), "ntl_viirs", "Ruralness, population density, built environment", "slow", "VIIRS")
   # ── modelled surfaces and malaria ────────────────────────────────────────
   for (f in list.files(file.path("data/external_cache/malaria_atlas", cf$iso), pattern = "^(Malaria|Interventions|Blood_Disorders)__.*[.]tif$", full.names = TRUE)) {

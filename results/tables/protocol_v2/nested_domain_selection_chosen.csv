@@ -4,7 +4,7 @@
 "level","child_vitA","Malawi",5,"Climate and weather | Ecosystem productivity/greenness | Soil characteristics | Satellite embedding | Food fortification and supplementation",0.555
 "level","child_vitA","SierraLeone",5,"Climate and weather | Ruralness, population density, built environment | Malaria | Household assets and characteristics | Built environment",0.471
 "level","women_vitA","Gambia",5,"Climate and weather | Infant and child morbidity/mortality | Ruralness, population density, built environment | Healthcare access | Food prices and supply",0.379
-"level","women_vitA","Ghana",2,"Infant and child morbidity/mortality | Climate and weather",0.527
+"level","women_vitA","Ghana",2,"Infant and child morbidity/mortality | Climate and weather",0.52
 "level","women_vitA","Malawi",5,"Soil characteristics | Agricultural production, land use | Food prices and supply | Water and sanitation | Dietary diversity",0.601
 "level","women_vitA","SierraLeone",2,"Climate and weather | Adult nutrition",0.525
 "level","child_iron","Gambia",2,"Agricultural production, land use | Soil characteristics",0.426
@@ -13,7 +13,7 @@
 "level","child_iron","SierraLeone",4,"Soil characteristics | Climate and weather | Agricultural production, land use | Ecosystem productivity/greenness",0.474
 "level","women_iron","Gambia",4,"Soil characteristics | Water and sanitation | Dietary diversity | Food prices and supply",0.409
 "level","women_iron","Ghana",4,"Satellite embedding | Ecosystem productivity/greenness | Malaria incidence and treatment | Dietary diversity",0.398
-"level","women_iron","Malawi",5,"Malaria incidence and treatment | Agricultural production, land use | Soil characteristics | Water and sanitation | Infant and child morbidity/mortality",0.457
+"level","women_iron","Malawi",5,"Malaria incidence and treatment | Agricultural production, land use | Soil characteristics | Water and sanitation | Infant and child morbidity/mortality",0.46
 "level","women_iron","SierraLeone",2,"Soil characteristics | Water and sanitation",0.468
 "level","women_folate","Ghana",3,"Food prices and supply | Agricultural production, land use | Built environment",0.415
 "level","women_folate","Malawi",2,"Malaria incidence and treatment | Healthcare access",0.389
@@ -22,11 +22,11 @@
 "level","women_b12","Malawi",2,"Agricultural production, land use | Climate and weather",0.736
 "level","women_b12","SierraLeone",5,"Satellite embedding | Built environment | Climate and weather | Soil characteristics | Dietary diversity",0.613
 "prev","child_vitA","Gambia",3,"Climate and weather | Ecosystem productivity/greenness | Education, employment, SES",0.312
-"prev","child_vitA","Ghana",5,"Soil characteristics | Malaria | Climate and weather | Infant and child morbidity/mortality | Water and sanitation",0.38
+"prev","child_vitA","Ghana",4,"Soil characteristics | Malaria | Climate and weather | Infant and child morbidity/mortality",0.367
 "prev","child_vitA","Malawi",4,"Soil characteristics | Ecosystem productivity/greenness | Climate and weather | Agricultural production, land use",0.473
 "prev","child_vitA","SierraLeone",5,"Climate and weather | Fertility, reproductive health | Household assets and characteristics | Ecosystem productivity/greenness | Malaria",0.442
 "prev","women_vitA","Gambia",1,"Adult nutrition",0.255
-"prev","women_vitA","Ghana",5,"Healthcare access | Household assets and characteristics | Dietary diversity | Infant and child morbidity/mortality | Malaria incidence and treatment",0.35
+"prev","women_vitA","Ghana",4,"Healthcare access | Household assets and characteristics | Dietary diversity | Infant and child morbidity/mortality",0.317
 "prev","women_vitA","Malawi",3,"Soil characteristics | Malaria | Healthcare access",0.325
 "prev","women_vitA","SierraLeone",5,"Climate and weather | Malaria | Food fortification and supplementation | Water and sanitation | Ruralness, population density, built environment",0.378
 "prev","child_iron","Gambia",2,"Soil characteristics | Satellite embedding",0.314

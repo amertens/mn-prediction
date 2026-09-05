@@ -1079,3 +1079,79 @@ left to try is the vocabulary itself (the district set's exact layers,
 SoilGrids included), a 10 km rural radius, and grid prediction; on this
 evidence the cluster track is a sensitivity analysis, not a replacement.
 -> `benchmarks_cluster_ws_{raw,cells,loco}.csv`
+
+## IH-01 · Gambia's missing IHME block, and the re-run after fixing it (RR-02)
+
+A coverage audit after the round was committed (finite share by country x
+domain, surveyed districts only) found three holes the column counts hide:
+
+- **Gambia: 25 of 34 IHME/GFDx columns all-NA** (finite share 0.26). Cause:
+  `08_build_extra_sources.R` picked ONE year per country, nearest the survey,
+  then filtered every indicator to that year. The IHME series end in different
+  years (child growth failure, education, WASH, ORS stop at 2017; anaemia,
+  EBF, MCV run to 2019); with Gambia's year wrongly set to 2021 the pick was
+  2019 and 18 of Gambia's 29 indicators vanished. Fixed: nearest year per
+  indicator, and Gambia 2018 (the same year bug as script 07). Gambia is now
+  0.70 finite (15 columns recovered; 41 of 41 IHME names match). The 10
+  still-empty columns are source gaps: GFDx has no Gambia rows, and IHME does
+  not model circumcision or the s* sanitation indicators for Gambia.
+- **Ghana: 26% NA on IHME columns** among surveyed districts, from name
+  matching against the 2019 district splits (185 of 293 IHME names exact, 13
+  unmatched after fuzzy matching). Not fixed here; the fix is zonal means of
+  the IHME GeoTIFF surfaces already on disk (`data/IHME/*/GeoTIFF`), as the
+  cluster track does.
+- **Cluster track: WorldPop as four country-specific columns** (the band name
+  is the file name), all-NA outside their own country and so excluded from the
+  shared vocabulary. Coalesced into one `worldpop` column (323 of 323 clusters
+  finite); `02` patched so the next extraction does this itself.
+
+Expected, not bugs: Ghana has no sibling-history block (its survey is not a
+DHS); the time-matched food and climate features exist only for dated,
+surveyed districts, by construction; WFP carries no pulses or animal series
+for Ghana and no animal or vegetable series for Malawi;
+`dhs_w_barrier_transport` is empty in all four countries; ESPEN (helminths)
+was never populated - `data/ESPEN` is empty.
+
+Everything downstream of the shared set was then re-run (rerun_all.ps1,
+22:45-23:25; scripts 43, 44, 47; the food and climate add-ons; the four
+individual-level shards; cluster 03 and 04). What moved, RR-01 -> RR-02:
+
+| Figure | RR-01 | RR-02 |
+|---|---|---|
+| Transport, district, zero-tuning index (level / prev) | 0.261 / 0.159 | 0.261 / 0.164 |
+| Transport, district, penalised domain fit (level) | 0.244 (21 of 22) | 0.273 (19 of 22) |
+| Transport, regional, full index (level / prev) | 0.310 / 0.316 (17 / 17 positive) | 0.300 / 0.312 (17 / 18) |
+| Regional, the two countries with >= 8 regions (level) | 0.43, 12 of 12 | 0.42, 12 of 12 |
+| NC-01 null 95th percentile, regional / district | 0.166 / 0.079 | 0.161 / 0.080 |
+| Climate + soil, district / regional (level) | 0.368 / 0.452 | 0.368 / 0.452 |
+| In-fill index vs jackknifed regional mean (level; prev) | 0.388 vs 0.320; 0.285 vs 0.193 | 0.389 vs 0.320; 0.286 vs 0.193 |
+| Region estimand, index (level / prev) | 0.366 / 0.268 | 0.369 / 0.272 |
+| Burden captured, index / jk / spatial | 0.241 / 0.190 / 0.229 | 0.241 / 0.190 / 0.229 |
+| DA-01 load-bearing domains (level) | soil +0.036, climate +0.033, agriculture +0.016, embedding +0.012 | soil +0.037, climate +0.028, agriculture +0.015, malaria +0.013, embedding +0.010 |
+| TC-01 slope per training country (level / prev) | +0.052 / +0.060 | +0.052 / +0.061 |
+| DA-02 nested selection vs full (level, median) | +0.018 | +0.022 |
+| AR-01 at f = 0.05: A1 / regional survey / district survey MAE (pp) | 10.4 / 12.5 / 19.6; crossover f 0.40 | 10.4 / 12.5 / 19.6; crossover f 0.40 (394 respondents) |
+| IL-01 AUC survey / proxies / both; Brier skill | 0.51 / 0.50 / 0.53; 0.012 / 0.003 / 0.019 | 0.51 / 0.51 / 0.53; 0.012 / 0.003 / 0.018 |
+| Cluster track, index transport at Admin-2 (prev / level) | 0.139 / 0.196 | 0.135 / 0.194 |
+
+Only Gambia's cells and the leave-one-country-out folds that train on Gambia
+moved; the largest single-cell changes are Gambia women's vitamin A at the
+regional tier (0.89 -> 0.77 on six units) and Malawi women's vitamin A
+(0.39 -> 0.27). The penalised fit gained 0.03 on the mean and lost two
+positive cells. The food-price and climate add-ons stay within +/-0.005 of
+"no gain" on every comparison (they had been scored at 07:20 against the
+pre-relabel set; they now match the current set). The AlphaEarth add-on was
+not re-run: `aef_*` has been its own domain since the relabel, so "plus"
+duplicates the base and "replace" equals it; DA-04's "only AlphaEarth" (0.20)
+is the remaining informative arm. The individual-level result moved only in
+Gambia (women's vitamin A AUC 0.46 -> 0.67, child iron 0.53 -> 0.58); the
+conclusion - skill only for iron, none for the vitamins - is unchanged.
+Cluster in-fill and region results are identical to three decimals; the
+coalesced WorldPop column adds nothing.
+
+Documents updated to 0.30 / 0.27 (19 of 22) / null 0.16: TWO_READINGS_2026-09f,
+NCE_IMPLICATIONS_2026-09-03, manuscript_mcn.qmd, the deck (re-rendered) and
+the memory notes. The RR-01 entry above is left as the record of that run.
+-> `scripts/protocol_v2/08_build_extra_sources.R`,
+`scripts/cluster_level/02_extract_cluster_covariates.R`; all tables under
+`results/tables/protocol_v2/` and `results/tables/cluster_level/` refreshed.

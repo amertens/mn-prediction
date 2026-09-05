@@ -56,14 +56,14 @@ less than it costs to defend.
 22* — **corrected 2026-09-04 (BUG-01).** The "12 of 12" was four outcomes in
 three countries: a population-file spelling dropped Sierra Leone from every
 population-joined run. On all 22 regional cells the mean rank correlation is
-0.31 with 17 positive (0.43 and 12 of 12 in the two countries with eight or
-more regions), against a permutation null whose 95th percentile is 0.17; with
+0.30 with 17 positive (0.42 and 12 of 12 in the two countries with eight or
+more regions), against a permutation null whose 95th percentile is 0.16; with
 the climate + soil index it is 0.45 (20 of 22). The district figure (mean 0.26 with 17 of 22 positive for the
-zero-tuning index, 0.24 with 21 of 22 for the penalised fit; 0.37 and 22 of
+zero-tuning index, 0.27 with 19 of 22 for the penalised fit; 0.37 and 22 of
 22 with climate + soil) is unaffected. Use: *"district
 and regional rankings transport to a country never used in training, with a
 mean rank correlation of about 0.3 at both tiers, far outside a permutation
-null (95th percentile 0.17); a two-domain index built from remotely sensed
+null (95th percentile 0.16); a two-domain index built from remotely sensed
 climate and soil layers reaches 0.37 at district level and 0.45 at regional
 level."* Do not quote 12 of 12 or 0.50–0.56 anywhere.
 

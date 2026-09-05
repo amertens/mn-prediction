@@ -56,7 +56,7 @@ suppressPackageStartupMessages({library(dplyr)})
 setwd("C:/Users/andre/OneDrive/Documents/mn-prediction")
 
 HDIR <- "data/covariates/harmonized"
-SURVEY_YEAR <- c(Gambia = 2021, Ghana = 2017, Malawi = 2015, SierraLeone = 2013)
+SURVEY_YEAR <- c(Gambia = 2018, Ghana = 2017, Malawi = 2015, SierraLeone = 2013)   # Gambia fieldwork Jan-Apr 2018 (FW-01); was 2021 until 2026-09-04
 COUNTRIES <- names(SURVEY_YEAR)
 kk <- function(x) tolower(gsub("[^a-z]", "", tolower(x)))
 
@@ -107,10 +107,17 @@ for (cn in COUNTRIES) {
                  ignore.case = TRUE), ]
   d <- d[is.finite(d$mean), ]
   if (!nrow(d)) { cat("  ", cn, "no usable rows\n"); next }
-  yrs <- sort(unique(d$year))
-  pick <- yrs[which.min(abs(yrs - SURVEY_YEAR[[cn]]))]
-  d <- d[d$year == pick, ]
+  # NEAREST YEAR PER INDICATOR, not per country. The series end in different
+  # years (child growth failure, education, WASH, ORS stop at 2017; anaemia,
+  # EBF, MCV run to 2019). One year per country kept only the indicators whose
+  # series reached that year: with 2021 as Gambia's year the pick was 2019 and
+  # 18 of Gambia's 29 indicators went all-NA (found 2026-09-04).
   d$.key <- paste0("ihme_", kk(d$measure))
+  d$year <- suppressWarnings(as.numeric(d$year)); d <- d[is.finite(d$year), ]
+  yp <- d |> group_by(.key) |>
+    summarise(.pick = year[which.min(abs(year - SURVEY_YEAR[[cn]]))], .groups = "drop")
+  d <- d |> inner_join(yp, by = ".key") |> filter(year == .pick)
+  pick <- paste(range(d$.pick), collapse = "-")
   d$.w <- if ("pop" %in% names(d)) suppressWarnings(as.numeric(d$pop)) else 1
   d$.w[!is.finite(d$.w) | d$.w <= 0] <- 1
   agg <- d |> group_by(.a = as.character(adm2_name), .key) |>
@@ -119,7 +126,7 @@ for (cn in COUNTRIES) {
     as.data.frame()
   lvl <- IHME_LEVEL[[cn]]
   tgt <- unique(spine[[lvl]][spine$country == cn])
-  cat(sprintf("  %-12s year %d, %3d indicators, join at %s\n",
+  cat(sprintf("  %-12s years %s, %3d indicators, join at %s\n",
               cn, pick, ncol(w) - 1, lvl))
   w$.match <- match_names(w$.a, tgt, paste(cn, lvl))
   w <- w[!is.na(w$.match), , drop = FALSE]
