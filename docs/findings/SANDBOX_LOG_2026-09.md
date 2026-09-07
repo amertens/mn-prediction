@@ -1327,6 +1327,12 @@ adds the 10 km radius). The zero-tuning index on the cluster vocabulary at the
 district (0.416 in-fill level) is also the best in-fill number in this log.
 -> `results/tables/cluster_level/matched_vocabulary_{cells,summary,common_cells}.csv`
 
+*Addendum after FX-01 (re-run on the corrected targets and the 471-column
+set): every figure in the table above moved by 0.01 or less (level: in-fill
+full 0.398 / cluster vocabulary 0.424 / cluster-fitted 0.423; region 0.242 /
+0.318 / 0.359; transport 0.271 / 0.224 / 0.231; prevalence within 0.01
+throughout). The reading stands.*
+
 ## CL-05 · 10 km rural buffers (scripts/cluster_level/02 with CL_RURAL_KM=10; results/tables/cluster_level/r10/)
 
 The design note's sensitivity: the DHS convention of 2 km urban / 5 km rural
