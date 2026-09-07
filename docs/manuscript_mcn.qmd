@@ -90,9 +90,9 @@ abstract: |
   country–outcome combinations for the zero-tuning index (17 positive; 0.27
   and 20 positive for the penalised fit) and 0.37 (22 positive) for an index
   built only from remotely sensed climate and soil layers; at the first
-  sub-national tier the same 22 combinations gave 0.32 (17 positive) and 0.45
+  sub-national tier the same 22 combinations gave 0.31 (17 positive) and 0.46
   with climate and soil, against a permutation null whose 95th percentile is
-  0.15. Absolute prevalence levels did not transport. Used for
+  0.16. Absolute prevalence levels did not transport. Used for
   targeting, the worst-ranked fifth of districts reached 26% more deficiency
   burden than the same effort guided by regional survey averages, which were
   themselves no better than random selection; in Malawi, those districts
@@ -151,9 +151,11 @@ corrected to its 2018 fieldwork; the protocol tables were re-run in full at
 IHME block was restored (sandbox log IH-01), and on 2026-09-07 after three
 domains were added (livestock density, water and coast proximity, helminth
 burden) and the IHME block was rebuilt from its 5 km surfaces (NL-01;
-473 columns, 24 domains). Numbers that moved by more than 0.01 are updated
+473 columns, 24 domains), and again that evening after two audit fixes
+(FX-01: anaemia prevalence columns removed from the vocabulary; the vitamin A
+level target rebuilt on the uniform BRINDA-adjusted RBP). Numbers that moved by more than 0.01 are updated
 throughout: the district transport of the zero-tuning index (0.25 to 0.26, then 0.27)
-and the regional transport (0.29 to 0.31, then 0.30, then 0.32). The district figure formerly
+and the regional transport (0.29 to 0.31, then 0.30, then 0.32, then 0.31 after the audit fixes). The district figure formerly
 quoted as "21 of 22, mean 0.281" was the penalised domain fit; it is now 0.27
 (20 of 22), and the text quotes the estimator of record, the
 zero-tuning index, alongside it. In-fill, burden capture, the comparator
@@ -1590,13 +1592,13 @@ from at all.
 **Rank transports across borders; level does not.** Under leave-one-country-out,
 district rankings transport with a mean Spearman of **0.27** over the 22
 evaluable country-outcome combinations for the zero-tuning domain index (17
-positive; the penalised domain fit gives 0.27 with 20 positive) and **0.37**
+positive; the penalised domain fit gives 0.29 with 20 positive) and **0.37**
 (22 positive) for an index built from the climate and soil domains alone. At
 the first sub-national tier (regions, or Malawi's districts) the same 22
-combinations give a mean Spearman of **0.32** (17 positive), and **0.45** (20
+combinations give a mean Spearman of **0.31** (17 positive), and **0.46** (20
 positive) for the climate-and-soil index; a country-block permutation null,
 which keeps the correlation between outcomes within a country, has a 95th
-percentile of 0.15 for the regional mean and 0.08 for the district mean, so
+percentile of 0.16 for the regional mean and 0.08 for the district mean, so
 the means are far outside chance while counts of positive cells are not (no
 transport at all yields 15–16 of 22 positive five percent of the time). An earlier draft of this section carried
 a regional figure of 0.50–0.56 over 12 combinations; that figure rested on
@@ -1723,7 +1725,7 @@ smooth from, not as a general improvement on spatial smoothing.
 transport under leave-one-country-out with a mean Spearman of 0.27 over 22
 combinations (0.37 for the climate-and-soil index, positive in all 22), and
 regional rankings with 0.32 (0.45 for climate and soil), against permutation
-nulls whose 95th percentiles are 0.08 and 0.15; absolute prevalence does not,
+nulls whose 95th percentiles are 0.08 and 0.16; absolute prevalence does not,
 consistent with the biomarker level offsets
 between surveys documented in @sec-zscore. The transportable deliverable is a
 ranked priority list. We note against ourselves that burden-weighted targeting
@@ -1996,7 +1998,7 @@ replicates and stands.
 Under the corrected protocol, covariate models beat an information-matched
 survey baseline in both within-country estimands, and district rankings
 transport to unsurveyed countries with a mean rank correlation of 0.27 (0.37
-from climate and soil alone; regional rankings 0.32 and 0.45) while
+from climate and soil alone; regional rankings 0.31 and 0.46) while
 absolute levels do not. The defensible deliverable is therefore a ranked district priority list
 rather than a prevalence map, and it is worth about a quarter more deficiency
 burden reached, per unit of programme effort, than the survey's own regional

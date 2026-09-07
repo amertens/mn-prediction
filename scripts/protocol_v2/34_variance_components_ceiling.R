@@ -86,7 +86,9 @@ for (cn in names(cfg)) { cc <- cfg[[cn]]; lc <- tolower(cn); clu <- cc$cluster_i
     yb <- tryCatch(resolve_uniform_outcome(d, cc, oc), error = function(e) NULL)
     ybin <- if (!is.null(yb)) as.numeric(yb) else .v2_num(d[[oc$binary]])
     ycont <- rep(NA_real_, nrow(d))
-    if (!is.null(oc$continuous) && oc$continuous %in% names(d)) {
+    adj_vita <- if (!is.null(oc$tag) && grepl("vitA", oc$tag, ignore.case = TRUE)) tryCatch(brinda_vad_adjusted(d, cc, oc, label = "[vc level]"), error = function(e) NULL) else NULL
+    if (!is.null(adj_vita)) { v <- as.numeric(adj_vita); v[!is.finite(v) | v <= 0] <- NA; ycont <- -log(v) }   # same adjusted RBP as the prevalence (AU-01)
+    else if (!is.null(oc$continuous) && oc$continuous %in% names(d)) {
       v <- .v2_num(d[[oc$continuous]]); t <- if (identical(oc$cutoff_scale, "log")) v else { v[!is.finite(v) | v <= 0] <- NA; log(v) }; ycont <- -t }
     a1 <- as.character(d$Admin1); a2 <- as.character(d$Admin2); cl <- as.character(d[[clu]])
     rungs <- list(admin2 = list(region = a1, unit = a2))

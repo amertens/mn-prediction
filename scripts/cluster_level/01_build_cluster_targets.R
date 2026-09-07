@@ -52,7 +52,9 @@ for (lc in names(COUNTRIES)) { cn <- COUNTRIES[[lc]]; cc <- cfgs[[cn]]
     yb <- tryCatch(resolve_uniform_outcome(d, cc, oc, label = "[cl]"), error = function(e) NULL)
     ybin <- if (!is.null(yb)) .v2_num(yb) else .v2_num(d[[oc$binary]])
     ycont <- rep(NA_real_, nrow(d))
-    if (!is.null(oc$continuous) && oc$continuous %in% names(d)) { v <- .v2_num(d[[oc$continuous]])
+    adj_vita <- if (!is.null(oc$tag) && grepl("vitA", oc$tag, ignore.case = TRUE)) tryCatch(brinda_vad_adjusted(d, cc, oc, label = "[cl level]"), error = function(e) NULL) else NULL
+    if (!is.null(adj_vita)) { v <- as.numeric(adj_vita); v[!is.finite(v) | v <= 0] <- NA; ycont <- -log(v) }   # same adjusted RBP as the prevalence (AU-01)
+    else if (!is.null(oc$continuous) && oc$continuous %in% names(d)) { v <- .v2_num(d[[oc$continuous]])
       t <- if (identical(oc$cutoff_scale, "log")) v else { v[!is.finite(v) | v <= 0] <- NA; log(v) }; ycont <- -t }
     dd <- data.frame(cluster = as.character(d[[cc$cluster_id]]), Admin1 = as.character(d$Admin1), Admin2 = as.character(d$Admin2), ybin = ybin, ycont = ycont, w = w, stringsAsFactors = FALSE)
     agg <- dd |> filter(!is.na(cluster)) |> group_by(cluster) |> summarise(

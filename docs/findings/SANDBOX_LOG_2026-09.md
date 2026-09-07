@@ -1364,3 +1364,180 @@ one voice, generates every table from the protocol CSVs at render time, and
 moves the individual-level SuperLearner and the corrected-methods (P1-P8)
 material to Supplement S1 with the per-cell transport table as S3. The first
 version is unchanged for comparison. Rendered to `docs/manuscript_mcn_v2.docx`.
+
+## AU-01 · Audit of the aggregation and cleaning layer (2026-09-07)
+
+An independent read of the harmonisation, block-building and target scripts
+(build_shared_predictor_set, 03_harmonize, harmonize_extra_domains, 07, 08,
+48, 49, 01_build_targets_v2, the protocol helpers, the cluster extraction),
+excluding the defects already logged (BUG-01, IH-01, the AlphaEarth label,
+the Gambia year). Findings, ranked; the first eight were verified against the
+code line by line, the rest are the auditor's and are plausible on the
+metadata.
+
+1. **Leakage: DHS anaemia prevalence is a predictor.** `dhs_AN_ANEM_W_ANY`
+   and `dhs_CN_ANMC_C_ANY` (surveyPrev built-ins, women's and children's
+   anaemia, all four countries, completeness 0.87) sit in the "Adult
+   nutrition" domain. `metadata/covariates/exclusions.csv` only matches the
+   custom spellings `^dhs_(w|c)_anemia_` and `^dhs_c_mean_hemoglobin$`, and
+   `drop_near_outcome_v2` drops modelled surfaces only, and only under
+   `V2_DROP_MODELLED=1`. Anaemia is the downstream consequence of iron
+   deficiency measured on the same respondents' blood draw, so every iron
+   cell (in-fill and transport) has seen it. Fix: add
+   `^dhs_(AN_ANEM|CN_ANMC)` to the exclusions, rebuild stage 3 and the shared
+   set, re-score; expect the iron cells to lose some skill, the vitamins
+   none.
+2. **Bug: the level and prevalence targets use different inflammation
+   adjustments for vitamin A.** `01_build_targets_v2.R` builds `y_level` from
+   the configured continuous column (Thurnham-adjusted RBP in Gambia and
+   Ghana, an unspecified adjustment in Sierra Leone, RAW RBP in Malawi, per
+   `R/brinda_adjustment.R`), while `y_prev` comes from the uniform BRINDA
+   CRP + AGP derivation. Malawi's level target therefore ranks districts
+   partly by inflammation geography. Fix: return the adjusted RBP vector from
+   the BRINDA derivation and build both targets from it.
+3. **Unit: `wpop_log_density*` is log population COUNT.**
+   `09_extract_gee_demography.py` and `11_extract_gee_rwi_density.py` write
+   `log1p(total population per polygon)`; within-country ranks reward large
+   sparse districts and the Ruralness PCs mix area with density. Fix: divide
+   by polygon area before the log.
+4. **Time-matching: Malaria Atlas layers are taken at the release year.**
+   `R/external_data.R` passes the year embedded in the dataset id
+   (2022 / 2024 / 2025) to `getRaster` for every country, 4-12 years after
+   the surveys, and the 202206 / 202406 / 202508 releases of the same product
+   are separate columns (23 `map_` columns for about 9 quantities; the count
+   layers are per-pixel counts). Fix: one release, `year = survey year`.
+5. **Leakage review bypassed for the derived DHS block.** The
+   `EXTRA_DERIVERS` columns are joined without applying `exclusions.csv`;
+   `dhs_w_iron_pregnancy`, `dhs_c_vita_capsule` and `dhs_c_fg_vitA_fruitveg`
+   are the constructs the review excluded under other names (iron and
+   vitamin A supplementation are targeted by measured deficiency). Decide
+   explicitly; the metadata flags none of them.
+6. **Weighting: one national design effect for every district.**
+   `n_eff = n_raw / deff_national` regardless of how many PSUs a district
+   holds, so a 30-respondent three-PSU district is weighted like a
+   single-PSU one (under-weighted two- to three-fold). Fix:
+   `deff_d = 1 + (n_d / k_d - 1) * rho` with `rho` from the national deff.
+7. **Survey year drift:** Gambia = 2020 in the two Earth Engine Python
+   extractors (SMOD epoch, "survey-year" density) and 2018 elsewhere; Malawi
+   2015 in most scripts and 2016 in `R/config.R` and two harmonisers. Same
+   class as IH-01; one source of truth in `R/config.R`.
+8. **ESPEN MDA features are post-survey** for Sierra Leone (2013) and Malawi
+   (2015): `mda_share` / `cov_mean` cover 2014-18, and `cov_mean = 0` when
+   nothing was delivered conflates "no programme" with zero coverage. Fix:
+   years <= survey year, NA when nothing delivered.
+9. Ghana's HFID food-security block is empty within the +/-2-year window
+   (rows exist for 2009/2012 and 2020-22 only), so the `fsec_*` columns have
+   at most three countries and leave the LOCO intersection for everyone.
+10. Exposure surfaces (Malaria Atlas, travel time, night lights, SMOD, water
+    distance) are area-weighted zonal means; population-weighting is what
+    respondents experience (script 48 has the weights already).
+11. `ghsl_smod_mean` averages an ordinal class code; a population share in
+    SMOD >= 21 is the urbanicity conditioner UR-01 wanted.
+12. Thirty of 57 climate and greenness columns are calendar slices
+    (`ndvi_y*`, `precip_y*`, `lst_night_m01-12`); the cluster track's
+    climatology / amplitude / peak-month / anomaly summaries should replace
+    them at the district too.
+13. Per-capita and share features are missing outside livestock (crop
+    production per person, pulse and animal shares of supply).
+14. DHS cluster point-in-polygon on displaced GPS drops clusters outside any
+    polygon silently and can misassign border clusters; log the count and
+    snap.
+
+Checked and sound: the nine appended blocks join key-for-key to the 554-row
+spine; Gambia's child blood weight equals the survey weight; GFDx has no
+Gambia rows (source gap); unit conversions and categorical-code exclusions;
+design-effect estimation; no fieldwork-window column in the district set;
+rank normalisation, ties, coverage floor, LOCO column intersection, PC
+orientation from training rows.
+
+None of these was acted on in this entry. Findings 1 and 2 change headline
+numbers if fixed and are the user's call; 3, 4, 6, 7 and 8 are mechanical.
+
+## FX-01 · The two audit fixes and the re-run (RR-05)
+
+At the user's direction the two result-changing findings of AU-01 were fixed
+and everything re-run (rerun_all 15:30-16:0x; scripts 43, 44, 47, 34; the four
+individual-level shards; cluster targets and benchmarks).
+
+- **Anaemia leakage.** `^dhs_(AN_ANEM|CN_ANMC)` added to
+  `metadata/covariates/exclusions.csv` and the two columns
+  (`dhs_AN_ANEM_W_ANY`, `dhs_CN_ANMC_C_ANY`) dropped from the live shared set
+  (473 -> 471 predictors). Effect on the zero-tuning index: at most 0.04 in a
+  single iron cell (Gambia women's iron transport 0.41 -> 0.37), 0.00 on the
+  iron means (transport level 0.264 -> 0.257 over 8 cells; prevalence
+  unchanged). Two columns in a 24-domain composite carry little; the
+  individual-level Malawi child iron proxy skill fell from 0.012 to 0.000,
+  the one place the leak was doing visible work.
+- **Vitamin A level target.** `brinda_vad_adjusted()` now returns the
+  uniformly BRINDA-adjusted RBP the prevalence is cut from, and scripts
+  01_build_targets_v2, cluster 01 and 34 build `y_level` from it (level source
+  recorded as `brinda_adjusted_rbp` in deff_v2.csv). District rankings of the
+  new against the old level: Spearman 0.98-1.00 everywhere except Malawi
+  child vitamin A (0.87), whose old level was raw RBP. Malawi child vitamin A
+  on the level: in-fill 0.12 -> 0.19, region 0.14 -> 0.19, transport 0.18 ->
+  0.20.
+
+| Figure | RR-04 | RR-05 |
+|---|---|---|
+| Transport, district, zero-tuning index (level / prev) | 0.271 / 0.182 (17 / 16) | 0.271 / 0.181 (17 / 16) |
+| Transport, district, penalised domain fit (level) | 0.265 (20 of 22) | 0.294 (20 of 22) |
+| Transport, regional, full index (level / prev) | 0.323 / 0.327 (17 / 17) | 0.308 / 0.325 (17 / 17) |
+| Climate + soil, district / regional (level) | 0.368 / 0.452 | 0.370 / 0.457 (22 / 20 positive) |
+| NC-01 null 95th percentile, regional / district | 0.149 / 0.081 | 0.159 / 0.082 |
+| In-fill index vs jackknifed regional mean (level; prev) | 0.392 vs 0.320; 0.291 vs 0.193 | 0.393 vs 0.314; 0.292 vs 0.193 |
+| Region estimand, index (level / prev) | 0.373 / 0.275 | 0.378 / 0.275 |
+| Burden captured, index / jk / spatial | 0.244 / 0.190 / 0.229 | 0.245 / 0.190 / 0.229 |
+| DA-01 load-bearing domains (level) | soil +0.021, livestock +0.012, agriculture +0.011, climate +0.010 | soil +0.025, climate +0.014, agriculture +0.012, livestock +0.009 |
+| TC-01 slope per training country (level / prev) | +0.053 / +0.063 | +0.047 / +0.063 |
+| DA-02 nested selection vs full (level, median) | +0.036 | +0.029 |
+| VC-01 honest ceiling on prevalence; cells at ceiling | 0.44; 5 of 24 | 0.435; 3 of 24 |
+| RC-01 vitamin A bands, in-fill exact / within one | 0.52 / 0.90 | 0.54 / 0.89 |
+| IL-01 AUC survey / proxies / both; Brier skill | 0.51 / 0.51 / 0.53; 0.012 / 0.001 / 0.017 | 0.51 / 0.51 / 0.51; 0.012 / 0.000 / 0.016 |
+| AR-01 at f = 0.05: A1 / regional / district survey MAE | 10.4 / 12.5 / 19.6 | 10.4 / 12.5 / 19.6 |
+| Cluster track, in-fill index level / prev; transport at Admin-2 level / prev | 0.319 / 0.206; 0.241 / 0.173 | 0.324 / 0.209; 0.231 / 0.170 |
+
+Reading: the vocabulary change is invisible at the index level and only
+visible where a single column could carry a cell; the target change is a
+genuine correction that raises Malawi child vitamin A and, through it, the
+climate + soil regional index (0.452 -> 0.457) and the penalised fit. The
+regional full index drops 0.015 and the regional null rises 0.010, both
+within the range the earlier refreshes moved them. Documents now quote 0.31
+(regional full), 0.46 (regional climate + soil), 0.16 (regional null), 0.29
+(penalised, 20 of 22), 3 of 24 at the ceiling.
+
+## HP-01 · hapc smoke test: principal-component Highly Adaptive Lasso / Ridge (scripts/protocol_v2/50, 51)
+
+Wang, Schuler, van der Laan and Garcia Meixide (arXiv 2602.10613v2): the HAL
+basis (lower-orthant indicators at every observed knot, all interaction
+subsets) is never built; its Gram matrix K(x, x') = sum_i (2^|S_i| - 1) is
+eigendecomposed and the outcome regressed on the leading scores by ridge
+(PCHAR, closed form), lasso (PCHAL, soft-thresholding, nested models in
+lambda) or early-stopped gradient descent; a projected-gradient
+sectional-variation variant ("sv") is the package's default. The `hapc`
+Python package (2.6.0, PyPI wheel, C++ core) installed cleanly into the
+reticulate venv; `cv_hapc(X, Y, norm=..., max_degree=1, predict=Xte)` with
+its own inner 5-fold lambda search was wrapped in the protocol's district
+folds so that the out-of-fold Spearman is comparable with the domain index.
+Design matrices: the protocol's domain PCs (97 for Ghana child iron in-fill,
+123 for the pooled leave-one-country-out), built by script 50 on the
+post-FX-01 set. Reference: the domain index on the same cells, and a plain
+ridge on the same PCs.
+
+| Cell / estimand | PCHAR (norm 2) | PCHAL (norm 1) | sv | Ridge on PCs | Domain index |
+|---|---|---|---|---|---|
+| Ghana child iron, in-fill, level (3 draws, median) | 0.576 | 0.562 | 0.536 | 0.555 | 0.58 |
+| Ghana child iron, in-fill, prevalence | 0.485 | 0.488 | 0.446 | 0.515 | 0.55 |
+| Child iron, transport at Admin-2, level (mean of 4) | 0.169 | 0.275 | (too slow) | 0.282 | 0.30 |
+| Child iron, transport, prevalence | 0.171 | 0.243 | - | 0.272 | 0.32 |
+| Child vitamin A, transport, level | 0.221 | 0.199 | - | 0.300 | 0.33 |
+| Child vitamin A, transport, prevalence | -0.105 | 0.128 | - | 0.099 | 0.24 |
+
+(sv in-fill figures from the first run on the pre-fix designs; the LOCO sv
+fits, projected gradient descent on 150-160 pooled rows, ran for over half an
+hour without finishing and were dropped.) Verdict: the package works and the
+closed-form modes are fast (0.1 s per fit); on these designs PCHAR/PCHAL
+match the zero-tuning index in-fill and trail it and a plain ridge across
+borders, where the kernel's knot geometry is learned on three countries'
+rank-normalised PCs and does not transfer. It is a candidate SuperLearner
+library member for in-fill, not a replacement for the index, and the
+sectional-variation mode is impractical at the pooled size. -> `hapc_smoke/hapc_smoke_results.csv`

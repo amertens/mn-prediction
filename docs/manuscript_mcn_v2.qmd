@@ -58,15 +58,15 @@ abstract: |
   scored on identical folds.
 
   **Results.** Within a surveyed country, covariates beat the honest survey
-  baseline (rank correlation 0.39 against 0.32 on the biomarker concentration,
+  baseline (rank correlation 0.39 against 0.31 on the biomarker concentration,
   0.29 against 0.19 on prevalence) but a covariate-free spatial smoother
   scores 0.39 where the full covariate model scores 0.39. Rankings transport
   to a country never used in training: mean Spearman 0.27 over 22
-  country–outcome combinations at district level (17 positive) and 0.32 at
+  country–outcome combinations at district level (17 positive) and 0.31 at
   the first sub-national tier, against permutation nulls whose 95th
-  percentiles are 0.08 and 0.15; an index built only from remotely sensed
+  percentiles are 0.08 and 0.16; an index built only from remotely sensed
   climate and soil layers transports better, 0.37 (22 of 22 positive) and
-  0.45 (20 of 22). Absolute prevalence does not transport. Directing effort to
+  0.46 (20 of 22). Absolute prevalence does not transport. Directing effort to
   the fifth of districts the model ranks worst reaches 24% of national
   deficiency burden against 19% for regional survey averages and 20% at
   random. A national biomarker sample of five percent of a survey plus the
@@ -74,7 +74,7 @@ abstract: |
   against 20 for a district survey of the same size, which needs about 40% of
   the full sample to do better. A variance-components ceiling puts the
   attainable prevalence correlation at 0.44, one fifth of the split-half
-  ceiling being cluster effect; the model is at that ceiling in five of 24
+  ceiling being cluster effect; the model is at that ceiling in three of 24
   cells. Four data blocks added in this revision (livestock density, distance
   to water and coast, helminth burden, and IHME surfaces re-extracted as
   zonal means) move the index by less than 0.01 each. Evaluation design moved
@@ -409,7 +409,7 @@ and its regions with
 the country-block permutation null's 95th percentiles are
 `r { nc <- rd(P2, "transport_null_calibration.csv"); sprintf("%.2f and %.2f", get(nc$null_mean_q95[nc$tier == "admin2"]), get(nc$null_mean_q95[nc$tier == "admin1"])) }`.
 An index built only from the climate and soil domains transports better at
-both tiers, 0.37 at district level (positive in all 22) and 0.45 at the
+both tiers, 0.37 at district level (positive in all 22) and 0.46 at the
 regional tier (20 of 22). That two-domain index was chosen on the same four
 countries it is scored on, which is why it enters the next country as a
 pre-registered prediction rather than a result; honest nested selection of
@@ -507,7 +507,7 @@ next. A respondent-in-cluster-in-district-in-region variance model reproduces
 the split-half ceiling when the cluster is included and removes it when it is
 not (@tbl-ceiling). One fifth of the split-half ceiling is cluster effect; the
 honest ceiling averages 0.44 on prevalence, six of 24 cells have a ceiling
-below 0.30, and the model already reaches the ceiling in five cells. Child
+below 0.30, and the model already reaches the ceiling in three cells. Child
 zinc has no district geography at all: its between-district variance is zero,
 and what a split-half estimator called geography was the cluster. The earlier
 analytic ceiling, which assumed a design effect of 1.5, was biased low by
@@ -572,17 +572,17 @@ protocol made a dropped country or a mis-filed domain visible.
 kb(df(
   Result = c("Within-country rank correlation", "Covariate-free survey baseline", "Reliability ceiling (prevalence)", "Regional transport",
              "District transport", "Regional anchoring gain", "Predictor significance screen", "Covariates vs geography, cells won",
-             "Individual-level arm", "Satellite embedding", "IHME block for The Gambia", "Population join"),
+             "Individual-level arm", "Satellite embedding", "IHME block for The Gambia", "Population join", "DHS anaemia prevalence as a predictor", "Vitamin A level target"),
   `Earlier evaluation` = c("0.058 (one fold draw)", "r 0.516, beat every covariate arm", "0.098 analytic, then 0.47–0.61 split-half",
              "0.50–0.56, 12 of 12", "0.28 penalised fit, 21 of 22", "0.164 to 0.413, better in 20 of 24", "0 of 294 survive FDR",
-             "6 of 24", "0.516, headline", "64 columns filed under agriculture", "25 of 34 columns empty", "Sierra Leone dropped from every population-joined run"),
+             "6 of 24", "0.516, headline", "64 columns filed under agriculture", "25 of 34 columns empty", "Sierra Leone dropped from every population-joined run", "In the vocabulary, all four countries", "Each survey's own adjusted RBP (raw in Malawi)"),
   `Under the protocol` = c("0.22 replicated; 0.39 (level) and 0.29 (prevalence) for the index", "0.076 jackknifed; loses to the index",
-             "0.44 variance-components; 21% of the split-half ceiling was cluster effect", "0.32 over 22 cells, 17 positive; three countries only before",
-             "0.27 zero-tuning index, 17 of 22; 0.27 penalised, 20 of 22", "0.147 vs 0.156 unanchored; withdrawn", "Screen had power 0.005; sign replication reported instead",
+             "0.44 variance-components; 21% of the split-half ceiling was cluster effect", "0.31 over 22 cells, 17 positive; three countries only before",
+             "0.27 zero-tuning index, 17 of 22; 0.29 penalised, 20 of 22", "0.147 vs 0.156 unanchored; withdrawn", "Screen had power 0.005; sign replication reported instead",
              "10 of 24 (miscount); tied on matched folds", "Trained on the scored district's respondents; supplement only", "Own domain; +0.01 on transport",
-             "One year per country dropped every series ending earlier; fixed per indicator", "Spelling normalised; all 22 cells restored"),
+             "One year per country dropped every series ending earlier; fixed per indicator", "Spelling normalised; all 22 cells restored", "Removed; iron transport moved by at most 0.04 in one cell, the index by 0.00", "Same BRINDA-adjusted RBP as the prevalence; Malawi child vitamin A level +0.05 to +0.07"),
   `What moved it` = c("Replicated folds", "Jackknife", "Variance model with cluster term", "BUG-01 found by the per-country cell count", "Estimator of record stated",
-             "Jackknifed control arm", "Attained power reported", "Recount; matched folds", "Estimand named", "Metadata audit", "Per-country coverage audit", "Per-country cell count")))
+             "Jackknifed control arm", "Attained power reported", "Recount; matched folds", "Estimand named", "Metadata audit", "Per-country coverage audit", "Per-country cell count", "Per-column leakage audit (AU-01)", "Audit of target construction (AU-01)")))
 ```
 
 Two lessons generalise. First, a baseline or benchmark computed from data that

@@ -87,7 +87,13 @@ apply_brinda_vita_binary <- function(d, cc, oc, label = "") {
 #'
 #' @return integer 0/1 vector the length of nrow(d), or NULL if the country's
 #'   biomarker columns are unavailable (caller keeps the configured binary).
-brinda_vad_binary <- function(d, cc, oc, cutoff = 0.70, label = "") {
+#' The uniformly adjusted RBP vector (umol/L) the VAD binary is cut from.
+#' Exposed on 2026-09-07 (AU-01 finding 2) so the LEVEL target can use the
+#' same adjustment as the prevalence target; before that, the level came from
+#' each survey's own adjusted (Malawi: raw) RBP.
+#' @return numeric vector the length of nrow(d) with attribute "n_fallback",
+#'   or NULL if the country's biomarker columns are unavailable.
+brinda_vad_adjusted <- function(d, cc, oc, label = "") {
   pop  <- if (grepl("^child", oc$tag)) "child" else "women"
   spec <- brinda_rbp_cols(cc$country)[[pop]]
   if (is.null(spec)) {
@@ -120,7 +126,14 @@ brinda_vad_binary <- function(d, cc, oc, cutoff = 0.70, label = "") {
     adj[no_corr & !is.finite(fb)] <- NA_real_
     n_fallback <- sum(use)
   }
+  attr(adj, "n_fallback") <- n_fallback
+  adj
+}
 
+brinda_vad_binary <- function(d, cc, oc, cutoff = 0.70, label = "") {
+  adj <- brinda_vad_adjusted(d, cc, oc, label = label)
+  if (is.null(adj)) return(NULL)
+  n_fallback <- attr(adj, "n_fallback"); if (is.null(n_fallback)) n_fallback <- 0L
   newbin <- as.integer(adj < cutoff)
   cat(sprintf("  [brinda]%s %s %s: VAD = %s RBP<%.2f (%d/%d = %.1f%%)%s\n",
               label, cc$country, oc$tag, brinda_country_method(cc$country), cutoff,

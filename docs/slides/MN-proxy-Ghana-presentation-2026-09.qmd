@@ -284,7 +284,7 @@ if (!is.null(da)) { d <- da |> filter(target == "level") |> arrange(desc(delta_d
 ```
 
 ::: {.notes}
-Leave-one-country-out ablation, biomarker level, 22 cells. Soil, climate, agriculture and the new livestock layer are the load-bearing domains (+0.010 to +0.021 each when dropped); the survey-derived domains cost nothing to remove, or help. A fixed climate + soil index transports better than the full vocabulary at both tiers (0.37 vs 0.27 at district level; 0.45 vs 0.32 regional). It was found on the same four countries it is scored on, so it enters the next countries as a pre-registered prediction, not a result.
+Leave-one-country-out ablation, biomarker level, 22 cells. Soil, climate, agriculture and the new livestock layer are the load-bearing domains (+0.009 to +0.025 each when dropped); the survey-derived domains cost nothing to remove, or help. A fixed climate + soil index transports better than the full vocabulary at both tiers (0.37 vs 0.27 at district level; 0.46 vs 0.31 regional). It was found on the same four countries it is scored on, so it enters the next countries as a pre-registered prediction, not a result.
 :::
 
 ## Which data sources carry transport
@@ -481,7 +481,7 @@ kb(df(`January slide` = c("LSMS (275) and FluNet (3) predictors", "Data-source i
 ## Conclusions
 
 - Within a surveyed country, geography does most of the work: covariates beat the survey's own averages made honest, a smoother delivers almost as much.
-- Across borders, rankings transport and levels do not: about 0.3 at both tiers, 0.37 and 0.45 from climate and soil alone.
+- Across borders, rankings transport and levels do not: about 0.3 at both tiers, 0.37 and 0.46 from climate and soil alone.
 - One national estimate puts levels on the ranking, matching a district survey eight times the sample on level error.
 - The deliverable is a ranked district priority list plus a level calibration that needs one national number.
 

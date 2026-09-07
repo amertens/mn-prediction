@@ -98,9 +98,18 @@ for (lc in names(COUNTRIES)) {
     ybin <- if (!is.null(derived)) .v2_num(derived) else .v2_num(d[[oc$binary]])
     outcome_source <- if (!is.null(derived)) "uniform_derived" else "configured_binary"
 
-    # continuous, on the modelling scale, negated so higher = worse
-    ycont <- rep(NA_real_, nrow(d))
-    if (!is.null(oc$continuous) && oc$continuous %in% names(d)) {
+    # continuous, on the modelling scale, negated so higher = worse.
+    # Vitamin A: the SAME uniformly BRINDA-adjusted RBP the prevalence is cut
+    # from (AU-01 finding 2, 2026-09-07); before this the level used each
+    # survey's own adjusted column, raw RBP in Malawi, so the two targets
+    # carried different inflammation adjustments.
+    ycont <- rep(NA_real_, nrow(d)); level_source <- "configured_continuous"
+    adj_vita <- if (!is.null(oc$tag) && grepl("vitA", oc$tag, ignore.case = TRUE))
+      tryCatch(brinda_vad_adjusted(d, cc, oc, label = "[v2 level]"), error = function(e) NULL) else NULL
+    if (!is.null(adj_vita)) {
+      v <- as.numeric(adj_vita); v[!is.finite(v) | v <= 0] <- NA
+      ycont <- -log(v); level_source <- "brinda_adjusted_rbp"
+    } else if (!is.null(oc$continuous) && oc$continuous %in% names(d)) {
       v <- .v2_num(d[[oc$continuous]])
       t <- if (identical(oc$cutoff_scale, "log")) v else {
         v[!is.finite(v) | v <= 0] <- NA; log(v)
@@ -115,7 +124,7 @@ for (lc in names(COUNTRIES)) {
       country = cn, outcome = on,
       n_raw = db$n_raw, n_psu = db$n_psu, n_kish = round(db$n_kish, 1),
       deff_binary = round(db$deff, 3), deff_cont = round(dc$deff, 3),
-      method = db$method, outcome_source = outcome_source,
+      method = db$method, outcome_source = outcome_source, level_source = level_source,
       weight_col = cc$weight_col,
       weight_ndistinct = dplyr::n_distinct(round(w, 6)))
 
