@@ -376,9 +376,9 @@ lf <- file.path(HDIR, "predictors_admin2_livestock.csv")
 if (file.exists(lf)) {
   LV <- read.csv(lf, check.names = FALSE); blocks$livestock <- LV
   lcols <- setdiff(names(LV), c("country", "Admin1", "Admin2"))
-  add_meta(lcols, "Gridded Livestock of the World 4 (2015, 5 arc-min, dasymetric; Harvard Dataverse)",
+  add_meta(lcols, "Gridded Livestock of the World 4 (2020, 5 arc-min, dasymetric; FAO catalog)",
            "Livestock density", TRUE,
-           "Head per km2 (cattle, sheep, goats, pigs, chickens), tropical livestock units per km2 (0.7/0.1/0.1/0.2/0.01) and per person (WorldPop), ruminant share of TLU; area-weighted zonal mean of the 2015 GLW4 dasymetric surface (script 48). Proxy for animal-source food availability (iron, zinc, B12, preformed vitamin A).")
+           "Head per km2 (cattle, sheep, goats, pigs, chickens), tropical livestock units per km2 (0.7/0.1/0.1/0.2/0.01) and per person (WorldPop), ruminant share of TLU; area-weighted zonal mean of the GLW4-2020 dasymetric density surface (script 48; the 2015 Dataverse release ranks districts identically, Spearman 0.99-1.00). Proxy for animal-source food availability (iron, zinc, B12, preformed vitamin A).")
   writeLines(sprintf("  -> %d livestock columns", length(lcols)))
 } else writeLines("  livestock CSV absent; run scripts/protocol_v2/48_ihme_raster_and_livestock.R")
 

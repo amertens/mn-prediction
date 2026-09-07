@@ -34,7 +34,8 @@ PROJECT = "mn-prediction-420517"
 ROOT = "C:/Users/andre/OneDrive/Documents/mn-prediction/"
 GEOM = ROOT + "data/external_cache/gee_geoms/"
 OUT_A2 = ROOT + "data/covariates/harmonized/predictors_admin2_water_distance.csv"
-OUT_CL = ROOT + "data/covariates/cluster/predictors_cluster_water_distance.csv"
+OT = os.environ.get("CL_OUT_TAG", "")
+OUT_CL = ROOT + "data/covariates/cluster/predictors_cluster_water_distance" + OT + ".csv"
 BATCH = 25
 
 ee.Initialize(project=PROJECT)
@@ -129,12 +130,13 @@ if __name__ == "__main__":
     # Admin-2: mean and min of each distance over the polygon
     red_a2 = ee.Reducer.mean().combine(reducer2=ee.Reducer.min(), sharedInputs=True)
     cols_a2 = [b + "_mean" for b in BANDS] + [b + "_min" for b in BANDS]
-    print("Admin-2 polygons", flush=True)
-    run(GEOM + "admin2_simplified.geojson", lambda ft: ee.Geometry(ft["geometry"]),
-        ["country", "Admin1", "Admin2"], red_a2, 500, OUT_A2, cols_a2)
+    if not os.environ.get("CL_SKIP_ADMIN2"):
+        print("Admin-2 polygons", flush=True)
+        run(GEOM + "admin2_simplified.geojson", lambda ft: ee.Geometry(ft["geometry"]),
+            ["country", "Admin1", "Admin2"], red_a2, 500, OUT_A2, cols_a2)
     # clusters: mean over the buffer (2 km urban / 5 km rural)
     print("clusters", flush=True)
-    run(GEOM + "clusters.geojson",
+    run(GEOM + "clusters" + OT + ".geojson",
         lambda ft: ee.Geometry.Point(ft["geometry"]["coordinates"]).buffer(1000.0 * float(ft["properties"].get("radius_km", 5))),
         ["country", "cluster", "radius_km"], ee.Reducer.mean(), 500, OUT_CL, BANDS)
     print("DONE", flush=True)

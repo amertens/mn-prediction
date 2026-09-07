@@ -1254,3 +1254,113 @@ catalog (2015 used); ESPEN site-level survey prevalence is not exposed on the
 export route; the remaining Gambia gaps are source gaps (GFDx has no Gambia
 rows; IHME does not model circumcision or the s* sanitation indicators
 there).
+
+## LV-02 · GLW4 2020 replaces the 2015 reference year (script 48, GLW_YEAR)
+
+The FAO catalog carries GLW4-2020 as density rasters (head per km2, 10 km,
+Google Cloud Storage bucket `fao-gismgr-glw4-2020-data`, CC-BY 4.0); the
+Dataverse release used on 7 September is the 2015 reference year as dasymetric
+head counts. Script 48 now takes `GLW_YEAR` (2020 is the default; 2015 kept
+under `_2015` files). District by district the two releases rank identically:
+Spearman 0.99-1.00 for cattle, sheep, goats, TLU per km2 and TLU per person in
+all four countries (Gambia chickens 0.63, ruminant share 0.90-1.00); levels
+rise by x1.0-1.7 (Malawi TLU x1.7, Sierra Leone x1.4, national herd growth).
+Because the protocol rank-normalises within country, the swap cannot change a
+within-country arm and changes the pooled PCs only through the between-country
+level; the 2020 block is now the block of record in the shared set and the
+cluster table (RR-04 re-run below for consistency). Cluster-level completeness
+of the 2020 block is 0.96 (coastal buffers over NA ocean cells) against 1.00.
+
+**RR-04 (consistency re-run on the GLW4-2020 block, 14:19-14:45; scripts
+43, 44, 47 too).** As expected from rank-identical inputs, nothing headline
+moved beyond rounding: district index 0.271 / 0.182 (17 / 16 positive),
+regional full index 0.323 / 0.327 (17 / 17), null 95th percentiles 0.149 /
+0.081, climate + soil 0.368 / 0.452, in-fill 0.392 vs 0.320, burden 0.244 /
+0.190. The one figure that moved is the penalised domain fit under transport,
+0.280 (21 of 22) -> 0.265 (20 of 22): an elastic net over 24 domains of PCs
+is sensitive to the between-country level of a block, which the rank
+normalisation does not remove for pooled fits. Livestock density is now the
+second load-bearing domain in the ablation (+0.012, after soil +0.021), and
+honest nested domain selection recovers +0.036 over the full index. The
+individual-level shards were not re-run (district PCs enter them rank-wise;
+identical). Documents now quote 0.27 (20 of 22) for the penalised fit.
+
+## CL-06 · Matched vocabulary: is the cluster track's deficit the unit or the layers? (scripts/cluster_level/06)
+
+The cluster track fits on about 130 buffer covariates and the district track
+on 473 columns, so comparing them confounds the fitting unit with the
+vocabulary. Script 06 fits the SAME district-level protocol arms (zero-tuning
+index; same district targets from `targets_v2`, same districts - those holding
+a GPS cluster - same folds) on three vocabularies: the full shared set, the
+cluster buffer covariates averaged over each district's clusters
+("cluster_agg", 129 transportable columns aggregated to 206 districts), and
+their union. Read next to the cluster-fitted models aggregated to districts,
+on identical cells (`matched_vocabulary_common_cells.csv`):
+
+| Target / estimand | Full set (district fit) | Cluster vocabulary (district fit) | Both | Cluster-fitted, aggregated | Vocabulary gap | Fitting-unit gap |
+|---|---|---|---|---|---|---|
+| Level, in-fill (18) | 0.398 | 0.416 | 0.417 | 0.418 | -0.018 | -0.002 |
+| Level, region (24) | 0.242 | 0.313 | 0.271 | 0.358 | -0.071 | -0.045 |
+| Level, transport (22) | 0.268 | 0.229 | 0.251 | 0.241 | +0.039 | -0.012 |
+| Prevalence, in-fill (18) | 0.295 | 0.325 | 0.313 | 0.300 | -0.030 | +0.025 |
+| Prevalence, region (24) | 0.212 | 0.239 | 0.222 | 0.203 | -0.027 | +0.036 |
+| Prevalence, transport (22) | 0.184 | 0.177 | 0.177 | 0.173 | +0.007 | +0.004 |
+
+(vocabulary gap = full minus cluster vocabulary, both district-fitted;
+fitting-unit gap = cluster vocabulary at the district minus the cluster fit
+aggregated; negative means the cluster side is better.)
+
+Reading: within a surveyed country the buffer vocabulary is at least as good as
+the 473-column set (in-fill +0.02 / +0.03; region +0.07 / +0.03), so the
+layers were never the cluster track's problem in-country; across borders the
+full set is better by 0.04 on the level and the buffer vocabulary alone is what
+transports worse. The fitting unit itself is close to neutral on the level
+(in-fill -0.002, region -0.045 in the cluster's favour, transport -0.012) and
+costs 0.03 on prevalence in-country, where the cluster prevalence of 8-19
+respondents is the noisiest target. Adding the buffer columns to the full set
+("both") helps in-fill on the level (+0.02) and hurts transport (-0.02), the
+same saturation pattern as every add-on. So the CL-03 conclusion is refined:
+the cluster fit is a match for the district fit on the biomarker level once
+the vocabulary is held fixed, and the earlier transport deficit (0.24 vs 0.37
+for climate + soil) was mostly the missing layers, now added (CL-05 below
+adds the 10 km radius). The zero-tuning index on the cluster vocabulary at the
+district (0.416 in-fill level) is also the best in-fill number in this log.
+-> `results/tables/cluster_level/matched_vocabulary_{cells,summary,common_cells}.csv`
+
+## CL-05 · 10 km rural buffers (scripts/cluster_level/02 with CL_RURAL_KM=10; results/tables/cluster_level/r10/)
+
+The design note's sensitivity: the DHS convention of 2 km urban / 5 km rural
+against 2 km / 10 km, every layer re-extracted at the larger radius (114 base
+columns in 33 min, the four new blocks at the same radius, water distance
+from Earth Engine), the same protocol arms, scored under
+`results/tables/cluster_level/r10/` so the tagged run does not mix into the
+main summary. Zero-tuning index, mean over cells:
+
+| Estimand / target | 2 / 5 km | 2 / 10 km |
+|---|---|---|
+| In-fill, level / prevalence | 0.319 / 0.206 | 0.320 / 0.206 |
+| In-fill with fieldwork block, level | 0.332 | 0.335 |
+| Region, level / prevalence | 0.310 / 0.201 | 0.308 / 0.200 |
+| Transport at Admin-2, level / prevalence | 0.241 / 0.173 | 0.211 / 0.148 |
+| Transport at Admin-2, climate + soil, level | 0.244 | 0.216 |
+| Transport at Admin-1, prevalence (transportable / climate + soil) | 0.216 / 0.303 | 0.192 / 0.269 |
+
+The wider rural buffer is neutral inside a country and costs 0.02-0.03 on
+every transport figure: averaging soil and climate over 300 km2 instead of 80
+removes exactly the local variation that carries across borders, as the
+design note predicted for the 25-50 km "context" radii. The 2 / 5 km
+convention stands; the 10 km table is kept as the sensitivity. (The first
+pass of this chain lost its 48 step to a comment that had swallowed the
+`GLW_TAG` definition; the run above is the corrected one, with the new
+layers at 10 km too.)
+-> `results/tables/cluster_level/r10/benchmarks_cluster_{cells,loco,raw,ws_*}.csv`, `data/covariates/cluster/predictors_cluster_r10.csv`
+
+## Manuscript v2 (docs/manuscript_mcn_v2.qmd)
+
+A second version of the manuscript adopts the paper outline of revision f
+(Introduction; Data; Protocol; Results by estimand; What the protocol changes;
+Limitations; Recommendations; Conclusions), collapses the two readings into
+one voice, generates every table from the protocol CSVs at render time, and
+moves the individual-level SuperLearner and the corrected-methods (P1-P8)
+material to Supplement S1 with the per-cell transport table as S3. The first
+version is unchanged for comparison. Rendered to `docs/manuscript_mcn_v2.docx`.

@@ -87,8 +87,8 @@ abstract: |
   correlation 0.398 versus 0.320 on the biomarker concentration and 0.286
   versus 0.193 on deficiency prevalence. Rankings transported to a country held
   entirely out of training with a mean Spearman of 0.27 over 22
-  country–outcome combinations for the zero-tuning index (17 positive; 0.28
-  and 21 positive for the penalised fit) and 0.37 (22 positive) for an index
+  country–outcome combinations for the zero-tuning index (17 positive; 0.27
+  and 20 positive for the penalised fit) and 0.37 (22 positive) for an index
   built only from remotely sensed climate and soil layers; at the first
   sub-national tier the same 22 combinations gave 0.32 (17 positive) and 0.45
   with climate and soil, against a permutation null whose 95th percentile is
@@ -154,8 +154,8 @@ burden) and the IHME block was rebuilt from its 5 km surfaces (NL-01;
 473 columns, 24 domains). Numbers that moved by more than 0.01 are updated
 throughout: the district transport of the zero-tuning index (0.25 to 0.26, then 0.27)
 and the regional transport (0.29 to 0.31, then 0.30, then 0.32). The district figure formerly
-quoted as "21 of 22, mean 0.281" was the penalised domain fit; it is now 0.28
-(21 of 22), and the text quotes the estimator of record, the
+quoted as "21 of 22, mean 0.281" was the penalised domain fit; it is now 0.27
+(20 of 22), and the text quotes the estimator of record, the
 zero-tuning index, alongside it. In-fill, burden capture, the comparator
 tests and the climate-and-soil figures did not move.
 
@@ -1590,7 +1590,7 @@ from at all.
 **Rank transports across borders; level does not.** Under leave-one-country-out,
 district rankings transport with a mean Spearman of **0.27** over the 22
 evaluable country-outcome combinations for the zero-tuning domain index (17
-positive; the penalised domain fit gives 0.24 with 21 positive) and **0.37**
+positive; the penalised domain fit gives 0.27 with 20 positive) and **0.37**
 (22 positive) for an index built from the climate and soil domains alone. At
 the first sub-national tier (regions, or Malawi's districts) the same 22
 combinations give a mean Spearman of **0.32** (17 positive), and **0.45** (20

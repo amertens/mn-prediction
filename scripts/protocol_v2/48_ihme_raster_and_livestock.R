@@ -44,8 +44,12 @@ BND <- readRDS("dashboard/data/admin2_boundaries.rds")
 polys <- function(cn) { b <- st_as_sf(BND[[LC[[cn]]]]); b <- st_make_valid(st_transform(b, 4326))
   st_sf(country = cn, Admin1 = as.character(b$Admin1), Admin2 = as.character(b$Admin2), geometry = st_geometry(b)) }
 pop_of <- function(cn) rast(list.files(file.path("data/external_cache/worldpop", ISO[[cn]]), pattern = "[.]tif$", full.names = TRUE)[1])
-TC <- read.csv("results/tables/cluster_level/targets_cluster.csv") |> distinct(country, cluster, lat, lon, urban) |> filter(is.finite(lat), is.finite(lon))
-TC$radius_km <- ifelse(TC$urban %in% c(1, TRUE, "urban", "Urban", "TRUE"), 2, 5)
+TC <- read.csv("results/tables/cluster_level/targets_cluster.csv") |> distinct(country, cluster, lat, lon) |> filter(is.finite(lat), is.finite(lon))
+# buffer radius: the GHSL SMOD urban flag the cluster extraction (script 02) uses, 2 km urban / 5 km rural by default
+RURAL_KM <- as.numeric(Sys.getenv("CL_RURAL_KM", "5")); URBAN_KM <- as.numeric(Sys.getenv("CL_URBAN_KM", "2")); OT <- Sys.getenv("CL_OUT_TAG", "")
+PCU <- read.csv(file.path(CDIR, "predictors_cluster.csv"), check.names = FALSE)[, c("country", "cluster", "urban")]
+TC$cluster <- as.character(TC$cluster); PCU$cluster <- as.character(PCU$cluster); TC <- left_join(TC, PCU, by = c("country", "cluster"))
+TC$radius_km <- ifelse(TC$urban %in% c(1, TRUE), URBAN_KM, RURAL_KM)
 buffers <- function(cn) { t <- TC[TC$country == cn, ]; p <- st_as_sf(t, coords = c("lon", "lat"), crs = 4326)
   st_geometry(p) <- st_buffer(st_geometry(p), t$radius_km * 1000); p }
 
@@ -130,15 +134,20 @@ for (key in setdiff(names(IA), c("country", "Admin1", "Admin2"))) {
                            rho_by_country = paste(sprintf("%s %.2f (n=%d)", by_cn$country, by_cn$rho, by_cn$n), collapse = "; "), stringsAsFactors = FALSE) }
 CMP <- bind_rows(cmp); print(CMP, row.names = FALSE)
 write.csv(IA, file.path(HDIR, "predictors_admin2_ihme_raster.csv"), row.names = FALSE)
-write.csv(IC, file.path(CDIR, "predictors_cluster_ihme_raster.csv"), row.names = FALSE)
+write.csv(IC, file.path(CDIR, paste0("predictors_cluster_ihme_raster", OT, ".csv")), row.names = FALSE)
 MD <- bind_rows(META) |> left_join(CMP[, c("column", "scale_applied", "rho_all")], by = "column")
 write.csv(MD, file.path(HDIR, "predictors_admin2_ihme_raster_metadata.csv"), row.names = FALSE)
 cat(sprintf("\nwritten: %d Admin-2 rows x %d IHME columns; %d cluster rows\n", nrow(IA), ncol(IA) - 3, nrow(IC)))
 for (cn in names(SURVEY_YEAR)) { m <- as.matrix(IA[IA$country == cn, setdiff(names(IA), c("country", "Admin1", "Admin2"))]); cat(sprintf("  %-12s finite share %.3f\n", cn, mean(is.finite(m)))) }
 
 # ── LV-01: livestock density ─────────────────────────────────────────────────
-cat("\n===== LV-01: Gridded Livestock of the World 4 (2015) =====\n")
+# GLW_YEAR=2015: Harvard Dataverse dasymetric HEAD COUNTS per 5-arc-min cell (data/external_cache/glw4/)
+# GLW_YEAR=2020 (default): FAO catalog GLW4-2020 D-DA rasters, already head per km2 (data/external_cache/glw4_2020/)
+# 2020 is the block of record since 2026-09-07; district rankings agree with 2015 at Spearman 0.99-1.00
+GLW_YEAR <- Sys.getenv("GLW_YEAR", "2020"); GLW_TAG <- Sys.getenv("GLW_TAG", "")
+cat(sprintf("\n===== LV-01: Gridded Livestock of the World 4 (%s) =====\n", GLW_YEAR))
 TLU <- c(cattle = 0.7, sheep = 0.1, goats = 0.1, pigs = 0.2, chickens = 0.01)
+glw_raster <- function(sp) if (GLW_YEAR == "2020") rast(sprintf("data/external_cache/glw4_2020/glw4_2020_%s_density.tif", sp)) else rast(sprintf("data/external_cache/glw4/glw4_%s_2015_Da.tif", sp))
 LA <- list(); LCL <- list()
 for (cn in names(SURVEY_YEAR)) {
   P <- polys(cn); B <- buffers(cn); pop <- pop_of(cn)
@@ -146,8 +155,9 @@ for (cn in names(SURVEY_YEAR)) {
   pop_a2 <- exact_extract(pop, P, "sum", progress = FALSE); pop_cl <- exact_extract(pop, B, "sum", progress = FALSE)
   tlu_a2 <- 0; tlu_cl <- 0; heads_tlu_a2 <- 0; heads_tlu_cl <- 0; rum_a2 <- 0; rum_cl <- 0
   for (sp in names(TLU)) {
-    r <- rast(sprintf("data/external_cache/glw4/glw4_%s_2015_Da.tif", sp)); r <- crop(r, ext(P) + 0.5)
-    dens <- r / cellSize(r, unit = "km"); names(dens) <- "d"
+    r <- crop(glw_raster(sp), ext(P) + 0.5)
+    if (GLW_YEAR == "2020") { dens <- r; r <- dens * cellSize(dens, unit = "km") } else dens <- r / cellSize(r, unit = "km")   # r = heads per cell, dens = heads per km2
+    names(dens) <- "d"
     da <- exact_extract(dens, P, "mean", progress = FALSE); dc <- exact_extract(dens, B, "mean", progress = FALSE)
     ha <- exact_extract(r, P, "sum", progress = FALSE); hc <- exact_extract(r, B, "sum", progress = FALSE)
     oa[[paste0("glw_", sp, "_km2")]] <- da; oc[[paste0("glw_", sp, "_km2")]] <- dc
@@ -160,7 +170,7 @@ for (cn in names(SURVEY_YEAR)) {
   cat(sprintf("  %-12s TLU/km2 median %.1f (IQR %.1f-%.1f) | TLU per person median %.2f | ruminant share median %.2f\n", cn, median(oa$glw_tlu_km2, na.rm = TRUE), quantile(oa$glw_tlu_km2, 0.25, na.rm = TRUE), quantile(oa$glw_tlu_km2, 0.75, na.rm = TRUE), median(oa$glw_tlu_per_capita, na.rm = TRUE), median(oa$glw_ruminant_share, na.rm = TRUE)))
   LA[[cn]] <- oa; LCL[[cn]] <- oc }
 LVA <- bind_rows(LA); LVC <- bind_rows(LCL)
-write.csv(LVA, file.path(HDIR, "predictors_admin2_livestock.csv"), row.names = FALSE)
-write.csv(LVC, file.path(CDIR, "predictors_cluster_livestock.csv"), row.names = FALSE)
+write.csv(LVA, file.path(HDIR, paste0("predictors_admin2_livestock", GLW_TAG, ".csv")), row.names = FALSE)
+write.csv(LVC, file.path(CDIR, paste0("predictors_cluster_livestock", GLW_TAG, OT, ".csv")), row.names = FALSE)
 cat(sprintf("written: %d Admin-2 rows x %d livestock columns; %d cluster rows\n", nrow(LVA), ncol(LVA) - 3, nrow(LVC)))
 cat("\nDONE\n")

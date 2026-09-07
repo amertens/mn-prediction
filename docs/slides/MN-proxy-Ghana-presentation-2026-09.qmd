@@ -284,7 +284,7 @@ if (!is.null(da)) { d <- da |> filter(target == "level") |> arrange(desc(delta_d
 ```
 
 ::: {.notes}
-Leave-one-country-out ablation, biomarker level, 22 cells. Soil, climate, agriculture and the new livestock layer are the load-bearing domains (+0.008 to +0.021 each when dropped); the survey-derived domains cost nothing to remove, or help. A fixed climate + soil index transports better than the full vocabulary at both tiers (0.37 vs 0.27 at district level; 0.45 vs 0.32 regional). It was found on the same four countries it is scored on, so it enters the next countries as a pre-registered prediction, not a result.
+Leave-one-country-out ablation, biomarker level, 22 cells. Soil, climate, agriculture and the new livestock layer are the load-bearing domains (+0.010 to +0.021 each when dropped); the survey-derived domains cost nothing to remove, or help. A fixed climate + soil index transports better than the full vocabulary at both tiers (0.37 vs 0.27 at district level; 0.45 vs 0.32 regional). It was found on the same four countries it is scored on, so it enters the next countries as a pre-registered prediction, not a result.
 :::
 
 ## Which data sources carry transport

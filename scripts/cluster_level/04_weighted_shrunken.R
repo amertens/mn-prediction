@@ -30,11 +30,12 @@
 suppressPackageStartupMessages({library(dplyr); library(tidyr)})
 setwd("C:/Users/andre/OneDrive/Documents/mn-prediction")
 source("R/protocol_v2.R")
-OUTDIR <- "results/tables/cluster_level"; CDIR <- "data/covariates/cluster"
+OUTDIR <- Sys.getenv("CL_OUT_DIR", "results/tables/cluster_level"); dir.create(OUTDIR, showWarnings = FALSE, recursive = TRUE); CDIR <- "data/covariates/cluster"
+PT <- Sys.getenv("CL_PRED_TAG", "")   # which predictor table: "" = 2/5 km buffers, "_r10" = 10 km rural
 REPS <- as.integer(Sys.getenv("CL_REPS", "10")); MIN_TRAIN <- 20L; set.seed(20260904L)
-TC <- read.csv(file.path(OUTDIR, "targets_cluster.csv"), stringsAsFactors = FALSE)
-P  <- read.csv(file.path(CDIR, "predictors_cluster.csv"), check.names = FALSE, stringsAsFactors = FALSE)
-MD <- read.csv(file.path(CDIR, "predictors_cluster_metadata.csv"), stringsAsFactors = FALSE)
+TC <- read.csv("results/tables/cluster_level/targets_cluster.csv", stringsAsFactors = FALSE)
+P  <- read.csv(file.path(CDIR, paste0("predictors_cluster", PT, ".csv")), check.names = FALSE, stringsAsFactors = FALSE)
+MD <- read.csv(file.path(CDIR, paste0("predictors_cluster", PT, "_metadata.csv")), stringsAsFactors = FALSE)
 V2 <- tryCatch(read.csv("results/tables/protocol_v2/benchmarks_v2_cells.csv", stringsAsFactors = FALSE), error = function(e) NULL)
 A1T <- tryCatch(read.csv("results/tables/protocol_v2/admin1_transport.csv", stringsAsFactors = FALSE), error = function(e) NULL)
 TC$cluster <- as.character(TC$cluster); P$cluster <- as.character(P$cluster); MD <- MD[MD$column %in% names(P), ]

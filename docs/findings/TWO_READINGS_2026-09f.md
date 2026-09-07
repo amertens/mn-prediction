@@ -33,7 +33,7 @@ September three domains were added (livestock density, water and coast
 proximity, helminth burden) and the IHME block was rebuilt from its 5 km
 surfaces (sandbox log NL-01; 473 columns, 24 domains): the district
 zero-tuning index moved from 0.26 to 0.27 (prevalence 0.16 to 0.18), the
-penalised fit to 0.28 (21 of 22), the regional full index to 0.32 and its
+penalised fit to 0.27 (20 of 22), the regional full index to 0.32 and its
 null's 95th percentile to 0.15; the climate + soil, in-fill and burden
 figures did not move.*
 

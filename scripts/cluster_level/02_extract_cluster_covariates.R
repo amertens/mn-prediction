@@ -27,6 +27,7 @@ suppressPackageStartupMessages({library(dplyr); library(terra); library(sf)})
 setwd("C:/Users/andre/OneDrive/Documents/mn-prediction")
 OUTDIR <- "results/tables/cluster_level"; CDIR <- "data/covariates/cluster"; dir.create(CDIR, showWarnings = FALSE, recursive = TRUE)
 RURAL_KM <- as.numeric(Sys.getenv("CL_RURAL_KM", "5")); URBAN_KM <- as.numeric(Sys.getenv("CL_URBAN_KM", "2"))
+OT <- Sys.getenv("CL_OUT_TAG", "")   # suffix for the output files, e.g. "_r10" for the 10 km rural sensitivity
 CFG <- list(
   Gambia      = list(dir = "data/Gambia_GEE_rasters",       tag = "Gambia",       iso = "GMB", year = 2018, utm = 32628),
   Ghana       = list(dir = "data/Ghana_GEE rasters",        tag = "Ghana",        iso = "GHA", year = 2017, utm = 32630),
@@ -150,12 +151,12 @@ for (cn in names(CFG)) { cf <- CFG[[cn]]; cl <- CL[CL$country == cn, ]; if (!nro
   ALL[[cn]] <- X
   cat(sprintf("   %s done: %d columns in %.1f min\n", cn, ncol(X) - 8, as.numeric(difftime(Sys.time(), t0, units = "mins"))))
 }
-P <- bind_rows(ALL); write.csv(P, file.path(CDIR, "predictors_cluster.csv"), row.names = FALSE)
+P <- bind_rows(ALL); write.csv(P, file.path(CDIR, paste0("predictors_cluster", OT, ".csv")), row.names = FALSE)
 MD <- bind_rows(META) |> distinct(column, .keep_all = TRUE) |> filter(column %in% names(P))
 MD$completeness <- round(vapply(MD$column, function(cc) mean(is.finite(P[[cc]])), 0), 3)
 MD$countries <- vapply(MD$column, function(cc) paste(names(which(tapply(is.finite(P[[cc]]), P$country, mean) > 0.5)), collapse = "|"), "")
 MD$n_countries <- lengths(strsplit(MD$countries, "[|]"))
-write.csv(MD, file.path(CDIR, "predictors_cluster_metadata.csv"), row.names = FALSE)
+write.csv(MD, file.path(CDIR, paste0("predictors_cluster", OT, "_metadata.csv")), row.names = FALSE)
 cat("\n===== CL-02: cluster covariates =====\n")
 cat(sprintf("clusters %d | columns %d | by domain:\n", nrow(P), nrow(MD))); print(table(MD$domain, MD$role))
 cat(sprintf("columns present in all four countries: %d of %d\n", sum(MD$n_countries == 4), nrow(MD)))

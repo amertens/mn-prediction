@@ -1,47 +1,47 @@
 "target","domain","cells","drop","only","full","delta_drop"
-"level","Soil characteristics",22,0.247,0.318,0.268,0.021
-"level","Agricultural production, land use",22,0.258,0.279,0.268,0.01
-"level","Climate and weather",22,0.258,0.351,0.268,0.01
-"level","Livestock density",22,0.259,0.242,0.268,0.008
-"level","Malaria incidence and treatment",22,0.266,0.129,0.268,0.002
-"level","Nutrition status (MODELLED SURFACE)",22,0.266,0.215,0.268,0.002
-"level","Malaria",22,0.267,0.01,0.268,0.001
-"level","Adult nutrition",22,0.268,0.12,0.268,0
-"level","Helminth burden and control",22,0.268,-0.086,0.268,0
-"level","Food prices and supply",22,0.27,-0.024,0.268,-0.003
-"level","Satellite embedding",22,0.27,0.201,0.268,-0.003
-"level","Food fortification and supplementation",22,0.271,-0.061,0.268,-0.004
-"level","Ecosystem productivity/greenness",22,0.273,0.143,0.268,-0.005
-"level","Dietary diversity",22,0.274,0.041,0.268,-0.006
-"level","Ruralness, population density, built environment",22,0.274,-0.006,0.268,-0.006
-"level","Water and sanitation",22,0.274,0.038,0.268,-0.006
-"level","Education, employment, SES",22,0.275,0.187,0.268,-0.007
-"level","Water and coast proximity",22,0.275,0.02,0.268,-0.007
-"level","Healthcare access",22,0.281,0.014,0.268,-0.013
-"level","Infant and child morbidity/mortality",22,0.284,0.069,0.268,-0.016
-"level","Fertility, reproductive health",22,0.285,0.02,0.268,-0.017
-"level","Built environment",22,0.286,0.077,0.268,-0.018
-"level","Household assets and characteristics",22,0.292,0.001,0.268,-0.024
-"prev","Soil characteristics",22,0.153,0.249,0.184,0.031
-"prev","Agricultural production, land use",22,0.16,0.188,0.184,0.024
-"prev","Climate and weather",22,0.171,0.214,0.184,0.013
-"prev","Nutrition status (MODELLED SURFACE)",22,0.171,0.163,0.184,0.013
-"prev","Livestock density",22,0.173,0.168,0.184,0.011
-"prev","Malaria incidence and treatment",22,0.176,0.078,0.184,0.008
-"prev","Helminth burden and control",22,0.184,0.01,0.184,0
-"prev","Malaria",22,0.184,0.006,0.184,0
-"prev","Satellite embedding",22,0.184,0.07,0.184,0
-"prev","Dietary diversity",22,0.185,0.023,0.184,-0.001
-"prev","Ecosystem productivity/greenness",22,0.187,0.033,0.184,-0.003
-"prev","Fertility, reproductive health",22,0.187,-0.004,0.184,-0.003
-"prev","Food fortification and supplementation",22,0.187,-0.107,0.184,-0.003
-"prev","Healthcare access",22,0.187,-0.092,0.184,-0.003
-"prev","Water and sanitation",22,0.187,0.033,0.184,-0.003
-"prev","Adult nutrition",22,0.189,-0.002,0.184,-0.005
-"prev","Water and coast proximity",22,0.189,0.104,0.184,-0.005
-"prev","Food prices and supply",22,0.19,0.066,0.184,-0.006
-"prev","Education, employment, SES",22,0.192,0.027,0.184,-0.008
-"prev","Ruralness, population density, built environment",22,0.193,0.032,0.184,-0.009
-"prev","Infant and child morbidity/mortality",22,0.194,0.001,0.184,-0.01
-"prev","Household assets and characteristics",22,0.196,-0.011,0.184,-0.012
-"prev","Built environment",22,0.198,0.037,0.184,-0.014
+"level","Soil characteristics",22,0.25,0.318,0.271,0.021
+"level","Livestock density",22,0.259,0.226,0.271,0.012
+"level","Agricultural production, land use",22,0.26,0.279,0.271,0.011
+"level","Climate and weather",22,0.261,0.351,0.271,0.01
+"level","Nutrition status (MODELLED SURFACE)",22,0.266,0.215,0.271,0.005
+"level","Helminth burden and control",22,0.268,-0.086,0.271,0.003
+"level","Malaria",22,0.269,0.01,0.271,0.003
+"level","Adult nutrition",22,0.271,0.12,0.271,0
+"level","Food prices and supply",22,0.271,-0.024,0.271,0
+"level","Malaria incidence and treatment",22,0.271,0.129,0.271,0
+"level","Food fortification and supplementation",22,0.273,-0.061,0.271,-0.002
+"level","Satellite embedding",22,0.273,0.201,0.271,-0.002
+"level","Dietary diversity",22,0.274,0.041,0.271,-0.003
+"level","Ecosystem productivity/greenness",22,0.274,0.143,0.271,-0.003
+"level","Education, employment, SES",22,0.277,0.187,0.271,-0.006
+"level","Ruralness, population density, built environment",22,0.277,-0.006,0.271,-0.006
+"level","Water and coast proximity",22,0.277,0.02,0.271,-0.006
+"level","Water and sanitation",22,0.277,0.038,0.271,-0.006
+"level","Healthcare access",22,0.281,0.014,0.271,-0.009
+"level","Built environment",22,0.282,0.077,0.271,-0.011
+"level","Infant and child morbidity/mortality",22,0.284,0.069,0.271,-0.013
+"level","Fertility, reproductive health",22,0.285,0.02,0.271,-0.014
+"level","Household assets and characteristics",22,0.292,0.001,0.271,-0.021
+"prev","Soil characteristics",22,0.149,0.249,0.182,0.033
+"prev","Agricultural production, land use",22,0.158,0.188,0.182,0.024
+"prev","Climate and weather",22,0.169,0.214,0.182,0.013
+"prev","Nutrition status (MODELLED SURFACE)",22,0.171,0.163,0.182,0.011
+"prev","Livestock density",22,0.173,0.158,0.182,0.009
+"prev","Malaria incidence and treatment",22,0.175,0.078,0.182,0.007
+"prev","Helminth burden and control",22,0.181,0.01,0.182,0.001
+"prev","Malaria",22,0.183,0.006,0.182,-0.001
+"prev","Satellite embedding",22,0.183,0.07,0.182,-0.001
+"prev","Dietary diversity",22,0.184,0.023,0.182,-0.002
+"prev","Ecosystem productivity/greenness",22,0.184,0.033,0.182,-0.002
+"prev","Food prices and supply",22,0.184,0.066,0.182,-0.002
+"prev","Fertility, reproductive health",22,0.185,-0.004,0.182,-0.003
+"prev","Food fortification and supplementation",22,0.186,-0.107,0.182,-0.004
+"prev","Water and sanitation",22,0.187,0.033,0.182,-0.004
+"prev","Healthcare access",22,0.187,-0.092,0.182,-0.005
+"prev","Education, employment, SES",22,0.188,0.027,0.182,-0.006
+"prev","Ruralness, population density, built environment",22,0.188,0.032,0.182,-0.006
+"prev","Water and coast proximity",22,0.188,0.104,0.182,-0.006
+"prev","Adult nutrition",22,0.189,-0.002,0.182,-0.007
+"prev","Household assets and characteristics",22,0.19,-0.011,0.182,-0.008
+"prev","Infant and child morbidity/mortality",22,0.191,0.001,0.182,-0.009
+"prev","Built environment",22,0.197,0.037,0.182,-0.015

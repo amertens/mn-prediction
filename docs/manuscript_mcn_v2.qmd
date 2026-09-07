@@ -1,0 +1,804 @@
+---
+title: "What geospatial covariates can and cannot do for sub-national micronutrient estimation: a protocol-first re-analysis of four national biomarker surveys"
+shorttitle: "Geospatial covariates and sub-national micronutrient estimation"
+author:
+  - name: Andrew N. Mertens
+    affiliation: University of California, Davis, Institute for Global Nutrition
+    corresponding: true
+    email: anmertens@ucdavis.edu
+date: today
+format:
+  docx:
+    number-sections: true
+    fig-cap-location: bottom
+    tbl-cap-location: top
+    fig-width: 6.5
+    fig-height: 4.5
+    fig-dpi: 300
+execute:
+  echo: false
+  warning: false
+  message: false
+keywords:
+  - micronutrient deficiency
+  - small area estimation
+  - DHS
+  - transportability
+  - evaluation protocol
+  - vitamin A
+  - iron deficiency
+bibliography: references.bib
+abstract: |
+  **Background.** Sub-national maps of micronutrient deficiency guide the
+  targeting of fortification, supplementation and food-system programmes, but
+  biomarker surveys are rare and their district-level estimates rest on a
+  handful of respondents. Published accuracies for models that predict
+  district prevalence from geospatial and survey proxies are seldom reported
+  with the reliability of their validation target, the information their
+  comparison baseline was permitted to see, or the replication of their random
+  folds. An audit of our own earlier analysis found that each of these choices
+  had decided a headline conclusion, in both directions.
+
+  **Methods.** We harmonised biomarker measurements for iron, vitamin A,
+  folate, vitamin B12 and zinc deficiency from national surveys in The Gambia
+  (2018), Ghana (2017), Sierra Leone (2013) and Malawi (2015–16): 24
+  country–outcome cells on 206 districts. Districts were linked to 473
+  predictors in 24 domains from Earth observation, soil, climate, agriculture,
+  livestock, infection, food-price and survey-indicator sources. A protocol
+  specified before re-analysis names three estimands (filling in unsurveyed
+  districts inside a surveyed country, extrapolating to an unseen region, and
+  transporting to a country held entirely out of training), recomputes every
+  baseline under the model's own folds and jackknifes any baseline derived
+  from the survey, replicates every random split ten times, weights districts
+  by an effective sample size from measured design effects, rank-normalises
+  predictors within country before pooling, and calibrates transport against
+  a country-block permutation null. The estimator of record is a zero-tuning
+  index over domain principal components; a penalised regression, a
+  covariate-free spatial smoother and the survey's own regional averages are
+  scored on identical folds.
+
+  **Results.** Within a surveyed country, covariates beat the honest survey
+  baseline (rank correlation 0.39 against 0.32 on the biomarker concentration,
+  0.29 against 0.19 on prevalence) but a covariate-free spatial smoother
+  scores 0.39 where the full covariate model scores 0.39. Rankings transport
+  to a country never used in training: mean Spearman 0.27 over 22
+  country–outcome combinations at district level (17 positive) and 0.32 at
+  the first sub-national tier, against permutation nulls whose 95th
+  percentiles are 0.08 and 0.15; an index built only from remotely sensed
+  climate and soil layers transports better, 0.37 (22 of 22 positive) and
+  0.45 (20 of 22). Absolute prevalence does not transport. Directing effort to
+  the fifth of districts the model ranks worst reaches 24% of national
+  deficiency burden against 19% for regional survey averages and 20% at
+  random. A national biomarker sample of five percent of a survey plus the
+  transported ranking gives district levels with a 10 percentage-point error,
+  against 20 for a district survey of the same size, which needs about 40% of
+  the full sample to do better. A variance-components ceiling puts the
+  attainable prevalence correlation at 0.44, one fifth of the split-half
+  ceiling being cluster effect; the model is at that ceiling in five of 24
+  cells. Four data blocks added in this revision (livestock density, distance
+  to water and coast, helminth burden, and IHME surfaces re-extracted as
+  zonal means) move the index by less than 0.01 each. Evaluation design moved
+  results more than any model did: a published within-country correlation of
+  0.058 was a single fold draw (replicated median 0.22), a baseline the models
+  lost to had read the scored district's own respondents, a regional headline
+  of 0.50–0.56 rested on three countries, and the reliability ceiling used to
+  argue that districts were unresolvable was biased low by a factor of about
+  4.7.
+
+  **Conclusions.** The defensible product is a ranked district priority list
+  for any country, and a level-calibrated map for a country willing to measure
+  one national prevalence. Within a surveyed country geography does most of
+  the work. We recommend that studies of this kind name their estimand, state
+  what their baseline saw, replicate every random division, report the
+  reliability of the validation target, and show that each significance
+  screen could have detected an effect.
+---
+
+```{r setup}
+suppressPackageStartupMessages({
+  library(dplyr); library(tidyr); library(ggplot2); library(knitr)
+})
+theme_set(theme_minimal(base_size = 11))
+# Every number in the body is read from the protocol tables at render time
+# (results/tables/protocol_v2, re-run 2026-09-07 on the 473-column set).
+root <- here::here()
+P2   <- file.path(root, "results", "tables", "protocol_v2")
+CL   <- file.path(root, "results", "tables", "cluster_level")
+HD   <- file.path(root, "data", "covariates", "harmonized")
+rd <- function(...) { f <- file.path(...); if (file.exists(f)) read.csv(f, stringsAsFactors = FALSE, check.names = FALSE) else NULL }
+kb <- function(d, digits = 2, ...) knitr::kable(d, digits = digits, row.names = FALSE, booktabs = TRUE, ...)
+df <- function(...) data.frame(..., check.names = FALSE, stringsAsFactors = FALSE)
+get <- function(x) if (length(x) && is.finite(x[1])) x[1] else NA_real_
+MD  <- rd(HD, "predictors_admin2_shared_metadata.csv")
+BM  <- rd(P2, "benchmarks_v2_summary.csv")
+TG  <- rd(P2, "targets_v2.csv")
+arm_label <- c(domain_index = "Zero-tuning domain index", spatial_plus_domain = "Spatial smoother + covariates",
+               spatial = "Spatial smoother only", domain_enet = "Elastic net on domain PCs",
+               raw_enet = "Elastic net on all columns", region_mean_jk = "Survey: jackknifed regional mean",
+               null_train_mean = "Null: training mean")
+outcome_label <- c(child_vitA = "Child vitamin A", women_vitA = "Women's vitamin A", child_iron = "Child iron",
+                   women_iron = "Women's iron", women_folate = "Women's folate", women_b12 = "Women's B12",
+                   child_zinc = "Child zinc", women_zinc = "Women's zinc")
+```
+
+::: {.callout-note}
+## About this version
+
+This is the second version of the manuscript. It adopts the paper outline of
+the project's findings notes (`docs/findings/TWO_READINGS_2026-09f.md`) for
+the Results and Discussion, writes the two readings there as one voice, and
+moves the individual-level SuperLearner and corrected-methods analyses to a
+supplement. The first version (`docs/manuscript_mcn.qmd`) is kept unchanged
+for comparison. Every table here is generated from the protocol result tables
+at render time, so a re-run of the pipeline re-renders the paper.
+:::
+
+# Introduction
+
+Micronutrient deficiencies remain a leading driver of preventable morbidity
+and mortality among children and women in low- and middle-income countries,
+contributing to anaemia, impaired growth, immune dysfunction and adverse
+pregnancy outcomes [@stevens2022micronutrient; @who2020anaemia]. National
+biomarker surveys collated under the WHO Vitamin and Mineral Nutrition
+Information System [@who_vmnis] and the BRINDA pooled analyses
+[@brinda2017overview] document broad regional contrasts, but their spatial
+resolution is rarely finer than the province, and many countries have no
+survey at all. Sub-national targeting of fortification, supplementation and
+food-system programmes therefore rests on indirect inference from sparse
+data.
+
+Two traditions have tried to fill the gap. Small-area estimation, from the
+Fay–Herriot model [@fay1979estimates] to the Bayesian disease-mapping
+framework [@besag1991bayesian; @mercer2015small; @wakefield2019small;
+@riebler2016intuitive], borrows strength across neighbouring areas with known
+sampling variances. Ensemble machine learning on satellite-derived covariates
+[@vanderlaan2007super; @osgoodzimmerman2018mapping; @local2021maps] has
+produced high-resolution maps of indirect nutritional indicators. Both
+traditions report accuracies for district-level prediction; what they rarely
+report is the reliability of the district target those accuracies are scored
+against, the information their comparison baseline was permitted to see, or
+the spread across the random divisions of the data that produced the number.
+
+That observation motivates this paper. An internal audit of our own earlier
+analysis of the same four surveys found that each of those omissions had
+decided a headline conclusion: a published within-country correlation of
+0.058 was one draw from a distribution whose median was 0.22; a
+covariate-free baseline the models appeared to lose to had been computed from
+the scored district's own respondents; a significance screen reported as
+finding nothing could not have found anything at any effect size; the
+reliability ceiling used to argue that districts were unresolvable was biased
+low by a factor of about 4.7; and a regional transport headline of 0.50–0.56
+rested on three of four countries because of a spelling mismatch in a
+population file. Corrections ran in both directions.
+
+We therefore re-analysed the four surveys under a protocol specified before
+the re-analysis, and we report the protocol as the paper's main contribution.
+Three questions are answered separately because they have different answers:
+whether covariates can fill in unsurveyed districts inside a surveyed country,
+whether they can extrapolate to a region none of whose districts was seen,
+and whether they transport to a country held entirely out of training. Each is
+scored against the cheapest alternative a programme actually has, against a
+permutation null, and against the reliability of the target itself. The
+result is a deliverable stated at the resolution the evidence supports: a
+ranked district priority list that transports across borders, and a level that
+does not.
+
+# Data
+
+## Surveys and outcomes
+
+We assembled individual biomarker measurements from four national surveys:
+The Gambia Micronutrient Survey 2018 (fieldwork January–April 2018), the Ghana
+Micronutrient Survey 2017 (April–June 2017), the Sierra Leone Micronutrient
+Survey 2013 (November–December 2013) and the Malawi Micronutrient Survey
+2015–16 (December 2015–February 2016). Fieldwork dates were recovered for every
+survey cluster so that time-varying predictors could be matched to the
+fieldwork window. Outcomes are deficiency indicators for children aged 6–59
+months (vitamin A from retinol-binding protein or retinol, iron from ferritin,
+zinc where measured) and women aged 15–49 (vitamin A, iron, folate, vitamin
+B12, zinc where measured), each defined uniformly across surveys at the WHO
+cut-off after BRINDA inflammation adjustment where acute-phase proteins were
+available [@brinda2017adjustment; @who_vmnis_thresholds]. Two targets are
+carried for every cell: the survey-weighted district prevalence, and the
+survey-weighted district mean of the log biomarker concentration, which
+retains the information a dichotomised indicator discards.
+
+A fifth survey, Tanzania 2010, was withdrawn before analysis after its
+dried-blood-spot vitamin A measurements were judged unreliable by a
+collaborator and failed independent consistency checks; Côte d'Ivoire, with
+covariates but no biomarker survey, is used only as an out-of-sample
+prediction target and not for evaluation.
+
+```{r tbl-cells}
+#| tbl-cap: "The 24 country–outcome cells: districts with a biomarker estimate, respondents, and survey-weighted national prevalence. Districts are the second sub-national tier (Malawi's Traditional Authorities for in-fill; its 27 districts for region extrapolation and the regional transport tier)."
+if (!is.null(TG)) {
+  d <- TG |> group_by(Country = country, Outcome = outcome_label[outcome]) |>
+    summarise(Districts = n(), Respondents = sum(n_raw, na.rm = TRUE),
+              `Prevalence (%)` = round(100 * weighted.mean(y_prev, n_raw, na.rm = TRUE), 1),
+              `Median n per district` = round(median(n_raw, na.rm = TRUE)), .groups = "drop")
+  kb(d, digits = 1)
+}
+```
+
+Most districts contribute between six and forty biomarker measurements, and
+in three of the four surveys most districts contain a single primary sampling
+unit. The precision of the district target, not the number of districts, is
+the binding constraint on everything that follows, and Section 3 and Section
+4.5 treat it explicitly.
+
+## Predictors
+
+Every predictor available at district resolution was assembled, not Earth
+observation alone. The vocabulary in this version holds
+`r if (!is.null(MD)) nrow(MD) else 473` columns in
+`r if (!is.null(MD)) length(unique(MD$domain)) else 24` domains
+(@tbl-domains): Google Earth Engine zonal aggregates [@gorelick2017google]
+of climate, land cover, greenness, terrain, built environment and night-time
+lights; the 64-dimension AlphaEarth satellite embedding; SoilGrids and
+iSDAsoil soil chemistry; MapSPAM crop composition; Gridded Livestock of the
+World densities; Malaria Atlas Project surfaces; IHME modelled surfaces of
+child growth failure, anaemia, HIV, vaccination and water and sanitation,
+extracted as population-weighted zonal means of the published 5 km rasters;
+WHO ESPEN helminth and schistosomiasis programme data; WFP market prices,
+FAOSTAT food supply and food-security indicators; distance to surface water
+and to the coast; and survey-indicator aggregates from the DHS and MICS rounds
+nearest each biomarker survey, with every biomarker-adjacent indicator removed
+as leakage.
+
+```{r tbl-domains}
+#| tbl-cap: "Predictor domains in the shared vocabulary, with the number of columns and the sources each draws on. A domain enters the models as its leading principal components to 80% of variance."
+if (!is.null(MD)) {
+  src <- function(s) { s <- as.character(s); dplyr::case_when(grepl("^DHS", s) ~ "DHS / MICS", grepl("AlphaEarth", s) ~ "AlphaEarth", grepl("SoilGrids", s) ~ "SoilGrids / iSDA",
+    grepl("^GEE", s) ~ "Earth Engine", grepl("IHME", s) ~ "IHME", grepl("Malaria Atlas", s) ~ "Malaria Atlas", grepl("MapSPAM", s) ~ "MapSPAM", grepl("Koppen", s) ~ "Koppen / AEZ",
+    grepl("WFP", s) ~ "WFP", grepl("FAOSTAT", s) ~ "FAOSTAT", grepl("Livestock", s) ~ "GLW4", grepl("ESPEN", s) ~ "ESPEN", grepl("Surface Water", s) ~ "Earth Engine", grepl("GFDx", s) ~ "GFDx", grepl("HFID", s) ~ "HFID", TRUE ~ "WorldPop / GHS / RWI") }
+  d <- MD |> mutate(Source = src(source)) |> group_by(Domain = domain) |>
+    summarise(Columns = n(), Sources = paste(sort(unique(Source)), collapse = ", "), .groups = "drop") |> arrange(desc(Columns))
+  kb(d, digits = 0)
+}
+```
+
+Which administrative level a source natively lives at matters as much as what
+it measures. The IHME surfaces are a worked example: their published district
+rollups are keyed by district name, and joining them by name left a quarter
+of Ghana's surveyed districts without a value after the 2019 district splits
+and could only reach Malawi at its districts, which are this project's
+regions. Re-extracting the same surfaces as zonal means over the spine
+polygons removed both problems, and the two versions agree at Spearman
+0.6–0.98 where both exist. Every source's native level, join method and known
+gaps are recorded in the variable annotation sheet (Supplement S2).
+
+Predictors that could not be reconciled across surveys were excluded with a
+stated reason; national values (FAOSTAT supply, fortification standards) are
+broadcast to every district and enter the pooled models only. Nothing
+survey-derived from the same respondents as an outcome is used to predict it.
+
+# The evaluation protocol {#sec-protocol}
+
+The protocol was specified before the re-analysis and applied to every
+comparison in this paper. It rests on five rules and three measurement
+choices; the effect of each in isolation is reported in Section 5.
+
+**One. Name the estimand.** "Can covariates predict district prevalence" is
+three questions with three answers. *In-fill* predicts unsurveyed districts
+inside a surveyed country (5-fold cross-validation over districts); *region
+extrapolation* predicts a region none of whose districts was seen (exhaustive
+leave-one-region-out); *country transport* predicts a country held entirely
+out of training (leave-one-country-out, scored at the district and at the
+first sub-national tier). Every result is reported against a named estimand.
+
+**Two. Match the baseline's information to the model's.** A comparison is
+interpretable only if the benchmark has seen what the model has seen. The
+regional-mean baseline is computed under the same folds as the model and
+jackknifed, so the scored district never contributes to the regional average
+it is compared with. A covariate-free spatial smoother on district centroids
+is scored on the identical folds, so "covariates versus geography" is not a
+comparison across fold schemes.
+
+**Three. Replicate every random split.** A single random division of 14–87
+districts is a high-variance draw: across ten draws of the same scheme, the
+median range of a cell's rank correlation is 0.17 and the maximum 0.71. Every
+random scheme is repeated ten times and reported as its median; the region
+scheme is exhaustive and carries no draw.
+
+**Four. Calibrate transport against a null that respects the design.**
+Because outcomes are correlated within a country, counts of positive cells
+have a fat null: with no transport at all, 15–16 of 22 cells come out positive
+five percent of the time. The primary transport criterion is therefore the
+mean rank correlation over cells against the 95th percentile of a
+country-block permutation null; cell counts are secondary.
+
+**Five. Report the reliability of the target.** Every within-country
+correlation is read against a ceiling for the cell: the correlation a perfect
+predictor of the true district value could achieve given the sampling noise in
+the survey estimate. Section 4.5 estimates it from a
+respondent-in-cluster-in-district-in-region variance model, which separates
+the cluster effect a split-half estimator counts as geography.
+
+Three measurement choices follow. Districts are weighted by an effective
+sample size, Kish's $n_\text{eff}$ divided by a design effect measured at the
+national level for each country and outcome (median 2.4; the conventional 1.5
+understates it). Predictors are rank-normalised within country before pooling,
+because the same indicator sits on different scales in different surveys and
+z-scoring does not remove that. And predictors enter in three competing
+representations so that model capacity is a measured factor: all columns
+under elastic net; the leading principal components of each domain to 80% of
+variance, oriented from the training rows only; and a zero-tuning **domain
+index**, a marginal-correlation-weighted composite over those components with
+no cross-validated hyperparameter, which is the estimator of record.
+
+The protocol is pre-registered for the next countries added to the panel
+(`docs/findings/PREREGISTRATION_NEW_COUNTRIES_2026-09.md`): seven
+predictions with thresholds fixed in advance, of which the central one is that
+the two-domain climate-and-soil index transports at least as well as the full
+vocabulary.
+
+# Results
+
+## Filling in unsurveyed districts inside a surveyed country
+
+Within a surveyed country the covariates beat the honest survey baseline and
+tie the covariate-free smoother (@tbl-infill). Against a jackknifed regional
+mean, the only sub-national alternative a programme actually has, the domain
+index reaches a mean rank correlation of
+`r sprintf("%.2f", get(BM$mean_spearman[BM$estimand == "infill" & BM$arm == "domain_index" & BM$target == "level"]))`
+against
+`r sprintf("%.2f", get(BM$mean_spearman[BM$estimand == "infill" & BM$arm == "region_mean_jk" & BM$target == "level"]))`
+on the biomarker concentration and
+`r sprintf("%.2f", get(BM$mean_spearman[BM$estimand == "infill" & BM$arm == "domain_index" & BM$target == "prev"]))`
+against
+`r sprintf("%.2f", get(BM$mean_spearman[BM$estimand == "infill" & BM$arm == "region_mean_jk" & BM$target == "prev"]))`
+on prevalence. A spatial smoother with no covariates at all scores
+`r sprintf("%.2f", get(BM$mean_spearman[BM$estimand == "infill" & BM$arm == "spatial" & BM$target == "level"]))`
+on the concentration, within 0.01 of the full covariate model, and covariates
+fitted to the smoother's residuals add a median of zero. Inside a surveyed
+country, most of what the covariates supply is a smooth surface that
+neighbouring districts already provide.
+
+```{r tbl-infill}
+#| tbl-cap: "In-fill: mean Spearman correlation between predicted and survey-estimated district values over 24 country–outcome cells, 5-fold cross-validation over districts, median of ten fold draws. The regional-mean baseline is jackknifed so the scored district never contributes to it."
+if (!is.null(BM)) {
+  d <- BM |> filter(estimand == "infill", arm %in% names(arm_label)) |> select(target, arm, mean_spearman, cells_positive) |>
+    pivot_wider(names_from = target, values_from = c(mean_spearman, cells_positive)) |>
+    mutate(Model = arm_label[arm]) |> arrange(desc(mean_spearman_level)) |>
+    select(Model, `Biomarker level` = mean_spearman_level, `Positive cells` = cells_positive_level, `Prevalence` = mean_spearman_prev, `Positive cells ` = cells_positive_prev)
+  kb(d)
+}
+```
+
+Capacity is a liability at these sample sizes. The zero-tuning index over
+domain components outperforms a penalised regression over every column
+(`r sprintf("%.2f", get(BM$mean_spearman[BM$estimand == "infill" & BM$arm == "domain_index" & BM$target == "prev"]))`
+against
+`r sprintf("%.2f", get(BM$mean_spearman[BM$estimand == "infill" & BM$arm == "raw_enet" & BM$target == "prev"]))`
+on prevalence), and the penalised fit turns negative under region
+extrapolation on prevalence (@tbl-region). With 14–87 units, a regression over
+hundreds of correlated columns fits the country it was trained in. A
+SuperLearner ensemble that contains the index among its candidates does not
+beat it under any of four meta-learner losses (Supplement S1).
+
+## Extrapolating to a region none of whose districts was seen
+
+Leaving out a whole region is where a smoother must extrapolate past the edge
+of its data. The index and the smoother stay close; the survey has nothing to
+say about a region it has not seen, and the training-mean null collapses
+(@tbl-region). Ghana (16 regions) and Malawi (27 districts) are the countries
+in which this estimand is well determined; The Gambia (6) and Sierra Leone (4)
+contribute one number per region.
+
+```{r tbl-region}
+#| tbl-cap: "Region extrapolation: mean Spearman over 24 cells under exhaustive leave-one-region-out. The jackknifed regional mean is not an arm here because the held-out region has no survey estimate by construction."
+if (!is.null(BM)) {
+  d <- BM |> filter(estimand == "region", arm %in% names(arm_label)) |> select(target, arm, mean_spearman, cells_positive) |>
+    pivot_wider(names_from = target, values_from = c(mean_spearman, cells_positive)) |>
+    mutate(Model = arm_label[arm]) |> arrange(desc(mean_spearman_level)) |>
+    select(Model, `Biomarker level` = mean_spearman_level, `Positive cells` = cells_positive_level, `Prevalence` = mean_spearman_prev, `Positive cells ` = cells_positive_prev)
+  kb(d)
+}
+```
+
+## Transporting to a country never used in training
+
+Rankings transport across borders; levels do not (@tbl-transport). Under
+leave-one-country-out the domain index ranks a held-out country's districts
+with a mean Spearman of
+`r sprintf("%.2f", get(BM$mean_spearman[BM$estimand == "country" & BM$arm == "domain_index" & BM$target == "level"]))`
+on the biomarker concentration over the 22 evaluable cells, positive in
+`r get(BM$cells_positive[BM$estimand == "country" & BM$arm == "domain_index" & BM$target == "level"])`,
+and its regions with
+`r { a1 <- rd(P2, "admin1_transport.csv"); sprintf("%.2f", get(mean(a1$spearman[a1$arm == "domain_index" & a1$target == "level"], na.rm = TRUE))) }`;
+the country-block permutation null's 95th percentiles are
+`r { nc <- rd(P2, "transport_null_calibration.csv"); sprintf("%.2f and %.2f", get(nc$null_mean_q95[nc$tier == "admin2"]), get(nc$null_mean_q95[nc$tier == "admin1"])) }`.
+An index built only from the climate and soil domains transports better at
+both tiers, 0.37 at district level (positive in all 22) and 0.45 at the
+regional tier (20 of 22). That two-domain index was chosen on the same four
+countries it is scored on, which is why it enters the next country as a
+pre-registered prediction rather than a result; honest nested selection of
+domains inside the training fold recovers about 0.04 of its margin.
+
+```{r tbl-transport}
+#| tbl-cap: "Country transport: mean Spearman in a country held entirely out of training, over 22 cells, at the district and at the first sub-national tier, for the full-vocabulary index and the pre-registered climate + soil index, with the 95th percentile of the country-block permutation null."
+a1 <- rd(P2, "admin1_transport.csv"); cs1 <- rd(P2, "climate_soil_admin1.csv"); nd <- rd(P2, "nested_domain_selection.csv"); nc <- rd(P2, "transport_null_calibration.csv")
+mrow <- function(x, ...) if (!is.null(x)) get(mean(x$spearman[...], na.rm = TRUE)) else NA_real_
+if (!is.null(BM)) kb(df(Tier = c("District (Admin-2)", "Regional (Admin-1)"),
+  `Full index, level` = c(get(BM$mean_spearman[BM$estimand == "country" & BM$arm == "domain_index" & BM$target == "level"]), mrow(a1, a1$arm == "domain_index" & a1$target == "level")),
+  `Full index, prevalence` = c(get(BM$mean_spearman[BM$estimand == "country" & BM$arm == "domain_index" & BM$target == "prev"]), mrow(a1, a1$arm == "domain_index" & a1$target == "prev")),
+  `Climate + soil, level` = c(mrow(nd, nd$arm == "fixed_cs" & nd$target == "level"), mrow(cs1, cs1$set == "climate_soil" & cs1$target == "level")),
+  `Climate + soil, prevalence` = c(mrow(nd, nd$arm == "fixed_cs" & nd$target == "prev"), mrow(cs1, cs1$set == "climate_soil" & cs1$target == "prev")),
+  `Null 95th percentile` = c(if (!is.null(nc)) get(nc$null_mean_q95[nc$tier == "admin2"]) else NA, if (!is.null(nc)) get(nc$null_mean_q95[nc$tier == "admin1"]) else NA)))
+```
+
+Absolute prevalence does not transport: biomarker levels differ between
+surveys by more than any covariate can explain (raw ferritin differs six-fold
+across the four), so a transported map is a ranking. Which layers carry the
+ranking is shown by ablation (@tbl-ablation): dropping each domain in turn and
+rebuilding the components, soil, climate, agriculture and livestock density
+are the only domains whose removal costs transport; removing the 138 survey
+indicator columns improves it. Adding training countries helps at about 0.05
+per country on the concentration target, so the panel is not saturated in
+countries even if it is saturated in layers.
+
+```{r tbl-ablation}
+#| tbl-cap: "Which domains carry transport: change in mean district-level Spearman (biomarker level, 22 cells) when each domain is dropped from the vocabulary and the components rebuilt, and the transport of the domain on its own. Positive 'cost of dropping' means the domain is load-bearing."
+da <- rd(P2, "domain_ablation_loco_summary.csv")
+if (!is.null(da)) { d <- da |> filter(target == "level") |> arrange(desc(delta_drop)) |> transmute(Domain = domain, `Cost of dropping` = delta_drop, `Alone` = only) |> head(10); kb(d, digits = 3) }
+```
+
+The transported ranking is not an urban–rural map. Partialling a composite of
+night lights, population density, built surface and travel time out of the
+climate-and-soil index moves its transport by less than 0.02, and urbanicity
+alone does not transport.
+
+## What the ranking buys a programme
+
+Used for targeting, the ranking reaches more deficiency burden than the
+survey's own averages (@tbl-burden). Directing effort to the fifth of
+districts the model ranks worst reaches
+`r { nt <- rd(P2, "nce_targeting_summary.csv"); sprintf("%.0f%%", 100 * get(nt$mean_capture[nt$estimand == "infill" & nt$arm == "domain_index"])) }`
+of national deficiency burden in-fill, against
+`r { nt <- rd(P2, "nce_targeting_summary.csv"); sprintf("%.0f%%", 100 * get(nt$mean_capture[nt$estimand == "infill" & nt$arm == "region_mean_jk"])) }`
+for jackknifed regional survey averages, which are themselves no better than
+random selection, and 47% for an oracle that knows the true worst fifth. The
+margin is modest per cell and concentrates where regions hold several
+districts; in Malawi the selected districts carry 43% child iron deficiency
+against 26% nationally and hold half the national burden. Under transport the
+burden margin disappears (lift 1.0), so the transport result is about ordering
+and should not be restated as a targeting gain.
+
+```{r tbl-burden}
+#| tbl-cap: "Burden captured by the worst-ranked fifth of districts, in-fill, mean over 24 cells: share of national deficiency burden reached, lift over random selection, and cells with lift above one."
+nt <- rd(P2, "nce_targeting_summary.csv")
+if (!is.null(nt)) { d <- nt |> filter(estimand == "infill") |> mutate(Model = c(oracle_ceiling = "Oracle: true worst fifth", arm_label)[arm]) |>
+  select(Model, `Burden reached` = mean_capture, `Lift vs random` = mean_lift, `Cells with lift > 1` = cells_lift_gt1); kb(d) }
+```
+
+Classified into the WHO public-health bands for vitamin A (none, mild,
+moderate, severe), the in-fill predictions place a district in the correct
+band 52% of the time and within one band 90% of the time; a transported
+ranking anchored to the country's national prevalence does as well (50% and
+87%).
+
+A national estimate is enough to put levels on the ranking (@tbl-anchor).
+A survey design that measures only a national prevalence from five percent of
+a full survey's sample (fifty to seventy respondents) and lets the transported
+covariates order the districts gives a district-level error of about 10
+percentage points, against 20 for a district survey of the same size and 12
+for a regional one; the district survey needs about 40% of the full sample,
+roughly 400 respondents, before it does better on level error. It loses on
+burden captured at every sample size, because burden concentrates in populous
+districts that a survey measures precisely, so the design is a level
+calibration for a ranking, not a substitute for a survey.
+
+```{r tbl-anchor}
+#| tbl-cap: "Survey design: median district error in percentage points over 22 cells, by share of the full survey sample. National anchor + ranking measures only a national prevalence and orders districts by the transported climate + soil index; the district and regional surveys spend the same sample on direct estimates."
+ar <- rd(P2, "anchor_and_rank_summary.csv")
+if (!is.null(ar)) { d <- ar |> filter(rank_from == "prev", set == "climate_soil", fraction %in% c(0.05, 0.15, 0.25, 0.4, 0.6)) |>
+  mutate(design = c(A1_anchor_rank = "National anchor + ranking", A2_region_anchor_rank = "Regional anchors + ranking", B_district_survey = "District survey", C_regional_survey = "Regional survey")[design],
+         fraction = sprintf("%.0f%%", 100 * fraction)) |> select(fraction, design, mae) |> pivot_wider(names_from = design, values_from = mae) |> rename(`Share of full sample` = fraction); kb(d, digits = 1) }
+```
+
+## How much is attainable: the reliability ceiling {#sec-ceiling}
+
+A district estimate built from a dozen respondents is noisy, and no model can
+correlate with the true district value better than the survey estimate does.
+A split-half ceiling, which correlates two random halves of each district's
+respondents, counts the survey cluster as geography: respondents in one
+cluster resemble each other whether or not their district differs from the
+next. A respondent-in-cluster-in-district-in-region variance model reproduces
+the split-half ceiling when the cluster is included and removes it when it is
+not (@tbl-ceiling). One fifth of the split-half ceiling is cluster effect; the
+honest ceiling averages 0.44 on prevalence, six of 24 cells have a ceiling
+below 0.30, and the model already reaches the ceiling in five cells. Child
+zinc has no district geography at all: its between-district variance is zero,
+and what a split-half estimator called geography was the cluster. The earlier
+analytic ceiling, which assumed a design effect of 1.5, was biased low by
+about 4.7 and is withdrawn (Section 5).
+
+```{r tbl-ceiling}
+#| tbl-cap: "Reliability ceiling on prevalence by country, district tier: share of districts with a single survey cluster, the split-half ceiling, the variance-components ceiling with the cluster effect removed, and the in-fill correlation achieved by the domain index."
+vc <- rd(P2, "variance_components_ceiling.csv")
+if (!is.null(vc)) { d <- vc |> filter(rung == "admin2", target == "prev") |> group_by(Country = country) |>
+  summarise(`Single-cluster districts` = sprintf("%.0f%%", 100 * mean(share_single_cluster)), `Split-half ceiling` = round(mean(ceiling_within_vc), 2), `Honest ceiling` = round(mean(ceiling_vc), 2), `Achieved, in-fill` = { a <- mean(achieved_spearman, na.rm = TRUE); ifelse(is.finite(a), sprintf("%.2f", a), "not folded (14 districts)") }, .groups = "drop"); kb(d) }
+```
+
+## What does not help, which is itself a result
+
+Nothing added to the vocabulary in this revision moves the index. Food prices
+and night-time temperature matched to each cluster's fieldwork month, the
+satellite embedding as a domain of its own, and four blocks added for this
+version, livestock density, distance to surface water and to the coast,
+helminth burden and control, and the IHME surfaces re-extracted as zonal
+means, each change in-fill and transport by less than 0.01 when added to the
+base vocabulary (@tbl-addons). The fieldwork-month temperature columns are
+among the most consistently associated with deficiency in the marginal scan
+(four of four countries for child vitamin A) yet improve no fold, because a
+covariate defined by when the survey happened cannot rank districts that have
+not been surveyed. Livestock density alone matches the full vocabulary at
+district transport on the concentration target, and enters the ablation as
+the second load-bearing domain; the vocabulary is saturated, and the two
+remotely sensed domains carry it.
+
+```{r tbl-addons}
+#| tbl-cap: "Add-on blocks scored under one harness: median change in Spearman when the block is added to the base vocabulary (in-fill, 18 cells; district transport, 22 cells) and the transport of the block alone."
+tags <- c(food_tm = "Food prices, fieldwork-matched", climate_tm = "Night temperature and rainfall, fieldwork-matched", alphaearth = "Satellite embedding as own domain",
+          livestock = "Livestock density (GLW4)", water_distance = "Distance to water and coast", espen = "Helminth burden and control (ESPEN)", ihme_raster = "IHME surfaces as zonal means")
+rows <- lapply(names(tags), function(t) { i <- rd(P2, paste0("addon_", t, "_infill.csv")); l <- rd(P2, paste0("addon_", t, "_loco.csv")); if (is.null(i) || is.null(l)) return(NULL)
+  dd_i <- function(x) { w <- x |> filter(target == "level") |> group_by(country, outcome) |> summarise(d = mean(spearman[set == "plus"], na.rm = TRUE) - mean(spearman[set == "base"], na.rm = TRUE), .groups = "drop"); median(w$d, na.rm = TRUE) }
+  dd_l <- function(x, s1) { w <- x |> filter(tier == "admin2", target == "level") |> group_by(heldout, outcome) |> summarise(d = mean(spearman[set == s1], na.rm = TRUE) - mean(spearman[set == "base"], na.rm = TRUE), .groups = "drop"); median(w$d, na.rm = TRUE) }
+  df(Block = tags[[t]], `In-fill, level` = dd_i(i), `Transport, level` = dd_l(l, "plus"), `Alone, transport` = dd_l(l, "addon_only")) })
+rows <- rows[!sapply(rows, is.null)]; if (length(rows)) kb(bind_rows(rows), digits = 3)
+```
+
+Two further sensitivity analyses are reported in the supplement. Fitting the
+same arms at the survey cluster instead of the district (323 clusters with
+undisplaced GPS, covariates as 2 km and 5 km buffer means) does not beat the
+district fit on any estimand and is worse for transport; a matched-vocabulary
+comparison isolates the fitting unit from the layers. And a person-level
+SuperLearner on the survey questionnaire, the district proxies, or both, has
+discriminative skill only for iron (Brier skill 0.06–0.14) and none for the
+vitamins; the questionnaire and the proxies carry the same weak signal at the
+individual level (Supplement S1).
+
+# What the protocol changes {#sec-changes}
+
+Evaluation design moved the results of this study more than any modelling
+choice did, and the same errors are available to any group doing this work.
+@tbl-changes sets each headline under the earlier evaluation next to its value
+under the protocol. Three corrections favoured the covariates, three ran
+against them, and two were data-handling defects found only because the
+protocol made a dropped country or a mis-filed domain visible.
+
+```{r tbl-changes}
+#| tbl-cap: "Each headline result under the earlier evaluation and under the protocol, with the change that moved it."
+kb(df(
+  Result = c("Within-country rank correlation", "Covariate-free survey baseline", "Reliability ceiling (prevalence)", "Regional transport",
+             "District transport", "Regional anchoring gain", "Predictor significance screen", "Covariates vs geography, cells won",
+             "Individual-level arm", "Satellite embedding", "IHME block for The Gambia", "Population join"),
+  `Earlier evaluation` = c("0.058 (one fold draw)", "r 0.516, beat every covariate arm", "0.098 analytic, then 0.47–0.61 split-half",
+             "0.50–0.56, 12 of 12", "0.28 penalised fit, 21 of 22", "0.164 to 0.413, better in 20 of 24", "0 of 294 survive FDR",
+             "6 of 24", "0.516, headline", "64 columns filed under agriculture", "25 of 34 columns empty", "Sierra Leone dropped from every population-joined run"),
+  `Under the protocol` = c("0.22 replicated; 0.39 (level) and 0.29 (prevalence) for the index", "0.076 jackknifed; loses to the index",
+             "0.44 variance-components; 21% of the split-half ceiling was cluster effect", "0.32 over 22 cells, 17 positive; three countries only before",
+             "0.27 zero-tuning index, 17 of 22; 0.27 penalised, 20 of 22", "0.147 vs 0.156 unanchored; withdrawn", "Screen had power 0.005; sign replication reported instead",
+             "10 of 24 (miscount); tied on matched folds", "Trained on the scored district's respondents; supplement only", "Own domain; +0.01 on transport",
+             "One year per country dropped every series ending earlier; fixed per indicator", "Spelling normalised; all 22 cells restored"),
+  `What moved it` = c("Replicated folds", "Jackknife", "Variance model with cluster term", "BUG-01 found by the per-country cell count", "Estimator of record stated",
+             "Jackknifed control arm", "Attained power reported", "Recount; matched folds", "Estimand named", "Metadata audit", "Per-country coverage audit", "Per-country cell count")))
+```
+
+Two lessons generalise. First, a baseline or benchmark computed from data that
+includes the unit being scored reports a gain that is partly the unit's own
+answer; the jackknifed arm cost one additional run and reversed a finding.
+Second, a dropped country, a mis-filed domain or a blanked block does not
+announce itself in a column count: the vocabulary had 451 columns before and
+after the IHME defect, and the regional headline had 12 cells before and after
+Sierra Leone vanished. Per-country coverage and per-country cell counts, not
+totals, are the checks that found them.
+
+# Limitations
+
+Four countries, three of them West African, bound the transport result; the
+pre-registration for the next countries is the test that can move it. The
+deliverable is a ranking, not a level: absolute prevalence differs between
+surveys by more than covariates explain, and the level must come from a
+national measurement. Within a surveyed country geography supplies most of the
+attainable accuracy, so the covariates earn their place mainly where no survey
+exists to smooth from. Sierra Leone's 14 districts cannot be folded for
+in-fill and contribute one number per region. Several targets are degenerate at
+district resolution, most clearly child zinc, whose between-district variance
+is zero, and the rare outcomes (women's vitamin A below 3% in every survey)
+have ceilings below 0.30. The two-domain index was selected on the countries
+it is scored on. Iron is inflammation-adjusted by each survey's native method,
+vitamin A uniformly; soluble transferrin receptor, available in all four
+surveys and less inflammation-sensitive than ferritin, is unused. Iodine, with
+urinary iodine in two surveys, cannot be validated across borders and is
+reported within country only (0.35–0.48 in The Gambia).
+
+# Recommendations for the field
+
+The transferable result is procedural. Studies that predict sub-national
+prevalence from covariates should:
+
+1. **Name the estimand.** In-fill, region extrapolation and country transport
+   have materially different answers and are routinely reported
+   interchangeably.
+2. **State what the baseline saw**, and jackknife any baseline derived from the
+   same survey so the scored unit never contributes to it.
+3. **Replicate every random division** of the data and report the spread; a
+   single draw of 14–87 districts is good to about ±0.09 and can be off by
+   ±0.35.
+4. **Report the reliability of the validation target** from a variance model
+   that separates the survey cluster from geography, and read every
+   correlation against it.
+5. **Show that each significance screen could have detected an effect** at
+   the permutation resolution used; where it cannot, replace it with an
+   evidence standard that has power, such as replication of sign across
+   surveys.
+6. **Audit coverage per country, not in total**, because the defects that
+   moved this paper's headlines were invisible in column and cell counts.
+
+Applied to our own work, these conditions reversed conclusions in both
+directions, and we would not have identified any of them from the modelling
+results alone.
+
+# Conclusions
+
+Proxy indicators carry replicated, nutrient-specific signal for sub-national
+micronutrient deficiency, and the honest product is a ranked district
+priority list: mean rank correlation about 0.3 at either tier for a country
+with no survey, higher for an index built from remotely sensed climate and
+soil alone, plus a level calibration that needs one national estimate. Within
+a surveyed country a spatial smoother delivers most of what the covariates do.
+The vocabulary is saturated, the headroom against the honest ceiling is small,
+and claims about levels, burden or survey savings should be read as upper
+bounds. The protocol that produced these statements, and the side-by-side
+record of what it changed, are the parts of this work most worth carrying to
+the next survey.
+
+# Acknowledgements {.unnumbered}
+
+Funded by the Bill & Melinda Gates Foundation (grant number INV-XXXXXX). The
+funder had no role in study design, analysis, decision to publish, or
+manuscript preparation.
+
+# Author contributions {.unnumbered}
+
+ANM conceived the study, conducted the analysis, and drafted the manuscript.
+Co-authors to be added on revision.
+
+# Data availability {.unnumbered}
+
+Survey biomarker data are available from the originating survey programmes
+following registration. Pipeline code, the protocol scripts
+(`scripts/protocol_v2/`), the pre-registration and the findings notes are in
+the project repository.
+
+# Supplement S1: the individual-level SuperLearner and the corrected-methods analyses {.unnumbered}
+
+The analyses in this supplement were the main results of the first version of
+this manuscript. They are retained because they document the estimators the
+protocol was compared against and because two of their findings stand; they
+are not the analysis of record, for the reasons stated in Section 5.
+
+## S1.1 Individual-level SuperLearner aggregated to districts {.unnumbered}
+
+The first version fitted a person-level ensemble (twelve learners: penalised
+regression, random forests, gradient boosting and BART; a Gaussian process was
+dropped after receiving zero ensemble weight while dominating runtime) on the
+harmonised survey items and averaged its out-of-fold predictions to the
+district. It reported the highest raw within-country score of any arm (median
+Pearson r 0.516 over 24 cells; median absolute error 8.55 percentage points).
+The folds split respondents rather than districts, so a district's own
+respondents appeared in training; the number is not an out-of-district
+comparison and was withdrawn as a headline. The aggregated predictions also
+showed the compression the small-area literature predicts [@mercer2015small;
+@wakefield2019small; @niculescu2005predicting]: a probabilistic classifier
+under uncertainty shrinks toward the marginal class probability, and naive
+aggregation pulls every district mean toward the national prevalence, giving
+large negative biases for high-prevalence outcomes. Fitting at the unit of
+deliverable is the standing recommendation.
+
+Under the protocol the person-level model was re-fitted with survey weights,
+outer folds cut by district so no district's respondents are split across
+training and test, and three predictor sets: the survey questionnaire alone,
+the district proxies alone, and both (@fig-individual). Discrimination is
+near chance for the vitamins and folate in every set and present only for
+iron (AUC 0.75–0.78, Brier skill 0.06–0.14 in Ghana and Malawi); the
+questionnaire and the proxies carry the same weak signal at the individual
+level, and adding the proxies to the questionnaire changes the Brier skill by
+less than 0.01 in most cells.
+
+```{r fig-individual}
+#| fig-cap: "Person-level SuperLearner, outer 5-fold cross-validation by district: Brier skill over the national prevalence for the survey questionnaire alone, the district proxies alone, and both, by country and outcome."
+#| fig-width: 8
+#| fig-height: 4.2
+il <- rd(P2, "individual_level_models.csv")
+if (!is.null(il) && nrow(il)) {
+  d <- il |> mutate(Outcome = outcome_label[outcome], set = factor(c(survey_only = "Survey variables only", proxies_only = "District proxies only", both = "Both")[set], levels = c("Survey variables only", "District proxies only", "Both")))
+  ggplot(d, aes(x = 100 * brier_skill, y = Outcome, colour = set)) + geom_vline(xintercept = 0, linetype = 2, colour = "grey50") +
+    geom_point(size = 2.5, position = position_dodge(width = 0.5)) + facet_wrap(~ country, nrow = 1) +
+    labs(x = "Brier skill over the national prevalence (%)", y = NULL, colour = NULL) + theme(legend.position = "bottom")
+}
+```
+
+## S1.2 The corrected-methods (P1–P8) layer {.unnumbered}
+
+Before the protocol, a set of corrected methods was built to remove the
+leakages found in the production pipeline: preprocessing inside each fold and
+folds blocked by survey cluster and by region (P1); out-of-fold recalibration
+of binary predictions (P2); decomposition of district error into a survey
+sampling component and a model component (P3); split-conformal and
+design-based intervals per district (P4); a decision-value score for ranking
+the highest-burden districts (P5); out-of-support flags for districts whose
+covariates fall outside the surveyed range (P6); empirical-Bayes partial
+pooling (P7); and per-district trust labels (P8). Their outputs are in
+`results/tables/corrected/`. Two of their findings stand and are absorbed by
+the protocol: honest cluster-blocked folds lower within-country discrimination
+by a few points of AUC relative to random folds, and a substantial part of the
+apparent district error is survey sampling noise. The protocol supersedes the
+layer by naming the estimand, matching baselines, replicating folds and
+weighting by measured effective sample size, none of which the P1–P8 layer
+did.
+
+```{r tbl-s1-honesty}
+#| tbl-cap: "Corrected methods, P1: within-country AUC under random cross-validation with full-data preprocessing against cluster-blocked and region-blocked folds with in-fold preprocessing."
+cc <- rd(root, "results", "tables", "corrected", "cv_honesty_compare.csv")
+if (!is.null(cc)) {
+  lab <- c("random CV + full-data preprocessing (optimistic)" = "Optimistic", "cluster-block CV" = "Cluster-block", "region/spatial-block CV" = "Region-block")
+  d <- cc |> mutate(scheme = lab[scheme]) |> filter(!is.na(scheme)) |> select(country, outcome, scheme, auc) |> pivot_wider(names_from = scheme, values_from = auc) |> arrange(country, outcome)
+  kb(d)
+}
+```
+
+```{r tbl-s1-error}
+#| tbl-cap: "Corrected methods, P3: district prediction error decomposed into a survey-sampling component and a model component."
+ce <- rd(root, "results", "tables", "corrected", "admin2_error_sampling_adjusted.csv")
+if (!is.null(ce)) kb(ce |> select(country, outcome, n_admin2, naive_rmse_pp, sampling_rmse_pp, adjusted_rmse_pp, pearson_r), col.names = c("Country", "Outcome", "n areas", "Naive RMSE (pp)", "Sampling RMSE (pp)", "Adjusted RMSE (pp)", "r"))
+```
+
+## S1.3 Other analyses of the first version {.unnumbered}
+
+The first version also reported a benchmark of 21 comparator methods under
+leave-one-country-out (Bayesian small-area models, penalised regressions,
+invariance-based transport methods and two spatial smoothers, of which the
+smoothers led on rank correlation), an area-level prevalence recipe whose
+comparative claims did not survive a leakage-corrected re-ranking, a test of
+modelling the continuous biomarker instead of the binary, a test of what
+target a model should carry across a border (within-country z-scores
+transport; deviations from the national level do not), a national-level model
+on the WHO VMNIS panel that cannot supply a district map's level, and a
+comparison of admin-1 against admin-2 as the unit of estimation. Their text and
+tables are in `docs/manuscript_mcn.qmd`; each conclusion that survives is
+stated in the body above, and each that does not is listed in @tbl-changes.
+
+# Supplement S2: data provenance and the variable annotation sheet {.unnumbered}
+
+Every predictor's source, native administrative level, join method, coverage
+by country and known gaps are recorded in the variable annotation sheet
+(`results/tables/protocol_v2/variable_sheet.csv`) and the source-block
+metadata (`data/covariates/harmonized/*_metadata.csv`). Four data-handling
+defects found during this work are recorded there with their fix: the
+population file spelling that dropped Sierra Leone from every population-joined
+run; the satellite embedding filed under agriculture; the one-year-per-country
+selection that blanked 25 of The Gambia's 34 IHME and GFDx columns; and the
+survey year of The Gambia entered as 2021 in two scripts (fieldwork was
+January–April 2018). Remaining gaps are source gaps: the fortification
+database has no rows for The Gambia, IHME does not model circumcision or four
+sanitation indicators there, and ESPEN exposes programme endemicity classes
+rather than survey prevalence.
+
+# Supplement S3: per-cell transport {.unnumbered}
+
+```{r tbl-s3-cells}
+#| tbl-cap: "Country transport by cell: Spearman correlation in the held-out country for the zero-tuning domain index, biomarker level and prevalence, district tier."
+cells <- rd(P2, "benchmarks_v2_cells.csv")
+if (!is.null(cells)) {
+  d <- cells |> filter(estimand == "country", arm == "domain_index") |> group_by(country, outcome, target) |> summarise(rho = mean(spearman, na.rm = TRUE), .groups = "drop") |>
+    pivot_wider(names_from = target, values_from = rho) |> transmute(Country = country, Outcome = outcome_label[outcome], `Level` = level, `Prevalence` = prev) |> arrange(Country, Outcome)
+  kb(d)
+}
+```
+
+# References {.unnumbered}
+
+::: {#refs}
+:::

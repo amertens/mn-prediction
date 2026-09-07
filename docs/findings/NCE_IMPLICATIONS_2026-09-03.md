@@ -59,7 +59,7 @@ population-joined run. On all 22 regional cells the mean rank correlation is
 0.32 with 17 positive (0.43 and 12 of 12 in the two countries with eight or
 more regions), against a permutation null whose 95th percentile is 0.15; with
 the climate + soil index it is 0.45 (20 of 22). The district figure (mean 0.27 with 17 of 22 positive for the
-zero-tuning index, 0.28 with 21 of 22 for the penalised fit; 0.37 and 22 of
+zero-tuning index, 0.27 with 20 of 22 for the penalised fit; 0.37 and 22 of
 22 with climate + soil) is unaffected. Use: *"district
 and regional rankings transport to a country never used in training, with a
 mean rank correlation of about 0.3 at both tiers, far outside a permutation

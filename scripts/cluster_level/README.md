@@ -38,3 +38,22 @@ Data notes: Sierra Leone's rasters are named both `Sierra_Leone` and
 `Sierra Leone`; seven of its space-named soil GeoTIFFs crash GDAL part-way
 through a read, so `02` uses the single-band `*_clean.tif` copies written by
 `scratchpad/clean_sl_soil.R` (one process per file).
+
+
+## Additions, 2026-09-07
+
+| Script | Output | What it does |
+|---|---|---|
+| `00_export_gee_geoms.R` | `data/external_cache/gee_geoms/*.geojson` | Simplified Admin-2 polygons and cluster buffers (2 km urban / 5 km rural from the GHSL flag in `predictors_cluster.csv`) for the Earth Engine reducers |
+| `05_merge_new_layers.R` | `predictors_cluster*.csv` (+ metadata) | Adds the IHME 5 km surfaces (validated columns), GLW4 livestock density, water / coast distance and the ESPEN helminth block to the cluster table |
+| `06_matched_vocabulary.R` | `results/tables/cluster_level/matched_vocabulary_*.csv` | District-level protocol arms on the cluster vocabulary aggregated to districts, the full set, and both, next to the cluster fits aggregated to districts: separates the fitting unit from the layers |
+
+Environment added: `CL_OUT_TAG` (suffix for an alternative extraction, e.g.
+`_r10` for 2 km / 10 km buffers; honoured by `02`, `00`, `05`, script 48 and
+the Earth Engine script), `CL_PRED_TAG` (which predictor table `03`, `04` and
+`06` read), `CL_OUT_DIR` (where `03` and `04` write, so a tagged run does not
+mix into the main summary, which globs every `benchmarks_cluster_cells*.csv`
+in its folder), `CL_SKIP_ADMIN2=1` (Earth Engine script: clusters only), and
+`GLW_YEAR` / `GLW_TAG` for script 48 (2020 FAO density rasters are the
+default; 2015 Dataverse counts rank districts identically). The 10 km rural
+sensitivity (CL-05) lives under `results/tables/cluster_level/r10/`.
