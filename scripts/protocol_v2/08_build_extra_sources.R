@@ -155,6 +155,29 @@ if (length(ihme_blocks)) {
     sum(tapply(IH[[v]], IH$country, function(z) any(is.finite(z))), na.rm = TRUE) >= 2,
     TRUE)]
   IH <- IH[, c("country", "Admin1", "Admin2", keep), drop = FALSE]
+  # RASTER SWAP (IH-02, script 48). Where a 5 km IHME surface exists AND its
+  # zonal mean agrees with the name-joined rollup where both exist (Spearman
+  # >= 0.5 over matched districts), use the WorldPop-weighted zonal mean: no
+  # name matching (Ghana's 2019 splits were leaving 26% of surveyed districts
+  # empty), and true Admin-2 resolution in Malawi instead of a district value
+  # broadcast to its Traditional Authorities. The diarrhoea rate surfaces do
+  # not reproduce the tabular incidence / deaths columns (rho ~ 0) and stay
+  # tabular, as do the six indicators with no surface.
+  swap <- character(0)
+  rf <- file.path(HDIR, "predictors_admin2_ihme_raster.csv")
+  rm <- file.path(HDIR, "predictors_admin2_ihme_raster_metadata.csv")
+  if (file.exists(rf) && file.exists(rm)) {
+    IR <- read.csv(rf, check.names = FALSE); RM <- read.csv(rm, stringsAsFactors = FALSE)
+    okcol <- unique(RM$column[is.finite(RM$rho_all) & RM$rho_all >= 0.5])
+    swap <- intersect(intersect(okcol, names(IR)), keep)
+    if (length(swap)) {
+      IH <- IH |> select(-all_of(swap)) |>
+        left_join(IR[, c("country", "Admin1", "Admin2", swap)], by = c("country", "Admin1", "Admin2"))
+      IH <- IH[, c("country", "Admin1", "Admin2", keep), drop = FALSE]
+    }
+    writeLines(sprintf("  -> %d IHME columns taken from raster zonal means (script 48); tabular kept for: %s",
+                       length(swap), paste(setdiff(keep, swap), collapse = ", ")))
+  }
   blocks$ihme <- IH
   # anaemia and growth-failure surfaces are MODEL OUTPUTS estimating something
   # close to the outcome; flagged so they can be excluded from primary models.
@@ -163,9 +186,10 @@ if (length(ihme_blocks)) {
            ifelse(near, "Nutrition status (MODELLED SURFACE)",
                   "Infant and child morbidity/mortality"),
            TRUE,
+           paste0(ifelse(keep %in% swap, "ZONAL MEAN of the 5 km IHME GeoTIFF surface over the spine polygon, WorldPop-weighted, nearest year to the survey (script 48). ", ""),
            ifelse(near,
                   "IHME modelled Admin-2 surface, year nearest survey, population-weighted over age and sex. MODELLED SURFACE: an estimate produced by someone else's model, not a direct measurement. Provenance checked: not fitted to the surveys scored here. Included by default; V2_DROP_MODELLED=1 excludes for sensitivity.",
-                  "IHME modelled Admin-2 surface, year nearest survey, population-weighted over age and sex. Malawi joins at Admin-1 (its adm2_name is the district) and is broadcast to Traditional Authorities."))
+                  "IHME modelled Admin-2 surface, year nearest survey, population-weighted over age and sex. Malawi joins at Admin-1 (its adm2_name is the district) and is broadcast to Traditional Authorities.")))
   cat(sprintf("  -> %d IHME columns kept (%d flagged NEAR-OUTCOME)\n",
               length(keep), sum(near)))
 }
@@ -345,6 +369,42 @@ if (!is.null(rw)) {
 ", length(rcols)))
 } else cat("  RWI CSV absent; run 11_extract_gee_rwi_density.py first
 ")
+
+# ── 7. Livestock density (GLW4 2015; script 48) ─────────────────────────────
+writeLines("\n[GLW4 livestock]")
+lf <- file.path(HDIR, "predictors_admin2_livestock.csv")
+if (file.exists(lf)) {
+  LV <- read.csv(lf, check.names = FALSE); blocks$livestock <- LV
+  lcols <- setdiff(names(LV), c("country", "Admin1", "Admin2"))
+  add_meta(lcols, "Gridded Livestock of the World 4 (2015, 5 arc-min, dasymetric; Harvard Dataverse)",
+           "Livestock density", TRUE,
+           "Head per km2 (cattle, sheep, goats, pigs, chickens), tropical livestock units per km2 (0.7/0.1/0.1/0.2/0.01) and per person (WorldPop), ruminant share of TLU; area-weighted zonal mean of the 2015 GLW4 dasymetric surface (script 48). Proxy for animal-source food availability (iron, zinc, B12, preformed vitamin A).")
+  writeLines(sprintf("  -> %d livestock columns", length(lcols)))
+} else writeLines("  livestock CSV absent; run scripts/protocol_v2/48_ihme_raster_and_livestock.R")
+
+# ── 8. Distance to surface water and to the coast (Earth Engine) ─────────────
+writeLines("\n[water and coast distance]")
+wf <- file.path(HDIR, "predictors_admin2_water_distance.csv")
+if (file.exists(wf)) {
+  WD <- read.csv(wf, check.names = FALSE); blocks$wdist <- WD
+  wcols <- setdiff(names(WD), c("country", "Admin1", "Admin2"))
+  add_meta(wcols, "JRC Global Surface Water 1.4; USDOS LSIB 2017 (Earth Engine)",
+           "Water and coast proximity", TRUE,
+           "Distance (km) from each pixel to the nearest permanent (occurrence >= 50%) or any (>= 10%) surface water and to the ocean, distance transform at 500 m / 2 km in Web Mercator corrected by cos(latitude); polygon mean and minimum (scripts/covariates/gee_water_coast_distance.py). Fish and aquatic-food access; the iodine geography (inland, elevated soils are iodine-poor).")
+  writeLines(sprintf("  -> %d water/coast distance columns", length(wcols)))
+} else writeLines("  water-distance CSV absent; run scripts/covariates/gee_water_coast_distance.py")
+
+# ── 9. Helminth burden and control (ESPEN; script 49) ────────────────────────
+writeLines("\n[ESPEN helminths]")
+ef <- file.path(HDIR, "predictors_admin2_espen.csv")
+if (file.exists(ef)) {
+  ES <- read.csv(ef, check.names = FALSE); blocks$espen <- ES
+  ecols <- setdiff(names(ES), c("country", "Admin1", "Admin2"))
+  add_meta(ecols, "WHO ESPEN implementation-unit database 2014-2025 (portal export, no key)",
+           "Helminth burden and control", TRUE,
+           "Programme endemicity class midpoint (%) for soil-transmitted helminths and schistosomiasis at the year nearest the survey and at the earliest reported year; share of 2014-2018 with mass drug administration delivered; mean reported epidemiological coverage over delivered years. IU = ESPEN ADM2, name-matched to the spine with aliases for post-split districts; Malawi at district, broadcast to Traditional Authorities (script 49).")
+  writeLines(sprintf("  -> %d helminth columns", length(ecols)))
+} else writeLines("  ESPEN CSV absent; run scripts/protocol_v2/49_espen_admin2_block.R")
 
 # ── assemble and append, without the four-country filter ────────────────────
 if (!length(blocks)) stop("no blocks built")

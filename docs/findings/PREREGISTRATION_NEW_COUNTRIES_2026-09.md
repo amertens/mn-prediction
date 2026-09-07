@@ -57,6 +57,16 @@ tier the two are expected to be indistinguishable (DA-03: a wash).
 transports better than the full index at the regional tier too (0.45 vs 0.29
 on the level, 0.38 vs 0.32 on prevalence). The prediction is therefore the
 same at both tiers: climate + soil at least as good as the full index.
+*Amended 2026-09-07:* the full index now spans 24 domains (473 columns):
+three domains were added (livestock density from GLW4, water and coast
+proximity from Earth Engine, helminth burden and control from ESPEN) and
+the IHME block was rebuilt from its 5 km surfaces (sandbox log NL-01). On
+the current four this moved the full index to 0.27 (district) and 0.32
+(regional) on the level; the two-domain index is unchanged at 0.37 / 0.45,
+so P2 stands as written. P1's basis is now 0.32 (regional) and 0.27
+(district) against null 95th percentiles of 0.15 and 0.08. The added
+domains enter the next country as part of the full index only; no
+prediction is made for them separately.
 
 **P3 — Each added training country buys transported accuracy.** Adding the
 new country to the training pool raises leave-one-country-out Spearman for

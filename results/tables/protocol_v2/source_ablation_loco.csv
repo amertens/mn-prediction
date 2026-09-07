@@ -1,925 +1,1189 @@
 "target","outcome","heldout","source","variant","n_cols","spearman"
-"level","child_vitA","Gambia","ALL","full",382,0.716129032258065
-"level","child_vitA","Ghana","ALL","full",382,0.355647226173542
-"level","child_vitA","Malawi","ALL","full",382,0.181799956258657
-"level","child_vitA","SierraLeone","ALL","full",382,0.0637362637362637
-"level","child_vitA","Gambia","GEE","drop",306,0.695216907675195
+"level","child_vitA","Gambia","ALL","full",414,0.716573971078977
+"level","child_vitA","Ghana","ALL","full",414,0.360597439544808
+"level","child_vitA","Malawi","ALL","full",414,0.177188889698914
+"level","child_vitA","SierraLeone","ALL","full",414,0.0681318681318681
+"level","child_vitA","Gambia","GEE","drop",338,0.682313681868743
 "level","child_vitA","Gambia","GEE","only",76,0.717908787541713
-"level","child_vitA","Ghana","GEE","drop",306,0.364864864864865
+"level","child_vitA","Ghana","GEE","drop",338,0.363470839260313
 "level","child_vitA","Ghana","GEE","only",76,0.323556187766714
-"level","child_vitA","Malawi","GEE","drop",306,0.130877742946708
+"level","child_vitA","Malawi","GEE","drop",338,0.146405919661734
 "level","child_vitA","Malawi","GEE","only",76,0.252114164904863
-"level","child_vitA","SierraLeone","GEE","drop",306,-0.0857142857142857
+"level","child_vitA","SierraLeone","GEE","drop",338,0.0021978021978022
 "level","child_vitA","SierraLeone","GEE","only",76,0.292307692307692
-"level","child_vitA","Gambia","AlphaEarth","drop",318,0.72769744160178
+"level","child_vitA","Gambia","AlphaEarth","drop",350,0.726807563959956
 "level","child_vitA","Gambia","AlphaEarth","only",64,0.522135706340378
-"level","child_vitA","Ghana","AlphaEarth","drop",318,0.3649786628734
+"level","child_vitA","Ghana","AlphaEarth","drop",350,0.360967283072546
 "level","child_vitA","Ghana","AlphaEarth","only",64,0.306799431009957
-"level","child_vitA","Malawi","AlphaEarth","drop",318,0.160384923817161
+"level","child_vitA","Malawi","AlphaEarth","drop",350,0.163209885543486
 "level","child_vitA","Malawi","AlphaEarth","only",64,0.202121455128672
-"level","child_vitA","SierraLeone","AlphaEarth","drop",318,0.0461538461538462
+"level","child_vitA","SierraLeone","AlphaEarth","drop",350,0.0461538461538462
 "level","child_vitA","SierraLeone","AlphaEarth","only",64,0.389010989010989
-"level","child_vitA","Gambia","DHS","drop",244,0.661401557285873
+"level","child_vitA","Gambia","DHS","drop",276,0.700111234705228
 "level","child_vitA","Gambia","DHS","only",138,0.666740823136819
-"level","child_vitA","Ghana","DHS","drop",244,0.334765291607397
+"level","child_vitA","Ghana","DHS","drop",276,0.333541963015647
 "level","child_vitA","Ghana","DHS","only",138,0.344466983253196
-"level","child_vitA","Malawi","DHS","drop",244,0.162663118757746
+"level","child_vitA","Malawi","DHS","drop",276,0.17624116060363
 "level","child_vitA","Malawi","DHS","only",138,0.135087847196909
-"level","child_vitA","SierraLeone","DHS","drop",244,0.0769230769230769
+"level","child_vitA","SierraLeone","DHS","drop",276,0.0593406593406593
 "level","child_vitA","SierraLeone","DHS","only",138,-0.16043956043956
-"level","child_vitA","Gambia","SoilGrids/iSDA","drop",337,0.687208008898776
+"level","child_vitA","Gambia","SoilGrids/iSDA","drop",369,0.693437152391546
 "level","child_vitA","Gambia","SoilGrids/iSDA","only",45,0.684983314794216
-"level","child_vitA","Ghana","SoilGrids/iSDA","drop",337,0.376586059743954
+"level","child_vitA","Ghana","SoilGrids/iSDA","drop",369,0.380967283072546
 "level","child_vitA","Ghana","SoilGrids/iSDA","only",45,0.107140825035562
-"level","child_vitA","Malawi","SoilGrids/iSDA","drop",337,0.208354596486112
+"level","child_vitA","Malawi","SoilGrids/iSDA","drop",369,0.205985273747904
 "level","child_vitA","Malawi","SoilGrids/iSDA","only",45,0.0209229423343297
-"level","child_vitA","SierraLeone","SoilGrids/iSDA","drop",337,0.0505494505494506
+"level","child_vitA","SierraLeone","SoilGrids/iSDA","drop",369,0.0505494505494506
 "level","child_vitA","SierraLeone","SoilGrids/iSDA","only",45,0.248351648351648
-"level","child_vitA","Gambia","MapSPAM","drop",370,0.722803114571746
+"level","child_vitA","Gambia","MapSPAM","drop",402,0.709899888765295
 "level","child_vitA","Gambia","MapSPAM","only",12,0.213348164627364
-"level","child_vitA","Ghana","MapSPAM","drop",370,0.359032716927454
+"level","child_vitA","Ghana","MapSPAM","drop",402,0.362731152204836
 "level","child_vitA","Ghana","MapSPAM","only",12,0.0707573030862513
-"level","child_vitA","Malawi","MapSPAM","drop",370,0.178501129984691
+"level","child_vitA","Malawi","MapSPAM","drop",402,0.171065101698622
 "level","child_vitA","Malawi","MapSPAM","only",12,0.0130333537023343
-"level","child_vitA","SierraLeone","MapSPAM","drop",370,0.0505494505494506
+"level","child_vitA","SierraLeone","MapSPAM","drop",402,0.0505494505494506
 "level","child_vitA","SierraLeone","MapSPAM","only",12,-0.476923076923077
-"level","child_vitA","Gambia","Malaria Atlas","drop",359,0.741045606229144
+"level","child_vitA","Gambia","Malaria Atlas","drop",391,0.741490545050056
 "level","child_vitA","Gambia","Malaria Atlas","only",23,0.101223581757508
-"level","child_vitA","Ghana","Malaria Atlas","drop",359,0.367539118065434
+"level","child_vitA","Ghana","Malaria Atlas","drop",391,0.360028449502134
 "level","child_vitA","Ghana","Malaria Atlas","only",23,0.00173541963015647
-"level","child_vitA","Malawi","Malaria Atlas","drop",359,0.19011081140191
+"level","child_vitA","Malawi","Malaria Atlas","drop",391,0.187686811985128
 "level","child_vitA","Malawi","Malaria Atlas","only",23,-0.0480972515856237
-"level","child_vitA","SierraLeone","Malaria Atlas","drop",359,0.0505494505494506
+"level","child_vitA","SierraLeone","Malaria Atlas","drop",391,0.0505494505494506
 "level","child_vitA","SierraLeone","Malaria Atlas","only",23,-0.0989010989010989
-"level","child_vitA","Gambia","WFP prices","drop",378,0.725472747497219
+"level","child_vitA","Gambia","WFP prices","drop",410,0.716573971078977
 "level","child_vitA","Gambia","WFP prices","only",4,0.245828698553949
-"level","child_vitA","Ghana","WFP prices","drop",378,0.355618776671408
+"level","child_vitA","Ghana","WFP prices","drop",410,0.355817923186344
 "level","child_vitA","Ghana","WFP prices","only",4,0.18850640113798
-"level","child_vitA","Malawi","WFP prices","drop",378,0.180451264853831
+"level","child_vitA","Malawi","WFP prices","drop",410,0.186119413866006
 "level","child_vitA","Malawi","WFP prices","only",4,0.00931326091711015
-"level","child_vitA","SierraLeone","WFP prices","drop",378,0.0637362637362637
+"level","child_vitA","SierraLeone","WFP prices","drop",410,0.0549450549450549
 "level","child_vitA","SierraLeone","WFP prices","only",4,-0.345054945054945
-"level","child_vitA","Gambia","IHME","drop",381,0.721913236929922
-"level","child_vitA","Gambia","IHME","only",1,NA
-"level","child_vitA","Ghana","IHME","drop",381,0.355732574679943
-"level","child_vitA","Ghana","IHME","only",1,NA
-"level","child_vitA","Malawi","IHME","drop",381,0.183440256615878
-"level","child_vitA","Malawi","IHME","only",1,NA
-"level","child_vitA","SierraLeone","IHME","drop",381,0.0637362637362637
-"level","child_vitA","SierraLeone","IHME","only",1,NA
-"level","child_vitA","Gambia","WorldPop/GHS","drop",368,0.71301446051168
+"level","child_vitA","Gambia","IHME","drop",397,0.719243604004449
+"level","child_vitA","Gambia","IHME","only",17,0.712569521690767
+"level","child_vitA","Ghana","IHME","drop",397,0.3625320056899
+"level","child_vitA","Ghana","IHME","only",17,0.359829302987198
+"level","child_vitA","Malawi","IHME","drop",397,0.173069913246337
+"level","child_vitA","Malawi","IHME","only",17,0.238791280892323
+"level","child_vitA","SierraLeone","IHME","drop",397,0.0505494505494506
+"level","child_vitA","SierraLeone","IHME","only",17,0.0373626373626374
+"level","child_vitA","Gambia","WorldPop/GHS","drop",400,0.708120133481646
 "level","child_vitA","Gambia","WorldPop/GHS","only",14,0.183092324805339
-"level","child_vitA","Ghana","WorldPop/GHS","drop",368,0.3475106685633
+"level","child_vitA","Ghana","WorldPop/GHS","drop",400,0.349388335704125
 "level","child_vitA","Ghana","WorldPop/GHS","only",14,0.351351351351351
-"level","child_vitA","Malawi","WorldPop/GHS","drop",368,0.181526572865787
+"level","child_vitA","Malawi","WorldPop/GHS","drop",400,0.181016257199096
 "level","child_vitA","Malawi","WorldPop/GHS","only",14,0.127706495589415
-"level","child_vitA","SierraLeone","WorldPop/GHS","drop",368,0.0505494505494506
+"level","child_vitA","SierraLeone","WorldPop/GHS","drop",400,0.0505494505494506
 "level","child_vitA","SierraLeone","WorldPop/GHS","only",14,-0.125274725274725
-"level","child_vitA","Gambia","Koppen/AEZ","drop",377,0.716129032258065
+"level","child_vitA","Gambia","Koppen/AEZ","drop",409,0.702780867630701
 "level","child_vitA","Gambia","Koppen/AEZ","only",5,-0.0999576079115079
-"level","child_vitA","Ghana","Koppen/AEZ","drop",377,0.352517780938834
+"level","child_vitA","Ghana","Koppen/AEZ","drop",409,0.359260312944523
 "level","child_vitA","Ghana","Koppen/AEZ","only",5,0.231313608090193
-"level","child_vitA","Malawi","Koppen/AEZ","drop",377,0.181143836115769
+"level","child_vitA","Malawi","Koppen/AEZ","drop",409,0.180032076984763
 "level","child_vitA","Malawi","Koppen/AEZ","only",5,0.111461034519972
-"level","child_vitA","SierraLeone","Koppen/AEZ","drop",377,0.0637362637362637
+"level","child_vitA","SierraLeone","Koppen/AEZ","drop",409,0.0681318681318681
 "level","child_vitA","SierraLeone","Koppen/AEZ","only",5,0.200884960074256
-"level","women_vitA","Gambia","ALL","full",382,0.746829810901001
-"level","women_vitA","Ghana","ALL","full",382,0.27348506401138
-"level","women_vitA","Malawi","ALL","full",382,0.207716701902748
-"level","women_vitA","SierraLeone","ALL","full",382,-0.0725274725274725
-"level","women_vitA","Gambia","GEE","drop",306,0.678309232480534
+"level","child_vitA","Gambia","Gridded Livestock of the World 4 (2015, 5 arc-min, dasymetric; Harvard Dataverse)","drop",406,0.730812013348165
+"level","child_vitA","Gambia","Gridded Livestock of the World 4 (2015, 5 arc-min, dasymetric; Harvard Dataverse)","only",8,0.383314794215795
+"level","child_vitA","Ghana","Gridded Livestock of the World 4 (2015, 5 arc-min, dasymetric; Harvard Dataverse)","drop",406,0.353200568990043
+"level","child_vitA","Ghana","Gridded Livestock of the World 4 (2015, 5 arc-min, dasymetric; Harvard Dataverse)","only",8,0.278293029871977
+"level","child_vitA","Malawi","Gridded Livestock of the World 4 (2015, 5 arc-min, dasymetric; Harvard Dataverse)","drop",406,0.182565429758694
+"level","child_vitA","Malawi","Gridded Livestock of the World 4 (2015, 5 arc-min, dasymetric; Harvard Dataverse)","only",8,0.00495735219071225
+"level","child_vitA","SierraLeone","Gridded Livestock of the World 4 (2015, 5 arc-min, dasymetric; Harvard Dataverse)","drop",406,0.0505494505494506
+"level","child_vitA","SierraLeone","Gridded Livestock of the World 4 (2015, 5 arc-min, dasymetric; Harvard Dataverse)","only",8,0.235164835164835
+"level","child_vitA","Gambia","JRC Global Surface Water 1.4; USDOS LSIB 2017 (Earth Engine)","drop",410,0.702780867630701
+"level","child_vitA","Gambia","JRC Global Surface Water 1.4; USDOS LSIB 2017 (Earth Engine)","only",4,0.5706340378198
+"level","child_vitA","Ghana","JRC Global Surface Water 1.4; USDOS LSIB 2017 (Earth Engine)","drop",410,0.358349928876245
+"level","child_vitA","Ghana","JRC Global Surface Water 1.4; USDOS LSIB 2017 (Earth Engine)","only",4,0.314082503556188
+"level","child_vitA","Malawi","JRC Global Surface Water 1.4; USDOS LSIB 2017 (Earth Engine)","drop",410,0.186957789604141
+"level","child_vitA","Malawi","JRC Global Surface Water 1.4; USDOS LSIB 2017 (Earth Engine)","only",4,-0.0793723117299701
+"level","child_vitA","SierraLeone","JRC Global Surface Water 1.4; USDOS LSIB 2017 (Earth Engine)","drop",410,0.0505494505494506
+"level","child_vitA","SierraLeone","JRC Global Surface Water 1.4; USDOS LSIB 2017 (Earth Engine)","only",4,-0.178021978021978
+"level","child_vitA","Gambia","WHO ESPEN implementation-unit database 2014-2025 (portal export, no key)","drop",410,0.718353726362625
+"level","child_vitA","Gambia","WHO ESPEN implementation-unit database 2014-2025 (portal export, no key)","only",4,-0.294353646122414
+"level","child_vitA","Ghana","WHO ESPEN implementation-unit database 2014-2025 (portal export, no key)","drop",410,0.356500711237553
+"level","child_vitA","Ghana","WHO ESPEN implementation-unit database 2014-2025 (portal export, no key)","only",4,0.0255451630505282
+"level","child_vitA","Malawi","WHO ESPEN implementation-unit database 2014-2025 (portal export, no key)","drop",410,0.176423416198877
+"level","child_vitA","Malawi","WHO ESPEN implementation-unit database 2014-2025 (portal export, no key)","only",4,-0.163782874905345
+"level","child_vitA","SierraLeone","WHO ESPEN implementation-unit database 2014-2025 (portal export, no key)","drop",410,0.0681318681318681
+"level","child_vitA","SierraLeone","WHO ESPEN implementation-unit database 2014-2025 (portal export, no key)","only",4,0.010989010989011
+"level","women_vitA","Gambia","ALL","full",414,0.749499443826474
+"level","women_vitA","Ghana","ALL","full",414,0.319743954480797
+"level","women_vitA","Malawi","ALL","full",414,0.204964642414522
+"level","women_vitA","SierraLeone","ALL","full",414,-0.120879120879121
+"level","women_vitA","Gambia","GEE","drop",338,0.712124582869855
 "level","women_vitA","Gambia","GEE","only",76,0.701001112347052
-"level","women_vitA","Ghana","GEE","drop",306,0.241650071123755
+"level","women_vitA","Ghana","GEE","drop",338,0.289615931721195
 "level","women_vitA","Ghana","GEE","only",76,0.373314366998577
-"level","women_vitA","Malawi","GEE","drop",306,0.123970255886856
+"level","women_vitA","Malawi","GEE","drop",338,0.132590945542028
 "level","women_vitA","Malawi","GEE","only",76,0.297896770430852
-"level","women_vitA","SierraLeone","GEE","drop",306,0.0945054945054945
+"level","women_vitA","SierraLeone","GEE","drop",338,-0.0549450549450549
 "level","women_vitA","SierraLeone","GEE","only",76,-0.248351648351648
-"level","women_vitA","Gambia","AlphaEarth","drop",318,0.737041156840934
+"level","women_vitA","Gambia","AlphaEarth","drop",350,0.746384872080089
 "level","women_vitA","Gambia","AlphaEarth","only",64,0.367741935483871
-"level","women_vitA","Ghana","AlphaEarth","drop",318,0.278150782361309
+"level","women_vitA","Ghana","AlphaEarth","drop",350,0.334594594594595
 "level","women_vitA","Ghana","AlphaEarth","only",64,0.26398293029872
-"level","women_vitA","Malawi","AlphaEarth","drop",318,0.20110082379529
+"level","women_vitA","Malawi","AlphaEarth","drop",350,0.207024130640811
 "level","women_vitA","Malawi","AlphaEarth","only",64,0.222370051760589
-"level","women_vitA","SierraLeone","AlphaEarth","drop",318,-0.147252747252747
+"level","women_vitA","SierraLeone","AlphaEarth","drop",350,-0.173626373626374
 "level","women_vitA","SierraLeone","AlphaEarth","only",64,0.0153846153846154
-"level","women_vitA","Gambia","DHS","drop",244,0.735706340378198
+"level","women_vitA","Gambia","DHS","drop",276,0.75706340378198
 "level","women_vitA","Gambia","DHS","only",138,0.544827586206897
-"level","women_vitA","Ghana","DHS","drop",244,0.363214793741109
+"level","women_vitA","Ghana","DHS","drop",276,0.392290184921764
 "level","women_vitA","Ghana","DHS","only",138,0.157806002117356
-"level","women_vitA","Malawi","DHS","drop",244,0.169679959174747
+"level","women_vitA","Malawi","DHS","drop",276,0.17912079900853
 "level","women_vitA","Malawi","DHS","only",138,0.136345410804112
-"level","women_vitA","SierraLeone","DHS","drop",244,-0.0989010989010989
+"level","women_vitA","SierraLeone","DHS","drop",276,0.0241758241758242
 "level","women_vitA","SierraLeone","DHS","only",138,-0.0549450549450549
-"level","women_vitA","Gambia","SoilGrids/iSDA","drop",337,0.721913236929922
+"level","women_vitA","Gambia","SoilGrids/iSDA","drop",369,0.749054505005562
 "level","women_vitA","Gambia","SoilGrids/iSDA","only",45,0.676084538375973
-"level","women_vitA","Ghana","SoilGrids/iSDA","drop",337,0.228136557610242
+"level","women_vitA","Ghana","SoilGrids/iSDA","drop",369,0.287425320056899
 "level","women_vitA","Ghana","SoilGrids/iSDA","only",45,0.366543385490754
-"level","women_vitA","Malawi","SoilGrids/iSDA","drop",337,0.240431581249544
+"level","women_vitA","Malawi","SoilGrids/iSDA","drop",369,0.235182620106437
 "level","women_vitA","Malawi","SoilGrids/iSDA","only",45,0.0536195961216009
-"level","women_vitA","SierraLeone","SoilGrids/iSDA","drop",337,-0.147252747252747
+"level","women_vitA","SierraLeone","SoilGrids/iSDA","drop",369,-0.147252747252747
 "level","women_vitA","SierraLeone","SoilGrids/iSDA","only",45,0.49010989010989
-"level","women_vitA","Gambia","MapSPAM","drop",370,0.73615127919911
+"level","women_vitA","Gambia","MapSPAM","drop",402,0.729477196885428
 "level","women_vitA","Gambia","MapSPAM","only",12,0.232035595105673
-"level","women_vitA","Ghana","MapSPAM","drop",370,0.269246088193457
+"level","women_vitA","Ghana","MapSPAM","drop",402,0.321422475106686
 "level","women_vitA","Ghana","MapSPAM","only",12,-0.00705723352720303
-"level","women_vitA","Malawi","MapSPAM","drop",370,0.225760005832179
+"level","women_vitA","Malawi","MapSPAM","drop",402,0.22342713421302
 "level","women_vitA","Malawi","MapSPAM","only",12,-0.0179641539491615
-"level","women_vitA","SierraLeone","MapSPAM","drop",370,-0.0813186813186813
+"level","women_vitA","SierraLeone","MapSPAM","drop",402,-0.125274725274725
 "level","women_vitA","SierraLeone","MapSPAM","only",12,0.454945054945055
-"level","women_vitA","Gambia","Malaria Atlas","drop",359,0.753948832035595
+"level","women_vitA","Gambia","Malaria Atlas","drop",391,0.752169076751947
 "level","women_vitA","Gambia","Malaria Atlas","only",23,0.169299221357063
-"level","women_vitA","Ghana","Malaria Atlas","drop",359,0.264466571834993
+"level","women_vitA","Ghana","Malaria Atlas","drop",391,0.324324324324324
 "level","women_vitA","Ghana","Malaria Atlas","only",23,0.194594594594595
-"level","women_vitA","Malawi","Malaria Atlas","drop",359,0.201920973973901
+"level","women_vitA","Malawi","Malaria Atlas","drop",391,0.199460523438069
 "level","women_vitA","Malawi","Malaria Atlas","only",23,-0.070168404170008
-"level","women_vitA","SierraLeone","Malaria Atlas","drop",359,-0.0549450549450549
+"level","women_vitA","SierraLeone","Malaria Atlas","drop",391,-0.0945054945054945
 "level","women_vitA","SierraLeone","Malaria Atlas","only",23,-0.0549450549450549
-"level","women_vitA","Gambia","WFP prices","drop",378,0.737041156840934
+"level","women_vitA","Gambia","WFP prices","drop",410,0.724137931034483
 "level","women_vitA","Gambia","WFP prices","only",4,-0.0335928809788654
-"level","women_vitA","Ghana","WFP prices","drop",378,0.275135135135135
+"level","women_vitA","Ghana","WFP prices","drop",410,0.322247510668563
 "level","women_vitA","Ghana","WFP prices","only",4,0.0653200568990043
-"level","women_vitA","Malawi","WFP prices","drop",378,0.200991470438142
+"level","women_vitA","Malawi","WFP prices","drop",410,0.206076401545527
 "level","women_vitA","Malawi","WFP prices","only",4,-0.00369978858350951
-"level","women_vitA","SierraLeone","WFP prices","drop",378,-0.0769230769230769
+"level","women_vitA","SierraLeone","WFP prices","drop",410,-0.116483516483516
 "level","women_vitA","SierraLeone","WFP prices","only",4,0.0725274725274725
-"level","women_vitA","Gambia","IHME","drop",381,0.749944382647386
-"level","women_vitA","Gambia","IHME","only",1,NA
-"level","women_vitA","Ghana","IHME","drop",381,0.274110953058321
-"level","women_vitA","Ghana","IHME","only",1,NA
-"level","women_vitA","Malawi","IHME","drop",381,0.213239046438726
-"level","women_vitA","Malawi","IHME","only",1,NA
-"level","women_vitA","SierraLeone","IHME","drop",381,-0.0725274725274725
-"level","women_vitA","SierraLeone","IHME","only",1,NA
-"level","women_vitA","Gambia","WorldPop/GHS","drop",368,0.758398220244716
+"level","women_vitA","Gambia","IHME","drop",397,0.769076751946607
+"level","women_vitA","Gambia","IHME","only",17,0.65650723025584
+"level","women_vitA","Ghana","IHME","drop",397,0.295419630156472
+"level","women_vitA","Ghana","IHME","only",17,0.310469416785206
+"level","women_vitA","Malawi","IHME","drop",397,0.186757308449369
+"level","women_vitA","Malawi","IHME","only",17,0.258748268571845
+"level","women_vitA","SierraLeone","IHME","drop",397,-0.0241758241758242
+"level","women_vitA","SierraLeone","IHME","only",17,0.0417582417582418
+"level","women_vitA","Gambia","WorldPop/GHS","drop",400,0.757508342602892
 "level","women_vitA","Gambia","WorldPop/GHS","only",14,-0.510567296996663
-"level","women_vitA","Ghana","WorldPop/GHS","drop",368,0.27578947368421
+"level","women_vitA","Ghana","WorldPop/GHS","drop",400,0.325433854907539
 "level","women_vitA","Ghana","WorldPop/GHS","only",14,0.260056899004267
-"level","women_vitA","Malawi","WorldPop/GHS","drop",368,0.208172340890865
+"level","women_vitA","Malawi","WorldPop/GHS","drop",400,0.212582926295837
 "level","women_vitA","Malawi","WorldPop/GHS","only",14,-0.0301450754538164
-"level","women_vitA","SierraLeone","WorldPop/GHS","drop",368,-0.0241758241758242
+"level","women_vitA","SierraLeone","WorldPop/GHS","drop",400,-0.0549450549450549
 "level","women_vitA","SierraLeone","WorldPop/GHS","only",14,-0.415384615384615
-"level","women_vitA","Gambia","Koppen/AEZ","drop",377,0.749054505005562
+"level","women_vitA","Gambia","Koppen/AEZ","drop",409,0.733036707452725
 "level","women_vitA","Gambia","Koppen/AEZ","only",5,-0.243159287330831
-"level","women_vitA","Ghana","Koppen/AEZ","drop",377,0.27325746799431
+"level","women_vitA","Ghana","Koppen/AEZ","drop",409,0.324352773826458
 "level","women_vitA","Ghana","Koppen/AEZ","only",5,0.248244098359347
-"level","women_vitA","Malawi","Koppen/AEZ","drop",377,0.205730115914559
+"level","women_vitA","Malawi","Koppen/AEZ","drop",409,0.205019319093096
 "level","women_vitA","Malawi","Koppen/AEZ","only",5,0.0423356465623263
-"level","women_vitA","SierraLeone","Koppen/AEZ","drop",377,-0.0241758241758242
+"level","women_vitA","SierraLeone","Koppen/AEZ","drop",409,-0.120879120879121
 "level","women_vitA","SierraLeone","Koppen/AEZ","only",5,-0.152319365331029
-"level","child_iron","Gambia","ALL","full",382,0.469632925472747
-"level","child_iron","Ghana","ALL","full",382,0.506486486486486
-"level","child_iron","Malawi","ALL","full",382,-0.0412262156448203
-"level","child_iron","SierraLeone","ALL","full",382,0.318681318681319
-"level","child_iron","Gambia","GEE","drop",306,0.456284760845384
+"level","women_vitA","Gambia","Gridded Livestock of the World 4 (2015, 5 arc-min, dasymetric; Harvard Dataverse)","drop",406,0.751724137931035
+"level","women_vitA","Gambia","Gridded Livestock of the World 4 (2015, 5 arc-min, dasymetric; Harvard Dataverse)","only",8,0.246273637374861
+"level","women_vitA","Ghana","Gridded Livestock of the World 4 (2015, 5 arc-min, dasymetric; Harvard Dataverse)","drop",406,0.285405405405405
+"level","women_vitA","Ghana","Gridded Livestock of the World 4 (2015, 5 arc-min, dasymetric; Harvard Dataverse)","only",8,0.442930298719772
+"level","women_vitA","Malawi","Gridded Livestock of the World 4 (2015, 5 arc-min, dasymetric; Harvard Dataverse)","drop",406,0.199897936866662
+"level","women_vitA","Malawi","Gridded Livestock of the World 4 (2015, 5 arc-min, dasymetric; Harvard Dataverse)","only",8,0.163756652329226
+"level","women_vitA","SierraLeone","Gridded Livestock of the World 4 (2015, 5 arc-min, dasymetric; Harvard Dataverse)","drop",406,-0.112087912087912
+"level","women_vitA","SierraLeone","Gridded Livestock of the World 4 (2015, 5 arc-min, dasymetric; Harvard Dataverse)","only",8,0.235164835164835
+"level","women_vitA","Gambia","JRC Global Surface Water 1.4; USDOS LSIB 2017 (Earth Engine)","drop",410,0.745939933259177
+"level","women_vitA","Gambia","JRC Global Surface Water 1.4; USDOS LSIB 2017 (Earth Engine)","only",4,-0.221802002224694
+"level","women_vitA","Ghana","JRC Global Surface Water 1.4; USDOS LSIB 2017 (Earth Engine)","drop",410,0.321877667140825
+"level","women_vitA","Ghana","JRC Global Surface Water 1.4; USDOS LSIB 2017 (Earth Engine)","only",4,-0.421422475106686
+"level","women_vitA","Malawi","JRC Global Surface Water 1.4; USDOS LSIB 2017 (Earth Engine)","drop",410,0.221969089451046
+"level","women_vitA","Malawi","JRC Global Surface Water 1.4; USDOS LSIB 2017 (Earth Engine)","only",4,-0.302033972442954
+"level","women_vitA","SierraLeone","JRC Global Surface Water 1.4; USDOS LSIB 2017 (Earth Engine)","drop",410,-0.120879120879121
+"level","women_vitA","SierraLeone","JRC Global Surface Water 1.4; USDOS LSIB 2017 (Earth Engine)","only",4,-0.459340659340659
+"level","women_vitA","Gambia","WHO ESPEN implementation-unit database 2014-2025 (portal export, no key)","drop",410,0.749499443826474
+"level","women_vitA","Gambia","WHO ESPEN implementation-unit database 2014-2025 (portal export, no key)","only",4,0.00581991999937853
+"level","women_vitA","Ghana","WHO ESPEN implementation-unit database 2014-2025 (portal export, no key)","drop",410,0.305462304409673
+"level","women_vitA","Ghana","WHO ESPEN implementation-unit database 2014-2025 (portal export, no key)","only",4,0.137741570759903
+"level","women_vitA","Malawi","WHO ESPEN implementation-unit database 2014-2025 (portal export, no key)","drop",410,0.208573303200408
+"level","women_vitA","Malawi","WHO ESPEN implementation-unit database 2014-2025 (portal export, no key)","only",4,-0.20454616672713
+"level","women_vitA","SierraLeone","WHO ESPEN implementation-unit database 2014-2025 (portal export, no key)","drop",410,-0.120879120879121
+"level","women_vitA","SierraLeone","WHO ESPEN implementation-unit database 2014-2025 (portal export, no key)","only",4,-0.30989010989011
+"level","child_iron","Gambia","ALL","full",414,0.496774193548387
+"level","child_iron","Ghana","ALL","full",414,0.517183499288762
+"level","child_iron","Malawi","ALL","full",414,-0.0608004665743238
+"level","child_iron","SierraLeone","ALL","full",414,0.252747252747253
+"level","child_iron","Gambia","GEE","drop",338,0.496774193548387
 "level","child_iron","Gambia","GEE","only",76,0.307675194660734
-"level","child_iron","Ghana","GEE","drop",306,0.493741109530583
+"level","child_iron","Ghana","GEE","drop",338,0.502275960170697
 "level","child_iron","Ghana","GEE","only",76,0.55923186344239
-"level","child_iron","Malawi","GEE","drop",306,-0.0720820879200991
+"level","child_iron","Malawi","GEE","drop",338,-0.0901436174090544
 "level","child_iron","Malawi","GEE","only",76,0.0431398993949114
-"level","child_iron","SierraLeone","GEE","drop",306,0.406593406593407
+"level","child_iron","SierraLeone","GEE","drop",338,0.371428571428571
 "level","child_iron","SierraLeone","GEE","only",76,0.0285714285714286
-"level","child_iron","Gambia","AlphaEarth","drop",318,0.533259176863181
+"level","child_iron","Gambia","AlphaEarth","drop",350,0.53726362625139
 "level","child_iron","Gambia","AlphaEarth","only",64,0.19377085650723
-"level","child_iron","Ghana","AlphaEarth","drop",318,0.460028449502134
+"level","child_iron","Ghana","AlphaEarth","drop",350,0.488250355618777
 "level","child_iron","Ghana","AlphaEarth","only",64,0.520312944523471
-"level","child_iron","Malawi","AlphaEarth","drop",318,-0.0572647080265364
+"level","child_iron","Malawi","AlphaEarth","drop",350,-0.0743602828606838
 "level","child_iron","Malawi","AlphaEarth","only",64,0.146023182911715
-"level","child_iron","SierraLeone","AlphaEarth","drop",318,0.178021978021978
+"level","child_iron","SierraLeone","AlphaEarth","drop",350,0.221978021978022
 "level","child_iron","SierraLeone","AlphaEarth","only",64,0.362637362637363
-"level","child_iron","Gambia","DHS","drop",244,0.365072302558398
+"level","child_iron","Gambia","DHS","drop",276,0.434927697441602
 "level","child_iron","Gambia","DHS","only",138,0.456284760845384
-"level","child_iron","Ghana","DHS","drop",244,0.568307254623044
+"level","child_iron","Ghana","DHS","drop",276,0.553342816500711
 "level","child_iron","Ghana","DHS","only",138,0.0699178337755558
-"level","child_iron","Malawi","DHS","drop",244,0.177261791937012
+"level","child_iron","Malawi","DHS","drop",276,0.108915943719472
 "level","child_iron","Malawi","DHS","only",138,-0.250947729095283
-"level","child_iron","SierraLeone","DHS","drop",244,0.292307692307692
+"level","child_iron","SierraLeone","DHS","drop",276,0.353846153846154
 "level","child_iron","SierraLeone","DHS","only",138,0.217582417582418
-"level","child_iron","Gambia","SoilGrids/iSDA","drop",337,0.453615127919911
+"level","child_iron","Gambia","SoilGrids/iSDA","drop",369,0.431813125695217
 "level","child_iron","Gambia","SoilGrids/iSDA","only",45,0.527030033370412
-"level","child_iron","Ghana","SoilGrids/iSDA","drop",337,0.480796586059744
+"level","child_iron","Ghana","SoilGrids/iSDA","drop",369,0.486827880512091
 "level","child_iron","Ghana","SoilGrids/iSDA","only",45,0.518179231863442
-"level","child_iron","Malawi","SoilGrids/iSDA","drop",337,-0.0867718888969891
+"level","child_iron","Malawi","SoilGrids/iSDA","drop",369,-0.101334110957206
 "level","child_iron","Malawi","SoilGrids/iSDA","only",45,0.231938470511045
-"level","child_iron","SierraLeone","SoilGrids/iSDA","drop",337,0.261538461538461
+"level","child_iron","SierraLeone","SoilGrids/iSDA","drop",369,0.213186813186813
 "level","child_iron","SierraLeone","SoilGrids/iSDA","only",45,0.406593406593407
-"level","child_iron","Gambia","MapSPAM","drop",370,0.466518353726363
+"level","child_iron","Gambia","MapSPAM","drop",402,0.471412680756396
 "level","child_iron","Gambia","MapSPAM","only",12,0.340600667408231
-"level","child_iron","Ghana","MapSPAM","drop",370,0.505177809388336
+"level","child_iron","Ghana","MapSPAM","drop",402,0.519715504978663
 "level","child_iron","Ghana","MapSPAM","only",12,0.350770117230113
-"level","child_iron","Malawi","MapSPAM","drop",370,-0.0446161697164103
+"level","child_iron","Malawi","MapSPAM","drop",402,-0.0625318947291682
 "level","child_iron","Malawi","MapSPAM","only",12,0.267639462565768
-"level","child_iron","SierraLeone","MapSPAM","drop",370,0.235164835164835
+"level","child_iron","SierraLeone","MapSPAM","drop",402,0.226373626373626
 "level","child_iron","SierraLeone","MapSPAM","only",12,0.397802197802198
-"level","child_iron","Gambia","Malaria Atlas","drop",359,0.478086763070078
+"level","child_iron","Gambia","Malaria Atlas","drop",391,0.503893214682981
 "level","child_iron","Gambia","Malaria Atlas","only",23,0.126585094549499
-"level","child_iron","Ghana","Malaria Atlas","drop",359,0.509843527738264
+"level","child_iron","Ghana","Malaria Atlas","drop",391,0.511664295874822
 "level","child_iron","Ghana","Malaria Atlas","only",23,0.31547652916074
-"level","child_iron","Malawi","Malaria Atlas","drop",359,-0.0569913246336662
+"level","child_iron","Malawi","Malaria Atlas","drop",391,-0.0713895166581614
 "level","child_iron","Malawi","Malaria Atlas","only",23,0.197929576437997
-"level","child_iron","SierraLeone","Malaria Atlas","drop",359,0.283516483516484
+"level","child_iron","SierraLeone","Malaria Atlas","drop",391,0.287912087912088
 "level","child_iron","SierraLeone","Malaria Atlas","only",23,-0.142857142857143
-"level","child_iron","Gambia","WFP prices","drop",378,0.469632925472747
+"level","child_iron","Gambia","WFP prices","drop",410,0.503003337041157
 "level","child_iron","Gambia","WFP prices","only",4,0.202669632925473
-"level","child_iron","Ghana","WFP prices","drop",378,0.503186344238976
+"level","child_iron","Ghana","WFP prices","drop",410,0.513456614509246
 "level","child_iron","Ghana","WFP prices","only",4,-0.185120910384068
-"level","child_iron","Malawi","WFP prices","drop",378,-0.0306736166800321
+"level","child_iron","Malawi","WFP prices","drop",410,-0.0455274476926442
 "level","child_iron","Malawi","WFP prices","only",4,-0.089888459575709
-"level","child_iron","SierraLeone","WFP prices","drop",378,0.323076923076923
+"level","child_iron","SierraLeone","WFP prices","drop",410,0.252747252747253
 "level","child_iron","SierraLeone","WFP prices","only",4,-0.235164835164835
-"level","child_iron","Gambia","IHME","drop",381,0.480756395995551
-"level","child_iron","Gambia","IHME","only",1,NA
-"level","child_iron","Ghana","IHME","drop",381,0.507140825035562
-"level","child_iron","Ghana","IHME","only",1,NA
-"level","child_iron","Malawi","IHME","drop",381,-0.0380367427280017
-"level","child_iron","Malawi","IHME","only",1,NA
-"level","child_iron","SierraLeone","IHME","drop",381,0.274725274725275
-"level","child_iron","SierraLeone","IHME","only",1,NA
-"level","child_iron","Gambia","WorldPop/GHS","drop",368,0.48476084538376
+"level","child_iron","Gambia","IHME","drop",397,0.5559510567297
+"level","child_iron","Gambia","IHME","only",17,0.418020022246941
+"level","child_iron","Ghana","IHME","drop",397,0.514907539118065
+"level","child_iron","Ghana","IHME","only",17,-0.321963015647226
+"level","child_iron","Malawi","IHME","drop",397,-0.0334803528468324
+"level","child_iron","Malawi","IHME","only",17,-0.22685353940366
+"level","child_iron","SierraLeone","IHME","drop",397,0.283516483516484
+"level","child_iron","SierraLeone","IHME","only",17,-0.349450549450549
+"level","child_iron","Gambia","WorldPop/GHS","drop",400,0.525695216907675
 "level","child_iron","Gambia","WorldPop/GHS","only",14,0.38420467185762
-"level","child_iron","Ghana","WorldPop/GHS","drop",368,0.498719772403983
+"level","child_iron","Ghana","WorldPop/GHS","drop",400,0.508762446657183
 "level","child_iron","Ghana","WorldPop/GHS","only",14,-0.0198577524893314
-"level","child_iron","Malawi","WorldPop/GHS","drop",368,-0.0477327403951301
+"level","child_iron","Malawi","WorldPop/GHS","drop",400,-0.0674710213603558
 "level","child_iron","Malawi","WorldPop/GHS","only",14,0.103885689290661
-"level","child_iron","SierraLeone","WorldPop/GHS","drop",368,0.331868131868132
+"level","child_iron","SierraLeone","WorldPop/GHS","drop",400,0.274725274725275
 "level","child_iron","SierraLeone","WorldPop/GHS","only",14,0.204395604395604
-"level","child_iron","Gambia","Koppen/AEZ","drop",377,0.470522803114572
+"level","child_iron","Gambia","Koppen/AEZ","drop",409,0.488765294771969
 "level","child_iron","Gambia","Koppen/AEZ","only",5,-0.231816580050093
-"level","child_iron","Ghana","Koppen/AEZ","drop",377,0.50176386913229
+"level","child_iron","Ghana","Koppen/AEZ","drop",409,0.518634423897582
 "level","child_iron","Ghana","Koppen/AEZ","only",5,0.246172258388215
-"level","child_iron","Malawi","Koppen/AEZ","drop",377,-0.0399504264780929
+"level","child_iron","Malawi","Koppen/AEZ","drop",409,-0.0584129182765911
 "level","child_iron","Malawi","Koppen/AEZ","only",5,0.0293289667986256
-"level","child_iron","SierraLeone","Koppen/AEZ","drop",377,0.318681318681319
+"level","child_iron","SierraLeone","Koppen/AEZ","drop",409,0.252747252747253
 "level","child_iron","SierraLeone","Koppen/AEZ","only",5,-0.19646990600669
-"level","women_iron","Gambia","ALL","full",382,0.243604004449388
-"level","women_iron","Ghana","ALL","full",382,0.213627311522048
-"level","women_iron","Malawi","ALL","full",382,0.25903987752424
-"level","women_iron","SierraLeone","ALL","full",382,-0.0021978021978022
-"level","women_iron","Gambia","GEE","drop",306,0.173303670745273
+"level","child_iron","Gambia","Gridded Livestock of the World 4 (2015, 5 arc-min, dasymetric; Harvard Dataverse)","drop",406,0.460734149054505
+"level","child_iron","Gambia","Gridded Livestock of the World 4 (2015, 5 arc-min, dasymetric; Harvard Dataverse)","only",8,0.490989988876529
+"level","child_iron","Ghana","Gridded Livestock of the World 4 (2015, 5 arc-min, dasymetric; Harvard Dataverse)","drop",406,0.505889046941678
+"level","child_iron","Ghana","Gridded Livestock of the World 4 (2015, 5 arc-min, dasymetric; Harvard Dataverse)","only",8,0.407908961593172
+"level","child_iron","Malawi","Gridded Livestock of the World 4 (2015, 5 arc-min, dasymetric; Harvard Dataverse)","drop",406,-0.062258511336298
+"level","child_iron","Malawi","Gridded Livestock of the World 4 (2015, 5 arc-min, dasymetric; Harvard Dataverse)","only",8,0.00528541226215645
+"level","child_iron","SierraLeone","Gridded Livestock of the World 4 (2015, 5 arc-min, dasymetric; Harvard Dataverse)","drop",406,0.213186813186813
+"level","child_iron","SierraLeone","Gridded Livestock of the World 4 (2015, 5 arc-min, dasymetric; Harvard Dataverse)","only",8,0.503296703296703
+"level","child_iron","Gambia","JRC Global Surface Water 1.4; USDOS LSIB 2017 (Earth Engine)","drop",410,0.503448275862069
+"level","child_iron","Gambia","JRC Global Surface Water 1.4; USDOS LSIB 2017 (Earth Engine)","only",4,0.203114571746385
+"level","child_iron","Ghana","JRC Global Surface Water 1.4; USDOS LSIB 2017 (Earth Engine)","drop",410,0.515192034139403
+"level","child_iron","Ghana","JRC Global Surface Water 1.4; USDOS LSIB 2017 (Earth Engine)","only",4,0.422019914651494
+"level","child_iron","Malawi","JRC Global Surface Water 1.4; USDOS LSIB 2017 (Earth Engine)","drop",410,-0.0543850696216374
+"level","child_iron","Malawi","JRC Global Surface Water 1.4; USDOS LSIB 2017 (Earth Engine)","only",4,0.0285776773346942
+"level","child_iron","SierraLeone","JRC Global Surface Water 1.4; USDOS LSIB 2017 (Earth Engine)","drop",410,0.252747252747253
+"level","child_iron","SierraLeone","JRC Global Surface Water 1.4; USDOS LSIB 2017 (Earth Engine)","only",4,0.468131868131868
+"level","child_iron","Gambia","WHO ESPEN implementation-unit database 2014-2025 (portal export, no key)","drop",410,0.50166852057842
+"level","child_iron","Gambia","WHO ESPEN implementation-unit database 2014-2025 (portal export, no key)","only",4,-0.142140353830976
+"level","child_iron","Ghana","WHO ESPEN implementation-unit database 2014-2025 (portal export, no key)","drop",410,0.519317211948791
+"level","child_iron","Ghana","WHO ESPEN implementation-unit database 2014-2025 (portal export, no key)","only",4,-0.167247445092109
+"level","child_iron","Malawi","WHO ESPEN implementation-unit database 2014-2025 (portal export, no key)","drop",410,-0.0568455201574688
+"level","child_iron","Malawi","WHO ESPEN implementation-unit database 2014-2025 (portal export, no key)","only",4,-0.104494130926466
+"level","child_iron","SierraLeone","WHO ESPEN implementation-unit database 2014-2025 (portal export, no key)","drop",410,0.252747252747253
+"level","child_iron","SierraLeone","WHO ESPEN implementation-unit database 2014-2025 (portal export, no key)","only",4,-0.0725274725274725
+"level","women_iron","Gambia","ALL","full",414,0.378420467185762
+"level","women_iron","Ghana","ALL","full",414,0.250384068278805
+"level","women_iron","Malawi","ALL","full",414,0.268334912881825
+"level","women_iron","SierraLeone","ALL","full",414,-0.032967032967033
+"level","women_iron","Gambia","GEE","drop",338,0.371301446051168
 "level","women_iron","Gambia","GEE","only",76,0.175528364849833
-"level","women_iron","Ghana","GEE","drop",306,0.222702702702703
+"level","women_iron","Ghana","GEE","drop",338,0.292091038406828
 "level","women_iron","Ghana","GEE","only",76,0.130071123755334
-"level","women_iron","Malawi","GEE","drop",306,0.291845884668659
+"level","women_iron","Malawi","GEE","drop",338,0.295837282204564
 "level","women_iron","Malawi","GEE","only",76,0.00592330684552016
-"level","women_iron","SierraLeone","GEE","drop",306,0.0769230769230769
+"level","women_iron","SierraLeone","GEE","drop",338,0.103296703296703
 "level","women_iron","SierraLeone","GEE","only",76,-0.2
-"level","women_iron","Gambia","AlphaEarth","drop",318,0.220022246941046
+"level","women_iron","Gambia","AlphaEarth","drop",350,0.337931034482759
 "level","women_iron","Gambia","AlphaEarth","only",64,0.26273637374861
-"level","women_iron","Ghana","AlphaEarth","drop",318,0.227652916073969
+"level","women_iron","Ghana","AlphaEarth","drop",350,0.285234708392603
 "level","women_iron","Ghana","AlphaEarth","only",64,0.118378378378378
-"level","women_iron","Malawi","AlphaEarth","drop",318,0.237223882773201
+"level","women_iron","Malawi","AlphaEarth","drop",350,0.24462345994022
 "level","women_iron","Malawi","AlphaEarth","only",64,0.250054676678574
-"level","women_iron","SierraLeone","AlphaEarth","drop",318,0.0153846153846154
+"level","women_iron","SierraLeone","AlphaEarth","drop",350,0.0505494505494506
 "level","women_iron","SierraLeone","AlphaEarth","only",64,-0.27032967032967
-"level","women_iron","Gambia","DHS","drop",244,0.542157953281424
+"level","women_iron","Gambia","DHS","drop",276,0.624916573971079
 "level","women_iron","Gambia","DHS","only",138,-0.307230255839822
-"level","women_iron","Ghana","DHS","drop",244,0.228648648648649
+"level","women_iron","Ghana","DHS","drop",276,0.275647226173542
 "level","women_iron","Ghana","DHS","only",138,0.218816924223499
-"level","women_iron","Malawi","DHS","drop",244,0.244696362178319
+"level","women_iron","Malawi","DHS","drop",276,0.310636436538602
 "level","women_iron","Malawi","DHS","only",138,0.0851862652183422
-"level","women_iron","SierraLeone","DHS","drop",244,-0.0153846153846154
+"level","women_iron","SierraLeone","DHS","drop",276,-0.0549450549450549
 "level","women_iron","SierraLeone","DHS","only",138,0.301098901098901
-"level","women_iron","Gambia","SoilGrids/iSDA","drop",337,0.000667408231368187
+"level","women_iron","Gambia","SoilGrids/iSDA","drop",369,0.197330367074527
 "level","women_iron","Gambia","SoilGrids/iSDA","only",45,0.659176863181313
-"level","women_iron","Ghana","SoilGrids/iSDA","drop",337,0.166799431009957
+"level","women_iron","Ghana","SoilGrids/iSDA","drop",369,0.244466571834993
 "level","women_iron","Ghana","SoilGrids/iSDA","only",45,0.323556187766714
-"level","women_iron","Malawi","SoilGrids/iSDA","drop",337,0.195159291390246
+"level","women_iron","Malawi","SoilGrids/iSDA","drop",369,0.223171976379675
 "level","women_iron","Malawi","SoilGrids/iSDA","only",45,0.333600641539695
-"level","women_iron","SierraLeone","SoilGrids/iSDA","drop",337,-0.0945054945054945
+"level","women_iron","SierraLeone","SoilGrids/iSDA","drop",369,-0.0593406593406593
 "level","women_iron","SierraLeone","SoilGrids/iSDA","only",45,0.248351648351648
-"level","women_iron","Gambia","MapSPAM","drop",370,0.197775305895439
+"level","women_iron","Gambia","MapSPAM","drop",402,0.337041156840934
 "level","women_iron","Gambia","MapSPAM","only",12,0.162180200222469
-"level","women_iron","Ghana","MapSPAM","drop",370,0.212773826458037
+"level","women_iron","Ghana","MapSPAM","drop",402,0.246116642958748
 "level","women_iron","Ghana","MapSPAM","only",12,0.3462597482218
-"level","women_iron","Malawi","MapSPAM","drop",370,0.244550557702121
+"level","women_iron","Malawi","MapSPAM","drop",402,0.255595246774076
 "level","women_iron","Malawi","MapSPAM","only",12,0.0365936469334772
-"level","women_iron","SierraLeone","MapSPAM","drop",370,0.0021978021978022
+"level","women_iron","SierraLeone","MapSPAM","drop",402,0.0241758241758242
 "level","women_iron","SierraLeone","MapSPAM","only",12,0.287912087912088
-"level","women_iron","Gambia","Malaria Atlas","drop",359,0.152391546162403
+"level","women_iron","Gambia","Malaria Atlas","drop",391,0.282758620689655
 "level","women_iron","Gambia","Malaria Atlas","only",23,0.372636262513904
-"level","women_iron","Ghana","Malaria Atlas","drop",359,0.186258890469417
+"level","women_iron","Ghana","Malaria Atlas","drop",391,0.244950213371266
 "level","women_iron","Ghana","Malaria Atlas","only",23,0.251209103840683
-"level","women_iron","Malawi","Malaria Atlas","drop",359,0.226106291463148
+"level","women_iron","Malawi","Malaria Atlas","drop",391,0.253954946416855
 "level","women_iron","Malawi","Malaria Atlas","only",23,0.0665050667055479
-"level","women_iron","SierraLeone","Malaria Atlas","drop",359,-0.00659340659340659
+"level","women_iron","SierraLeone","Malaria Atlas","drop",391,-0.0461538461538462
 "level","women_iron","SierraLeone","Malaria Atlas","only",23,0.476923076923077
-"level","women_iron","Gambia","WFP prices","drop",378,0.266295884315907
+"level","women_iron","Gambia","WFP prices","drop",410,0.398442714126808
 "level","women_iron","Gambia","WFP prices","only",4,-0.146162402669633
-"level","women_iron","Ghana","WFP prices","drop",378,0.210384068278805
+"level","women_iron","Ghana","WFP prices","drop",410,0.248762446657183
 "level","women_iron","Ghana","WFP prices","only",4,0.0619630156472262
-"level","women_iron","Malawi","WFP prices","drop",378,0.267733469417511
+"level","women_iron","Malawi","WFP prices","drop",410,0.274094189691623
 "level","women_iron","Malawi","WFP prices","only",4,-0.0473864547641612
-"level","women_iron","SierraLeone","WFP prices","drop",378,0.00659340659340659
+"level","women_iron","SierraLeone","WFP prices","drop",410,-0.0153846153846154
 "level","women_iron","SierraLeone","WFP prices","only",4,0.138461538461538
-"level","women_iron","Gambia","IHME","drop",381,0.23559510567297
-"level","women_iron","Gambia","IHME","only",1,NA
-"level","women_iron","Ghana","IHME","drop",381,0.217894736842105
-"level","women_iron","Ghana","IHME","only",1,NA
-"level","women_iron","Malawi","IHME","drop",381,0.256707005905081
-"level","women_iron","Malawi","IHME","only",1,NA
-"level","women_iron","SierraLeone","IHME","drop",381,0.0021978021978022
-"level","women_iron","SierraLeone","IHME","only",1,NA
-"level","women_iron","Gambia","WorldPop/GHS","drop",368,0.280978865406007
+"level","women_iron","Gambia","IHME","drop",397,0.270745272525028
+"level","women_iron","Gambia","IHME","only",17,0.621357063403782
+"level","women_iron","Ghana","IHME","drop",397,0.215960170697013
+"level","women_iron","Ghana","IHME","only",17,0.43647226173542
+"level","women_iron","Malawi","IHME","drop",397,0.252551578333455
+"level","women_iron","Malawi","IHME","only",17,0.25873004301232
+"level","women_iron","SierraLeone","IHME","drop",397,-0.00659340659340659
+"level","women_iron","SierraLeone","IHME","only",17,-0.371428571428571
+"level","women_iron","Gambia","WorldPop/GHS","drop",400,0.432703003337041
 "level","women_iron","Gambia","WorldPop/GHS","only",14,-0.49944382647386
-"level","women_iron","Ghana","WorldPop/GHS","drop",368,0.234850640113798
+"level","women_iron","Ghana","WorldPop/GHS","drop",400,0.265177809388336
 "level","women_iron","Ghana","WorldPop/GHS","only",14,-0.209445234708393
-"level","women_iron","Malawi","WorldPop/GHS","drop",368,0.246391339214114
+"level","women_iron","Malawi","WorldPop/GHS","drop",400,0.276755121382226
 "level","women_iron","Malawi","WorldPop/GHS","only",14,-0.0106619523219363
-"level","women_iron","SierraLeone","WorldPop/GHS","drop",368,0.00659340659340659
+"level","women_iron","SierraLeone","WorldPop/GHS","drop",400,0.0505494505494506
 "level","women_iron","SierraLeone","WorldPop/GHS","only",14,-0.138461538461538
-"level","women_iron","Gambia","Koppen/AEZ","drop",377,0.242269187986652
+"level","women_iron","Gambia","Koppen/AEZ","drop",409,0.365072302558398
 "level","women_iron","Gambia","Koppen/AEZ","only",5,-0.186682057328821
-"level","women_iron","Ghana","Koppen/AEZ","drop",377,0.21203413940256
+"level","women_iron","Ghana","Koppen/AEZ","drop",409,0.251123755334282
 "level","women_iron","Ghana","Koppen/AEZ","only",5,0.134397538329433
-"level","women_iron","Malawi","Koppen/AEZ","drop",377,0.262047094845812
+"level","women_iron","Malawi","Koppen/AEZ","drop",409,0.268480717358023
 "level","women_iron","Malawi","Koppen/AEZ","only",5,0.0900420288697762
-"level","women_iron","SierraLeone","Koppen/AEZ","drop",377,0.00659340659340659
+"level","women_iron","SierraLeone","Koppen/AEZ","drop",409,-0.0461538461538462
 "level","women_iron","SierraLeone","Koppen/AEZ","only",5,-0.311261311763408
-"level","women_folate","Ghana","ALL","full",382,-0.134822190611664
-"level","women_folate","Malawi","ALL","full",382,-0.101625719909601
-"level","women_folate","SierraLeone","ALL","full",382,0.0945054945054945
-"level","women_folate","Ghana","GEE","drop",306,-0.186856330014225
+"level","women_iron","Gambia","Gridded Livestock of the World 4 (2015, 5 arc-min, dasymetric; Harvard Dataverse)","drop",406,0.325917686318131
+"level","women_iron","Gambia","Gridded Livestock of the World 4 (2015, 5 arc-min, dasymetric; Harvard Dataverse)","only",8,0.547942157953281
+"level","women_iron","Ghana","Gridded Livestock of the World 4 (2015, 5 arc-min, dasymetric; Harvard Dataverse)","drop",406,0.248591749644381
+"level","women_iron","Ghana","Gridded Livestock of the World 4 (2015, 5 arc-min, dasymetric; Harvard Dataverse)","only",8,0.242247510668563
+"level","women_iron","Malawi","Gridded Livestock of the World 4 (2015, 5 arc-min, dasymetric; Harvard Dataverse)","drop",406,0.280400233287162
+"level","women_iron","Malawi","Gridded Livestock of the World 4 (2015, 5 arc-min, dasymetric; Harvard Dataverse)","only",8,0.0790624772180506
+"level","women_iron","SierraLeone","Gridded Livestock of the World 4 (2015, 5 arc-min, dasymetric; Harvard Dataverse)","drop",406,-0.0637362637362637
+"level","women_iron","SierraLeone","Gridded Livestock of the World 4 (2015, 5 arc-min, dasymetric; Harvard Dataverse)","only",8,0.397802197802198
+"level","women_iron","Gambia","JRC Global Surface Water 1.4; USDOS LSIB 2017 (Earth Engine)","drop",410,0.423804226918799
+"level","women_iron","Gambia","JRC Global Surface Water 1.4; USDOS LSIB 2017 (Earth Engine)","only",4,-0.256062291434928
+"level","women_iron","Ghana","JRC Global Surface Water 1.4; USDOS LSIB 2017 (Earth Engine)","drop",410,0.258349928876245
+"level","women_iron","Ghana","JRC Global Surface Water 1.4; USDOS LSIB 2017 (Earth Engine)","only",4,0.0324039829302987
+"level","women_iron","Malawi","JRC Global Surface Water 1.4; USDOS LSIB 2017 (Earth Engine)","drop",410,0.251312240285777
+"level","women_iron","Malawi","JRC Global Surface Water 1.4; USDOS LSIB 2017 (Earth Engine)","only",4,0.1059087263979
+"level","women_iron","SierraLeone","JRC Global Surface Water 1.4; USDOS LSIB 2017 (Earth Engine)","drop",410,0.0373626373626374
+"level","women_iron","SierraLeone","JRC Global Surface Water 1.4; USDOS LSIB 2017 (Earth Engine)","only",4,-0.367032967032967
+"level","women_iron","Gambia","WHO ESPEN implementation-unit database 2014-2025 (portal export, no key)","drop",410,0.375305895439377
+"level","women_iron","Gambia","WHO ESPEN implementation-unit database 2014-2025 (portal export, no key)","only",4,-0.265254046125522
+"level","women_iron","Ghana","WHO ESPEN implementation-unit database 2014-2025 (portal export, no key)","drop",410,0.254395448079659
+"level","women_iron","Ghana","WHO ESPEN implementation-unit database 2014-2025 (portal export, no key)","only",4,-0.100057824932437
+"level","women_iron","Malawi","WHO ESPEN implementation-unit database 2014-2025 (portal export, no key)","drop",410,0.277064955894146
+"level","women_iron","Malawi","WHO ESPEN implementation-unit database 2014-2025 (portal export, no key)","only",4,-0.0974250883751385
+"level","women_iron","SierraLeone","WHO ESPEN implementation-unit database 2014-2025 (portal export, no key)","drop",410,-0.032967032967033
+"level","women_iron","SierraLeone","WHO ESPEN implementation-unit database 2014-2025 (portal export, no key)","only",4,-0.30989010989011
+"level","women_folate","Ghana","ALL","full",415,-0.10728307254623
+"level","women_folate","Malawi","ALL","full",415,-0.0685098782532624
+"level","women_folate","SierraLeone","ALL","full",415,0.0769230769230769
+"level","women_folate","Ghana","GEE","drop",339,-0.130640113798009
 "level","women_folate","Ghana","GEE","only",76,0.134793741109531
-"level","women_folate","Malawi","GEE","drop",306,-0.196088794926004
+"level","women_folate","Malawi","GEE","drop",339,-0.152748414376321
 "level","women_folate","Malawi","GEE","only",76,0.147645257709412
-"level","women_folate","SierraLeone","GEE","drop",306,0.0197802197802198
+"level","women_folate","SierraLeone","GEE","drop",339,0.107692307692308
 "level","women_folate","SierraLeone","GEE","only",76,0.534065934065934
-"level","women_folate","Ghana","AlphaEarth","drop",318,-0.146088193456614
+"level","women_folate","Ghana","AlphaEarth","drop",351,-0.113854907539118
 "level","women_folate","Ghana","AlphaEarth","only",64,-0.0327453769559033
-"level","women_folate","Malawi","AlphaEarth","drop",318,-0.0786615149085077
+"level","women_folate","Malawi","AlphaEarth","drop",351,-0.0395130130495006
 "level","women_folate","Malawi","AlphaEarth","only",64,-0.141138732959102
-"level","women_folate","SierraLeone","AlphaEarth","drop",318,0.204395604395604
+"level","women_folate","SierraLeone","AlphaEarth","drop",351,0.221978021978022
 "level","women_folate","SierraLeone","AlphaEarth","only",64,-0.305494505494505
-"level","women_folate","Ghana","DHS","drop",244,-0.01425320056899
+"level","women_folate","Ghana","DHS","drop",277,0.0406258890469417
 "level","women_folate","Ghana","DHS","only",138,-0.223597630806443
-"level","women_folate","Malawi","DHS","drop",244,0.0813953488372093
+"level","women_folate","Malawi","DHS","drop",277,0.0709885543486185
 "level","women_folate","Malawi","DHS","only",138,-0.252095939345338
-"level","women_folate","SierraLeone","DHS","drop",244,0.336263736263736
+"level","women_folate","SierraLeone","DHS","drop",277,0.314285714285714
 "level","women_folate","SierraLeone","DHS","only",138,-0.0725274725274725
-"level","women_folate","Ghana","SoilGrids/iSDA","drop",337,-0.143926031294452
+"level","women_folate","Ghana","SoilGrids/iSDA","drop",370,-0.102190611664296
 "level","women_folate","Ghana","SoilGrids/iSDA","only",45,-0.0089900426742532
-"level","women_folate","Malawi","SoilGrids/iSDA","drop",337,-0.107129838886054
+"level","women_folate","Malawi","SoilGrids/iSDA","drop",370,-0.0717540278486549
 "level","women_folate","Malawi","SoilGrids/iSDA","only",45,0.0905263541590727
-"level","women_folate","SierraLeone","SoilGrids/iSDA","drop",337,0.107692307692308
+"level","women_folate","SierraLeone","SoilGrids/iSDA","drop",370,0.0901098901098901
 "level","women_folate","SierraLeone","SoilGrids/iSDA","only",45,-0.0901098901098901
-"level","women_folate","Ghana","MapSPAM","drop",370,-0.166116642958748
+"level","women_folate","Ghana","MapSPAM","drop",403,-0.112916073968706
 "level","women_folate","Ghana","MapSPAM","only",12,0.0691352776384668
-"level","women_folate","Malawi","MapSPAM","drop",370,-0.127834074506087
+"level","women_folate","Malawi","MapSPAM","drop",403,-0.0997667128380841
 "level","women_folate","Malawi","MapSPAM","only",12,0.123525204704711
-"level","women_folate","SierraLeone","MapSPAM","drop",370,0.0857142857142857
+"level","women_folate","SierraLeone","MapSPAM","drop",403,0.0857142857142857
 "level","women_folate","SierraLeone","MapSPAM","only",12,-0.0549450549450549
-"level","women_folate","Ghana","Malaria Atlas","drop",359,-0.144096728307255
+"level","women_folate","Ghana","Malaria Atlas","drop",392,-0.114907539118065
 "level","women_folate","Ghana","Malaria Atlas","only",23,-0.0553342816500711
-"level","women_folate","Malawi","Malaria Atlas","drop",359,-0.106874681052708
+"level","women_folate","Malawi","Malaria Atlas","drop",392,-0.0807210031347962
 "level","women_folate","Malawi","Malaria Atlas","only",23,0.0245133775606911
-"level","women_folate","SierraLeone","Malaria Atlas","drop",359,-0.0285714285714286
+"level","women_folate","SierraLeone","Malaria Atlas","drop",392,0.0945054945054945
 "level","women_folate","SierraLeone","Malaria Atlas","only",23,0.432967032967033
-"level","women_folate","Ghana","WFP prices","drop",378,-0.141280227596017
+"level","women_folate","Ghana","WFP prices","drop",411,-0.10398293029872
 "level","women_folate","Ghana","WFP prices","only",4,-0.107681365576102
-"level","women_folate","Malawi","WFP prices","drop",378,-0.0988007581832762
+"level","women_folate","Malawi","WFP prices","drop",411,-0.0684552015746883
 "level","women_folate","Malawi","WFP prices","only",4,-0.00191368375009113
-"level","women_folate","SierraLeone","WFP prices","drop",378,0.0417582417582418
+"level","women_folate","SierraLeone","WFP prices","drop",411,0.0945054945054945
 "level","women_folate","SierraLeone","WFP prices","only",4,-0.0681318681318681
-"level","women_folate","Ghana","IHME","drop",381,-0.132290184921764
-"level","women_folate","Ghana","IHME","only",1,NA
-"level","women_folate","Malawi","IHME","drop",381,-0.101188306481009
-"level","women_folate","Malawi","IHME","only",1,NA
-"level","women_folate","SierraLeone","IHME","drop",381,0.116483516483516
-"level","women_folate","SierraLeone","IHME","only",1,NA
-"level","women_folate","Ghana","WorldPop/GHS","drop",368,-0.124836415362731
+"level","women_folate","Ghana","IHME","drop",398,-0.125376955903272
+"level","women_folate","Ghana","IHME","only",17,0.119260312944523
+"level","women_folate","Malawi","IHME","drop",398,-0.0767478311584165
+"level","women_folate","Malawi","IHME","only",17,0.0236932273820806
+"level","women_folate","SierraLeone","IHME","drop",398,0.0945054945054945
+"level","women_folate","SierraLeone","IHME","only",17,0.0417582417582418
+"level","women_folate","Ghana","WorldPop/GHS","drop",401,-0.0924039829302987
 "level","women_folate","Ghana","WorldPop/GHS","only",14,-0.197183499288762
-"level","women_folate","Malawi","WorldPop/GHS","drop",368,-0.109098199314719
+"level","women_folate","Malawi","WorldPop/GHS","drop",401,-0.0668513523365167
 "level","women_folate","Malawi","WorldPop/GHS","only",14,-0.117390828898447
-"level","women_folate","SierraLeone","WorldPop/GHS","drop",368,0.0857142857142857
+"level","women_folate","SierraLeone","WorldPop/GHS","drop",401,0.0417582417582418
 "level","women_folate","SierraLeone","WorldPop/GHS","only",14,0.410989010989011
-"level","women_folate","Ghana","Koppen/AEZ","drop",377,-0.129473684210526
+"level","women_folate","Ghana","Koppen/AEZ","drop",410,-0.108364153627312
 "level","women_folate","Ghana","Koppen/AEZ","only",5,0.0294661684783309
-"level","women_folate","Malawi","Koppen/AEZ","drop",377,-0.0975431945760735
+"level","women_folate","Malawi","Koppen/AEZ","drop",410,-0.0644820295983086
 "level","women_folate","Malawi","Koppen/AEZ","only",5,-0.0387277543525919
-"level","women_folate","SierraLeone","Koppen/AEZ","drop",377,0.0945054945054945
+"level","women_folate","SierraLeone","Koppen/AEZ","drop",410,0.0769230769230769
 "level","women_folate","SierraLeone","Koppen/AEZ","only",5,-0.0331129055067455
-"level","women_b12","Ghana","ALL","full",382,0.588165007112376
-"level","women_b12","Malawi","ALL","full",382,0.412936502150616
-"level","women_b12","SierraLeone","ALL","full",382,0.432967032967033
-"level","women_b12","Ghana","GEE","drop",306,0.50827880512091
+"level","women_folate","Ghana","Gridded Livestock of the World 4 (2015, 5 arc-min, dasymetric; Harvard Dataverse)","drop",407,-0.112432432432432
+"level","women_folate","Ghana","Gridded Livestock of the World 4 (2015, 5 arc-min, dasymetric; Harvard Dataverse)","only",8,-0.082076813655761
+"level","women_folate","Malawi","Gridded Livestock of the World 4 (2015, 5 arc-min, dasymetric; Harvard Dataverse)","drop",407,-0.0747612451702267
+"level","women_folate","Malawi","Gridded Livestock of the World 4 (2015, 5 arc-min, dasymetric; Harvard Dataverse)","only",8,-0.0574105125027338
+"level","women_folate","SierraLeone","Gridded Livestock of the World 4 (2015, 5 arc-min, dasymetric; Harvard Dataverse)","drop",407,0.0857142857142857
+"level","women_folate","SierraLeone","Gridded Livestock of the World 4 (2015, 5 arc-min, dasymetric; Harvard Dataverse)","only",8,0.12967032967033
+"level","women_folate","Ghana","JRC Global Surface Water 1.4; USDOS LSIB 2017 (Earth Engine)","drop",410,-0.0994310099573257
+"level","women_folate","Ghana","JRC Global Surface Water 1.4; USDOS LSIB 2017 (Earth Engine)","only",5,-0.031578947368421
+"level","women_folate","Malawi","JRC Global Surface Water 1.4; USDOS LSIB 2017 (Earth Engine)","drop",410,-0.0651199241816724
+"level","women_folate","Malawi","JRC Global Surface Water 1.4; USDOS LSIB 2017 (Earth Engine)","only",5,0.00667055478603193
+"level","women_folate","SierraLeone","JRC Global Surface Water 1.4; USDOS LSIB 2017 (Earth Engine)","drop",410,0.0945054945054945
+"level","women_folate","SierraLeone","JRC Global Surface Water 1.4; USDOS LSIB 2017 (Earth Engine)","only",5,0.12967032967033
+"level","women_folate","Ghana","WHO ESPEN implementation-unit database 2014-2025 (portal export, no key)","drop",411,-0.119715504978663
+"level","women_folate","Ghana","WHO ESPEN implementation-unit database 2014-2025 (portal export, no key)","only",4,0.271878609310223
+"level","women_folate","Malawi","WHO ESPEN implementation-unit database 2014-2025 (portal export, no key)","drop",411,-0.0833637092658744
+"level","women_folate","Malawi","WHO ESPEN implementation-unit database 2014-2025 (portal export, no key)","only",4,0.215072199119688
+"level","women_folate","SierraLeone","WHO ESPEN implementation-unit database 2014-2025 (portal export, no key)","drop",411,0.0769230769230769
+"level","women_folate","SierraLeone","WHO ESPEN implementation-unit database 2014-2025 (portal export, no key)","only",4,0.164835164835165
+"level","women_b12","Ghana","ALL","full",415,0.593769559032717
+"level","women_b12","Malawi","ALL","full",415,0.431599475103886
+"level","women_b12","SierraLeone","ALL","full",415,0.41978021978022
+"level","women_b12","Ghana","GEE","drop",339,0.520910384068279
 "level","women_b12","Ghana","GEE","only",76,0.49724039829303
-"level","women_b12","Malawi","GEE","drop",306,0.341492308813881
+"level","women_b12","Malawi","GEE","drop",339,0.383793832470657
 "level","women_b12","Malawi","GEE","only",76,0.466246263760297
-"level","women_b12","SierraLeone","GEE","drop",306,0.389010989010989
+"level","women_b12","SierraLeone","GEE","drop",339,0.38021978021978
 "level","women_b12","SierraLeone","GEE","only",76,0.38021978021978
-"level","women_b12","Ghana","AlphaEarth","drop",318,0.590981507823613
+"level","women_b12","Ghana","AlphaEarth","drop",351,0.588762446657183
 "level","women_b12","Ghana","AlphaEarth","only",64,0.455874822190612
-"level","women_b12","Malawi","AlphaEarth","drop",318,0.40508128599548
+"level","women_b12","Malawi","AlphaEarth","drop",351,0.429448859079974
 "level","women_b12","Malawi","AlphaEarth","only",64,0.328861996063279
-"level","women_b12","SierraLeone","AlphaEarth","drop",318,0.358241758241758
+"level","women_b12","SierraLeone","AlphaEarth","drop",351,0.358241758241758
 "level","women_b12","SierraLeone","AlphaEarth","only",64,0.252747252747253
-"level","women_b12","Ghana","DHS","drop",244,0.622958748221906
+"level","women_b12","Ghana","DHS","drop",277,0.598805120910384
 "level","women_b12","Ghana","DHS","only",138,0.400995992937829
-"level","women_b12","Malawi","DHS","drop",244,0.404388714733542
+"level","women_b12","Malawi","DHS","drop",277,0.435918932711234
 "level","women_b12","Malawi","DHS","only",138,0.315411533134067
-"level","women_b12","SierraLeone","DHS","drop",244,0.476923076923077
+"level","women_b12","SierraLeone","DHS","drop",277,0.485714285714286
 "level","women_b12","SierraLeone","DHS","only",138,0.428571428571429
-"level","women_b12","Ghana","SoilGrids/iSDA","drop",337,0.567482219061166
+"level","women_b12","Ghana","SoilGrids/iSDA","drop",370,0.589701280227596
 "level","women_b12","Ghana","SoilGrids/iSDA","only",45,0.4524893314367
-"level","women_b12","Malawi","SoilGrids/iSDA","drop",337,0.362980243493475
+"level","women_b12","Malawi","SoilGrids/iSDA","drop",370,0.39296128891157
 "level","women_b12","Malawi","SoilGrids/iSDA","only",45,0.269173288619961
-"level","women_b12","SierraLeone","SoilGrids/iSDA","drop",337,0.393406593406593
+"level","women_b12","SierraLeone","SoilGrids/iSDA","drop",370,0.437362637362637
 "level","women_b12","SierraLeone","SoilGrids/iSDA","only",45,0.38021978021978
-"level","women_b12","Ghana","MapSPAM","drop",370,0.579260312944523
+"level","women_b12","Ghana","MapSPAM","drop",403,0.591607396870555
 "level","women_b12","Ghana","MapSPAM","only",12,0.464923715191303
-"level","women_b12","Malawi","MapSPAM","drop",370,0.419789312531895
+"level","women_b12","Malawi","MapSPAM","drop",403,0.442389006342495
 "level","women_b12","Malawi","MapSPAM","only",12,0.162196896843875
-"level","women_b12","SierraLeone","MapSPAM","drop",370,0.432967032967033
+"level","women_b12","SierraLeone","MapSPAM","drop",403,0.432967032967033
 "level","women_b12","SierraLeone","MapSPAM","only",12,0.384615384615385
-"level","women_b12","Ghana","Malaria Atlas","drop",359,0.59678520625889
+"level","women_b12","Ghana","Malaria Atlas","drop",392,0.603015647226174
 "level","women_b12","Ghana","Malaria Atlas","only",23,0.102332859174964
-"level","women_b12","Malawi","Malaria Atlas","drop",359,0.417383538674637
+"level","women_b12","Malawi","Malaria Atlas","drop",392,0.437941969818473
 "level","women_b12","Malawi","Malaria Atlas","only",23,0.0572464824670117
-"level","women_b12","SierraLeone","Malaria Atlas","drop",359,0.41978021978022
+"level","women_b12","SierraLeone","Malaria Atlas","drop",392,0.41978021978022
 "level","women_b12","SierraLeone","Malaria Atlas","only",23,0.424175824175824
-"level","women_b12","Ghana","WFP prices","drop",378,0.591806543385491
+"level","women_b12","Ghana","WFP prices","drop",411,0.59547652916074
 "level","women_b12","Ghana","WFP prices","only",4,0.327652916073969
-"level","women_b12","Malawi","WFP prices","drop",378,0.414321644674491
+"level","women_b12","Malawi","WFP prices","drop",411,0.434205730115914
 "level","women_b12","Malawi","WFP prices","only",4,0.0242582197273456
-"level","women_b12","SierraLeone","WFP prices","drop",378,0.432967032967033
+"level","women_b12","SierraLeone","WFP prices","drop",411,0.41978021978022
 "level","women_b12","SierraLeone","WFP prices","only",4,-0.591208791208791
-"level","women_b12","Ghana","IHME","drop",381,0.584893314366999
-"level","women_b12","Ghana","IHME","only",1,NA
-"level","women_b12","Malawi","IHME","drop",381,0.409090909090909
-"level","women_b12","Malawi","IHME","only",1,NA
-"level","women_b12","SierraLeone","IHME","drop",381,0.432967032967033
-"level","women_b12","SierraLeone","IHME","only",1,NA
-"level","women_b12","Ghana","WorldPop/GHS","drop",368,0.593058321479374
+"level","women_b12","Ghana","IHME","drop",398,0.586486486486486
+"level","women_b12","Ghana","IHME","only",17,0.511209103840683
+"level","women_b12","Malawi","IHME","drop",398,0.411642487424364
+"level","women_b12","Malawi","IHME","only",17,0.328351680396588
+"level","women_b12","SierraLeone","IHME","drop",398,0.393406593406593
+"level","women_b12","SierraLeone","IHME","only",17,0.617582417582418
+"level","women_b12","Ghana","WorldPop/GHS","drop",401,0.58728307254623
 "level","women_b12","Ghana","WorldPop/GHS","only",14,0.500625889046942
-"level","women_b12","Malawi","WorldPop/GHS","drop",368,0.442334329663921
+"level","women_b12","Malawi","WorldPop/GHS","drop",401,0.454545454545454
 "level","women_b12","Malawi","WorldPop/GHS","only",14,0.179612889115696
-"level","women_b12","SierraLeone","WorldPop/GHS","drop",368,0.402197802197802
+"level","women_b12","SierraLeone","WorldPop/GHS","drop",401,0.41978021978022
 "level","women_b12","SierraLeone","WorldPop/GHS","only",14,0.578021978021978
-"level","women_b12","Ghana","Koppen/AEZ","drop",377,0.589160739687055
+"level","women_b12","Ghana","Koppen/AEZ","drop",410,0.593712660028449
 "level","women_b12","Ghana","Koppen/AEZ","only",5,-0.0628876678106423
-"level","women_b12","Malawi","Koppen/AEZ","drop",377,0.410603630531457
+"level","women_b12","Malawi","Koppen/AEZ","drop",410,0.432364948603922
 "level","women_b12","Malawi","Koppen/AEZ","only",5,-0.382052950250051
-"level","women_b12","SierraLeone","Koppen/AEZ","drop",377,0.432967032967033
+"level","women_b12","SierraLeone","Koppen/AEZ","drop",410,0.41978021978022
 "level","women_b12","SierraLeone","Koppen/AEZ","only",5,-0.147904311263463
-"prev","child_vitA","Gambia","ALL","full",382,0.58113419263294
-"prev","child_vitA","Ghana","ALL","full",382,0.351132250463967
-"prev","child_vitA","Malawi","ALL","full",382,0.219295686766157
-"prev","child_vitA","SierraLeone","ALL","full",382,-0.2
-"prev","child_vitA","Gambia","GEE","drop",306,0.577347576582821
+"level","women_b12","Ghana","Gridded Livestock of the World 4 (2015, 5 arc-min, dasymetric; Harvard Dataverse)","drop",407,0.588762446657183
+"level","women_b12","Ghana","Gridded Livestock of the World 4 (2015, 5 arc-min, dasymetric; Harvard Dataverse)","only",8,0.368193456614509
+"level","women_b12","Malawi","Gridded Livestock of the World 4 (2015, 5 arc-min, dasymetric; Harvard Dataverse)","drop",407,0.436356346139826
+"level","women_b12","Malawi","Gridded Livestock of the World 4 (2015, 5 arc-min, dasymetric; Harvard Dataverse)","only",8,0.239538528832835
+"level","women_b12","SierraLeone","Gridded Livestock of the World 4 (2015, 5 arc-min, dasymetric; Harvard Dataverse)","drop",407,0.432967032967033
+"level","women_b12","SierraLeone","Gridded Livestock of the World 4 (2015, 5 arc-min, dasymetric; Harvard Dataverse)","only",8,0.0593406593406593
+"level","women_b12","Ghana","JRC Global Surface Water 1.4; USDOS LSIB 2017 (Earth Engine)","drop",410,0.603271692745377
+"level","women_b12","Ghana","JRC Global Surface Water 1.4; USDOS LSIB 2017 (Earth Engine)","only",5,0.0718065433854907
+"level","women_b12","Malawi","JRC Global Surface Water 1.4; USDOS LSIB 2017 (Earth Engine)","drop",410,0.428519355544215
+"level","women_b12","Malawi","JRC Global Surface Water 1.4; USDOS LSIB 2017 (Earth Engine)","only",5,0.0717722534081796
+"level","women_b12","SierraLeone","JRC Global Surface Water 1.4; USDOS LSIB 2017 (Earth Engine)","drop",410,0.432967032967033
+"level","women_b12","SierraLeone","JRC Global Surface Water 1.4; USDOS LSIB 2017 (Earth Engine)","only",5,0.323076923076923
+"level","women_b12","Ghana","WHO ESPEN implementation-unit database 2014-2025 (portal export, no key)","drop",411,0.591322901849218
+"level","women_b12","Ghana","WHO ESPEN implementation-unit database 2014-2025 (portal export, no key)","only",4,-0.31387924549146
+"level","women_b12","Malawi","WHO ESPEN implementation-unit database 2014-2025 (portal export, no key)","drop",411,0.441933367354378
+"level","women_b12","Malawi","WHO ESPEN implementation-unit database 2014-2025 (portal export, no key)","only",4,-0.299873345699939
+"level","women_b12","SierraLeone","WHO ESPEN implementation-unit database 2014-2025 (portal export, no key)","drop",411,0.432967032967033
+"level","women_b12","SierraLeone","WHO ESPEN implementation-unit database 2014-2025 (portal export, no key)","only",4,0.112087912087912
+"prev","child_vitA","Gambia","ALL","full",414,0.586702745647821
+"prev","child_vitA","Ghana","ALL","full",414,0.353477064132107
+"prev","child_vitA","Malawi","ALL","full",414,0.191746886249542
+"prev","child_vitA","SierraLeone","ALL","full",414,-0.182417582417582
+"prev","child_vitA","Gambia","GEE","drop",338,0.598285335918772
 "prev","child_vitA","Gambia","GEE","only",76,0.446152467552234
-"prev","child_vitA","Ghana","GEE","drop",306,0.367488404701238
+"prev","child_vitA","Ghana","GEE","drop",338,0.374781782184348
 "prev","child_vitA","Ghana","GEE","only",76,0.296798746018787
-"prev","child_vitA","Malawi","GEE","drop",306,0.183160494381544
+"prev","child_vitA","Malawi","GEE","drop",338,0.148091461519343
 "prev","child_vitA","Malawi","GEE","only",76,0.278953023613989
-"prev","child_vitA","SierraLeone","GEE","drop",306,-0.318681318681319
+"prev","child_vitA","SierraLeone","GEE","drop",338,-0.274725274725275
 "prev","child_vitA","SierraLeone","GEE","only",76,0.0813186813186813
-"prev","child_vitA","Gambia","AlphaEarth","drop",318,0.606081310139605
+"prev","child_vitA","Gambia","AlphaEarth","drop",350,0.611204378913295
 "prev","child_vitA","Gambia","AlphaEarth","only",64,0.274418292573316
-"prev","child_vitA","Ghana","AlphaEarth","drop",318,0.350930855424986
+"prev","child_vitA","Ghana","AlphaEarth","drop",350,0.367315780382111
 "prev","child_vitA","Ghana","AlphaEarth","only",64,0.262719828351159
-"prev","child_vitA","Malawi","AlphaEarth","drop",318,0.22299868725025
+"prev","child_vitA","Malawi","AlphaEarth","drop",350,0.186435127200382
 "prev","child_vitA","Malawi","AlphaEarth","only",64,0.148005787986292
-"prev","child_vitA","SierraLeone","AlphaEarth","drop",318,-0.230769230769231
+"prev","child_vitA","SierraLeone","AlphaEarth","drop",350,-0.195604395604396
 "prev","child_vitA","SierraLeone","AlphaEarth","only",64,0.0725274725274725
-"prev","child_vitA","Gambia","DHS","drop",244,0.427664871542831
+"prev","child_vitA","Gambia","DHS","drop",276,0.502728966183421
 "prev","child_vitA","Gambia","DHS","only",138,0.587370972009606
-"prev","child_vitA","Ghana","DHS","drop",244,0.331021517285688
+"prev","child_vitA","Ghana","DHS","drop",276,0.330201551769835
 "prev","child_vitA","Ghana","DHS","only",138,0.374378694134696
-"prev","child_vitA","Malawi","DHS","drop",244,0.222208586889891
+"prev","child_vitA","Malawi","DHS","drop",276,0.165207129566639
 "prev","child_vitA","Malawi","DHS","only",138,0.13294628473222
-"prev","child_vitA","SierraLeone","DHS","drop",244,-0.0241758241758242
+"prev","child_vitA","SierraLeone","DHS","drop",276,-0.0021978021978022
 "prev","child_vitA","SierraLeone","DHS","only",138,-0.459340659340659
-"prev","child_vitA","Gambia","SoilGrids/iSDA","drop",337,0.510302198283659
+"prev","child_vitA","Gambia","SoilGrids/iSDA","drop",369,0.543045290011157
 "prev","child_vitA","Gambia","SoilGrids/iSDA","only",45,0.609645184069129
-"prev","child_vitA","Ghana","SoilGrids/iSDA","drop",337,0.360943065934344
+"prev","child_vitA","Ghana","SoilGrids/iSDA","drop",369,0.369257803972288
 "prev","child_vitA","Ghana","SoilGrids/iSDA","only",45,0.218038900417156
-"prev","child_vitA","Malawi","SoilGrids/iSDA","drop",337,0.232451333730208
+"prev","child_vitA","Malawi","SoilGrids/iSDA","drop",369,0.189966780618372
 "prev","child_vitA","Malawi","SoilGrids/iSDA","only",45,0.163826833756373
-"prev","child_vitA","SierraLeone","SoilGrids/iSDA","drop",337,-0.195604395604396
+"prev","child_vitA","SierraLeone","SoilGrids/iSDA","drop",369,-0.2
 "prev","child_vitA","SierraLeone","SoilGrids/iSDA","only",45,0.235164835164835
-"prev","child_vitA","Gambia","MapSPAM","drop",370,0.57645660810044
+"prev","child_vitA","Gambia","MapSPAM","drop",402,0.606749536501391
 "prev","child_vitA","Gambia","MapSPAM","only",12,0.100233954267851
-"prev","child_vitA","Ghana","MapSPAM","drop",370,0.350499294627169
+"prev","child_vitA","Ghana","MapSPAM","drop",402,0.358684564425768
 "prev","child_vitA","Ghana","MapSPAM","only",12,0.109967491205274
-"prev","child_vitA","Malawi","MapSPAM","drop",370,0.226749284141592
+"prev","child_vitA","Malawi","MapSPAM","drop",402,0.194421804337023
 "prev","child_vitA","Malawi","MapSPAM","only",12,0.0655459468279951
-"prev","child_vitA","SierraLeone","MapSPAM","drop",370,-0.195604395604396
+"prev","child_vitA","SierraLeone","MapSPAM","drop",402,-0.178021978021978
 "prev","child_vitA","SierraLeone","MapSPAM","only",12,-0.0153846153846154
-"prev","child_vitA","Gambia","Malaria Atlas","drop",359,0.617663900410557
+"prev","child_vitA","Gambia","Malaria Atlas","drop",391,0.62078229009889
 "prev","child_vitA","Gambia","Malaria Atlas","only",23,-0.00178193696476179
-"prev","child_vitA","Ghana","Malaria Atlas","drop",359,0.34481707745591
+"prev","child_vitA","Ghana","Malaria Atlas","drop",391,0.343536780422385
 "prev","child_vitA","Ghana","Malaria Atlas","only",23,-0.0594546925792772
-"prev","child_vitA","Malawi","Malaria Atlas","drop",359,0.231737387621449
+"prev","child_vitA","Malawi","Malaria Atlas","drop",391,0.200457028776392
 "prev","child_vitA","Malawi","Malaria Atlas","only",23,-0.0980866760619215
-"prev","child_vitA","SierraLeone","Malaria Atlas","drop",359,-0.2
+"prev","child_vitA","SierraLeone","Malaria Atlas","drop",391,-0.186813186813187
 "prev","child_vitA","SierraLeone","Malaria Atlas","only",23,-0.0945054945054945
-"prev","child_vitA","Gambia","WFP prices","drop",378,0.580243224150559
+"prev","child_vitA","Gambia","WFP prices","drop",410,0.597394367436391
 "prev","child_vitA","Gambia","WFP prices","only",4,0.00334113180892836
-"prev","child_vitA","Ghana","WFP prices","drop",378,0.348298334558301
+"prev","child_vitA","Ghana","WFP prices","drop",410,0.352829722935382
 "prev","child_vitA","Ghana","WFP prices","only",4,0.306566405409382
-"prev","child_vitA","Malawi","WFP prices","drop",378,0.217886833111541
+"prev","child_vitA","Malawi","WFP prices","drop",410,0.198296151887217
 "prev","child_vitA","Malawi","WFP prices","only",4,0.0943931948592792
-"prev","child_vitA","SierraLeone","WFP prices","drop",378,-0.195604395604396
+"prev","child_vitA","SierraLeone","WFP prices","drop",410,-0.178021978021978
 "prev","child_vitA","SierraLeone","WFP prices","only",4,-0.138461538461538
-"prev","child_vitA","Gambia","IHME","drop",381,0.568883376000203
-"prev","child_vitA","Gambia","IHME","only",1,NA
-"prev","child_vitA","Ghana","IHME","drop",381,0.348413417437719
-"prev","child_vitA","Ghana","IHME","only",1,NA
-"prev","child_vitA","Malawi","IHME","drop",381,0.222484646051944
-"prev","child_vitA","Malawi","IHME","only",1,NA
-"prev","child_vitA","SierraLeone","IHME","drop",381,-0.2
-"prev","child_vitA","SierraLeone","IHME","only",1,NA
-"prev","child_vitA","Gambia","WorldPop/GHS","drop",368,0.538590447599252
+"prev","child_vitA","Gambia","IHME","drop",397,0.569774344482584
+"prev","child_vitA","Gambia","IHME","only",17,0.622341484943057
+"prev","child_vitA","Ghana","IHME","drop",397,0.346974881444995
+"prev","child_vitA","Ghana","IHME","only",17,0.274630906370912
+"prev","child_vitA","Malawi","IHME","drop",397,0.218981550478304
+"prev","child_vitA","Malawi","IHME","only",17,-0.0344788374122942
+"prev","child_vitA","SierraLeone","IHME","drop",397,-0.204395604395604
+"prev","child_vitA","SierraLeone","IHME","only",17,-0.2
+"prev","child_vitA","Gambia","WorldPop/GHS","drop",400,0.558191754211632
 "prev","child_vitA","Gambia","WorldPop/GHS","only",14,0.060585856801901
-"prev","child_vitA","Ghana","WorldPop/GHS","drop",368,0.340271303718902
+"prev","child_vitA","Ghana","WorldPop/GHS","drop",400,0.340041137960066
 "prev","child_vitA","Ghana","WorldPop/GHS","only",14,0.211277781251354
-"prev","child_vitA","Malawi","WorldPop/GHS","drop",368,0.210442755017556
+"prev","child_vitA","Malawi","WorldPop/GHS","drop",400,0.177458444792929
 "prev","child_vitA","Malawi","WorldPop/GHS","only",14,0.181523177972125
-"prev","child_vitA","SierraLeone","WorldPop/GHS","drop",368,-0.2
+"prev","child_vitA","SierraLeone","WorldPop/GHS","drop",400,-0.182417582417582
 "prev","child_vitA","SierraLeone","WorldPop/GHS","only",14,-0.147252747252747
-"prev","child_vitA","Gambia","Koppen/AEZ","drop",377,0.58113419263294
+"prev","child_vitA","Gambia","Koppen/AEZ","drop",409,0.59605791471282
 "prev","child_vitA","Gambia","Koppen/AEZ","only",5,-0.353474534031438
-"prev","child_vitA","Ghana","Koppen/AEZ","drop",377,0.346946110725141
+"prev","child_vitA","Ghana","Koppen/AEZ","drop",409,0.355620482761266
 "prev","child_vitA","Ghana","Koppen/AEZ","only",5,0.0359046695846182
-"prev","child_vitA","Malawi","Koppen/AEZ","drop",377,0.218743568442051
+"prev","child_vitA","Malawi","Koppen/AEZ","drop",409,0.190290436187676
 "prev","child_vitA","Malawi","Koppen/AEZ","only",5,0.0085061120434103
-"prev","child_vitA","SierraLeone","Koppen/AEZ","drop",377,-0.2
+"prev","child_vitA","SierraLeone","Koppen/AEZ","drop",409,-0.182417582417582
 "prev","child_vitA","SierraLeone","Koppen/AEZ","only",5,-0.21854517634452
-"prev","women_vitA","Gambia","ALL","full",382,0.450083479470992
-"prev","women_vitA","Ghana","ALL","full",382,0.258716162062137
-"prev","women_vitA","Malawi","ALL","full",382,0.0830528290194927
-"prev","women_vitA","SierraLeone","ALL","full",382,-0.0388882659240926
-"prev","women_vitA","Gambia","GEE","drop",306,0.488802861177308
+"prev","child_vitA","Gambia","Gridded Livestock of the World 4 (2015, 5 arc-min, dasymetric; Harvard Dataverse)","drop",406,0.585366292924249
+"prev","child_vitA","Gambia","Gridded Livestock of the World 4 (2015, 5 arc-min, dasymetric; Harvard Dataverse)","only",8,0.396258232538904
+"prev","child_vitA","Ghana","Gridded Livestock of the World 4 (2015, 5 arc-min, dasymetric; Harvard Dataverse)","drop",406,0.355246463403158
+"prev","child_vitA","Ghana","Gridded Livestock of the World 4 (2015, 5 arc-min, dasymetric; Harvard Dataverse)","only",8,0.222368893755255
+"prev","child_vitA","Malawi","Gridded Livestock of the World 4 (2015, 5 arc-min, dasymetric; Harvard Dataverse)","drop",406,0.199904910452286
+"prev","child_vitA","Malawi","Gridded Livestock of the World 4 (2015, 5 arc-min, dasymetric; Harvard Dataverse)","only",8,-0.0134793025333541
+"prev","child_vitA","SierraLeone","Gridded Livestock of the World 4 (2015, 5 arc-min, dasymetric; Harvard Dataverse)","drop",406,-0.195604395604396
+"prev","child_vitA","SierraLeone","Gridded Livestock of the World 4 (2015, 5 arc-min, dasymetric; Harvard Dataverse)","only",8,0.16043956043956
+"prev","child_vitA","Gambia","JRC Global Surface Water 1.4; USDOS LSIB 2017 (Earth Engine)","drop",410,0.578461287185797
+"prev","child_vitA","Gambia","JRC Global Surface Water 1.4; USDOS LSIB 2017 (Earth Engine)","only",4,0.214277920012606
+"prev","child_vitA","Ghana","JRC Global Surface Water 1.4; USDOS LSIB 2017 (Earth Engine)","drop",410,0.349506704792189
+"prev","child_vitA","Ghana","JRC Global Surface Water 1.4; USDOS LSIB 2017 (Earth Engine)","only",4,0.175731556871147
+"prev","child_vitA","Malawi","JRC Global Surface Water 1.4; USDOS LSIB 2017 (Earth Engine)","drop",410,0.205806864951353
+"prev","child_vitA","Malawi","JRC Global Surface Water 1.4; USDOS LSIB 2017 (Earth Engine)","only",4,-0.0454640882057198
+"prev","child_vitA","SierraLeone","JRC Global Surface Water 1.4; USDOS LSIB 2017 (Earth Engine)","drop",410,-0.178021978021978
+"prev","child_vitA","SierraLeone","JRC Global Surface Water 1.4; USDOS LSIB 2017 (Earth Engine)","only",4,0.0681318681318681
+"prev","child_vitA","Gambia","WHO ESPEN implementation-unit database 2014-2025 (portal export, no key)","drop",410,0.59561243047163
+"prev","child_vitA","Gambia","WHO ESPEN implementation-unit database 2014-2025 (portal export, no key)","only",4,-0.118782259589043
+"prev","child_vitA","Ghana","WHO ESPEN implementation-unit database 2014-2025 (portal export, no key)","drop",410,0.354858058685122
+"prev","child_vitA","Ghana","WHO ESPEN implementation-unit database 2014-2025 (portal export, no key)","only",4,-0.033794022148508
+"prev","child_vitA","Malawi","WHO ESPEN implementation-unit database 2014-2025 (portal export, no key)","drop",410,0.193146220622708
+"prev","child_vitA","Malawi","WHO ESPEN implementation-unit database 2014-2025 (portal export, no key)","only",4,0.00248210365513572
+"prev","child_vitA","SierraLeone","WHO ESPEN implementation-unit database 2014-2025 (portal export, no key)","drop",410,-0.182417582417582
+"prev","child_vitA","SierraLeone","WHO ESPEN implementation-unit database 2014-2025 (portal export, no key)","only",4,-0.30989010989011
+"prev","women_vitA","Gambia","ALL","full",414,0.446094209840644
+"prev","women_vitA","Ghana","ALL","full",414,0.261791871087341
+"prev","women_vitA","Malawi","ALL","full",414,0.0823110040548564
+"prev","women_vitA","SierraLeone","ALL","full",414,-0.0846391670112603
+"prev","women_vitA","Gambia","GEE","drop",338,0.427555839205499
 "prev","women_vitA","Gambia","GEE","only",76,0.342842525290469
-"prev","women_vitA","Ghana","GEE","drop",306,0.243694220881065
+"prev","women_vitA","Ghana","GEE","drop",338,0.247661439768648
 "prev","women_vitA","Ghana","GEE","only",76,0.215299631764321
-"prev","women_vitA","Malawi","GEE","drop",306,0.0447304670165797
+"prev","women_vitA","Malawi","GEE","drop",338,0.0451250547637266
 "prev","women_vitA","Malawi","GEE","only",76,0.15253183953713
-"prev","women_vitA","SierraLeone","GEE","drop",306,-0.0457509010871677
+"prev","women_vitA","SierraLeone","GEE","drop",338,-0.0732014417394684
 "prev","women_vitA","SierraLeone","GEE","only",76,-0.160128153805087
-"prev","women_vitA","Gambia","AlphaEarth","drop",318,0.473784434333646
+"prev","women_vitA","Gambia","AlphaEarth","drop",350,0.443043591888025
 "prev","women_vitA","Gambia","AlphaEarth","only",64,0.164264043602552
-"prev","women_vitA","Ghana","AlphaEarth","drop",318,0.251940687108063
+"prev","women_vitA","Ghana","AlphaEarth","drop",350,0.25448149021584
 "prev","women_vitA","Ghana","AlphaEarth","only",64,0.238300586213677
-"prev","women_vitA","Malawi","AlphaEarth","drop",318,0.105749516235386
+"prev","women_vitA","Malawi","AlphaEarth","drop",350,0.112931013233461
 "prev","women_vitA","Malawi","AlphaEarth","only",64,-0.196694100197818
-"prev","women_vitA","SierraLeone","AlphaEarth","drop",318,-0.125814977989711
+"prev","women_vitA","SierraLeone","AlphaEarth","drop",350,-0.137252703261503
 "prev","women_vitA","SierraLeone","AlphaEarth","only",64,0.00686263516307516
-"prev","women_vitA","Gambia","DHS","drop",244,0.413006738200702
+"prev","women_vitA","Gambia","DHS","drop",276,0.420750614541965
 "prev","women_vitA","Gambia","DHS","only",138,0.204860728664325
-"prev","women_vitA","Ghana","DHS","drop",244,0.257156019802975
+"prev","women_vitA","Ghana","DHS","drop",276,0.262950833908433
 "prev","women_vitA","Ghana","DHS","only",138,0.115055704737374
-"prev","women_vitA","Malawi","DHS","drop",244,0.103618742400792
+"prev","women_vitA","Malawi","DHS","drop",276,0.0714677327632579
 "prev","women_vitA","Malawi","DHS","only",138,0.0623290805393342
-"prev","women_vitA","SierraLeone","DHS","drop",244,0.0937893472286939
+"prev","women_vitA","SierraLeone","DHS","drop",276,0.00915018021743355
 "prev","women_vitA","SierraLeone","DHS","only",138,-0.210454145000972
-"prev","women_vitA","Gambia","SoilGrids/iSDA","drop",337,0.399396288873633
+"prev","women_vitA","Gambia","SoilGrids/iSDA","drop",369,0.412772075281269
 "prev","women_vitA","Gambia","SoilGrids/iSDA","only",45,0.461112636684306
-"prev","women_vitA","Ghana","SoilGrids/iSDA","drop",337,0.252163564573657
+"prev","women_vitA","Ghana","SoilGrids/iSDA","drop",369,0.257735501213521
 "prev","women_vitA","Ghana","SoilGrids/iSDA","only",45,0.260142577841942
-"prev","women_vitA","Malawi","SoilGrids/iSDA","drop",337,0.108827300663132
+"prev","women_vitA","Malawi","SoilGrids/iSDA","drop",369,0.10267173180764
 "prev","women_vitA","Malawi","SoilGrids/iSDA","only",45,-0.0746560017602053
-"prev","women_vitA","SierraLeone","SoilGrids/iSDA","drop",337,-0.180716059294313
+"prev","women_vitA","SierraLeone","SoilGrids/iSDA","drop",369,-0.180716059294313
 "prev","women_vitA","SierraLeone","SoilGrids/iSDA","only",45,0.219604325218405
-"prev","women_vitA","Gambia","MapSPAM","drop",370,0.413476064039566
+"prev","women_vitA","Gambia","MapSPAM","drop",402,0.406905502295464
 "prev","women_vitA","Gambia","MapSPAM","only",12,0.206503369100351
-"prev","women_vitA","Ghana","MapSPAM","drop",370,0.270261214779934
+"prev","women_vitA","Ghana","MapSPAM","drop",402,0.264956731098784
 "prev","women_vitA","Ghana","MapSPAM","only",12,0.042758543244775
-"prev","women_vitA","Malawi","MapSPAM","drop",370,0.065596267085711
+"prev","women_vitA","Malawi","MapSPAM","drop",402,0.0764553218871955
 "prev","women_vitA","Malawi","MapSPAM","only",12,0.0537356377530016
-"prev","women_vitA","SierraLeone","MapSPAM","drop",370,-0.157840608750729
+"prev","women_vitA","SierraLeone","MapSPAM","drop",402,-0.173853424131237
 "prev","women_vitA","SierraLeone","MapSPAM","only",12,0.160128153805087
-"prev","women_vitA","Gambia","Malaria Atlas","drop",359,0.459704659167713
+"prev","women_vitA","Gambia","Malaria Atlas","drop",391,0.443278254807458
 "prev","women_vitA","Gambia","Malaria Atlas","only",23,0.116158145118947
-"prev","women_vitA","Ghana","Malaria Atlas","drop",359,0.223724399963795
+"prev","women_vitA","Ghana","Malaria Atlas","drop",391,0.242758135525568
 "prev","women_vitA","Ghana","Malaria Atlas","only",23,0.0346351581533908
-"prev","women_vitA","Malawi","Malaria Atlas","drop",359,0.0655173495362817
+"prev","women_vitA","Malawi","Malaria Atlas","drop",391,0.0704733716404475
 "prev","women_vitA","Malawi","Malaria Atlas","only",23,0.0536955006317587
-"prev","women_vitA","SierraLeone","Malaria Atlas","drop",359,-0.0915018021743355
+"prev","women_vitA","SierraLeone","Malaria Atlas","drop",391,-0.102939527446127
 "prev","women_vitA","SierraLeone","Malaria Atlas","only",23,-0.313393672447099
-"prev","women_vitA","Gambia","WFP prices","drop",378,0.448206176115534
+"prev","women_vitA","Gambia","WFP prices","drop",410,0.449144827793263
 "prev","women_vitA","Gambia","WFP prices","only",4,-0.0330874716399426
-"prev","women_vitA","Ghana","WFP prices","drop",378,0.263307437853384
+"prev","women_vitA","Ghana","WFP prices","drop",410,0.264912155605665
 "prev","women_vitA","Ghana","WFP prices","only",4,-0.117634726340796
-"prev","women_vitA","Malawi","WFP prices","drop",378,0.0857202421902061
+"prev","women_vitA","Malawi","WFP prices","drop",410,0.0888138101278383
 "prev","women_vitA","Malawi","WFP prices","only",4,-0.0503493965359524
-"prev","women_vitA","SierraLeone","WFP prices","drop",378,-0.100651982391769
+"prev","women_vitA","SierraLeone","WFP prices","drop",410,-0.0503259911958845
 "prev","women_vitA","SierraLeone","WFP prices","only",4,0.324831397718891
-"prev","women_vitA","Gambia","IHME","drop",381,0.444920895243483
-"prev","women_vitA","Gambia","IHME","only",1,NA
-"prev","women_vitA","Ghana","IHME","drop",381,0.258270407130948
-"prev","women_vitA","Ghana","IHME","only",1,NA
-"prev","women_vitA","Malawi","IHME","drop",381,0.0632918746423728
-"prev","women_vitA","Malawi","IHME","only",1,NA
-"prev","women_vitA","SierraLeone","IHME","drop",381,-0.0480384461415261
-"prev","women_vitA","SierraLeone","IHME","only",1,NA
-"prev","women_vitA","Gambia","WorldPop/GHS","drop",368,0.402446906826252
+"prev","women_vitA","Gambia","IHME","drop",397,0.436003704305059
+"prev","women_vitA","Gambia","IHME","only",17,0.26892370566932
+"prev","women_vitA","Ghana","IHME","drop",397,0.27774989762391
+"prev","women_vitA","Ghana","IHME","only",17,0.0451995500225718
+"prev","women_vitA","Malawi","IHME","drop",397,0.0366650934648958
+"prev","women_vitA","Malawi","IHME","only",17,0.169514896174335
+"prev","women_vitA","SierraLeone","IHME","drop",397,-0.14182779337022
+"prev","women_vitA","SierraLeone","IHME","only",17,-0.183003604348671
+"prev","women_vitA","Gambia","WorldPop/GHS","drop",400,0.407374828134328
 "prev","women_vitA","Gambia","WorldPop/GHS","only",14,-0.0605430332135119
-"prev","women_vitA","Ghana","WorldPop/GHS","drop",368,0.238835492131104
+"prev","women_vitA","Ghana","WorldPop/GHS","drop",400,0.252698470491084
 "prev","women_vitA","Ghana","WorldPop/GHS","only",14,0.0741736205498614
-"prev","women_vitA","Malawi","WorldPop/GHS","drop",368,0.0809694057145567
+"prev","women_vitA","Malawi","WorldPop/GHS","drop",400,0.0777022191681799
 "prev","women_vitA","Malawi","WorldPop/GHS","only",14,0.0882771707917185
-"prev","women_vitA","SierraLeone","WorldPop/GHS","drop",368,-0.0800640769025436
+"prev","women_vitA","SierraLeone","WorldPop/GHS","drop",400,-0.0343131758153758
 "prev","women_vitA","SierraLeone","WorldPop/GHS","only",14,-0.0846391670112603
-"prev","women_vitA","Gambia","Koppen/AEZ","drop",377,0.450787468229289
+"prev","women_vitA","Gambia","Koppen/AEZ","drop",409,0.436003704305059
 "prev","women_vitA","Gambia","Koppen/AEZ","only",5,0.118273069848776
-"prev","women_vitA","Ghana","Koppen/AEZ","drop",377,0.260543757280012
+"prev","women_vitA","Ghana","Koppen/AEZ","drop",409,0.260944936718082
 "prev","women_vitA","Ghana","Koppen/AEZ","only",5,-0.0590221470261999
-"prev","women_vitA","Malawi","Koppen/AEZ","drop",377,0.0805116839278662
+"prev","women_vitA","Malawi","Koppen/AEZ","drop",409,0.0794541887655124
 "prev","women_vitA","Malawi","Koppen/AEZ","only",5,-0.0475789448577748
-"prev","women_vitA","SierraLeone","Koppen/AEZ","drop",377,-0.0617637164676765
+"prev","women_vitA","SierraLeone","Koppen/AEZ","drop",409,-0.0846391670112603
 "prev","women_vitA","SierraLeone","Koppen/AEZ","only",5,0.234362032425552
-"prev","child_iron","Gambia","ALL","full",382,0.628546004556898
-"prev","child_iron","Ghana","ALL","full",382,0.528419762990682
-"prev","child_iron","Malawi","ALL","full",382,-0.142846771820835
-"prev","child_iron","SierraLeone","ALL","full",382,0.27032967032967
-"prev","child_iron","Gambia","GEE","drop",306,0.59939926947833
+"prev","women_vitA","Gambia","Gridded Livestock of the World 4 (2015, 5 arc-min, dasymetric; Harvard Dataverse)","drop",406,0.44984881655156
+"prev","women_vitA","Gambia","Gridded Livestock of the World 4 (2015, 5 arc-min, dasymetric; Harvard Dataverse)","only",8,-0.0377807300285869
+"prev","women_vitA","Ghana","Gridded Livestock of the World 4 (2015, 5 arc-min, dasymetric; Harvard Dataverse)","drop",406,0.259652247417634
+"prev","women_vitA","Ghana","Gridded Livestock of the World 4 (2015, 5 arc-min, dasymetric; Harvard Dataverse)","only",8,0.177722491065083
+"prev","women_vitA","Malawi","Gridded Livestock of the World 4 (2015, 5 arc-min, dasymetric; Harvard Dataverse)","drop",406,0.0746244347404336
+"prev","women_vitA","Malawi","Gridded Livestock of the World 4 (2015, 5 arc-min, dasymetric; Harvard Dataverse)","only",8,0.132991854298412
+"prev","women_vitA","SierraLeone","Gridded Livestock of the World 4 (2015, 5 arc-min, dasymetric; Harvard Dataverse)","drop",406,-0.0663388065763932
+"prev","women_vitA","SierraLeone","Gridded Livestock of the World 4 (2015, 5 arc-min, dasymetric; Harvard Dataverse)","only",8,-0.0915018021743355
+"prev","women_vitA","Gambia","JRC Global Surface Water 1.4; USDOS LSIB 2017 (Earth Engine)","drop",410,0.416761344911617
+"prev","women_vitA","Gambia","JRC Global Surface Water 1.4; USDOS LSIB 2017 (Earth Engine)","only",4,0.360207581328453
+"prev","women_vitA","Ghana","JRC Global Surface Water 1.4; USDOS LSIB 2017 (Earth Engine)","drop",410,0.263396588839622
+"prev","women_vitA","Ghana","JRC Global Surface Water 1.4; USDOS LSIB 2017 (Earth Engine)","only",4,0.149818232372647
+"prev","women_vitA","Malawi","JRC Global Surface Water 1.4; USDOS LSIB 2017 (Earth Engine)","drop",410,0.103950196108396
+"prev","women_vitA","Malawi","JRC Global Surface Water 1.4; USDOS LSIB 2017 (Earth Engine)","only",4,-0.214671517957834
+"prev","women_vitA","SierraLeone","JRC Global Surface Water 1.4; USDOS LSIB 2017 (Earth Engine)","drop",410,-0.0343131758153758
+"prev","women_vitA","SierraLeone","JRC Global Surface Water 1.4; USDOS LSIB 2017 (Earth Engine)","only",4,-0.171565879076879
+"prev","women_vitA","Gambia","WHO ESPEN implementation-unit database 2014-2025 (portal export, no key)","drop",410,0.466040557992383
+"prev","women_vitA","Gambia","WHO ESPEN implementation-unit database 2014-2025 (portal export, no key)","only",4,-0.061625199711619
+"prev","women_vitA","Ghana","WHO ESPEN implementation-unit database 2014-2025 (portal export, no key)","drop",410,0.256843991351143
+"prev","women_vitA","Ghana","WHO ESPEN implementation-unit database 2014-2025 (portal export, no key)","only",4,0.0703616611334732
+"prev","women_vitA","Malawi","WHO ESPEN implementation-unit database 2014-2025 (portal export, no key)","drop",410,0.100967112739965
+"prev","women_vitA","Malawi","WHO ESPEN implementation-unit database 2014-2025 (portal export, no key)","only",4,-0.287103331615312
+"prev","women_vitA","SierraLeone","WHO ESPEN implementation-unit database 2014-2025 (portal export, no key)","drop",410,-0.0869267120656187
+"prev","women_vitA","SierraLeone","WHO ESPEN implementation-unit database 2014-2025 (portal export, no key)","only",4,0.251629955979423
+"prev","child_iron","Gambia","ALL","full",414,0.590499503042126
+"prev","child_iron","Ghana","ALL","full",414,0.537514693793845
+"prev","child_iron","Malawi","ALL","full",414,-0.141597250192725
+"prev","child_iron","SierraLeone","ALL","full",414,0.30989010989011
+"prev","child_iron","Gambia","GEE","drop",338,0.563800203733515
 "prev","child_iron","Gambia","GEE","only",76,0.570697522721573
-"prev","child_iron","Ghana","GEE","drop",306,0.53216053515776
+"prev","child_iron","Ghana","GEE","drop",338,0.539270857826481
 "prev","child_iron","Ghana","GEE","only",76,0.527920041517981
-"prev","child_iron","Malawi","GEE","drop",306,-0.177842498003732
+"prev","child_iron","Malawi","GEE","drop",338,-0.194651756110347
 "prev","child_iron","Malawi","GEE","only",76,-0.00727823546884345
-"prev","child_iron","SierraLeone","GEE","drop",306,0.362637362637363
+"prev","child_iron","SierraLeone","GEE","drop",338,0.450549450549451
 "prev","child_iron","SierraLeone","GEE","only",76,-0.191208791208791
-"prev","child_iron","Gambia","AlphaEarth","drop",318,0.62342863885608
+"prev","child_iron","Gambia","AlphaEarth","drop",350,0.617866284833453
 "prev","child_iron","Gambia","AlphaEarth","only",64,0.312381801910755
-"prev","child_iron","Ghana","AlphaEarth","drop",318,0.511000900227953
+"prev","child_iron","Ghana","AlphaEarth","drop",350,0.505975129988214
 "prev","child_iron","Ghana","AlphaEarth","only",64,0.551906672207642
-"prev","child_iron","Malawi","AlphaEarth","drop",318,-0.143083907312301
+"prev","child_iron","Malawi","AlphaEarth","drop",350,-0.144369911323713
 "prev","child_iron","Malawi","AlphaEarth","only",64,0.0285292237425342
-"prev","child_iron","SierraLeone","AlphaEarth","drop",318,0.243956043956044
+"prev","child_iron","SierraLeone","AlphaEarth","drop",350,0.235164835164835
 "prev","child_iron","SierraLeone","AlphaEarth","only",64,0.142857142857143
-"prev","child_iron","Gambia","DHS","drop",244,0.578484818353251
+"prev","child_iron","Gambia","DHS","drop",276,0.550228059918304
 "prev","child_iron","Gambia","DHS","only",138,0.548670600791968
-"prev","child_iron","Ghana","DHS","drop",244,0.574979526490078
+"prev","child_iron","Ghana","DHS","drop",276,0.566341483890527
 "prev","child_iron","Ghana","DHS","only",138,0.226573013251616
-"prev","child_iron","Malawi","DHS","drop",244,0.113378126708262
+"prev","child_iron","Malawi","DHS","drop",276,0.0705022057320299
 "prev","child_iron","Malawi","DHS","only",138,-0.288229069281191
-"prev","child_iron","SierraLeone","DHS","drop",244,0.156043956043956
+"prev","child_iron","SierraLeone","DHS","drop",276,0.292307692307692
 "prev","child_iron","SierraLeone","DHS","only",138,0.156043956043956
-"prev","child_iron","Gambia","SoilGrids/iSDA","drop",337,0.604961623500957
+"prev","child_iron","Gambia","SoilGrids/iSDA","drop",369,0.590277008881221
 "prev","child_iron","Gambia","SoilGrids/iSDA","only",45,0.419846481627917
-"prev","child_iron","Ghana","SoilGrids/iSDA","drop",337,0.506260685115472
+"prev","child_iron","Ghana","SoilGrids/iSDA","drop",369,0.509344680489857
 "prev","child_iron","Ghana","SoilGrids/iSDA","only",45,0.514998672009563
-"prev","child_iron","Malawi","SoilGrids/iSDA","drop",337,-0.187774826857831
+"prev","child_iron","Malawi","SoilGrids/iSDA","drop",369,-0.191970300937615
 "prev","child_iron","Malawi","SoilGrids/iSDA","only",45,0.218784852664933
-"prev","child_iron","SierraLeone","SoilGrids/iSDA","drop",337,0.156043956043956
+"prev","child_iron","SierraLeone","SoilGrids/iSDA","drop",369,0.230769230769231
 "prev","child_iron","SierraLeone","SoilGrids/iSDA","only",45,0.314285714285714
-"prev","child_iron","Gambia","MapSPAM","drop",370,0.586939596467645
+"prev","child_iron","Gambia","MapSPAM","drop",402,0.589832020559411
 "prev","child_iron","Gambia","MapSPAM","only",12,0.286794973406669
-"prev","child_iron","Ghana","MapSPAM","drop",370,0.527577375365272
+"prev","child_iron","Ghana","MapSPAM","drop",402,0.545881459022501
 "prev","child_iron","Ghana","MapSPAM","only",12,0.273886999567569
-"prev","child_iron","Malawi","MapSPAM","drop",370,-0.150015560139771
+"prev","child_iron","Malawi","MapSPAM","drop",402,-0.146157548105534
 "prev","child_iron","Malawi","MapSPAM","only",12,0.133350697694686
-"prev","child_iron","SierraLeone","MapSPAM","drop",370,0.151648351648352
+"prev","child_iron","SierraLeone","MapSPAM","drop",402,0.213186813186813
 "prev","child_iron","SierraLeone","MapSPAM","only",12,0.582417582417582
-"prev","child_iron","Gambia","Malaria Atlas","drop",359,0.603849152696432
+"prev","child_iron","Gambia","Malaria Atlas","drop",391,0.598064304512899
 "prev","child_iron","Gambia","Malaria Atlas","only",23,0.209811993733506
-"prev","child_iron","Ghana","Malaria Atlas","drop",359,0.534245087586743
+"prev","child_iron","Ghana","Malaria Atlas","drop",391,0.528905206707021
 "prev","child_iron","Ghana","Malaria Atlas","only",23,0.308927814423923
-"prev","child_iron","Malawi","Malaria Atlas","drop",359,-0.142217450708867
+"prev","child_iron","Malawi","Malaria Atlas","drop",391,-0.143175113270557
 "prev","child_iron","Malawi","Malaria Atlas","only",23,0.0753908450945613
-"prev","child_iron","SierraLeone","Malaria Atlas","drop",359,0.261538461538461
+"prev","child_iron","SierraLeone","Malaria Atlas","drop",391,0.415384615384615
 "prev","child_iron","SierraLeone","Malaria Atlas","only",23,-0.279120879120879
-"prev","child_iron","Gambia","WFP prices","drop",378,0.623206144695175
+"prev","child_iron","Gambia","WFP prices","drop",410,0.601624211087381
 "prev","child_iron","Gambia","WFP prices","only",4,0.33351874719674
-"prev","child_iron","Ghana","WFP prices","drop",378,0.528262707670691
+"prev","child_iron","Ghana","WFP prices","drop",410,0.531446647339616
 "prev","child_iron","Ghana","WFP prices","only",4,0.235554424475014
-"prev","child_iron","Malawi","WFP prices","drop",378,-0.130150902431574
+"prev","child_iron","Malawi","WFP prices","drop",410,-0.1360701691224
 "prev","child_iron","Malawi","WFP prices","only",4,-0.0882052822295551
-"prev","child_iron","SierraLeone","WFP prices","drop",378,0.186813186813187
+"prev","child_iron","SierraLeone","WFP prices","drop",410,0.30989010989011
 "prev","child_iron","SierraLeone","WFP prices","only",4,0.182417582417582
-"prev","child_iron","Gambia","IHME","drop",381,0.632773393614094
-"prev","child_iron","Gambia","IHME","only",1,NA
-"prev","child_iron","Ghana","IHME","drop",381,0.533959532459485
-"prev","child_iron","Ghana","IHME","only",1,NA
-"prev","child_iron","Malawi","IHME","drop",381,-0.134227808765625
-"prev","child_iron","Malawi","IHME","only",1,NA
-"prev","child_iron","SierraLeone","IHME","drop",381,0.27032967032967
-"prev","child_iron","SierraLeone","IHME","only",1,NA
-"prev","child_iron","Gambia","WorldPop/GHS","drop",368,0.645455560785685
+"prev","child_iron","Gambia","IHME","drop",397,0.596729339547469
+"prev","child_iron","Gambia","IHME","only",17,0.469462679509754
+"prev","child_iron","Ghana","IHME","drop",397,0.539970467888263
+"prev","child_iron","Ghana","IHME","only",17,-0.0976598535221904
+"prev","child_iron","Malawi","IHME","drop",397,-0.141697576746807
+"prev","child_iron","Malawi","IHME","only",17,-0.148921088640696
+"prev","child_iron","SierraLeone","IHME","drop",397,0.318681318681319
+"prev","child_iron","SierraLeone","IHME","only",17,-0.134065934065934
+"prev","child_iron","Gambia","WorldPop/GHS","drop",400,0.591611973846652
 "prev","child_iron","Gambia","WorldPop/GHS","only",14,0.452998111602777
-"prev","child_iron","Ghana","WorldPop/GHS","drop",368,0.525121601270854
+"prev","child_iron","Ghana","WorldPop/GHS","drop",400,0.527149042674385
 "prev","child_iron","Ghana","WorldPop/GHS","only",14,0.0362226678926604
-"prev","child_iron","Malawi","WorldPop/GHS","drop",368,-0.160294471635243
+"prev","child_iron","Malawi","WorldPop/GHS","drop",400,-0.167390295187574
 "prev","child_iron","Malawi","WorldPop/GHS","only",14,0.0594480435913804
-"prev","child_iron","SierraLeone","WorldPop/GHS","drop",368,0.178021978021978
+"prev","child_iron","SierraLeone","WorldPop/GHS","drop",400,0.367032967032967
 "prev","child_iron","SierraLeone","WorldPop/GHS","only",14,0.257142857142857
-"prev","child_iron","Gambia","Koppen/AEZ","drop",377,0.617643790672548
+"prev","child_iron","Gambia","Koppen/AEZ","drop",409,0.581154748284112
 "prev","child_iron","Gambia","Koppen/AEZ","only",5,-0.159997232173653
-"prev","child_iron","Ghana","Koppen/AEZ","drop",377,0.531660813685059
+"prev","child_iron","Ghana","Koppen/AEZ","drop",409,0.539013858211949
 "prev","child_iron","Ghana","Koppen/AEZ","only",5,-0.0700013576093591
-"prev","child_iron","Malawi","Koppen/AEZ","drop",377,-0.145373176864531
+"prev","child_iron","Malawi","Koppen/AEZ","drop",409,-0.142582274541892
 "prev","child_iron","Malawi","Koppen/AEZ","only",5,0.0791126050684464
-"prev","child_iron","SierraLeone","Koppen/AEZ","drop",377,0.27032967032967
+"prev","child_iron","SierraLeone","Koppen/AEZ","drop",409,0.30989010989011
 "prev","child_iron","SierraLeone","Koppen/AEZ","only",5,-0.558504339547108
-"prev","women_iron","Gambia","ALL","full",382,0.1833351885858
-"prev","women_iron","Ghana","ALL","full",382,0.278468951329532
-"prev","women_iron","Malawi","ALL","full",382,0.127468170073807
-"prev","women_iron","SierraLeone","ALL","full",382,-0.125274725274725
-"prev","women_iron","Gambia","GEE","drop",306,0.240516187938409
+"prev","child_iron","Gambia","Gridded Livestock of the World 4 (2015, 5 arc-min, dasymetric; Harvard Dataverse)","drop",406,0.600956728604666
+"prev","child_iron","Gambia","Gridded Livestock of the World 4 (2015, 5 arc-min, dasymetric; Harvard Dataverse)","only",8,0.386249863331248
+"prev","child_iron","Ghana","Gridded Livestock of the World 4 (2015, 5 arc-min, dasymetric; Harvard Dataverse)","drop",406,0.535401585852137
+"prev","child_iron","Ghana","Gridded Livestock of the World 4 (2015, 5 arc-min, dasymetric; Harvard Dataverse)","only",8,0.28759684641776
+"prev","child_iron","Malawi","Gridded Livestock of the World 4 (2015, 5 arc-min, dasymetric; Harvard Dataverse)","drop",406,-0.144488479069446
+"prev","child_iron","Malawi","Gridded Livestock of the World 4 (2015, 5 arc-min, dasymetric; Harvard Dataverse)","only",8,-0.0852593297778804
+"prev","child_iron","SierraLeone","Gridded Livestock of the World 4 (2015, 5 arc-min, dasymetric; Harvard Dataverse)","drop",406,0.274725274725275
+"prev","child_iron","SierraLeone","Gridded Livestock of the World 4 (2015, 5 arc-min, dasymetric; Harvard Dataverse)","only",8,0.375824175824176
+"prev","child_iron","Gambia","JRC Global Surface Water 1.4; USDOS LSIB 2017 (Earth Engine)","drop",410,0.579819783318681
+"prev","child_iron","Gambia","JRC Global Surface Water 1.4; USDOS LSIB 2017 (Earth Engine)","only",4,0.441205921074806
+"prev","child_iron","Ghana","JRC Global Surface Water 1.4; USDOS LSIB 2017 (Earth Engine)","drop",410,0.529947482921512
+"prev","child_iron","Ghana","JRC Global Surface Water 1.4; USDOS LSIB 2017 (Earth Engine)","only",4,0.535915585081201
+"prev","child_iron","Malawi","JRC Global Surface Water 1.4; USDOS LSIB 2017 (Earth Engine)","drop",410,-0.135331400860525
+"prev","child_iron","Malawi","JRC Global Surface Water 1.4; USDOS LSIB 2017 (Earth Engine)","only",4,0.0287846004256515
+"prev","child_iron","SierraLeone","JRC Global Surface Water 1.4; USDOS LSIB 2017 (Earth Engine)","drop",410,0.30989010989011
+"prev","child_iron","SierraLeone","JRC Global Surface Water 1.4; USDOS LSIB 2017 (Earth Engine)","only",4,0.591208791208791
+"prev","child_iron","Gambia","WHO ESPEN implementation-unit database 2014-2025 (portal export, no key)","drop",410,0.583379689893163
+"prev","child_iron","Gambia","WHO ESPEN implementation-unit database 2014-2025 (portal export, no key)","only",4,0.0821595487235241
+"prev","child_iron","Ghana","WHO ESPEN implementation-unit database 2014-2025 (portal export, no key)","drop",410,0.540427356091876
+"prev","child_iron","Ghana","WHO ESPEN implementation-unit database 2014-2025 (portal export, no key)","only",4,0.167670451092216
+"prev","child_iron","Malawi","WHO ESPEN implementation-unit database 2014-2025 (portal export, no key)","drop",410,-0.1474982756919
+"prev","child_iron","Malawi","WHO ESPEN implementation-unit database 2014-2025 (portal export, no key)","only",4,0.0397255773257725
+"prev","child_iron","SierraLeone","WHO ESPEN implementation-unit database 2014-2025 (portal export, no key)","drop",410,0.30989010989011
+"prev","child_iron","SierraLeone","WHO ESPEN implementation-unit database 2014-2025 (portal export, no key)","only",4,0.0417582417582418
+"prev","women_iron","Gambia","ALL","full",414,0.34531093772471
+"prev","women_iron","Ghana","ALL","full",414,0.311360344464766
+"prev","women_iron","Malawi","ALL","full",414,0.151192004210701
+"prev","women_iron","SierraLeone","ALL","full",414,-0.0153846153846154
+"prev","women_iron","Gambia","GEE","drop",338,0.414951610088005
 "prev","women_iron","Gambia","GEE","only",76,0.0462787854682601
-"prev","women_iron","Ghana","GEE","drop",306,0.305389247285798
+"prev","women_iron","Ghana","GEE","drop",338,0.333877855513165
 "prev","women_iron","Ghana","GEE","only",76,0.112976036263278
-"prev","women_iron","Malawi","GEE","drop",306,0.122275399511654
+"prev","women_iron","Malawi","GEE","drop",338,0.132753503391078
 "prev","women_iron","Malawi","GEE","only",76,-0.0292775994440092
-"prev","women_iron","SierraLeone","GEE","drop",306,0.0153846153846154
+"prev","women_iron","SierraLeone","GEE","drop",338,0.0813186813186813
 "prev","women_iron","SierraLeone","GEE","only",76,-0.327472527472527
-"prev","women_iron","Gambia","AlphaEarth","drop",318,0.235398822237592
+"prev","women_iron","Gambia","AlphaEarth","drop",350,0.327733899013207
 "prev","women_iron","Gambia","AlphaEarth","only",64,0.167538103161538
-"prev","women_iron","Ghana","AlphaEarth","drop",318,0.314525745378918
+"prev","women_iron","Ghana","AlphaEarth","drop",350,0.344812876852963
 "prev","women_iron","Ghana","AlphaEarth","only",64,0.0960267531865919
-"prev","women_iron","Malawi","AlphaEarth","drop",318,0.11742511114344
+"prev","women_iron","Malawi","AlphaEarth","drop",350,0.137668585687875
 "prev","women_iron","Malawi","AlphaEarth","only",64,0.199361661974413
-"prev","women_iron","SierraLeone","AlphaEarth","drop",318,0.0197802197802198
+"prev","women_iron","SierraLeone","AlphaEarth","drop",350,0.0417582417582418
 "prev","women_iron","SierraLeone","AlphaEarth","only",64,-0.415384615384615
-"prev","women_iron","Gambia","DHS","drop",244,0.509066640150861
+"prev","women_iron","Gambia","DHS","drop",276,0.556680390584552
 "prev","women_iron","Gambia","DHS","only",138,-0.446990769258339
-"prev","women_iron","Ghana","DHS","drop",244,0.28208038600886
+"prev","women_iron","Ghana","DHS","drop",276,0.319173129448332
 "prev","women_iron","Ghana","DHS","only",138,0.297463473621053
-"prev","women_iron","Malawi","DHS","drop",244,0.275577834539058
+"prev","women_iron","Malawi","DHS","drop",276,0.309011501687892
 "prev","women_iron","Malawi","DHS","only",138,-0.0989218163952343
-"prev","women_iron","SierraLeone","DHS","drop",244,-0.248351648351648
+"prev","women_iron","SierraLeone","DHS","drop",276,-0.2
 "prev","women_iron","SierraLeone","DHS","only",138,0.345054945054945
-"prev","women_iron","Gambia","SoilGrids/iSDA","drop",337,0.0280342642740422
+"prev","women_iron","Gambia","SoilGrids/iSDA","drop",369,0.151963511898181
 "prev","women_iron","Gambia","SoilGrids/iSDA","only",45,0.67927467324326
-"prev","women_iron","Ghana","SoilGrids/iSDA","drop",337,0.269433170538226
+"prev","women_iron","Ghana","SoilGrids/iSDA","drop",369,0.308828023733444
 "prev","women_iron","Ghana","SoilGrids/iSDA","only",45,0.264152706285981
-"prev","women_iron","Malawi","SoilGrids/iSDA","drop",337,0.0453650062836197
+"prev","women_iron","Malawi","SoilGrids/iSDA","drop",369,0.0962745215988427
 "prev","women_iron","Malawi","SoilGrids/iSDA","only",45,0.26263756137348
-"prev","women_iron","SierraLeone","SoilGrids/iSDA","drop",337,-0.217582417582418
+"prev","women_iron","SierraLeone","SoilGrids/iSDA","drop",369,-0.156043956043956
 "prev","women_iron","SierraLeone","SoilGrids/iSDA","only",45,0.2
-"prev","women_iron","Gambia","MapSPAM","drop",370,0.110802092130738
+"prev","women_iron","Gambia","MapSPAM","drop",402,0.284570031797618
 "prev","women_iron","Gambia","MapSPAM","only",12,0.402269442916414
-"prev","women_iron","Ghana","MapSPAM","drop",370,0.263649119776912
+"prev","women_iron","Ghana","MapSPAM","drop",402,0.301720259862576
 "prev","women_iron","Ghana","MapSPAM","only",12,0.336558714130588
-"prev","women_iron","Malawi","MapSPAM","drop",370,0.100236207517918
+"prev","women_iron","Malawi","MapSPAM","drop",402,0.122349449715749
 "prev","women_iron","Malawi","MapSPAM","only",12,0.113962927083829
-"prev","women_iron","SierraLeone","MapSPAM","drop",370,-0.107692307692308
+"prev","women_iron","SierraLeone","MapSPAM","drop",402,-0.0461538461538462
 "prev","women_iron","SierraLeone","MapSPAM","only",12,0.274725274725275
-"prev","women_iron","Gambia","Malaria Atlas","drop",359,0.124596730106854
+"prev","women_iron","Gambia","Malaria Atlas","drop",391,0.225386584996863
 "prev","women_iron","Gambia","Malaria Atlas","only",23,0.472577597762425
-"prev","women_iron","Ghana","Malaria Atlas","drop",359,0.252901144854769
+"prev","women_iron","Ghana","Malaria Atlas","drop",391,0.276871862686483
 "prev","women_iron","Ghana","Malaria Atlas","only",23,0.227505996611686
-"prev","women_iron","Malawi","Malaria Atlas","drop",359,0.0725136623599013
+"prev","women_iron","Malawi","Malaria Atlas","drop",391,0.126329648185848
 "prev","women_iron","Malawi","Malaria Atlas","only",23,0.232332515347654
-"prev","women_iron","SierraLeone","Malaria Atlas","drop",359,-0.0857142857142857
+"prev","women_iron","SierraLeone","Malaria Atlas","drop",391,0.010989010989011
 "prev","women_iron","SierraLeone","Malaria Atlas","only",23,0.0681318681318681
-"prev","women_iron","Gambia","WFP prices","drop",378,0.240738682099314
+"prev","women_iron","Gambia","WFP prices","drop",410,0.370675272067891
 "prev","women_iron","Gambia","WFP prices","only",4,0.00689731898805799
-"prev","women_iron","Ghana","WFP prices","drop",378,0.283648698279963
+"prev","women_iron","Ghana","WFP prices","drop",410,0.318468108335635
 "prev","women_iron","Ghana","WFP prices","only",4,0.0766027021224776
-"prev","women_iron","Malawi","WFP prices","drop",378,0.137316847218424
+"prev","women_iron","Malawi","WFP prices","drop",410,0.159291245283577
 "prev","women_iron","Malawi","WFP prices","only",4,-0.0407924061807615
-"prev","women_iron","SierraLeone","WFP prices","drop",378,-0.112087912087912
+"prev","women_iron","SierraLeone","WFP prices","drop",410,-0.0153846153846154
 "prev","women_iron","SierraLeone","WFP prices","only",4,0.0725274725274725
-"prev","women_iron","Gambia","IHME","drop",381,0.179775282011318
-"prev","women_iron","Gambia","IHME","only",1,NA
-"prev","women_iron","Ghana","IHME","drop",381,0.290425533873443
-"prev","women_iron","Ghana","IHME","only",1,NA
-"prev","women_iron","Malawi","IHME","drop",381,0.124737568797808
-"prev","women_iron","Malawi","IHME","only",1,NA
-"prev","women_iron","SierraLeone","IHME","drop",381,-0.0857142857142857
-"prev","women_iron","SierraLeone","IHME","only",1,NA
-"prev","women_iron","Gambia","WorldPop/GHS","drop",368,0.179775282011318
+"prev","women_iron","Gambia","IHME","drop",397,0.293469798233822
+"prev","women_iron","Gambia","IHME","only",17,0.328178887335017
+"prev","women_iron","Ghana","IHME","drop",397,0.268382832962166
+"prev","women_iron","Ghana","IHME","only",17,0.149781015983282
+"prev","women_iron","Malawi","IHME","drop",397,0.14536055063823
+"prev","women_iron","Malawi","IHME","only",17,0.0756607960339333
+"prev","women_iron","SierraLeone","IHME","drop",397,-0.0373626373626374
+"prev","women_iron","SierraLeone","IHME","only",17,0.0505494505494506
+"prev","women_iron","Gambia","WorldPop/GHS","drop",400,0.367560353815219
 "prev","women_iron","Gambia","WorldPop/GHS","only",14,-0.412949162639859
-"prev","women_iron","Ghana","WorldPop/GHS","drop",368,0.276181229759759
+"prev","women_iron","Ghana","WorldPop/GHS","drop",400,0.313043762223656
 "prev","women_iron","Ghana","WorldPop/GHS","only",14,-0.0090213926053331
-"prev","women_iron","Malawi","WorldPop/GHS","drop",368,0.107983710121344
+"prev","women_iron","Malawi","WorldPop/GHS","drop",400,0.133419955227932
 "prev","women_iron","Malawi","WorldPop/GHS","only",14,-8.33064796067286e-05
-"prev","women_iron","SierraLeone","WorldPop/GHS","drop",368,-0.0461538461538462
+"prev","women_iron","SierraLeone","WorldPop/GHS","drop",400,0.0989010989010989
 "prev","women_iron","SierraLeone","WorldPop/GHS","only",14,-0.832967032967033
-"prev","women_iron","Gambia","Koppen/AEZ","drop",377,0.158860830886239
+"prev","women_iron","Gambia","Koppen/AEZ","drop",409,0.308376907014464
 "prev","women_iron","Gambia","Koppen/AEZ","only",5,0.0879157612534696
-"prev","women_iron","Ghana","Koppen/AEZ","drop",377,0.27921713700015
+"prev","women_iron","Ghana","Koppen/AEZ","drop",409,0.31537464835135
 "prev","women_iron","Ghana","Koppen/AEZ","only",5,-0.10649683420556
-"prev","women_iron","Malawi","Koppen/AEZ","drop",377,0.133216317166671
+"prev","women_iron","Malawi","Koppen/AEZ","drop",409,0.156033036303403
 "prev","women_iron","Malawi","Koppen/AEZ","only",5,-0.0836341215963382
-"prev","women_iron","SierraLeone","Koppen/AEZ","drop",377,-0.112087912087912
+"prev","women_iron","SierraLeone","Koppen/AEZ","drop",409,-0.0241758241758242
 "prev","women_iron","SierraLeone","Koppen/AEZ","only",5,-0.44371293379039
-"prev","women_folate","Ghana","ALL","full",382,-0.0461908766349685
-"prev","women_folate","Malawi","ALL","full",382,-0.0450446670748712
-"prev","women_folate","SierraLeone","ALL","full",382,0.0725274725274725
-"prev","women_folate","Ghana","GEE","drop",306,-0.122211282673513
+"prev","women_iron","Gambia","Gridded Livestock of the World 4 (2015, 5 arc-min, dasymetric; Harvard Dataverse)","drop",406,0.236288798881212
+"prev","women_iron","Gambia","Gridded Livestock of the World 4 (2015, 5 arc-min, dasymetric; Harvard Dataverse)","only",8,0.630103463683233
+"prev","women_iron","Ghana","Gridded Livestock of the World 4 (2015, 5 arc-min, dasymetric; Harvard Dataverse)","drop",406,0.320899711765142
+"prev","women_iron","Ghana","Gridded Livestock of the World 4 (2015, 5 arc-min, dasymetric; Harvard Dataverse)","only",8,0.199261987545866
+"prev","women_iron","Malawi","Gridded Livestock of the World 4 (2015, 5 arc-min, dasymetric; Harvard Dataverse)","drop",406,0.126579567624668
+"prev","women_iron","Malawi","Gridded Livestock of the World 4 (2015, 5 arc-min, dasymetric; Harvard Dataverse)","only",8,0.173481115643256
+"prev","women_iron","SierraLeone","Gridded Livestock of the World 4 (2015, 5 arc-min, dasymetric; Harvard Dataverse)","drop",406,-0.0901098901098901
+"prev","women_iron","SierraLeone","Gridded Livestock of the World 4 (2015, 5 arc-min, dasymetric; Harvard Dataverse)","only",8,0.314285714285714
+"prev","women_iron","Gambia","JRC Global Surface Water 1.4; USDOS LSIB 2017 (Earth Engine)","drop",410,0.355990657448154
+"prev","women_iron","Gambia","JRC Global Surface Water 1.4; USDOS LSIB 2017 (Earth Engine)","only",4,-0.111469574613453
+"prev","women_iron","Ghana","JRC Global Surface Water 1.4; USDOS LSIB 2017 (Earth Engine)","drop",410,0.317388994387628
+"prev","women_iron","Ghana","JRC Global Surface Water 1.4; USDOS LSIB 2017 (Earth Engine)","only",4,0.0662288200356432
+"prev","women_iron","Malawi","JRC Global Surface Water 1.4; USDOS LSIB 2017 (Earth Engine)","drop",410,0.146897092373198
+"prev","women_iron","Malawi","JRC Global Surface Water 1.4; USDOS LSIB 2017 (Earth Engine)","only",4,0.016707577298905
+"prev","women_iron","SierraLeone","JRC Global Surface Water 1.4; USDOS LSIB 2017 (Earth Engine)","drop",410,0.0197802197802198
+"prev","women_iron","SierraLeone","JRC Global Surface Water 1.4; USDOS LSIB 2017 (Earth Engine)","only",4,-0.402197802197802
+"prev","women_iron","Gambia","WHO ESPEN implementation-unit database 2014-2025 (portal export, no key)","drop",410,0.343975972759279
+"prev","women_iron","Gambia","WHO ESPEN implementation-unit database 2014-2025 (portal export, no key)","only",4,-0.0685036019329656
+"prev","women_iron","Ghana","WHO ESPEN implementation-unit database 2014-2025 (portal export, no key)","drop",410,0.316986125180372
+"prev","women_iron","Ghana","WHO ESPEN implementation-unit database 2014-2025 (portal export, no key)","only",4,-0.113716059095581
+"prev","women_iron","Malawi","WHO ESPEN implementation-unit database 2014-2025 (portal export, no key)","drop",410,0.151303079516843
+"prev","women_iron","Malawi","WHO ESPEN implementation-unit database 2014-2025 (portal export, no key)","only",4,-0.0692788569514135
+"prev","women_iron","SierraLeone","WHO ESPEN implementation-unit database 2014-2025 (portal export, no key)","drop",410,-0.0153846153846154
+"prev","women_iron","SierraLeone","WHO ESPEN implementation-unit database 2014-2025 (portal export, no key)","only",4,-0.182417582417582
+"prev","women_folate","Ghana","ALL","full",415,0.00376253978143526
+"prev","women_folate","Malawi","ALL","full",415,-0.00337904818106598
+"prev","women_folate","SierraLeone","ALL","full",415,0.0989010989010989
+"prev","women_folate","Ghana","GEE","drop",339,-0.0265658111840732
 "prev","women_folate","Ghana","GEE","only",76,0.14016885890309
-"prev","women_folate","Malawi","GEE","drop",306,-0.155855106599415
+"prev","women_folate","Malawi","GEE","drop",339,-0.0895680484799361
 "prev","women_folate","Malawi","GEE","only",76,0.196850501060612
-"prev","women_folate","SierraLeone","GEE","drop",306,-0.0197802197802198
+"prev","women_folate","SierraLeone","GEE","drop",339,0.0637362637362637
 "prev","women_folate","SierraLeone","GEE","only",76,0.437362637362637
-"prev","women_folate","Ghana","AlphaEarth","drop",318,-0.0229742959381578
+"prev","women_folate","Ghana","AlphaEarth","drop",351,0.0273924297724189
 "prev","women_folate","Ghana","AlphaEarth","only",64,-0.129052264094304
-"prev","women_folate","Malawi","AlphaEarth","drop",318,-0.0326827497623213
+"prev","women_folate","Malawi","AlphaEarth","drop",351,0.00450539757475463
 "prev","women_folate","Malawi","AlphaEarth","only",64,-0.0997610450591847
-"prev","women_folate","SierraLeone","AlphaEarth","drop",318,0.0989010989010989
+"prev","women_folate","SierraLeone","AlphaEarth","drop",351,0.120879120879121
 "prev","women_folate","SierraLeone","AlphaEarth","only",64,-0.261538461538461
-"prev","women_folate","Ghana","DHS","drop",244,0.012171246111158
+"prev","women_folate","Ghana","DHS","drop",277,0.074980006780799
 "prev","women_folate","Ghana","DHS","only",138,-0.167617271409164
-"prev","women_folate","Malawi","DHS","drop",244,0.169334064632978
+"prev","women_folate","Malawi","DHS","drop",277,0.146081000290546
 "prev","women_folate","Malawi","DHS","only",138,-0.22763428159721
-"prev","women_folate","SierraLeone","DHS","drop",244,0.446153846153846
+"prev","women_folate","SierraLeone","DHS","drop",277,0.406593406593407
 "prev","women_folate","SierraLeone","DHS","only",138,-0.0857142857142857
-"prev","women_folate","Ghana","SoilGrids/iSDA","drop",337,-0.0274494379509255
+"prev","women_folate","Ghana","SoilGrids/iSDA","drop",370,0.00295017323771629
 "prev","women_folate","Ghana","SoilGrids/iSDA","only",45,-0.0215633435201195
-"prev","women_folate","Malawi","SoilGrids/iSDA","drop",337,-0.0742832079474008
+"prev","women_folate","Malawi","SoilGrids/iSDA","drop",370,-0.0260177401269405
 "prev","women_folate","Malawi","SoilGrids/iSDA","only",45,0.163283427394155
-"prev","women_folate","SierraLeone","SoilGrids/iSDA","drop",337,0.134065934065934
+"prev","women_folate","SierraLeone","SoilGrids/iSDA","drop",370,0.208791208791209
 "prev","women_folate","SierraLeone","SoilGrids/iSDA","only",45,-0.217582417582418
-"prev","women_folate","Ghana","MapSPAM","drop",370,-0.0558110067579564
+"prev","women_folate","Ghana","MapSPAM","drop",403,0.0152639397951408
 "prev","women_folate","Ghana","MapSPAM","only",12,-0.0314193286431193
-"prev","women_folate","Malawi","MapSPAM","drop",370,-0.0688097084144344
+"prev","women_folate","Malawi","MapSPAM","drop",403,-0.0225176792010981
 "prev","women_folate","Malawi","MapSPAM","only",12,-0.000856534491681925
-"prev","women_folate","SierraLeone","MapSPAM","drop",370,0.0989010989010989
+"prev","women_folate","SierraLeone","MapSPAM","drop",403,0.0857142857142857
 "prev","women_folate","SierraLeone","MapSPAM","only",12,-0.120879120879121
-"prev","women_folate","Ghana","Malaria Atlas","drop",359,-0.0806095644083252
+"prev","women_folate","Ghana","Malaria Atlas","drop",392,-0.0191119918443359
 "prev","women_folate","Ghana","Malaria Atlas","only",23,0.077573878902849
-"prev","women_folate","Malawi","Malaria Atlas","drop",359,-0.0621726247970789
+"prev","women_folate","Malawi","Malaria Atlas","drop",392,-0.0271254721752789
 "prev","women_folate","Malawi","Malaria Atlas","only",23,0.123861198615052
-"prev","women_folate","SierraLeone","Malaria Atlas","drop",359,-0.010989010989011
+"prev","women_folate","SierraLeone","Malaria Atlas","drop",392,0.0549450549450549
 "prev","women_folate","SierraLeone","Malaria Atlas","only",23,0.459340659340659
-"prev","women_folate","Ghana","WFP prices","drop",378,-0.0452929978234897
+"prev","women_folate","Ghana","WFP prices","drop",411,0.0162473308743796
 "prev","women_folate","Ghana","WFP prices","only",4,-0.0698920268490854
-"prev","women_folate","Malawi","WFP prices","drop",378,-0.0163739552355236
+"prev","women_folate","Malawi","WFP prices","drop",411,0.00700012185168489
 "prev","women_folate","Malawi","WFP prices","only",4,-0.0953952775745568
-"prev","women_folate","SierraLeone","WFP prices","drop",378,0.0989010989010989
+"prev","women_folate","SierraLeone","WFP prices","drop",411,0.0901098901098901
 "prev","women_folate","SierraLeone","WFP prices","only",4,-0.0989010989010989
-"prev","women_folate","Ghana","IHME","drop",381,-0.0420292796039871
-"prev","women_folate","Ghana","IHME","only",1,NA
-"prev","women_folate","Malawi","IHME","drop",381,-0.0437786875910559
-"prev","women_folate","Malawi","IHME","only",1,NA
-"prev","women_folate","SierraLeone","IHME","drop",381,0.0725274725274725
-"prev","women_folate","SierraLeone","IHME","only",1,NA
-"prev","women_folate","Ghana","WorldPop/GHS","drop",368,-0.0398629688207365
+"prev","women_folate","Ghana","IHME","drop",398,-0.0180288364527106
+"prev","women_folate","Ghana","IHME","only",17,0.143674861881246
+"prev","women_folate","Malawi","IHME","drop",398,-0.0138699222859182
+"prev","women_folate","Malawi","IHME","only",17,0.0885161684676484
+"prev","women_folate","SierraLeone","IHME","drop",398,0.107692307692308
+"prev","women_folate","SierraLeone","IHME","only",17,0.0945054945054945
+"prev","women_folate","Ghana","WorldPop/GHS","drop",401,0.0172592260428716
 "prev","women_folate","Ghana","WorldPop/GHS","only",14,0.00135394423953163
-"prev","women_folate","Malawi","WorldPop/GHS","drop",368,-0.0511976997131208
+"prev","women_folate","Malawi","WorldPop/GHS","drop",401,-0.0127435728922295
 "prev","women_folate","Malawi","WorldPop/GHS","only",14,-0.0472694398442232
-"prev","women_folate","SierraLeone","WorldPop/GHS","drop",368,0.0725274725274725
+"prev","women_folate","SierraLeone","WorldPop/GHS","drop",401,0.0901098901098901
 "prev","women_folate","SierraLeone","WorldPop/GHS","only",14,0.498901098901099
-"prev","women_folate","Ghana","Koppen/AEZ","drop",377,-0.0502527093535634
+"prev","women_folate","Ghana","Koppen/AEZ","drop",410,0.00427561338799462
 "prev","women_folate","Ghana","Koppen/AEZ","only",5,0.0169000719379868
-"prev","women_folate","Malawi","Koppen/AEZ","drop",377,-0.0406416648995428
+"prev","women_folate","Malawi","Koppen/AEZ","drop",410,-0.00680463972550752
 "prev","women_folate","Malawi","Koppen/AEZ","only",5,-0.0327071960918244
-"prev","women_folate","SierraLeone","Koppen/AEZ","drop",377,0.107692307692308
+"prev","women_folate","SierraLeone","Koppen/AEZ","drop",410,0.0901098901098901
 "prev","women_folate","SierraLeone","Koppen/AEZ","only",5,0.187639797871558
-"prev","women_b12","Ghana","ALL","full",382,0.20064938776775
-"prev","women_b12","Malawi","ALL","full",382,0.249758851442055
-"prev","women_b12","SierraLeone","ALL","full",382,-0.275293085061784
-"prev","women_b12","Ghana","GEE","drop",306,0.193567066049009
+"prev","women_folate","Ghana","Gridded Livestock of the World 4 (2015, 5 arc-min, dasymetric; Harvard Dataverse)","drop",407,0.0033349784426358
+"prev","women_folate","Ghana","Gridded Livestock of the World 4 (2015, 5 arc-min, dasymetric; Harvard Dataverse)","only",8,-0.00260812416667672
+"prev","women_folate","Malawi","Gridded Livestock of the World 4 (2015, 5 arc-min, dasymetric; Harvard Dataverse)","drop",407,-0.00498013988118539
+"prev","women_folate","Malawi","Gridded Livestock of the World 4 (2015, 5 arc-min, dasymetric; Harvard Dataverse)","only",8,-0.00352798694386778
+"prev","women_folate","SierraLeone","Gridded Livestock of the World 4 (2015, 5 arc-min, dasymetric; Harvard Dataverse)","drop",407,0.0901098901098901
+"prev","women_folate","SierraLeone","Gridded Livestock of the World 4 (2015, 5 arc-min, dasymetric; Harvard Dataverse)","only",8,-0.0285714285714286
+"prev","women_folate","Ghana","JRC Global Surface Water 1.4; USDOS LSIB 2017 (Earth Engine)","drop",410,0.0216631078325061
+"prev","women_folate","Ghana","JRC Global Surface Water 1.4; USDOS LSIB 2017 (Earth Engine)","only",5,-0.0268366000319796
+"prev","women_folate","Malawi","JRC Global Surface Water 1.4; USDOS LSIB 2017 (Earth Engine)","drop",410,-0.0138978483039435
+"prev","women_folate","Malawi","JRC Global Surface Water 1.4; USDOS LSIB 2017 (Earth Engine)","only",5,0.0781835417982731
+"prev","women_folate","SierraLeone","JRC Global Surface Water 1.4; USDOS LSIB 2017 (Earth Engine)","drop",410,0.103296703296703
+"prev","women_folate","SierraLeone","JRC Global Surface Water 1.4; USDOS LSIB 2017 (Earth Engine)","only",5,0.195604395604396
+"prev","women_folate","Ghana","WHO ESPEN implementation-unit database 2014-2025 (portal export, no key)","drop",411,-0.0094776096767214
+"prev","women_folate","Ghana","WHO ESPEN implementation-unit database 2014-2025 (portal export, no key)","only",4,0.275769054795546
+"prev","women_folate","Malawi","WHO ESPEN implementation-unit database 2014-2025 (portal export, no key)","drop",411,-0.0157037308029154
+"prev","women_folate","Malawi","WHO ESPEN implementation-unit database 2014-2025 (portal export, no key)","only",4,0.106731072078293
+"prev","women_folate","SierraLeone","WHO ESPEN implementation-unit database 2014-2025 (portal export, no key)","drop",411,0.103296703296703
+"prev","women_folate","SierraLeone","WHO ESPEN implementation-unit database 2014-2025 (portal export, no key)","only",4,0.463736263736264
+"prev","women_b12","Ghana","ALL","full",415,0.189845568294022
+"prev","women_b12","Malawi","ALL","full",415,0.290969061929995
+"prev","women_b12","SierraLeone","ALL","full",415,-0.275293085061784
+"prev","women_b12","Ghana","GEE","drop",339,0.18722248617597
 "prev","women_b12","Ghana","GEE","only",76,0.173615247688575
-"prev","women_b12","Malawi","GEE","drop",306,0.245245882096692
+"prev","women_b12","Malawi","GEE","drop",339,0.290301389752872
 "prev","women_b12","Malawi","GEE","only",76,0.135871288044393
-"prev","women_b12","SierraLeone","GEE","drop",306,-0.233999122302516
+"prev","women_b12","SierraLeone","GEE","drop",339,-0.233999122302516
 "prev","women_b12","SierraLeone","GEE","only",76,-0.316587047821051
-"prev","women_b12","Ghana","AlphaEarth","drop",318,0.264718168501173
+"prev","women_b12","Ghana","AlphaEarth","drop",351,0.246864815835181
 "prev","women_b12","Ghana","AlphaEarth","only",64,-0.0681181637531661
-"prev","women_b12","Malawi","AlphaEarth","drop",318,0.254988950162847
+"prev","women_b12","Malawi","AlphaEarth","drop",351,0.296495903840618
 "prev","women_b12","Malawi","AlphaEarth","only",64,0.0767328431707622
-"prev","women_b12","SierraLeone","AlphaEarth","drop",318,-0.352375148879083
+"prev","women_b12","SierraLeone","AlphaEarth","drop",351,-0.352375148879083
 "prev","women_b12","SierraLeone","AlphaEarth","only",64,-0.0220234468049427
-"prev","women_b12","Ghana","DHS","drop",244,0.164778739803387
+"prev","women_b12","Ghana","DHS","drop",277,0.196386879325915
 "prev","women_b12","Ghana","DHS","only",138,0.15336552944818
-"prev","women_b12","Malawi","DHS","drop",244,0.20350400672697
+"prev","women_b12","Malawi","DHS","drop",277,0.277368332396021
 "prev","women_b12","Malawi","DHS","only",138,0.223311614648266
-"prev","women_b12","SierraLeone","DHS","drop",244,-0.0743291329666816
+"prev","women_b12","SierraLeone","DHS","drop",277,-0.0743291329666816
 "prev","women_b12","SierraLeone","DHS","only",138,-0.377151526534644
-"prev","women_b12","Ghana","SoilGrids/iSDA","drop",337,0.204305308469785
+"prev","women_b12","Ghana","SoilGrids/iSDA","drop",370,0.172074186944219
 "prev","women_b12","Ghana","SoilGrids/iSDA","only",45,0.166041098072699
-"prev","women_b12","Malawi","SoilGrids/iSDA","drop",337,0.24038671236319
+"prev","women_b12","Malawi","SoilGrids/iSDA","drop",370,0.273832142717188
 "prev","women_b12","Malawi","SoilGrids/iSDA","only",45,0.0651969516660375
-"prev","women_b12","SierraLeone","SoilGrids/iSDA","drop",337,-0.30557532441858
+"prev","women_b12","SierraLeone","SoilGrids/iSDA","drop",370,-0.30557532441858
 "prev","women_b12","SierraLeone","SoilGrids/iSDA","only",45,0.346869287177847
-"prev","women_b12","Ghana","MapSPAM","drop",370,0.20999411781331
+"prev","women_b12","Ghana","MapSPAM","drop",403,0.188255324759953
 "prev","women_b12","Ghana","MapSPAM","only",12,0.0231790618417538
-"prev","women_b12","Malawi","MapSPAM","drop",370,0.256719952103534
+"prev","women_b12","Malawi","MapSPAM","drop",403,0.312742593483928
 "prev","women_b12","Malawi","MapSPAM","only",12,-0.0168057634143429
-"prev","women_b12","SierraLeone","MapSPAM","drop",370,-0.275293085061784
+"prev","women_b12","SierraLeone","MapSPAM","drop",403,-0.275293085061784
 "prev","women_b12","SierraLeone","MapSPAM","only",12,0.302822393567962
-"prev","women_b12","Ghana","Malaria Atlas","drop",359,0.212502440088698
+"prev","women_b12","Ghana","Malaria Atlas","drop",392,0.188861912499753
 "prev","women_b12","Ghana","Malaria Atlas","only",23,0.131744299379168
-"prev","women_b12","Malawi","Malaria Atlas","drop",359,0.238482610228434
+"prev","women_b12","Malawi","Malaria Atlas","drop",392,0.276762481716781
 "prev","women_b12","Malawi","Malaria Atlas","only",23,0.232127360246195
-"prev","women_b12","SierraLeone","Malaria Atlas","drop",359,-0.22849326060128
+"prev","women_b12","SierraLeone","Malaria Atlas","drop",392,-0.275293085061784
 "prev","women_b12","SierraLeone","Malaria Atlas","only",23,-0.269787223360548
-"prev","women_b12","Ghana","WFP prices","drop",378,0.190780041298579
+"prev","women_b12","Ghana","WFP prices","drop",411,0.184927289322675
 "prev","women_b12","Ghana","WFP prices","only",4,0.295375440755907
-"prev","women_b12","Malawi","WFP prices","drop",378,0.23434056987036
+"prev","women_b12","Malawi","WFP prices","drop",411,0.29078359743635
 "prev","women_b12","Malawi","WFP prices","only",4,0.156779318627983
-"prev","women_b12","SierraLeone","WFP prices","drop",378,-0.275293085061784
+"prev","women_b12","SierraLeone","WFP prices","drop",411,-0.275293085061784
 "prev","women_b12","SierraLeone","WFP prices","only",4,0.10185844147286
-"prev","women_b12","Ghana","IHME","drop",381,0.190288213401444
-"prev","women_b12","Ghana","IHME","only",1,NA
-"prev","women_b12","Malawi","IHME","drop",381,0.245604446784405
-"prev","women_b12","Malawi","IHME","only",1,NA
-"prev","women_b12","SierraLeone","IHME","drop",381,-0.275293085061784
-"prev","women_b12","SierraLeone","IHME","only",1,NA
-"prev","women_b12","Ghana","WorldPop/GHS","drop",368,0.188632392814423
+"prev","women_b12","Ghana","IHME","drop",398,0.207649738170301
+"prev","women_b12","Ghana","IHME","only",17,0.278604109463611
+"prev","women_b12","Malawi","IHME","drop",398,0.261134007052288
+"prev","women_b12","Malawi","IHME","only",17,0.264558918034934
+"prev","women_b12","SierraLeone","IHME","drop",398,-0.22849326060128
+"prev","women_b12","SierraLeone","IHME","only",17,-0.22849326060128
+"prev","women_b12","Ghana","WorldPop/GHS","drop",401,0.184369884372589
 "prev","women_b12","Ghana","WorldPop/GHS","only",14,0.179107325873247
-"prev","women_b12","Malawi","WorldPop/GHS","drop",368,0.249919587336548
+"prev","women_b12","Malawi","WorldPop/GHS","drop",401,0.308353267134328
 "prev","women_b12","Malawi","WorldPop/GHS","only",14,0.178664128878104
-"prev","women_b12","SierraLeone","WorldPop/GHS","drop",368,-0.275293085061784
+"prev","women_b12","SierraLeone","WorldPop/GHS","drop",401,-0.275293085061784
 "prev","women_b12","SierraLeone","WorldPop/GHS","only",14,-0.0853408563691529
-"prev","women_b12","Ghana","Koppen/AEZ","drop",377,0.198190248282076
+"prev","women_b12","Ghana","Koppen/AEZ","drop",410,0.19023903061173
 "prev","women_b12","Ghana","Koppen/AEZ","only",5,-0.0727202826966779
-"prev","women_b12","Malawi","Koppen/AEZ","drop",377,0.24744672742128
+"prev","women_b12","Malawi","Koppen/AEZ","drop",410,0.293070992857972
 "prev","women_b12","Malawi","Koppen/AEZ","only",5,-0.132220507023037
-"prev","women_b12","SierraLeone","Koppen/AEZ","drop",377,-0.275293085061784
+"prev","women_b12","SierraLeone","Koppen/AEZ","drop",410,-0.275293085061784
 "prev","women_b12","SierraLeone","Koppen/AEZ","only",5,-0.168671833224133
+"prev","women_b12","Ghana","Gridded Livestock of the World 4 (2015, 5 arc-min, dasymetric; Harvard Dataverse)","drop",407,0.187189697649495
+"prev","women_b12","Ghana","Gridded Livestock of the World 4 (2015, 5 arc-min, dasymetric; Harvard Dataverse)","only",8,0.129367131209683
+"prev","women_b12","Malawi","Gridded Livestock of the World 4 (2015, 5 arc-min, dasymetric; Harvard Dataverse)","drop",407,0.28294463150495
+"prev","women_b12","Malawi","Gridded Livestock of the World 4 (2015, 5 arc-min, dasymetric; Harvard Dataverse)","only",8,0.420695293084947
+"prev","women_b12","SierraLeone","Gridded Livestock of the World 4 (2015, 5 arc-min, dasymetric; Harvard Dataverse)","drop",407,-0.275293085061784
+"prev","women_b12","SierraLeone","Gridded Livestock of the World 4 (2015, 5 arc-min, dasymetric; Harvard Dataverse)","only",8,-0.049552755311121
+"prev","women_b12","Ghana","JRC Global Surface Water 1.4; USDOS LSIB 2017 (Earth Engine)","drop",410,0.195845868639067
+"prev","women_b12","Ghana","JRC Global Surface Water 1.4; USDOS LSIB 2017 (Earth Engine)","only",5,0.139285660468568
+"prev","women_b12","Malawi","JRC Global Surface Water 1.4; USDOS LSIB 2017 (Earth Engine)","drop",410,0.288471473415574
+"prev","women_b12","Malawi","JRC Global Surface Water 1.4; USDOS LSIB 2017 (Earth Engine)","only",5,0.201451532997298
+"prev","women_b12","SierraLeone","JRC Global Surface Water 1.4; USDOS LSIB 2017 (Earth Engine)","drop",410,-0.275293085061784
+"prev","women_b12","SierraLeone","JRC Global Surface Water 1.4; USDOS LSIB 2017 (Earth Engine)","only",5,-0.00550586170123567
+"prev","women_b12","Ghana","WHO ESPEN implementation-unit database 2014-2025 (portal export, no key)","drop",411,0.171008559833761
+"prev","women_b12","Ghana","WHO ESPEN implementation-unit database 2014-2025 (portal export, no key)","only",4,-0.0634965005249583
+"prev","women_b12","Malawi","WHO ESPEN implementation-unit database 2014-2025 (portal export, no key)","drop",411,0.296570089638076
+"prev","women_b12","Malawi","WHO ESPEN implementation-unit database 2014-2025 (portal export, no key)","only",4,-0.04433055000593
+"prev","women_b12","SierraLeone","WHO ESPEN implementation-unit database 2014-2025 (portal export, no key)","drop",411,-0.275293085061784
+"prev","women_b12","SierraLeone","WHO ESPEN implementation-unit database 2014-2025 (portal export, no key)","only",4,0.0798349946679172

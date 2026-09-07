@@ -1155,3 +1155,102 @@ the memory notes. The RR-01 entry above is left as the record of that run.
 -> `scripts/protocol_v2/08_build_extra_sources.R`,
 `scripts/cluster_level/02_extract_cluster_covariates.R`; all tables under
 `results/tables/protocol_v2/` and `results/tables/cluster_level/` refreshed.
+
+## NL-01 · Four new layers: livestock, water and coast distance, helminths, IHME surfaces (scripts 48, 49, covariates/gee_water_coast_distance.py; RR-03)
+
+Requested 2026-09-07: the Ghana IHME spatial join, the ESPEN download, and
+livestock density and distance-to-water layers from Earth Engine. All four
+are built, validated, scored as add-ons, and now in the shared set (451 ->
+473 columns, 21 -> 24 domains); the cluster table carries the same layers
+(`scripts/cluster_level/05_merge_new_layers.R`).
+
+- **IHME surfaces by zonal mean (script 48).** Every IHME indicator with a
+  5 km GeoTIFF on disk (`data/IHME/*/GeoTIFF`) rebuilt as a WorldPop-weighted
+  zonal mean over the spine polygons at the nearest year to each survey.
+  Against the name-joined rollup on matched districts: Spearman 0.59-0.98 for
+  growth failure, anaemia, EBF, HIV, MCV1 and the WASH surfaces (Malawi's
+  TA-level values against a district value broadcast, 0.36-0.55). The
+  diarrhoea rate surfaces do not reproduce `ihme_incidence` / `ihme_deaths`
+  (rho about 0) and stay tabular, as do the six indicators without a surface.
+  Script 08 swaps in 17 columns where rho >= 0.5. Ghana IHME missingness
+  among surveyed districts 26% -> 0; Gambia's Infant/child domain 33% -> 12%.
+- **Livestock density (script 48).** GLW4 2015 dasymetric 5-arc-minute
+  rasters (Harvard Dataverse, CC-BY 4.0) for cattle, sheep, goats, pigs and
+  chickens: head per km2, tropical livestock units per km2 and per person
+  (WorldPop), ruminant share of TLU. Eight columns, complete everywhere.
+- **Water and coast distance (`scripts/covariates/gee_water_coast_distance.py`).**
+  JRC Global Surface Water occurrence (>= 50% = permanent, >= 10% = any) and
+  LSIB land polygons; fastDistanceTransform in Web Mercator corrected by
+  cos(latitude); polygon mean and minimum, and the buffer mean at clusters.
+  Two pitfalls cost an hour: layers reprojected at different scales must be
+  reduced separately (a composite returned thousands of km for inland
+  districts), and a single-band reduceRegions names its outputs `mean`/`min`.
+  Validated: Accra 2 km, Cape Coast 9, Kumasi 176, Tamale 415, Bolgatanga
+  565; minimum permanent-water distance is 0 in 99% of districts with
+  permanent-water land cover; coast distance vs elevation Spearman 0.81.
+- **Helminths (script 49).** ESPEN's portal export needs no key
+  (`/api/download-data/{ISO2}/{sth|sch}/iu/{from}/{to}`, found in the site's
+  route table; the keyed API stays closed): eight implementation-unit files,
+  2014-2025. No continuous prevalence, only the programme's endemicity class
+  and MDA delivery / coverage per IU-year, so the features are the class
+  midpoint at the survey year and at baseline, the share of 2014-18 with MDA,
+  and mean coverage. IU = ADM2 in all four (Malawi = district, broadcast);
+  aliases for post-split districts (Accra Metropolitan Area -> Accra, Wa,
+  Ho, Basse / Jimara / Tumana -> Fulladu East, Karene -> Bombali, Falaba ->
+  Koinadugu). Coverage 95-100%. Scan against the iron outcomes: STH class
+  rho +0.07 to +0.09, MDA share -0.12 (children) / -0.19 (women): the
+  expected signs, weak.
+
+**Add-on tests (script 39, base = the 451-column set):** every block within
++/-0.005 of the base on plus-vs-base at every tier. Alone: livestock matches
+the full vocabulary at district transport on the level target (median
++0.025, 12 of 22 better); the IHME raster replacement is +0.003 / +0.004 at
+district level (13-14 of 22 better); water and coast alone -0.10 to -0.37;
+helminths alone -0.19 to -0.45. -> `addon_{espen,livestock,ihme_raster,water_distance}_*.csv`
+
+**RR-03, everything downstream re-run on the 473-column set** (rerun_all.ps1
+12:08-12:53, scripts 43/44/47, four individual-level shards, cluster 03-05).
+What moved, RR-02 -> RR-03:
+
+| Figure | RR-02 | RR-03 |
+|---|---|---|
+| Transport, district, zero-tuning index (level / prev) | 0.261 / 0.164 (17 / 15 positive) | 0.268 / 0.184 (17 / 16) |
+| Transport, district, penalised domain fit (level) | 0.273 (19 of 22) | 0.280 (21 of 22) |
+| Transport, regional, full index (level / prev) | 0.300 / 0.312 (17 / 18) | 0.321 / 0.326 (17 / 17) |
+| Regional, the two countries with >= 8 regions (level) | 0.42, 12 of 12 | 0.43, 12 of 12 |
+| NC-01 null 95th percentile, regional / district | 0.161 / 0.080 | 0.148 / 0.081 |
+| Climate + soil, district / regional (level) | 0.368 / 0.452 | 0.368 / 0.452 |
+| In-fill index vs jackknifed regional mean (level; prev) | 0.389 vs 0.320; 0.286 vs 0.193 | 0.392 vs 0.320; 0.291 vs 0.193 |
+| Region estimand, index (level / prev) | 0.369 / 0.272 | 0.373 / 0.275 |
+| Burden captured, index / jk / spatial | 0.241 / 0.190 / 0.229 | 0.243 / 0.190 / 0.229 |
+| DA-01 load-bearing domains (level, drop delta) | soil +0.037, climate +0.028, agriculture +0.015, malaria +0.013, embedding +0.010 | soil +0.021, agriculture +0.010, climate +0.010, livestock +0.008 |
+| DA-04 dropping the 138 DHS columns (level / prev) | 0.261 -> 0.307 / 0.164 -> 0.227 | 0.268 -> 0.326 / 0.184 -> 0.239 |
+| TC-01 slope per training country (level / prev) | +0.052 / +0.061 | +0.051 / +0.063 |
+| DA-02 nested selection vs full (level, median) | +0.022 | +0.014 |
+| AR-01 at f = 0.05: A1 / regional survey / district survey MAE (pp) | 10.4 / 12.5 / 19.6; crossover f 0.40 | 10.4 / 12.5 / 19.6; crossover f 0.40 |
+| RC-01 vitamin A bands, in-fill exact / within one | 0.53 / 0.89 | 0.52 / 0.90 |
+| UR-01 partial-vs-raw (climate + soil), district / regional | +0.006 / +0.003 | -0.006 / -0.016; full index vs urbanicity -0.35 / -0.31 |
+| IL-01 AUC survey / proxies / both; Brier skill | 0.51 / 0.51 / 0.53; 0.012 / 0.003 / 0.018 | 0.51 / 0.51 / 0.53; 0.012 / 0.001 / 0.017 |
+| IO-01 Gambia in-fill index, UIC < 100 / median UIC | 0.37 / 0.49 | 0.35 / 0.48 |
+| Cluster track, index transport at Admin-2 (level / prev) | 0.194 / 0.135 | 0.241 / 0.173 |
+| Cluster track, in-fill index, transportable set (level / prev) | 0.312 / 0.201 | 0.319 / 0.206 |
+
+Reading: the three domains and the raster IHME block lift the full index by
+0.007 (district level), 0.020 (district prevalence) and 0.02 (regional
+level), and the penalised fit regains 21 of 22 positive cells; the
+climate + soil index is unchanged by construction and still leads at both
+tiers (0.37 / 0.45), so the pre-registered P2 stands. The per-domain drop
+deltas shrink as domains multiply (each is a smaller share of the PCs); soil
+stays first, livestock enters fourth on the level. The cluster track gains
+most (transport 0.19 -> 0.24 on the level) because the new layers are a
+larger share of its 117-column vocabulary. Nothing else moved by more than
+0.02. Documents updated to 0.27 / 0.28 (21 of 22) / 0.32 / null 0.15:
+TWO_READINGS_2026-09f, NCE_IMPLICATIONS_2026-09-03, the pre-registration
+note (amendment dated 2026-09-07), manuscript_mcn.qmd, the deck
+(re-rendered) and the memory notes.
+
+Not done, for the record: the GLW4 2020 release exists only on the FAO
+catalog (2015 used); ESPEN site-level survey prevalence is not exposed on the
+export route; the remaining Gambia gaps are source gaps (GFDx has no Gambia
+rows; IHME does not model circumcision or the s* sanitation indicators
+there).
