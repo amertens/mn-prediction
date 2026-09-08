@@ -40,7 +40,8 @@
 #   wpop_share_over60        M_60..M_80 + F_60..F_80 over total
 #   wpop_dependency_ratio    (under-15 + over-60) / working age
 #   wpop_sex_ratio_wra       men 15-49 over women 15-49
-#   wpop_log_density         log1p(total population per polygon)  [scale-bearing]
+#   wpop_log_density         log1p(population per km2 of polygon area)  [was log1p of the
+#                            polygon COUNT until 2026-09-07, AU-01 finding 3]
 #   ghsl_smod_mean           mean GHS-SMOD class, 10 rural .. 30 urban centre
 #
 #   python scripts/protocol_v2/09_extract_gee_demography.py <in.geojson> <out.csv>
@@ -48,10 +49,11 @@
 import json, sys, time
 import ee
 
-SURVEY_YEAR = {"Gambia": 2020, "Ghana": 2017, "Malawi": 2015, "SierraLeone": 2013}
+SURVEY_YEAR = {"Gambia": 2018, "Ghana": 2017, "Malawi": 2015, "SierraLeone": 2013}   # Gambia fieldwork Jan-Apr 2018 (was 2021/2020 in earlier copies)
 ISO = {"Gambia": "GMB", "Ghana": "GHA", "Malawi": "MWI", "SierraLeone": "SLE"}
 BATCH = 20
-SCALE = 1000
+SCALE = 1000        # GHS-SMOD class means
+POP_SCALE = 100     # WorldPop is a 100 m product with a MEAN pyramid: summing it at 1 km returned 1/100 of the count (found 2026-09-07)
 
 
 def band_sum(img, names):
@@ -107,6 +109,7 @@ def main(geojson_path, out_csv):
             sm = ee.Image(smod.sort("system:time_start", False).first())
 
         stack = (img.select(["population"]).rename("pop_total")
+                 .addBands(ee.Image.pixelArea().rename("area_m2"))
                  .addBands(band_sum(img, under5).rename("pop_under5"))
                  .addBands(band_sum(img, wra).rename("pop_wra"))
                  .addBands(band_sum(img, mra).rename("pop_mra"))
@@ -125,7 +128,7 @@ def main(geojson_path, out_csv):
                 for f in chunk])
             for attempt in range(3):
                 try:
-                    a = stack.reduceRegions(fc, ee.Reducer.sum(), SCALE).getInfo()
+                    a = stack.reduceRegions(fc, ee.Reducer.sum(), POP_SCALE).getInfo()
                     b = sm.reduceRegions(fc, ee.Reducer.mean(), SCALE).getInfo()
                     bm = {f["properties"]["k"]: f["properties"].get("mean")
                           for f in b["features"]}
@@ -166,7 +169,7 @@ def main(geojson_path, out_csv):
                         sh("pop_over60"),
                         round(dep, 6) if dep != "" else "",
                         sr,
-                        round(math.log1p(tot), 6) if tot else "",
+                        round(math.log1p(tot / (p.get("area_m2") / 1e6)), 6) if (tot and p.get("area_m2")) else "",
                         round(p["smod"], 4) if p.get("smod") is not None else ""])
     print(f"wrote {out_csv}: {len(rows)} rows", flush=True)
 

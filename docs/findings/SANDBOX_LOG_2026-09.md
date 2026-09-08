@@ -1547,3 +1547,114 @@ borders, where the kernel's knot geometry is learned on three countries'
 rank-normalised PCs and does not transfer. It is a candidate SuperLearner
 library member for in-fill, not a replacement for the index, and the
 sectional-variation mode is impractical at the pooled size. -> `hapc_smoke/hapc_smoke_results.csv`
+
+## FX-02 · Density unit and Malaria Atlas vintage fixed; re-run (RR-06)
+
+At the user's direction the two remaining result-bearing AU-01 findings
+(3, 4) were fixed and everything re-run (script 08 rebuild 19:48; rerun_all,
+scripts 43, 44, 47, 34 and the four individual-level shards from 19:59; the
+cluster track is untouched because its buffer extractions do not carry
+either column).
+
+- **Population density (AU-01 finding 3).** `wpop_log_density` and
+  `wpop_log_density_survey_year` were log1p of the polygon COUNT. Scripts 09
+  and 11 now sum `ee.Image.pixelArea()` alongside the population and write
+  log1p(count / km2), with Gambia's survey year set to 2018 (was 2020). Two
+  traps on the way: WorldPop's 100 m product summed at 1 km scale returns
+  1/100 of the count (Earth Engine's mean pyramid), so both scripts now sum
+  at 100 m; and the age-share columns, ratios of the same sums, moved by
+  under 0.4 percentage points from the finer resampling (rank correlation
+  with the old values 0.78-1.00, SMOD and RWI 0.89-1.00). District medians
+  of the corrected density: 83 (Gambia), 129 (Ghana), 184 (Malawi), 87
+  (Sierra Leone) per km2; the old column ranked districts by size as much as
+  by crowding (Spearman old vs new 0.16 in Malawi, 0.39 in Ghana).
+- **Malaria Atlas vintage (finding 4).** New script 52 fetches nine
+  time-varying products (Pf parasite, incidence and mortality rates,
+  reproductive number, ITN access / use / use rate, IRS coverage, effective
+  treatment) from the latest release at each country's survey year, one WCS
+  request per country and product (36; the first took 2.5 min each, the rest
+  2-16 s once the server had the product cached), cached under
+  `data/external_cache/malaria_atlas_sy/<country>/`, and averages them over
+  the spine polygons. Script 08 swaps the 9 `map_sy_*` columns in and drops
+  the 20 release-year `map_malaria*` / `map_interventions*` columns; the three
+  static blood-disorder surfaces stay. Shared set 471 -> 460 predictors, 24
+  domains. Survey-year against release-year district ranks: Pf parasite rate
+  0.86 (Gambia), 0.91 (Ghana), 0.92 (Malawi), 0.97 (Sierra Leone); ITN use
+  0.99-1.00 everywhere; IRS coverage 0.38 in Gambia (the one place the
+  programme changed between survey and release) and constant zero in Sierra
+  Leone 2013.
+- **Two script traps recorded so they are not repeated.** `terra::rast()` on
+  a SpatRaster returns an empty template (a whole download was lost to it,
+  and it is why a single four-country request looked empty); the Python
+  shared-set builder writes `subnational` as True/False text, which script 08
+  now coerces before binding its metadata.
+
+| Figure | RR-05 | RR-06 |
+|---|---|---|
+| Transport, district, zero-tuning index (level / prev) | 0.271 / 0.181 (17 / 16) | 0.273 / 0.177 (17 / 15) |
+| Transport, district, penalised domain fit (level) | 0.294 (20 of 22) | 0.274 (20 of 22) |
+| Transport, regional, full index (level / prev) | 0.308 / 0.325 (17 / 17) | 0.306 / 0.362 (17 / 18) |
+| Climate + soil, district / regional (level) | 0.370 / 0.457 (22 / 20 positive) | 0.370 / 0.457 (22 / 20 positive) |
+| NC-01 null 95th percentile, regional / district | 0.159 / 0.082 | 0.157 / 0.081 |
+| In-fill index vs jackknifed regional mean (level; prev) | 0.393 vs 0.314; 0.292 vs 0.193 | 0.396 vs 0.314; 0.296 vs 0.193 |
+| Region estimand, index (level / prev) | 0.378 / 0.275 | 0.379 / 0.279 |
+| Burden captured, index / jk / spatial | 0.245 / 0.190 / 0.229 | 0.245 / 0.190 / 0.229 |
+| DA-01 load-bearing domains (level) | soil +0.025, climate +0.014, agriculture +0.012, livestock +0.009 | soil +0.021, climate +0.014, agriculture +0.010, malaria +0.010, livestock +0.007 |
+| SA-01 load-bearing sources (level) | - | SoilGrids/iSDA +0.021, Malaria Atlas +0.010, GLW4 +0.007, MapSPAM +0.005 |
+| TC-01 slope per training country (level / prev) | +0.047 / +0.063 | +0.055 / +0.066 |
+| DA-02 nested selection vs full (level, median; cells better) | +0.029 | -0.009 (11 of 22) |
+| VC-01 honest ceiling on prevalence; cells at ceiling | 0.435; 3 of 24 | 0.435; 3 of 24 |
+| RC-01 vitamin A bands, in-fill exact / within one | 0.54 / 0.89 | 0.54 / 0.90 |
+| IL-01 AUC survey / proxies / both; Brier skill | 0.51 / 0.51 / 0.51; 0.012 / 0.000 / 0.016 | 0.51 / 0.50 / 0.53; 0.012 / 0.002 / 0.017 (both beats survey-only in 13 of 19 cells) |
+| AR-01 at f = 0.05: A1 / regional / district survey MAE | 10.4 / 12.5 / 19.6 | 10.4 / 12.5 / 19.6 |
+| Cluster track | 0.324 / 0.209; 0.231 / 0.170 | not re-run (buffer extractions carry neither column) |
+
+Reading: the two fixes change the vocabulary more than the headline. The
+district index is where it was, the regional index on prevalence rises 0.04
+with one more positive cell, the penalised district fit loses 0.02 (it had
+20 release-year malaria columns to spread weight over and now has 9 at the
+survey year), and the survey-year malaria block enters the ablation as a
+load-bearing domain (+0.010, level with agriculture) where the release-year
+block cost nothing to remove. The honest nested selection no longer beats
+the full index at the median (-0.009, 11 of 22; was +0.029), which
+strengthens rather than weakens the pre-registration reading of the
+climate + soil index. Documents now quote 0.27 for the penalised fit and
+0.36 for the regional prevalence transport; everything else they quote
+stands.
+
+## SL-05 · hapc inside the SuperLearner library (script 19 with SL_HAPC=1; R/sl_hapc.R)
+
+**Q.** Does the principal-component Highly Adaptive Ridge (HP-01) earn a place
+in the library, and does the SuperLearner then beat the index it contains?
+**Design.** SL-01 exactly (24 cells x 5 reps x 5 district folds, survey
+weights, classic `SuperLearner`, NNLS), library {mean, enet, rf,
+domain_index, hapc}, on the RR-06 shared set (460 predictors). `SL.hapc`
+wraps `hapc.cv.cv_hapc` (norm 2, degree 1, 12-point lambda grid, inner 5-fold
+CV on the training rows only) through reticulate; survey weights are not
+passed (the package has no weights argument) and the wrapper says so once.
+22 s per cell-rep against 4 s without hapc; 45 minutes in all. Outputs
+`sl_domain_index_{scores,selection}_hapc.csv`.
+**Result.** Discrete selection over 480 fits: rf 45%, mean 26%, enet 17%,
+**hapc 12%**, index 0.2%. NNLS weights: constant 0.38, index 0.19, rf 0.16,
+enet 0.14, **hapc 0.13** (0.28 for women's B12, 0.20 for women's iron and
+folate, 0.02 for women's vitamin A, 0 for zinc). Out-of-fold Spearman on
+prevalence, mean of cell medians: index 0.292 > rf 0.260 > SL-NNLS 0.238 >
+hapc 0.210 > SL-discrete 0.191 > enet 0.126. hapc beats the index in 3 of 18
+scored cells (median -0.089; the three are Ghana women's iron +0.14, Ghana
+women's folate +0.05, Malawi child vitamin A +0.02) and beats the elastic net
+in 12 of 18 (+0.029). Per outcome it is closest to the index on iron and B12
+(0.37 vs 0.43, 0.32 vs 0.32) and furthest on vitamin A (0.23 vs 0.38 child,
+0.06 vs 0.18 women). Adding it moved the ensemble by nothing that matters:
+SL-NNLS 0.231 -> 0.238 and SL-discrete 0.173 -> 0.191 against SL-01, and
+the same arms on the new set moved by the same amount without it (index
+0.285 -> 0.292, rf 0.247 -> 0.260), so the shift is the RR-06 vocabulary.
+Sierra Leone's six cells still score NA (14 districts, three-row test
+folds).
+**Reading.** hapc is a legitimate library member (it is selected more often
+than the index and beats the elastic net) and it changes no conclusion: the
+zero-tuning index remains the best single arm and the ensemble that contains
+both still trails it, for the SL-01 reason (squared-error CV shrinks toward
+the constant; the decision metric is a ranking). Keep `SL_HAPC` off by
+default; the wrapper stays for the supplement and for any future
+individual-level use where n is large enough for the kernel to earn its
+keep.

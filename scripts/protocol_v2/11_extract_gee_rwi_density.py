@@ -32,10 +32,10 @@
 import csv, json, math, sys, time
 import ee
 
-SURVEY_YEAR = {"Gambia": 2020, "Ghana": 2017, "Malawi": 2015, "SierraLeone": 2013}
+SURVEY_YEAR = {"Gambia": 2018, "Ghana": 2017, "Malawi": 2015, "SierraLeone": 2013}   # Gambia fieldwork Jan-Apr 2018 (was 2020)
 ISO = {"Gambia": "GMB", "Ghana": "GHA", "Malawi": "MWI", "SierraLeone": "SLE"}
 BATCH = 20
-SCALE = 1000
+SCALE = 100        # WorldPop 100 m has a MEAN pyramid: summing at 1 km returned 1/100 of the count (found 2026-09-07); GPW shares are ratios and unaffected
 
 
 def main(geojson_path, out_csv):
@@ -78,6 +78,7 @@ def main(geojson_path, out_csv):
         print(f"  {country}: WorldPop density {yr}, {len(sub)} polygons", flush=True)
 
         stack = (popimg
+                 .addBands(ee.Image.pixelArea().rename("area_m2"))
                  .addBands(g_u5).addBands(g_u15)
                  .addBands(g_f1549).addBands(g_tot))
 
@@ -130,7 +131,8 @@ def main(geojson_path, out_csv):
             def sh(b):
                 v = p.get(b)
                 return round(v / tot, 6) if (v is not None and tot) else ""
-            dens = p.get("pop_year")
+            # population per km2: the polygon count divided by its area (AU-01 finding 3; was the raw count)
+            dens = (p.get("pop_year") / (p.get("area_m2") / 1e6)) if (p.get("pop_year") is not None and p.get("area_m2")) else None
             w.writerow([
                 c, a1, a2,
                 round(p["rwi_mean"], 5) if p.get("rwi_mean") is not None else "",

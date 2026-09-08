@@ -103,6 +103,11 @@ predict.SL.domain_index <- function(object, newdata, ...)
 SL.enet <- function(...) SL.glmnet(..., alpha = 0.5, nfolds = 3, useMin = TRUE)
 SL.rf   <- function(...) SL.ranger(..., num.trees = 250, min.node.size = 5)
 LIB_SL <- c("SL.mean", "SL.enet", "SL.rf", "SL.domain_index")
+# SL_HAPC=1 adds the hapc principal-component Highly Adaptive Ridge (R/sl_hapc.R; HP-01) to the
+# library and tags the outputs "_hapc"; the mlr3 arm is skipped in that mode (it cannot take it).
+HAPC <- Sys.getenv("SL_HAPC", "0") == "1"; TAG <- if (HAPC) "_hapc" else ""
+if (HAPC) { source("R/sl_hapc.R"); LIB_SL <- c(LIB_SL, "SL.hapc"); HAS_MLR3 <- FALSE }
+ARM_NAMES <- c("domain_index", "enet", "rf", "mean", if (HAPC) "hapc")
 
 # mlr3superlearner: the same three native learners. domain_index cannot be
 # added (whitelist), and there is no weights argument.
@@ -139,6 +144,7 @@ for (i in seq_len(nrow(cells))) {
                  mlr3_discrete = rep(NA_real_, cl$n),
                  domain_index = rep(NA_real_, cl$n), enet = rep(NA_real_, cl$n),
                  rf = rep(NA_real_, cl$n), mean = rep(NA_real_, cl$n))
+    if (HAPC) pred$hapc <- rep(NA_real_, cl$n)
     t_sl <- 0; t_m3 <- 0
     for (f in unique(folds)) {
       te <- which(folds == f); tr <- which(folds != f)
@@ -160,7 +166,7 @@ for (i in seq_len(nrow(cells))) {
         pick <- names(which.min(fit$cvRisk)); pick <- sub("_All$", "", pick)
         pred$sl_discrete[te] <- lp[, pick]
         pred$sl_nnls[te]     <- as.numeric(fit$SL.predict)
-        for (nm in c("domain_index", "enet", "rf", "mean"))
+        for (nm in ARM_NAMES)
           pred[[nm]][te] <- lp[, paste0("SL.", nm)]
         co <- fit$coef; names(co) <- sub("_All$", "", names(co))
         picks[[length(picks) + 1L]] <- data.frame(
@@ -168,6 +174,7 @@ for (i in seq_len(nrow(cells))) {
           discrete_pick = sub("^SL\\.", "", pick),
           w_domain_index = unname(co["SL.domain_index"]), w_enet = unname(co["SL.enet"]),
           w_rf = unname(co["SL.rf"]), w_mean = unname(co["SL.mean"]),
+          w_hapc = if (HAPC) unname(co["SL.hapc"]) else NA_real_,
           stringsAsFactors = FALSE)
       }
 
@@ -187,7 +194,7 @@ for (i in seq_len(nrow(cells))) {
           picks[[length(picks) + 1L]] <- data.frame(
             country = cn, outcome = on, rep = r, fold = f, package = "mlr3superlearner",
             discrete_pick = tryCatch(m3$learners[[1]]$id, error = function(e) NA_character_),
-            w_domain_index = NA_real_, w_enet = NA_real_, w_rf = NA_real_, w_mean = NA_real_,
+            w_domain_index = NA_real_, w_enet = NA_real_, w_rf = NA_real_, w_mean = NA_real_, w_hapc = NA_real_,
             stringsAsFactors = FALSE)
         }
       }
@@ -204,8 +211,8 @@ for (i in seq_len(nrow(cells))) {
 }
 
 SC <- bind_rows(scores); PK <- bind_rows(picks)
-write.csv(SC, file.path(OUTDIR, "sl_domain_index_scores.csv"), row.names = FALSE)
-write.csv(PK, file.path(OUTDIR, "sl_domain_index_selection.csv"), row.names = FALSE)
+write.csv(SC, file.path(OUTDIR, paste0("sl_domain_index_scores", TAG, ".csv")), row.names = FALSE)
+write.csv(PK, file.path(OUTDIR, paste0("sl_domain_index_selection", TAG, ".csv")), row.names = FALSE)
 
 cat("\n===== mlr3superlearner: custom learner attempt =====\n ", mlr3_custom_msg, "\n")
 
@@ -218,7 +225,7 @@ for (pk in unique(PK$package)) {
 if (any(PK$package == "SuperLearner")) {
   cat("\n===== NNLS ensemble weights, SuperLearner (mean over fits) =====\n")
   print(round(colMeans(PK[PK$package == "SuperLearner",
-                          c("w_domain_index","w_enet","w_rf","w_mean")], na.rm = TRUE), 3))
+                          c("w_domain_index","w_enet","w_rf","w_mean", if (HAPC) "w_hapc")], na.rm = TRUE), 3))
 }
 
 cat("\n===== OUT-OF-FOLD SPEARMAN, prevalence (cell medians over reps) =====\n")
@@ -238,6 +245,7 @@ cat("\n===== HEAD-TO-HEAD =====\n")
 cat(hh("sl_discrete", "domain_index"), "\n")
 cat(hh("sl_nnls", "domain_index"), "\n")
 cat(hh("domain_index", "enet"), "\n")
+if (HAPC) { cat(hh("hapc", "domain_index"), "\n"); cat(hh("hapc", "enet"), "\n") }
 if (HAS_MLR3) cat(hh("sl_discrete", "mlr3_discrete"), "\n")
 
 cat(sprintf("\nruntime per cell-rep: SuperLearner %.1fs | mlr3superlearner %.1fs\n",

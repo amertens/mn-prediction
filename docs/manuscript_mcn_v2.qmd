@@ -42,7 +42,7 @@ abstract: |
   **Methods.** We harmonised biomarker measurements for iron, vitamin A,
   folate, vitamin B12 and zinc deficiency from national surveys in The Gambia
   (2018), Ghana (2017), Sierra Leone (2013) and Malawi (2015–16): 24
-  country–outcome cells on 206 districts. Districts were linked to 473
+  country–outcome cells on 206 districts. Districts were linked to 460
   predictors in 24 domains from Earth observation, soil, climate, agriculture,
   livestock, infection, food-price and survey-indicator sources. A protocol
   specified before re-analysis names three estimands (filling in unsurveyed
@@ -100,7 +100,7 @@ suppressPackageStartupMessages({
 })
 theme_set(theme_minimal(base_size = 11))
 # Every number in the body is read from the protocol tables at render time
-# (results/tables/protocol_v2, re-run 2026-09-07 on the 473-column set).
+# (results/tables/protocol_v2, re-run 2026-09-07 on the 460-column set).
 root <- here::here()
 P2   <- file.path(root, "results", "tables", "protocol_v2")
 CL   <- file.path(root, "results", "tables", "cluster_level")
@@ -413,7 +413,8 @@ both tiers, 0.37 at district level (positive in all 22) and 0.46 at the
 regional tier (20 of 22). That two-domain index was chosen on the same four
 countries it is scored on, which is why it enters the next country as a
 pre-registered prediction rather than a result; honest nested selection of
-domains inside the training fold recovers about 0.04 of its margin.
+domains inside the training fold recovers none of its margin (median
+difference from the full index -0.01, better in 11 of 22 cells).
 
 ```{r tbl-transport}
 #| tbl-cap: "Country transport: mean Spearman in a country held entirely out of training, over 22 cells, at the district and at the first sub-national tier, for the full-vocabulary index and the pre-registered climate + soil index, with the 95th percentile of the country-block permutation null."
@@ -532,10 +533,11 @@ base vocabulary (@tbl-addons). The fieldwork-month temperature columns are
 among the most consistently associated with deficiency in the marginal scan
 (four of four countries for child vitamin A) yet improve no fold, because a
 covariate defined by when the survey happened cannot rank districts that have
-not been surveyed. Livestock density alone matches the full vocabulary at
-district transport on the concentration target, and enters the ablation as
-the second load-bearing domain; the vocabulary is saturated, and the two
-remotely sensed domains carry it.
+not been surveyed. Livestock density alone reaches 0.24 against 0.27 for the
+full vocabulary at district transport on the concentration target, and enters
+the ablation among the load-bearing domains (+0.007, behind soil, climate,
+agriculture and the survey-year malaria block); the vocabulary is saturated,
+and the two remotely sensed domains carry it.
 
 ```{r tbl-addons}
 #| tbl-cap: "Add-on blocks scored under one harness: median change in Spearman when the block is added to the base vocabulary (in-fill, 18 cells; district transport, 22 cells) and the transport of the block alone."
@@ -564,25 +566,26 @@ Evaluation design moved the results of this study more than any modelling
 choice did, and the same errors are available to any group doing this work.
 @tbl-changes sets each headline under the earlier evaluation next to its value
 under the protocol. Three corrections favoured the covariates, three ran
-against them, and two were data-handling defects found only because the
-protocol made a dropped country or a mis-filed domain visible.
+against them, and the remaining rows are data-handling defects found only
+because the protocol, and the audit it prompted, made a dropped country, a
+mis-filed domain, a leaked column or a mis-scaled unit visible.
 
 ```{r tbl-changes}
 #| tbl-cap: "Each headline result under the earlier evaluation and under the protocol, with the change that moved it."
 kb(df(
   Result = c("Within-country rank correlation", "Covariate-free survey baseline", "Reliability ceiling (prevalence)", "Regional transport",
              "District transport", "Regional anchoring gain", "Predictor significance screen", "Covariates vs geography, cells won",
-             "Individual-level arm", "Satellite embedding", "IHME block for The Gambia", "Population join", "DHS anaemia prevalence as a predictor", "Vitamin A level target"),
+             "Individual-level arm", "Satellite embedding", "IHME block for The Gambia", "Population join", "DHS anaemia prevalence as a predictor", "Vitamin A level target", "Population density", "Malaria Atlas vintage"),
   `Earlier evaluation` = c("0.058 (one fold draw)", "r 0.516, beat every covariate arm", "0.098 analytic, then 0.47–0.61 split-half",
              "0.50–0.56, 12 of 12", "0.28 penalised fit, 21 of 22", "0.164 to 0.413, better in 20 of 24", "0 of 294 survive FDR",
-             "6 of 24", "0.516, headline", "64 columns filed under agriculture", "25 of 34 columns empty", "Sierra Leone dropped from every population-joined run", "In the vocabulary, all four countries", "Each survey's own adjusted RBP (raw in Malawi)"),
+             "6 of 24", "0.516, headline", "64 columns filed under agriculture", "25 of 34 columns empty", "Sierra Leone dropped from every population-joined run", "In the vocabulary, all four countries", "Each survey's own adjusted RBP (raw in Malawi)", "log of the district population count", "Rasters at each product's release date, 4-12 years after the surveys; three releases as separate columns"),
   `Under the protocol` = c("0.22 replicated; 0.39 (level) and 0.29 (prevalence) for the index", "0.076 jackknifed; loses to the index",
              "0.44 variance-components; 21% of the split-half ceiling was cluster effect", "0.31 over 22 cells, 17 positive; three countries only before",
-             "0.27 zero-tuning index, 17 of 22; 0.29 penalised, 20 of 22", "0.147 vs 0.156 unanchored; withdrawn", "Screen had power 0.005; sign replication reported instead",
+             "0.27 zero-tuning index, 17 of 22; 0.27 penalised, 20 of 22", "0.147 vs 0.156 unanchored; withdrawn", "Screen had power 0.005; sign replication reported instead",
              "10 of 24 (miscount); tied on matched folds", "Trained on the scored district's respondents; supplement only", "Own domain; +0.01 on transport",
-             "One year per country dropped every series ending earlier; fixed per indicator", "Spelling normalised; all 22 cells restored", "Removed; iron transport moved by at most 0.04 in one cell, the index by 0.00", "Same BRINDA-adjusted RBP as the prevalence; Malawi child vitamin A level +0.05 to +0.07"),
+             "One year per country dropped every series ending earlier; fixed per indicator", "Spelling normalised; all 22 cells restored", "Removed; iron transport moved by at most 0.04 in one cell, the index by 0.00", "Same BRINDA-adjusted RBP as the prevalence; Malawi child vitamin A level +0.05 to +0.07", "Population per km2; the old column ranked districts by area as much as by crowding (rank correlation 0.16 in Malawi)", "Nine products at the survey year from one release (471 to 460 predictors); malaria joins the load-bearing domains (+0.010); district index unchanged"),
   `What moved it` = c("Replicated folds", "Jackknife", "Variance model with cluster term", "BUG-01 found by the per-country cell count", "Estimator of record stated",
-             "Jackknifed control arm", "Attained power reported", "Recount; matched folds", "Estimand named", "Metadata audit", "Per-country coverage audit", "Per-country cell count", "Per-column leakage audit (AU-01)", "Audit of target construction (AU-01)")))
+             "Jackknifed control arm", "Attained power reported", "Recount; matched folds", "Estimand named", "Metadata audit", "Per-country coverage audit", "Per-country cell count", "Per-column leakage audit (AU-01)", "Audit of target construction (AU-01)", "Unit check against known densities (AU-01)", "Vintage audit (AU-01)")))
 ```
 
 Two lessons generalise. First, a baseline or benchmark computed from data that

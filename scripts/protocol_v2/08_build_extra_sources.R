@@ -364,7 +364,7 @@ if (!is.null(rw)) {
              "Relative Wealth Index, mean/SD/count of Meta 2.4 km points falling inside the Admin-2 polygon. rwi_n_points says how many points the district estimate rests on, so a district resting on three is distinguishable from one resting on three hundred.",
            ifelse(grepl("^gpw2010", rcols),
              "GPW v4.11 2010 age-sex share. SECOND TEMPORAL BRACKET: WorldPop age-sex exists only for 2020 and GPW only for 2010; there is no annual age-sex product, and these two vintages bracket the 2013-2021 survey window. Composition moves slowly, so the bracket is an honest representation of what is knowable.",
-             "WorldPop population density at each country's OWN survey year (Ghana 2017, Malawi 2015, Sierra Leone 2013, Gambia 2020) - the time-matched replacement for the 2020-only density.")))
+             "WorldPop population per km2 (log1p) at each country's OWN survey year (Gambia 2018, Ghana 2017, Malawi 2015, Sierra Leone 2013) - the time-matched replacement for the 2020-only density. Until 2026-09-07 this was the log of the polygon COUNT (AU-01 finding 3).")))
   cat(sprintf("  -> %d RWI/density/GPW columns
 ", length(rcols)))
 } else cat("  RWI CSV absent; run 11_extract_gee_rwi_density.py first
@@ -406,6 +406,24 @@ if (file.exists(ef)) {
   writeLines(sprintf("  -> %d helminth columns", length(ecols)))
 } else writeLines("  ESPEN CSV absent; run scripts/protocol_v2/49_espen_admin2_block.R")
 
+# ── 10. Malaria Atlas at the survey year (script 52) ─────────────────────────
+# Replaces the release-year map_malaria* / map_interventions* columns (AU-01
+# finding 4: rasters requested at the dataset's release date, 4-12 years after
+# the surveys, three releases of one product kept as separate columns). The
+# static blood-disorder surfaces (2012 release) are untouched.
+writeLines("\n[Malaria Atlas, survey year]")
+mf <- file.path(HDIR, "predictors_admin2_map_sy.csv")
+MAP_DROP <- character(0)
+if (file.exists(mf)) {
+  MS <- read.csv(mf, check.names = FALSE); blocks$map_sy <- MS
+  mcols <- setdiff(names(MS), c("country", "Admin1", "Admin2"))
+  MAP_DROP <- grep("^map_(malaria|interventions)", names(SH), value = TRUE)
+  add_meta(mcols, "Malaria Atlas Project (latest release, layer at each survey year)",
+           "Malaria incidence and treatment", TRUE,
+           "Pf parasite rate, incidence and mortality rates, reproductive number, ITN access / use / use rate, IRS coverage and effective-treatment coverage from the latest MAP release, the annual layer at each country's survey year (Gambia 2018, Ghana 2017, Malawi 2015, Sierra Leone 2013), clipped to the country and averaged over the spine polygon (area-weighted, as the block it replaces). Script 52.")
+  writeLines(sprintf("  -> %d survey-year columns; %d release-year map_ columns dropped", length(mcols), length(MAP_DROP)))
+} else writeLines("  survey-year MAP CSV absent; run scripts/protocol_v2/52_map_survey_year.R")
+
 # ── assemble and append, without the four-country filter ────────────────────
 if (!length(blocks)) stop("no blocks built")
 EX <- spine
@@ -446,13 +464,15 @@ write.csv(MD, file.path(HDIR, "predictors_admin2_extrasrc_metadata.csv"),
 
 SHM <- read.csv(file.path(HDIR, "predictors_admin2_shared_metadata.csv"),
                 stringsAsFactors = FALSE)
+# the Python builder writes True/False, which read.csv keeps as character; bind_rows below needs logical
+SHM$subnational <- as.logical(toupper(as.character(SHM$subnational)))
 for (f in c("predictors_admin2_shared.csv", "predictors_admin2_shared_metadata.csv"))
   if (!file.exists(file.path(HDIR, paste0(f, ".pre_extrasrc"))))
     file.copy(file.path(HDIR, f), file.path(HDIR, paste0(f, ".pre_extrasrc")))
 
-SH2 <- SH |> select(-any_of(newcols)) |>
+SH2 <- SH |> select(-any_of(c(newcols, MAP_DROP))) |>
   left_join(EX, by = c("country", "Admin1", "Admin2"))
-SHM2 <- bind_rows(SHM |> filter(!column %in% newcols),
+SHM2 <- bind_rows(SHM |> filter(!column %in% c(newcols, MAP_DROP)),
                   MD |> transmute(column, domain, source, n_countries, countries,
                                   completeness, subnational))
 write.csv(SH2, file.path(HDIR, "predictors_admin2_shared.csv"), row.names = FALSE)

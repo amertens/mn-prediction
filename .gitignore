@@ -85,3 +85,5 @@ results/harmonization/*.log
 # source. The live scripts read from archive/sandbox_parsimony/out/ and the
 # promoted inputs live in data/national/, so nothing depends on this path.
 sandbox_parsimony/
+
+__pycache__/

@@ -47,9 +47,20 @@ and the penalised district fit 0.29 (20 of 22); the district index (0.27 /
 did not move; Malawi child vitamin A on the level rose by 0.05-0.07 on every
 estimand; the model is at the honest ceiling in three of 24 cells, not five.*
 
+*Refreshed a third time on 7 September after AU-01 findings 3 and 4 (sandbox
+log FX-02): population density is now people per km2 rather than the district
+count, and the nine Malaria Atlas products are taken at each country's survey
+year from one release (471 to 460 predictors). The district index did not move
+(0.27 / 0.18, 17 of 22), the penalised district fit is 0.27 (20 of 22), the
+regional full index 0.31 on the level and 0.36 on prevalence (18 of 22),
+climate + soil 0.46 regional and 0.37 district, the nulls 0.16 / 0.08, in-fill
+0.40 against 0.31 for the jackknifed regional mean; the survey-year malaria
+block joins soil, climate and agriculture among the load-bearing domains
+(+0.010).*
+
 Every number comes from `results/tables/protocol_v2/` under one protocol:
 replicated folds, three separately scored estimands, information-matched
-baselines, precision-weighted scoring, a 451-predictor vocabulary reduced to
+baselines, precision-weighted scoring, a 460-predictor vocabulary reduced to
 domain principal components, permutation nulls for transport, and — new in
 this revision — a variance-components ceiling and a common add-on harness.
 
@@ -170,7 +181,7 @@ should be read as an upper bound or withdrawn.
 | Revision e claim | Status in f |
 |:---|:---|
 | Regional transport 0.50–0.56, 12 of 12 | **Corrected (BUG-01).** Three countries only. All 22 cells: 0.31 mean, 17 positive; climate + soil 0.46 (20 of 22); 0.43 and 12 of 12 in countries with ≥ 8 regions. |
-| DA-03: climate + soil "a wash" at Admin-1 | **Reversed.** Same bug. On 22 cells climate + soil 0.46 vs full 0.31 on the level, 0.38 vs 0.33 on prevalence. |
+| DA-03: climate + soil "a wash" at Admin-1 | **Reversed.** Same bug. On 22 cells climate + soil 0.46 vs full 0.31 on the level, 0.38 vs 0.36 on prevalence. |
 | District transport 0.28–0.31 (full), 0.368 (climate + soil) | **Stands.** No population join involved. |
 | Burden capture 24 / 19 / 20 percent; in-fill 15 of 18; CF-01 | **Stand.** Sierra Leone's 14 districts cannot be folded, so its absence changed nothing. |
 | Reliability ceiling "an upper bound; 16–27% cluster effect on multi-cluster units" | **Quantified on all units (VC-01).** Honest ceiling 0.44 vs 0.54; 21% cluster share; model at ceiling in 3 of 24 cells; child zinc ceiling 0.27 / 0.00. |
