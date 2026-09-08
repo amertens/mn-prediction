@@ -1913,3 +1913,56 @@ alternative to score on the next country rather than iterated further on
 these four. The saturation reading of NL-01, AD-climate and RR-08 stands:
 the vocabulary is not where the remaining error is.
 -> `addon_fe_{clim_aw,clim_pw,clim_core_aw,terrain_aw,terrain_pw,soil_aw,soil_pw}_{scan,infill,loco}.csv`
+
+## AS-01 · Assay lineage from the survey reports (metadata/assay_sources.csv; scripts/build_assay_lineage.R)
+
+**Q.** The transport failure on the biomarker LEVEL (raw ferritin differs
+six-fold across countries while rankings transport) was attributed to the
+surveys' different assays and laboratories, and "get the assay calibration
+from the labs" was listed as a research-assistant task. Is it in the
+reports?
+**Answer.** Mostly yes, and the premise was wrong. Three of the four
+reports are in the repository (`metadata/mn surveys/`: GNMS 2018,
+SLMS 2013, GMS 2017) and all four surveys sent ferritin, sTfR, CRP, AGP
+and retinol-binding protein to the SAME laboratory and assay: the Erhardt
+sandwich ELISA at the VitMin Laboratory, Willstaett / Freiburg, Germany
+(GNMS pp. 32-35; SLMS pp. 13-14; GMS pp. 30-31; Malawi from Phiri et al.
+2025 and Likoswe et al. 2021). The six-fold ferritin difference is
+therefore not analytical; the remaining pre-analytic differences are
+specimen (serum in The Gambia, Ghana and Malawi; EDTA plasma in Sierra
+Leone, where the German shipment thawed on arrival and sTfR was dropped)
+and the surveys' own inflammation adjustments (BRINDA in The Gambia and
+Malawi, Thurnham in Ghana and Sierra Leone), which the pipeline already
+replaces with a uniform BRINDA derivation from the raw values.
+**Where the surveys DO differ: the RBP-to-retinol relationship.** Every
+survey ran a retinol subsample against RBP and each got a different line:
+The Gambia RBP = 0.978 retinol + 0.015 (R2 0.91, n 14; report Figure
+A9-1), Ghana slope 1.15 with RBP above retinol (R2 0.90, n 300, children
+and women; Appendix 10), Sierra Leone retinol = 0.788 RBP + 0.196 (R2 0.82,
+n 33 women; Appendix 6), Malawi retinol = 0.43 + 0.62 RBP (R2 0.20, n 72;
+Likoswe et al.), so poor that the survey adjusted its RBP cut-point from
+the subsample and Likoswe's re-derivation gives 0.45 umol/L. Three reports
+apply 0.70 umol/L to RBP directly; Malawi used a survey-specific cut-point
+(value in its report, which is not on disk:
+dhsprogram.com/pubs/pdf/FR319/FR319.m.final.pdf). The pipeline applies a
+uniform 0.70 to RBP everywhere, so at the same true retinol Sierra Leone's
+RBP reads about 10% low and Ghana's about 15% high, which is a real
+between-survey level offset for vitamin A that the reports' own equations
+can correct (retinol-equivalent RBP, then 0.70). Folate and B12: Cobas
+e411 (Roche) at the USDA-ARS Western Human Nutrition Research Center for
+Ghana and Sierra Leone (Sierra Leone's plasma heat-treated for Ebola
+safety), a CDC immunoassay for Malawi; zinc by atomic emission
+spectrometry at CHORI for Malawi.
+**What was recorded.** `metadata/assay_sources.csv`: one hand-entered row
+per survey x biomarker x population with specimen, instrument, laboratory,
+the survey's adjustment and cut-off, the RBP-retinol comparison and the
+report page; `scripts/build_assay_lineage.R` now merges it into the
+generated `metadata/assay_lineage.csv` (0 of 24 laboratory cells UNKNOWN,
+was 24). Every row is marked as Claude's reading of the report, to be
+verified; the Ghana intercept sits in a figure that could not be rendered
+here (the slope, R2 and n are in the text).
+**What still needs a person.** The Malawi final report (a browser download;
+the DHS site refuses scripted fetches) for its survey-specific RBP
+cut-points and its retinol-subsample regression; the VitMin lab's
+between-year QC (VITAL-EQA results) if anyone wants to rule out drift
+across 2013-2018, which the reports cannot show.

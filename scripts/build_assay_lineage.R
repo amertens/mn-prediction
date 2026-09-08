@@ -119,6 +119,34 @@ for (cn in names(configs)) {
 }
 
 lin <- dplyr::bind_rows(rows)
+
+# ── report-sourced cells (AS-01, 2026-09-08) ─────────────────────────────────
+# metadata/assay_sources.csv is hand-entered from the survey reports (page cited
+# per row) and fills specimen / instrument / laboratory, the survey's own
+# inflammation adjustment and cut-off, and the RBP-retinol comparison. It is the
+# one place a human reading of a report enters this table; every row says who
+# entered it and from which page, so it can be checked.
+src_file <- here("metadata", "assay_sources.csv")
+if (file.exists(src_file)) {
+  src <- readr::read_csv(src_file, show_col_types = FALSE)
+  src$population <- ifelse(src$population == "child", "children", src$population)
+  nospace <- function(x) gsub("[^A-Za-z]", "", x)   # "Sierra Leone" and "SierraLeone" are the same key
+  key_lin <- paste(nospace(lin$country), vapply(lin$outcome_tag, .family, ""), lin$population)
+  key_src <- paste(nospace(src$country), src$biomarker_family, src$population)
+  m <- match(key_lin, key_src)
+  hit <- !is.na(m)
+  lin$specimen[hit]          <- src$specimen[m[hit]]
+  lin$source_specimen[hit]   <- paste0(src$source_document[m[hit]], "; ", src$source_page[m[hit]], " (", src$entered_by[m[hit]], ")")
+  lin$instrument_or_kit[hit] <- src$instrument_or_kit[m[hit]]
+  lin$source_instrument[hit] <- lin$source_specimen[hit]
+  lin$laboratory[hit]        <- src$laboratory[m[hit]]
+  lin$source_laboratory[hit] <- lin$source_specimen[hit]
+  lin$survey_inflammation_adjustment <- NA_character_; lin$survey_inflammation_adjustment[hit] <- src$survey_inflammation_adjustment[m[hit]]
+  lin$survey_cutoff <- NA_character_;              lin$survey_cutoff[hit] <- src$survey_cutoff[m[hit]]
+  lin$rbp_retinol_comparison <- NA_character_;     lin$rbp_retinol_comparison[hit] <- src$rbp_retinol_comparison[m[hit]]
+  cat(sprintf("assay_sources.csv: %d of %d lineage rows filled from the survey reports
+", sum(hit), nrow(lin)))
+}
 lin$microdata_file <- sub(".*[/\\\\]data[/\\\\]", "data/", lin$microdata_file)
 
 dir.create(here("metadata"), recursive = TRUE, showWarnings = FALSE)
