@@ -90,10 +90,13 @@ load_merged_data <- function(data_path) {
     }
 
     # ── Derive vitamin B12 deficiency (Malawi) ─────────────────────────────
-    # Malawi `vitb12` is serum B12 in pmol/L. WHO cutoff: <148 pmol/L.
+    # Malawi `vitb12` is serum B12 in pg/mL, NOT pmol/L (RP-01, 2026-09-08): with the
+    # report's pmol/L cut-offs applied after dividing by 1.355 the survey's own figures
+    # come back (12.7% < 150 pmol/L vs 13% reported; 40.8% < 220 vs 40%), whereas the
+    # cut-off applied to the raw column gave 2.8%. WHO cutoff: <148 pmol/L.
     if ("vitb12" %in% colnames(d)) {
       if (!"b12_def" %in% colnames(d)) {
-        d$b12_def <- ifelse(d$vitb12 < 148, 1L, 0L)
+        d$b12_def <- ifelse(d$vitb12 / 1.355 < 148, 1L, 0L)
         d$b12_def[is.na(d$vitb12)] <- NA_integer_
         n_def <- sum(d$b12_def == 1, na.rm = TRUE)
         n_tot <- sum(!is.na(d$b12_def))

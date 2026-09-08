@@ -495,10 +495,13 @@ aggregate_admin2_sl <- function(sl_fit, outcome_data, cc, oc) {
 #' @param label prefix for the log line
 #' @return numeric 0/1 vector, or NULL if the configured binary should stand
 resolve_uniform_outcome <- function(d, cc, oc, label = "[outcome]") {
-  if (is.null(oc$tag) || !(oc$tag %in% UNIFORM_TRANSPORT_TAGS) || is.null(oc$binary))
-    return(NULL)
+  if (is.null(oc$tag) || is.null(oc$binary)) return(NULL)
+  # A units correction (oc$unit_factor, RP-01) is always applied, whether or not the
+  # outcome is one of the uniform transport tags: a stored binary cut in the wrong
+  # units is wrong for every consumer.
+  if (!(oc$tag %in% UNIFORM_TRANSPORT_TAGS) && is.null(oc$unit_factor)) return(NULL)
 
-  if (grepl("vitA", oc$tag, ignore.case = TRUE)) {
+  if (oc$tag %in% UNIFORM_TRANSPORT_TAGS && grepl("vitA", oc$tag, ignore.case = TRUE)) {
     # 2026-06-23 (DC-H2): uniform BRINDA inflammation adjustment of RBP, so every
     # country's VAD outcome uses ONE method (R/brinda_adjustment.R), validated in
     # docs/dc_h2_brinda_validation.md. brinda_vad_binary() is the single source
@@ -509,7 +512,9 @@ resolve_uniform_outcome <- function(d, cc, oc, label = "[outcome]") {
   }
 
   if (!is.null(oc$continuous) && oc$continuous %in% colnames(d) && !is.null(oc$cutoff)) {
-    derived <- apply_threshold(suppressWarnings(as.numeric(d[[oc$continuous]])),
+    # oc$unit_factor rescales a continuous column stored in other units than the cut-off
+    # (Malawi B12 in pg/mL against a pmol/L cut-off; RP-01, 2026-09-08)
+    derived <- apply_threshold(suppressWarnings(as.numeric(d[[oc$continuous]])) * (oc$unit_factor %||% 1),
                                oc$cutoff, oc$cutoff_dir %||% "less")
     cat(sprintf("  %s %s — %s: uniform outcome %s %s %g => %d/%d (%.1f%%) deficient\n",
                 label, cc$country, oc$tag, oc$continuous, oc$cutoff_dir %||% "less",

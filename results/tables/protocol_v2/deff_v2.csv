@@ -14,7 +14,7 @@
 "Malawi","child_iron",1149,103,642.2,5.193,6.899,1.789,0.1874,0.2813,"district","cluster_robust_national","uniform_derived","configured_continuous","svy_weight",103
 "Malawi","women_iron",781,103,446.6,2.35,2.791,1.749,0.0522,0.0906,"district","cluster_robust_national","uniform_derived","configured_continuous","svy_weight",103
 "Malawi","women_folate",828,103,466.5,4.447,5.567,1.775,0.2138,0.3035,"district","cluster_robust_national","configured_binary","configured_continuous","svy_weight",103
-"Malawi","women_b12",839,103,471,1.428,4.09,1.781,0,0.1814,"district","cluster_robust_national","configured_binary","configured_continuous","svy_weight",103
+"Malawi","women_b12",839,103,471,2.572,4.09,1.781,0.0622,0.1814,"district","cluster_robust_national","uniform_derived","configured_continuous","svy_weight",103
 "Malawi","child_zinc",1134,103,634.7,4.649,4.245,1.787,0.1601,0.1377,"district","cluster_robust_national","configured_binary","configured_continuous","svy_weight",103
 "Malawi","women_zinc",844,103,475.3,4.417,3.157,1.776,0.2067,0.108,"district","cluster_robust_national","configured_binary","configured_continuous","svy_weight",103
 "SierraLeone","child_vitA",486,60,380.1,1.303,1.173,1.278,0.0027,0,"district","cluster_robust_national","uniform_derived","brinda_adjusted_rbp","gw_svy_weight",10

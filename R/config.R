@@ -460,8 +460,9 @@ get_country_configs <- function() {
           label          = "Vitamin B12 deficiency (women)",
           population     = "women",
           child_flag_val = "women",
-          continuous     = "vitb12",            # serum B12, pmol/L
-          binary         = "b12_def",           # derived: vitb12 < 148 pmol/L
+          continuous     = "vitb12",            # serum B12 in pg/mL (RP-01, 2026-09-08: the report's cut-offs are pmol/L;
+          unit_factor    = 1 / 1.355,           #   1 pmol/L = 1.355 pg/mL; converted before the cut-off is applied)
+          binary         = "b12_def",           # derived: vitb12 / 1.355 < 148 pmol/L
           cutoff         = 148,                 # WHO: <148 pmol/L
           cutoff_dir     = "less",
           cutoff_scale   = "original"

@@ -1966,3 +1966,98 @@ the DHS site refuses scripted fetches) for its survey-specific RBP
 cut-points and its retinol-subsample regression; the VitMin lab's
 between-year QC (VITAL-EQA results) if anyone wants to rule out drift
 across 2013-2018, which the reports cannot show.
+
+## RP-01 · The four survey reports against the pipeline: populations, outcomes, adjustments, weights (2026-09-08)
+
+**Q.** Re-read the four survey reports (now all in `metadata/mn surveys/`,
+the Malawi one added today) and check the analysis against them: missing
+outcomes, non-comparable populations, wrongly adjusted outcomes, misapplied
+survey weights.
+**Method.** The strongest single check is to reproduce each report's
+national headline from the pipeline's own objects (`outcome_data_*` in the
+store) with the pipeline's weights, once under the survey's stored binary
+and once under the uniform derived binary the protocol scores
+(`scratchpad/audit_reports.R`; table in
+`results/tables/protocol_v2/report_reproduction_audit.csv`). Where the
+definitions coincide the numbers must agree; where they do not, the gap is
+the definitional choice, quantified.
+
+| Cell | Report | Survey binary as stored | Pipeline uniform (weighted) |
+|---|---|---|---|
+| Gambia child vitA / iron | 18.3 / 59.0 | 22.8 (Thurnham) / 37.5 (that column is IDA) | 17.3 / 57.3 |
+| Gambia women vitA / iron | 1.8 / 41.4 | 1.9 / 28.2 (IDA) | 1.7 / 41.5 |
+| Ghana child vitA / iron | 20.8 / 21.5 | 20.8 / 21.5 | 14.7 / 21.5 |
+| Ghana women vitA / iron / folate / B12 | 1.5 / 13.7 / 53.8 / 6.9 | 1.5 / 8.2 (IDA) / 53.8 / 6.9 | 1.7 / 14.0 / 53.8 / 6.9 |
+| Sierra Leone child vitA / iron | 17.4 / 5.2 | 18.3 / 5.1 | 12.0 / 5.1 |
+| Sierra Leone women vitA / iron / folate / B12 | 1.8 / 8.3 / 79.2 / 0.5 | 1.8 / 8.9 / 79.2 / 0.5 | 1.4 / 18.0 / 79.2 / 0.5 |
+| Malawi child vitA / iron / zinc | 4 / 22 / 62 | 20.8 / 10.3 / 61.1 | 10.2 / 21.5 / 61.1 |
+| Malawi women vitA / iron / folate / B12 / zinc | 1 / 15 / 7.6 (< 6.8) / 13 / 63 | 3.6 / 8.7 / 18.6 / 2.3 / 64.1 | 2.2 / 15.9 / 18.6 (< 10) / **2.3 -> 12.7 after fix** / 64.1 |
+
+**Weights: correct.** Every design in the reports is what the pipeline
+applies: The Gambia's 14 LGA-by-residence sub-strata with blood-subsample
+weights (70 clusters; swapped in at build time because the interview weight
+is zero on the assayed rows), Ghana's PSU-times-stratum weight from
+Appendix 11 (90 clusters), Sierra Leone's urban / rural design weights,
+Malawi's MDHS household weights (103 clusters; the report says individual
+weights were deliberately not computed). Iron, folate and B12 reproduce the
+reports to within a point wherever the adjustment coincides, which they
+could not do if the weights were wrong.
+**Populations: two small leaks.** All four reports sample children 6-59
+months and non-pregnant women 15-49. Our children are 6-59 months in Ghana,
+Malawi and (bar one) Sierra Leone, but The Gambia's rows include 14-26
+children aged 3-5 months by the two age columns (1.4-2.6% of 1,002). Our
+women rows include 30 pregnant women in The Gambia (2.1%; `gw_wPreg`), 31
+in Malawi (3.8% of 807 with RBP; `preg`), 5 in Ghana; Sierra Leone's file
+has no flag. Both leaks belong in `build_outcome_dataset` (age >= 6 months;
+`preg != 1`), which is a DAG change; at these shares the prevalence effect
+is under half a point.
+**Outcomes: nothing missing that the design can use.** Gambia measured only
+vitamin A and iron in the two groups; Ghana adds women's folate and B12
+(half-sample); Sierra Leone adds folate and B12; Malawi adds zinc, folate,
+B12, MRDR and school-age children and men. School-age children and men,
+MRDR and RBC folate are the only unused measurements, none of which the
+four-country design can put in a 24-cell table. Malawi women's iron loses
+55 of 836 assayed women because the survey's adjusted column is missing
+for them (no CRP / AGP); every other cell keeps every assayed individual.
+**Adjustments: three findings.**
+1. *Malawi B12 was in the wrong units (fixed).* The column is pg/mL, the
+   cut-off pmol/L; dividing by 1.355 reproduces the report (12.7% < 150
+   pmol/L against 13%; 40.8% < 220 against 40%) where the raw column gave
+   2.8%. `oc$unit_factor` added to the config and honoured by
+   `resolve_uniform_outcome()` and `build_outcome_dataset()`; targets_v2
+   rebuilt (Malawi women's B12 prevalence 2.3% -> 12.7%). The protocol
+   suite has not been re-run for this one cell yet (its level target, a
+   within-country standardised log, does not change).
+2. *Sierra Leone women's iron: BRINDA against Thurnham, not an error.* The
+   pipeline's 18% is the survey's own BRINDA variant (`gw_wFerAdjBR1`;
+   our regression on the raw values gives 17.9%, r = 0.996 with theirs),
+   while the report headlined Thurnham's correction factors (12.8% on the
+   same rows; 8.3% published). BRINDA lowers ferritin by 23% at the median
+   in a population with 18% raised CRP. The pipeline applies BRINDA in
+   every country, so the figure is the consistent one; it is simply far
+   from the number Sierra Leone publishes.
+3. *Vitamin A cut-points are not comparable across surveys (open).* With
+   the same VitMin assay (AS-01), the surveys calibrated RBP to retinol
+   differently and Malawi adopted RBP < 0.46 umol/L as its 0.70-equivalent.
+   The pipeline's uniform "BRINDA-adjusted RBP < 0.70" gives 17.3 / 14.7 /
+   12.0 / 10.2% for children against the reports' 18.3 / 20.8 / 17.4 / 4%:
+   below Ghana and Sierra Leone because BRINDA adjusts harder than
+   Thurnham, and 2.5 times Malawi's because 0.70 RBP is 0.91 retinol
+   there. Under each survey's own calibration equation (retinol-equivalent
+   RBP, then BRINDA, then 0.70) the four become 17.3 / 27.2 / 6.5 / 0.4%;
+   under Malawi's own cut-point its children are 0.4% (adjusted) or 3.3%
+   (raw, the report's 4%). None of this touches within-country ranking on
+   the level target (a within-country standardised log), but the
+   prevalence targets and any absolute comparison across countries depend
+   on it, and the choice should be made deliberately: (a) keep the uniform
+   rule and say so; (b) use the surveys' calibrations, accepting Ghana at
+   27% on subsamples of 14-300 with one poor fit (Malawi R2 0.20); (c)
+   use each survey's published cut-point (0.46 for Malawi, 0.70 elsewhere)
+   and adjustment, which reproduces the reports but is not one rule.
+**Also confirmed.** Folate uses one rule (< 10 nmol/L) in all three
+countries that measured it; Malawi's report headlines < 6.8 (7.6%), and
+our < 6.8 gives 8.6%. Zinc reproduces (61 / 64 against 62 / 63). Iron
+reproduces in every cell except Sierra Leone women (above).
+-> `results/tables/protocol_v2/report_reproduction_audit.csv`;
+`metadata/assay_sources.csv` (Malawi rows now from the report);
+`scratchpad/audit_reports.R`, `audit_defs.R`, `audit_sl_iron.R`, `sl_brinda.R`, `rowloss.R`, `mw_b12.R`.
