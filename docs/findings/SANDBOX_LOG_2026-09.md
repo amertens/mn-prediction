@@ -1812,3 +1812,104 @@ nutrition surfaces edging past livestock. Nothing the documents say about
 transport, the nulls, in-fill or the ceiling changes; the penalised fit is
 now quoted as 0.28 (21 of 22), the regional full index as 0.30, the
 regional climate + soil index as 0.45 and the district index as 0.28 / 0.19.
+
+## FE-01 · Re-engineering the climate and soil domains, with terrain and population weighting (scripts 54, 55; harness 39)
+
+**Q.** The climate + soil index is the one part of the model that transports,
+and both domains as built are wasteful: 30 of the 50 climate columns are
+calendar slices (twelve monthly night-LST values, ten annual rainfall totals),
+18 of the 45 soil columns are within-district dispersion, terrain has no
+domain at all, and every zonal mean is area-weighted although respondents
+live where people are (AU-01 findings 10 and 12). Do engineered versions of
+the same sources transport better?
+**Blocks.** Script 54 extracts, on Earth Engine and for every Admin-2
+polygon, each variable twice: the area-weighted zonal mean (`_aw`) and the
+WorldPop-weighted mean at the country's survey year (`_pw`, population
+aggregated to 250 m by summing the 100 m cells; the weighted mean is
+sum(v w) / sum(w) over each band's own mask). Script 55 engineers:
+- *Climatology (29 columns)* from TerraClimate 1991-2020 monthly and MODIS
+  LST 2003-2020: annual rainfall, Walsh-Lawler seasonality, first-harmonic
+  amplitude and phase (sine, cosine), wet and dry month counts,
+  inter-annual CV, survey-year and fieldwork-window rainfall anomalies (z
+  against the 30-year distribution), annual tmax / tmin, diurnal range,
+  hottest month, tmax seasonal range and survey-year anomaly, PET, aridity,
+  climatic water deficit, AET, soil moisture, VPD, radiation, and day /
+  night LST annual means, seasonal ranges, diurnal contrast and hottest
+  month. Replaces the 41 time-varying climate columns (`precip_y*`,
+  `lst_night_*`, `tclim_*`, `aod_t0`); the Koppen and AEZ class shares stay.
+- *Terrain (10 columns)* from MERIT Hydro and Geomorpho90m: elevation,
+  height above nearest drainage, log upstream area, slope, TRI, TPI,
+  roughness, VRM, CTI and the 90 m elevation s.d. A new domain.
+- *Soil bioavailability (28 columns)* from iSDAsoil Africa v1 back-transformed
+  to natural units: depth-weighted 0-50 cm pH, texture (clay, sand, silt,
+  fines), bulk density, organic carbon, total N, CEC and the eight
+  extractable nutrients; pH-conditioned zinc, iron and phosphorus
+  availability (logistic penalties above pH 7.0 / 6.8 and outside 5.5-7.5);
+  Ca:Mg, K:Mg, OC:clay and C:N ratios; a base-saturation proxy; a fertility
+  score; topsoil-subsoil pH and carbon contrasts. Replaces the 45 `soil_*` /
+  `soilgrids_*` columns; no dispersion columns.
+The extracted means reproduce the existing columns where they overlap (pH
+5.93 vs 5.98, zinc 2.13 vs 2.09 ppm, iron 75 vs 74, calcium 690 vs 674,
+clay 21.5 vs 23.1%), the climatology is plausible (826 mm a year in The
+Gambia against 2,798 in Sierra Leone; Malawi's 2015-16 El Nino season a
+negative anomaly) and nothing is missing. One trap: the Earth Engine
+catalogue applies the `exp(x/10) - 1` back-transform to every iSDA layer in
+its code example, but the texture layers are stored as plain percentages
+(the three sum to 100), so the first extract had 8% clay; fixed in script
+54 and re-extracted.
+**Scoring.** Each of the six blocks (three sources x two weightings) goes
+through the add-on harness: in-fill on base / base + block / block alone /
+base with the old columns replaced; leave-one-country-out at both tiers on
+the same sets plus the climate + soil index with and without the block and,
+new for this test, with the old columns replaced by the block
+(`cs_replace`).
+**Result (seven runs, 5 to 6 minutes each; in-fill 24 cells x 10 draws,
+LOCO 22 cells per tier and target).** Nothing beats the current domains.
+
+| Block (weighting) | In-fill, base + block vs base (level / prev) | LOCO district: base + block vs base | LOCO district: climate + soil with old columns replaced (`cs_replace` - `cs`) | LOCO regional: `cs_replace` - `cs` | Block alone, LOCO district level |
+|---|---|---|---|---|---|
+| Climatology (area) | +0.001 / +0.001 | +0.008 (9 of 22) | -0.025 (10 of 22) | -0.123 (2 of 22) | 0.220 (16 of 22) |
+| Climatology (population) | +0.001 / +0.002 | +0.009 | -0.032 (9) | -0.121 (2) | 0.222 |
+| Climatology core, no anomaly / phase columns (area) | +0.000 / -0.001 | -0.001 | -0.018 (6) | -0.024 (4) replace vs base | 0.22 |
+| Terrain (area) | +0.004 / -0.002 | -0.004 (11); `cs_plus` - `cs` -0.033 | (new domain) | `cs_plus` - `cs` -0.078 | -0.047 (11 of 22) |
+| Terrain (population) | +0.006 / -0.001 | +0.000; `cs_plus` - `cs` -0.018 | (new domain) | -0.119 | 0.005 (13) |
+| Soil bioavailability (area) | +0.002 / -0.004 | +0.018 (14 of 22) | -0.018 (10) | -0.089 (7) | 0.273 (19 of 22) |
+| Soil bioavailability (population) | +0.004 / -0.001 | +0.014 (13) | -0.034 (10) | -0.089 (8) | 0.214 (17) |
+
+Population weighting against area weighting, same block, paired over the 22
+LOCO cells: within 0.01 for every climate and soil configuration at both
+tiers; for terrain alone it lifts a negative transport towards zero (+0.05
+district, +0.15 regional level) and nothing else.
+**Reading.** (1) The engineered climatology carries strong, replicated
+column-level associations (aridity and annual rainfall with women's B12,
+meta z -6.9 and -6.8 over three countries; day LST, its range and the
+hottest month with child vitamin A, z 6.0-6.3 over four) and still
+transports worse than the twelve monthly LST values, ten annual rainfall
+totals and thirteen one-year TerraClimate columns it was built to replace,
+by 0.025 at the district and 0.12 at the regional tier inside the
+two-domain index. Dropping the five columns that are constant within a
+country (survey-year and fieldwork-window anomalies, harmonic phase) does
+not change that, so it is not a leakage-of-country-effect artefact. The
+calendar-slice block is redundant, and that redundancy is what the domain
+PCs reward: its first components are a single stable hot-dry axis that
+means the same thing in every country, whereas 24 to 29 diverse summaries
+spread the 80% variance over more, weaker directions that transfer less
+well. (2) Terrain has no transport of its own (district -0.05, regional
+-0.09 area-weighted) and lowers the climate + soil index when added: the
+elevation gradient runs the opposite way across the four countries
+(Malawi's highlands against The Gambia's plain), so a relief axis learned
+on three does not describe the fourth. (3) The engineered soils are level
+with the 45 raw columns at the district (+0.018 as an add-on, -0.018 as a
+replacement, ten of 22 either way) and worse regionally; the
+availability transforms and ratios add nothing the raw concentrations and
+pH do not already carry through the PCs. (4) Where people live within a
+district makes no difference to a 4 km climate or a soil map: the
+population-weighted and area-weighted means differ by 0.1 mm of rainfall
+at the median and transport identically.
+**Decision.** The current climate and soil domains stay as they are; the
+engineered blocks and the extractor are kept
+(`predictors_admin2_fe_*.csv`, scripts 54 and 55) as a pre-registered
+alternative to score on the next country rather than iterated further on
+these four. The saturation reading of NL-01, AD-climate and RR-08 stands:
+the vocabulary is not where the remaining error is.
+-> `addon_fe_{clim_aw,clim_pw,clim_core_aw,terrain_aw,terrain_pw,soil_aw,soil_pw}_{scan,infill,loco}.csv`

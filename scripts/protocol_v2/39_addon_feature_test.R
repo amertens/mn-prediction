@@ -129,7 +129,9 @@ for (tier in c("admin2", "admin1")) for (target in c("level", "prev")) for (on i
   Y <- unlist(lapply(cl, function(z) as.numeric(scale(yfun(z))))); ynat <- unlist(lapply(cl, function(z) if (target == "level") z$y else z$yp)); wv <- unlist(lapply(cl, function(z) z$w))
   ctry <- rep(names(cl), vapply(cl, function(z) z$n, 0L)); aux <- list(Admin1 = paste(ctry, unlist(lapply(cl, function(z) z$region))), y_nat = Y)
   LSETS <- list(base = base_common, plus = cols_all, addon_only = addon_union, cs = base_common[domain_of[base_common] %in% CS], cs_plus = c(base_common[domain_of[base_common] %in% CS], addon_union))
-  if (length(PRED_DROP)) LSETS$replace <- c(setdiff(base_common, PRED_DROP), addon_union)
+  if (length(PRED_DROP)) { LSETS$replace <- c(setdiff(base_common, PRED_DROP), addon_union)
+    # FE-01: the climate + soil index with the dropped columns replaced by the add-on (the pre-registered two-domain index, re-engineered)
+    LSETS$cs_replace <- c(setdiff(base_common[domain_of[base_common] %in% CS], PRED_DROP), addon_union) }
   for (h in names(cl)) { te <- which(ctry == h); tr <- which(ctry != h); if (length(tr) < MIN_TRAIN) next
     for (sname in names(LSETS)) { cols <- LSETS[[sname]]; if (length(cols) < 1) next
       Dm <- domain_representation_v2(Xm[, cols, drop = FALSE], domain_of, sign_rows = tr); if (!ncol(Dm)) next
