@@ -60,6 +60,10 @@ targets::tar_source("R")
 STORE  <- "_targets_full"
 OUTDIR <- "results/tables/protocol_v2"
 dir.create(OUTDIR, showWarnings = FALSE, recursive = TRUE)
+# AU-01 finding 6 (2026-09-07): n_eff from the district's own PSU count and Kish n
+# (effective_n_district_v2) unless V2_DEFF_METHOD=national restores the old rule;
+# both columns are written (n_eff_district, n_eff_national) so the two can be compared.
+DEFF_METHOD <- match.arg(Sys.getenv("V2_DEFF_METHOD", "district"), c("district", "national"))
 
 COUNTRIES <- c(gambia = "Gambia", ghana = "Ghana", malawi = "Malawi",
                sierraleone = "SierraLeone")
@@ -120,10 +124,14 @@ for (lc in names(COUNTRIES)) {
     # ── deff, estimated nationally where PSUs are plentiful ────────────────
     db <- deff_national_v2(ybin, w, psu)
     dc <- deff_national_v2(ycont, w, psu)
+    rho_b <- icc_from_deff_v2(db$deff, db$n_raw, db$n_psu, db$n_kish)
+    rho_c <- icc_from_deff_v2(dc$deff, dc$n_raw, dc$n_psu, dc$n_kish)
     deff_rows[[paste(lc, on)]] <- data.frame(
       country = cn, outcome = on,
       n_raw = db$n_raw, n_psu = db$n_psu, n_kish = round(db$n_kish, 1),
       deff_binary = round(db$deff, 3), deff_cont = round(dc$deff, 3),
+      deff_weights = round(db$n_raw / db$n_kish, 3), rho_binary = round(rho_b, 4), rho_cont = round(rho_c, 4),
+      deff_method = DEFF_METHOD,
       method = db$method, outcome_source = outcome_source, level_source = level_source,
       weight_col = cc$weight_col,
       weight_ndistinct = dplyr::n_distinct(round(w, 6)))
@@ -131,7 +139,7 @@ for (lc in names(COUNTRIES)) {
     # ── district aggregation, both targets ────────────────────────────────
     dd <- data.frame(Admin1 = as.character(d$Admin1),
                      Admin2 = as.character(d$Admin2),
-                     ybin = ybin, ycont = ycont, w = w,
+                     ybin = ybin, ycont = ycont, w = w, psu = psu,
                      stringsAsFactors = FALSE)
     agg <- dd |>
       group_by(Admin1, Admin2) |>
@@ -139,13 +147,20 @@ for (lc in names(COUNTRIES)) {
         n_raw      = sum(is.finite(ybin)),
         n_raw_cont = sum(is.finite(ycont)),
         n_kish     = kish_n_v2(w[is.finite(ybin)]),
+        n_kish_cont = kish_n_v2(w[is.finite(ycont)]),
+        n_psu      = dplyr::n_distinct(psu[is.finite(ybin) & !is.na(psu)]),
+        n_psu_cont = dplyr::n_distinct(psu[is.finite(ycont) & !is.na(psu)]),
         y_prev     = .v2_wmean(ybin, w),
         y_level    = .v2_wmean(ycont, w),
         sd_level   = sqrt(.v2_wvar(ycont, w)),
         .groups = "drop")
 
-    agg$n_eff      <- effective_n_v2(agg$n_raw,      db$deff)
-    agg$n_eff_cont <- effective_n_v2(agg$n_raw_cont, dc$deff)
+    agg$n_eff_national      <- effective_n_v2(agg$n_raw,      db$deff)
+    agg$n_eff_national_cont <- effective_n_v2(agg$n_raw_cont, dc$deff)
+    agg$n_eff_district      <- effective_n_district_v2(agg$n_raw,      agg$n_kish,      agg$n_psu,      rho_b, db$deff)
+    agg$n_eff_district_cont <- effective_n_district_v2(agg$n_raw_cont, agg$n_kish_cont, agg$n_psu_cont, rho_c, dc$deff)
+    if (DEFF_METHOD == "district") { agg$n_eff <- agg$n_eff_district; agg$n_eff_cont <- agg$n_eff_district_cont
+    } else { agg$n_eff <- agg$n_eff_national; agg$n_eff_cont <- agg$n_eff_national_cont }
     agg$deff_binary <- db$deff
     agg$deff_cont   <- dc$deff
     agg$country <- cn; agg$outcome <- on

@@ -152,7 +152,7 @@ DHS_SETS <- list(
   Ghana       = list(IR="GHIR72DT", KR="GHKR72DT", HR="GHHR72DT", GE="GHGE71FL", year=2014),
   Malawi      = list(IR="MWIR7ADT", KR="MWKR7ADT", HR="MWHR7ADT", GE="MWGE7AFL", year=2015),
   SierraLeone = list(IR="SLIR61DT", KR="SLKR61DT", HR="SLHR61DT", GE="SLGE61FL", year=2013))
-MN_SURVEY_YEAR <- c(Gambia = 2018, Ghana = 2017, Malawi = 2016, SierraLeone = 2013)
+MN_SURVEY_YEAR <- survey_years()   # single source: metadata/survey_years.csv
 
 rd <- function(x) { p <- file.path(CACHE, paste0(x, ".rds"))
                     if (file.exists(p)) readRDS(p) else NULL }
@@ -202,6 +202,12 @@ for (cn in COUNTRIES) {
     d <- rd(sp[[rc]]); if (is.null(d)) next
     add <- character()
     for (fn in EXTRA_DERIVERS[[rc]]) { r <- fn(d); d <- r$df; add <- c(add, r$added) }
+    # AU-01 finding 5: these derived columns bypassed metadata/covariates/exclusions.csv; apply it here too
+    excl <- tryCatch(cov_load_exclusions(), error = function(e) NULL)
+    if (!is.null(excl) && length(add)) {
+      hit <- add[Reduce(`|`, lapply(excl$canonical_regex, function(rx) grepl(rx, add, perl = TRUE)), init = rep(FALSE, length(add)))]
+      if (length(hit)) { message(sprintf("  [%s] exclusions.csv drops %d derived column(s): %s", rc, length(hit), paste(hit, collapse = ", "))); add <- setdiff(add, hit) }
+    }
     if (!length(add)) next
     ccol <- if (rc == "HR") "hv001" else "v001"
     wcol <- if (rc == "HR") "hv005" else "v005"

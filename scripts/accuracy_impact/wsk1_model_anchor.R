@@ -43,7 +43,7 @@ STORE <- here("_targets_full"); TDIR <- here("results", "tables")
 TILTS <- c(0, 0.2, 0.35)
 SEED <- 20260928L
 ISO <- c(Gambia = "GMB", Ghana = "GHA", Malawi = "MWI", SierraLeone = "SLE")
-SURVEY_YEAR <- c(Gambia = 2018, Ghana = 2017, Malawi = 2016, SierraLeone = 2013)
+SURVEY_YEAR <- survey_years()   # single source: metadata/survey_years.csv (R/survey_years.R, auto-sourced)
 
 H <- suppressMessages(readr::read_csv(
   here("data", "covariates", "harmonized", "predictors_admin2_harmonized.csv"),

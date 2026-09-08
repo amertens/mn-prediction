@@ -37,7 +37,7 @@
 suppressPackageStartupMessages({library(dplyr); library(sf); library(terra); library(exactextractr)})
 setwd("C:/Users/andre/OneDrive/Documents/mn-prediction")
 HDIR <- "data/covariates/harmonized"; CDIR <- "data/covariates/cluster"
-SURVEY_YEAR <- c(Gambia = 2018, Ghana = 2017, Malawi = 2015, SierraLeone = 2013)
+source("R/survey_years.R"); SURVEY_YEAR <- survey_years()   # single source: metadata/survey_years.csv (Gambia 2018, Ghana 2017, Malawi 2016, Sierra Leone 2013)
 ISO <- c(Gambia = "GMB", Ghana = "GHA", Malawi = "MWI", SierraLeone = "SLE")
 LC  <- c(Gambia = "gambia", Ghana = "ghana", Malawi = "malawi", SierraLeone = "sierraleone")
 BND <- readRDS("dashboard/data/admin2_boundaries.rds")

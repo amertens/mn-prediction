@@ -57,7 +57,7 @@ tier the two are expected to be indistinguishable (DA-03: a wash).
 transports better than the full index at the regional tier too (0.45 vs 0.29
 on the level, 0.38 vs 0.32 on prevalence). The prediction is therefore the
 same at both tiers: climate + soil at least as good as the full index.
-*Amended 2026-09-07:* the full index now spans 24 domains (460 columns after the 7 September density and Malaria Atlas fixes):
+*Amended 2026-09-07:* the full index now spans 24 domains (454 columns after the 7 September density, Malaria Atlas, leakage-policy and survey-year fixes):
 three domains were added (livestock density from GLW4, water and coast
 proximity from Earth Engine, helminth burden and control from ESPEN) and
 the IHME block was rebuilt from its 5 km surfaces (sandbox log NL-01). On

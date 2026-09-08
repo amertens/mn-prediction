@@ -29,7 +29,7 @@
 suppressPackageStartupMessages({library(dplyr); library(sf); library(terra); library(malariaAtlas)})
 setwd("C:/Users/andre/OneDrive/Documents/mn-prediction")
 HDIR <- "data/covariates/harmonized"; CACHE <- "data/external_cache/malaria_atlas_sy"
-SURVEY_YEAR <- c(Gambia = 2018, Ghana = 2017, Malawi = 2015, SierraLeone = 2013)
+source("R/survey_years.R"); SURVEY_YEAR <- survey_years()   # single source: metadata/survey_years.csv (Gambia 2018, Ghana 2017, Malawi 2016, Sierra Leone 2013)
 LC <- c(Gambia = "gambia", Ghana = "ghana", Malawi = "malawi", SierraLeone = "sierraleone")
 SHARD <- Sys.getenv("MAP_COUNTRY", ""); SHARD <- if (nzchar(SHARD)) trimws(strsplit(SHARD, ",")[[1]]) else names(SURVEY_YEAR)
 PRODUCTS <- c(

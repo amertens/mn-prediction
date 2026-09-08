@@ -60,8 +60,8 @@ setwd("C:/Users/andre/OneDrive/Documents/mn-prediction")
 HDIR <- "data/covariates/harmonized"
 # Gambia corrected 2021 -> 2018 on 2026-09-04: FW-01 recovered the interview
 # dates (24 Jan - 19 Apr 2018), so the +/-2 window is now 2016-2020, not
-# 2019-2023. Malawi's fieldwork was Dec 2015 - Feb 2016; 2015 +/- 2 covers it.
-SURVEY_YEAR <- c(Gambia = 2018, Ghana = 2017, Malawi = 2015, SierraLeone = 2013)
+# 2019-2023. Malawi's fieldwork was Dec 2015 - Feb 2016 (median Jan 2016); 2016 +/- 2 covers it.
+source("R/survey_years.R"); SURVEY_YEAR <- survey_years()   # single source: metadata/survey_years.csv (Gambia 2018, Ghana 2017, Malawi 2016, Sierra Leone 2013)
 ISO <- c(Gambia = "gmb", Ghana = "gha", Malawi = "mwi", SierraLeone = "sle")
 LC  <- c(Gambia = "gambia", Ghana = "ghana", Malawi = "malawi",
          SierraLeone = "sierraleone")

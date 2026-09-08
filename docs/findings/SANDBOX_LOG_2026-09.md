@@ -1658,3 +1658,157 @@ the constant; the decision metric is a ranking). Keep `SL_HAPC` off by
 default; the wrapper stays for the supplement and for any future
 individual-level use where n is large enough for the kernel to earn its
 keep.
+
+## DE-01 · District design effect from each district's own PSU count (R/protocol_v2.R, script 01; RR-07)
+
+**Q.** AU-01 finding 6: every district was divided by the national design
+effect, so a district with several small PSUs was weighted like one big
+PSU. What does a district-specific effective n change?
+**Design.** The national total deff (cluster-robust, per country x outcome)
+is split Kish-fashion into a weighting part, `deff_w = n_raw / n_kish`, and
+a clustering part, `deff_c = deff / deff_w = 1 + (b - 1) rho`, with `b` the
+national mean PSU take; `rho` (`icc_from_deff_v2`, clipped to [0, 0.95]) is
+what transfers to a district, whose own Kish n and mean PSU take then give
+`n_eff_d = n_kish_d / (1 + (n_d / k_d - 1) rho)` (`effective_n_district_v2`).
+Script 01 writes both columns (`n_eff_district`, `n_eff_national`) and
+fills `n_eff` from the district rule unless `V2_DEFF_METHOD=national`;
+`deff_v2.csv` records `deff_weights`, `rho_binary`, `rho_cont`. Where the
+weighting part exceeds the total deff (stratification gains: Gambia and
+Sierra Leone women's vitamin A, Ghana and Malawi women's B12, Sierra Leone
+child iron) rho is 0 and the district n is its Kish n.
+**What it changes in the weights (binary target, 1,350 district cells).**
+Implied rho: 0 to 0.21 (Malawi folate 0.21, child iron 0.19; Ghana child
+vitamin A 0.01). District / national n_eff by PSU count: one PSU (1,032
+districts, median 9 respondents) x1.51 [q10 1.15, q90 2.23]; two PSUs
+x1.42; three to four x1.06; five to eight x0.96; nine or more (4 districts,
+median 161 respondents) x2.27. By country the median ratio is 2.21 (Gambia),
+1.72 (Malawi), 1.23 (Ghana), 0.92 (Sierra Leone, no single-PSU district);
+the rank order of the weights within a country moves little (Spearman old
+vs new 0.94 to 0.98). The old rule penalised small single-PSU districts for
+a national mean take they do not have; the correction therefore lifts the
+small districts most, which is the opposite of the audit's guess ("multi-PSU
+districts under-weighted") and follows from the same formula.
+
+RR-07 results (same 460-column vocabulary as RR-06; only the weights
+changed; individual-level shards not re-run, they do not use n_eff):
+| Figure | RR-06 (national deff) | RR-07 (district deff) |
+|---|---|---|
+| Transport, district, zero-tuning index (level / prev) | 0.273 / 0.177 (17 / 15) | 0.273 / 0.177 (17 / 15) |
+| Transport, district, penalised domain fit (level / prev) | 0.274 (20 of 22) / 0.159 | 0.283 (21 of 22) / 0.140 |
+| Transport, regional, full index (level / prev) | 0.306 / 0.362 (17 / 18) | 0.298 / 0.366 (17 / 18) |
+| Climate + soil, district / regional (level) | 0.370 / 0.457 | 0.370 / 0.447 |
+| NC-01 null 95th percentile, regional / district | 0.157 / 0.081 | 0.156 / 0.081 |
+| In-fill index vs jackknifed regional mean (level; prev) | 0.396 vs 0.314; 0.296 vs 0.193 | unchanged |
+| Region estimand, index (level / prev); burden captured | 0.379 / 0.279; 0.245 / 0.190 / 0.229 | unchanged |
+| DA-01, DA-02, TC-01, SA-01 (index-based) | as RR-06 | unchanged |
+| VC-01 honest ceiling on prevalence; cells at ceiling | 0.435; 3 of 24 | 0.435; 3 of 24 (unchanged) |
+| RC-01 vitamin A bands, in-fill exact / within one | 0.54 / 0.90 | 0.54 / 0.90 (unchanged) |
+| AR-01 at f = 0.05: A1 / regional / district survey MAE | 10.4 / 12.5 / 19.6 | 10.2 / 12.2 / 18.6 |
+
+Reading: the district design effect changes the weights, and the only
+figures that move are the ones the weights enter: the penalised fit (glmnet
+observation weights) gains 0.009 on the level and loses 0.019 on
+prevalence, the Admin-1 aggregation of district predictions shifts the
+regional index by under 0.01 either way, and the survey-only anchoring
+designs, whose MAE is the precision of a small survey draw, improve by
+0.2 to 0.9 points because small single-PSU districts are no longer charged
+a national mean take. The zero-tuning index, the nulls, the in-fill
+estimands, the ablations and the training curves score an unweighted
+Spearman on weight-free predictions and do not move at all. The correction
+is kept (it is the right weight) and it changes no reading.
+
+## SY-01 · One survey-year source: metadata/survey_years.csv (R/survey_years.R, scripts/protocol_v2/survey_years.py)
+
+**Q.** AU-01 finding 7: each extractor carried its own survey-year table and
+they drifted (Gambia 2020 in the Earth Engine scripts, 2021 in the national
+composition harmoniser, 2018 elsewhere; Malawi 2015 in every protocol
+script against 2016 in `R/config.R`).
+**Design.** `metadata/survey_years.csv` holds one row per country with the
+fieldwork window, the respondent-weighted median interview date from every
+dated cluster (FW-01) and `survey_year` = the calendar year of that median:
+Gambia 24 Jan to 26 Apr 2018 (median 7 Mar) -> 2018; Ghana 15 Apr to 15 Jun
+2017 -> 2017; Malawi 8 Dec 2015 to 16 Feb 2016 (median 22 Jan 2016, 78% of
+respondents in 2016) -> **2016**; Sierra Leone 30 Oct to 16 Dec 2013 ->
+2013; Tanzania 2010 (report; national-supply builders only, flagged
+`in_protocol = FALSE`). `survey_years()` (R, auto-sourced; `keys = "lower"`,
+`protocol_only = FALSE` variants) and `survey_years.SURVEY_YEAR` (Python)
+read it. Sixteen scripts now call the reader instead of a literal:
+protocol_v2 07, 08, 09, 11, 45, 48, 49, 52; covariates/19 (was Gambia 2021),
+build_shared_predictor_set, harmonize_extra_domains; build_faostat_supply,
+build_fpn_affordability, build_vas_national; accuracy_impact/wsk1;
+download_external_predictors. `R/config.R` already says Malawi 2016 and is
+untouched (it is in the targets DAG).
+**Consequence.** Malawi moves from 2015 to 2016 in every survey-year-matched
+block, so the Earth Engine demography and density, IHME surfaces, ESPEN,
+Malaria Atlas and food-environment blocks were re-extracted for the rebuild
+that also applies the leakage policy (LK-01, RR-08); the GHSL SMOD epoch is
+unchanged (2015 is the nearest epoch to both years). Nothing else in the
+vocabulary depends on the year.
+
+## LK-01 · Leakage as a class rule, not a spelling list (metadata/covariates/exclusions.csv; script 53; drop_near_outcome_v2; RR-08)
+
+**Q.** AU-01 finding 5: the exclusion file caught outcome-adjacent DHS
+columns one spelling at a time (`dhs_(w|c)_anemia_`, `c_mean_hemoglobin`,
+three supplementation names, two food names, then the surveyPrev anaemia
+IDs in FX-01), the extra derivers in the shared-set builder bypassed the
+file altogether, and the same constructs sat in the vocabulary under other
+names (`dhs_w_iron_pregnancy`, `dhs_c_vita_capsule`,
+`dhs_c_fg_vitA_fruitveg`). What is the rule, and where is it enforced?
+**Policy.** A survey-derived column is excluded when its indicator names a
+target nutrient or its biomarker, whatever the spelling: anaemia,
+haemoglobin, ferritin, retinol, RBP, iron, vitamin A, zinc, folate, B12,
+iodine. Such indicators are the outcome's own biomarker, or intakes and
+interventions targeted by measured deficiency, measured in the same survey
+as the outcome. General nutritional status (stunting, wasting, BMI),
+vaccination, morbidity, diet diversity, deworming and WASH indicators stay;
+external modelled surfaces are a separate sensitivity (`V2_DROP_MODELLED`).
+**Implementation.** `exclusions.csv` gains a `policy` column
+(`leakage` / `data_defect`) and two class rows: the nutrient-name rule on
+`dhs_(w|c|hh)_*` columns and the surveyPrev / DHS-API families
+(`AN_ANEM`, `CN_ANMC`, `CN_MIAC`, `AN_MIAW`, `NU_*`, the `_IRN` / `_VAS` /
+`_IOD` suffixes). Enforced at four points: the harmoniser (as before), the
+builder's extra derivers (`build_shared_predictor_set.R` now applies the
+file to what they add), the live set (`53_apply_exclusion_policy.R`, with a
+`V2_POLICY_DRY=1` listing mode and a `.pre_policy` backup) and fit time
+(`drop_near_outcome_v2()` applies every `leakage` row to the predictor list
+each script hands it, always on, and says what it dropped). A column that
+reaches the shared set by any route is therefore still kept out of the
+design matrix.
+**What it catches.** Six live columns: `dhs_w_iron_pregnancy`,
+`dhs_w_iron_days`, `dhs_w_iron_90plus`, `dhs_c_vita_capsule`,
+`dhs_c_fg_vitA_fruitveg`, `dhs_c_zinc_diarrhea`; no surveyPrev ID in the
+current set matches the second row (those were removed in FX-01).
+
+RR-08 (this policy plus the Malawi 2016 survey year from SY-01, both
+vocabulary changes; weights as RR-07; individual-level shards and the
+cluster track re-run):
+| Figure | RR-07 (460 columns, Malawi 2015) | RR-08 (454 columns, Malawi 2016) |
+|---|---|---|
+| Transport, district, zero-tuning index (level / prev) | 0.273 / 0.177 (17 / 15) | 0.277 / 0.186 (17 / 15) |
+| Transport, district, penalised domain fit (level) | 0.283 (21 of 22) | 0.280 (21 of 22) |
+| Transport, regional, full index (level / prev) | 0.298 / 0.366 (17 / 18) | 0.297 / 0.335 (17 / 17) |
+| Climate + soil, district / regional (level) | 0.370 / 0.447 | 0.370 / 0.447 |
+| NC-01 null 95th percentile, regional / district | 0.156 / 0.081 | 0.159 / 0.080 |
+| In-fill index vs jackknifed regional mean (level; prev) | 0.396 vs 0.314; 0.296 vs 0.193 | 0.398 vs 0.314; 0.296 vs 0.193 |
+| Region estimand, index (level / prev); burden captured | 0.379 / 0.279; 0.245 / 0.190 / 0.229 | 0.379 / 0.279; 0.243 / 0.190 / 0.229 |
+| DA-01 load-bearing domains (level) | soil +0.021, climate +0.014, agriculture +0.010, malaria +0.010, livestock +0.007 | soil +0.025, climate +0.016, agriculture +0.010, malaria +0.010, modelled nutrition +0.008, livestock +0.006 |
+| SA-01 load-bearing sources (level) | SoilGrids +0.021, Malaria Atlas +0.010, GLW4 +0.007, MapSPAM +0.005 | SoilGrids +0.025, Malaria Atlas +0.010, MapSPAM +0.009, GLW4 +0.006 |
+| TC-01 slope per training country (level / prev) | +0.055 / +0.066 | +0.051 / +0.066 |
+| DA-02 nested selection vs full (level, median; cells better) | -0.009 (11 of 22) | -0.052 (10 of 22) |
+| VC-01 honest ceiling on prevalence; cells at ceiling | 0.435; 3 of 24 | 0.435; 4 of 24 |
+| RC-01 vitamin A bands, in-fill exact / within one | 0.54 / 0.90 | 0.54 / 0.90 |
+| IL-01 AUC survey / proxies / both; Brier skill | 0.51 / 0.50 / 0.53; 0.012 / 0.002 / 0.017 (RR-06) | 0.51 / 0.51 / 0.53; 0.012 / 0.003 / 0.019 (both beats survey-only in 14 of 19 cells) |
+| AR-01 at f = 0.05: A1 / regional / district survey MAE | 10.2 / 12.2 / 18.6 | 10.2 / 12.2 / 18.6 |
+| Cluster track, in-fill index level / prev; transport at Admin-2 level / prev | 0.324 / 0.209; 0.231 / 0.170 (RR-05) | 0.320 / 0.205; 0.219 / 0.166 (re-run: Malawi rasters nearest 2016) |
+
+Reading: six columns out and one country's year moved by one: the district
+index gains 0.004 on the level and 0.009 on prevalence, the regional
+prevalence transport gives back the 0.04 it gained in RR-06 (this figure has
+moved 0.325 -> 0.362 -> 0.366 -> 0.335 across four refreshes and should be
+quoted as "about a third", not to two decimals), the nested selection now
+trails the full index by 0.05 at the median, and the ablation order is
+unchanged at the top (soil, climate, agriculture, malaria) with the modelled
+nutrition surfaces edging past livestock. Nothing the documents say about
+transport, the nulls, in-fill or the ceiling changes; the penalised fit is
+now quoted as 0.28 (21 of 22), the regional full index as 0.30, the
+regional climate + soil index as 0.45 and the district index as 0.28 / 0.19.

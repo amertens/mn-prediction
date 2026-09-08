@@ -49,7 +49,7 @@
 import json, sys, time
 import ee
 
-SURVEY_YEAR = {"Gambia": 2018, "Ghana": 2017, "Malawi": 2015, "SierraLeone": 2013}   # Gambia fieldwork Jan-Apr 2018 (was 2021/2020 in earlier copies)
+from survey_years import SURVEY_YEAR   # single source: metadata/survey_years.csv (Gambia 2018, Ghana 2017, Malawi 2016, Sierra Leone 2013)
 ISO = {"Gambia": "GMB", "Ghana": "GHA", "Malawi": "MWI", "SierraLeone": "SLE"}
 BATCH = 20
 SCALE = 1000        # GHS-SMOD class means

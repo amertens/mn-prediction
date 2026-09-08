@@ -26,12 +26,8 @@ dir.create(cache_dir, showWarnings = FALSE, recursive = TRUE)
 
 # Countries and survey years (from survey reports)
 # Keys must match get_country_configs() names exactly
-countries_years <- list(
-  Gambia      = 2018L,  # GMNS fieldwork: 13 Mar – 4 May 2018
-  Ghana       = 2017L,  # GMS fieldwork: 27 Apr – 9 Jun 2017
-  SierraLeone = 2013L,  # SLMS fieldwork: 11 Nov – 2 Dec 2013
-  Malawi      = 2016L   # MNS 2015-16 (exact dates TBD)
-)
+source(here("R", "survey_years.R"))
+countries_years <- as.list(survey_years())   # single source: metadata/survey_years.csv (fieldwork windows recorded there)
 
 # OOS prediction target countries (no survey data — used for prediction only)
 # Use a representative year for predictor extraction (e.g., most recent DHS year)

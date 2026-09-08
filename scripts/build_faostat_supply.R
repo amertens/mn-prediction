@@ -26,7 +26,7 @@ FBS_URL <- "https://bulks-faostat.fao.org/production/FoodBalanceSheets_E_All_Dat
 ISO3 <- c(Gambia="GMB",Ghana="GHA",SierraLeone="SLE",Malawi="MWI",Tanzania="TZA")
 FAO_AREA <- c(Gambia="Gambia", Ghana="Ghana", SierraLeone="Sierra Leone",
               Malawi="Malawi", Tanzania="United Republic of Tanzania")
-SURVEY_YEAR <- c(Gambia=2018, Ghana=2017, SierraLeone=2013, Malawi=2016, Tanzania=2010)
+source(here::here("R", "survey_years.R")); SURVEY_YEAR <- survey_years(c("Gambia", "Ghana", "SierraLeone", "Malawi", "Tanzania"), protocol_only = FALSE)   # single source: metadata/survey_years.csv
 RAW_DIR <- here::here("data","FAOSTAT","raw"); dir.create(RAW_DIR, showWarnings=FALSE, recursive=TRUE)
 OUT_DIR <- here::here("data","FAOSTAT");       dir.create(OUT_DIR, showWarnings=FALSE, recursive=TRUE)
 

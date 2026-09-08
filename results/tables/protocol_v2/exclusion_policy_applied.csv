@@ -1,0 +1,7 @@
+"column","policy","rule"
+"dhs_c_zinc_diarrhea","leakage","^dhs_(w|c|hh)_.*(anem|anaem|hemoglobin|haemoglobin|ferritin|retinol|rbp|iron|vitA|vita|vit_a|vitamin|zinc|folate|folic|b12|iodi|iodized|iodised)"
+"dhs_w_iron_pregnancy","leakage","^dhs_(w|c|hh)_.*(anem|anaem|hemoglobin|haemoglobin|ferritin|retinol|rbp|iron|vitA|vita|vit_a|vitamin|zinc|folate|folic|b12|iodi|iodized|iodised)"
+"dhs_w_iron_days","leakage","^dhs_(w|c|hh)_.*(anem|anaem|hemoglobin|haemoglobin|ferritin|retinol|rbp|iron|vitA|vita|vit_a|vitamin|zinc|folate|folic|b12|iodi|iodized|iodised)"
+"dhs_w_iron_90plus","leakage","^dhs_(w|c|hh)_.*(anem|anaem|hemoglobin|haemoglobin|ferritin|retinol|rbp|iron|vitA|vita|vit_a|vitamin|zinc|folate|folic|b12|iodi|iodized|iodised)"
+"dhs_c_fg_vitA_fruitveg","leakage","^dhs_(w|c|hh)_.*(anem|anaem|hemoglobin|haemoglobin|ferritin|retinol|rbp|iron|vitA|vita|vit_a|vitamin|zinc|folate|folic|b12|iodi|iodized|iodised)"
+"dhs_c_vita_capsule","leakage","^dhs_(w|c|hh)_.*(anem|anaem|hemoglobin|haemoglobin|ferritin|retinol|rbp|iron|vitA|vita|vit_a|vitamin|zinc|folate|folic|b12|iodi|iodized|iodised)"

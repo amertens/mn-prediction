@@ -31,7 +31,7 @@
 suppressMessages({library(here); library(dplyr)})
 
 ISO3 <- c(Gambia="GMB",Ghana="GHA",SierraLeone="SLE",Malawi="MWI",Tanzania="TZA")
-SURVEY_YEAR <- c(Gambia=2018, Ghana=2017, SierraLeone=2013, Malawi=2016, Tanzania=2010)
+source(here::here("R", "survey_years.R")); SURVEY_YEAR <- survey_years(c("Gambia", "Ghana", "SierraLeone", "Malawi", "Tanzania"), protocol_only = FALSE)   # single source: metadata/survey_years.csv
 # FPN 4.0 series code -> output column (CoHD = healthy diet; CoCA = calorie-adequate)
 SERIES <- c(fpn_cohd_ppp        = "CoHD_PPP",
             fpn_cohd_headcount  = "CoHD_headcount",

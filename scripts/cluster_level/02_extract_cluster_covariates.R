@@ -28,13 +28,14 @@ setwd("C:/Users/andre/OneDrive/Documents/mn-prediction")
 OUTDIR <- "results/tables/cluster_level"; CDIR <- "data/covariates/cluster"; dir.create(CDIR, showWarnings = FALSE, recursive = TRUE)
 RURAL_KM <- as.numeric(Sys.getenv("CL_RURAL_KM", "5")); URBAN_KM <- as.numeric(Sys.getenv("CL_URBAN_KM", "2"))
 OT <- Sys.getenv("CL_OUT_TAG", "")   # suffix for the output files, e.g. "_r10" for the 10 km rural sensitivity
+source("R/survey_years.R"); SY <- survey_years()   # single source: metadata/survey_years.csv (SY-01; Malawi 2016, was 2015 here)
 CFG <- list(
-  Gambia      = list(dir = "data/Gambia_GEE_rasters",       tag = "Gambia",       iso = "GMB", year = 2018, utm = 32628),
-  Ghana       = list(dir = "data/Ghana_GEE rasters",        tag = "Ghana",        iso = "GHA", year = 2017, utm = 32630),
-  Malawi      = list(dir = "data/Malawi_GEE_rasters",       tag = "Malawi",       iso = "MWI", year = 2015, utm = 32736),
+  Gambia      = list(dir = "data/Gambia_GEE_rasters",       tag = "Gambia",       iso = "GMB", year = SY[["Gambia"]], utm = 32628),
+  Ghana       = list(dir = "data/Ghana_GEE rasters",        tag = "Ghana",        iso = "GHA", year = SY[["Ghana"]], utm = 32630),
+  Malawi      = list(dir = "data/Malawi_GEE_rasters",       tag = "Malawi",       iso = "MWI", year = SY[["Malawi"]], utm = 32736),
   # Sierra Leone's rasters are named both "Sierra_Leone" and "Sierra Leone";
   # the tag is a regex so both are found (the first run lost 44 columns to this)
-  SierraLeone = list(dir = "data/Sierra_Leone_GEE_rasters", tag = "Sierra[ _]Leone", iso = "SLE", year = 2013, utm = 32629))
+  SierraLeone = list(dir = "data/Sierra_Leone_GEE_rasters", tag = "Sierra[ _]Leone", iso = "SLE", year = SY[["SierraLeone"]], utm = 32629))
 TC <- read.csv(file.path(OUTDIR, "targets_cluster.csv"), stringsAsFactors = FALSE)
 CL <- TC |> filter(is.finite(lat), is.finite(lon)) |> group_by(country, cluster) |> summarise(lat = lat[1], lon = lon[1], month_med = month_med[1], .groups = "drop")
 san <- function(x) { x <- gsub("[^A-Za-z0-9]+", "_", tolower(x)); gsub("^_|_$", "", gsub("_+", "_", x)) }

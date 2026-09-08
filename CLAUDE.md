@@ -71,7 +71,11 @@ country's `outcomes` list (both defined in `R/config.R`) and builds target
 names like `sl_fit_{country}_{outcome}`, `cv_perf_{country}_{outcome}`,
 `admin2_error_{country}_{outcome}` via `tar_target_raw()` + `substitute()`.
 To add a country or outcome, edit `R/config.R` and re-run `tar_make()` — new
-targets appear automatically. See the README's "Adding a New Country" /
+targets appear automatically. The survey year every time-varying layer is
+matched to lives in ONE place, `metadata/survey_years.csv` (read by
+`survey_years()` in `R/survey_years.R` and `scripts/protocol_v2/survey_years.py`);
+add the new country's fieldwork window and year there, never as a literal in a
+script. See the README's "Adding a New Country" /
 "Adding a New Outcome" sections for the config shape.
 
 `_targets.R` is organized into clearly delimited sections (search for the

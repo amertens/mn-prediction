@@ -44,7 +44,7 @@ OUT <- here("data", "covariates", "harmonized", "predictors_admin2_extra.csv")
 MAN <- here("results", "tables", "harmonize_extra_domains_manifest.csv")
 dir.create(dirname(OUT), showWarnings = FALSE, recursive = TRUE)
 COUNTRIES <- c("Gambia", "Ghana", "Malawi", "SierraLeone")
-SURVEY_YEAR <- c(Gambia = 2018, Ghana = 2017, Malawi = 2016, SierraLeone = 2013)
+SURVEY_YEAR <- survey_years()   # single source: metadata/survey_years.csv
 cfgs <- get_country_configs()
 kk <- function(x) tolower(gsub("[^a-z0-9]", "", tolower(as.character(x))))
 

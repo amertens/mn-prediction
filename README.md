@@ -259,6 +259,11 @@ targets::tar_destroy()
 
 ## Adding a New Country
 
+First add the country's fieldwork window and survey year to
+`metadata/survey_years.csv`: every extractor that matches a time-varying layer
+to the survey reads that one table (`survey_years()` in R,
+`survey_years.SURVEY_YEAR` in Python), so no script carries a year of its own.
+
 1. Add a new entry to `get_country_configs()` in `R/config.R`:
 
 ```r

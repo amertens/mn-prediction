@@ -36,7 +36,7 @@
 suppressPackageStartupMessages({library(dplyr)})
 setwd("C:/Users/andre/OneDrive/Documents/mn-prediction")
 HDIR <- "data/covariates/harmonized"; CDIR <- "data/covariates/cluster"
-SURVEY_YEAR <- c(Gambia = 2018, Ghana = 2017, Malawi = 2015, SierraLeone = 2013)
+source("R/survey_years.R"); SURVEY_YEAR <- survey_years()   # single source: metadata/survey_years.csv (Gambia 2018, Ghana 2017, Malawi 2016, Sierra Leone 2013)
 ISO2 <- c(Gambia = "GM", Ghana = "GH", Malawi = "MW", SierraLeone = "SL")
 JOIN_LEVEL <- c(Gambia = "Admin2", Ghana = "Admin2", Malawi = "Admin1", SierraLeone = "Admin2")
 S <- read.csv(file.path(HDIR, "predictors_admin2_shared.csv"), check.names = FALSE)

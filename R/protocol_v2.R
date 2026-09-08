@@ -112,6 +112,38 @@ effective_n_v2 <- function(n_raw, deff, fallback_deff = 1.5) {
   pmax(1, n_raw / d)
 }
 
+#' Intra-cluster correlation implied by a national design effect
+#'
+#' AU-01 finding 6 (2026-09-07): dividing every district by the national deff
+#' weights a three-PSU district like a single-PSU one. The national total deff
+#' is split Kish-fashion into a weighting part, deff_w = n_raw / n_kish, and a
+#' clustering part, deff_c = deff / deff_w = 1 + (b - 1) rho with b = n_raw /
+#' n_psu the mean PSU take; rho is what transfers to a district, whose own
+#' PSU count and Kish n then give its design effect (effective_n_district_v2).
+#' @return rho clipped to [0, 0.95], or NA when the national deff is unestimable
+icc_from_deff_v2 <- function(deff, n_raw, n_psu, n_kish) {
+  if (!is.finite(deff) || deff <= 0 || !is.finite(n_raw) || !is.finite(n_psu) || n_psu < 2 ||
+      !is.finite(n_kish) || n_kish <= 0) return(NA_real_)
+  b <- n_raw / n_psu
+  if (b <= 1) return(NA_real_)
+  deff_w <- n_raw / n_kish
+  deff_c <- deff / deff_w
+  min(max((deff_c - 1) / (b - 1), 0), 0.95)
+}
+
+#' Effective sample size of a district from its own PSU count
+#'
+#' n_eff_d = n_kish_d / (1 + (n_d / k_d - 1) rho): the district's Kish n for the
+#' weighting part and its own mean PSU take for the clustering part. Falls back
+#' to effective_n_v2() (national deff) where rho is NA.
+effective_n_district_v2 <- function(n_raw, n_kish, n_psu, rho, deff_national = NA_real_, fallback_deff = 1.5) {
+  b <- ifelse(is.finite(n_psu) & n_psu > 0, n_raw / pmax(n_psu, 1), n_raw)
+  deff_c <- 1 + pmax(b - 1, 0) * rho
+  out <- if (is.finite(rho)) pmax(1, n_kish / deff_c) else rep(NA_real_, length(n_raw))
+  fb <- effective_n_v2(n_raw, deff_national, fallback_deff)
+  ifelse(is.finite(out), out, fb)
+}
+
 # ── FIX 3. Within-country rank-normalisation ────────────────────────────────
 
 #' Rank-normal transform (van der Waerden), outcome-independent
@@ -547,7 +579,30 @@ score_v2 <- function(obs, pred, w = NULL, scale = c("prev", "level")) {
 #' blood draw, whereas this surface needs no survey at all.
 #'
 #' Set V2_DROP_MODELLED=1 to exclude them for a sensitivity run.
+#' Exclusion rules (metadata/covariates/exclusions.csv), found from the project root
+.v2_exclusions <- function() {
+  d <- getwd()
+  for (i in 1:6) {
+    f <- file.path(d, "metadata", "covariates", "exclusions.csv")
+    if (file.exists(f)) { ex <- read.csv(f, stringsAsFactors = FALSE); if (!"policy" %in% names(ex)) ex$policy <- "data_defect"; return(ex) }
+    d <- dirname(d)
+  }
+  NULL
+}
+
 drop_near_outcome_v2 <- function(preds, meta) {
+  # Leakage policy (LK-01, 2026-09-07): the rows of exclusions.csv flagged policy == "leakage"
+  # are enforced at fit time as well as in the builder, so a column that reaches the shared
+  # set by any route is still kept out of the design matrix. Always on.
+  ex <- .v2_exclusions()
+  if (!is.null(ex) && any(ex$policy == "leakage") && length(preds)) {
+    rx <- ex$canonical_regex[ex$policy == "leakage"]
+    bad <- preds[Reduce(`|`, lapply(rx, function(r) grepl(r, preds, perl = TRUE)), init = rep(FALSE, length(preds)))]
+    if (length(bad)) {
+      message(sprintf("[protocol v2] leakage policy: excluded %d predictor(s): %s", length(bad), paste(bad, collapse = ", ")))
+      preds <- setdiff(preds, bad)
+    }
+  }
   if (!identical(Sys.getenv("V2_DROP_MODELLED", "0"), "1")) return(preds)
   if (!"domain" %in% names(meta)) return(preds)
   bad <- meta$column[grepl("MODELLED SURFACE", meta$domain, fixed = TRUE)]

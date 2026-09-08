@@ -1,0 +1,6 @@
+country,iso3,survey,fieldwork_start,fieldwork_end,respondent_median_date,survey_year,in_protocol,source
+Gambia,GMB,Gambia Micronutrient Survey 2018 (GMNS),2018-01-24,2018-04-26,2018-03-07,2018,TRUE,"interview dates of every dated cluster (results/tables/protocol_v2/fieldwork_windows_cluster.csv, FW-01)"
+Ghana,GHA,Ghana Micronutrient Survey 2017 (GMS),2017-04-15,2017-06-15,2017-05-15,2017,TRUE,"interview dates of every dated cluster (results/tables/protocol_v2/fieldwork_windows_cluster.csv, FW-01)"
+Malawi,MWI,Malawi Micronutrient Survey 2015-16 (MNS),2015-12-08,2016-02-16,2016-01-22,2016,TRUE,"interview dates of every dated cluster (results/tables/protocol_v2/fieldwork_windows_cluster.csv, FW-01)"
+SierraLeone,SLE,Sierra Leone Micronutrient Survey 2013 (SLMS),2013-10-30,2013-12-16,2013-11-22,2013,TRUE,"interview dates of every dated cluster (results/tables/protocol_v2/fieldwork_windows_cluster.csv, FW-01)"
+Tanzania,TZA,Tanzania DHS 2010 (micronutrient module),2009-12-01,2010-05-31,,2010,FALSE,survey report; used only by the national-supply builders (scripts/build_*.R)

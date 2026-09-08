@@ -26,7 +26,7 @@ if (!requireNamespace("WDI", quietly = TRUE))
 
 ISO2 <- c(Gambia="GM", Ghana="GH", SierraLeone="SL", Malawi="MW", Tanzania="TZ")
 ISO3 <- c(Gambia="GMB",Ghana="GHA",SierraLeone="SLE",Malawi="MWI",Tanzania="TZA")
-SURVEY_YEAR <- c(Gambia=2018, Ghana=2017, SierraLeone=2013, Malawi=2016, Tanzania=2010)
+source(here::here("R", "survey_years.R")); SURVEY_YEAR <- survey_years(c("Gambia", "Ghana", "SierraLeone", "Malawi", "Tanzania"), protocol_only = FALSE)   # single source: metadata/survey_years.csv
 OUT_DIR <- here::here("data","VAS"); dir.create(OUT_DIR, showWarnings=FALSE, recursive=TRUE)
 
 args <- commandArgs(trailingOnly=TRUE)

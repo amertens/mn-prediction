@@ -56,7 +56,7 @@ suppressPackageStartupMessages({library(dplyr)})
 setwd("C:/Users/andre/OneDrive/Documents/mn-prediction")
 
 HDIR <- "data/covariates/harmonized"
-SURVEY_YEAR <- c(Gambia = 2018, Ghana = 2017, Malawi = 2015, SierraLeone = 2013)   # Gambia fieldwork Jan-Apr 2018 (FW-01); was 2021 until 2026-09-04
+source("R/survey_years.R"); SURVEY_YEAR <- survey_years()   # single source: metadata/survey_years.csv (Gambia 2018, Ghana 2017, Malawi 2016, Sierra Leone 2013)
 COUNTRIES <- names(SURVEY_YEAR)
 kk <- function(x) tolower(gsub("[^a-z]", "", tolower(x)))
 

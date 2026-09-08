@@ -32,7 +32,7 @@
 import csv, json, math, sys, time
 import ee
 
-SURVEY_YEAR = {"Gambia": 2018, "Ghana": 2017, "Malawi": 2015, "SierraLeone": 2013}   # Gambia fieldwork Jan-Apr 2018 (was 2020)
+from survey_years import SURVEY_YEAR   # single source: metadata/survey_years.csv
 ISO = {"Gambia": "GMB", "Ghana": "GHA", "Malawi": "MWI", "SierraLeone": "SLE"}
 BATCH = 20
 SCALE = 100        # WorldPop 100 m has a MEAN pyramid: summing at 1 km returned 1/100 of the count (found 2026-09-07); GPW shares are ratios and unaffected

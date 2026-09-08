@@ -46,7 +46,7 @@ if (any(is.na(j))) cat("  unmapped Admin1 names:", paste(unique(gh$Admin1[is.na(
 LS <- gh[, c("country", "Admin1", "Admin2")]; for (k in keep) LS[[k]] <- L[[k]][j]
 # ── FluNet (national, survey year) ──────────────────────────────────────────
 F <- read.csv("data/FluNet/VIW_FNT.csv", stringsAsFactors = FALSE)
-yr <- c(Gambia = 2018, Ghana = 2017, Malawi = 2015, SierraLeone = 2013); iso <- c(Gambia = "GMB", Ghana = "GHA", Malawi = "MWI", SierraLeone = "SLE")
+source("R/survey_years.R"); yr <- survey_years(); iso <- c(Gambia = "GMB", Ghana = "GHA", Malawi = "MWI", SierraLeone = "SLE")
 num <- function(x) suppressWarnings(as.numeric(x))
 FL <- do.call(rbind, lapply(names(yr), function(cn) { f <- F[F$COUNTRY_CODE == iso[[cn]] & F$ISO_YEAR == yr[[cn]], ]
   if (!nrow(f)) return(data.frame(country = cn, flunet_specimens_per_week = NA_real_, flunet_share_positive = NA_real_, flunet_influenza_a_share = NA_real_))

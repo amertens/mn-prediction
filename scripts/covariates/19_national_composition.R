@@ -88,7 +88,7 @@ KNN_K    <- as.integer(Sys.getenv("NAT_KNN", "5"))
 COV_SRC  <- Sys.getenv("NAT_COV", "wdi")
 
 # Survey year per country, for pointing the national model at the right row.
-SURVEY_YEAR <- c(gambia = 2021, ghana = 2017, malawi = 2015, sierraleone = 2013)
+source(here("R", "survey_years.R")); SURVEY_YEAR <- survey_years(keys = "lower")   # single source: metadata/survey_years.csv (this copy said Gambia 2021, Malawi 2015 until 2026-09-07)
 ISO3 <- c(gambia = "GMB", ghana = "GHA", malawi = "MWI", sierraleone = "SLE")
 
 nat <- vmnis_national()
