@@ -93,6 +93,48 @@ apply_brinda_vita_binary <- function(d, cc, oc, label = "") {
 #' each survey's own adjusted (Malawi: raw) RBP.
 #' @return numeric vector the length of nrow(d) with attribute "n_fallback",
 #'   or NULL if the country's biomarker columns are unavailable.
+# ── Retinol-equivalent RBP (VA-01, 2026-09-08) ───────────────────────────────
+# The four surveys used the same VitMin ELISA for RBP but each calibrated RBP to
+# serum retinol on its own subsample and got a different line (AS-01, RP-01):
+# 0.70 umol/L of RBP is 0.70 umol/L of retinol in The Gambia, 0.61 in Ghana,
+# 0.75 in Sierra Leone and 0.91 in Malawi, whose report therefore adopted an RBP
+# cut-point of 0.46. Rule (b) chosen by the user: convert each survey's
+# BRINDA-adjusted RBP to retinol-equivalents with its published regression,
+# then cut at the WHO retinol threshold of 0.70. The lines live in
+# metadata/rbp_retinol_calibration.csv (retinol = a + b * RBP, by country and,
+# where the survey fitted them separately, population). VITA_RULE=rbp070
+# restores the previous rule (adjusted RBP < 0.70 without conversion) for the
+# sensitivity analysis.
+.vita_rule <- function() {
+  r <- Sys.getenv("VITA_RULE", "retinol_equiv")
+  if (!r %in% c("retinol_equiv", "rbp070")) stop("VITA_RULE must be retinol_equiv or rbp070")
+  r
+}
+.rbp_calibration_cache <- new.env()
+rbp_retinol_calibration <- function() {
+  if (!is.null(.rbp_calibration_cache$tab)) return(.rbp_calibration_cache$tab)
+  d <- getwd(); f <- NULL
+  for (i in 1:6) { cand <- file.path(d, "metadata", "rbp_retinol_calibration.csv"); if (file.exists(cand)) { f <- cand; break }; d <- dirname(d) }
+  if (is.null(f)) stop("metadata/rbp_retinol_calibration.csv not found in or above ", getwd())
+  tab <- utils::read.csv(f, stringsAsFactors = FALSE)
+  .rbp_calibration_cache$tab <- tab
+  tab
+}
+#' Convert an RBP vector (umol/L) to retinol-equivalents with the survey's own line.
+#' @param population "child" or "women"; falls back to the survey's pooled line ("all")
+rbp_to_retinol_equiv <- function(x, country, population = "all") {
+  tab <- rbp_retinol_calibration()
+  key <- gsub("[^A-Za-z]", "", country)
+  rows <- tab[gsub("[^A-Za-z]", "", tab$country) == key, , drop = FALSE]
+  if (!nrow(rows)) stop("no RBP-retinol calibration for ", country)
+  r <- rows[rows$population == population, , drop = FALSE]
+  if (!nrow(r)) r <- rows[rows$population == "all", , drop = FALSE]
+  if (!nrow(r)) r <- rows[1, , drop = FALSE]
+  out <- r$a[1] + r$b[1] * x
+  attr(out, "calibration") <- sprintf("%s (%s): retinol = %.4f + %.4f RBP, n %s", r$country[1], r$population[1], r$a[1], r$b[1], r$n[1])
+  out
+}
+
 brinda_vad_adjusted <- function(d, cc, oc, label = "") {
   pop  <- if (grepl("^child", oc$tag)) "child" else "women"
   spec <- brinda_rbp_cols(cc$country)[[pop]]
@@ -127,6 +169,13 @@ brinda_vad_adjusted <- function(d, cc, oc, label = "") {
     n_fallback <- sum(use)
   }
   attr(adj, "n_fallback") <- n_fallback
+  if (identical(.vita_rule(), "retinol_equiv")) {
+    conv <- rbp_to_retinol_equiv(adj, cc$country, pop)
+    attr(conv, "n_fallback") <- n_fallback
+    attr(conv, "scale") <- "retinol-equivalent (umol/L)"
+    return(conv)
+  }
+  attr(adj, "scale") <- "adjusted RBP (umol/L)"
   adj
 }
 
@@ -135,8 +184,8 @@ brinda_vad_binary <- function(d, cc, oc, cutoff = 0.70, label = "") {
   if (is.null(adj)) return(NULL)
   n_fallback <- attr(adj, "n_fallback"); if (is.null(n_fallback)) n_fallback <- 0L
   newbin <- as.integer(adj < cutoff)
-  cat(sprintf("  [brinda]%s %s %s: VAD = %s RBP<%.2f (%d/%d = %.1f%%)%s\n",
-              label, cc$country, oc$tag, brinda_country_method(cc$country), cutoff,
+  cat(sprintf("  [brinda]%s %s %s: VAD = %s %s<%.2f (%d/%d = %.1f%%)%s\n",
+              label, cc$country, oc$tag, brinda_country_method(cc$country), if (identical(.vita_rule(), "retinol_equiv")) "retinol-equiv RBP" else "RBP", cutoff,
               sum(newbin == 1, na.rm = TRUE), sum(!is.na(newbin)),
               100 * mean(newbin, na.rm = TRUE),
               if (n_fallback > 0)

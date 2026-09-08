@@ -200,7 +200,14 @@ months (vitamin A from retinol-binding protein or retinol, iron from ferritin,
 zinc where measured) and women aged 15–49 (vitamin A, iron, folate, vitamin
 B12, zinc where measured), each defined uniformly across surveys at the WHO
 cut-off after BRINDA inflammation adjustment where acute-phase proteins were
-available [@brinda2017adjustment; @who_vmnis_thresholds]. Two targets are
+available [@brinda2017adjustment; @who_vmnis_thresholds]. All four surveys
+measured retinol-binding protein on the same laboratory's ELISA, but each
+calibrated it to serum retinol on its own subsample of 14 to 300 specimens
+and obtained a different line, so that 0.70 µmol/L of RBP corresponds to
+0.61 to 0.91 µmol/L of retinol across the four; the adjusted RBP is
+therefore converted to retinol-equivalents with each survey's published
+regression before the 0.70 µmol/L threshold is applied. Malawi's vitamin
+B12, reported in pg/mL, is converted to pmol/L before its threshold. Two targets are
 carried for every cell: the survey-weighted district prevalence, and the
 survey-weighted district mean of the log biomarker concentration, which
 retains the information a dichotomised indicator discards.
@@ -425,7 +432,7 @@ regional tier (20 of 22). That two-domain index was chosen on the same four
 countries it is scored on, which is why it enters the next country as a
 pre-registered prediction rather than a result; honest nested selection of
 domains inside the training fold recovers none of its margin (median
-difference from the full index -0.05, better in 10 of 22 cells).
+difference from the full index -0.02, better in 11 of 22 cells).
 
 ```{r tbl-transport}
 #| tbl-cap: "Country transport: mean Spearman in a country held entirely out of training, over 22 cells, at the district and at the first sub-national tier, for the full-vocabulary index and the pre-registered climate + soil index, with the 95th percentile of the country-block permutation null."
@@ -485,9 +492,10 @@ if (!is.null(nt)) { d <- nt |> filter(estimand == "infill") |> mutate(Model = c(
 
 Classified into the WHO public-health bands for vitamin A (none, mild,
 moderate, severe), the in-fill predictions place a district in the correct
-band 52% of the time and within one band 90% of the time; a transported
-ranking anchored to the country's national prevalence does as well (50% and
-87%).
+band 57% of the time and within one band 90% of the time over the six cells
+with any deficiency (Malawi's districts all fall in the lowest band, where
+the classification is trivial); a transported ranking anchored to the
+country's national prevalence does nearly as well (48% and 94%).
 
 A national estimate is enough to put levels on the ranking (@tbl-anchor).
 A survey design that measures only a national prevalence from five percent of
@@ -586,17 +594,17 @@ mis-filed domain, a leaked column or a mis-scaled unit visible.
 kb(df(
   Result = c("Within-country rank correlation", "Covariate-free survey baseline", "Reliability ceiling (prevalence)", "Regional transport",
              "District transport", "Regional anchoring gain", "Predictor significance screen", "Covariates vs geography, cells won",
-             "Individual-level arm", "Satellite embedding", "IHME block for The Gambia", "Population join", "DHS anaemia prevalence as a predictor", "Vitamin A level target", "Population density", "Malaria Atlas vintage", "District weight", "Nutrient-named survey indicators", "Survey year"),
+             "Individual-level arm", "Satellite embedding", "IHME block for The Gambia", "Population join", "DHS anaemia prevalence as a predictor", "Vitamin A level target", "Population density", "Malaria Atlas vintage", "District weight", "Nutrient-named survey indicators", "Survey year", "Vitamin A cut-off across surveys", "Malawi vitamin B12 units"),
   `Earlier evaluation` = c("0.058 (one fold draw)", "r 0.516, beat every covariate arm", "0.098 analytic, then 0.47–0.61 split-half",
              "0.50–0.56, 12 of 12", "0.28 penalised fit, 21 of 22", "0.164 to 0.413, better in 20 of 24", "0 of 294 survive FDR",
-             "6 of 24", "0.516, headline", "64 columns filed under agriculture", "25 of 34 columns empty", "Sierra Leone dropped from every population-joined run", "In the vocabulary, all four countries", "Each survey's own adjusted RBP (raw in Malawi)", "log of the district population count", "Rasters at each product's release date, 4-12 years after the surveys; three releases as separate columns", "Every district divided by the national design effect", "Excluded one spelling at a time; three constructs still in under other names", "Each extractor carried its own table (Malawi 2015, The Gambia 2020 or 2021 in places)"),
+             "6 of 24", "0.516, headline", "64 columns filed under agriculture", "25 of 34 columns empty", "Sierra Leone dropped from every population-joined run", "In the vocabulary, all four countries", "Each survey's own adjusted RBP (raw in Malawi)", "log of the district population count", "Rasters at each product's release date, 4-12 years after the surveys; three releases as separate columns", "Every district divided by the national design effect", "Excluded one spelling at a time; three constructs still in under other names", "Each extractor carried its own table (Malawi 2015, The Gambia 2020 or 2021 in places)", "Adjusted RBP < 0.70 in every survey although 0.70 of RBP is 0.61 to 0.91 of retinol; Malawi child prevalence 10% against the survey's 4%", "pg/mL cut at a pmol/L threshold; 2.8% deficient against the survey's 13%"),
   `Under the protocol` = c("0.22 replicated; 0.39 (level) and 0.29 (prevalence) for the index", "0.076 jackknifed; loses to the index",
              "0.44 variance-components; 21% of the split-half ceiling was cluster effect", "0.31 over 22 cells, 17 positive; three countries only before",
              "0.27 zero-tuning index, 17 of 22; 0.27 penalised, 20 of 22", "0.147 vs 0.156 unanchored; withdrawn", "Screen had power 0.005; sign replication reported instead",
              "10 of 24 (miscount); tied on matched folds", "Trained on the scored district's respondents; supplement only", "Own domain; +0.01 on transport",
-             "One year per country dropped every series ending earlier; fixed per indicator", "Spelling normalised; all 22 cells restored", "Removed; iron transport moved by at most 0.04 in one cell, the index by 0.00", "Same BRINDA-adjusted RBP as the prevalence; Malawi child vitamin A level +0.05 to +0.07", "Population per km2; the old column ranked districts by area as much as by crowding (rank correlation 0.16 in Malawi)", "Nine products at the survey year from one release (471 to 460 predictors); malaria joins the load-bearing domains (+0.010); district index unchanged", "Own cluster count and Kish n; single-cluster districts gain most (x1.5); the index, scored without weights, does not move; penalised fit 0.27 to 0.28", "Class rule on nutrient names, enforced at build and fit time; six columns out (460 to 454); district index 0.27 to 0.28", "One table from the interview dates (Malawi 2016); regional full index 0.30 / 0.34, climate + soil 0.45"),
+             "One year per country dropped every series ending earlier; fixed per indicator", "Spelling normalised; all 22 cells restored", "Removed; iron transport moved by at most 0.04 in one cell, the index by 0.00", "Same BRINDA-adjusted RBP as the prevalence; Malawi child vitamin A level +0.05 to +0.07", "Population per km2; the old column ranked districts by area as much as by crowding (rank correlation 0.16 in Malawi)", "Nine products at the survey year from one release (471 to 460 predictors); malaria joins the load-bearing domains (+0.010); district index unchanged", "Own cluster count and Kish n; single-cluster districts gain most (x1.5); the index, scored without weights, does not move; penalised fit 0.27 to 0.28", "Class rule on nutrient names, enforced at build and fit time; six columns out (460 to 454); district index 0.27 to 0.28", "One table from the interview dates (Malawi 2016); regional full index 0.30 / 0.34, climate + soil 0.45", "Each survey's own RBP-to-retinol line, then 0.70 of retinol; children 20 / 28 / 7 / 0.4% (Gambia, Ghana, Sierra Leone, Malawi); district prevalence transport 0.19 to 0.21, regional 0.34 to 0.25 with two near-empty Malawi cells", "Converted; 10.9% deficient; level target unchanged"),
   `What moved it` = c("Replicated folds", "Jackknife", "Variance model with cluster term", "BUG-01 found by the per-country cell count", "Estimator of record stated",
-             "Jackknifed control arm", "Attained power reported", "Recount; matched folds", "Estimand named", "Metadata audit", "Per-country coverage audit", "Per-country cell count", "Per-column leakage audit (AU-01)", "Audit of target construction (AU-01)", "Unit check against known densities (AU-01)", "Vintage audit (AU-01)", "Design-effect decomposition (AU-01)", "Leakage policy (AU-01)", "Survey-year table (AU-01)")))
+             "Jackknifed control arm", "Attained power reported", "Recount; matched folds", "Estimand named", "Metadata audit", "Per-country coverage audit", "Per-country cell count", "Per-column leakage audit (AU-01)", "Audit of target construction (AU-01)", "Unit check against known densities (AU-01)", "Vintage audit (AU-01)", "Design-effect decomposition (AU-01)", "Leakage policy (AU-01)", "Survey-year table (AU-01)", "Reproducing the four reports (RP-01)", "Reproducing the four reports (RP-01)")))
 ```
 
 Two lessons generalise. First, a baseline or benchmark computed from data that

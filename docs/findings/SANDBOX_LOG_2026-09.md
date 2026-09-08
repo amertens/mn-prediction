@@ -2061,3 +2061,84 @@ reproduces in every cell except Sierra Leone women (above).
 -> `results/tables/protocol_v2/report_reproduction_audit.csv`;
 `metadata/assay_sources.csv` (Malawi rows now from the report);
 `scratchpad/audit_reports.R`, `audit_defs.R`, `audit_sl_iron.R`, `sl_brinda.R`, `rowloss.R`, `mw_b12.R`.
+
+## VA-01 · Vitamin A on the retinol scale: each survey's RBP calibration, then BRINDA, then 0.70 (R/brinda_adjustment.R; RR-09)
+
+**Decision (the user, 2026-09-08, option b of RP-01).** The four surveys
+measured RBP on the same VitMin ELISA but each calibrated it to serum
+retinol on its own subsample and got a different line, so one RBP
+cut-off is four different retinol thresholds (0.70 umol/L of RBP is
+retinol 0.70 in The Gambia, 0.61 in Ghana, 0.75 in Sierra Leone and 0.91
+in Malawi). The rule is now: BRINDA-adjust RBP as before, convert to
+retinol-equivalents with the survey's published regression
+(`metadata/rbp_retinol_calibration.csv`; retinol = a + b RBP), cut at the
+WHO retinol threshold 0.70. `brinda_vad_adjusted()` returns the converted
+value (attribute `scale`), so the prevalence and the level target are cut
+from the same quantity; `VITA_RULE=rbp070` restores the previous rule for
+the sensitivity. Every consumer (script 01, cluster 01, script 34, the DAG's
+`build_outcome_dataset` on its next rebuild, the individual-level LOCO
+pooling) inherits it.
+**The lines.** The Gambia: RBP = 0.978 retinol + 0.0153 inverted (n 14,
+children and women; near identity). Ghana: retinol = RBP / 1.15 (n 300;
+the report gives the slope in the text and the intercept only in a figure
+that could not be rendered, so the intercept is taken as 0; the
+assumption is recorded in the table). Sierra Leone: retinol = 0.196 +
+0.788 RBP (n 33 women; applied to children too, whose plasma was too
+scarce for HPLC). Malawi: retinol = 0.379 + 0.755 RBP for preschool
+children (n 76) and 0.275 + 0.929 RBP for women (n 91), the survey's own
+group-specific lines behind its 0.46 cut-point.
+**What the targets become (children / women, unweighted share of assayed
+rows; RR-08 rule in brackets).** The Gambia 20.1 / 2.7 (20.1 / 2.7),
+Ghana 27.6 / 2.9 (14.9 / 1.5), Sierra Leone 7.2 / 1.3 (12.6 / 1.8),
+Malawi 0.4 / 0.2 (9.3 / 1.3). Malawi's vitamin A cells now have 5 and 2
+cases, so their prevalence targets are near-degenerate (most districts
+0%) and will score NA in folds without variance; that is the truth of the
+survey (MRDR found no deficiency) rather than a defect, and the level
+target for those cells is unaffected. Ghana's 27.6% is a retinol-equivalent
+figure, not the survey's published 20.8% (Thurnham-adjusted RBP < 0.70),
+and should be labelled as such wherever it is quoted.
+**Also in this re-run.** Malawi women's B12 on the corrected pmol/L
+scale (RP-01: 2.8% -> 10.9%). Individual-level Malawi cells still use the
+clean file's own outcome columns (script 46 notes this) and do not follow
+either change.
+
+RR-09 results (protocol suite, 43 / 44 / 47 / 34, individual-level shards, cluster track; RR-08 in the middle column):
+| Figure | RR-08 (adjusted RBP < 0.70; Malawi B12 pg/mL) | RR-09 (retinol-equivalent < 0.70; B12 pmol/L) |
+|---|---|---|
+| Transport, district, zero-tuning index (level / prev) | 0.277 / 0.186 (17 / 15) | 0.275 / 0.207 (17 / 16) |
+| Transport, district, penalised domain fit (level) | 0.280 (21 of 22) | 0.294 (20 of 22) |
+| Transport, regional, full index (level / prev) | 0.297 / 0.335 (17 / 17) | 0.298 / 0.247 (17 / 15) |
+| Climate + soil, district / regional (level) | 0.370 / 0.447 | 0.369 / 0.448 |
+| NC-01 null 95th percentile, regional / district | 0.159 / 0.080 | 0.159 / 0.079 |
+| In-fill index vs jackknifed regional mean (level; prev) | 0.398 vs 0.314; 0.296 vs 0.193 | 0.397 vs 0.314; 0.288 vs 0.220 |
+| Region estimand, index (level / prev) | 0.379 / 0.279 | 0.379 / 0.269 |
+| Burden captured, index / jk / spatial | 0.243 / 0.190 / 0.229 | 0.224 / 0.203 / 0.197 |
+| DA-01 load-bearing domains (level) | soil +0.025, climate +0.016, agriculture +0.010, malaria +0.010, modelled nutrition +0.008 | soil +0.024, climate +0.015, agriculture +0.011, malaria +0.009, livestock +0.007 |
+| TC-01 slope per training country (level / prev) | +0.051 / +0.066 | +0.049 / +0.076 |
+| DA-02 nested selection vs full (level, median; cells better) | -0.052 (10 of 22) | -0.020 (11 of 22) |
+| VC-01 honest ceiling on prevalence; cells at ceiling | 0.435; 4 of 24 | 0.437; 2 of 24 |
+| RC-01 vitamin A bands, in-fill exact / within one | 0.54 / 0.90 | 0.67 / 0.92 (Malawi's districts are now all in the lowest band, so its exact-band accuracy is trivial) |
+| IL-01 AUC survey / proxies / both; Brier skill | 0.51 / 0.51 / 0.53; 0.012 / 0.003 / 0.019 | 0.52 / 0.51 / 0.53; 0.013 / 0.002 / 0.018 (both beats survey-only in 12 of 19 cells) |
+| AR-01 at f = 0.05: A1 / regional / district survey MAE | 10.2 / 12.2 / 18.6 | 10.3 / 12.3 / 19.5 |
+| Cluster track, in-fill index level / prev; transport at Admin-2 level / prev | 0.320 / 0.205; 0.219 / 0.166 | 0.320 / 0.200; 0.218 / 0.153 |
+| Vitamin A prevalence cells, in-fill index on prev (Gambia / Ghana / Malawi children) | 0.60 / 0.34 / 0.21 | 0.60 / 0.28 / 0.06 |
+
+Reading: nothing on the level target moves (0.275 / 0.369 / 0.448 / 0.397 /
+0.379 are RR-08 to the second decimal) because the conversion is monotone
+within a survey and the level is standardised within country. Every
+prevalence figure moves, and it moves through eight vitamin A cells whose
+targets are now cut at a different point of the RBP distribution: the
+district prevalence transport rises 0.02 (Sierra Leone's children go from
+-0.20 to +0.10 once their target is cut at retinol rather than an RBP that
+reads 10% low), the regional prevalence transport falls 0.09 and the
+prevalence burden capture 0.02, almost entirely through Malawi's two
+vitamin A cells, which now hold 5 and 2 deficient respondents and no longer
+carry a district ranking (in-fill 0.21 -> 0.06 for children, 0.01 -> -0.12
+for women). That is the truth of the survey (its MRDR test found no
+deficiency) and the right behaviour for a target that measures a
+near-absent condition; the regional prevalence figure, already flagged as
+volatile in FX-02 (0.33 -> 0.36 -> 0.37 -> 0.34), should now be quoted as
+"0.25 over 22 cells, two of them near-empty" or left to the level target.
+Documents now quote 0.28 / 0.21 for the district index, 0.29 (20 of 22)
+for the penalised fit, 0.30 / 0.25 for the regional index and the vitamin A
+prevalence targets 20 / 28 / 7 / 0.4% for children.

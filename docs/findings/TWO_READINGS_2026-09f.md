@@ -69,6 +69,19 @@ District index 0.28 / 0.19 (17 of 22), penalised district fit 0.28 (21 of
 climate + soil 0.45 regional and 0.37 district, the nulls 0.16 / 0.08, in-fill
 0.40 against 0.31.*
 
+*Refreshed a fifth time on 8 September after the survey-report audit (sandbox
+log RP-01, VA-01; RR-09): vitamin A is now cut at 0.70 umol/L of retinol
+after each survey's own RBP-to-retinol calibration (0.70 of RBP was 0.61 to
+0.91 of retinol across the four), and Malawi's B12 is converted from pg/mL.
+Children's vitamin A prevalence targets are 20 / 28 / 7 / 0.4% (The Gambia,
+Ghana, Sierra Leone, Malawi), so Malawi's two vitamin A cells are near-empty.
+District index 0.28 / 0.21 (17 of 22), penalised district fit 0.29 (20 of
+22), regional full index 0.30 on the level and 0.25 on prevalence (17 / 15
+of 22), climate + soil 0.45 regional and 0.37 district, the nulls 0.16 /
+0.08, in-fill 0.40 against 0.31 on the level. The level-target figures did
+not move; every prevalence figure now carries two near-degenerate Malawi
+cells.*
+
 Every number comes from `results/tables/protocol_v2/` under one protocol:
 replicated folds, three separately scored estimands, information-matched
 baselines, precision-weighted scoring, a 454-predictor vocabulary reduced to
@@ -192,7 +205,7 @@ should be read as an upper bound or withdrawn.
 | Revision e claim | Status in f |
 |:---|:---|
 | Regional transport 0.50–0.56, 12 of 12 | **Corrected (BUG-01).** Three countries only. All 22 cells: 0.30 mean, 17 positive; climate + soil 0.45 (20 of 22); 0.43 and 12 of 12 in countries with ≥ 8 regions. |
-| DA-03: climate + soil "a wash" at Admin-1 | **Reversed.** Same bug. On 22 cells climate + soil 0.45 vs full 0.30 on the level, 0.38 vs 0.34 on prevalence. |
+| DA-03: climate + soil "a wash" at Admin-1 | **Reversed.** Same bug. On 22 cells climate + soil 0.45 vs full 0.30 on the level, 0.38 vs 0.25 on prevalence (two near-empty Malawi vitamin A cells since VA-01). |
 | District transport 0.28–0.31 (full), 0.368 (climate + soil) | **Stands.** No population join involved. |
 | Burden capture 24 / 19 / 20 percent; in-fill 15 of 18; CF-01 | **Stand.** Sierra Leone's 14 districts cannot be folded, so its absence changed nothing. |
 | Reliability ceiling "an upper bound; 16–27% cluster effect on multi-cluster units" | **Quantified on all units (VC-01).** Honest ceiling 0.44 vs 0.54; 21% cluster share; model at ceiling in 3 of 24 cells; child zinc ceiling 0.27 / 0.00. |

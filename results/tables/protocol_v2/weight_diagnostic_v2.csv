@@ -7,9 +7,9 @@
 "Gambia","child_iron","gw_svy_weight","gw_hhweight",70,30,0.9959,0.9942,0.828,4.016
 "Gambia","child_iron","gw_svy_weight","gw_cWeight",221,30,0.985,0.9854,2.711,7.812
 "Gambia","women_iron","gw_svy_weight","gw_hhweight",70,30,0.9921,0.9889,0.847,8.247
-"Ghana","child_vitA","gw_PSUStrat_weight","gw_PSU_weight",90,75,1,1,0.002,0.165
+"Ghana","child_vitA","gw_PSUStrat_weight","gw_PSU_weight",90,75,1,0.9998,0.007,0.534
 "Ghana","child_vitA","gw_PSUStrat_weight","gw_PSUStrat_weight",90,75,1,1,0,0
-"Ghana","child_vitA","gw_PSUStrat_weight","gw_cwt",147,75,0.9623,0.9665,1.937,22.076
+"Ghana","child_vitA","gw_PSUStrat_weight","gw_cwt",147,75,0.9765,0.963,2.714,22.087
 "Ghana","women_vitA","gw_PSUStrat_weight","gw_PSU_weight",90,75,1,1,0,0
 "Ghana","women_vitA","gw_PSUStrat_weight","gw_PSUStrat_weight",90,75,1,1,0,0
 "Ghana","child_iron","gw_PSUStrat_weight","gw_PSU_weight",90,75,1,0.9993,0.016,1.23
@@ -21,7 +21,7 @@
 "Ghana","women_folate","gw_PSUStrat_weight","gw_PSUStrat_weight",90,75,1,1,0,0
 "Ghana","women_b12","gw_PSUStrat_weight","gw_PSU_weight",90,75,1,0.9997,0,0
 "Ghana","women_b12","gw_PSUStrat_weight","gw_PSUStrat_weight",90,75,1,1,0,0
-"SierraLeone","child_vitA","gw_svy_weight","gw_wStatWt",17,14,0.6344,0.5868,3.769,7.619
+"SierraLeone","child_vitA","gw_svy_weight","gw_wStatWt",17,14,0.8548,0.8198,1.958,3.971
 "SierraLeone","women_vitA","gw_svy_weight","gw_wStatWt",21,14,1,1,0,0
 "SierraLeone","child_iron","gw_svy_weight","gw_wStatWt",17,14,0.9598,0.9769,1.096,4.118
 "SierraLeone","women_iron","gw_svy_weight","gw_wStatWt",21,14,1,1,0,0

@@ -19,26 +19,26 @@
 "Gambia","women_iron",6,"spatial_plus_domain",NA,11.45,TRUE
 "Gambia","women_iron",6,"domain_index",NA,4.72,TRUE
 "Gambia","women_iron",6,"DIFF spatial+dom vs spatial",NA,0,TRUE
-"Ghana","child_vitA",16,"null_train_mean",-1,6.34,FALSE
-"Ghana","child_vitA",16,"spatial",0.05,7.11,FALSE
-"Ghana","child_vitA",16,"spatial_plus_domain",-0.044,7.5,FALSE
-"Ghana","child_vitA",16,"domain_index",0.562,7.04,FALSE
-"Ghana","child_vitA",16,"DIFF spatial+dom vs spatial",NA,-0.39,FALSE
-"Ghana","women_vitA",16,"null_train_mean",-0.977,1.43,FALSE
-"Ghana","women_vitA",16,"spatial",0.504,1.13,FALSE
-"Ghana","women_vitA",16,"spatial_plus_domain",0.504,1.13,FALSE
-"Ghana","women_vitA",16,"domain_index",0.583,1.04,FALSE
-"Ghana","women_vitA",16,"DIFF spatial+dom vs spatial",NA,0.01,FALSE
+"Ghana","child_vitA",16,"null_train_mean",-1,7.99,FALSE
+"Ghana","child_vitA",16,"spatial",0.171,6.41,FALSE
+"Ghana","child_vitA",16,"spatial_plus_domain",0.135,6.45,FALSE
+"Ghana","child_vitA",16,"domain_index",0.3,7.02,FALSE
+"Ghana","child_vitA",16,"DIFF spatial+dom vs spatial",NA,-0.04,FALSE
+"Ghana","women_vitA",16,"null_train_mean",-1,2.02,FALSE
+"Ghana","women_vitA",16,"spatial",0.263,2.1,FALSE
+"Ghana","women_vitA",16,"spatial_plus_domain",0.31,1.99,FALSE
+"Ghana","women_vitA",16,"domain_index",0.498,1.67,FALSE
+"Ghana","women_vitA",16,"DIFF spatial+dom vs spatial",NA,0.1,FALSE
 "Ghana","child_iron",16,"null_train_mean",-1,10.89,FALSE
 "Ghana","child_iron",16,"spatial",0.529,10.41,FALSE
-"Ghana","child_iron",16,"spatial_plus_domain",0.485,15.44,FALSE
+"Ghana","child_iron",16,"spatial_plus_domain",0.512,14.4,FALSE
 "Ghana","child_iron",16,"domain_index",0.597,11.3,FALSE
-"Ghana","child_iron",16,"DIFF spatial+dom vs spatial",NA,-5.03,FALSE
+"Ghana","child_iron",16,"DIFF spatial+dom vs spatial",NA,-3.99,FALSE
 "Ghana","women_iron",16,"null_train_mean",-1,7.85,FALSE
 "Ghana","women_iron",16,"spatial",0.506,7.09,FALSE
-"Ghana","women_iron",16,"spatial_plus_domain",0.506,6.91,FALSE
+"Ghana","women_iron",16,"spatial_plus_domain",0.361,7.06,FALSE
 "Ghana","women_iron",16,"domain_index",0.496,6.42,FALSE
-"Ghana","women_iron",16,"DIFF spatial+dom vs spatial",NA,0.19,FALSE
+"Ghana","women_iron",16,"DIFF spatial+dom vs spatial",NA,0.03,FALSE
 "Ghana","women_folate",16,"null_train_mean",-1,20.87,FALSE
 "Ghana","women_folate",16,"spatial",0.659,17.54,FALSE
 "Ghana","women_folate",16,"spatial_plus_domain",0.659,17.54,FALSE
@@ -46,58 +46,58 @@
 "Ghana","women_folate",16,"DIFF spatial+dom vs spatial",NA,0,FALSE
 "Ghana","women_b12",16,"null_train_mean",-1,6.76,FALSE
 "Ghana","women_b12",16,"spatial",-0.271,8.86,FALSE
-"Ghana","women_b12",16,"spatial_plus_domain",-0.301,8.7,FALSE
+"Ghana","women_b12",16,"spatial_plus_domain",-0.41,9.59,FALSE
 "Ghana","women_b12",16,"domain_index",0.123,9.3,FALSE
-"Ghana","women_b12",16,"DIFF spatial+dom vs spatial",NA,0.15,FALSE
-"Malawi","child_vitA",27,"null_train_mean",-1,5.64,FALSE
-"Malawi","child_vitA",27,"spatial",0.211,5.43,FALSE
-"Malawi","child_vitA",27,"spatial_plus_domain",0.211,5.43,FALSE
-"Malawi","child_vitA",27,"domain_index",0.198,6.82,FALSE
+"Ghana","women_b12",16,"DIFF spatial+dom vs spatial",NA,-0.73,FALSE
+"Malawi","child_vitA",27,"null_train_mean",-0.912,0.87,FALSE
+"Malawi","child_vitA",27,"spatial",-0.224,0.89,FALSE
+"Malawi","child_vitA",27,"spatial_plus_domain",-0.224,0.89,FALSE
+"Malawi","child_vitA",27,"domain_index",0.012,0.97,FALSE
 "Malawi","child_vitA",27,"DIFF spatial+dom vs spatial",NA,0,FALSE
-"Malawi","women_vitA",27,"null_train_mean",-1,1.9,FALSE
-"Malawi","women_vitA",27,"spatial",0.565,1.66,FALSE
-"Malawi","women_vitA",27,"spatial_plus_domain",0.565,1.66,FALSE
-"Malawi","women_vitA",27,"domain_index",-0.108,2.11,FALSE
+"Malawi","women_vitA",27,"null_train_mean",-1,0.78,FALSE
+"Malawi","women_vitA",27,"spatial",0.071,0.75,FALSE
+"Malawi","women_vitA",27,"spatial_plus_domain",0.052,0.75,FALSE
+"Malawi","women_vitA",27,"domain_index",-0.418,0.86,FALSE
 "Malawi","women_vitA",27,"DIFF spatial+dom vs spatial",NA,0,FALSE
 "Malawi","child_iron",27,"null_train_mean",-1,8.67,FALSE
 "Malawi","child_iron",27,"spatial",0.023,9.37,FALSE
-"Malawi","child_iron",27,"spatial_plus_domain",-0.06,10.06,FALSE
+"Malawi","child_iron",27,"spatial_plus_domain",-0.053,10.21,FALSE
 "Malawi","child_iron",27,"domain_index",0.002,11.11,FALSE
-"Malawi","child_iron",27,"DIFF spatial+dom vs spatial",NA,-0.7,FALSE
+"Malawi","child_iron",27,"DIFF spatial+dom vs spatial",NA,-0.84,FALSE
 "Malawi","women_iron",27,"null_train_mean",-1,6.5,FALSE
 "Malawi","women_iron",27,"spatial",0.2,6.79,FALSE
-"Malawi","women_iron",27,"spatial_plus_domain",0.222,6.77,FALSE
+"Malawi","women_iron",27,"spatial_plus_domain",0.212,6.76,FALSE
 "Malawi","women_iron",27,"domain_index",0.306,8.24,FALSE
-"Malawi","women_iron",27,"DIFF spatial+dom vs spatial",NA,0.01,FALSE
+"Malawi","women_iron",27,"DIFF spatial+dom vs spatial",NA,0.02,FALSE
 "Malawi","women_folate",27,"null_train_mean",-1,13.79,FALSE
 "Malawi","women_folate",27,"spatial",-0.135,14.85,FALSE
-"Malawi","women_folate",27,"spatial_plus_domain",-0.056,15.56,FALSE
+"Malawi","women_folate",27,"spatial_plus_domain",-0.093,14.69,FALSE
 "Malawi","women_folate",27,"domain_index",0.249,14.63,FALSE
-"Malawi","women_folate",27,"DIFF spatial+dom vs spatial",NA,-0.71,FALSE
-"Malawi","women_b12",27,"null_train_mean",-1,2.97,FALSE
-"Malawi","women_b12",27,"spatial",0.752,2.75,FALSE
-"Malawi","women_b12",27,"spatial_plus_domain",0.813,2.69,FALSE
-"Malawi","women_b12",27,"domain_index",0.559,2.09,FALSE
-"Malawi","women_b12",27,"DIFF spatial+dom vs spatial",NA,0.06,FALSE
+"Malawi","women_folate",27,"DIFF spatial+dom vs spatial",NA,0.16,FALSE
+"Malawi","women_b12",27,"null_train_mean",-1,9.21,FALSE
+"Malawi","women_b12",27,"spatial",0.468,8.48,FALSE
+"Malawi","women_b12",27,"spatial_plus_domain",0.428,8.79,FALSE
+"Malawi","women_b12",27,"domain_index",0.494,7.22,FALSE
+"Malawi","women_b12",27,"DIFF spatial+dom vs spatial",NA,-0.31,FALSE
 "Malawi","child_zinc",27,"null_train_mean",-1,11.98,FALSE
 "Malawi","child_zinc",27,"spatial",-0.263,12.78,FALSE
-"Malawi","child_zinc",27,"spatial_plus_domain",-0.309,12.89,FALSE
+"Malawi","child_zinc",27,"spatial_plus_domain",-0.263,12.78,FALSE
 "Malawi","child_zinc",27,"domain_index",-0.194,16.43,FALSE
-"Malawi","child_zinc",27,"DIFF spatial+dom vs spatial",NA,-0.11,FALSE
+"Malawi","child_zinc",27,"DIFF spatial+dom vs spatial",NA,0,FALSE
 "Malawi","women_zinc",27,"null_train_mean",-1,13.52,FALSE
 "Malawi","women_zinc",27,"spatial",0.166,14.65,FALSE
 "Malawi","women_zinc",27,"spatial_plus_domain",0.166,14.65,FALSE
 "Malawi","women_zinc",27,"domain_index",0.151,16.81,FALSE
 "Malawi","women_zinc",27,"DIFF spatial+dom vs spatial",NA,0,FALSE
-"SierraLeone","child_vitA",4,"null_train_mean",NA,0.92,TRUE
-"SierraLeone","child_vitA",4,"spatial",NA,0.92,TRUE
-"SierraLeone","child_vitA",4,"spatial_plus_domain",NA,0.92,TRUE
-"SierraLeone","child_vitA",4,"domain_index",NA,1.04,TRUE
+"SierraLeone","child_vitA",4,"null_train_mean",NA,1.66,TRUE
+"SierraLeone","child_vitA",4,"spatial",NA,1.66,TRUE
+"SierraLeone","child_vitA",4,"spatial_plus_domain",NA,1.66,TRUE
+"SierraLeone","child_vitA",4,"domain_index",NA,1.3,TRUE
 "SierraLeone","child_vitA",4,"DIFF spatial+dom vs spatial",NA,0,TRUE
-"SierraLeone","women_vitA",4,"null_train_mean",NA,0.39,TRUE
-"SierraLeone","women_vitA",4,"spatial",NA,0.39,TRUE
-"SierraLeone","women_vitA",4,"spatial_plus_domain",NA,0.39,TRUE
-"SierraLeone","women_vitA",4,"domain_index",NA,0.42,TRUE
+"SierraLeone","women_vitA",4,"null_train_mean",NA,0.17,TRUE
+"SierraLeone","women_vitA",4,"spatial",NA,0.17,TRUE
+"SierraLeone","women_vitA",4,"spatial_plus_domain",NA,0.17,TRUE
+"SierraLeone","women_vitA",4,"domain_index",NA,0.16,TRUE
 "SierraLeone","women_vitA",4,"DIFF spatial+dom vs spatial",NA,0,TRUE
 "SierraLeone","child_iron",4,"null_train_mean",NA,2.33,TRUE
 "SierraLeone","child_iron",4,"spatial",NA,2.33,TRUE

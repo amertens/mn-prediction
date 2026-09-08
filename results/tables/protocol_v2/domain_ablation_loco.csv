@@ -1,378 +1,378 @@
 "target","outcome","heldout","domain","variant","spearman"
 "level","child_vitA","Gambia","ALL","full",0.677864293659622
-"level","child_vitA","Ghana","ALL","full",0.404466571834993
-"level","child_vitA","Malawi","ALL","full",0.206149303783626
-"level","child_vitA","SierraLeone","ALL","full",0.0681318681318681
-"level","child_vitA","Gambia","Adult nutrition","drop",0.696996662958843
-"level","child_vitA","Gambia","Adult nutrition","only",0.0149054505005562
-"level","child_vitA","Ghana","Adult nutrition","drop",0.403584637268848
-"level","child_vitA","Ghana","Adult nutrition","only",0.369209985478612
-"level","child_vitA","Malawi","Adult nutrition","drop",0.19178756287818
-"level","child_vitA","Malawi","Adult nutrition","only",0.118812422541372
-"level","child_vitA","SierraLeone","Adult nutrition","drop",0.0549450549450549
-"level","child_vitA","SierraLeone","Adult nutrition","only",0.182417582417582
-"level","child_vitA","Gambia","Agricultural production, land use","drop",0.680533926585094
-"level","child_vitA","Gambia","Agricultural production, land use","only",0.718798665183537
-"level","child_vitA","Ghana","Agricultural production, land use","drop",0.406657183499289
-"level","child_vitA","Ghana","Agricultural production, land use","only",0.435903271692745
-"level","child_vitA","Malawi","Agricultural production, land use","drop",0.221003134796238
-"level","child_vitA","Malawi","Agricultural production, land use","only",-0.02485966319166
-"level","child_vitA","SierraLeone","Agricultural production, land use","drop",0.0725274725274725
-"level","child_vitA","SierraLeone","Agricultural production, land use","only",0.151648351648352
-"level","child_vitA","Gambia","Built environment","drop",0.682758620689655
-"level","child_vitA","Gambia","Built environment","only",0.240489432703003
-"level","child_vitA","Ghana","Built environment","drop",0.400796586059744
-"level","child_vitA","Ghana","Built environment","only",0.397752489331437
-"level","child_vitA","Malawi","Built environment","drop",0.209466355617117
-"level","child_vitA","Malawi","Built environment","only",0.122931398993949
-"level","child_vitA","SierraLeone","Built environment","drop",0.0505494505494506
-"level","child_vitA","SierraLeone","Built environment","only",0.217582417582418
-"level","child_vitA","Gambia","Climate and weather","drop",0.628476084538376
-"level","child_vitA","Gambia","Climate and weather","only",0.739710789766407
-"level","child_vitA","Ghana","Climate and weather","drop",0.412403982930299
-"level","child_vitA","Ghana","Climate and weather","only",0.298179231863442
-"level","child_vitA","Malawi","Climate and weather","drop",0.176642122913173
-"level","child_vitA","Malawi","Climate and weather","only",0.293631989502078
-"level","child_vitA","SierraLeone","Climate and weather","drop",0.0681318681318681
-"level","child_vitA","SierraLeone","Climate and weather","only",0.520879120879121
-"level","child_vitA","Gambia","Dietary diversity","drop",0.667185761957731
-"level","child_vitA","Gambia","Dietary diversity","only",0.168409343715239
-"level","child_vitA","Ghana","Dietary diversity","drop",0.406998577524893
-"level","child_vitA","Ghana","Dietary diversity","only",0.278291190642266
-"level","child_vitA","Malawi","Dietary diversity","drop",0.209830866807611
-"level","child_vitA","Malawi","Dietary diversity","only",0.107785959028942
-"level","child_vitA","SierraLeone","Dietary diversity","drop",0.0769230769230769
-"level","child_vitA","SierraLeone","Dietary diversity","only",-0.472527472527473
+"level","child_vitA","Ghana","ALL","full",0.405689900426743
+"level","child_vitA","Malawi","ALL","full",0.203488372093023
+"level","child_vitA","SierraLeone","ALL","full",0.010989010989011
+"level","child_vitA","Gambia","Adult nutrition","drop",0.691657397107898
+"level","child_vitA","Gambia","Adult nutrition","only",0.0171301446051168
+"level","child_vitA","Ghana","Adult nutrition","drop",0.404665718349929
+"level","child_vitA","Ghana","Adult nutrition","only",0.362380404645834
+"level","child_vitA","Malawi","Adult nutrition","drop",0.191040314937669
+"level","child_vitA","Malawi","Adult nutrition","only",0.116953415469855
+"level","child_vitA","SierraLeone","Adult nutrition","drop",-0.0021978021978022
+"level","child_vitA","SierraLeone","Adult nutrition","only",0.12967032967033
+"level","child_vitA","Gambia","Agricultural production, land use","drop",0.668075639599555
+"level","child_vitA","Gambia","Agricultural production, land use","only",0.721023359288098
+"level","child_vitA","Ghana","Agricultural production, land use","drop",0.404950213371266
+"level","child_vitA","Ghana","Agricultural production, land use","only",0.442048364153627
+"level","child_vitA","Malawi","Agricultural production, land use","drop",0.210104250200481
+"level","child_vitA","Malawi","Agricultural production, land use","only",-0.0106619523219363
+"level","child_vitA","SierraLeone","Agricultural production, land use","drop",0.0153846153846154
+"level","child_vitA","SierraLeone","Agricultural production, land use","only",0.116483516483516
+"level","child_vitA","Gambia","Built environment","drop",0.688097886540601
+"level","child_vitA","Gambia","Built environment","only",0.23559510567297
+"level","child_vitA","Ghana","Built environment","drop",0.406600284495021
+"level","child_vitA","Ghana","Built environment","only",0.403584637268848
+"level","child_vitA","Malawi","Built environment","drop",0.209229423343297
+"level","child_vitA","Malawi","Built environment","only",0.12515491725596
+"level","child_vitA","SierraLeone","Built environment","drop",-0.00659340659340659
+"level","child_vitA","SierraLeone","Built environment","only",0.178021978021978
+"level","child_vitA","Gambia","Climate and weather","drop",0.652502780867631
+"level","child_vitA","Gambia","Climate and weather","only",0.749054505005562
+"level","child_vitA","Ghana","Climate and weather","drop",0.417610241820768
+"level","child_vitA","Ghana","Climate and weather","only",0.297894736842105
+"level","child_vitA","Malawi","Climate and weather","drop",0.17429102573449
+"level","child_vitA","Malawi","Climate and weather","only",0.277046730334621
+"level","child_vitA","SierraLeone","Climate and weather","drop",0.010989010989011
+"level","child_vitA","SierraLeone","Climate and weather","only",0.503296703296703
+"level","child_vitA","Gambia","Dietary diversity","drop",0.669410456062291
+"level","child_vitA","Gambia","Dietary diversity","only",0.163070077864294
+"level","child_vitA","Ghana","Dietary diversity","drop",0.41049786628734
+"level","child_vitA","Ghana","Dietary diversity","only",0.273823506514158
+"level","child_vitA","Malawi","Dietary diversity","drop",0.209521032295691
+"level","child_vitA","Malawi","Dietary diversity","only",0.106601297659838
+"level","child_vitA","SierraLeone","Dietary diversity","drop",0.0241758241758242
+"level","child_vitA","SierraLeone","Dietary diversity","only",-0.49010989010989
 "level","child_vitA","Gambia","Ecosystem productivity/greenness","drop",0.682758620689655
 "level","child_vitA","Gambia","Ecosystem productivity/greenness","only",0.45539488320356
-"level","child_vitA","Ghana","Ecosystem productivity/greenness","drop",0.416216216216216
-"level","child_vitA","Ghana","Ecosystem productivity/greenness","only",0.358805120910384
-"level","child_vitA","Malawi","Ecosystem productivity/greenness","drop",0.194995261354524
-"level","child_vitA","Malawi","Ecosystem productivity/greenness","only",0.23531019902311
-"level","child_vitA","SierraLeone","Ecosystem productivity/greenness","drop",0.0197802197802198
-"level","child_vitA","SierraLeone","Ecosystem productivity/greenness","only",0.441758241758242
+"level","child_vitA","Ghana","Ecosystem productivity/greenness","drop",0.416529160739687
+"level","child_vitA","Ghana","Ecosystem productivity/greenness","only",0.358662873399715
+"level","child_vitA","Malawi","Ecosystem productivity/greenness","drop",0.190220164759058
+"level","child_vitA","Malawi","Ecosystem productivity/greenness","only",0.217485601807975
+"level","child_vitA","SierraLeone","Ecosystem productivity/greenness","drop",-0.0373626373626374
+"level","child_vitA","SierraLeone","Ecosystem productivity/greenness","only",0.393406593406593
 "level","child_vitA","Gambia","Education, employment, SES","drop",0.676084538375973
-"level","child_vitA","Gambia","Education, employment, SES","only",0.566184649610678
-"level","child_vitA","Ghana","Education, employment, SES","drop",0.398577524893314
-"level","child_vitA","Ghana","Education, employment, SES","only",0.346600284495021
-"level","child_vitA","Malawi","Education, employment, SES","drop",0.212109061748196
-"level","child_vitA","Malawi","Education, employment, SES","only",0.171867026317708
-"level","child_vitA","SierraLeone","Education, employment, SES","drop",0.0593406593406593
-"level","child_vitA","SierraLeone","Education, employment, SES","only",-0.213186813186813
-"level","child_vitA","Gambia","Fertility, reproductive health","drop",0.663181312569522
-"level","child_vitA","Gambia","Fertility, reproductive health","only",0.629810901001112
-"level","child_vitA","Ghana","Fertility, reproductive health","drop",0.403470839260313
-"level","child_vitA","Ghana","Fertility, reproductive health","only",0.186803264069856
-"level","child_vitA","Malawi","Fertility, reproductive health","drop",0.216009331486477
-"level","child_vitA","Malawi","Fertility, reproductive health","only",0.0164030035722097
-"level","child_vitA","SierraLeone","Fertility, reproductive health","drop",0.116483516483516
-"level","child_vitA","SierraLeone","Fertility, reproductive health","only",-0.243956043956044
-"level","child_vitA","Gambia","Food fortification and supplementation","drop",0.668075639599555
-"level","child_vitA","Gambia","Food fortification and supplementation","only",0.0909899888765295
-"level","child_vitA","Ghana","Food fortification and supplementation","drop",0.404125177809388
-"level","child_vitA","Ghana","Food fortification and supplementation","only",0.296123456685139
-"level","child_vitA","Malawi","Food fortification and supplementation","drop",0.20932055114092
-"level","child_vitA","Malawi","Food fortification and supplementation","only",-0.00298899176204709
-"level","child_vitA","SierraLeone","Food fortification and supplementation","drop",0.0681318681318681
-"level","child_vitA","SierraLeone","Food fortification and supplementation","only",0.27032967032967
-"level","child_vitA","Gambia","Food prices and supply","drop",0.696551724137931
-"level","child_vitA","Gambia","Food prices and supply","only",0.0700778642936596
-"level","child_vitA","Ghana","Food prices and supply","drop",0.406628733997155
-"level","child_vitA","Ghana","Food prices and supply","only",0.24475106685633
-"level","child_vitA","Malawi","Food prices and supply","drop",0.203470146533499
-"level","child_vitA","Malawi","Food prices and supply","only",-0.0128125683458482
-"level","child_vitA","SierraLeone","Food prices and supply","drop",0.0549450549450549
-"level","child_vitA","SierraLeone","Food prices and supply","only",-0.318681318681319
+"level","child_vitA","Gambia","Education, employment, SES","only",0.563070077864294
+"level","child_vitA","Ghana","Education, employment, SES","drop",0.395960170697013
+"level","child_vitA","Ghana","Education, employment, SES","only",0.346458036984353
+"level","child_vitA","Malawi","Education, employment, SES","drop",0.209521032295691
+"level","child_vitA","Malawi","Education, employment, SES","only",0.17483779252023
+"level","child_vitA","SierraLeone","Education, employment, SES","drop",0.010989010989011
+"level","child_vitA","SierraLeone","Education, employment, SES","only",-0.204395604395604
+"level","child_vitA","Gambia","Fertility, reproductive health","drop",0.666295884315907
+"level","child_vitA","Gambia","Fertility, reproductive health","only",0.624026696329255
+"level","child_vitA","Ghana","Fertility, reproductive health","drop",0.402788051209104
+"level","child_vitA","Ghana","Fertility, reproductive health","only",0.173940886834792
+"level","child_vitA","Malawi","Fertility, reproductive health","drop",0.218560909819931
+"level","child_vitA","Malawi","Fertility, reproductive health","only",-0.000455638988116935
+"level","child_vitA","SierraLeone","Fertility, reproductive health","drop",0.0769230769230769
+"level","child_vitA","SierraLeone","Fertility, reproductive health","only",-0.257142857142857
+"level","child_vitA","Gambia","Food fortification and supplementation","drop",0.678754171301446
+"level","child_vitA","Gambia","Food fortification and supplementation","only",0.0936596218020022
+"level","child_vitA","Ghana","Food fortification and supplementation","drop",0.406571834992888
+"level","child_vitA","Ghana","Food fortification and supplementation","only",0.299794408627517
+"level","child_vitA","Malawi","Food fortification and supplementation","drop",0.20877378435518
+"level","child_vitA","Malawi","Food fortification and supplementation","only",-0.0127943427863235
+"level","child_vitA","SierraLeone","Food fortification and supplementation","drop",0.010989010989011
+"level","child_vitA","SierraLeone","Food fortification and supplementation","only",0.314285714285714
+"level","child_vitA","Gambia","Food prices and supply","drop",0.696996662958843
+"level","child_vitA","Gambia","Food prices and supply","only",0.07853170189099
+"level","child_vitA","Ghana","Food prices and supply","drop",0.408250355618777
+"level","child_vitA","Ghana","Food prices and supply","only",0.180256045519203
+"level","child_vitA","Malawi","Food prices and supply","drop",0.199661004592841
+"level","child_vitA","Malawi","Food prices and supply","only",-0.012940147262521
+"level","child_vitA","SierraLeone","Food prices and supply","drop",-0.0021978021978022
+"level","child_vitA","SierraLeone","Food prices and supply","only",-0.305494505494505
 "level","child_vitA","Gambia","Healthcare access","drop",0.696106785317019
-"level","child_vitA","Gambia","Healthcare access","only",0.0162402669632925
-"level","child_vitA","Ghana","Healthcare access","drop",0.397866287339971
-"level","child_vitA","Ghana","Healthcare access","only",0.271433153222686
-"level","child_vitA","Malawi","Healthcare access","drop",0.209685062331414
-"level","child_vitA","Malawi","Healthcare access","only",0.114310709338777
-"level","child_vitA","SierraLeone","Healthcare access","drop",0.0637362637362637
-"level","child_vitA","SierraLeone","Healthcare access","only",-0.221978021978022
+"level","child_vitA","Gambia","Healthcare access","only",0.0304783092324805
+"level","child_vitA","Ghana","Healthcare access","drop",0.4025320056899
+"level","child_vitA","Ghana","Healthcare access","only",0.276071576871614
+"level","child_vitA","Malawi","Healthcare access","drop",0.204272071152584
+"level","child_vitA","Malawi","Healthcare access","only",0.117718888969891
+"level","child_vitA","SierraLeone","Healthcare access","drop",0.010989010989011
+"level","child_vitA","SierraLeone","Healthcare access","only",-0.217582417582418
 "level","child_vitA","Gambia","Helminth burden and control","drop",0.696551724137931
-"level","child_vitA","Gambia","Helminth burden and control","only",-0.356628325056624
-"level","child_vitA","Ghana","Helminth burden and control","drop",0.39678520625889
-"level","child_vitA","Ghana","Helminth burden and control","only",-0.131645269970224
-"level","child_vitA","Malawi","Helminth burden and control","drop",0.207388641831304
-"level","child_vitA","Malawi","Helminth burden and control","only",-0.0492735069190617
-"level","child_vitA","SierraLeone","Helminth burden and control","drop",0.0681318681318681
-"level","child_vitA","SierraLeone","Helminth burden and control","only",-0.032967032967033
+"level","child_vitA","Gambia","Helminth burden and control","only",-0.342318473769085
+"level","child_vitA","Ghana","Helminth burden and control","drop",0.39448079658606
+"level","child_vitA","Ghana","Helminth burden and control","only",-0.0836215765028724
+"level","child_vitA","Malawi","Helminth burden and control","drop",0.204180943354961
+"level","child_vitA","Malawi","Helminth burden and control","only",-0.0288873003355551
+"level","child_vitA","SierraLeone","Helminth burden and control","drop",0.010989010989011
+"level","child_vitA","SierraLeone","Helminth burden and control","only",0.0373626373626374
 "level","child_vitA","Gambia","Household assets and characteristics","drop",0.669410456062291
-"level","child_vitA","Gambia","Household assets and characteristics","only",0.531479421579533
-"level","child_vitA","Ghana","Household assets and characteristics","drop",0.397809388335704
-"level","child_vitA","Ghana","Household assets and characteristics","only",0.379374110953058
-"level","child_vitA","Malawi","Household assets and characteristics","drop",0.19548735146169
-"level","child_vitA","Malawi","Household assets and characteristics","only",0.208081213093242
-"level","child_vitA","SierraLeone","Household assets and characteristics","drop",0.0593406593406593
-"level","child_vitA","SierraLeone","Household assets and characteristics","only",-0.134065934065934
-"level","child_vitA","Gambia","Infant and child morbidity/mortality","drop",0.699221357063404
-"level","child_vitA","Gambia","Infant and child morbidity/mortality","only",0.160400444938821
-"level","child_vitA","Ghana","Infant and child morbidity/mortality","drop",0.417496443812233
-"level","child_vitA","Ghana","Infant and child morbidity/mortality","only",0.260654338549075
-"level","child_vitA","Malawi","Infant and child morbidity/mortality","drop",0.23133702704673
-"level","child_vitA","Malawi","Infant and child morbidity/mortality","only",-0.0511591455857695
-"level","child_vitA","SierraLeone","Infant and child morbidity/mortality","drop",0.0857142857142857
-"level","child_vitA","SierraLeone","Infant and child morbidity/mortality","only",-0.0637362637362637
-"level","child_vitA","Gambia","Livestock density","drop",0.695661846496107
-"level","child_vitA","Gambia","Livestock density","only",0.360622914349277
-"level","child_vitA","Ghana","Livestock density","drop",0.408421052631579
-"level","child_vitA","Ghana","Livestock density","only",0.303897581792319
-"level","child_vitA","Malawi","Livestock density","drop",0.205019319093096
-"level","child_vitA","Malawi","Livestock density","only",0.140737770649559
-"level","child_vitA","SierraLeone","Livestock density","drop",0.0593406593406593
-"level","child_vitA","SierraLeone","Livestock density","only",0.345054945054945
-"level","child_vitA","Gambia","Malaria","drop",0.676529477196885
+"level","child_vitA","Gambia","Household assets and characteristics","only",0.529254727474972
+"level","child_vitA","Ghana","Household assets and characteristics","drop",0.400654338549075
+"level","child_vitA","Ghana","Household assets and characteristics","only",0.381137980085348
+"level","child_vitA","Malawi","Household assets and characteristics","drop",0.195359772545017
+"level","child_vitA","Malawi","Household assets and characteristics","only",0.208318145367063
+"level","child_vitA","SierraLeone","Household assets and characteristics","drop",0.00659340659340659
+"level","child_vitA","SierraLeone","Household assets and characteristics","only",-0.169230769230769
+"level","child_vitA","Gambia","Infant and child morbidity/mortality","drop",0.693437152391546
+"level","child_vitA","Gambia","Infant and child morbidity/mortality","only",0.17908787541713
+"level","child_vitA","Ghana","Infant and child morbidity/mortality","drop",0.420284495021337
+"level","child_vitA","Ghana","Infant and child morbidity/mortality","only",0.25877667140825
+"level","child_vitA","Malawi","Infant and child morbidity/mortality","drop",0.227527885106073
+"level","child_vitA","Malawi","Infant and child morbidity/mortality","only",-0.0501567398119122
+"level","child_vitA","SierraLeone","Infant and child morbidity/mortality","drop",0.0285714285714286
+"level","child_vitA","SierraLeone","Infant and child morbidity/mortality","only",-0.0681318681318681
+"level","child_vitA","Gambia","Livestock density","drop",0.696106785317019
+"level","child_vitA","Gambia","Livestock density","only",0.359733036707453
+"level","child_vitA","Ghana","Livestock density","drop",0.403044096728307
+"level","child_vitA","Ghana","Livestock density","only",0.306372688477952
+"level","child_vitA","Malawi","Livestock density","drop",0.201173726033389
+"level","child_vitA","Malawi","Livestock density","only",0.148173798935627
+"level","child_vitA","SierraLeone","Livestock density","drop",0.00659340659340659
+"level","child_vitA","SierraLeone","Livestock density","only",0.296703296703297
+"level","child_vitA","Gambia","Malaria","drop",0.673414905450501
 "level","child_vitA","Gambia","Malaria","only",-0.0255839822024472
-"level","child_vitA","Ghana","Malaria","drop",0.404068278805121
+"level","child_vitA","Ghana","Malaria","drop",0.403271692745377
 "level","child_vitA","Ghana","Malaria","only",0.208304889031083
-"level","child_vitA","Malawi","Malaria","drop",0.203306116497776
-"level","child_vitA","Malawi","Malaria","only",0.119176933731866
-"level","child_vitA","SierraLeone","Malaria","drop",0.0549450549450549
-"level","child_vitA","SierraLeone","Malaria","only",0.248351648351648
-"level","child_vitA","Gambia","Malaria incidence and treatment","drop",0.676974416017798
-"level","child_vitA","Gambia","Malaria incidence and treatment","only",-0.446496106785317
-"level","child_vitA","Ghana","Malaria incidence and treatment","drop",0.408705547652916
-"level","child_vitA","Ghana","Malaria incidence and treatment","only",0.0207681365576102
-"level","child_vitA","Malawi","Malaria incidence and treatment","drop",0.203925785521615
-"level","child_vitA","Malawi","Malaria incidence and treatment","only",-0.0942079171830575
-"level","child_vitA","SierraLeone","Malaria incidence and treatment","drop",0.0505494505494506
-"level","child_vitA","SierraLeone","Malaria incidence and treatment","only",0.0681318681318681
-"level","child_vitA","Gambia","Nutrition status (MODELLED SURFACE)","drop",0.6440489432703
+"level","child_vitA","Malawi","Malaria","drop",0.202467740759641
+"level","child_vitA","Malawi","Malaria","only",0.113927972588758
+"level","child_vitA","SierraLeone","Malaria","drop",-0.0021978021978022
+"level","child_vitA","SierraLeone","Malaria","only",0.195604395604396
+"level","child_vitA","Gambia","Malaria incidence and treatment","drop",0.681868743047831
+"level","child_vitA","Gambia","Malaria incidence and treatment","only",-0.426028921023359
+"level","child_vitA","Ghana","Malaria incidence and treatment","drop",0.408961593172119
+"level","child_vitA","Ghana","Malaria incidence and treatment","only",0.0210241820768137
+"level","child_vitA","Malawi","Malaria incidence and treatment","drop",0.200882117080994
+"level","child_vitA","Malawi","Malaria incidence and treatment","only",-0.0838375738135161
+"level","child_vitA","SierraLeone","Malaria incidence and treatment","drop",0.010989010989011
+"level","child_vitA","SierraLeone","Malaria incidence and treatment","only",0.120879120879121
+"level","child_vitA","Gambia","Nutrition status (MODELLED SURFACE)","drop",0.645828698553949
 "level","child_vitA","Gambia","Nutrition status (MODELLED SURFACE)","only",0.737041156840934
-"level","child_vitA","Ghana","Nutrition status (MODELLED SURFACE)","drop",0.408904694167852
-"level","child_vitA","Ghana","Nutrition status (MODELLED SURFACE)","only",0.35072546230441
-"level","child_vitA","Malawi","Nutrition status (MODELLED SURFACE)","drop",0.19969745571189
-"level","child_vitA","Malawi","Nutrition status (MODELLED SURFACE)","only",0.210906174819567
-"level","child_vitA","SierraLeone","Nutrition status (MODELLED SURFACE)","drop",0.0593406593406593
-"level","child_vitA","SierraLeone","Nutrition status (MODELLED SURFACE)","only",-0.0769230769230769
-"level","child_vitA","Gambia","Ruralness, population density, built environment","drop",0.67741935483871
+"level","child_vitA","Ghana","Nutrition status (MODELLED SURFACE)","drop",0.410583214793741
+"level","child_vitA","Ghana","Nutrition status (MODELLED SURFACE)","only",0.353399715504979
+"level","child_vitA","Malawi","Nutrition status (MODELLED SURFACE)","drop",0.200262448057155
+"level","child_vitA","Malawi","Nutrition status (MODELLED SURFACE)","only",0.211544069402931
+"level","child_vitA","SierraLeone","Nutrition status (MODELLED SURFACE)","drop",0.00659340659340659
+"level","child_vitA","SierraLeone","Nutrition status (MODELLED SURFACE)","only",-0.134065934065934
+"level","child_vitA","Gambia","Ruralness, population density, built environment","drop",0.690767519466073
 "level","child_vitA","Gambia","Ruralness, population density, built environment","only",-0.571968854282536
-"level","child_vitA","Ghana","Ruralness, population density, built environment","drop",0.407368421052632
+"level","child_vitA","Ghana","Ruralness, population density, built environment","drop",0.404608819345661
 "level","child_vitA","Ghana","Ruralness, population density, built environment","only",-0.202190611664296
-"level","child_vitA","Malawi","Ruralness, population density, built environment","drop",0.220018954581906
-"level","child_vitA","Malawi","Ruralness, population density, built environment","only",-0.172158635270103
-"level","child_vitA","SierraLeone","Ruralness, population density, built environment","drop",0.0945054945054945
-"level","child_vitA","SierraLeone","Ruralness, population density, built environment","only",-0.336263736263736
-"level","child_vitA","Gambia","Satellite embedding","drop",0.701890989988876
-"level","child_vitA","Gambia","Satellite embedding","only",0.440266963292547
-"level","child_vitA","Ghana","Satellite embedding","drop",0.427908961593172
-"level","child_vitA","Ghana","Satellite embedding","only",0.32076813655761
+"level","child_vitA","Malawi","Ruralness, population density, built environment","drop",0.221841510534373
+"level","child_vitA","Malawi","Ruralness, population density, built environment","only",-0.165998396150762
+"level","child_vitA","SierraLeone","Ruralness, population density, built environment","drop",0.0417582417582418
+"level","child_vitA","SierraLeone","Ruralness, population density, built environment","only",-0.358241758241758
+"level","child_vitA","Gambia","Satellite embedding","drop",0.709010011123471
+"level","child_vitA","Gambia","Satellite embedding","only",0.443381535038932
+"level","child_vitA","Ghana","Satellite embedding","drop",0.428534850640114
+"level","child_vitA","Ghana","Satellite embedding","only",0.316756756756757
 "level","child_vitA","Malawi","Satellite embedding","drop",0.194484945687833
-"level","child_vitA","Malawi","Satellite embedding","only",0.291918786906758
-"level","child_vitA","SierraLeone","Satellite embedding","drop",0.0373626373626374
-"level","child_vitA","SierraLeone","Satellite embedding","only",0.459340659340659
-"level","child_vitA","Gambia","Soil characteristics","drop",0.636929922135706
-"level","child_vitA","Gambia","Soil characteristics","only",0.733481646273637
-"level","child_vitA","Ghana","Soil characteristics","drop",0.423300142247511
-"level","child_vitA","Ghana","Soil characteristics","only",0.162162162162162
-"level","child_vitA","Malawi","Soil characteristics","drop",0.218469782022308
-"level","child_vitA","Malawi","Soil characteristics","only",0.0560618210979077
-"level","child_vitA","SierraLeone","Soil characteristics","drop",0.0813186813186813
-"level","child_vitA","SierraLeone","Soil characteristics","only",0.318681318681319
-"level","child_vitA","Gambia","Water and coast proximity","drop",0.672969966629588
-"level","child_vitA","Gambia","Water and coast proximity","only",0.0585094549499444
-"level","child_vitA","Ghana","Water and coast proximity","drop",0.41072546230441
-"level","child_vitA","Ghana","Water and coast proximity","only",0.265177809388336
-"level","child_vitA","Malawi","Water and coast proximity","drop",0.21668367718889
-"level","child_vitA","Malawi","Water and coast proximity","only",-0.149413136983305
-"level","child_vitA","SierraLeone","Water and coast proximity","drop",0.0549450549450549
-"level","child_vitA","SierraLeone","Water and coast proximity","only",-0.169230769230769
+"level","child_vitA","Malawi","Satellite embedding","only",0.28900269738281
+"level","child_vitA","SierraLeone","Satellite embedding","drop",-0.00659340659340659
+"level","child_vitA","SierraLeone","Satellite embedding","only",0.415384615384615
+"level","child_vitA","Gambia","Soil characteristics","drop",0.64182424916574
+"level","child_vitA","Gambia","Soil characteristics","only",0.728587319243604
+"level","child_vitA","Ghana","Soil characteristics","drop",0.422162162162162
+"level","child_vitA","Ghana","Soil characteristics","only",0.161251778093883
+"level","child_vitA","Malawi","Soil characteristics","drop",0.215918203688853
+"level","child_vitA","Malawi","Soil characteristics","only",0.048024349347525
+"level","child_vitA","SierraLeone","Soil characteristics","drop",0.0285714285714286
+"level","child_vitA","SierraLeone","Soil characteristics","only",0.296703296703297
+"level","child_vitA","Gambia","Water and coast proximity","drop",0.684093437152391
+"level","child_vitA","Gambia","Water and coast proximity","only",0.00200222469410456
+"level","child_vitA","Ghana","Water and coast proximity","drop",0.407226173541963
+"level","child_vitA","Ghana","Water and coast proximity","only",0.26927453769559
+"level","child_vitA","Malawi","Water and coast proximity","drop",0.214022745498287
+"level","child_vitA","Malawi","Water and coast proximity","only",-0.148337828971349
+"level","child_vitA","SierraLeone","Water and coast proximity","drop",-0.0021978021978022
+"level","child_vitA","SierraLeone","Water and coast proximity","only",-0.265934065934066
 "level","child_vitA","Gambia","Water and sanitation","drop",0.660066740823137
-"level","child_vitA","Gambia","Water and sanitation","only",0.459844271412681
-"level","child_vitA","Ghana","Water and sanitation","drop",0.403044096728307
-"level","child_vitA","Ghana","Water and sanitation","only",0.209938469140888
-"level","child_vitA","Malawi","Water and sanitation","drop",0.198421666545163
-"level","child_vitA","Malawi","Water and sanitation","only",0.079718597360939
-"level","child_vitA","SierraLeone","Water and sanitation","drop",0.0681318681318681
-"level","child_vitA","SierraLeone","Water and sanitation","only",-0.468131868131868
-"level","women_vitA","Gambia","ALL","full",0.767741935483871
-"level","women_vitA","Ghana","ALL","full",0.334395448079659
-"level","women_vitA","Malawi","ALL","full",0.212455347379164
+"level","child_vitA","Gambia","Water and sanitation","only",0.475862068965517
+"level","child_vitA","Ghana","Water and sanitation","drop",0.406088193456614
+"level","child_vitA","Ghana","Water and sanitation","only",0.195027217655992
+"level","child_vitA","Malawi","Water and sanitation","drop",0.198038929795145
+"level","child_vitA","Malawi","Water and sanitation","only",0.0766749289203178
+"level","child_vitA","SierraLeone","Water and sanitation","drop",0.010989010989011
+"level","child_vitA","SierraLeone","Water and sanitation","only",-0.49010989010989
+"level","women_vitA","Gambia","ALL","full",0.769076751946607
+"level","women_vitA","Ghana","ALL","full",0.339829302987198
+"level","women_vitA","Malawi","ALL","full",0.218706714296129
 "level","women_vitA","SierraLeone","ALL","full",-0.107692307692308
-"level","women_vitA","Gambia","Adult nutrition","drop",0.759733036707453
-"level","women_vitA","Gambia","Adult nutrition","only",0.355283648498331
-"level","women_vitA","Ghana","Adult nutrition","drop",0.343926031294452
-"level","women_vitA","Ghana","Adult nutrition","only",0.220780428712922
-"level","women_vitA","Malawi","Adult nutrition","drop",0.205274476926442
-"level","women_vitA","Malawi","Adult nutrition","only",0.252095939345338
+"level","women_vitA","Gambia","Adult nutrition","drop",0.768631813125695
+"level","women_vitA","Gambia","Adult nutrition","only",0.354393770856507
+"level","women_vitA","Ghana","Adult nutrition","drop",0.347169274537696
+"level","women_vitA","Ghana","Adult nutrition","only",0.222914672723165
+"level","women_vitA","Malawi","Adult nutrition","drop",0.208700882117081
+"level","women_vitA","Malawi","Adult nutrition","only",0.255194284464533
 "level","women_vitA","SierraLeone","Adult nutrition","drop",-0.0681318681318681
 "level","women_vitA","SierraLeone","Adult nutrition","only",0.257142857142857
-"level","women_vitA","Gambia","Agricultural production, land use","drop",0.751279199110122
-"level","women_vitA","Gambia","Agricultural production, land use","only",0.78020022246941
-"level","women_vitA","Ghana","Agricultural production, land use","drop",0.347709815078236
-"level","women_vitA","Ghana","Agricultural production, land use","only",0.105092460881935
-"level","women_vitA","Malawi","Agricultural production, land use","drop",0.247284391630823
-"level","women_vitA","Malawi","Agricultural production, land use","only",-0.0763104177298243
+"level","women_vitA","Gambia","Agricultural production, land use","drop",0.756618464961068
+"level","women_vitA","Gambia","Agricultural production, land use","only",0.788209121245829
+"level","women_vitA","Ghana","Agricultural production, land use","drop",0.352147937411095
+"level","women_vitA","Ghana","Agricultural production, land use","only",0.102816500711238
+"level","women_vitA","Malawi","Agricultural production, land use","drop",0.253025442881096
+"level","women_vitA","Malawi","Agricultural production, land use","only",-0.0796274695633156
 "level","women_vitA","SierraLeone","Agricultural production, land use","drop",-0.0857142857142857
 "level","women_vitA","SierraLeone","Agricultural production, land use","only",0.283516483516484
-"level","women_vitA","Gambia","Built environment","drop",0.771301446051168
-"level","women_vitA","Gambia","Built environment","only",0.312124582869855
-"level","women_vitA","Ghana","Built environment","drop",0.359687055476529
-"level","women_vitA","Ghana","Built environment","only",-0.0331152204836415
-"level","women_vitA","Malawi","Built environment","drop",0.209083618867099
-"level","women_vitA","Malawi","Built environment","only",0.042483779252023
+"level","women_vitA","Gambia","Built environment","drop",0.773971078976641
+"level","women_vitA","Gambia","Built environment","only",0.310789766407119
+"level","women_vitA","Ghana","Built environment","drop",0.361706970128023
+"level","women_vitA","Ghana","Built environment","only",-0.0176102418207681
+"level","women_vitA","Malawi","Built environment","drop",0.213548880950645
+"level","women_vitA","Malawi","Built environment","only",0.0480608004665743
 "level","women_vitA","SierraLeone","Built environment","drop",-0.0505494505494506
 "level","women_vitA","SierraLeone","Built environment","only",-0.564835164835165
-"level","women_vitA","Gambia","Climate and weather","drop",0.740600667408231
-"level","women_vitA","Gambia","Climate and weather","only",0.759733036707453
-"level","women_vitA","Ghana","Climate and weather","drop",0.257098150782361
-"level","women_vitA","Ghana","Climate and weather","only",0.474651493598862
-"level","women_vitA","Malawi","Climate and weather","drop",0.180050302544288
-"level","women_vitA","Malawi","Climate and weather","only",0.344244368302107
+"level","women_vitA","Gambia","Climate and weather","drop",0.74460511679644
+"level","women_vitA","Gambia","Climate and weather","only",0.758843159065628
+"level","women_vitA","Ghana","Climate and weather","drop",0.260113798008535
+"level","women_vitA","Ghana","Climate and weather","only",0.475931721194879
+"level","women_vitA","Malawi","Climate and weather","drop",0.184387985711161
+"level","women_vitA","Malawi","Climate and weather","only",0.343843405992564
 "level","women_vitA","SierraLeone","Climate and weather","drop",-0.0373626373626374
 "level","women_vitA","SierraLeone","Climate and weather","only",0.0989010989010989
-"level","women_vitA","Gambia","Dietary diversity","drop",0.760622914349277
-"level","women_vitA","Gambia","Dietary diversity","only",0.0193548387096774
-"level","women_vitA","Ghana","Dietary diversity","drop",0.34298719772404
-"level","women_vitA","Ghana","Dietary diversity","only",0.117084626401923
-"level","women_vitA","Malawi","Dietary diversity","drop",0.210632791426697
-"level","women_vitA","Malawi","Dietary diversity","only",0.165324050448349
-"level","women_vitA","SierraLeone","Dietary diversity","drop",-0.107692307692308
-"level","women_vitA","SierraLeone","Dietary diversity","only",-0.156043956043956
+"level","women_vitA","Gambia","Dietary diversity","drop",0.768186874304783
+"level","women_vitA","Gambia","Dietary diversity","only",0.0153503893214683
+"level","women_vitA","Ghana","Dietary diversity","drop",0.35701280227596
+"level","women_vitA","Ghana","Dietary diversity","only",0.11583253658258
+"level","women_vitA","Malawi","Dietary diversity","drop",0.217066413938908
+"level","women_vitA","Malawi","Dietary diversity","only",0.163519720055406
+"level","women_vitA","SierraLeone","Dietary diversity","drop",-0.103296703296703
+"level","women_vitA","SierraLeone","Dietary diversity","only",-0.195604395604396
 "level","women_vitA","Gambia","Ecosystem productivity/greenness","drop",0.768186874304783
-"level","women_vitA","Gambia","Ecosystem productivity/greenness","only",0.412235817575083
-"level","women_vitA","Ghana","Ecosystem productivity/greenness","drop",0.37149359886202
-"level","women_vitA","Ghana","Ecosystem productivity/greenness","only",0.187055476529161
-"level","women_vitA","Malawi","Ecosystem productivity/greenness","drop",0.195560253699789
-"level","women_vitA","Malawi","Ecosystem productivity/greenness","only",0.198421666545163
+"level","women_vitA","Gambia","Ecosystem productivity/greenness","only",0.401557285873192
+"level","women_vitA","Ghana","Ecosystem productivity/greenness","drop",0.375732574679943
+"level","women_vitA","Ghana","Ecosystem productivity/greenness","only",0.197297297297297
+"level","women_vitA","Malawi","Ecosystem productivity/greenness","drop",0.200298899176205
+"level","women_vitA","Malawi","Ecosystem productivity/greenness","only",0.204344973390683
 "level","women_vitA","SierraLeone","Ecosystem productivity/greenness","drop",-0.0989010989010989
 "level","women_vitA","SierraLeone","Ecosystem productivity/greenness","only",-0.2
-"level","women_vitA","Gambia","Education, employment, SES","drop",0.762847608453838
-"level","women_vitA","Gambia","Education, employment, SES","only",0.756173526140156
-"level","women_vitA","Ghana","Education, employment, SES","drop",0.342560455192034
-"level","women_vitA","Ghana","Education, employment, SES","only",0.213598862019915
-"level","women_vitA","Malawi","Education, employment, SES","drop",0.216847707224612
-"level","women_vitA","Malawi","Education, employment, SES","only",0.249161624261865
+"level","women_vitA","Gambia","Education, employment, SES","drop",0.761067853170189
+"level","women_vitA","Gambia","Education, employment, SES","only",0.749054505005562
+"level","women_vitA","Ghana","Education, employment, SES","drop",0.350810810810811
+"level","women_vitA","Ghana","Education, employment, SES","only",0.2150213371266
+"level","women_vitA","Malawi","Education, employment, SES","drop",0.220091856820004
+"level","women_vitA","Malawi","Education, employment, SES","only",0.242272362761537
 "level","women_vitA","SierraLeone","Education, employment, SES","drop",-0.00659340659340659
 "level","women_vitA","SierraLeone","Education, employment, SES","only",-0.283516483516484
-"level","women_vitA","Gambia","Fertility, reproductive health","drop",0.773081201334817
-"level","women_vitA","Gambia","Fertility, reproductive health","only",-0.29432703003337
-"level","women_vitA","Ghana","Fertility, reproductive health","drop",0.344495021337127
-"level","women_vitA","Ghana","Fertility, reproductive health","only",0.0587486234552849
-"level","women_vitA","Malawi","Fertility, reproductive health","drop",0.21781366187942
-"level","women_vitA","Malawi","Fertility, reproductive health","only",-0.0554603776335933
+"level","women_vitA","Gambia","Fertility, reproductive health","drop",0.775305895439377
+"level","women_vitA","Gambia","Fertility, reproductive health","only",-0.301001112347052
+"level","women_vitA","Ghana","Fertility, reproductive health","drop",0.346486486486487
+"level","women_vitA","Ghana","Fertility, reproductive health","only",0.0572404243547133
+"level","women_vitA","Malawi","Fertility, reproductive health","drop",0.222953269665379
+"level","women_vitA","Malawi","Fertility, reproductive health","only",-0.0515783334548371
 "level","women_vitA","SierraLeone","Fertility, reproductive health","drop",0.00659340659340659
 "level","women_vitA","SierraLeone","Fertility, reproductive health","only",-0.138461538461538
-"level","women_vitA","Gambia","Food fortification and supplementation","drop",0.765962180200222
-"level","women_vitA","Gambia","Food fortification and supplementation","only",0.04293659621802
-"level","women_vitA","Ghana","Food fortification and supplementation","drop",0.337297297297297
-"level","women_vitA","Ghana","Food fortification and supplementation","only",-0.0624773254999253
-"level","women_vitA","Malawi","Food fortification and supplementation","drop",0.210122475760006
-"level","women_vitA","Malawi","Food fortification and supplementation","only",0.104760516147846
-"level","women_vitA","SierraLeone","Food fortification and supplementation","drop",-0.107692307692308
-"level","women_vitA","SierraLeone","Food fortification and supplementation","only",-0.208791208791209
-"level","women_vitA","Gambia","Food prices and supply","drop",0.761067853170189
-"level","women_vitA","Gambia","Food prices and supply","only",0.018020022246941
-"level","women_vitA","Ghana","Food prices and supply","drop",0.340256045519203
-"level","women_vitA","Ghana","Food prices and supply","only",0.0415078236130868
-"level","women_vitA","Malawi","Food prices and supply","drop",0.211234234891011
-"level","women_vitA","Malawi","Food prices and supply","only",0.0620398046220019
+"level","women_vitA","Gambia","Food fortification and supplementation","drop",0.764627363737486
+"level","women_vitA","Gambia","Food fortification and supplementation","only",0.0522803114571746
+"level","women_vitA","Ghana","Food fortification and supplementation","drop",0.339544807965861
+"level","women_vitA","Ghana","Food fortification and supplementation","only",-0.0654083956554672
+"level","women_vitA","Malawi","Food fortification and supplementation","drop",0.214915797914996
+"level","women_vitA","Malawi","Food fortification and supplementation","only",0.0992746227309178
+"level","women_vitA","SierraLeone","Food fortification and supplementation","drop",-0.0681318681318681
+"level","women_vitA","SierraLeone","Food fortification and supplementation","only",-0.2
+"level","women_vitA","Gambia","Food prices and supply","drop",0.757508342602892
+"level","women_vitA","Gambia","Food prices and supply","only",0.0224694104560623
+"level","women_vitA","Ghana","Food prices and supply","drop",0.351209103840683
+"level","women_vitA","Ghana","Food prices and supply","only",0.0417638691322902
+"level","women_vitA","Malawi","Food prices and supply","drop",0.213895166581614
+"level","women_vitA","Malawi","Food prices and supply","only",0.0697309907414158
 "level","women_vitA","SierraLeone","Food prices and supply","drop",-0.107692307692308
 "level","women_vitA","SierraLeone","Food prices and supply","only",0.103296703296703
-"level","women_vitA","Gambia","Healthcare access","drop",0.772636262513904
-"level","women_vitA","Gambia","Healthcare access","only",0.0620689655172414
-"level","women_vitA","Ghana","Healthcare access","drop",0.330327169274538
-"level","women_vitA","Ghana","Healthcare access","only",0.0975918644417048
-"level","women_vitA","Malawi","Healthcare access","drop",0.208846686593278
-"level","women_vitA","Malawi","Healthcare access","only",0.134304148137348
+"level","women_vitA","Gambia","Healthcare access","drop",0.782424916573971
+"level","women_vitA","Gambia","Healthcare access","only",0.0545050055617353
+"level","women_vitA","Ghana","Healthcare access","drop",0.335931721194879
+"level","women_vitA","Ghana","Healthcare access","only",0.0975064946812951
+"level","women_vitA","Malawi","Healthcare access","drop",0.217029962819859
+"level","women_vitA","Malawi","Healthcare access","only",0.139097470292338
 "level","women_vitA","SierraLeone","Healthcare access","drop",-0.0153846153846154
 "level","women_vitA","SierraLeone","Healthcare access","only",0.0373626373626374
-"level","women_vitA","Gambia","Helminth burden and control","drop",0.765962180200222
-"level","women_vitA","Gambia","Helminth burden and control","only",0.162774558395751
-"level","women_vitA","Ghana","Helminth burden and control","drop",0.323100995732575
-"level","women_vitA","Ghana","Helminth burden and control","only",0.012625078869455
-"level","women_vitA","Malawi","Helminth burden and control","drop",0.216829481665087
-"level","women_vitA","Malawi","Helminth burden and control","only",-0.014302269316751
+"level","women_vitA","Gambia","Helminth burden and control","drop",0.769076751946607
+"level","women_vitA","Gambia","Helminth burden and control","only",0.151371395650993
+"level","women_vitA","Ghana","Helminth burden and control","drop",0.33049786628734
+"level","women_vitA","Ghana","Helminth burden and control","only",0.016439646103969
+"level","women_vitA","Malawi","Helminth burden and control","drop",0.216902383903186
+"level","women_vitA","Malawi","Helminth burden and control","only",-0.00560962731492465
 "level","women_vitA","SierraLeone","Helminth burden and control","drop",-0.107692307692308
-"level","women_vitA","SierraLeone","Helminth burden and control","only",0.204395604395604
-"level","women_vitA","Gambia","Household assets and characteristics","drop",0.777530589543938
-"level","women_vitA","Gambia","Household assets and characteristics","only",0.239599555061179
-"level","women_vitA","Ghana","Household assets and characteristics","drop",0.351920341394026
-"level","women_vitA","Ghana","Household assets and characteristics","only",0.0699573257467994
-"level","women_vitA","Malawi","Household assets and characteristics","drop",0.212273091783918
-"level","women_vitA","Malawi","Household assets and characteristics","only",0.192224976306773
-"level","women_vitA","SierraLeone","Household assets and characteristics","drop",0.0153846153846154
+"level","women_vitA","SierraLeone","Helminth burden and control","only",0.217582417582418
+"level","women_vitA","Gambia","Household assets and characteristics","drop",0.778865406006674
+"level","women_vitA","Gambia","Household assets and characteristics","only",0.259176863181313
+"level","women_vitA","Ghana","Household assets and characteristics","drop",0.360085348506401
+"level","women_vitA","Ghana","Household assets and characteristics","only",0.0660597439544808
+"level","women_vitA","Malawi","Household assets and characteristics","drop",0.215608369176934
+"level","women_vitA","Malawi","Household assets and characteristics","only",0.19295399868776
+"level","women_vitA","SierraLeone","Household assets and characteristics","drop",0.0021978021978022
 "level","women_vitA","SierraLeone","Household assets and characteristics","only",-0.428571428571429
-"level","women_vitA","Gambia","Infant and child morbidity/mortality","drop",0.768186874304783
-"level","women_vitA","Gambia","Infant and child morbidity/mortality","only",0.163070077864294
-"level","women_vitA","Ghana","Infant and child morbidity/mortality","drop",0.352688477951636
-"level","women_vitA","Ghana","Infant and child morbidity/mortality","only",0.126486486486486
-"level","women_vitA","Malawi","Infant and child morbidity/mortality","drop",0.204909965735948
-"level","women_vitA","Malawi","Infant and child morbidity/mortality","only",0.139680688197128
+"level","women_vitA","Gambia","Infant and child morbidity/mortality","drop",0.76952169076752
+"level","women_vitA","Gambia","Infant and child morbidity/mortality","only",0.160845383759733
+"level","women_vitA","Ghana","Infant and child morbidity/mortality","drop",0.354907539118065
+"level","women_vitA","Ghana","Infant and child morbidity/mortality","only",0.123698435277383
+"level","women_vitA","Malawi","Infant and child morbidity/mortality","drop",0.208974265509951
+"level","women_vitA","Malawi","Infant and child morbidity/mortality","only",0.133903185827805
 "level","women_vitA","SierraLeone","Infant and child morbidity/mortality","drop",-0.107692307692308
-"level","women_vitA","SierraLeone","Infant and child morbidity/mortality","only",0.6
-"level","women_vitA","Gambia","Livestock density","drop",0.772191323692992
-"level","women_vitA","Gambia","Livestock density","only",0.284093437152392
-"level","women_vitA","Ghana","Livestock density","drop",0.299174964438122
-"level","women_vitA","Ghana","Livestock density","only",0.451920341394026
-"level","women_vitA","Malawi","Livestock density","drop",0.214332580010206
-"level","women_vitA","Malawi","Livestock density","only",0.178683385579937
+"level","women_vitA","SierraLeone","Infant and child morbidity/mortality","only",0.617582417582418
+"level","women_vitA","Gambia","Livestock density","drop",0.767741935483871
+"level","women_vitA","Gambia","Livestock density","only",0.27741935483871
+"level","women_vitA","Ghana","Livestock density","drop",0.306685633001422
+"level","women_vitA","Ghana","Livestock density","only",0.451635846372688
+"level","women_vitA","Malawi","Livestock density","drop",0.217977691915142
+"level","women_vitA","Malawi","Livestock density","only",0.181289640591966
 "level","women_vitA","SierraLeone","Livestock density","drop",-0.0681318681318681
 "level","women_vitA","SierraLeone","Livestock density","only",0.107692307692308
-"level","women_vitA","Gambia","Malaria","drop",0.755728587319244
-"level","women_vitA","Gambia","Malaria","only",-0.288542825361513
-"level","women_vitA","Ghana","Malaria","drop",0.333598862019915
+"level","women_vitA","Gambia","Malaria","drop",0.760177975528365
+"level","women_vitA","Gambia","Malaria","only",-0.287652947719689
+"level","women_vitA","Ghana","Malaria","drop",0.339829302987198
 "level","women_vitA","Ghana","Malaria","only",0.500199265571974
-"level","women_vitA","Malawi","Malaria","drop",0.211689873879128
-"level","women_vitA","Malawi","Malaria","only",0.138805861339943
+"level","women_vitA","Malawi","Malaria","drop",0.216793030546038
+"level","women_vitA","Malawi","Malaria","only",0.133083035649194
 "level","women_vitA","SierraLeone","Malaria","drop",-0.0989010989010989
 "level","women_vitA","SierraLeone","Malaria","only",-0.120879120879121
-"level","women_vitA","Gambia","Malaria incidence and treatment","drop",0.768186874304783
-"level","women_vitA","Gambia","Malaria incidence and treatment","only",-0.333481646273637
-"level","women_vitA","Ghana","Malaria incidence and treatment","drop",0.308705547652916
-"level","women_vitA","Ghana","Malaria incidence and treatment","only",0.0931436699857752
-"level","women_vitA","Malawi","Malaria incidence and treatment","drop",0.224137931034483
-"level","women_vitA","Malawi","Malaria incidence and treatment","only",-0.176295837282205
+"level","women_vitA","Gambia","Malaria incidence and treatment","drop",0.770411568409344
+"level","women_vitA","Gambia","Malaria incidence and treatment","only",-0.264071190211346
+"level","women_vitA","Ghana","Malaria incidence and treatment","drop",0.313997155049787
+"level","women_vitA","Ghana","Malaria incidence and treatment","only",0.096728307254623
+"level","women_vitA","Malawi","Malaria incidence and treatment","drop",0.229405117737115
+"level","women_vitA","Malawi","Malaria incidence and treatment","only",-0.170882846103375
 "level","women_vitA","SierraLeone","Malaria incidence and treatment","drop",-0.0901098901098901
 "level","women_vitA","SierraLeone","Malaria incidence and treatment","only",-0.107692307692308
-"level","women_vitA","Gambia","Nutrition status (MODELLED SURFACE)","drop",0.752169076751947
-"level","women_vitA","Gambia","Nutrition status (MODELLED SURFACE)","only",0.718798665183537
-"level","women_vitA","Ghana","Nutrition status (MODELLED SURFACE)","drop",0.321706970128023
-"level","women_vitA","Ghana","Nutrition status (MODELLED SURFACE)","only",0.334964438122333
-"level","women_vitA","Malawi","Nutrition status (MODELLED SURFACE)","drop",0.190347743675731
-"level","women_vitA","Malawi","Nutrition status (MODELLED SURFACE)","only",0.311037398848145
-"level","women_vitA","SierraLeone","Nutrition status (MODELLED SURFACE)","drop",-0.0285714285714286
+"level","women_vitA","Gambia","Nutrition status (MODELLED SURFACE)","drop",0.754838709677419
+"level","women_vitA","Gambia","Nutrition status (MODELLED SURFACE)","only",0.721913236929922
+"level","women_vitA","Ghana","Nutrition status (MODELLED SURFACE)","drop",0.324580369843528
+"level","women_vitA","Ghana","Nutrition status (MODELLED SURFACE)","only",0.333428165007112
+"level","women_vitA","Malawi","Nutrition status (MODELLED SURFACE)","drop",0.194776554640227
+"level","women_vitA","Malawi","Nutrition status (MODELLED SURFACE)","only",0.305168768681198
+"level","women_vitA","SierraLeone","Nutrition status (MODELLED SURFACE)","drop",-0.0197802197802198
 "level","women_vitA","SierraLeone","Nutrition status (MODELLED SURFACE)","only",0.0153846153846154
-"level","women_vitA","Gambia","Ruralness, population density, built environment","drop",0.764182424916574
-"level","women_vitA","Gambia","Ruralness, population density, built environment","only",-0.650723025583982
-"level","women_vitA","Ghana","Ruralness, population density, built environment","drop",0.348904694167852
+"level","women_vitA","Gambia","Ruralness, population density, built environment","drop",0.765072302558398
+"level","women_vitA","Gambia","Ruralness, population density, built environment","only",-0.647163515016685
+"level","women_vitA","Ghana","Ruralness, population density, built environment","drop",0.357155049786629
 "level","women_vitA","Ghana","Ruralness, population density, built environment","only",-0.00412517780938833
-"level","women_vitA","Malawi","Ruralness, population density, built environment","drop",0.21555369249836
-"level","women_vitA","Malawi","Ruralness, population density, built environment","only",-0.121710286505796
+"level","women_vitA","Malawi","Ruralness, population density, built environment","drop",0.22116716483196
+"level","women_vitA","Malawi","Ruralness, population density, built environment","only",-0.119486768243785
 "level","women_vitA","SierraLeone","Ruralness, population density, built environment","drop",-0.0681318681318681
 "level","women_vitA","SierraLeone","Ruralness, population density, built environment","only",0.0637362637362637
-"level","women_vitA","Gambia","Satellite embedding","drop",0.761067853170189
-"level","women_vitA","Gambia","Satellite embedding","only",0.341935483870968
-"level","women_vitA","Ghana","Satellite embedding","drop",0.347140825035562
-"level","women_vitA","Ghana","Satellite embedding","only",0.282418207681366
-"level","women_vitA","Malawi","Satellite embedding","drop",0.206495589414595
-"level","women_vitA","Malawi","Satellite embedding","only",0.232339432820588
-"level","women_vitA","SierraLeone","Satellite embedding","drop",-0.147252747252747
+"level","women_vitA","Gambia","Satellite embedding","drop",0.768186874304783
+"level","women_vitA","Gambia","Satellite embedding","only",0.337931034482759
+"level","women_vitA","Ghana","Satellite embedding","drop",0.346429587482219
+"level","women_vitA","Ghana","Satellite embedding","only",0.295647226173542
+"level","women_vitA","Malawi","Satellite embedding","drop",0.20963038565284
+"level","women_vitA","Malawi","Satellite embedding","only",0.237114529416053
+"level","women_vitA","SierraLeone","Satellite embedding","drop",-0.142857142857143
 "level","women_vitA","SierraLeone","Satellite embedding","only",0.0197802197802198
-"level","women_vitA","Gambia","Soil characteristics","drop",0.740600667408231
-"level","women_vitA","Gambia","Soil characteristics","only",0.697886540600667
-"level","women_vitA","Ghana","Soil characteristics","drop",0.295675675675676
-"level","women_vitA","Ghana","Soil characteristics","only",0.37203413940256
-"level","women_vitA","Malawi","Soil characteristics","drop",0.246263760297441
-"level","women_vitA","Malawi","Soil characteristics","only",0.0538018517168477
+"level","women_vitA","Gambia","Soil characteristics","drop",0.749499443826474
+"level","women_vitA","Gambia","Soil characteristics","only",0.705005561735261
+"level","women_vitA","Ghana","Soil characteristics","drop",0.30298719772404
+"level","women_vitA","Ghana","Soil characteristics","only",0.36827880512091
+"level","women_vitA","Malawi","Soil characteristics","drop",0.253317051833491
+"level","women_vitA","Malawi","Soil characteristics","only",0.0582671138003937
 "level","women_vitA","SierraLeone","Soil characteristics","drop",-0.120879120879121
 "level","women_vitA","SierraLeone","Soil characteristics","only",0.485714285714286
-"level","women_vitA","Gambia","Water and coast proximity","drop",0.77174638487208
-"level","women_vitA","Gambia","Water and coast proximity","only",-0.178197997775306
-"level","women_vitA","Ghana","Water and coast proximity","drop",0.341365576102418
-"level","women_vitA","Ghana","Water and coast proximity","only",-0.462105263157895
-"level","women_vitA","Malawi","Water and coast proximity","drop",0.236476634832689
-"level","women_vitA","Malawi","Water and coast proximity","only",-0.277885106072756
+"level","women_vitA","Gambia","Water and coast proximity","drop",0.775305895439377
+"level","women_vitA","Gambia","Water and coast proximity","only",-0.182647385984427
+"level","women_vitA","Ghana","Water and coast proximity","drop",0.347169274537696
+"level","women_vitA","Ghana","Water and coast proximity","only",-0.461479374110953
+"level","women_vitA","Malawi","Water and coast proximity","drop",0.23815338630896
+"level","women_vitA","Malawi","Water and coast proximity","only",-0.272071152584384
 "level","women_vitA","SierraLeone","Water and coast proximity","drop",-0.107692307692308
 "level","women_vitA","SierraLeone","Water and coast proximity","only",-0.437362637362637
-"level","women_vitA","Gambia","Water and sanitation","drop",0.757508342602892
-"level","women_vitA","Gambia","Water and sanitation","only",-0.00289210233592881
-"level","women_vitA","Ghana","Water and sanitation","drop",0.331066856330014
-"level","women_vitA","Ghana","Water and sanitation","only",-0.0985024752194084
-"level","women_vitA","Malawi","Water and sanitation","drop",0.228548516439455
-"level","women_vitA","Malawi","Water and sanitation","only",-0.137402493256543
+"level","women_vitA","Gambia","Water and sanitation","drop",0.759733036707453
+"level","women_vitA","Gambia","Water and sanitation","only",-0.00912124582869855
+"level","women_vitA","Ghana","Water and sanitation","drop",0.34
+"level","women_vitA","Ghana","Water and sanitation","only",-0.0986163015666213
+"level","women_vitA","Malawi","Water and sanitation","drop",0.232649267332507
+"level","women_vitA","Malawi","Water and sanitation","only",-0.143471604578261
 "level","women_vitA","SierraLeone","Water and sanitation","drop",-0.0681318681318681
 "level","women_vitA","SierraLeone","Water and sanitation","only",-0.191208791208791
 "level","child_iron","Gambia","ALL","full",0.527030033370412
@@ -1033,382 +1033,382 @@
 "level","women_b12","Malawi","Water and sanitation","only",0.0670518334912882
 "level","women_b12","SierraLeone","Water and sanitation","drop",0.41978021978022
 "level","women_b12","SierraLeone","Water and sanitation","only",0.410989010989011
-"prev","child_vitA","Gambia","ALL","full",0.564428533588298
-"prev","child_vitA","Ghana","ALL","full",0.362151436168232
-"prev","child_vitA","Malawi","ALL","full",0.217629812512388
-"prev","child_vitA","SierraLeone","ALL","full",-0.204395604395604
-"prev","child_vitA","Gambia","Adult nutrition","drop",0.577570318703416
-"prev","child_vitA","Gambia","Adult nutrition","only",0.163047232275704
-"prev","child_vitA","Ghana","Adult nutrition","drop",0.356656228676027
-"prev","child_vitA","Ghana","Adult nutrition","only",0.267468853159205
-"prev","child_vitA","Malawi","Adult nutrition","drop",0.208386590224333
-"prev","child_vitA","Malawi","Adult nutrition","only",0.161570764052697
-"prev","child_vitA","SierraLeone","Adult nutrition","drop",-0.2
-"prev","child_vitA","SierraLeone","Adult nutrition","only",-0.191208791208791
-"prev","child_vitA","Gambia","Agricultural production, land use","drop",0.580465966271154
-"prev","child_vitA","Gambia","Agricultural production, land use","only",0.507406550715921
-"prev","child_vitA","Ghana","Agricultural production, land use","drop",0.346874183925505
-"prev","child_vitA","Ghana","Agricultural production, land use","only",0.34559388689198
-"prev","child_vitA","Malawi","Agricultural production, land use","drop",0.228729294683215
-"prev","child_vitA","Malawi","Agricultural production, land use","only",-0.00643503426027357
-"prev","child_vitA","SierraLeone","Agricultural production, land use","drop",-0.2
-"prev","child_vitA","SierraLeone","Agricultural production, land use","only",0.0901098901098901
-"prev","child_vitA","Gambia","Built environment","drop",0.596280656833415
-"prev","child_vitA","Gambia","Built environment","only",0.128299461462849
-"prev","child_vitA","Ghana","Built environment","drop",0.352412547497492
-"prev","child_vitA","Ghana","Built environment","only",0.317182801035684
-"prev","child_vitA","Malawi","Built environment","drop",0.207111006510018
-"prev","child_vitA","Malawi","Built environment","only",0.239076753619483
-"prev","child_vitA","SierraLeone","Built environment","drop",-0.230769230769231
-"prev","child_vitA","SierraLeone","Built environment","only",-0.0681318681318681
-"prev","child_vitA","Gambia","Climate and weather","drop",0.565096759950084
-"prev","child_vitA","Gambia","Climate and weather","only",0.63102842764627
-"prev","child_vitA","Ghana","Climate and weather","drop",0.369660594050251
-"prev","child_vitA","Ghana","Climate and weather","only",0.217866276098029
-"prev","child_vitA","Malawi","Climate and weather","drop",0.197220473083355
-"prev","child_vitA","Malawi","Climate and weather","only",0.25713483053034
-"prev","child_vitA","SierraLeone","Climate and weather","drop",-0.186813186813187
-"prev","child_vitA","SierraLeone","Climate and weather","only",0.120879120879121
-"prev","child_vitA","Gambia","Dietary diversity","drop",0.568883376000203
-"prev","child_vitA","Gambia","Dietary diversity","only",0.0777370000877333
-"prev","child_vitA","Ghana","Dietary diversity","drop",0.368135745897963
-"prev","child_vitA","Ghana","Dietary diversity","only",0.190041954869958
-"prev","child_vitA","Malawi","Dietary diversity","drop",0.2055498443522
-"prev","child_vitA","Malawi","Dietary diversity","only",0.217049136343932
-"prev","child_vitA","SierraLeone","Dietary diversity","drop",-0.186813186813187
-"prev","child_vitA","SierraLeone","Dietary diversity","only",-0.0989010989010989
-"prev","child_vitA","Gambia","Ecosystem productivity/greenness","drop",0.598285335918772
-"prev","child_vitA","Gambia","Ecosystem productivity/greenness","only",0.0982292751824939
-"prev","child_vitA","Ghana","Ecosystem productivity/greenness","drop",0.358885959464749
-"prev","child_vitA","Ghana","Ecosystem productivity/greenness","only",0.281837971694459
-"prev","child_vitA","Malawi","Ecosystem productivity/greenness","drop",0.190909189481933
-"prev","child_vitA","Malawi","Ecosystem productivity/greenness","only",0.297220524716748
-"prev","child_vitA","SierraLeone","Ecosystem productivity/greenness","drop",-0.252747252747253
-"prev","child_vitA","SierraLeone","Ecosystem productivity/greenness","only",0.169230769230769
-"prev","child_vitA","Gambia","Education, employment, SES","drop",0.576902092341631
-"prev","child_vitA","Gambia","Education, employment, SES","only",0.429892292748783
-"prev","child_vitA","Ghana","Education, employment, SES","drop",0.3489312903951
-"prev","child_vitA","Ghana","Education, employment, SES","only",0.322807476767234
-"prev","child_vitA","Malawi","Education, employment, SES","drop",0.229709780672576
-"prev","child_vitA","Malawi","Education, employment, SES","only",0.105530754155907
-"prev","child_vitA","SierraLeone","Education, employment, SES","drop",-0.204395604395604
-"prev","child_vitA","SierraLeone","Education, employment, SES","only",-0.261538461538461
-"prev","child_vitA","Gambia","Fertility, reproductive health","drop",0.553514169679132
-"prev","child_vitA","Gambia","Fertility, reproductive health","only",0.49671492892735
-"prev","child_vitA","Ghana","Fertility, reproductive health","drop",0.349952650949934
-"prev","child_vitA","Ghana","Fertility, reproductive health","only",0.295440956908378
-"prev","child_vitA","Malawi","Fertility, reproductive health","drop",0.202351365784964
-"prev","child_vitA","Malawi","Fertility, reproductive health","only",0.132184742216211
-"prev","child_vitA","SierraLeone","Fertility, reproductive health","drop",-0.217582417582418
-"prev","child_vitA","SierraLeone","Fertility, reproductive health","only",-0.221978021978022
-"prev","child_vitA","Gambia","Food fortification and supplementation","drop",0.566878696914846
-"prev","child_vitA","Gambia","Food fortification and supplementation","only",-0.0102461375473803
-"prev","child_vitA","Ghana","Food fortification and supplementation","drop",0.360008017539074
-"prev","child_vitA","Ghana","Food fortification and supplementation","only",0.291739956301932
-"prev","child_vitA","Malawi","Food fortification and supplementation","drop",0.220304730599869
-"prev","child_vitA","Malawi","Food fortification and supplementation","only",0.0378201052012824
-"prev","child_vitA","SierraLeone","Food fortification and supplementation","drop",-0.204395604395604
-"prev","child_vitA","SierraLeone","Food fortification and supplementation","only",-0.367032967032967
-"prev","child_vitA","Gambia","Food prices and supply","drop",0.570442570844369
-"prev","child_vitA","Gambia","Food prices and supply","only",0.0750640946405906
-"prev","child_vitA","Ghana","Food prices and supply","drop",0.356008887479301
-"prev","child_vitA","Ghana","Food prices and supply","only",0.329554210573109
-"prev","child_vitA","Malawi","Food prices and supply","drop",0.212099109989875
-"prev","child_vitA","Malawi","Food prices and supply","only",0.157829686442804
-"prev","child_vitA","SierraLeone","Food prices and supply","drop",-0.2
-"prev","child_vitA","SierraLeone","Food prices and supply","only",-0.151648351648352
-"prev","child_vitA","Gambia","Healthcare access","drop",0.592939525024487
-"prev","child_vitA","Gambia","Healthcare access","only",-0.0788507106907094
-"prev","child_vitA","Ghana","Healthcare access","drop",0.344011497299984
-"prev","child_vitA","Ghana","Healthcare access","only",0.327844854872955
-"prev","child_vitA","Malawi","Healthcare access","drop",0.214745470233005
-"prev","child_vitA","Malawi","Healthcare access","only",0.158372285485461
-"prev","child_vitA","SierraLeone","Healthcare access","drop",-0.182417582417582
-"prev","child_vitA","SierraLeone","Healthcare access","only",-0.679120879120879
-"prev","child_vitA","Gambia","Helminth burden and control","drop",0.567992407517822
-"prev","child_vitA","Gambia","Helminth burden and control","only",-0.0110813428395472
-"prev","child_vitA","Ghana","Helminth burden and control","drop",0.354196332128469
-"prev","child_vitA","Ghana","Helminth burden and control","only",0.0319406566164693
-"prev","child_vitA","Malawi","Helminth burden and control","drop",0.215925861132819
-"prev","child_vitA","Malawi","Helminth burden and control","only",0.0933147107354
-"prev","child_vitA","SierraLeone","Helminth burden and control","drop",-0.2
-"prev","child_vitA","SierraLeone","Helminth burden and control","only",-0.0637362637362637
-"prev","child_vitA","Gambia","Household assets and characteristics","drop",0.541263353046395
-"prev","child_vitA","Gambia","Household assets and characteristics","only",0.562869338744132
-"prev","child_vitA","Ghana","Household assets and characteristics","drop",0.354757361165632
-"prev","child_vitA","Ghana","Household assets and characteristics","only",0.300884188238123
-"prev","child_vitA","Malawi","Household assets and characteristics","drop",0.200228566021589
-"prev","child_vitA","Malawi","Household assets and characteristics","only",0.243646008715536
-"prev","child_vitA","SierraLeone","Household assets and characteristics","drop",-0.186813186813187
-"prev","child_vitA","SierraLeone","Household assets and characteristics","only",-0.393406593406593
-"prev","child_vitA","Gambia","Infant and child morbidity/mortality","drop",0.595835172592225
-"prev","child_vitA","Gambia","Infant and child morbidity/mortality","only",0.168615785290585
-"prev","child_vitA","Ghana","Infant and child morbidity/mortality","drop",0.377385532331178
-"prev","child_vitA","Ghana","Infant and child morbidity/mortality","only",0.0184420314267199
-"prev","child_vitA","Malawi","Infant and child morbidity/mortality","drop",0.260561771852379
-"prev","child_vitA","Malawi","Infant and child morbidity/mortality","only",-0.153526971227355
-"prev","child_vitA","SierraLeone","Infant and child morbidity/mortality","drop",-0.182417582417582
-"prev","child_vitA","SierraLeone","Infant and child morbidity/mortality","only",-0.217582417582418
-"prev","child_vitA","Gambia","Livestock density","drop",0.564205791467703
-"prev","child_vitA","Gambia","Livestock density","only",0.40717259644807
-"prev","child_vitA","Ghana","Livestock density","drop",0.35429702964796
-"prev","child_vitA","Ghana","Livestock density","only",0.237459136318928
-"prev","child_vitA","Malawi","Livestock density","drop",0.216773077181878
-"prev","child_vitA","Malawi","Livestock density","only",0.084140928737512
-"prev","child_vitA","SierraLeone","Livestock density","drop",-0.2
-"prev","child_vitA","SierraLeone","Livestock density","only",0.169230769230769
-"prev","child_vitA","Gambia","Malaria","drop",0.567992407517822
+"prev","child_vitA","Gambia","ALL","full",0.637487949143532
+"prev","child_vitA","Ghana","ALL","full",0.358068676318244
+"prev","child_vitA","Malawi","ALL","full",0.167520834332618
+"prev","child_vitA","SierraLeone","ALL","full",0.0989010989010989
+"prev","child_vitA","Gambia","Adult nutrition","drop",0.62590535887258
+"prev","child_vitA","Gambia","Adult nutrition","only",0.397817427383071
+"prev","child_vitA","Ghana","Adult nutrition","drop",0.35483616132424
+"prev","child_vitA","Ghana","Adult nutrition","only",0.266428414656655
+"prev","child_vitA","Malawi","Adult nutrition","drop",0.139913220097357
+"prev","child_vitA","Malawi","Adult nutrition","only",0.260668292182029
+"prev","child_vitA","SierraLeone","Adult nutrition","drop",0.0461538461538462
+"prev","child_vitA","SierraLeone","Adult nutrition","only",0.283516483516484
+"prev","child_vitA","Gambia","Agricultural production, land use","drop",0.625237132510794
+"prev","child_vitA","Gambia","Agricultural production, land use","only",0.601626467727701
+"prev","child_vitA","Ghana","Agricultural production, land use","drop",0.347203438695225
+"prev","child_vitA","Ghana","Agricultural production, land use","only",0.407567452173572
+"prev","child_vitA","Malawi","Agricultural production, land use","drop",0.187695629350693
+"prev","child_vitA","Malawi","Agricultural production, land use","only",-0.0822128545025484
+"prev","child_vitA","SierraLeone","Agricultural production, land use","drop",0.0549450549450549
+"prev","child_vitA","SierraLeone","Agricultural production, land use","only",0.331868131868132
+"prev","child_vitA","Gambia","Built environment","drop",0.653748123946983
+"prev","child_vitA","Gambia","Built environment","only",0.460853447511519
+"prev","child_vitA","Ghana","Built environment","drop",0.354038712691358
+"prev","child_vitA","Ghana","Built environment","only",0.0940989386800938
+"prev","child_vitA","Malawi","Built environment","drop",0.165577908944539
+"prev","child_vitA","Malawi","Built environment","only",0.118360303583086
+"prev","child_vitA","SierraLeone","Built environment","drop",0.0901098901098901
+"prev","child_vitA","SierraLeone","Built environment","only",0.0505494505494506
+"prev","child_vitA","Gambia","Climate and weather","drop",0.633033106731627
+"prev","child_vitA","Gambia","Climate and weather","only",0.0187103381299988
+"prev","child_vitA","Ghana","Climate and weather","drop",0.359250609113409
+"prev","child_vitA","Ghana","Climate and weather","only",0.291994361022295
+"prev","child_vitA","Malawi","Climate and weather","drop",0.151322258713402
+"prev","child_vitA","Malawi","Climate and weather","only",0.164132010981317
+"prev","child_vitA","SierraLeone","Climate and weather","drop",0.107692307692308
+"prev","child_vitA","SierraLeone","Climate and weather","only",0.446153846153846
+"prev","child_vitA","Gambia","Dietary diversity","drop",0.623455195546033
+"prev","child_vitA","Gambia","Dietary diversity","only",0.236997616313319
+"prev","child_vitA","Ghana","Dietary diversity","drop",0.36241192333662
+"prev","child_vitA","Ghana","Dietary diversity","only",0.20604936896141
+"prev","child_vitA","Malawi","Dietary diversity","drop",0.161082069965147
+"prev","child_vitA","Malawi","Dietary diversity","only",0.103675402394118
+"prev","child_vitA","SierraLeone","Dietary diversity","drop",0.0637362637362637
+"prev","child_vitA","SierraLeone","Dietary diversity","only",0.305494505494505
+"prev","child_vitA","Gambia","Ecosystem productivity/greenness","drop",0.621005032219485
+"prev","child_vitA","Gambia","Ecosystem productivity/greenness","only",0.530348989137229
+"prev","child_vitA","Ghana","Ecosystem productivity/greenness","drop",0.350450193843388
+"prev","child_vitA","Ghana","Ecosystem productivity/greenness","only",0.273225837841247
+"prev","child_vitA","Malawi","Ecosystem productivity/greenness","drop",0.174998837861154
+"prev","child_vitA","Malawi","Ecosystem productivity/greenness","only",0.0794340193544821
+"prev","child_vitA","SierraLeone","Ecosystem productivity/greenness","drop",0.0857142857142857
+"prev","child_vitA","SierraLeone","Ecosystem productivity/greenness","only",0.389010989010989
+"prev","child_vitA","Gambia","Education, employment, SES","drop",0.628578264319723
+"prev","child_vitA","Gambia","Education, employment, SES","only",0.486023307138779
+"prev","child_vitA","Ghana","Education, employment, SES","drop",0.368008303920954
+"prev","child_vitA","Ghana","Education, employment, SES","only",0.25219313014898
+"prev","child_vitA","Malawi","Education, employment, SES","drop",0.171135579240672
+"prev","child_vitA","Malawi","Education, employment, SES","only",0.0536111854175728
+"prev","child_vitA","SierraLeone","Education, employment, SES","drop",0.0989010989010989
+"prev","child_vitA","SierraLeone","Education, employment, SES","only",-0.336263736263736
+"prev","child_vitA","Gambia","Fertility, reproductive health","drop",0.612318089516271
+"prev","child_vitA","Gambia","Fertility, reproductive health","only",0.39224887436819
+"prev","child_vitA","Ghana","Fertility, reproductive health","drop",0.355946893348611
+"prev","child_vitA","Ghana","Fertility, reproductive health","only",0.290699680017518
+"prev","child_vitA","Malawi","Fertility, reproductive health","drop",0.171474461575802
+"prev","child_vitA","Malawi","Fertility, reproductive health","only",0.100557684910921
+"prev","child_vitA","SierraLeone","Fertility, reproductive health","drop",0.147252747252747
+"prev","child_vitA","SierraLeone","Fertility, reproductive health","only",-0.0989010989010989
+"prev","child_vitA","Gambia","Food fortification and supplementation","drop",0.641720049434841
+"prev","child_vitA","Gambia","Food fortification and supplementation","only",-0.123621876930349
+"prev","child_vitA","Ghana","Food fortification and supplementation","drop",0.360347100983622
+"prev","child_vitA","Ghana","Food fortification and supplementation","only",-0.293068305202074
+"prev","child_vitA","Malawi","Food fortification and supplementation","drop",0.169395983253671
+"prev","child_vitA","Malawi","Food fortification and supplementation","only",0.108351978618912
+"prev","child_vitA","SierraLeone","Food fortification and supplementation","drop",0.0901098901098901
+"prev","child_vitA","SierraLeone","Food fortification and supplementation","only",-0.463736263736264
+"prev","child_vitA","Gambia","Food prices and supply","drop",0.659316676961864
+"prev","child_vitA","Gambia","Food prices and supply","only",0.126294782377492
+"prev","child_vitA","Ghana","Food prices and supply","drop",0.358965806030237
+"prev","child_vitA","Ghana","Food prices and supply","only",0.0898838530491453
+"prev","child_vitA","Malawi","Food prices and supply","drop",0.163544614933759
+"prev","child_vitA","Malawi","Food prices and supply","only",0.0700582747492176
+"prev","child_vitA","SierraLeone","Food prices and supply","drop",0.0549450549450549
+"prev","child_vitA","SierraLeone","Food prices and supply","only",-0.287912087912088
+"prev","child_vitA","Gambia","Healthcare access","drop",0.636819722781746
+"prev","child_vitA","Gambia","Healthcare access","only",-0.0572447249929726
+"prev","child_vitA","Ghana","Healthcare access","drop",0.363650816748419
+"prev","child_vitA","Ghana","Healthcare access","only",-0.0581427847435695
+"prev","child_vitA","Malawi","Healthcare access","drop",0.17172297528823
+"prev","child_vitA","Malawi","Healthcare access","only",0.0950677910818147
+"prev","child_vitA","SierraLeone","Healthcare access","drop",0.0549450549450549
+"prev","child_vitA","SierraLeone","Healthcare access","only",-0.371428571428571
+"prev","child_vitA","Gambia","Helminth burden and control","drop",0.632142138249246
+"prev","child_vitA","Gambia","Helminth burden and control","only",-0.104433261306036
+"prev","child_vitA","Ghana","Helminth burden and control","drop",0.360532222987684
+"prev","child_vitA","Ghana","Helminth burden and control","only",-0.170509131002649
+"prev","child_vitA","Malawi","Helminth burden and control","drop",0.163431654155382
+"prev","child_vitA","Malawi","Helminth burden and control","only",0.0012889632837847
+"prev","child_vitA","SierraLeone","Helminth burden and control","drop",0.0989010989010989
+"prev","child_vitA","SierraLeone","Helminth burden and control","only",-0.415384615384615
+"prev","child_vitA","Gambia","Household assets and characteristics","drop",0.636374238540556
+"prev","child_vitA","Gambia","Household assets and characteristics","only",0.0786279685701142
+"prev","child_vitA","Ghana","Household assets and characteristics","drop",0.347516722086714
+"prev","child_vitA","Ghana","Household assets and characteristics","only",0.341735219498319
+"prev","child_vitA","Malawi","Household assets and characteristics","drop",0.152293721407441
+"prev","child_vitA","Malawi","Household assets and characteristics","only",0.197410256291088
+"prev","child_vitA","SierraLeone","Household assets and characteristics","drop",0.0901098901098901
+"prev","child_vitA","SierraLeone","Household assets and characteristics","only",-0.156043956043956
+"prev","child_vitA","Gambia","Infant and child morbidity/mortality","drop",0.662657808770792
+"prev","child_vitA","Gambia","Infant and child morbidity/mortality","only",0.3031520261301
+"prev","child_vitA","Ghana","Infant and child morbidity/mortality","drop",0.34704679699948
+"prev","child_vitA","Ghana","Infant and child morbidity/mortality","only",0.294628789541637
+"prev","child_vitA","Malawi","Infant and child morbidity/mortality","drop",0.160878740564069
+"prev","child_vitA","Malawi","Infant and child morbidity/mortality","only",0.101235449581182
+"prev","child_vitA","SierraLeone","Infant and child morbidity/mortality","drop",0.0549450549450549
+"prev","child_vitA","SierraLeone","Infant and child morbidity/mortality","only",0.120879120879121
+"prev","child_vitA","Gambia","Livestock density","drop",0.65530731879115
+"prev","child_vitA","Gambia","Livestock density","only",0.440806656657949
+"prev","child_vitA","Ghana","Livestock density","drop",0.358780684026175
+"prev","child_vitA","Ghana","Livestock density","only",0.240843727284568
+"prev","child_vitA","Malawi","Livestock density","drop",0.169328206786645
+"prev","child_vitA","Malawi","Livestock density","only",0.0337300884232769
+"prev","child_vitA","SierraLeone","Livestock density","drop",0.0945054945054945
+"prev","child_vitA","SierraLeone","Livestock density","only",0.248351648351648
+"prev","child_vitA","Gambia","Malaria","drop",0.636374238540556
 "prev","child_vitA","Gambia","Malaria","only",-0.0532353668222586
-"prev","child_vitA","Ghana","Malaria","drop",0.352714640055964
-"prev","child_vitA","Ghana","Malaria","only",0.127692167667148
-"prev","child_vitA","Malawi","Malaria","drop",0.217886833111541
-"prev","child_vitA","Malawi","Malaria","only",0.0883865282642605
-"prev","child_vitA","SierraLeone","Malaria","drop",-0.2
-"prev","child_vitA","SierraLeone","Malaria","only",0.169230769230769
-"prev","child_vitA","Gambia","Malaria incidence and treatment","drop",0.59138033018032
-"prev","child_vitA","Gambia","Malaria incidence and treatment","only",-0.434124393040092
-"prev","child_vitA","Ghana","Malaria incidence and treatment","drop",0.350154045988915
-"prev","child_vitA","Ghana","Malaria incidence and treatment","only",-0.11929778987659
-"prev","child_vitA","Malawi","Malaria incidence and treatment","drop",0.217839236704291
-"prev","child_vitA","Malawi","Malaria incidence and treatment","only",-0.0528605698924544
-"prev","child_vitA","SierraLeone","Malaria incidence and treatment","drop",-0.204395604395604
-"prev","child_vitA","SierraLeone","Malaria incidence and treatment","only",0.0417582417582418
-"prev","child_vitA","Gambia","Nutrition status (MODELLED SURFACE)","drop",0.537253994875681
-"prev","child_vitA","Gambia","Nutrition status (MODELLED SURFACE)","only",0.668449103906268
-"prev","child_vitA","Ghana","Nutrition status (MODELLED SURFACE)","drop",0.353160586213708
-"prev","child_vitA","Ghana","Nutrition status (MODELLED SURFACE)","only",0.349132685434081
-"prev","child_vitA","Malawi","Nutrition status (MODELLED SURFACE)","drop",0.216516056582725
-"prev","child_vitA","Malawi","Nutrition status (MODELLED SURFACE)","only",0.0881009498207573
-"prev","child_vitA","SierraLeone","Nutrition status (MODELLED SURFACE)","drop",-0.230769230769231
-"prev","child_vitA","SierraLeone","Nutrition status (MODELLED SURFACE)","only",-0.221978021978022
-"prev","child_vitA","Gambia","Ruralness, population density, built environment","drop",0.568883376000203
+"prev","child_vitA","Ghana","Malaria","drop",0.358652522638747
+"prev","child_vitA","Ghana","Malaria","only",0.185067568482245
+"prev","child_vitA","Malawi","Malaria","drop",0.169508944032047
+"prev","child_vitA","Malawi","Malaria","only",0.0877705247986811
+"prev","child_vitA","SierraLeone","Malaria","drop",0.0989010989010989
+"prev","child_vitA","SierraLeone","Malaria","only",0.138461538461538
+"prev","child_vitA","Gambia","Malaria incidence and treatment","drop",0.650406992138055
+"prev","child_vitA","Gambia","Malaria incidence and treatment","only",-0.662212324529602
+"prev","child_vitA","Ghana","Malaria incidence and treatment","drop",0.362753687036427
+"prev","child_vitA","Ghana","Malaria incidence and treatment","only",-0.159703328888809
+"prev","child_vitA","Malawi","Malaria incidence and treatment","drop",0.177596935763818
+"prev","child_vitA","Malawi","Malaria incidence and treatment","only",-0.0661724239730597
+"prev","child_vitA","SierraLeone","Malaria incidence and treatment","drop",0.0989010989010989
+"prev","child_vitA","SierraLeone","Malaria incidence and treatment","only",-0.213186813186813
+"prev","child_vitA","Gambia","Nutrition status (MODELLED SURFACE)","drop",0.606081310139605
+"prev","child_vitA","Gambia","Nutrition status (MODELLED SURFACE)","only",0.673794914800553
+"prev","child_vitA","Ghana","Nutrition status (MODELLED SURFACE)","drop",0.355719050882074
+"prev","child_vitA","Ghana","Nutrition status (MODELLED SURFACE)","only",0.321485720284776
+"prev","child_vitA","Malawi","Nutrition status (MODELLED SURFACE)","drop",0.155614768291716
+"prev","child_vitA","Malawi","Nutrition status (MODELLED SURFACE)","only",0.127284205074844
+"prev","child_vitA","SierraLeone","Nutrition status (MODELLED SURFACE)","drop",0.0901098901098901
+"prev","child_vitA","SierraLeone","Nutrition status (MODELLED SURFACE)","only",-0.125274725274725
+"prev","child_vitA","Gambia","Ruralness, population density, built environment","drop",0.64038359671127
 "prev","child_vitA","Gambia","Ruralness, population density, built environment","only",0.490478149550684
-"prev","child_vitA","Ghana","Ruralness, population density, built environment","drop",0.361748646090269
-"prev","child_vitA","Ghana","Ruralness, population density, built environment","only",-0.248449551303338
-"prev","child_vitA","Malawi","Ruralness, population density, built environment","drop",0.229966801271729
-"prev","child_vitA","Malawi","Ruralness, population density, built environment","only",-0.0639219749374808
-"prev","child_vitA","SierraLeone","Ruralness, population density, built environment","drop",-0.204395604395604
-"prev","child_vitA","SierraLeone","Ruralness, population density, built environment","only",-0.230769230769231
-"prev","child_vitA","Gambia","Satellite embedding","drop",0.586480003527225
-"prev","child_vitA","Gambia","Satellite embedding","only",0.274418292573316
-"prev","child_vitA","Ghana","Satellite embedding","drop",0.373386402271405
-"prev","child_vitA","Ghana","Satellite embedding","only",0.262719828351159
-"prev","child_vitA","Malawi","Satellite embedding","drop",0.21600201538442
-"prev","child_vitA","Malawi","Satellite embedding","only",0.148005787986292
-"prev","child_vitA","SierraLeone","Satellite embedding","drop",-0.2
-"prev","child_vitA","SierraLeone","Satellite embedding","only",0.0725274725274725
-"prev","child_vitA","Gambia","Soil characteristics","drop",0.509633971921873
-"prev","child_vitA","Gambia","Soil characteristics","only",0.609645184069129
-"prev","child_vitA","Ghana","Soil characteristics","drop",0.362367216567141
-"prev","child_vitA","Ghana","Soil characteristics","only",0.218038900417156
-"prev","child_vitA","Malawi","Soil characteristics","drop",0.208101011780829
-"prev","child_vitA","Malawi","Soil characteristics","only",0.163826833756373
-"prev","child_vitA","SierraLeone","Soil characteristics","drop",-0.2
-"prev","child_vitA","SierraLeone","Soil characteristics","only",0.235164835164835
-"prev","child_vitA","Gambia","Water and coast proximity","drop",0.564428533588298
-"prev","child_vitA","Gambia","Water and coast proximity","only",0.214277920012606
-"prev","child_vitA","Ghana","Water and coast proximity","drop",0.35950452994162
-"prev","child_vitA","Ghana","Water and coast proximity","only",0.175731556871147
-"prev","child_vitA","Malawi","Water and coast proximity","drop",0.218210488680845
-"prev","child_vitA","Malawi","Water and coast proximity","only",-0.0454640882057198
-"prev","child_vitA","SierraLeone","Water and coast proximity","drop",-0.2
-"prev","child_vitA","SierraLeone","Water and coast proximity","only",0.0681318681318681
-"prev","child_vitA","Gambia","Water and sanitation","drop",0.555296106643894
-"prev","child_vitA","Gambia","Water and sanitation","only",0.339013507545931
-"prev","child_vitA","Ghana","Water and sanitation","drop",0.35288726437509
-"prev","child_vitA","Ghana","Water and sanitation","only",0.125406826247898
-"prev","child_vitA","Malawi","Water and sanitation","drop",0.223265227130853
-"prev","child_vitA","Malawi","Water and sanitation","only",0.0118419861239354
-"prev","child_vitA","SierraLeone","Water and sanitation","drop",-0.204395604395604
-"prev","child_vitA","SierraLeone","Water and sanitation","only",-0.283516483516484
-"prev","women_vitA","Gambia","ALL","full",0.459235333328848
-"prev","women_vitA","Ghana","ALL","full",0.249979365410831
-"prev","women_vitA","Malawi","ALL","full",0.0870144900008482
-"prev","women_vitA","SierraLeone","ALL","full",-0.0732014417394684
-"prev","women_vitA","Gambia","Adult nutrition","drop",0.483874939869231
-"prev","women_vitA","Gambia","Adult nutrition","only",-0.270801009024778
-"prev","women_vitA","Ghana","Adult nutrition","drop",0.244674881729681
-"prev","women_vitA","Ghana","Adult nutrition","only",0.0698894854391916
-"prev","women_vitA","Malawi","Adult nutrition","drop",0.0950798635525321
-"prev","women_vitA","Malawi","Adult nutrition","only",0.0133212823436815
-"prev","women_vitA","SierraLeone","Adult nutrition","drop",-0.0732014417394684
-"prev","women_vitA","SierraLeone","Adult nutrition","only",-0.00686263516307516
-"prev","women_vitA","Gambia","Agricultural production, land use","drop",0.409956120248083
-"prev","women_vitA","Gambia","Agricultural production, land use","only",0.492322804968791
-"prev","women_vitA","Ghana","Agricultural production, land use","drop",0.24431827778473
-"prev","women_vitA","Ghana","Agricultural production, land use","only",0.0673535701026686
-"prev","women_vitA","Malawi","Agricultural production, land use","drop",0.0811272408134155
-"prev","women_vitA","Malawi","Agricultural production, land use","only",-0.00667642468172661
-"prev","women_vitA","SierraLeone","Agricultural production, land use","drop",-0.107514617554844
-"prev","women_vitA","SierraLeone","Agricultural production, land use","only",-0.109802162609203
-"prev","women_vitA","Gambia","Built environment","drop",0.459704659167713
-"prev","women_vitA","Gambia","Built environment","only",0.0283942132512982
-"prev","women_vitA","Ghana","Built environment","drop",0.249533610479642
-"prev","women_vitA","Ghana","Built environment","only",0.0719002704007971
-"prev","women_vitA","Malawi","Built environment","drop",0.0811588078331873
-"prev","women_vitA","Malawi","Built environment","only",-0.0586988732655822
-"prev","women_vitA","SierraLeone","Built environment","drop",-0.0732014417394684
-"prev","women_vitA","SierraLeone","Built environment","only",0.0503259911958845
-"prev","women_vitA","Gambia","Climate and weather","drop",0.351994379148325
-"prev","women_vitA","Gambia","Climate and weather","only",0.570934882978584
-"prev","women_vitA","Ghana","Climate and weather","drop",0.227468741385783
-"prev","women_vitA","Ghana","Climate and weather","only",0.211510714849214
-"prev","women_vitA","Malawi","Climate and weather","drop",0.0438308069530846
-"prev","women_vitA","Malawi","Climate and weather","only",0.173034618878886
-"prev","women_vitA","SierraLeone","Climate and weather","drop",-0.105227072500486
-"prev","women_vitA","SierraLeone","Climate and weather","only",-0.29738085706659
-"prev","women_vitA","Gambia","Dietary diversity","drop",0.444216906485186
-"prev","women_vitA","Gambia","Dietary diversity","only",0.220348481346852
-"prev","women_vitA","Ghana","Dietary diversity","drop",0.253144225422273
-"prev","women_vitA","Ghana","Dietary diversity","only",-0.0420228644506782
-"prev","women_vitA","Malawi","Dietary diversity","drop",0.0661329064218309
-"prev","women_vitA","Malawi","Dietary diversity","only",0.179726827070499
-"prev","women_vitA","SierraLeone","Dietary diversity","drop",-0.0960768922830523
-"prev","women_vitA","SierraLeone","Dietary diversity","only",0.118952342826636
-"prev","women_vitA","Gambia","Ecosystem productivity/greenness","drop",0.473784434333646
-"prev","women_vitA","Gambia","Ecosystem productivity/greenness","only",-0.0190076964740096
-"prev","women_vitA","Ghana","Ecosystem productivity/greenness","drop",0.260142577841942
-"prev","women_vitA","Ghana","Ecosystem productivity/greenness","only",0.147856910675415
-"prev","women_vitA","Malawi","Ecosystem productivity/greenness","drop",0.075603012353358
-"prev","women_vitA","Malawi","Ecosystem productivity/greenness","only",0.078459827642702
-"prev","women_vitA","SierraLeone","Ecosystem productivity/greenness","drop",-0.0503259911958845
-"prev","women_vitA","SierraLeone","Ecosystem productivity/greenness","only",0.00457509010871677
-"prev","women_vitA","Gambia","Education, employment, SES","drop",0.444216906485186
-"prev","women_vitA","Gambia","Education, employment, SES","only",-0.196412863564765
-"prev","women_vitA","Ghana","Education, employment, SES","drop",0.25042512034202
-"prev","women_vitA","Ghana","Education, employment, SES","only",0.014397884277407
-"prev","women_vitA","Malawi","Education, employment, SES","drop",0.093012223757482
-"prev","women_vitA","Malawi","Education, employment, SES","only",0.036238938697977
-"prev","women_vitA","SierraLeone","Education, employment, SES","drop",-0.0343131758153758
-"prev","women_vitA","SierraLeone","Education, employment, SES","only",-0.475809371306545
-"prev","women_vitA","Gambia","Fertility, reproductive health","drop",0.469560501783866
-"prev","women_vitA","Gambia","Fertility, reproductive health","only",-0.380388592399623
-"prev","women_vitA","Ghana","Fertility, reproductive health","drop",0.249355308507166
-"prev","women_vitA","Ghana","Fertility, reproductive health","only",0.06819519488309
-"prev","women_vitA","Malawi","Fertility, reproductive health","drop",0.122211717046357
-"prev","women_vitA","Malawi","Fertility, reproductive health","only",-0.180989507861369
-"prev","women_vitA","SierraLeone","Fertility, reproductive health","drop",-0.0228754505435839
-"prev","women_vitA","SierraLeone","Fertility, reproductive health","only",-0.249342410925064
-"prev","women_vitA","Gambia","Food fortification and supplementation","drop",0.451726119907017
-"prev","women_vitA","Gambia","Food fortification and supplementation","only",0.0187730335545773
-"prev","women_vitA","Ghana","Food fortification and supplementation","drop",0.246903656385626
-"prev","women_vitA","Ghana","Food fortification and supplementation","only",0.0897763838685142
-"prev","women_vitA","Malawi","Food fortification and supplementation","drop",0.0762343527487932
-"prev","women_vitA","Malawi","Food fortification and supplementation","only",0.0447304670165797
-"prev","women_vitA","SierraLeone","Food fortification and supplementation","drop",-0.0732014417394684
-"prev","women_vitA","SierraLeone","Food fortification and supplementation","only",0.0343131758153758
-"prev","women_vitA","Gambia","Food prices and supply","drop",0.477069715205697
-"prev","women_vitA","Gambia","Food prices and supply","only",-0.0912838756591323
-"prev","women_vitA","Ghana","Food prices and supply","drop",0.245209787647108
-"prev","women_vitA","Ghana","Food prices and supply","only",-0.133102422453057
-"prev","women_vitA","Malawi","Food prices and supply","drop",0.0864778506647283
-"prev","women_vitA","Malawi","Food prices and supply","only",-0.00860201288780378
-"prev","women_vitA","SierraLeone","Food prices and supply","drop",-0.0892142571199771
-"prev","women_vitA","SierraLeone","Food prices and supply","only",0.441496195491169
-"prev","women_vitA","Gambia","Healthcare access","drop",0.449144827793263
-"prev","women_vitA","Gambia","Healthcare access","only",0.266107750636134
-"prev","women_vitA","Ghana","Healthcare access","drop",0.247438562303053
-"prev","women_vitA","Ghana","Healthcare access","only",-0.0296723780285691
-"prev","women_vitA","Malawi","Healthcare access","drop",0.0864936341746142
-"prev","women_vitA","Malawi","Healthcare access","only",-0.0603245747838276
-"prev","women_vitA","SierraLeone","Healthcare access","drop",-0.0732014417394684
-"prev","women_vitA","SierraLeone","Healthcare access","only",-0.0732014417394684
-"prev","women_vitA","Gambia","Helminth burden and control","drop",0.477069715205697
-"prev","women_vitA","Gambia","Helminth burden and control","only",-0.121932605776883
-"prev","women_vitA","Ghana","Helminth burden and control","drop",0.24632417497508
-"prev","women_vitA","Ghana","Helminth burden and control","only",-0.0597454283613623
-"prev","women_vitA","Malawi","Helminth burden and control","drop",0.0975105240749574
-"prev","women_vitA","Malawi","Helminth burden and control","only",-0.151221762517018
-"prev","women_vitA","SierraLeone","Helminth burden and control","drop",-0.0732014417394684
-"prev","women_vitA","SierraLeone","Helminth burden and control","only",0.169278334022521
-"prev","women_vitA","Gambia","Household assets and characteristics","drop",0.395172356323853
-"prev","women_vitA","Gambia","Household assets and characteristics","only",0.410190783167515
-"prev","women_vitA","Ghana","Household assets and characteristics","drop",0.246636203426913
-"prev","women_vitA","Ghana","Household assets and characteristics","only",0.214987603312489
-"prev","women_vitA","Malawi","Household assets and characteristics","drop",0.0951272140821897
-"prev","women_vitA","Malawi","Household assets and characteristics","only",0.0162570151824549
-"prev","women_vitA","SierraLeone","Household assets and characteristics","drop",-0.112089707663561
-"prev","women_vitA","SierraLeone","Household assets and characteristics","only",-0.0388882659240926
-"prev","women_vitA","Gambia","Infant and child morbidity/mortality","drop",0.487394883660714
-"prev","women_vitA","Gambia","Infant and child morbidity/mortality","only",-0.0405966850617735
-"prev","women_vitA","Ghana","Infant and child morbidity/mortality","drop",0.259295643472682
-"prev","women_vitA","Ghana","Infant and child morbidity/mortality","only",0.101810426283584
-"prev","women_vitA","Malawi","Infant and child morbidity/mortality","drop",0.0416368990789475
-"prev","women_vitA","Malawi","Infant and child morbidity/mortality","only",0.162633285864092
-"prev","women_vitA","SierraLeone","Infant and child morbidity/mortality","drop",-0.0640512615220348
-"prev","women_vitA","SierraLeone","Infant and child morbidity/mortality","only",-0.0480384461415261
-"prev","women_vitA","Gambia","Livestock density","drop",0.493496119565952
-"prev","women_vitA","Gambia","Livestock density","only",-0.0523298310333843
-"prev","women_vitA","Ghana","Livestock density","drop",0.247081958358102
-"prev","women_vitA","Ghana","Livestock density","only",0.238523463679272
-"prev","women_vitA","Malawi","Livestock density","drop",0.0763132702982226
-"prev","women_vitA","Malawi","Livestock density","only",0.159934305673607
-"prev","women_vitA","SierraLeone","Livestock density","drop",-0.0503259911958845
-"prev","women_vitA","SierraLeone","Livestock density","only",-0.14182779337022
-"prev","women_vitA","Gambia","Malaria","drop",0.419342637025371
+"prev","child_vitA","Ghana","Ruralness, population density, built environment","drop",0.358068676318244
+"prev","child_vitA","Ghana","Ruralness, population density, built environment","only",0.205912629133498
+"prev","child_vitA","Malawi","Ruralness, population density, built environment","drop",0.1579191681706
+"prev","child_vitA","Malawi","Ruralness, population density, built environment","only",0.107516068858925
+"prev","child_vitA","SierraLeone","Ruralness, population density, built environment","drop",0.134065934065934
+"prev","child_vitA","SierraLeone","Ruralness, population density, built environment","only",0.010989010989011
+"prev","child_vitA","Gambia","Satellite embedding","drop",0.629914717043294
+"prev","child_vitA","Gambia","Satellite embedding","only",0.322085106380694
+"prev","child_vitA","Ghana","Satellite embedding","drop",0.358581321867954
+"prev","child_vitA","Ghana","Satellite embedding","only",0.285828374271617
+"prev","child_vitA","Malawi","Satellite embedding","drop",0.171316316486074
+"prev","child_vitA","Malawi","Satellite embedding","only",0.0614732555925898
+"prev","child_vitA","SierraLeone","Satellite embedding","drop",0.00659340659340659
+"prev","child_vitA","SierraLeone","Satellite embedding","only",0.331868131868132
+"prev","child_vitA","Gambia","Soil characteristics","drop",0.66555345633853
+"prev","child_vitA","Gambia","Soil characteristics","only",-0.00378661605011881
+"prev","child_vitA","Ghana","Soil characteristics","drop",0.371340499994069
+"prev","child_vitA","Ghana","Soil characteristics","only",0.196827410780305
+"prev","child_vitA","Malawi","Soil characteristics","drop",0.182906092347522
+"prev","child_vitA","Malawi","Soil characteristics","only",-0.0457039309312051
+"prev","child_vitA","SierraLeone","Soil characteristics","drop",0.0549450549450549
+"prev","child_vitA","SierraLeone","Soil characteristics","only",0.371428571428571
+"prev","child_vitA","Gambia","Water and coast proximity","drop",0.627687295837342
+"prev","child_vitA","Gambia","Water and coast proximity","only",0.561978370261751
+"prev","child_vitA","Ghana","Water and coast proximity","drop",0.356003853965246
+"prev","child_vitA","Ghana","Water and coast proximity","only",0.0864377357427617
+"prev","child_vitA","Malawi","Water and coast proximity","drop",0.181708708096729
+"prev","child_vitA","Malawi","Water and coast proximity","only",-0.0891260541392013
+"prev","child_vitA","SierraLeone","Water and coast proximity","drop",0.0549450549450549
+"prev","child_vitA","SierraLeone","Water and coast proximity","only",0.349450549450549
+"prev","child_vitA","Gambia","Water and sanitation","drop",0.635928754299365
+"prev","child_vitA","Gambia","Water and sanitation","only",0.400490332830213
+"prev","child_vitA","Ghana","Water and sanitation","drop",0.360902466995808
+"prev","child_vitA","Ghana","Water and sanitation","only",0.300114765935083
+"prev","child_vitA","Malawi","Water and sanitation","drop",0.175766971154116
+"prev","child_vitA","Malawi","Water and sanitation","only",-0.0249191477098958
+"prev","child_vitA","SierraLeone","Water and sanitation","drop",0.0989010989010989
+"prev","child_vitA","SierraLeone","Water and sanitation","only",-0.265934065934066
+"prev","women_vitA","Gambia","ALL","full",0.437646344741084
+"prev","women_vitA","Ghana","ALL","full",0.105482589548994
+"prev","women_vitA","Malawi","ALL","full",0.141740284634075
+"prev","women_vitA","SierraLeone","ALL","full",-0.00704091511557349
+"prev","women_vitA","Gambia","Adult nutrition","drop",0.415353367395024
+"prev","women_vitA","Gambia","Adult nutrition","only",-0.125309998976804
+"prev","women_vitA","Ghana","Adult nutrition","drop",0.105665369984878
+"prev","women_vitA","Ghana","Adult nutrition","only",0.0669508639848904
+"prev","women_vitA","Malawi","Adult nutrition","drop",0.129665332203634
+"prev","women_vitA","Malawi","Adult nutrition","only",0.0688693507805981
+"prev","women_vitA","SierraLeone","Adult nutrition","drop",0.0117348585259558
+"prev","women_vitA","SierraLeone","Adult nutrition","only",-0.129083443785514
+"prev","women_vitA","Gambia","Agricultural production, land use","drop",0.384847187868836
+"prev","women_vitA","Gambia","Agricultural production, land use","only",0.514381119395419
+"prev","women_vitA","Ghana","Agricultural production, land use","drop",0.109997266315343
+"prev","women_vitA","Ghana","Agricultural production, land use","only",0.103398892579909
+"prev","women_vitA","Malawi","Agricultural production, land use","drop",0.108534165450362
+"prev","women_vitA","Malawi","Agricultural production, land use","only",0.0989163254330915
+"prev","women_vitA","SierraLeone","Agricultural production, land use","drop",0.0352045755778674
+"prev","women_vitA","SierraLeone","Agricultural production, land use","only",-0.190104708120484
+"prev","women_vitA","Gambia","Built environment","drop",0.459469996248281
+"prev","women_vitA","Gambia","Built environment","only",-0.209788649972402
+"prev","women_vitA","Ghana","Built environment","drop",0.118423444409622
+"prev","women_vitA","Ghana","Built environment","only",0.0172361951039163
+"prev","women_vitA","Malawi","Built environment","drop",0.132684070311244
+"prev","women_vitA","Malawi","Built environment","only",-0.0177614125866374
+"prev","women_vitA","SierraLeone","Built environment","drop",-0.00234697170519116
+"prev","women_vitA","SierraLeone","Built environment","only",-0.119695556964749
+"prev","women_vitA","Gambia","Climate and weather","drop",0.321018873783273
+"prev","women_vitA","Gambia","Climate and weather","only",0.615520837670705
+"prev","women_vitA","Ghana","Climate and weather","drop",0.0889775161886157
+"prev","women_vitA","Ghana","Climate and weather","only",0.205390375803508
+"prev","women_vitA","Malawi","Climate and weather","drop",0.107902336544118
+"prev","women_vitA","Malawi","Climate and weather","only",0.129735535415439
+"prev","women_vitA","SierraLeone","Climate and weather","drop",-0.0586742926297791
+"prev","women_vitA","SierraLeone","Climate and weather","only",0.00704091511557349
+"prev","women_vitA","Gambia","Dietary diversity","drop",0.44351291772689
+"prev","women_vitA","Gambia","Dietary diversity","only",-0.263291795602947
+"prev","women_vitA","Ghana","Dietary diversity","drop",0.119373902676222
+"prev","women_vitA","Ghana","Dietary diversity","only",-0.109220224316148
+"prev","women_vitA","Malawi","Dietary diversity","drop",0.138721546526465
+"prev","women_vitA","Malawi","Dietary diversity","only",0.102145673176116
+"prev","women_vitA","SierraLeone","Dietary diversity","drop",-0.00234697170519116
+"prev","women_vitA","SierraLeone","Dietary diversity","only",-0.166634991068573
+"prev","women_vitA","Gambia","Ecosystem productivity/greenness","drop",0.448910164873831
+"prev","women_vitA","Gambia","Ecosystem productivity/greenness","only",-0.121320729346456
+"prev","women_vitA","Ghana","Ecosystem productivity/greenness","drop",0.134983351900766
+"prev","women_vitA","Ghana","Ecosystem productivity/greenness","only",-0.146132958489725
+"prev","women_vitA","Malawi","Ecosystem productivity/greenness","drop",0.126506187672414
+"prev","women_vitA","Malawi","Ecosystem productivity/greenness","only",0.18042225433857
+"prev","women_vitA","SierraLeone","Ecosystem productivity/greenness","drop",-0.00234697170519116
+"prev","women_vitA","SierraLeone","Ecosystem productivity/greenness","only",0.0821440096816907
+"prev","women_vitA","Gambia","Education, employment, SES","drop",0.421219940380829
+"prev","women_vitA","Gambia","Education, employment, SES","only",-0.282299492076957
+"prev","women_vitA","Ghana","Education, employment, SES","drop",0.120561975509472
+"prev","women_vitA","Ghana","Education, employment, SES","only",-0.0135623083426362
+"prev","women_vitA","Malawi","Education, employment, SES","drop",0.153745033852711
+"prev","women_vitA","Malawi","Education, employment, SES","only",-0.037348108680202
+"prev","women_vitA","SierraLeone","Education, employment, SES","drop",0.0211227453467205
+"prev","women_vitA","SierraLeone","Education, employment, SES","only",-0.499904973205718
+"prev","women_vitA","Gambia","Fertility, reproductive health","drop",0.425913198769474
+"prev","women_vitA","Gambia","Fertility, reproductive health","only",-0.233254941915624
+"prev","women_vitA","Ghana","Fertility, reproductive health","drop",0.109101642179508
+"prev","women_vitA","Ghana","Fertility, reproductive health","only",0.0188493557532556
+"prev","women_vitA","Malawi","Fertility, reproductive health","drop",0.193129035675255
+"prev","women_vitA","Malawi","Fertility, reproductive health","only",-0.244096567445606
+"prev","women_vitA","SierraLeone","Fertility, reproductive health","drop",0.0633682360401614
+"prev","women_vitA","SierraLeone","Fertility, reproductive health","only",-0.335616953842336
+"prev","women_vitA","Gambia","Food fortification and supplementation","drop",0.435769041385627
+"prev","women_vitA","Gambia","Food fortification and supplementation","only",-0.113342190085761
+"prev","women_vitA","Ghana","Food fortification and supplementation","drop",0.102466712356898
+"prev","women_vitA","Ghana","Food fortification and supplementation","only",0.287461337017868
+"prev","women_vitA","Malawi","Food fortification and supplementation","drop",0.135702808418854
+"prev","women_vitA","Malawi","Food fortification and supplementation","only",-0.0996183575511404
+"prev","women_vitA","SierraLeone","Food fortification and supplementation","drop",-0.0492864058090144
+"prev","women_vitA","SierraLeone","Food fortification and supplementation","only",0.0915318965024554
+"prev","women_vitA","Gambia","Food prices and supply","drop",0.437411681821652
+"prev","women_vitA","Gambia","Food prices and supply","only",-0.171538594104951
+"prev","women_vitA","Ghana","Food prices and supply","drop",0.109065086092332
+"prev","women_vitA","Ghana","Food prices and supply","only",-0.0734411791384261
+"prev","women_vitA","Malawi","Food prices and supply","drop",0.135702808418854
+"prev","women_vitA","Malawi","Food prices and supply","only",0.131069396439732
+"prev","women_vitA","SierraLeone","Food prices and supply","drop",-0.00704091511557349
+"prev","women_vitA","SierraLeone","Food prices and supply","only",-0.0117348585259558
+"prev","women_vitA","Gambia","Healthcare access","drop",0.42661718752777
+"prev","women_vitA","Gambia","Healthcare access","only",0.228327020607547
+"prev","women_vitA","Ghana","Healthcare access","drop",0.109613427399985
+"prev","women_vitA","Ghana","Healthcare access","only",0.00482660515893257
+"prev","women_vitA","Malawi","Healthcare access","drop",0.144759022741685
+"prev","women_vitA","Malawi","Healthcare access","only",-0.0678865058153296
+"prev","women_vitA","SierraLeone","Healthcare access","drop",0.0117348585259558
+"prev","women_vitA","SierraLeone","Healthcare access","only",-0.0633682360401614
+"prev","women_vitA","Gambia","Helminth burden and control","drop",0.448440839034966
+"prev","women_vitA","Gambia","Helminth burden and control","only",-0.155422799239779
+"prev","women_vitA","Ghana","Helminth burden and control","drop",0.103197834100436
+"prev","women_vitA","Ghana","Helminth burden and control","only",-0.0449275030341371
+"prev","women_vitA","Malawi","Helminth burden and control","drop",0.132684070311244
+"prev","women_vitA","Malawi","Helminth burden and control","only",-0.0340454267235748
+"prev","women_vitA","SierraLeone","Helminth burden and control","drop",-0.00704091511557349
+"prev","women_vitA","SierraLeone","Helminth burden and control","only",0.467047369333041
+"prev","women_vitA","Gambia","Household assets and characteristics","drop",0.380623255319056
+"prev","women_vitA","Gambia","Household assets and characteristics","only",0.328762750124536
+"prev","women_vitA","Ghana","Household assets and characteristics","drop",0.104532131282394
+"prev","women_vitA","Ghana","Household assets and characteristics","only",0.146772690015321
+"prev","women_vitA","Malawi","Household assets and characteristics","drop",0.144759022741685
+"prev","women_vitA","Malawi","Household assets and characteristics","only",0.0680971154507443
+"prev","women_vitA","SierraLeone","Household assets and characteristics","drop",0.0821440096816907
+"prev","women_vitA","SierraLeone","Household assets and characteristics","only",-0.0211227453467205
+"prev","women_vitA","Gambia","Infant and child morbidity/mortality","drop",0.461347299603738
+"prev","women_vitA","Gambia","Infant and child morbidity/mortality","only",-0.0232316290237895
+"prev","women_vitA","Ghana","Infant and child morbidity/mortality","drop",0.115901074394415
+"prev","women_vitA","Ghana","Infant and child morbidity/mortality","only",0.0572285544754634
+"prev","women_vitA","Malawi","Infant and child morbidity/mortality","drop",0.0873327954852845
+"prev","women_vitA","Malawi","Infant and child morbidity/mortality","only",0.204150939928623
+"prev","women_vitA","SierraLeone","Infant and child morbidity/mortality","drop",0.0398985189882498
+"prev","women_vitA","SierraLeone","Infant and child morbidity/mortality","only",0.274595689507366
+"prev","women_vitA","Gambia","Livestock density","drop",0.421923929139126
+"prev","women_vitA","Gambia","Livestock density","only",-0.0380153929480191
+"prev","women_vitA","Ghana","Livestock density","drop",0.10517186280799
+"prev","women_vitA","Ghana","Livestock density","only",0.133137269498331
+"prev","women_vitA","Malawi","Livestock density","drop",0.13865134331466
+"prev","women_vitA","Malawi","Livestock density","only",0.0803124743047954
+"prev","women_vitA","SierraLeone","Livestock density","drop",0.0352045755778674
+"prev","women_vitA","SierraLeone","Livestock density","only",-0.171328934478955
+"prev","women_vitA","Gambia","Malaria","drop",0.388367131660319
 "prev","women_vitA","Gambia","Malaria","only",0.195004886048172
-"prev","women_vitA","Ghana","Malaria","drop",0.239281247062293
-"prev","women_vitA","Ghana","Malaria","only",0.268629785235219
-"prev","women_vitA","Malawi","Malaria","drop",0.0779074047966963
-"prev","women_vitA","Malawi","Malaria","only",0.0495128705120009
-"prev","women_vitA","SierraLeone","Malaria","drop",-0.0732014417394684
-"prev","women_vitA","SierraLeone","Malaria","only",0.14182779337022
-"prev","women_vitA","Gambia","Malaria incidence and treatment","drop",0.456419378295662
-"prev","women_vitA","Gambia","Malaria incidence and treatment","only",0.155346852664128
-"prev","women_vitA","Ghana","Malaria incidence and treatment","drop",0.231123931821533
-"prev","women_vitA","Ghana","Malaria incidence and treatment","only",0.0363290268919093
-"prev","women_vitA","Malawi","Malaria incidence and treatment","drop",0.0751768575864393
-"prev","women_vitA","Malawi","Malaria incidence and treatment","only",-0.0101014463269622
-"prev","women_vitA","SierraLeone","Malaria incidence and treatment","drop",-0.14182779337022
-"prev","women_vitA","SierraLeone","Malaria incidence and treatment","only",0.157840608750729
-"prev","women_vitA","Gambia","Nutrition status (MODELLED SURFACE)","drop",0.423331906655719
-"prev","women_vitA","Gambia","Nutrition status (MODELLED SURFACE)","only",0.546295276438201
-"prev","women_vitA","Ghana","Nutrition status (MODELLED SURFACE)","drop",0.242891862004925
-"prev","women_vitA","Ghana","Nutrition status (MODELLED SURFACE)","only",0.13947671796906
-"prev","women_vitA","Malawi","Nutrition status (MODELLED SURFACE)","drop",0.0463877355545969
-"prev","women_vitA","Malawi","Nutrition status (MODELLED SURFACE)","only",0.228576790167292
-"prev","women_vitA","SierraLeone","Nutrition status (MODELLED SURFACE)","drop",-0.109802162609203
-"prev","women_vitA","SierraLeone","Nutrition status (MODELLED SURFACE)","only",0.0549010813046013
-"prev","women_vitA","Gambia","Ruralness, population density, built environment","drop",0.446563535679509
+"prev","women_vitA","Ghana","Malaria","drop",0.106341657597651
+"prev","women_vitA","Ghana","Malaria","only",0.34056423321922
+"prev","women_vitA","Malawi","Malaria","drop",0.144759022741685
+"prev","women_vitA","Malawi","Malaria","only",-0.00526524088536683
+"prev","women_vitA","SierraLeone","Malaria","drop",-0.0305106321674851
+"prev","women_vitA","SierraLeone","Malaria","only",0.213574425172396
+"prev","women_vitA","Gambia","Malaria incidence and treatment","drop",0.344719828645926
+"prev","women_vitA","Gambia","Malaria incidence and treatment","only",0.493026793727088
+"prev","women_vitA","Ghana","Malaria incidence and treatment","drop",0.0930900759960189
+"prev","women_vitA","Ghana","Malaria incidence and treatment","only",0.120689921814591
+"prev","women_vitA","Malawi","Malaria incidence and treatment","drop",0.14468881952988
+"prev","women_vitA","Malawi","Malaria incidence and treatment","only",-0.0363652637149336
+"prev","women_vitA","SierraLeone","Malaria incidence and treatment","drop",-0.0492864058090144
+"prev","women_vitA","SierraLeone","Malaria incidence and treatment","only",0.227656255403543
+"prev","women_vitA","Gambia","Nutrition status (MODELLED SURFACE)","drop",0.407609491053761
+"prev","women_vitA","Gambia","Nutrition status (MODELLED SURFACE)","only",0.546764602277065
+"prev","women_vitA","Ghana","Nutrition status (MODELLED SURFACE)","drop",0.106560994120713
+"prev","women_vitA","Ghana","Nutrition status (MODELLED SURFACE)","only",0.101954927136421
+"prev","women_vitA","Malawi","Nutrition status (MODELLED SURFACE)","drop",0.132543663887634
+"prev","women_vitA","Malawi","Nutrition status (MODELLED SURFACE)","only",0.0994077479157257
+"prev","women_vitA","SierraLeone","Nutrition status (MODELLED SURFACE)","drop",-0.00234697170519116
+"prev","women_vitA","SierraLeone","Nutrition status (MODELLED SURFACE)","only",-0.143165274016661
+"prev","women_vitA","Gambia","Ruralness, population density, built environment","drop",0.424974547091745
 "prev","women_vitA","Gambia","Ruralness, population density, built environment","only",-0.131176571962609
-"prev","women_vitA","Ghana","Ruralness, population density, built environment","drop",0.244630306236562
-"prev","women_vitA","Ghana","Ruralness, population density, built environment","only",0.00280825606649115
-"prev","women_vitA","Malawi","Ruralness, population density, built environment","drop",0.0813639934617037
-"prev","women_vitA","Malawi","Ruralness, population density, built environment","only",0.0365703924055805
-"prev","women_vitA","SierraLeone","Ruralness, population density, built environment","drop",-0.0892142571199771
-"prev","women_vitA","SierraLeone","Ruralness, population density, built environment","only",0.324831397718891
-"prev","women_vitA","Gambia","Satellite embedding","drop",0.470968479300459
-"prev","women_vitA","Gambia","Satellite embedding","only",0.164264043602552
-"prev","women_vitA","Ghana","Satellite embedding","drop",0.234377942819213
-"prev","women_vitA","Ghana","Satellite embedding","only",0.238300586213677
-"prev","women_vitA","Malawi","Satellite embedding","drop",0.11749244759048
-"prev","women_vitA","Malawi","Satellite embedding","only",-0.196694100197818
-"prev","women_vitA","SierraLeone","Satellite embedding","drop",-0.153265518642012
-"prev","women_vitA","SierraLeone","Satellite embedding","only",0.00686263516307516
-"prev","women_vitA","Gambia","Soil characteristics","drop",0.408313479812057
-"prev","women_vitA","Gambia","Soil characteristics","only",0.461112636684306
-"prev","women_vitA","Ghana","Soil characteristics","drop",0.237007896913229
-"prev","women_vitA","Ghana","Soil characteristics","only",0.260142577841942
-"prev","women_vitA","Malawi","Soil characteristics","drop",0.109253455430051
-"prev","women_vitA","Malawi","Soil characteristics","only",-0.0746560017602053
-"prev","women_vitA","SierraLeone","Soil characteristics","drop",-0.215029235109688
-"prev","women_vitA","SierraLeone","Soil characteristics","only",0.219604325218405
-"prev","women_vitA","Gambia","Water and coast proximity","drop",0.445390221082348
-"prev","women_vitA","Gambia","Water and coast proximity","only",0.360207581328453
-"prev","women_vitA","Ghana","Water and coast proximity","drop",0.253055074436035
-"prev","women_vitA","Ghana","Water and coast proximity","only",0.149818232372647
-"prev","women_vitA","Malawi","Water and coast proximity","drop",0.109758527746399
-"prev","women_vitA","Malawi","Water and coast proximity","only",-0.214671517957834
-"prev","women_vitA","SierraLeone","Water and coast proximity","drop",-0.0732014417394684
-"prev","women_vitA","SierraLeone","Water and coast proximity","only",-0.171565879076879
-"prev","women_vitA","Gambia","Water and sanitation","drop",0.440227636854839
-"prev","women_vitA","Gambia","Water and sanitation","only",0.305061795261882
-"prev","women_vitA","Ghana","Water and sanitation","drop",0.258849888541493
-"prev","women_vitA","Ghana","Water and sanitation","only",0.0388126297128015
-"prev","women_vitA","Malawi","Water and sanitation","drop",0.0739930943449984
-"prev","women_vitA","Malawi","Water and sanitation","only",0.160013223223036
-"prev","women_vitA","SierraLeone","Water and sanitation","drop",-0.0732014417394684
-"prev","women_vitA","SierraLeone","Water and sanitation","only",-0.26993031641429
+"prev","women_vitA","Ghana","Ruralness, population density, built environment","drop",0.110892890451177
+"prev","women_vitA","Ghana","Ruralness, population density, built environment","only",-0.0608293290623897
+"prev","women_vitA","Malawi","Ruralness, population density, built environment","drop",0.141740284634075
+"prev","women_vitA","Malawi","Ruralness, population density, built environment","only",-0.023869092013663
+"prev","women_vitA","SierraLeone","Ruralness, population density, built environment","drop",-0.00704091511557349
+"prev","women_vitA","SierraLeone","Ruralness, population density, built environment","only",0.345004840663101
+"prev","women_vitA","Gambia","Satellite embedding","drop",0.448910164873831
+"prev","women_vitA","Gambia","Satellite embedding","only",0.175527863735298
+"prev","women_vitA","Ghana","Satellite embedding","drop",0.112793806984377
+"prev","women_vitA","Ghana","Satellite embedding","only",0.13849273626975
+"prev","women_vitA","Malawi","Satellite embedding","drop",0.144618616318076
+"prev","women_vitA","Malawi","Satellite embedding","only",0.0390329857635194
+"prev","women_vitA","SierraLeone","Satellite embedding","drop",-0.0445924623986321
+"prev","women_vitA","SierraLeone","Satellite embedding","only",0.0633682360401614
+"prev","women_vitA","Gambia","Soil characteristics","drop",0.30271516606756
+"prev","women_vitA","Gambia","Soil characteristics","only",0.508983872248478
+"prev","women_vitA","Ghana","Soil characteristics","drop",0.0856691902991047
+"prev","women_vitA","Ghana","Soil characteristics","only",0.209374989305792
+"prev","women_vitA","Malawi","Soil characteristics","drop",0.159852713279737
+"prev","women_vitA","Malawi","Soil characteristics","only",0.017410396527613
+"prev","women_vitA","SierraLeone","Soil characteristics","drop",-0.0821440096816907
+"prev","women_vitA","SierraLeone","Soil characteristics","only",0.157247104247808
+"prev","women_vitA","Gambia","Water and coast proximity","drop",0.447267524437805
+"prev","women_vitA","Gambia","Water and coast proximity","only",0.0682869095547751
+"prev","women_vitA","Ghana","Water and coast proximity","drop",0.117655766578907
+"prev","women_vitA","Ghana","Water and coast proximity","only",0.0397547448048971
+"prev","women_vitA","Malawi","Water and coast proximity","drop",0.129595128991829
+"prev","women_vitA","Malawi","Water and coast proximity","only",-0.0481594032981553
+"prev","women_vitA","SierraLeone","Water and coast proximity","drop",-0.00704091511557349
+"prev","women_vitA","SierraLeone","Water and coast proximity","only",-0.0915318965024554
+"prev","women_vitA","Gambia","Water and sanitation","drop",0.422862580816855
+"prev","women_vitA","Gambia","Water and sanitation","only",0.206268706180919
+"prev","women_vitA","Ghana","Water and sanitation","drop",0.117472986143022
+"prev","women_vitA","Ghana","Water and sanitation","only",-0.00054847785896961
+"prev","women_vitA","Malawi","Water and sanitation","drop",0.138721546526465
+"prev","women_vitA","Malawi","Water and sanitation","only",0.0744856077249894
+"prev","women_vitA","SierraLeone","Water and sanitation","drop",-0.00704091511557349
+"prev","women_vitA","SierraLeone","Water and sanitation","only",-0.185410764710102
 "prev","child_iron","Gambia","ALL","full",0.581822230766827
 "prev","child_iron","Ghana","ALL","full",0.540170356477344
 "prev","child_iron","Malawi","ALL","full",-0.136535319509507
@@ -1926,144 +1926,144 @@
 "prev","women_folate","Malawi","Water and sanitation","only",0.00242956356820446
 "prev","women_folate","SierraLeone","Water and sanitation","drop",0.0461538461538462
 "prev","women_folate","SierraLeone","Water and sanitation","only",0.125274725274725
-"prev","women_b12","Ghana","ALL","full",0.181746802254537
-"prev","women_b12","Malawi","ALL","full",0.280892157775278
-"prev","women_b12","SierraLeone","ALL","full",-0.22849326060128
-"prev","women_b12","Ghana","Adult nutrition","drop",0.171123319676425
-"prev","women_b12","Ghana","Adult nutrition","only",0.130588227079453
-"prev","women_b12","Malawi","Adult nutrition","drop",0.276057716640929
-"prev","women_b12","Malawi","Adult nutrition","only",0.193427102572253
-"prev","women_b12","SierraLeone","Adult nutrition","drop",-0.22849326060128
-"prev","women_b12","SierraLeone","Adult nutrition","only",-0.233999122302516
-"prev","women_b12","Ghana","Agricultural production, land use","drop",0.170401972093961
-"prev","women_b12","Ghana","Agricultural production, land use","only",0.0378215652896641
-"prev","women_b12","Malawi","Agricultural production, land use","drop",0.293219364452888
-"prev","women_b12","Malawi","Agricultural production, land use","only",0.10491108190524
-"prev","women_b12","SierraLeone","Agricultural production, land use","drop",-0.22849326060128
-"prev","women_b12","SierraLeone","Agricultural production, land use","only",-0.110117234024713
-"prev","women_b12","Ghana","Built environment","drop",0.192255524989983
-"prev","women_b12","Ghana","Built environment","only",0.142613695905846
-"prev","women_b12","Malawi","Built environment","drop",0.273201563438795
-"prev","women_b12","Malawi","Built environment","only",0.210712393379976
-"prev","women_b12","SierraLeone","Built environment","drop",-0.22849326060128
-"prev","women_b12","SierraLeone","Built environment","only",-0.280798946763019
-"prev","women_b12","Ghana","Climate and weather","drop",0.150499336523241
-"prev","women_b12","Ghana","Climate and weather","only",0.220076589704573
-"prev","women_b12","Malawi","Climate and weather","drop",0.277850540079498
-"prev","women_b12","Malawi","Climate and weather","only",0.0768688504661019
-"prev","women_b12","SierraLeone","Climate and weather","drop",-0.233999122302516
-"prev","women_b12","SierraLeone","Climate and weather","only",0.107364303174096
-"prev","women_b12","Ghana","Dietary diversity","drop",0.151778089055791
-"prev","women_b12","Ghana","Dietary diversity","only",0.188867948187053
-"prev","women_b12","Malawi","Dietary diversity","drop",0.258735332934478
-"prev","women_b12","Malawi","Dietary diversity","only",0.23876698911869
-"prev","women_b12","SierraLeone","Dietary diversity","drop",-0.187199297842013
-"prev","women_b12","SierraLeone","Dietary diversity","only",-0.286304808464255
-"prev","women_b12","Ghana","Ecosystem productivity/greenness","drop",0.171451204941182
-"prev","women_b12","Ghana","Ecosystem productivity/greenness","only",-0.213223787671162
-"prev","women_b12","Malawi","Ecosystem productivity/greenness","drop",0.279185884433743
-"prev","women_b12","Malawi","Ecosystem productivity/greenness","only",-0.0348425962061244
-"prev","women_b12","SierraLeone","Ecosystem productivity/greenness","drop",-0.187199297842013
-"prev","women_b12","SierraLeone","Ecosystem productivity/greenness","only",-0.36889273398279
-"prev","women_b12","Ghana","Education, employment, SES","drop",0.180910694829407
-"prev","women_b12","Ghana","Education, employment, SES","only",0.0754463994204742
-"prev","women_b12","Malawi","Education, employment, SES","drop",0.278728405349419
-"prev","women_b12","Malawi","Education, employment, SES","only",0.117448481675648
-"prev","women_b12","SierraLeone","Education, employment, SES","drop",-0.22849326060128
-"prev","women_b12","SierraLeone","Education, employment, SES","only",-0.418445489293911
-"prev","women_b12","Ghana","Fertility, reproductive health","drop",0.181845167833964
-"prev","women_b12","Ghana","Fertility, reproductive health","only",0.0497771787906925
-"prev","women_b12","Malawi","Fertility, reproductive health","drop",0.305497113932193
-"prev","women_b12","Malawi","Fertility, reproductive health","only",-0.0469225168922079
-"prev","women_b12","SierraLeone","Fertility, reproductive health","drop",-0.275293085061784
-"prev","women_b12","SierraLeone","Fertility, reproductive health","only",0.0688232712654459
-"prev","women_b12","Ghana","Food fortification and supplementation","drop",0.184828923743248
-"prev","women_b12","Ghana","Food fortification and supplementation","only",-0.0835097646848658
-"prev","women_b12","Malawi","Food fortification and supplementation","drop",0.276391552729491
-"prev","women_b12","Malawi","Food fortification and supplementation","only",0.0566408563592107
-"prev","women_b12","SierraLeone","Food fortification and supplementation","drop",-0.22849326060128
+"prev","women_b12","Ghana","ALL","full",0.231913247762283
+"prev","women_b12","Malawi","ALL","full",0.304212619587898
+"prev","women_b12","SierraLeone","ALL","full",-0.115623095725949
+"prev","women_b12","Ghana","Adult nutrition","drop",0.218715865855834
+"prev","women_b12","Ghana","Adult nutrition","only",0.225190284217817
+"prev","women_b12","Malawi","Adult nutrition","drop",0.27917256985046
+"prev","women_b12","Malawi","Adult nutrition","only",0.366486551712691
+"prev","women_b12","SierraLeone","Adult nutrition","drop",-0.115623095725949
+"prev","women_b12","SierraLeone","Adult nutrition","only",-0.0743291329666816
+"prev","women_b12","Ghana","Agricultural production, land use","drop",0.231700122340192
+"prev","women_b12","Ghana","Agricultural production, land use","only",0.126121067088594
+"prev","women_b12","Malawi","Agricultural production, land use","drop",0.307704795106836
+"prev","women_b12","Malawi","Agricultural production, land use","only",0.130745516406821
+"prev","women_b12","SierraLeone","Agricultural production, land use","drop",-0.115623095725949
+"prev","women_b12","SierraLeone","Agricultural production, land use","only",-0.033035170207414
+"prev","women_b12","Ghana","Built environment","drop",0.220224138073714
+"prev","women_b12","Ghana","Built environment","only",0.220109378231049
+"prev","women_b12","Malawi","Built environment","drop",0.278146023750113
+"prev","women_b12","Malawi","Built environment","only",0.39976775191927
+"prev","women_b12","SierraLeone","Built environment","drop",-0.156917058485217
+"prev","women_b12","SierraLeone","Built environment","only",-0.20371688294572
+"prev","women_b12","Ghana","Climate and weather","drop",0.212174554823941
+"prev","women_b12","Ghana","Climate and weather","only",0.093250569296753
+"prev","women_b12","Malawi","Climate and weather","drop",0.313192499493738
+"prev","women_b12","Malawi","Climate and weather","only",-0.0550497338672099
+"prev","women_b12","SierraLeone","Climate and weather","drop",-0.156917058485217
+"prev","women_b12","SierraLeone","Climate and weather","only",-0.123881888277803
+"prev","women_b12","Ghana","Dietary diversity","drop",0.209764598127981
+"prev","women_b12","Ghana","Dietary diversity","only",0.165861068976597
+"prev","women_b12","Malawi","Dietary diversity","drop",0.274893695450883
+"prev","women_b12","Malawi","Dietary diversity","only",0.274596284898446
+"prev","women_b12","SierraLeone","Dietary diversity","drop",-0.115623095725949
+"prev","women_b12","SierraLeone","Dietary diversity","only",0.115623095725949
+"prev","women_b12","Ghana","Ecosystem productivity/greenness","drop",0.210617099816348
+"prev","women_b12","Ghana","Ecosystem productivity/greenness","only",0.115251670561915
+"prev","women_b12","Malawi","Ecosystem productivity/greenness","drop",0.28596504311257
+"prev","women_b12","Malawi","Ecosystem productivity/greenness","only",0.169284167669383
+"prev","women_b12","SierraLeone","Ecosystem productivity/greenness","drop",-0.115623095725949
+"prev","women_b12","SierraLeone","Ecosystem productivity/greenness","only",-0.366139803132172
+"prev","women_b12","Ghana","Education, employment, SES","drop",0.232421469922656
+"prev","women_b12","Ghana","Education, employment, SES","only",0.162286811791237
+"prev","women_b12","Malawi","Education, employment, SES","drop",0.297928622431568
+"prev","women_b12","Malawi","Education, employment, SES","only",0.114167276580655
+"prev","women_b12","SierraLeone","Education, employment, SES","drop",-0.115623095725949
+"prev","women_b12","SierraLeone","Education, employment, SES","only",-0.412939627592675
+"prev","women_b12","Ghana","Fertility, reproductive health","drop",0.243208895133145
+"prev","women_b12","Ghana","Fertility, reproductive health","only",0.0317226000232563
+"prev","women_b12","Malawi","Fertility, reproductive health","drop",0.34797034635129
+"prev","women_b12","Malawi","Fertility, reproductive health","only",-0.160016471099894
+"prev","women_b12","SierraLeone","Fertility, reproductive health","drop",-0.115623095725949
+"prev","women_b12","SierraLeone","Fertility, reproductive health","only",-0.0302822393567962
+"prev","women_b12","Ghana","Food fortification and supplementation","drop",0.228929491852999
+"prev","women_b12","Ghana","Food fortification and supplementation","only",-0.183688685148262
+"prev","women_b12","Malawi","Food fortification and supplementation","drop",0.30049978462683
+"prev","women_b12","Malawi","Food fortification and supplementation","only",-0.103143898362909
+"prev","women_b12","SierraLeone","Food fortification and supplementation","drop",-0.115623095725949
 "prev","women_b12","SierraLeone","Food fortification and supplementation","only",-0.47075117545565
-"prev","women_b12","Ghana","Food prices and supply","drop",0.165696818544705
-"prev","women_b12","Ghana","Food prices and supply","only",0.2749154002351
-"prev","women_b12","Malawi","Food prices and supply","drop",0.278085461771449
-"prev","women_b12","Malawi","Food prices and supply","only",0.153057664455505
-"prev","women_b12","SierraLeone","Food prices and supply","drop",-0.275293085061784
-"prev","women_b12","SierraLeone","Food prices and supply","only",0.0660703404148281
-"prev","women_b12","Ghana","Healthcare access","drop",0.180369684142559
-"prev","women_b12","Ghana","Healthcare access","only",-0.102186292088355
-"prev","women_b12","Malawi","Healthcare access","drop",0.287952172833368
-"prev","women_b12","Malawi","Healthcare access","only",0.03891045076674
-"prev","women_b12","SierraLeone","Healthcare access","drop",-0.275293085061784
-"prev","women_b12","SierraLeone","Healthcare access","only",-0.459739452053179
-"prev","women_b12","Ghana","Helminth burden and control","drop",0.181812379307488
-"prev","women_b12","Ghana","Helminth burden and control","only",-0.0323000671590771
-"prev","women_b12","Malawi","Helminth burden and control","drop",0.279729913615102
-"prev","women_b12","Malawi","Helminth burden and control","only",-0.0254201422982078
-"prev","women_b12","SierraLeone","Helminth burden and control","drop",-0.22849326060128
-"prev","women_b12","SierraLeone","Helminth burden and control","only",0.173434643588924
-"prev","women_b12","Ghana","Household assets and characteristics","drop",0.157712812347884
-"prev","women_b12","Ghana","Household assets and characteristics","only",0.0503631766666008
-"prev","women_b12","Malawi","Household assets and characteristics","drop",0.281225993863839
-"prev","women_b12","Malawi","Household assets and characteristics","only",0.131172854205384
-"prev","women_b12","SierraLeone","Household assets and characteristics","drop",-0.181693436140777
-"prev","women_b12","SierraLeone","Household assets and characteristics","only",-0.12663481912842
-"prev","women_b12","Ghana","Infant and child morbidity/mortality","drop",0.164221334853301
-"prev","women_b12","Ghana","Infant and child morbidity/mortality","only",0.145253172287136
-"prev","women_b12","Malawi","Infant and child morbidity/mortality","drop",0.256645766306076
-"prev","women_b12","Malawi","Infant and child morbidity/mortality","only",0.243341779961935
-"prev","women_b12","SierraLeone","Infant and child morbidity/mortality","drop",-0.22849326060128
-"prev","women_b12","SierraLeone","Infant and child morbidity/mortality","only",-0.459739452053179
-"prev","women_b12","Ghana","Livestock density","drop",0.176746551967
-"prev","women_b12","Ghana","Livestock density","only",0.135367431554727
-"prev","women_b12","Malawi","Livestock density","drop",0.258957890326852
-"prev","women_b12","Malawi","Livestock density","only",0.459309000661855
-"prev","women_b12","SierraLeone","Livestock density","drop",-0.22849326060128
-"prev","women_b12","SierraLeone","Livestock density","only",-0.214728606348191
-"prev","women_b12","Ghana","Malaria","drop",0.187911045231959
-"prev","women_b12","Ghana","Malaria","only",-0.074886038473299
-"prev","women_b12","Malawi","Malaria","drop",0.281757658745622
-"prev","women_b12","Malawi","Malaria","only",-0.131927076479541
-"prev","women_b12","SierraLeone","Malaria","drop",-0.22849326060128
-"prev","women_b12","SierraLeone","Malaria","only",0.0275293085061784
-"prev","women_b12","Ghana","Malaria incidence and treatment","drop",0.172205341050122
-"prev","women_b12","Ghana","Malaria incidence and treatment","only",0.211830275295947
-"prev","women_b12","Malawi","Malaria incidence and treatment","drop",0.272261876670993
-"prev","women_b12","Malawi","Malaria incidence and treatment","only",0.00903830299030409
-"prev","women_b12","SierraLeone","Malaria incidence and treatment","drop",-0.22849326060128
-"prev","women_b12","SierraLeone","Malaria incidence and treatment","only",-0.156917058485217
-"prev","women_b12","Ghana","Nutrition status (MODELLED SURFACE)","drop",0.188304507549667
-"prev","women_b12","Ghana","Nutrition status (MODELLED SURFACE)","only",-0.0620194978286949
-"prev","women_b12","Malawi","Nutrition status (MODELLED SURFACE)","drop",0.271606568793447
-"prev","women_b12","Malawi","Nutrition status (MODELLED SURFACE)","only",0.015702660461951
-"prev","women_b12","SierraLeone","Nutrition status (MODELLED SURFACE)","drop",-0.22849326060128
-"prev","women_b12","SierraLeone","Nutrition status (MODELLED SURFACE)","only",-0.16517585103707
-"prev","women_b12","Ghana","Ruralness, population density, built environment","drop",0.176795734756713
+"prev","women_b12","Ghana","Food prices and supply","drop",0.226650689262941
+"prev","women_b12","Ghana","Food prices and supply","only",0.138974169467049
+"prev","women_b12","Malawi","Food prices and supply","drop",0.314631582811981
+"prev","women_b12","Malawi","Food prices and supply","only",0.000901825546099291
+"prev","women_b12","SierraLeone","Food prices and supply","drop",-0.115623095725949
+"prev","women_b12","SierraLeone","Food prices and supply","only",0.134893611680274
+"prev","women_b12","Ghana","Healthcare access","drop",0.220748754497324
+"prev","women_b12","Ghana","Healthcare access","only",0.0730792282262299
+"prev","women_b12","Malawi","Healthcare access","drop",0.296844512998491
+"prev","women_b12","Malawi","Healthcare access","only",0.11632590155802
+"prev","women_b12","SierraLeone","Healthcare access","drop",-0.115623095725949
+"prev","women_b12","SierraLeone","Healthcare access","only",-0.217481537198809
+"prev","women_b12","Ghana","Helminth burden and control","drop",0.230749255072398
+"prev","women_b12","Ghana","Helminth burden and control","only",-0.0549380014808274
+"prev","women_b12","Malawi","Helminth burden and control","drop",0.296978827441527
+"prev","women_b12","Malawi","Helminth burden and control","only",-0.0162625221019236
+"prev","women_b12","SierraLeone","Helminth burden and control","drop",-0.115623095725949
+"prev","women_b12","SierraLeone","Helminth burden and control","only",0.0550586170123567
+"prev","women_b12","Ghana","Household assets and characteristics","drop",0.236995469366009
+"prev","women_b12","Ghana","Household assets and characteristics","only",0.0315753509960525
+"prev","women_b12","Malawi","Household assets and characteristics","drop",0.318497919993662
+"prev","women_b12","Malawi","Household assets and characteristics","only",0.102472326147729
+"prev","women_b12","SierraLeone","Household assets and characteristics","drop",-0.115623095725949
+"prev","women_b12","SierraLeone","Household assets and characteristics","only",-0.198211021244484
+"prev","women_b12","Ghana","Infant and child morbidity/mortality","drop",0.218109278116034
+"prev","women_b12","Ghana","Infant and child morbidity/mortality","only",0.140285710526075
+"prev","women_b12","Malawi","Infant and child morbidity/mortality","drop",0.287173873099894
+"prev","women_b12","Malawi","Infant and child morbidity/mortality","only",0.194487313516222
+"prev","women_b12","SierraLeone","Infant and child morbidity/mortality","drop",-0.115623095725949
+"prev","women_b12","SierraLeone","Infant and child morbidity/mortality","only",-0.388163249937115
+"prev","women_b12","Ghana","Livestock density","drop",0.214682877099329
+"prev","women_b12","Ghana","Livestock density","only",0.147646734719859
+"prev","women_b12","Malawi","Livestock density","drop",0.28186845259997
+"prev","women_b12","Malawi","Livestock density","only",0.416029393415422
+"prev","women_b12","SierraLeone","Livestock density","drop",-0.115623095725949
+"prev","women_b12","SierraLeone","Livestock density","only",-0.484515829708739
+"prev","women_b12","Ghana","Malaria","drop",0.229880359120793
+"prev","women_b12","Ghana","Malaria","only",0.074886038473299
+"prev","women_b12","Malawi","Malaria","drop",0.304586781250641
+"prev","women_b12","Malawi","Malaria","only",0.0129517498641919
+"prev","women_b12","SierraLeone","Malaria","drop",-0.115623095725949
+"prev","women_b12","SierraLeone","Malaria","only",-0.0275293085061784
+"prev","women_b12","Ghana","Malaria incidence and treatment","drop",0.226322803998185
+"prev","women_b12","Ghana","Malaria incidence and treatment","only",0.0512320726182056
+"prev","women_b12","Malawi","Malaria incidence and treatment","drop",0.289994476403652
+"prev","women_b12","Malawi","Malaria incidence and treatment","only",0.037473729607062
+"prev","women_b12","SierraLeone","Malaria incidence and treatment","drop",-0.115623095725949
+"prev","women_b12","SierraLeone","Malaria incidence and treatment","only",-0.0220234468049427
+"prev","women_b12","Ghana","Nutrition status (MODELLED SURFACE)","drop",0.25161915217415
+"prev","women_b12","Ghana","Nutrition status (MODELLED SURFACE)","only",0.00331164117404081
+"prev","women_b12","Malawi","Nutrition status (MODELLED SURFACE)","drop",0.287097121989588
+"prev","women_b12","Malawi","Nutrition status (MODELLED SURFACE)","only",0.0511642089079523
+"prev","women_b12","SierraLeone","Nutrition status (MODELLED SURFACE)","drop",-0.115623095725949
+"prev","women_b12","SierraLeone","Nutrition status (MODELLED SURFACE)","only",-0.154164127634599
+"prev","women_b12","Ghana","Ruralness, population density, built environment","drop",0.231503391181338
 "prev","women_b12","Ghana","Ruralness, population density, built environment","only",0.213813981147724
-"prev","women_b12","Malawi","Ruralness, population density, built environment","drop",0.266153912680281
-"prev","women_b12","Malawi","Ruralness, population density, built environment","only",0.221840262998681
-"prev","women_b12","SierraLeone","Ruralness, population density, built environment","drop",-0.22849326060128
+"prev","women_b12","Malawi","Ruralness, population density, built environment","drop",0.291280057501283
+"prev","women_b12","Malawi","Ruralness, population density, built environment","only",0.149501568987928
+"prev","women_b12","SierraLeone","Ruralness, population density, built environment","drop",-0.115623095725949
 "prev","women_b12","SierraLeone","Ruralness, population density, built environment","only",-0.360633941430937
-"prev","women_b12","Ghana","Satellite embedding","drop",0.225650639205434
-"prev","women_b12","Ghana","Satellite embedding","only",-0.0681181637531661
-"prev","women_b12","Malawi","Satellite embedding","drop",0.2910185191283
-"prev","women_b12","Malawi","Satellite embedding","only",0.0767328431707622
-"prev","women_b12","SierraLeone","Satellite embedding","drop",-0.311081186119815
-"prev","women_b12","SierraLeone","Satellite embedding","only",-0.0220234468049427
-"prev","women_b12","Ghana","Soil characteristics","drop",0.141843165533669
-"prev","women_b12","Ghana","Soil characteristics","only",0.166041098072699
-"prev","women_b12","Malawi","Soil characteristics","drop",0.256621037706924
-"prev","women_b12","Malawi","Soil characteristics","only",0.0651969516660375
-"prev","women_b12","SierraLeone","Soil characteristics","drop",-0.30557532441858
-"prev","women_b12","SierraLeone","Soil characteristics","only",0.346869287177847
-"prev","women_b12","Ghana","Water and coast proximity","drop",0.187091332070068
-"prev","women_b12","Ghana","Water and coast proximity","only",0.139285660468568
-"prev","women_b12","Malawi","Water and coast proximity","drop",0.269010065882416
-"prev","women_b12","Malawi","Water and coast proximity","only",0.201451532997298
-"prev","women_b12","SierraLeone","Water and coast proximity","drop",-0.275293085061784
-"prev","women_b12","SierraLeone","Water and coast proximity","only",-0.00550586170123567
-"prev","women_b12","Ghana","Water and sanitation","drop",0.189042249395369
-"prev","women_b12","Ghana","Water and sanitation","only",-0.10995910801548
-"prev","women_b12","Malawi","Water and sanitation","drop",0.277850540079498
-"prev","women_b12","Malawi","Water and sanitation","only",0.0230841473090256
-"prev","women_b12","SierraLeone","Water and sanitation","drop",-0.22849326060128
-"prev","women_b12","SierraLeone","Water and sanitation","only",-0.30557532441858
+"prev","women_b12","Ghana","Satellite embedding","drop",0.262209846225785
+"prev","women_b12","Ghana","Satellite embedding","only",-0.0125088228504611
+"prev","women_b12","Malawi","Satellite embedding","drop",0.294868171908103
+"prev","women_b12","Malawi","Satellite embedding","only",0.170109242105176
+"prev","women_b12","SierraLeone","Satellite embedding","drop",-0.156917058485217
+"prev","women_b12","SierraLeone","Satellite embedding","only",0.291810670165491
+"prev","women_b12","Ghana","Soil characteristics","drop",0.190025905189639
+"prev","women_b12","Ghana","Soil characteristics","only",0.265734612821918
+"prev","women_b12","Malawi","Soil characteristics","drop",0.262862958910367
+"prev","women_b12","Malawi","Soil characteristics","only",0.158491042782556
+"prev","women_b12","SierraLeone","Soil characteristics","drop",-0.198211021244484
+"prev","women_b12","SierraLeone","Soil characteristics","only",0.379904457385261
+"prev","women_b12","Ghana","Water and coast proximity","drop",0.234323204458244
+"prev","women_b12","Ghana","Water and coast proximity","only",0.133006657648481
+"prev","women_b12","Malawi","Water and coast proximity","drop",0.288670519750868
+"prev","women_b12","Malawi","Water and coast proximity","only",0.153185622282632
+"prev","women_b12","SierraLeone","Water and coast proximity","drop",-0.156917058485217
+"prev","women_b12","SierraLeone","Water and coast proximity","only",-0.016517585103707
+"prev","women_b12","Ghana","Water and sanitation","drop",0.234355992984719
+"prev","women_b12","Ghana","Water and sanitation","only",-0.0958565305949573
+"prev","women_b12","Malawi","Water and sanitation","drop",0.313163717827373
+"prev","women_b12","Malawi","Water and sanitation","only",-0.0673203176274332
+"prev","women_b12","SierraLeone","Water and sanitation","drop",-0.0688232712654459
+"prev","women_b12","SierraLeone","Water and sanitation","only",-0.233999122302516

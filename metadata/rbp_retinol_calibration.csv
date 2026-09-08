@@ -1,0 +1,6 @@
+country,population,a,b,n,r2,form,source,note
+Gambia,all,-0.01564,1.02249,14,0.906,retinol = a + b * RBP,"metadata/mn surveys/GNMS2018-Final-Report_190325 (2).pdf, Figure A9-1 p. 142","report fits RBP = 0.978 retinol + 0.0153 (RBP on retinol); inverted here; 14 samples, children and women pooled"
+Ghana,all,0,0.86957,300,0.90,retinol = a + b * RBP,"metadata/mn surveys/UoG-GroundWork_2017-GHANA-MICRONUTRIENT-SURVEY_Final_180607.pdf, Appendix 10 p. 121","report: slope 1.15 with RBP above retinol, children and women combined; the intercept is only in the figure and is taken as 0 (VA-01)"
+SierraLeone,all,0.1961,0.7878,33,0.816,retinol = a + b * RBP,"metadata/mn surveys/SLMS-Report_FINAL_151203.pdf, Appendix 6 p. 82","non-pregnant women only (children had insufficient plasma); applied to children as well"
+Malawi,child,0.3788,0.7549,76,,retinol = a + b * RBP,"metadata/mn surveys/MNS2015-16_Malawi_Micronutrient_Survey_Report.pdf, Table A.7 p. 82","preschool children; the survey's own cut-point 0.4255 at retinol 0.70 (adopted 0.46 for all groups)"
+Malawi,women,0.2747,0.9291,91,,retinol = a + b * RBP,"metadata/mn surveys/MNS2015-16_Malawi_Micronutrient_Survey_Report.pdf, Table A.7 p. 82","school-age children and women of reproductive age; cut-point 0.4578"

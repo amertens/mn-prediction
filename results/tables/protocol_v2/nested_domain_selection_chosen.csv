@@ -1,12 +1,12 @@
 "target","outcome","heldout","n_chosen","chosen","inner_rho"
-"level","child_vitA","Gambia",5,"Climate and weather | Ecosystem productivity/greenness | Adult nutrition | Malaria incidence and treatment | Food prices and supply",0.468
-"level","child_vitA","Ghana",4,"Climate and weather | Food fortification and supplementation | Ecosystem productivity/greenness | Malaria",0.547
-"level","child_vitA","Malawi",5,"Satellite embedding | Soil characteristics | Food fortification and supplementation | Malaria | Malaria incidence and treatment",0.534
-"level","child_vitA","SierraLeone",4,"Climate and weather | Household assets and characteristics | Dietary diversity | Malaria",0.497
-"level","women_vitA","Gambia",5,"Climate and weather | Infant and child morbidity/mortality | Food prices and supply | Malaria | Livestock density",0.365
-"level","women_vitA","Ghana",5,"Climate and weather | Infant and child morbidity/mortality | Nutrition status (MODELLED SURFACE) | Helminth burden and control | Malaria",0.451
-"level","women_vitA","Malawi",5,"Soil characteristics | Agricultural production, land use | Food prices and supply | Helminth burden and control | Nutrition status (MODELLED SURFACE)",0.611
-"level","women_vitA","SierraLeone",5,"Climate and weather | Adult nutrition | Nutrition status (MODELLED SURFACE) | Food fortification and supplementation | Ecosystem productivity/greenness",0.548
+"level","child_vitA","Gambia",5,"Climate and weather | Malaria incidence and treatment | Malaria | Helminth burden and control | Adult nutrition",0.435
+"level","child_vitA","Ghana",2,"Climate and weather | Food fortification and supplementation",0.523
+"level","child_vitA","Malawi",2,"Climate and weather | Food fortification and supplementation",0.541
+"level","child_vitA","SierraLeone",4,"Climate and weather | Household assets and characteristics | Dietary diversity | Malaria",0.495
+"level","women_vitA","Gambia",5,"Climate and weather | Infant and child morbidity/mortality | Food prices and supply | Malaria | Adult nutrition",0.365
+"level","women_vitA","Ghana",5,"Climate and weather | Infant and child morbidity/mortality | Nutrition status (MODELLED SURFACE) | Helminth burden and control | Malaria",0.449
+"level","women_vitA","Malawi",5,"Soil characteristics | Agricultural production, land use | Food prices and supply | Helminth burden and control | Nutrition status (MODELLED SURFACE)",0.614
+"level","women_vitA","SierraLeone",5,"Climate and weather | Adult nutrition | Nutrition status (MODELLED SURFACE) | Food fortification and supplementation | Ecosystem productivity/greenness",0.547
 "level","child_iron","Gambia",3,"Agricultural production, land use | Soil characteristics | Malaria incidence and treatment",0.444
 "level","child_iron","Ghana",5,"Soil characteristics | Agricultural production, land use | Livestock density | Malaria incidence and treatment | Helminth burden and control",0.46
 "level","child_iron","Malawi",5,"Education, employment, SES | Livestock density | Agricultural production, land use | Malaria incidence and treatment | Helminth burden and control",0.598
@@ -21,14 +21,14 @@
 "level","women_b12","Ghana",3,"Adult nutrition | Food fortification and supplementation | Malaria",0.758
 "level","women_b12","Malawi",5,"Nutrition status (MODELLED SURFACE) | Agricultural production, land use | Built environment | Helminth burden and control | Malaria",0.802
 "level","women_b12","SierraLeone",5,"Satellite embedding | Built environment | Climate and weather | Soil characteristics | Livestock density",0.609
-"prev","child_vitA","Gambia",4,"Climate and weather | Ecosystem productivity/greenness | Education, employment, SES | Helminth burden and control",0.32
-"prev","child_vitA","Ghana",2,"Soil characteristics | Helminth burden and control",0.348
-"prev","child_vitA","Malawi",5,"Soil characteristics | Ecosystem productivity/greenness | Climate and weather | Agricultural production, land use | Malaria incidence and treatment",0.486
-"prev","child_vitA","SierraLeone",5,"Climate and weather | Household assets and characteristics | Ecosystem productivity/greenness | Nutrition status (MODELLED SURFACE) | Food fortification and supplementation",0.444
-"prev","women_vitA","Gambia",5,"Adult nutrition | Malaria | Food fortification and supplementation | Helminth burden and control | Nutrition status (MODELLED SURFACE)",0.284
-"prev","women_vitA","Ghana",3,"Nutrition status (MODELLED SURFACE) | Malaria incidence and treatment | Healthcare access",0.337
-"prev","women_vitA","Malawi",5,"Nutrition status (MODELLED SURFACE) | Malaria incidence and treatment | Malaria | Helminth burden and control | Healthcare access",0.338
-"prev","women_vitA","SierraLeone",5,"Climate and weather | Malaria | Nutrition status (MODELLED SURFACE) | Water and sanitation | Ruralness, population density, built environment",0.381
+"prev","child_vitA","Gambia",4,"Adult nutrition | Climate and weather | Fertility, reproductive health | Malaria",0.391
+"prev","child_vitA","Ghana",4,"Livestock density | Adult nutrition | Ecosystem productivity/greenness | Malaria",0.395
+"prev","child_vitA","Malawi",3,"Soil characteristics | Adult nutrition | Malaria",0.533
+"prev","child_vitA","SierraLeone",5,"Nutrition status (MODELLED SURFACE) | Adult nutrition | Ruralness, population density, built environment | Malaria | Ecosystem productivity/greenness",0.453
+"prev","women_vitA","Gambia",4,"Infant and child morbidity/mortality | Adult nutrition | Helminth burden and control | Food prices and supply",0.39
+"prev","women_vitA","Ghana",5,"Ecosystem productivity/greenness | Healthcare access | Malaria incidence and treatment | Climate and weather | Helminth burden and control",0.361
+"prev","women_vitA","Malawi",5,"Malaria incidence and treatment | Helminth burden and control | Water and coast proximity | Malaria | Healthcare access",0.44
+"prev","women_vitA","SierraLeone",5,"Climate and weather | Adult nutrition | Malaria | Agricultural production, land use | Malaria incidence and treatment",0.372
 "prev","child_iron","Gambia",2,"Water and coast proximity | Helminth burden and control",0.383
 "prev","child_iron","Ghana",3,"Soil characteristics | Malaria | Helminth burden and control",0.308
 "prev","child_iron","Malawi",4,"Water and coast proximity | Healthcare access | Climate and weather | Malaria",0.573
@@ -40,6 +40,6 @@
 "prev","women_folate","Ghana",3,"Malaria incidence and treatment | Helminth burden and control | Ecosystem productivity/greenness",0.679
 "prev","women_folate","Malawi",4,"Helminth burden and control | Climate and weather | Dietary diversity | Food prices and supply",0.666
 "prev","women_folate","SierraLeone",5,"Helminth burden and control | Climate and weather | Ecosystem productivity/greenness | Malaria | Adult nutrition",0.343
-"prev","women_b12","Ghana",1,"Soil characteristics",0.476
+"prev","women_b12","Ghana",2,"Food fortification and supplementation | Malaria",0.655
 "prev","women_b12","Malawi",2,"Soil characteristics | Malaria",0.328
-"prev","women_b12","SierraLeone",4,"Livestock density | Dietary diversity | Water and coast proximity | Adult nutrition",0.406
+"prev","women_b12","SierraLeone",5,"Adult nutrition | Built environment | Soil characteristics | Dietary diversity | Water and coast proximity",0.441
