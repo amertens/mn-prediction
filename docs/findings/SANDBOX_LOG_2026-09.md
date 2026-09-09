@@ -2142,3 +2142,258 @@ volatile in FX-02 (0.33 -> 0.36 -> 0.37 -> 0.34), should now be quoted as
 Documents now quote 0.28 / 0.21 for the district index, 0.29 (20 of 22)
 for the penalised fit, 0.30 / 0.25 for the regional index and the vitamin A
 prevalence targets 20 / 28 / 7 / 0.4% for children.
+
+## MB-01 · Model-based geostatistics (the DHS Admin-2 method) as a comparator on the cluster track (R/protocol_v2_mbg.R; cluster 03)
+
+**Q.** A collaborator sent the DHS Program brief on its modelled Admin-2
+estimates (Bayesian model-based geostatistics: a spatial Gaussian field
+plus covariates fit at the survey clusters, predicted to a 5 km grid and
+aggregated to districts by population, with uncertainty intervals; SAR 20
+and 21) and asked whether that was our extrapolation comparator. It was
+not: the protocol's comparators are the jackknifed regional mean, a GAM
+spatial smoother on district centroids and, in the DAG's small-area suite,
+Fay-Herriot and BYM2, all area-level. Is the DHS-style estimator better
+than the proxy model where both can run?
+**Design.** Two new arms with the standard `(tr, te, y, X, D, aux)`
+interface, so they are scored under the identical district-held-out folds,
+covariates and cluster-to-district aggregation as every other arm on the
+cluster track: `mbg`, an SPDE Gaussian field (PC-priors, median range 0.5
+degrees, P(sd > 1) = 0.05) plus the first principal component of each
+covariate domain as fixed effects (15 covariates on the transportable set,
+N(0, 1) priors on the standardised effects, of the order DHS uses), and
+`mbg_gp`, the field alone (pure interpolation of the survey's own
+clusters). Binomial likelihood on the cluster counts for the prevalence
+target, Gaussian for the level; predictions are the posterior mean of the
+linear predictor at the held-out clusters; INLA 24.12 with the
+empirical-Bayes integration strategy (9-15 s a fit). Run as four country
+shards with three replicated draws and the light arms alongside so every
+comparison is paired on the same folds (`CL_ARMS`, `CL_COUNTRIES`,
+`CL_TAG=_mbg<Country>`; the summary pass gathers the tagged files).
+Smoke test (one fold): The Gambia child vitamin A, held-out clusters,
+Spearman 0.77 (mbg) / 0.60 (field only) / 0.66 (GAM smoother) / 0.71
+(domain index); Malawi child iron 0.23 / 0.19 / 0.15 / 0.27.
+**What it cannot do.** The estimator needs the outcome measured at
+clusters inside the country it predicts, so it has no transport estimand;
+its fixed effects alone could be carried across a border, but that is the
+domain-index question already answered without a spatial field. The
+comparison is therefore for in-fill (an unsurveyed district inside a
+surveyed country) and for extrapolation to a whole unsurveyed region,
+which is exactly where a survey-interpolation method should be strongest.
+DHS has produced no Admin-2 estimates for these four surveys (none is a
+DHS survey and no biomarker is on its indicator list), so this is our
+implementation of their estimator, not their numbers.
+
+**Result (24 cells, three draws, district-held-out folds, scored after aggregation to districts; mean Spearman over cells, cells positive in brackets).**
+
+| Arm | In-fill, level | In-fill, prevalence | Region, level | Region, prevalence |
+|---|---|---|---|---|
+| Zero-tuning domain index | **0.384** (24) | **0.215** (18) | **0.356** (21) | **0.209** (17) |
+| Geostatistical, field + covariates (`mbg`) | 0.271 (19) | 0.213 (20) | 0.281 (21) | 0.154 (18) |
+| Geostatistical, field only (`mbg_gp`) | 0.195 (17) | 0.097 (12) | 0.138 (15) | -0.004 (12) |
+| GAM spatial smoother | 0.295 (20) | 0.179 (18) | 0.305 (21) | 0.147 (17) |
+| Smoother + domain index | 0.288 (19) | 0.191 (18) | 0.313 (21) | 0.162 (17) |
+| Jackknifed regional mean | 0.213 (17) | 0.152 (17) | - | - |
+
+Paired at the district, in-fill: geostatistical minus index -0.113 on the
+level (better in 4 of 24) and -0.002 on prevalence (9 of 24); geostatistical
+minus the smoother -0.024 / +0.034; geostatistical minus its own field alone
++0.076 / +0.116 (15 and 19 of 24). Region estimand: -0.075 (5 of 24) and
+-0.055 (10 of 24) against the index. By country on the level, in-fill: The
+Gambia index 0.66 against geostatistical 0.49, Ghana 0.42 against 0.43 (the
+smoother 0.49), Malawi 0.31 against 0.22, Sierra Leone 0.27 against 0.04.
+Weighted MAE on prevalence favours the geostatistical model (9.2 against
+10.7 points): it estimates a level and shrinks, the index ranks and is
+rescaled.
+**Reading.** Where the DHS-style estimator can run at all, it does not
+beat the proxy index on the question that matters for targeting (which
+districts are worst): on the level target the index is ahead in 20 of 24
+cells by 0.11, on prevalence the two are tied, and the estimator's
+advantage is a lower absolute error, which is what a model that estimates
+a prevalence directly should have over a ranking device. Its spatial field
+contributes little: the field alone is the weakest arm in every table, and
+adding covariates to it recovers most of the gap, so the model is
+covariate-driven in these surveys, as the domain index is. Ghana, with 75
+districts and 90 clusters, is the one country where interpolation between
+neighbours pays (the plain smoother leads there). Sierra Leone's 60
+clusters over 14 districts defeat every spatial method. The estimator has
+no transport estimand, which is the case the proxy model exists for.
+
+**DHS-shortlist variant (`mbg_dhs`; run 2026-09-08 21:02 to 2026-09-09
+08:22, throttled by a concurrent job).** The same field with the ten rasters
+the DHS Program's covariate list names (accessibility, potential
+evapotranspiration, elevation, EVI, night lights, population density, CHIRPS
+rainfall, night land-surface temperature, maximum temperature, IRS coverage)
+in place of the domain axes, three replicated draws, all 24 cells:
+
+| Arm | In-fill level | In-fill prev | Region level | Region prev | wMAE prev, in-fill |
+|---|---|---|---|---|---|
+| Zero-tuning domain index | 0.384 (24) | 0.215 (18) | 0.356 (21) | 0.209 (17) | 10.7 |
+| Geostatistical, domain axes (`mbg`) | 0.271 (19) | 0.213 (20) | 0.281 (21) | 0.154 (18) | 9.2 |
+| Geostatistical, DHS shortlist (`mbg_dhs`) | 0.284 (23) | 0.146 (17) | 0.209 (21) | 0.119 (16) | 9.3 |
+| Geostatistical, field only (`mbg_gp`) | 0.195 (17) | 0.097 (12) | 0.138 (15) | -0.004 (12) | 8.5 |
+
+Paired at the district, in-fill: shortlist minus index -0.100 on the level
+(better in 6 of 24) and -0.068 on prevalence (11 of 24); shortlist minus the
+domain-axis version +0.013 (13 of 24) on the level and -0.066 (7 of 24) on
+prevalence; shortlist minus the smoother -0.011 / -0.032. By country on the
+level the shortlist trails the domain axes in The Gambia (0.41 against 0.49)
+and Ghana (0.39 against 0.43) and leads in Malawi (0.23 against 0.22) and
+Sierra Leone (0.17 against 0.04). Reading: the ten-raster list is a fair
+proxy for the domain axes on the level target (a tenth of the columns, the
+same score within noise, and positive in 23 of 24 cells) and a worse one on
+prevalence and under region extrapolation, where the extra domains earn
+their place; it does not close the gap to the index anywhere. The
+comparison the collaborator asked for is therefore settled in the same
+direction under both covariate sets.
+-> `results/tables/cluster_level/benchmarks_cluster_{raw,cells}_mbgdhs<Country>.csv`,
+`mbg_comparison_cells.csv` (all eight arms, cell medians).
+
+## WS-01 / WS-02 · Where the index's weights come from; what the index weights; a sparse composite (R/protocol_v2_weights.R, R/protocol_v2_importance.R; scripts 56, 57, 58)
+
+**Q.** The zero-tuning index weights each domain axis by its pooled
+training-fold Fisher-z rank correlation with the outcome. Is there a better
+source for those weights? How does a penalised regression on the same axes
+compare, and is that not PC-HAL by another name? Can the weights be projected
+back onto the predictors as an importance, and does a few-predictor model
+built from them hold up?
+**Design.** Twenty-one arms on the SAME domain axes, folds, targets and cells
+as protocol v2 (script 56: five replicated 5-fold draws in-fill, exhaustive
+leave-one-region-out, leave-one-country-out with axes oriented from the
+training countries; 18 scored in-country cells, Sierra Leone's six score NA
+on every arm at 14 districts; 22 transport cells). The framing: ridge on the
+axes has beta(lambda) proportional to D'y as lambda -> infinity, so the index
+is the maximal-shrinkage end of a family whose other end is the CV-tuned
+elastic net. Arms: soft-thresholded weights sign(z)(|z| - c)_+ at c = 1, 2;
+replication-weighted (DerSimonian-Laird meta z of per-block Fisher
+correlations, blocks = training countries across borders, Admin-1 regions
+with >= 5 training districts in-country), with and without a sign-agreement
+gate; between-domain decorrelation (global PCA of the axes to 95%, then the
+production weighting); ridge, elastic net and lasso at lambda.min and
+lambda.1se by inner random K-fold on squared error; the three at a penalty
+chosen by NESTED leave-one-block-out on the pooled inner Spearman (30-value
+path, ties to the larger penalty), and the same with a one-jackknife-SE rule;
+equal-weight sign-aligned composites of the top 5 / 10 / 20 predictors by
+back-projected weight chosen inside the training fold, and a beta-weighted
+top 10. Back-projection (script 57): beta_j = sum_k w_k R*_jk from the
+rotations build_domain_pcs_v2 now keeps as attr(D, "basis"); shares of index
+variance by predictor and by domain are exact and sum to one (checked over
+104 fits). Replication: the four LOCO fits (weak, they share three countries
+with the pooled fit) and each country's own independent fit (the real test).
+Figure: script 58, results/figures/protocol_v2/index_importance_top10_{level,prev}.png.
+The first WS-01 run died at the cross-country step after 55 minutes because
+the script was patched while `Rscript file.R` was reading it incrementally
+(R resumes mid-token when the bytes shift); rerun from a frozen copy via
+source(), with a checkpoint CSV now written before the cross-country step.
+
+**Result, mean Spearman over cells (paired difference against the index;
+cells better of scored).**
+
+| Weights | In-fill level / prev | Region level / prev | Transport level / prev |
+|---|---|---|---|
+| Production index | 0.398 / 0.282 | 0.379 / 0.269 | 0.275 (17 of 22) / 0.207 |
+| Soft-thresholded, c = 1 | 0.398 (+0.001; 8/18) / 0.271 | 0.370 (-0.009) / 0.250 | **0.299 (+0.024; 18 of 22)** / 0.199 (-0.008) |
+| Soft-thresholded, c = 2 | 0.379 / 0.238 | 0.353 / 0.194 | 0.289 (+0.014; 13/22) / 0.144 |
+| Decorrelated across domains | 0.396 (-0.001; 9/18) / 0.277 | 0.380 (+0.001) / 0.258 | 0.296 (+0.021; 12/22) / 0.195 |
+| Replication-weighted (meta z) | 0.152 / 0.118 | 0.114 / 0.098 | 0.291 (+0.015; 11/22) / 0.178 |
+| Replication-weighted, sign gate | 0.119 / 0.078 | 0.075 / 0.020 | 0.288 (+0.013; 13/22) / 0.145 |
+| Ridge, lambda.min | 0.349 (-0.049) / 0.215 | 0.294 (-0.085) / 0.097 | 0.290 (+0.015) / 0.199 |
+| Ridge, nested rank CV | 0.358 (-0.039) / 0.237 | 0.335 (-0.043) / 0.202 | 0.287 (+0.015) / 0.210 (+0.005) |
+| Elastic net, lambda.min (production comparator) | 0.318 (-0.080) / 0.151 | 0.263 (-0.116) / 0.046 | 0.258 (-0.018) / 0.184 |
+| Elastic net, nested rank CV | 0.320 / 0.198 | 0.306 / 0.147 | 0.240 (-0.035) / 0.132 |
+| Lasso, lambda.min | 0.319 (-0.078) / 0.154 | 0.278 / 0.057 | 0.268 (-0.007) / 0.153 |
+| Lasso, nested rank CV | 0.326 / 0.198 | 0.317 / 0.146 | 0.247 (-0.028) / 0.121 |
+| Elastic net / lasso, lambda.1se | 0.165 / -0.033; 0.192 / -0.020 | 0.003 / -0.282; -0.018 / -0.294 | constant in 9 and 6 of 22 cells |
+| Nested rank CV, one-SE rule (ridge / enet / lasso) | 0.309 / 0.322 / 0.324 (-0.08) | 0.264 / 0.296 / 0.304 | constant in 14 / 5 / 5 of 22 cells |
+| Sparse, top 20, equal weights | 0.359 (-0.039; 4/18) / 0.256 | 0.307 (-0.072) / 0.227 | **0.297 (+0.022; 11/22, 20 of 22 positive)** / 0.198 (-0.009) |
+| Sparse, top 10 equal / top 10 beta-weighted | 0.332 / 0.227; 0.331 / 0.226 | 0.291 / 0.172; 0.291 / 0.172 | 0.220 / 0.159; 0.216 / 0.157 |
+| Sparse, top 5 | 0.304 (-0.093) / 0.194 | 0.273 / 0.178 | 0.180 (-0.095) / 0.126 |
+
+**Reading.**
+1. *Nothing beats the index in-country, and two arms tie it exactly:* the
+   soft-thresholded index at c = 1 and the decorrelated index (differences
+   within 0.001 on the level, 0.005 to 0.011 on prevalence). Every joint
+   estimate of the weights loses in-country: ridge by 0.04 to 0.05, the
+   elastic net and lasso by 0.08, and under region extrapolation the
+   CV-tuned penalties collapse on prevalence (0.05 to 0.10 against 0.27).
+   The ordering index >= ridge > hapc (SL-05, 0.21) > elastic net = lasso is
+   the ordering of how much joint structure each estimator tries to learn
+   from 24 to 70 rows and 80 to 100 correlated axes, and PC-HAL sits inside
+   it as a ridge on a richer basis: this is not a trick to escape with a
+   different penalty.
+2. *Across borders, seven variants gain 0.013 to 0.024 on the level and the
+   most consistent is the cheapest:* soft-thresholding at c = 1 is better
+   than the index in 18 of 22 cells (+0.024, positive in 18 against 17) at
+   no in-country cost and -0.008 on prevalence transport. Zeroing axes
+   whose training evidence is below one standard error removes exactly the
+   weakly-correlated survey-derived axes the ablation says do not carry. It
+   was one of two pre-specified cut-offs (c = 2 is worse: +0.014 and -0.063
+   on prevalence), but it was still chosen among 21 arms on these 22 cells,
+   so it is a candidate to pre-register for the next country, not a new
+   estimator of record.
+3. *"Reduce the tuning" cuts both ways.* lambda.1se is harmful here: it
+   returns the null model in 6 to 9 of 22 transport cells and, where it does
+   not, predictions dominated by an intercept and near-zero slopes
+   (region-extrapolation prevalence -0.28 to -0.29). Choosing the penalty
+   by nested block CV on the rank metric instead of random K-fold on
+   squared error helps ridge under region extrapolation (+0.04 against
+   lambda.min) and changes nothing for the elastic net and lasso; the
+   one-SE rule on three inner blocks collapses to the constant in a
+   quarter to two thirds of cells. The lasso, which "drops more
+   variables", gains nothing over the elastic net anywhere: the axes are
+   orthogonal within a domain and each carries a weak replicated signal, so
+   there is no redundancy for selection to exploit.
+4. *Replication weighting is only defined across borders,* where it gains
+   +0.015 (11 of 22), less than soft-thresholding; in-country its blocks are
+   regions of five to eight training districts and a within-region rank
+   correlation over that many rows is noise (0.15 against 0.40). The
+   sign-agreement gate makes it worse in every column. The principled
+   version, a hierarchical model with partially pooled slopes across
+   countries, needs more countries than four.
+5. *Decorrelating the axes across domains ties in-country and gains +0.021
+   across borders (12 of 22):* the index does double-count the shared
+   urban-rural / aridity gradient, and removing the double count is worth
+   about what soft-thresholding is worth, with the same caveat.
+6. *The index is linear in the predictors, so its importance is exact.* By
+   domain the satellite embedding, climate and soil carry 0.10 to 0.19 of
+   the index's variance each and 0.40 to 0.50 together in every outcome; no
+   predictor carries more than 0.02. The individually largest weights are
+   survey aggregates and modelled surfaces (house ownership, women working,
+   schooling, modelled stunting / underweight), livestock (ruminant share,
+   TLU per head), vegetation productivity (NPP, GPP, negative) and grassland
+   cover. One gradient recurs in all six outcomes: drier, grassier, less
+   productive, more pastoral, poorer and more stunted districts score high
+   on every deficiency. Child iron is the cleanest cell (all ten leading
+   predictors replicate in every country's own fit); vitamin A and women's
+   iron carry more non-replicating signs, mostly on IHME surfaces. Livestock
+   positive for iron and B12 is ecological (pastoral zones are the dry, poor
+   zones), not dietary.
+7. *The two importances disagree where they should.* Rank correlation
+   between a domain's share of the index and its cost when dropped from
+   transport (DA-01) is 0.2. They agree on soil and climate; the satellite
+   embedding carries the largest share and costs nothing to drop (redundant
+   with climate and soil, alone 0.20); the survey-derived domains hold
+   several of the largest single weights and dropping them IMPROVES
+   transport (-0.009 to -0.024 each; all 130 DHS columns +0.056). The pooled
+   marginal correlations over-weight what fits the training countries and
+   does not carry, which is the climate-and-soil result from the other side
+   and the mechanism behind point 2.
+8. *A twenty-predictor equal-weight composite transports as well as the
+   full index* (+0.022, 20 of 22 positive) and costs 0.04 in-fill and 0.07
+   under region extrapolation; ten is too few across borders (-0.055), five
+   too few everywhere, and beta weights on the ten add nothing over equal
+   weights (Dawes). For child iron all twenty members replicate in every
+   country. It is a communication and transport tool: twenty public layers a
+   ministry can compute.
+
+**Recommendation for the manuscript and the next country.** Keep the
+production index as the estimator of record; pre-register the
+soft-thresholded (c = 1) and decorrelated variants and the twenty-predictor
+composite as transport candidates for the fifth country; report the
+back-projected importance beside the ablation and say which question each
+answers; do not pursue lambda.1se, the lasso, or nested tuning further at
+this n. Deck: three new slides (weights table, importance figure, composite
+table + child iron members); manuscript: methods sentence on the
+back-projection and the composite, fig-importance, tbl-sparse, Supplement S4.
+-> `results/tables/protocol_v2/weight_sources_{raw,raw_sparse,cells,summary,paired}.csv`,
+`index_importance_{columns,domains,top,patterns}.csv`,
+`results/figures/protocol_v2/index_importance_top10_{level,prev}.png`.

@@ -1,0 +1,63 @@
+"target","column","domain","outcomes_in_top20","outcomes","signs","mean_rank","min_loco_agree"
+"level","fprice_staple_rel","Food prices and supply",5,"child_vitA, women_vitA, child_iron, women_folate, women_b12","-----",8,2
+"level","npp_npp_t0","Ecosystem productivity/greenness",4,"child_vitA, women_vitA, child_iron, women_folate","----",6.2,3
+"level","npp_gpp_t0","Ecosystem productivity/greenness",4,"child_vitA, women_vitA, child_iron, women_b12","----",7.2,3
+"level","lcover_grass_frac_t0","Built environment",4,"child_vitA, women_vitA, women_iron, women_b12","++++",8,3
+"level","glw_ruminant_share","Livestock density",4,"child_vitA, women_vitA, child_iron, women_iron","++++",9.8,4
+"level","ihme_underweightprevalence","Nutrition status (MODELLED SURFACE)",3,"child_vitA, women_vitA, women_b12","+++",2.3,3
+"level","ihme_stuntingprevalence","Nutrition status (MODELLED SURFACE)",3,"child_vitA, women_vitA, women_b12","+++",4,3
+"level","dhs_w_working","Education, employment, SES",3,"child_iron, women_iron, women_folate","---",6,3
+"level","glw_tlu_per_capita","Livestock density",3,"child_vitA, women_vitA, women_b12","+++",8.7,3
+"level","lcover_crops_frac_t0","Built environment",3,"child_vitA, child_iron, women_b12","+++",10.7,3
+"level","ihme_allanemia","Nutrition status (MODELLED SURFACE)",3,"women_vitA, women_iron, women_folate","+++",12,3
+"level","ihme_wastingprevalence","Nutrition status (MODELLED SURFACE)",3,"child_vitA, women_vitA, women_b12","+++",13,3
+"level","ihme_moderateanemia","Nutrition status (MODELLED SURFACE)",3,"women_vitA, women_iron, women_folate","+++",13.7,3
+"level","dhs_CN_NUTS_C_HA2","Adult nutrition",3,"child_vitA, women_folate, women_b12","+-+",15,3
+"level","dhs_w_owns_house","Education, employment, SES",2,"child_iron, women_iron","--",1,4
+"level","soil_phosphorus_stdev_0_20","Soil characteristics",2,"child_iron, women_iron","++",7.5,4
+"level","ihme_severeanemia","Nutrition status (MODELLED SURFACE)",2,"women_iron, women_folate","++",8,3
+"level","dhs_w_primary_edu","Education, employment, SES",2,"child_vitA, women_vitA","--",9,4
+"level","glw_cattle_km2","Livestock density",2,"child_iron, women_b12","++",9,3
+"level","wapor_sd_t0","Ecosystem productivity/greenness",2,"child_vitA, women_b12","++",9,3
+"level","glw_sheep_km2","Livestock density",2,"women_vitA, women_iron","++",9.5,4
+"level","dhs_CN_NUTS_C_WH2","Adult nutrition",2,"child_vitA, women_vitA","++",10,4
+"level","dhs_w_no_education","Education, employment, SES",2,"child_vitA, women_vitA","++",10,4
+"level","wdist_coast_km_mean","Water and coast proximity",2,"child_iron, women_b12","++",11.5,3
+"level","ihme_mildanemia","Nutrition status (MODELLED SURFACE)",2,"women_iron, women_folate","++",13.5,3
+"level","dhs_FP_CUSA_W_MOD","Fertility, reproductive health",2,"child_iron, women_iron","--",14.5,4
+"level","wdist_coast_km_min","Water and coast proximity",2,"child_iron, women_b12","++",15.5,3
+"level","dhs_hh_improved_water","Water and sanitation",2,"child_iron, women_iron","++",16.5,4
+"prev","wdist_coast_km_mean","Water and coast proximity",4,"child_vitA, women_vitA, child_iron, women_b12","++++",9.5,3
+"prev","wdist_coast_km_min","Water and coast proximity",4,"child_vitA, women_vitA, child_iron, women_b12","++++",12,3
+"prev","dhs_CN_NUTS_C_HA2","Adult nutrition",3,"child_vitA, women_vitA, women_b12","+++",4,3
+"prev","espen_sth_cov_mean","Helminth burden and control",3,"women_vitA, women_folate, women_b12","-+-",4.7,3
+"prev","ihme_stuntingprevalence","Nutrition status (MODELLED SURFACE)",3,"child_vitA, women_vitA, women_b12","+++",5,3
+"prev","ihme_underweightprevalence","Nutrition status (MODELLED SURFACE)",3,"child_vitA, women_vitA, women_b12","+++",5,3
+"prev","npp_npp_t0","Ecosystem productivity/greenness",3,"child_iron, women_iron, women_folate","---",9.3,3
+"prev","dhs_w_owns_house","Education, employment, SES",2,"child_iron, women_iron","--",2,4
+"prev","glw_ruminant_share","Livestock density",2,"child_iron, women_iron","++",2,4
+"prev","glw_tlu_per_capita","Livestock density",2,"child_vitA, women_b12","++",2,3
+"prev","dhs_w_barrier_permission","Healthcare access",2,"women_vitA, women_iron","--",6,4
+"prev","elevation","Built environment",2,"women_folate, women_b12","-+",6,3
+"prev","grassland_frac","Ecosystem productivity/greenness",2,"women_folate, women_b12","-+",6.5,2
+"prev","fprice_staple_rel","Food prices and supply",2,"child_vitA, child_iron","--",7,3
+"prev","npp_gpp_t0","Ecosystem productivity/greenness",2,"child_vitA, child_iron","--",7,4
+"prev","lcover_crops_frac_t0","Built environment",2,"child_iron, women_b12","++",7.5,3
+"prev","map_sy_pf_mortality_rate","Malaria incidence and treatment",2,"women_vitA, women_iron","--",7.5,4
+"prev","ihme_severeanemia","Nutrition status (MODELLED SURFACE)",2,"women_iron, women_b12","+-",8,2
+"prev","wapor_sd_t0","Ecosystem productivity/greenness",2,"child_vitA, women_b12","++",8,3
+"prev","glw_pigs_km2","Livestock density",2,"women_iron, women_b12","-+",8.5,3
+"prev","dhs_hh_crowding","Household assets and characteristics",2,"women_vitA, women_b12","++",10,3
+"prev","map_blooddisorders201201africahbcallelefrequency","Malaria incidence and treatment",2,"women_vitA, child_iron","++",11,4
+"prev","map_blooddisorders201201globalsicklehaemoglobinhbsallelefrequency","Malaria incidence and treatment",2,"women_vitA, women_iron","++",11,4
+"prev","spam_share_oilcrops","Agricultural production, land use",2,"women_folate, women_b12","-+",11,2
+"prev","lcover_water_seasonal_frac_t0","Built environment",2,"women_folate, women_b12","+-",11.5,3
+"prev","soil_phosphorus_stdev_0_20","Soil characteristics",2,"child_iron, women_iron","++",13,4
+"prev","dhs_hh_cows","Agricultural production, land use",2,"child_iron, women_iron","++",14.5,4
+"prev","ihme_allanemia","Nutrition status (MODELLED SURFACE)",2,"women_iron, women_folate","++",14.5,3
+"prev","wapor_mean_t0","Ecosystem productivity/greenness",2,"women_vitA, child_iron","--",16,4
+"prev","dhs_FP_CUSA_W_MOD","Fertility, reproductive health",2,"child_iron, women_iron","--",17,4
+"prev","ihme_moderateanemia","Nutrition status (MODELLED SURFACE)",2,"women_iron, women_folate","++",17,3
+"prev","dhs_hh_sheep","Agricultural production, land use",2,"child_vitA, child_iron","++",17.5,4
+"prev","dhs_w_bmi_overweight","Adult nutrition",2,"child_vitA, women_vitA","--",19,4
+"prev","glw_sheep_km2","Livestock density",2,"women_vitA, women_iron","++",19.5,4

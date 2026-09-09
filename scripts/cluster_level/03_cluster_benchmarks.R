@@ -29,6 +29,7 @@
 suppressPackageStartupMessages({library(dplyr); library(tidyr)})
 setwd("C:/Users/andre/OneDrive/Documents/mn-prediction")
 source("R/protocol_v2.R")
+source("R/protocol_v2_mbg.R")   # MB-01: registers the geostatistical arms mbg / mbg_gp into ARMS_V2
 OUTDIR <- Sys.getenv("CL_OUT_DIR", "results/tables/cluster_level"); dir.create(OUTDIR, showWarnings = FALSE, recursive = TRUE); CDIR <- "data/covariates/cluster"
 PT <- Sys.getenv("CL_PRED_TAG", "")   # which predictor table: "" = 2/5 km buffers, "_r10" = 10 km rural
 REPS <- as.integer(Sys.getenv("CL_REPS", "10")); MIN_TRAIN <- 20L; set.seed(20260904L)
@@ -50,7 +51,7 @@ SETS <- SETS[.env_list("CL_SETS", c("transportable", "with_fieldwork"))]
 TAG <- Sys.getenv("CL_TAG", ""); SUMMARY_ONLY <- Sys.getenv("CL_SUMMARY_ONLY", "0") == "1"
 domain_of <- stats::setNames(MD$domain, MD$column)
 pref <- make.names(substr(unique(MD$domain), 1, 12)); if (any(duplicated(pref))) stop("domain prefix collision: ", paste(unique(MD$domain)[duplicated(pref)], collapse = " | "))
-COUNTRIES <- c("Gambia", "Ghana", "Malawi", "SierraLeone")
+COUNTRIES <- .env_list("CL_COUNTRIES", c("Gambia", "Ghana", "Malawi", "SierraLeone"))   # CL_COUNTRIES shards the in-fill / region estimands (MB-01); transport needs all four
 ARMS <- .env_list("CL_ARMS", c("null_train_mean", "region_mean_jk", "spatial", "domain_index", "domain_enet", "spatial_plus_domain"))
 LARMS <- intersect(c("null_train_mean", "domain_index", "domain_enet"), ARMS)
 emp_logit <- function(y, n) log((y * n + 0.5) / ((1 - y) * n + 0.5))
@@ -82,7 +83,8 @@ for (i in seq_len(nrow(cells))) for (set_name in names(SETS)) {
   cl <- tryCatch(build(cells$country[i], cells$outcome[i], SETS[[set_name]]), error = function(e) { cat("  build error", conditionMessage(e), "\n"); NULL }); if (is.null(cl)) next
   for (target in c("prev", "level")) { tv <- targets_of(cl, target); idx <- which(tv$ok); if (length(idx) < 15) next
     Y <- tv$ymod[idx]; X <- cl$X[idx, , drop = FALSE]; unit <- cl$Admin2[idx]; reg <- cl$Admin1[idx]
-    aux <- list(lon = cl$lon[idx], lat = cl$lat[idx], Admin1 = reg, y_nat = Y)
+    aux <- list(lon = cl$lon[idx], lat = cl$lat[idx], Admin1 = reg, y_nat = Y,
+                target = target, n_raw = cl$n_raw[idx], y_prev = cl$y_prev[idx])   # MB-01: counts for the geostatistical arm's binomial likelihood
     for (est in c("infill", "region")) { if (est == "region" && (dplyr::n_distinct(reg) < 2 || set_name == "with_fieldwork")) next
       set_arms <- if (set_name == "climate_soil") intersect(ARMS, c("null_train_mean", "region_mean_jk", "domain_index")) else ARMS
       for (r in seq_len(if (est == "infill") REPS else 1L)) {
@@ -104,7 +106,7 @@ if (!SUMMARY_ONLY) { R <- bind_rows(rows); write.csv(R, file.path(OUTDIR, paste0
   write.csv(CELL, file.path(OUTDIR, paste0("benchmarks_cluster_cells", TAG, ".csv")), row.names = FALSE) }
 
 # ── estimand C (transport), pooled ───────────────────────────────────────────
-lrows <- list(); LSETS <- intersect(names(SETS), c("transportable", "climate_soil")); if (SUMMARY_ONLY) LSETS <- character(0)
+lrows <- list(); LSETS <- intersect(names(SETS), c("transportable", "climate_soil")); if (SUMMARY_ONLY || length(COUNTRIES) < 4) LSETS <- character(0)
 for (lset in LSETS) for (on in unique(TC$outcome)) for (target in c("prev", "level")) {
   cl <- list(); for (cn in COUNTRIES) { z <- tryCatch(build(cn, on, SETS[[lset]]), error = function(e) NULL); if (is.null(z)) next
     tv <- targets_of(z, target); if (sum(tv$ok) >= 15) { z$tv <- tv; cl[[cn]] <- z } }
@@ -127,7 +129,7 @@ for (lset in LSETS) for (on in unique(TC$outcome)) for (target in c("prev", "lev
 }
 if (!SUMMARY_ONLY) { LO <- bind_rows(lrows); write.csv(LO, file.path(OUTDIR, paste0("benchmarks_cluster_loco", TAG, ".csv")), row.names = FALSE) }
 # gather every run's tables (main + tagged partial runs) for the report
-rd_all <- function(stem) { fs <- list.files(OUTDIR, pattern = paste0("^", stem, "(_[A-Za-z0-9]+)?[.]csv$"), full.names = TRUE)
+rd_all <- function(stem) { fs <- list.files(OUTDIR, pattern = paste0("^", stem, "(_[A-Za-z0-9]+)?[.]csv$"), full.names = TRUE); fs <- fs[file.size(fs) > 20]   # a shard without transport writes an empty LOCO file
   if (!length(fs)) return(NULL); bind_rows(lapply(fs, function(f) { d <- read.csv(f, stringsAsFactors = FALSE); if (!"set" %in% names(d)) d$set <- "transportable"; d })) |> distinct() }
 CELL <- rd_all("benchmarks_cluster_cells"); LO <- rd_all("benchmarks_cluster_loco")
 
@@ -144,7 +146,7 @@ S1 <- CMP |> mutate(beats = is.finite(rho_agg) & is.finite(rho_district_v2) & rh
     rho_district_v2_m = round(mean(rho_district_v2, na.rm = TRUE), 3), agg_beats_v2 = sum(beats), paired = sum(paired), .groups = "drop") |> arrange(estimand, target, set, desc(rho_agg_m))
 print(as.data.frame(S1), row.names = FALSE)
 cat("\n-- fieldwork adjusters (in-fill sensitivity), aggregated-to-district Spearman: with vs without --\n")
-W <- CELL |> filter(estimand == "infill", set %in% c("transportable", "with_fieldwork"), arm %in% c("domain_index", "spatial_plus_domain")) |> select(country, outcome, target, arm, set, rho_agg) |> pivot_wider(names_from = set, values_from = rho_agg)
+W <- CELL |> filter(estimand == "infill", set %in% c("transportable", "with_fieldwork"), arm %in% c("domain_index", "spatial_plus_domain")) |> select(country, outcome, target, arm, set, rho_agg) |> pivot_wider(names_from = set, values_from = rho_agg, values_fn = mean)   # tagged partial runs can duplicate a key (MB-01)
 if (all(c("transportable", "with_fieldwork") %in% names(W))) print(as.data.frame(W |> mutate(better = is.finite(with_fieldwork) & is.finite(transportable) & with_fieldwork > transportable) |> group_by(target, arm) |>
   summarise(cells = dplyr::n(), transportable_m = round(mean(transportable, na.rm = TRUE), 3), with_fieldwork_m = round(mean(with_fieldwork, na.rm = TRUE), 3), better = sum(better), .groups = "drop")), row.names = FALSE)
 if (!is.null(LO) && nrow(LO)) { cat("\n-- transport (leave-one-country-out), cluster-fitted, scored at the cluster / Admin-2 / Admin-1 --\n")

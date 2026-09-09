@@ -1,0 +1,17 @@
+"country","outcome","set","target","estimand","arm","reps","n_clusters","n_units","rho_cluster","rho_agg","wmae_cluster","wmae_agg"
+"Gambia","child_iron","transportable","level","infill","mbg_dhs",3,70,30,-0.0170588749890648,0.0629588431590656,0.276641550157512,0.218792240880167
+"Gambia","child_iron","transportable","level","region","mbg_dhs",1,70,30,-0.0217478785758026,0.0340378197997775,0.271356644223346,0.208353757107515
+"Gambia","child_iron","transportable","prev","infill","mbg_dhs",3,70,30,0.224852151216794,0.278785183614086,14.0791703843403,10.6008413895445
+"Gambia","child_iron","transportable","prev","region","mbg_dhs",1,70,30,0.253565254126363,0.240071199616599,12.9672632385506,9.45206913269273
+"Gambia","child_vitA","transportable","level","infill","mbg_dhs",3,70,30,0.359251159128685,0.482536151279199,0.0940233021833855,0.0720246469861166
+"Gambia","child_vitA","transportable","level","region","mbg_dhs",1,70,30,0.267465663546496,0.557285873192436,0.0939379797371802,0.0662456331100744
+"Gambia","child_vitA","transportable","prev","infill","mbg_dhs",3,70,30,0.192808998130444,0.241006974484033,12.9711525859371,11.1811591908648
+"Gambia","child_vitA","transportable","prev","region","mbg_dhs",1,70,30,0.254244279783915,0.142109472939753,12.866665847655,10.1912721528307
+"Gambia","women_iron","transportable","level","infill","mbg_dhs",3,70,30,0.525640801329717,0.591991101223582,0.257361016264745,0.219077663349936
+"Gambia","women_iron","transportable","level","region","mbg_dhs",1,70,30,0.430566004723996,0.639154616240267,0.253404622739177,0.226658332743706
+"Gambia","women_iron","transportable","prev","infill","mbg_dhs",3,70,30,0.546326461927973,0.781931483532994,9.61163256740228,5.94897554777075
+"Gambia","women_iron","transportable","prev","region","mbg_dhs",1,70,30,0.521089315653622,0.767245234838293,10.1164315026634,6.21343249335614
+"Gambia","women_vitA","transportable","level","infill","mbg_dhs",3,70,30,0.454780859067448,0.485205784204672,0.104883939411735,0.0798687431987804
+"Gambia","women_vitA","transportable","level","region","mbg_dhs",1,70,30,0.468567929315021,0.560845383759733,0.0943759499811054,0.0696798238536893
+"Gambia","women_vitA","transportable","prev","infill","mbg_dhs",3,70,30,-0.0919902916631003,0.164968032360848,9.93144369774703,9.55772378961943
+"Gambia","women_vitA","transportable","prev","region","mbg_dhs",1,70,30,0.126380377594453,0.461347299603738,7.86914085855541,7.40869961977176

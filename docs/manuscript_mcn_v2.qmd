@@ -342,7 +342,19 @@ representations so that model capacity is a measured factor: all columns
 under elastic net; the leading principal components of each domain to 80% of
 variance, oriented from the training rows only; and a zero-tuning **domain
 index**, a marginal-correlation-weighted composite over those components with
-no cross-validated hyperparameter, which is the estimator of record.
+no cross-validated hyperparameter, which is the estimator of record. Because
+the index is linear in the rank-normalised predictors, its component weights
+project back exactly onto the original columns
+($\beta_j = \sum_k w_k R^*_{jk}$, with $R^*$ the oriented rotation of the
+column's domain), which is how predictor importance is reported
+(@fig-importance): a weight per unit of rank-normal score, comparable across
+predictors because every column shares that scale, with an exact
+decomposition of the index's variance by predictor and by domain. The same
+projection defines a sparse companion, the **twenty-predictor composite**:
+inside each training fold the twenty columns with the largest back-projected
+weight are kept and summed with equal weights and the sign of their weight,
+then rescaled like the index. Membership is chosen on training districts
+only, so the composite is scored under exactly the folds of the index.
 
 The protocol is pre-registered for the next countries added to the panel
 (`docs/findings/PREREGISTRATION_NEW_COUNTRIES_2026-09.md`): seven
@@ -467,6 +479,90 @@ night lights, population density, built surface and travel time out of the
 climate-and-soil index moves its transport by less than 0.02, and urbanicity
 alone does not transport.
 
+What the index weights, once its component weights are projected back onto
+the columns, is one gradient that recurs in every outcome (@fig-importance):
+districts that are drier and grassier, less productive (lower net and gross
+primary productivity), more pastoral (a higher ruminant share of livestock,
+more livestock units per head), poorer (less house ownership, fewer women in
+work, less schooling) and more stunted score high on all six deficiencies,
+and vegetation productivity, schooling and market proxies score low. The
+positive weight on livestock density for iron and B12 is ecological rather
+than dietary: in these four countries the pastoral zones are the dry, poor
+zones. Outcome-specific signals sit beneath that gradient, such as
+haemoglobin C allele frequency and cattle for child iron, the modelled anaemia
+surfaces for women's iron, helminth treatment coverage and the drought index
+for folate, and elevation and distance to the coast for B12. No single
+predictor carries more than two percent of the index's variance; by domain,
+the satellite embedding, climate and soil together carry 40 to 50 percent in
+every outcome, which is the same answer the ablation gives. Signs are
+replicated in every country's own independent fit for all ten of child
+iron's leading predictors and for most of the others; the exceptions are
+marked in the figure. The two importances answer different questions and
+part where they should. The back-projection says what the fitted index
+computes; the ablation says what a new country needs. They agree on soil and
+climate, and they disagree on the survey-derived domains, which hold several
+of the largest individual weights yet improve transport when removed
+(@tbl-ablation), and on the satellite embedding, which carries the largest
+share of the index's variance yet costs nothing to drop because it repeats
+the climate and soil gradient. The pooled marginal correlations that set the
+weights over-value indicators that fit the training countries and do not
+carry, which is the climate-and-soil result seen from the other side.
+
+```{r fig-importance}
+#| fig-cap: "What the zero-tuning index weights: the ten predictors with the largest back-projected weight per outcome in the pooled four-country fit on the biomarker level. Bar length is the weight per unit rank-normal score times the training standard deviation (positive means more deficiency); colour is the predictor's data source; a star marks a sign that is not reproduced in every country's own fit. The prevalence-target version is in results/figures/protocol_v2."
+#| fig-width: 10
+#| fig-height: 7.5
+it <- rd(P2, "index_importance_top.csv"); md <- rd(HD, "predictors_admin2_shared_metadata.csv")
+if (!is.null(it) && !is.null(md)) {
+  src_short <- function(x) dplyr::case_when(x == "DHS" ~ "DHS survey aggregates", grepl("AlphaEarth", x) ~ "AlphaEarth embedding", x == "GEE" ~ "Earth Engine rasters",
+    grepl("SoilGrids", x) ~ "SoilGrids / iSDA", grepl("IHME", x) ~ "IHME modelled surfaces", grepl("Livestock", x) ~ "Livestock (GLW4)", grepl("MapSPAM", x) ~ "MapSPAM crops",
+    grepl("Malaria Atlas", x) ~ "Malaria Atlas", grepl("market prices", x) ~ "WFP market prices", grepl("ESPEN", x) ~ "ESPEN helminths",
+    grepl("WorldPop", x) | grepl("RWI", x) ~ "WorldPop / GHSL / RWI", grepl("Surface Water", x) ~ "Water and coast distance", TRUE ~ "Other")
+  pal <- c("DHS survey aggregates" = "#6a3d9a", "Earth Engine rasters" = "#1f78b4", "AlphaEarth embedding" = "#a6cee3", "SoilGrids / iSDA" = "#b15928",
+           "IHME modelled surfaces" = "#e31a1c", "Livestock (GLW4)" = "#ff7f00", "MapSPAM crops" = "#33a02c", "Malaria Atlas" = "#fb9a99", "WFP market prices" = "#fdbf6f",
+           "ESPEN helminths" = "#cab2d6", "WorldPop / GHSL / RWI" = "#b2df8a", "Water and coast distance" = "#08519c", "Other" = "grey60")
+  d <- it |> filter(target == "level", rank <= 10) |> left_join(md[, c("column", "source")], by = "column") |>
+    mutate(source = src_short(source), Outcome = factor(outcome_label[outcome], levels = outcome_label),
+           short = ifelse(nchar(column) > 34, paste0(substr(column, 1, 32), ".."), column),
+           lab = ifelse(incountry_sign_agree == incountry_fits, short, paste0(short, " *"))) |>
+    group_by(Outcome) |> arrange(Outcome, beta_std) |> mutate(key = factor(paste(lab, Outcome, sep = " | "), levels = paste(lab, Outcome, sep = " | "))) |> ungroup()
+  ggplot(d, aes(x = beta_std, y = key, fill = source)) + geom_col(width = 0.75) + geom_vline(xintercept = 0, colour = "grey30", linewidth = 0.3) +
+    facet_wrap(~ Outcome, scales = "free_y", ncol = 3) + scale_y_discrete(labels = function(k) sub(" [|] .*$", "", k)) +
+    scale_fill_manual(values = pal, drop = TRUE, name = NULL) +
+    labs(x = "Index weight per predictor (beta x training SD; + = more deficiency)", y = NULL) +
+    theme(legend.position = "bottom", panel.grid.major.y = element_blank(), axis.text.y = element_text(size = 7)) + guides(fill = guide_legend(nrow = 2))
+}
+```
+
+A twenty-predictor composite built from those weights transports as well as
+the full index and can be computed from twenty public layers (@tbl-sparse).
+Across countries it scores
+`r { wsS <- rd(P2, "weight_sources_summary.csv"); sprintf("%.2f", get(wsS$mean_spearman[wsS$estimand == "country" & wsS$arm == "sparse20" & wsS$target == "level"])) }`
+on the concentration against
+`r { wsS <- rd(P2, "weight_sources_summary.csv"); sprintf("%.2f", get(wsS$mean_spearman[wsS$estimand == "country" & wsS$arm == "domain_index" & wsS$target == "level"])) }`
+for the index, positive in 20 of 22 cells against 17, and it ties on
+prevalence; inside a surveyed country it costs 0.04 in-fill and 0.07 under
+region extrapolation, because there the breadth of the full vocabulary is
+what neighbouring districts reward. Five predictors are too few under every
+estimand, and weighting the members by their index weights instead of
+equally changes nothing, the small-sample result of @dawes1979 reproduced.
+The composites for the six outcomes, as the four-country fit would deploy
+them, are listed in Supplement S4; for child iron all twenty members carry
+the same sign in every country's own fit.
+
+```{r tbl-sparse}
+#| tbl-cap: "Sparse equal-weight composites against the full index: mean Spearman over the scored cells (18 in-fill and region, 22 transport), membership chosen inside each training fold by back-projected index weight. Sierra Leone's six cells score NA in-country on every arm (14 districts)."
+wsS <- rd(P2, "weight_sources_summary.csv")
+if (!is.null(wsS)) {
+  lab <- c(domain_index = "Full index (454 columns)", sparse20 = "Top 20 predictors, equal weights", sparse10 = "Top 10, equal weights", sparse5 = "Top 5, equal weights", sparse10w = "Top 10, index weights")
+  d <- wsS |> filter(arm %in% names(lab)) |> mutate(k = paste(estimand, target)) |> select(arm, k, mean_spearman) |>
+    tidyr::pivot_wider(names_from = k, values_from = mean_spearman) |> mutate(arm = factor(arm, levels = names(lab))) |> arrange(arm) |>
+    transmute(Model = lab[as.character(arm)], `In-fill, level` = `infill level`, `In-fill, prev.` = `infill prev`, `Region, level` = `region level`,
+              `Region, prev.` = `region prev`, `Transport, level` = `country level`, `Transport, prev.` = `country prev`)
+  kb(d, digits = 2)
+}
+```
+
 ## What the ranking buys a programme
 
 Used for targeting, the ranking reaches more deficiency burden than the
@@ -568,6 +664,21 @@ rows <- lapply(names(tags), function(t) { i <- rd(P2, paste0("addon_", t, "_infi
   df(Block = tags[[t]], `In-fill, level` = dd_i(i), `Transport, level` = dd_l(l, "plus"), `Alone, transport` = dd_l(l, "addon_only")) })
 rows <- rows[!sapply(rows, is.null)]; if (length(rows)) kb(bind_rows(rows), digits = 3)
 ```
+
+Nor does any other way of setting the index's weights improve on the
+pooled marginal correlation inside a surveyed country. The index is the
+infinite-penalty limit of a ridge regression on the same components, and
+every point of that family that estimates more joint structure loses:
+ridge by 0.04 to 0.05 on the concentration in-fill, the elastic net and
+lasso by 0.08, the one-standard-error penalty rule by 0.2 because it returns
+the null model in a third of cells, and a highly adaptive ridge on the
+components by 0.09 (Supplement S1). Two variants tie the index exactly
+in-country and gain 0.02 across borders, a soft threshold that zeroes
+components whose training evidence is below one standard error (better in 18
+of 22 transport cells) and a decorrelation of the components across domains;
+both were chosen among twenty-one arms on these same cells and are
+pre-registered for the next country rather than adopted
+(`results/tables/protocol_v2/weight_sources_summary.csv`).
 
 Two further sensitivity analyses are reported in the supplement. Fitting the
 same arms at the survey cluster instead of the district (323 clusters with
@@ -819,6 +930,26 @@ if (!is.null(cells)) {
   d <- cells |> filter(estimand == "country", arm == "domain_index") |> group_by(country, outcome, target) |> summarise(rho = mean(spearman, na.rm = TRUE), .groups = "drop") |>
     pivot_wider(names_from = target, values_from = rho) |> transmute(Country = country, Outcome = outcome_label[outcome], `Level` = level, `Prevalence` = prev) |> arrange(Country, Outcome)
   kb(d)
+}
+```
+
+# Supplement S4: the twenty-predictor composites {.unnumbered}
+
+The members of each outcome's composite in the pooled four-country fit on the
+biomarker level, in order of back-projected weight, with the sign of the
+contribution (+ means more deficiency). In the benchmark the membership is
+re-chosen inside every training fold; these are the versions a fifth country
+would receive. A star marks a member whose sign is not reproduced in every
+country's own independent fit.
+
+```{r tbl-s4}
+#| tbl-cap: "Twenty-predictor composites by outcome (four-country fit, biomarker level): predictor and sign, in order of weight."
+it4 <- rd(P2, "index_importance_top.csv")
+if (!is.null(it4)) {
+  d <- it4 |> filter(target == "level", rank <= 20) |>
+    mutate(lab = paste0(column, " (", ifelse(beta > 0, "+", "-"), ifelse(incountry_sign_agree == incountry_fits, "", "*"), ")"), Outcome = outcome_label[outcome]) |>
+    select(rank, Outcome, lab) |> tidyr::pivot_wider(names_from = Outcome, values_from = lab) |> arrange(rank) |> rename(Rank = rank)
+  kb(d, digits = 0)
 }
 ```
 

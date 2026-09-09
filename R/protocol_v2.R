@@ -261,7 +261,7 @@ build_domain_pcs_v2 <- function(Xr, domain_of, sign_rows = NULL,
   domains <- sort(unique(stats::na.omit(domain_of[cols])))
   if (!length(domains)) return(matrix(numeric(0), nrow = nrow(Xr), ncol = 0))
   if (is.null(sign_rows)) sign_rows <- seq_len(nrow(Xr))
-  blocks <- list()
+  blocks <- list(); basis <- list()
   for (dm in domains) {
     cc <- cols[which(domain_of[cols] == dm)]
     if (!length(cc)) next
@@ -270,6 +270,7 @@ build_domain_pcs_v2 <- function(Xr, domain_of, sign_rows = NULL,
       b <- M
       colnames(b) <- paste0(make.names(substr(dm, 1, 12)), "_PC1")
       blocks[[dm]] <- b
+      basis[[dm]] <- list(cols = cc, center = 0, rot = matrix(1, 1, 1, dimnames = list(cc, colnames(b))))
       next
     }
     Mtr <- M[sign_rows, , drop = FALSE]
@@ -292,10 +293,16 @@ build_domain_pcs_v2 <- function(Xr, domain_of, sign_rows = NULL,
     sc <- sweep(sc, 2, flip, "*")
     colnames(sc) <- paste0(make.names(substr(dm, 1, 12)), "_PC", seq_len(npc))
     blocks[[dm]] <- sc
+    # the linear map from centred predictors to oriented axes, kept so that an
+    # axis-weighted index can be projected back onto its columns (WS-02)
+    rot <- sweep(pc$rotation[, seq_len(npc), drop = FALSE], 2, flip, "*")
+    dimnames(rot) <- list(cc, colnames(sc))
+    basis[[dm]] <- list(cols = cc, center = pc$center, rot = rot)
   }
   if (!length(blocks)) return(matrix(numeric(0), nrow = nrow(Xr), ncol = 0))
   out <- do.call(cbind, blocks)
   out[!is.finite(out)] <- 0
+  attr(out, "basis") <- basis
   out
 }
 
