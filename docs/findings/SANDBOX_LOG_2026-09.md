@@ -2397,3 +2397,115 @@ back-projection and the composite, fig-importance, tbl-sparse, Supplement S4.
 -> `results/tables/protocol_v2/weight_sources_{raw,raw_sparse,cells,summary,paired}.csv`,
 `index_importance_{columns,domains,top,patterns}.csv`,
 `results/figures/protocol_v2/index_importance_top10_{level,prev}.png`.
+
+## DS-01 · DHS-derived Admin-2 predictors the DHS way: surveyPrev cluster-level BYM2, every district (scripts/covariates/build_dhs_admin2_clustermodel.R; builder hook 2b; RR-10)
+
+**Q.** The shared set's 145 DHS columns were direct estimates (a
+survey-weighted mean of the DHS clusters inside each district; a Fay-Herriot
+smooth on top for the 18 StatCompiler-coded ones), so a district with no DHS
+cluster had no value and a district with one cluster had that cluster. The
+DHS Program's Admin-2 brief the collaborator sent describes model-based
+geostatistics. Can the DHS predictors be built the DHS way, without
+covariates, so that they are complete and less noisy, and does that change
+the benchmark?
+**Design (the user chose the cluster-level option over the area-level
+Fay-Herriot and over a 5 km field).** For each country the DHS round nearest
+the micronutrient survey (The Gambia 2019, Ghana 2014, Malawi 2015-16, Sierra
+Leone 2013; 279 / 422 / 848 / 434 clusters with GPS, three to eight times
+the micronutrient surveys' cluster density) and, from the rdhs cache with no
+API call, every indicator that exists as a dhs_ column in the shared set: the
+18 surveyPrev built-ins (getDHSindicator on the cached recode), the 77 custom
+derivations (the functions parsed out of src/DHS/DHS_custom_admin2_indicators.R
+without running its loop) and the 51 extra derivers. Each BINARY indicator is
+re-estimated with surveyPrev::clusterModel (binomial on the cluster counts,
+BYM2 area effects over the GADM Admin-2 adjacency from the saved
+cluster_admin_info objects, PC priors, INLA); the posterior mean per district
+replaces the direct estimate in the shared set through a new hook in
+build_shared_predictor_set.R (DHS_ADMIN2_MODEL=direct restores the old
+columns). Continuous indicators (means, counts: 22-29 per country) keep the
+direct estimate, as does the one fit that crashed (The Gambia, short birth
+interval). Four country shards, about a minute a fit, four hours each.
+**Rebuild trap 3, found the hard way.** The builder writes 373 columns; the
+food environment (07), the extra sources (08) and the exclusion policy (53)
+are applied to the live file in place. The first RR-10 launch ran two minutes
+on a 437-column set before the count was checked; it was stopped, 07 -> 08 ->
+53 were run, the set was verified at exactly the RR-09 vocabulary (454 =
+the pre-policy 460 minus the six LK-01 drops) and RR-10 relaunched. Recorded
+in the protocol-v2 memory note.
+
+**What the model changed in the columns** (145 DHS columns, against the
+direct estimates):
+
+| | The Gambia | Ghana | Malawi | Sierra Leone |
+|---|---|---|---|---|
+| Fits: modelled / continuous / failed | 113 / 29 / 1 | 112 / 22 / 0 | 114 / 29 / 0 | 114 / 28 / 0 |
+| Mean completeness, direct -> modelled | 0.93 -> 0.98 | 0.77 -> 0.90 | 0.87 -> 0.96 | 0.98 -> 0.98 |
+| Rank agreement with the direct estimate (median over columns) | 0.92 | 0.84 | 0.90 | 0.95 |
+| Between-district SD, modelled / direct | 0.70 | 0.57 | 0.66 | 0.85 |
+| Columns clearing the 70% floor, direct -> modelled | 143 -> 143 | 133 -> 134 | 143 -> 143 | 142 -> 142 |
+
+8,104 previously missing cells filled; the ordering of districts is largely
+kept; the spread shrinks by 15 to 43 percent, most where a district holds
+fewest clusters; the vocabulary the protocol sees is the same size.
+
+**RR-10 against RR-09** (same folds, targets and cells; every other input
+unchanged):
+
+| Figure | RR-09 (direct DHS) | RR-10 (cluster-model DHS) |
+|---|---|---|
+| In-fill index vs jackknifed regional mean, level / prev | 0.397 vs 0.314 / 0.288 vs 0.220 | 0.399 vs 0.314 / 0.285 vs 0.220 |
+| In-fill penalised (domain PCs), level / prev | 0.328 / 0.153 | 0.344 / 0.182 |
+| Region estimand, index level / prev | 0.379 / 0.269 | 0.378 / 0.264 |
+| Region estimand, penalised level / prev | 0.272 / 0.062 | 0.292 / 0.110 |
+| Transport, district, index level / prev | 0.275 / 0.207 (17 / 16 of 22) | 0.263 / 0.185 (17 / 15) |
+| Transport, district, penalised level | 0.294 (20 of 22) | 0.234 (19 of 22) |
+| Transport, regional, index level / prev | 0.298 / 0.247 | 0.310 / 0.328 |
+| Climate + soil index, district / regional | 0.369 / 0.448 | 0.369 / 0.448 |
+| Nulls, district / regional | 0.079 / 0.159 | 0.083 / 0.159 |
+| Burden captured, index / jk / smoother | 0.224 / 0.203 / 0.197 | 0.225 / 0.203 / 0.197 |
+| DA-01 load-bearing domains (level) | soil +0.024, climate +0.015, agriculture +0.011, malaria +0.009, livestock +0.007 | climate +0.019, soil +0.015, modelled nutrition +0.011, agriculture +0.010, livestock +0.009 |
+| DA-04 dropping all DHS columns (level) | 0.275 -> 0.331 (+0.056) | 0.263 -> 0.331 (+0.067) |
+| DA-02 nested domain selection vs full (level, median) | -0.020 (11 of 22) | +0.037 (13 of 22) |
+| TC-01 slope per training country | +0.049 / +0.076 | +0.054 / +0.065 |
+| RC-01 vitamin A bands, in-fill exact / within one | 0.665 / 0.922 | 0.642 / 0.921 |
+| AR-01 at f = 0.05: A1 / regional / district survey | 10.3 / 12.3 / 19.5 | 10.3 / 12.4 / 19.9 |
+
+**Reading.**
+1. *Inside a surveyed country nothing moves* (index within 0.003 on every
+   in-fill and region figure), which the coverage check predicted: the
+   smoothed columns clear the same floor and rank districts the same way.
+   The penalised fits gain 0.02 to 0.05 from the cleaner columns, without
+   reaching the index.
+2. *Across borders the smoothed survey columns cost:* the district index
+   loses 0.012 on the level and 0.022 on prevalence, the penalised fit 0.06,
+   and the set without any DHS column stays at 0.331, so the gap between the
+   full index and the no-DHS index widens from 0.056 to 0.067. Removing the
+   noise makes the survey aggregates fit the training countries better, the
+   pooled marginal weights lean on them more, and they still do not carry to
+   a fifth country. The regional prevalence transport rises to 0.33, but that
+   is the volatile figure (0.325, 0.362, 0.366, 0.335, 0.247, 0.328 across
+   RR-05 to RR-10) and is not evidence.
+3. *The nested domain selection now beats the full index* (+0.037, 13 of
+   22, from -0.020): with the DHS domains more harmful and more consistently
+   so, choosing domains inside the training fold finds it. Climate + soil is
+   unchanged at 0.369 / 0.448, being DHS-free.
+4. *So DS-01 is the right way to build the DHS columns and the wrong way to
+   improve transport:* it is the map-product and in-country input the DHS
+   brief describes, complete for every district, and it sharpens the case
+   already made by DA-04, WS-01 and the back-projection that the pooled
+   marginal weighting over-values survey aggregates for a new country. The
+   fixes for that are the ones on the table: soft-thresholded or
+   decorrelated weights, the climate-and-soil restriction, or dropping the
+   survey domains for transport, all pre-registered rather than adopted.
+5. *Quote RR-10 over RR-09 from here* (district index 0.26 / 0.19, penalised
+   0.23, regional 0.31 / 0.33, in-fill 0.40 vs 0.31, region 0.38 / 0.26).
+   The WS-01 / WS-02 weight-source, importance and sparse-composite tables
+   were computed on the RR-09 set and are not rerun; their conclusions do
+   not depend on the DHS columns' noise level, and the DHS columns' role in
+   them (large in-sample weights, negative transport value) is if anything
+   stronger now. The individual-level shards were skipped (unchanged inputs
+   except the district proxies; IL-01 quotes RR-09).
+-> `data/covariates/harmonized/dhs_admin2_clustermodel_<Country>{,_log}.csv`
+(gitignored data), `scripts/covariates/build_dhs_admin2_clustermodel.R`,
+hook 2b in `scripts/covariates/build_shared_predictor_set.R`, the rerun
+tables under `results/tables/protocol_v2/` (RR-10, 2026-09-09 13:37 to 15:58).

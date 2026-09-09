@@ -1,4 +1,6 @@
 "column","policy","rule"
+"dhs_AN_ANEM_W_ANY","leakage","^dhs_(AN_ANEM|CN_ANMC)"
+"dhs_CN_ANMC_C_ANY","leakage","^dhs_(AN_ANEM|CN_ANMC)"
 "dhs_c_zinc_diarrhea","leakage","^dhs_(w|c|hh)_.*(anem|anaem|hemoglobin|haemoglobin|ferritin|retinol|rbp|iron|vitA|vita|vit_a|vitamin|zinc|folate|folic|b12|iodi|iodized|iodised)"
 "dhs_w_iron_pregnancy","leakage","^dhs_(w|c|hh)_.*(anem|anaem|hemoglobin|haemoglobin|ferritin|retinol|rbp|iron|vitA|vita|vit_a|vitamin|zinc|folate|folic|b12|iodi|iodized|iodised)"
 "dhs_w_iron_days","leakage","^dhs_(w|c|hh)_.*(anem|anaem|hemoglobin|haemoglobin|ferritin|retinol|rbp|iron|vitA|vita|vit_a|vitamin|zinc|folate|folic|b12|iodi|iodized|iodised)"

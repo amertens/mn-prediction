@@ -223,7 +223,7 @@ kb(df(Tier = c("District (Admin-2)", "Regional (Admin-1)"),
 ```
 
 ::: {.notes}
-Mean rank correlation in a country never used in training, over 22 cells. The climate + soil index is positive in all 22 at district level and 20 of 22 at regional level; the full index in 17 of 22 at both. Absolute levels do not transport: anchoring to the country's own national value halves the level error, anchoring to a published external estimate triples it. Correction to earlier decks: a regional figure of 0.50-0.56 over "12 of 12" cells rested on three countries, because a spelling mismatch in the population file dropped Sierra Leone from every population-joined run; it is withdrawn.
+Mean rank correlation in a country never used in training, over 22 cells. The climate + soil index is positive in all 22 at district level and 20 of 22 at regional level; the full index in 17 of 22 at both on the concentration (15 and 17 on prevalence). Since RR-10 (2026-09-09) the DHS-derived predictors are cluster-level BYM2 estimates at every district, which cost the full index 0.01 at district level and changed nothing in-country. Absolute levels do not transport: anchoring to the country's own national value halves the level error, anchoring to a published external estimate triples it. Correction to earlier decks: a regional figure of 0.50-0.56 over "12 of 12" cells rested on three countries, because a spelling mismatch in the population file dropped Sierra Leone from every population-joined run; it is withdrawn.
 :::
 
 ## Where the index's weights come from: nothing beats it in-country, thresholding helps across borders
@@ -367,7 +367,7 @@ if (!is.null(da)) { d <- da |> filter(target == "level") |> arrange(desc(delta_d
 ```
 
 ::: {.notes}
-Leave-one-country-out ablation, biomarker level, 22 cells. Soil, climate, agriculture and the survey-year malaria block are the load-bearing domains (+0.009 to +0.024 each when dropped), with the new livestock layer just behind (+0.007); the survey-derived domains cost nothing to remove, or help. A fixed climate + soil index transports better than the full vocabulary at both tiers (0.37 vs 0.27 at district level; 0.46 vs 0.31 regional). It was found on the same four countries it is scored on, so it enters the next countries as a pre-registered prediction, not a result.
+Leave-one-country-out ablation, biomarker level, 22 cells. Climate, soil, the modelled nutrition surfaces, agriculture and livestock density are the load-bearing domains (RR-10; the survey-year malaria block sat among them until the DHS columns were re-estimated in DS-01) (+0.009 to +0.024 each when dropped), with the new livestock layer just behind (+0.007); the survey-derived domains cost nothing to remove, or help. A fixed climate + soil index transports better than the full vocabulary at both tiers (0.37 vs 0.27 at district level; 0.46 vs 0.31 regional). It was found on the same four countries it is scored on, so it enters the next countries as a pre-registered prediction, not a result.
 :::
 
 ## Which data sources carry transport

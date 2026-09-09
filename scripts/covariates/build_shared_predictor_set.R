@@ -244,6 +244,36 @@ if (length(dhs_blocks)) {
 }
 
 # ---------------------------------------------------------------------------
+# 2b. DS-01 (2026-09-09): the DHS way. Every binary DHS indicator re-estimated
+# with surveyPrev's cluster-level BYM2 model (no covariates, every district;
+# scripts/covariates/build_dhs_admin2_clustermodel.R) replaces the direct
+# cluster-in-polygon estimate above AND the base set's direct / Fay-Herriot
+# columns wherever the model produced a value. Continuous indicators and any
+# failed fit keep the direct estimate. DHS_ADMIN2_MODEL=direct restores the
+# pre-DS-01 columns for reproducing earlier runs.
+# ---------------------------------------------------------------------------
+if (!identical(Sys.getenv("DHS_ADMIN2_MODEL", "clustermodel"), "direct")) {
+  cm_files <- list.files(here("data", "covariates", "harmonized"),
+                         pattern = "^dhs_admin2_clustermodel_[A-Za-z]+[.]csv$", full.names = TRUE)
+  if (length(cm_files)) {
+    CM <- dplyr::bind_rows(lapply(cm_files, function(f) read.csv(f, check.names = FALSE, stringsAsFactors = FALSE)))
+    cm_cols <- intersect(setdiff(names(CM), c("country", "Admin1", "Admin2")), names(res))
+    key  <- paste(res$country, res$Admin1, res$Admin2, sep = "|")
+    keym <- paste(CM$country, CM$Admin1, CM$Admin2, sep = "|")
+    ix <- match(key, keym); n_cells <- 0L; n_new <- 0L
+    for (v in cm_cols) {
+      new <- CM[[v]][ix]; ok <- is.finite(new)
+      n_new <- n_new + sum(ok & !is.finite(res[[v]])); res[[v]][ok] <- new[ok]; n_cells <- n_cells + sum(ok)
+    }
+    cm_countries <- sub("^dhs_admin2_clustermodel_(.*)[.]csv$", "\\1", basename(cm_files))
+    cat(sprintf("[shared] DS-01: %d DHS columns replaced by cluster-level BYM2 estimates from %s (%d of %d rows matched; %d cells, %d of them previously missing)\n",
+                length(cm_cols), paste(cm_countries, collapse = "/"), sum(!is.na(ix)), nrow(res), n_cells, n_new))
+    unmatched <- setdiff(unique(CM$country), res$country[!is.na(ix)])
+    if (length(unmatched)) cat(sprintf("[shared] DS-01 WARNING: no rows matched for %s\n", paste(unmatched, collapse = ", ")))
+  } else cat("[shared] DS-01: no cluster-level DHS files found, direct estimates kept\n")
+} else cat("[shared] DS-01 disabled (DHS_ADMIN2_MODEL=direct)\n")
+
+# ---------------------------------------------------------------------------
 # 3. Coverage and domain metadata. NOTHING IS DROPPED FOR COVERAGE.
 # ---------------------------------------------------------------------------
 cols <- setdiff(names(res), c("country", "Admin1", "Admin2"))
