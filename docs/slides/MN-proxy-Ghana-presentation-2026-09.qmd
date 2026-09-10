@@ -869,6 +869,20 @@ Urinary iodine is measured in The Gambia (continuous, with household salt iodine
 - Survey-derived inputs help inside a country and hold a new country back; the cross-border model should lean on the environment.
 - A national anchor puts levels on the ranking: district error `r f2(Q$ar_a1, 1)` points at 5% of a full sample, matched by a district survey at `r pc(Q$ar_b_match)`.
 
+## What the models can and cannot do yet
+
+- Rank districts in a surveyed country? Yes: `r f2(Q$infill_index)`, null `r f2(Q$null_d)`.
+- Rank districts in a new country? Yes, less well: `r f2(Q$tr_index)` against `r f2(Q$null_d)`.
+- Which predictors carry the signal? Satellite, climate and soil.
+- Prevalence in a new country from the model alone? Not yet.
+- Prevalence with one national anchor? Yes: `r f2(Q$ar_a1, 1)` points at a 5% sample.
+- Replace biomarker surveys? No: the ceiling is the survey's.
+- Guide where the next survey samples? In design, not piloted.
+
+::: {.notes}
+The checklist agreed at the 10 September check-in, one row per question. Sources: benchmarks_v2_summary.csv (in-fill and country transport, biomarker level), transport_null_calibration.csv (95th percentile of the permutation null), nested_domain_selection.csv (fixed climate-and-soil set), index_importance_domains.csv (pooled shares of the three remotely sensed domains), anchor_and_rank.csv (AR-01, 5% fraction, climate-and-soil set, ranks from prevalence), variance_components_ceiling.csv (prevalence, admin2). Levels do not transport because the surveys differ in year, season, team and calibration (fe_transport_level_offset); the anchor supplies the level the ranking lacks. Guiding the next survey is a design result on these four surveys, not a pilot.
+:::
+
 ## Next steps
 
 :::: {.columns}
