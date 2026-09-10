@@ -1,7 +1,8 @@
 # =============================================================================
 # scripts/policy_deck/02_figure_ghana_map.R
 #
-# Figure 7: Ghana, survey rank versus held-out predicted rank.
+# Figure 7: Ghana, survey rank, held-out predicted rank, and the model's prediction
+# for every district including the ones the survey never reached.
 #
 # NOTE ON SCOPE. Every other figure in the deck only reads result tables. This
 # one cannot: no committed table holds a per-district predicted rank for Ghana.
@@ -63,17 +64,35 @@ n <- nrow(m)
 m$q_survey <- 100 * (m$r_survey - 0.5) / n
 m$q_model  <- 100 * (m$r_model  - 0.5) / n
 
-g <- dplyr::left_join(B, m[, c("Admin1", "Admin2", "q_survey", "q_model")],
-                      by = c("Admin1", "Admin2"))
-p1 <- "What the survey measured"
-p2 <- "What the model predicted"
+# Third panel: the deployment case. Rank-normalise over ALL of Ghana's districts,
+# orient the domain components on the surveyed rows, fit the index on the surveyed
+# rows and predict every district. Surveyed districts are in-sample here (the
+# honest check is the middle panel); the unsurveyed ones are what a programme
+# would receive.
+all_s <- S[S$country == "Ghana", c("Admin1", "Admin2", PREDS)]
+Xr_all <- prep_predictors_v2(as.matrix(all_s[, PREDS]))
+key_all <- paste(all_s$Admin1, all_s$Admin2); key_m <- paste(m$Admin1, m$Admin2)
+tr_all <- match(key_m, key_all); tr_all <- tr_all[is.finite(tr_all)]
+Y_all <- rep(NA_real_, nrow(all_s)); Y_all[tr_all] <- Y[match(key_all[tr_all], key_m)]
+D_all <- domain_representation_v2(Xr_all, domain_of, sign_rows = tr_all)
+pred_all <- ARMS_V2[["domain_index"]](tr_all, seq_len(nrow(all_s)), Y_all, NULL, D_all, list(Admin1 = all_s$Admin1, y_nat = Y_all))
+all_s$q_all <- 100 * (rank(-pred_all, ties.method = "average") - 0.5) / nrow(all_s)
+cat(sprintf("all districts predicted: %d (surveyed %d, unsurveyed %d)
+", nrow(all_s), length(tr_all), nrow(all_s) - length(tr_all)))
+g <- dplyr::left_join(B, m[, c("Admin1", "Admin2", "q_survey", "q_model")], by = c("Admin1", "Admin2")) |>
+  dplyr::left_join(all_s[, c("Admin1", "Admin2", "q_all")], by = c("Admin1", "Admin2"))
+p1 <- "Survey"
+p2 <- "Model, each district held out"
+p3 <- "Model, every district"
 long <- rbind(
   data.frame(sf::st_drop_geometry(g)[, c("Admin1", "Admin2")], value = g$q_survey,
              panel = p1, geometry = sf::st_geometry(g)),
   data.frame(sf::st_drop_geometry(g)[, c("Admin1", "Admin2")], value = g$q_model,
-             panel = p2, geometry = sf::st_geometry(g)))
+             panel = p2, geometry = sf::st_geometry(g)),
+  data.frame(sf::st_drop_geometry(g)[, c("Admin1", "Admin2")], value = g$q_all,
+             panel = p3, geometry = sf::st_geometry(g)))
 long <- sf::st_as_sf(long)
-long$panel <- factor(long$panel, levels = c(p1, p2))
+long$panel <- factor(long$panel, levels = c(p1, p2, p3))
 
 p <- ggplot(long) +
   geom_sf(aes(fill = value), colour = "white", linewidth = 0.18) +
@@ -86,15 +105,15 @@ p <- ggplot(long) +
                                          ticks = FALSE, title.position = "top")) +
   labs(
        subtitle = sprintf("Ghana, children's vitamin A, each district held out. Accuracy %.2f against %.2f for chance.", rho, 0.08),
-       caption = "Darker = worse. Grey districts had no survey clusters. The north stands out in both maps; district-by-district within it, the model and the survey disagree.") +
+       caption = "Darker = worse. Grey: no survey clusters. Right: fitted on all surveyed districts and applied to every district, which is what a programme would receive.") +
   theme_void(base_size = 18) +
   theme(plot.title    = element_text(face = "bold", size = 22, margin = margin(b = 4)),
         plot.subtitle = element_text(size = 17, colour = "grey20", margin = margin(b = 10)),
         plot.caption  = element_text(size = 12, colour = "grey45", hjust = 0),
-        strip.text    = element_text(face = "bold", size = 15, margin = margin(b = 8)),
+        strip.text    = element_text(face = "bold", size = 16, margin = margin(b = 8)),
         legend.position = "bottom",
         plot.margin   = margin(12, 18, 8, 12))
 
-ggsave(file.path(OUT, "fig7_ghana_map.png"), p, width = 12.2, height = 6.6, dpi = 200, bg = "white")
+ggsave(file.path(OUT, "fig7_ghana_map.png"), p, width = 14.5, height = 6.4, dpi = 200, bg = "white")
 cat("wrote fig7_ghana_map.png\n")
 writeLines(sprintf("%.4f", rho), file.path(OUT, "fig7_ghana_rho.txt"))

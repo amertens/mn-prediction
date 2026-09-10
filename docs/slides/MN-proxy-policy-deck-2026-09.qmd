@@ -1,12 +1,12 @@
 ---
-title: "Where is deficiency worst? Ranking districts from public data"
-subtitle: "What four blood surveys taught us about the districts nobody has surveyed"
+title: "(Add submitted title)"
+subtitle: ""
 # NOTE: no `date:` field. With this reference-doc, pandoc renders a date field
 # as a bare <p:sp/> (a shape with no properties), which is invalid
 # PresentationML and makes PowerPoint refuse the file. LibreOffice ignores it,
 # so a PDF conversion will not catch the problem. The date is carried in the
 # author line instead. See scripts/fix_pptx_dangling_rels.py.
-author: "Andrew N. Mertens, University of California, Berkeley  |  10 September 2026"
+author: "Sonja Hess and Andrew N. Mertens"
 format:
   pptx:
     reference-doc: "C:/Users/andre/Dropbox/MN prediction/MN-proxy-Ghana-presentation.pptx"
@@ -67,23 +67,22 @@ if (!is.null(WF)) { g <- WF[WF$country == "Ghana" & WF$outcome == "child_vitA", 
 if (!is.null(CAL)) { Q$cal_top <- g1(CAL$share_in_survey_worst_fifth[CAL$band == "80 to 100%"]); Q$cal_low <- g1(CAL$share_in_survey_worst_fifth[CAL$band == "0 to 20%"]) }
 ```
 
-## Most districts have never had a blood test
+## Data gaps and motivations
 
-- A national micronutrient survey draws blood from a few thousand people, costs millions, and happens about once a decade. Most countries in the region have none from the last ten years.
-- The decisions are local: which districts get fortified food, supplements, or the next survey team.
-- Even where a survey exists, it describes regions. In Ghana, `r pc(Q$ghana_single)` of districts hold a single sampled community.
+- A national micronutrient survey draws blood from a few thousand people, costs millions, and happens about once a decade. Most LMIC countries have none from the last ten years. (Check statement accuracy)
+- Local decisions are needed: which districts get fortified food, supplements, or the next survey team.
+- Even where a survey exists, it describes regions. In the 2016 Ghana National Survey, `r pc(Q$ghana_single)` of districts hold a single sampled community.
 - We ask what public data can say about the districts nobody surveyed, and test the answer against four surveys that did draw blood.
 
 ::: {.notes}
 Framing slide. The gap is not the absence of data; it is the absence of data at the level where money is allocated. Cluster counts per district come from results/tables/protocol_v2/variance_components_ceiling.csv (share_single_cluster). The four surveys: The Gambia 2018, Ghana 2017, Malawi 2015-16, Sierra Leone 2013, with vitamin A, iron, folate and B12 measured in children and women, 206 districts with a measured value in all. Everything in this talk is scored against those 206 districts.
 :::
 
-## What we built: a ranking of districts from data anyone can download
+## What we built: a series of models predicting deficiency prevalence and rankings from public data 
 
-- To every district we attach 454 public indicators: satellite imagery, climate, soil, crops, livestock, malaria, prices and household-survey results.
+- To every district we attach 454  indicators: satellite imagery, climate, soil, crops, livestock, SES malaria and other morbitity, prices and household-survey results.
 - Each kind of data is summarised, weighted by how well it tracked deficiency where we had blood results, and added up to rank districts.
-- Nothing is tuned by hand, and a country can rebuild the ranking from twenty public layers.
-- The output is an ordering; a prevalence figure needs one national number.
+- We predict within-country deficiencies 
 
 ::: {.notes}
 Predictor list: data/covariates/harmonized/predictors_admin2_shared_metadata.csv (454 columns in 24 domains); plain descriptions in results/tables/protocol_v2/variable_sheet.csv. The estimator is a zero-tuning index over domain principal components; the technical deck has the definition. Likely question: why so simple. With 14 to 87 districts per country, every method that learns its own settings does worse (appendix slide).
@@ -115,7 +114,7 @@ Sources: benchmarks_v2_summary.csv (mean_topk is the share of the true worst qua
 ![](`r file.path(FIG, "fig7_ghana_map.png")`)
 
 ::: {.notes}
-Ghana, children's vitamin A. Each district is predicted with itself removed from the model (5 folds, averaged over 10 repeats), so nothing here is fitted to the district it scores. Ranking accuracy 0.28 for this cell, against 0.08 for chance. What the eye should take: the north comes out as the worst region in both maps without the model being told anything about survey results. What it should not take: that any single district is correctly placed. Grey districts had no survey clusters at all, which is the gap the model fills.
+Ghana, children's vitamin A. Each district is predicted with itself removed from the model (5 folds, averaged over 10 repeats), so nothing here is fitted to the district it scores. Ranking accuracy `r f2(as.numeric(readLines(file.path(root, "results", "figures", "policy_deck", "fig7_ghana_rho.txt"))))` for this cell, against `r f2(Q$null_d)` for chance. What the eye should take: the north comes out as the worst region in both maps without the model being told anything about survey results. What it should not take: that any single district is correctly placed. The third map is the deployment case: the model fitted on all 75 surveyed districts and applied to every one of Ghana's districts, so the grey gaps in the middle map are filled. Surveyed districts are in-sample in that panel; the honest check of the model is the middle panel.
 :::
 
 ## How sure is the model about each district?
