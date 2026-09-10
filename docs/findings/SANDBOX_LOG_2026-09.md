@@ -1042,6 +1042,8 @@ both beats survey-only in 12 of 19. Person-level skill exists for iron in
 Ghana and Malawi (AUC 0.75-0.78, from the questionnaire) and nowhere else.
 -> `individual_level_models.csv` (+ per-country shards)
 
+*RR-10 rerun (2026-09-10, cluster-model DHS columns in the district proxies; scripts 46 + merge):* mean AUC 0.52 survey-only / 0.51 proxies-only / 0.52 both (RR-08: 0.51 / 0.50 / 0.53), Brier skill 0.013 / 0.004 / 0.021; survey beats proxies on AUC in 7 of 19 cells; both beats survey-only on Brier skill in 12 of 19. The iron cells are still the only ones with person-level skill (Ghana child iron AUC 0.76, Malawi child and women's iron 0.78 and 0.75, from survey variables; proxies add nothing). Ten cells moved by more than 0.03 in AUC, most in the near-empty women's vitamin A cells (Gambia proxies 0.64 to 0.49), which is fold noise on a handful of cases. The conclusion is unchanged: no person-level skill from the proxies.
+
 ## CL-04 · Weighted index x shrunken cluster outcome (script 04)
 
 The two repairs the first pass called for, crossed: domain weights from a
