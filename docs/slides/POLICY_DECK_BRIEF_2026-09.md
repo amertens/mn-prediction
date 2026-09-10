@@ -188,3 +188,41 @@ carries a `sparse20` row dated 2026-09-09 16:20 or later (the weight-source reru
   rerun; keep, and say "on the September 7 vocabulary" in the notes if asked.
 - Caveat slide: consider a fourth bullet: "Survey-based inputs help inside a country and hurt in a new one; the
   cross-border model should lean on the environment."
+
+## Micronutrient Forum 2026 format (10 September)
+
+Decided at the weekly check-in with Sonja: the deck is now the joint 15-minute talk at the Micronutrient
+Forum (Accra, 28 September to 1 October). Sonja opens with two or three slides (background, motivation,
+what the earlier work could and could not do, the partner workshop) and hands over; Andrew presents the
+results. Andrew also gives a 3-minute short-oral (rapid-fire) talk, which takes the story held out of the
+joint talk: which public data carry the signal, and that the same layers hold across countries.
+
+Forum guidelines applied: widescreen 16:9 on the Forum template; the first slide is the title and the
+presenters' names; at most one slide per two minutes of speaking; slides with unpublished data are
+labelled. So the main body is nine slides and everything else moved to the appendix:
+
+- Main: title (paste the submitted abstract title); two placeholders for Sonja's slides; What we built
+  (the big-data and small-data framing from the meeting); How we tested it (held-out scoring,
+  comparators, measured chance, the noise ceiling); the Ghana three-panel map; the model comparison;
+  the learning curve with the feedback loop and the 5 percent anchored survey design; and the closing
+  checklist Sonja asked for, "What we can and cannot do yet" (yes / yes, more roughly / yes / not from
+  the model alone / no / next steps).
+- Appendix: Where this goes next (now with the data-rich-outcome idea), Limitations and context (now
+  with the between-survey point Reid raised), Two plainer measures of accuracy, the worst-fifth
+  probability map, the Cote d'Ivoire ranking, targeting, the two variable-importance slides, the
+  geostatistical comparator, What this means for policy, More complicated models do not do better,
+  and Different data support within-country and across-country prediction.
+
+Build:
+
+- `bash scripts/render_deck.sh docs/slides/MN-proxy-policy-deck-2026-09.qmd --forum`. The reference
+  document is the Forum template with the body text set to 24pt and titles to 36pt
+  (`C:/Users/andre/Dropbox/MN prediction/MNF2026-reference.pptx`; the untouched originals sit next to
+  it). The `--forum` step runs `scripts/pptx_forum_postprocess.py`, which enlarges each figure to the
+  slide (pandoc caps a picture at the placeholder height and never upscales it), widens the picture
+  on two-column slides, and adds the unpublished-data line at the foot of every content slide.
+- `python scripts/policy_deck/08_build_lightning_deck.py` fills the Forum's short-oral template with
+  the 3-minute talk (title and authors, background and methods; results with the top-predictor
+  figure; conclusions and impact with the learning curve). Every number is read from the result
+  tables. Output `docs/slides/MN-proxy-lightning-MNF2026.pptx`.
+- Slide count is fixed by the guideline: to add a main slide, remove one.
