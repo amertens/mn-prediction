@@ -62,6 +62,8 @@ Q$ar_a1 <- if (is.null(AR)) NA else g1(AR$mae[AR$fraction == 0.05 & AR$rank_from
 Q$ar_c <- if (is.null(AR)) NA else g1(AR$mae[AR$fraction == 0.05 & AR$rank_from == "prev" & AR$set == "climate_soil" & AR$design == "C_regional_survey"])
 Q$ar_b <- if (is.null(AR)) NA else g1(AR$mae[AR$fraction == 0.05 & AR$rank_from == "prev" & AR$set == "climate_soil" & AR$design == "B_district_survey"])
 Q$ceiling <- if (is.null(VC)) NA else g1(mean(VC$ceiling_vc[VC$rung == "admin2" & VC$target == "prev"], na.rm = TRUE))
+Q$ceiling_level <- if (is.null(VC)) NA else g1(mean(VC$ceiling_vc[VC$rung == "admin2" & VC$target == "level"], na.rm = TRUE))
+Q$infill_prev <- g1(BM$mean_spearman[BM$estimand == "infill" & BM$arm == "domain_index" & BM$target == "prev"])
 Q$ghana_single <- if (is.null(VC)) NA else g1(mean(VC$share_single_cluster[VC$rung == "admin2" & VC$target == "prev" & VC$country == "Ghana"], na.rm = TRUE))
 if (!is.null(WF)) { g <- WF[WF$country == "Ghana" & WF$outcome == "child_vitA", ]; Q$wf_firm <- sum(g$p_worst_fifth >= 0.8); Q$wf_unlikely <- sum(g$p_worst_fifth <= 0.2); Q$wf_n <- nrow(g); Q$wf_firm_hit <- sum(g$obs_worst_fifth[g$p_worst_fifth >= 0.8]) }
 if (!is.null(CAL)) { Q$cal_top <- g1(CAL$share_in_survey_worst_fifth[CAL$band == "80 to 100%"]); Q$cal_low <- g1(CAL$share_in_survey_worst_fifth[CAL$band == "0 to 20%"]) }
@@ -103,10 +105,10 @@ The audit and every corrected figure are in docs/findings (TWO_READINGS_2026-09f
 
 - The score is ranking accuracy: how closely the model's order of districts matches the survey's, from 0 to 1. With no information at all a ranking still reaches `r f2(Q$null_d)`.
 - In plainer terms: of the truly worst quarter of districts the model finds `r pc(Q$topk)` (a random pick finds 25%), and it places a district in the correct WHO vitamin A band `r pc(Q$band_exact)` of the time, within one band `r pc(Q$band_w1)`.
-- The survey's own district values are noisy. A perfect predictor could reach about `r f2(Q$ceiling)`, so a score of `r f2(Q$infill)` is close to what can be measured.
+- The survey's own district values are noisy, so even a perfect predictor could not score 1. On the biomarker level the ceiling is about `r f2(Q$ceiling_level)` and the model reaches `r f2(Q$infill)`; on prevalence `r f2(Q$ceiling)` and `r f2(Q$infill_prev)`. About two-thirds of the way in both.
 
 ::: {.notes}
-Sources: benchmarks_v2_summary.csv (mean_topk is the share of the true worst quarter found in the model's worst quarter), risk_category_accuracy_summary.csv (scheme who_vitA, in-fill, exact_admin2 and within1_admin2), variance_components_ceiling.csv (ceiling_vc, the correlation a perfect predictor of the true district value could reach given sampling noise). Likely question: why not report percent variance explained. Because the product is an ordering and the survey values it is scored against are themselves estimates from one or two clusters.
+Sources: benchmarks_v2_summary.csv (mean_topk is the share of the true worst quarter found in the model's worst quarter), risk_category_accuracy_summary.csv (scheme who_vitA, in-fill, exact_admin2 and within1_admin2), variance_components_ceiling.csv (ceiling_vc, the correlation a perfect predictor of the true district value could reach given the survey's sampling noise; the model reaches the ceiling in 5 of 48 cells and about two-thirds of it at the median). Likely question: what closes the remaining third. Better predictors could, up to the ceiling; more clusters per district in the next survey would raise the ceiling itself. Likely question: why not report percent variance explained. Because the product is an ordering and the survey values it is scored against are themselves estimates from one or two clusters.
 :::
 
 ## The broad pattern comes back. The fine detail does not.
