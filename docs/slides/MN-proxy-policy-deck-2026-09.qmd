@@ -81,7 +81,7 @@ Framing slide. The gap is not the absence of data; it is the absence of data at 
 ## What we built: a ranking of districts from data anyone can download
 
 - To every district we attach 454 public indicators: satellite imagery, climate, soil, crops, livestock, malaria, prices and household-survey results.
-- Each kind of data is summarised, weighted by how well it tracked deficiency where we had blood results, and added up. The sum ranks districts from worst to best.
+- Each kind of data is summarised, weighted by how well it tracked deficiency where we had blood results, and added up to rank districts.
 - Nothing is tuned by hand, and a country can rebuild the ranking from twenty public layers.
 - The output is an ordering; a prevalence figure needs one national number.
 
@@ -91,8 +91,8 @@ Predictor list: data/covariates/harmonized/predictors_admin2_shared_metadata.csv
 
 ## Why these numbers can be trusted
 
-- Every district is scored with itself hidden from the model, averaged over repeated random splits. One split on its own can move a result by 0.1.
-- Each method is compared with what a programme could do without it: the survey's own regional average, and smoothing between neighbouring districts.
+- Every district is scored with itself hidden from the model, averaged over repeated random splits; one split alone can move a result by 0.1.
+- Each method is compared with what a programme could do without it: the survey's own regional average, or smoothing between neighbours.
 - Chance is measured, not assumed. Shuffling the outcome across countries shows what a ranking reaches with no information.
 - An earlier version rested on one split and a baseline that had seen the answer. An audit found it; these are the corrected numbers.
 
@@ -194,9 +194,9 @@ The third point is from results/tables/protocol_v2/anchor_and_rank_summary.csv (
 
 ## What we are not claiming
 
-- Differences under 0.03 are ties: these are rank correlations over a few dozen districts.
+- Differences under 0.03 are ties over a few dozen districts.
 - Where a survey exists, smoothing between neighbours does almost as well; the model's value is where there is no survey.
-- It ranks. For a publishable prevalence number the geostatistical model is better.
+- It ranks; for a publishable prevalence number the geostatistical model is better.
 - The climate-and-soil shortcut was found on these four countries and is unconfirmed until the next.
 - Household-survey inputs help at home and hurt abroad; person-level prediction does not work here.
 
