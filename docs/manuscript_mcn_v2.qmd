@@ -404,7 +404,9 @@ on prevalence), and the penalised fit turns negative under region
 extrapolation on prevalence (@tbl-region). With 14–87 units, a regression over
 hundreds of correlated columns fits the country it was trained in. A
 SuperLearner ensemble that contains the index among its candidates does not
-beat it under any of four meta-learner losses (Supplement S1).
+beat it under any of four meta-learner losses; the closest, an ensemble tuned
+on a rank loss, ties it (0.30 against 0.31 on prevalence over the 17 cells
+both scored) (Supplement S1).
 
 ## Extrapolating to a region none of whose districts was seen
 
@@ -673,10 +675,10 @@ Nor does any other way of setting the index's weights improve on the
 pooled marginal correlation inside a surveyed country. The index is the
 infinite-penalty limit of a ridge regression on the same components, and
 every point of that family that estimates more joint structure loses:
-ridge by 0.04 to 0.05 on the concentration in-fill, the elastic net and
-lasso by 0.08, the one-standard-error penalty rule by 0.2 because it returns
-the null model in a third of cells, and a highly adaptive ridge on the
-components by 0.09 (Supplement S1). One variant ties the index exactly
+ridge by 0.05 on the concentration in-fill, the elastic net and lasso by
+0.06, the one-standard-error penalty rule by 0.2 because it returns the null
+model in a third of cells, and a highly adaptive ridge on the components by
+0.06 on prevalence (Supplement S1). One variant ties the index exactly
 in-country and gains 0.03 across borders on both the direct and the
 cluster-model versions of the survey columns, a decorrelation of the
 components across domains (better in 11 of 22 transport cells); a soft
