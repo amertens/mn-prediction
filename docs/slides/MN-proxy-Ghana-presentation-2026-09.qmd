@@ -148,8 +148,9 @@ if (!is.null(RC)) { r <- RC |> filter(scheme == "who_vitA") |> group_by(arm) |> 
 if (!is.null(IL)) { i <- IL |> group_by(set) |> summarise(auc = mean(auc, na.rm = TRUE), bs = mean(brier_skill, na.rm = TRUE), .groups = "drop"); Q$il_auc_s <- get1(i$auc[i$set == "survey_only"]); Q$il_auc_p <- get1(i$auc[i$set == "proxies_only"]); Q$il_auc_b <- get1(i$auc[i$set == "both"]); Q$il_bs_max <- max(i$bs, na.rm = TRUE); Q$il_cells <- sum(IL$set == "survey_only")
   ir <- IL |> filter(grepl("iron", outcome), set == "survey_only"); Q$il_iron_max <- max(ir$auc, na.rm = TRUE); Q$il_iron_min_top <- get1(sort(ir$auc, decreasing = TRUE)[3]) }
 # SuperLearner comparisons (rank loss run: index, rank ensembles, random forest, mse ensembles)
-if (!is.null(SLR)) { s <- SLR |> group_by(country, outcome, arm) |> summarise(sp = median(spearman, na.rm = TRUE), .groups = "drop") |> group_by(arm) |> summarise(v = mean(sp, na.rm = TRUE), .groups = "drop")
-  sl <- function(a) get1(s$v[s$arm == a]); Q$sl_index <- sl("domain_index"); Q$sl_rank <- sl("rank_nnls"); Q$sl_rf <- sl("rf"); Q$sl_mse <- sl("mse_nnls"); Q$sl_enet <- sl("enet") }
+if (!is.null(SLR)) { s <- SLR |> filter(arm %in% c("domain_index", "rank_nnls", "rf", "mse_nnls", "enet")) |> group_by(country, outcome, arm) |> summarise(sp = median(spearman, na.rm = TRUE), .groups = "drop") |>
+    pivot_wider(names_from = arm, values_from = sp); s <- s[stats::complete.cases(s), ]   # the cells every arm scored
+  sl <- function(a) get1(mean(s[[a]], na.rm = TRUE)); Q$sl_index <- sl("domain_index"); Q$sl_rank <- sl("rank_nnls"); Q$sl_rf <- sl("rf"); Q$sl_mse <- sl("mse_nnls"); Q$sl_enet <- sl("enet"); Q$sl_cells <- nrow(s) }
 if (!is.null(SLH)) { s <- SLH |> group_by(country, outcome, arm) |> summarise(sp = median(spearman, na.rm = TRUE), .groups = "drop") |> group_by(arm) |> summarise(v = mean(sp, na.rm = TRUE), .groups = "drop"); Q$sl_hapc <- get1(s$v[s$arm == "hapc"]) }
 # importance shares
 if (!is.null(ID)) { e <- ID |> filter(scope == "pooled", target == "level") |> group_by(outcome) |> summarise(env = sum(share[domain %in% c("Satellite embedding", "Climate and weather", "Soil characteristics")]), .groups = "drop"); Q$env_lo <- min(e$env); Q$env_hi <- max(e$env) }
@@ -302,7 +303,7 @@ Current: the corrected protocol
 ::::
 
 ::: {.notes}
-On the same folds the index scores `r f2(Q$sl_index)` against `r f2(Q$sl_rank)` for the rank-loss ensemble, `r f2(Q$sl_rf)` for random forest, `r f2(Q$sl_mse)` for the squared-error ensemble, `r f2(Q$sl_hapc)` for the principal-component highly adaptive ridge and `r f2(Q$sl_enet)` for the elastic net (mean of cell medians, prevalence, in-fill; SL-01 to SL-05). Likely question: why capacity hurts. With 14 to 87 districts per country the index has no tuned parameter, and every estimator that tunes one shrinks toward the constant under squared-error cross-validation; the weighting slide quantifies this over a family of penalties.
+On the same folds the index scores `r f2(Q$sl_index)` against `r f2(Q$sl_rank)` for the rank-loss ensemble, `r f2(Q$sl_rf)` for random forest, `r f2(Q$sl_mse)` for the squared-error ensemble, `r f2(Q$sl_hapc)` for the principal-component highly adaptive ridge and `r f2(Q$sl_enet)` for the elastic net (mean of cell medians over the `r Q$sl_cells` cells every arm scored, prevalence, in-fill; SL-01 to SL-05, rerun on the RR-10 set). Likely question: why capacity hurts. With 14 to 87 districts per country the index has no tuned parameter, and every estimator that tunes one shrinks toward the constant under squared-error cross-validation; the weighting slide quantifies this over a family of penalties.
 :::
 
 ## Estimands

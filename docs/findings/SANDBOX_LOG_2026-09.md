@@ -1661,6 +1661,36 @@ default; the wrapper stays for the supplement and for any future
 individual-level use where n is large enough for the kernel to earn its
 keep.
 
+**SL-01 to SL-05 rerun on the RR-10 set (2026-09-10, scripts 19, 19 with
+SL_HAPC=1, 20, 21; cluster-model DHS columns in the vocabulary).** Prevalence
+target, in-fill, mean of cell medians over five draws:
+
+| Arm | RR-06 set (as logged) | RR-10 set, 18 cells | RR-10 set, the 17 cells every arm scored |
+|---|---|---|---|
+| Zero-tuning index | 0.285 | 0.279 | 0.305 |
+| Rank-loss NNLS ensemble | 0.269 | 0.297 (17 cells) | 0.297 |
+| Population-weighted rank ensemble | 0.259 | 0.288 (17) | 0.288 |
+| Random forest | 0.247 | 0.250 | (0.250 over 18) |
+| Squared-error NNLS ensemble | 0.234 | 0.263 (17) | 0.263 |
+| hapc (SL-05 library) | 0.210 | 0.223 | |
+| Elastic net | 0.121 | 0.168 to 0.196 | 0.196 |
+
+Reading. (i) The unpaired table is misleading: the rank ensemble's 0.297 sits
+above the index's 0.279 only because the ensemble fails one near-empty cell
+(Malawi women's vitamin A) that the index scores at a low value; on the 17
+cells both scored the index averages 0.305 and the ensemble 0.297, the
+ensemble is better in 4 of 17 (paired mean -0.008), and the two are a tie
+under the deck's 0.03 rule. The squared-error ensemble trails by 0.042 and
+the random forest by 0.029, paired. (ii) Every tuned method improved on the
+smoothed survey columns (elastic net 0.12 to 0.20, squared-error ensemble
+0.23 to 0.26, hapc 0.21 to 0.22) while the index moved by 0.006, the same
+pattern as WS-01: cleaner inputs are easier to fit. (iii) The conclusion
+stands with a softer edge: nothing beats the index; the rank-loss ensemble
+now ties it rather than trailing. The policy deck's "simpler wins" figure and
+the technical deck's Estimators notes compare on the common cells from now
+on. The SL-04 production-driver check (ASL_META=rank) was not rerun; it
+belongs to the main pipeline.
+
 ## DE-01 · District design effect from each district's own PSU count (R/protocol_v2.R, script 01; RR-07)
 
 **Q.** AU-01 finding 6: every district was divided by the national design

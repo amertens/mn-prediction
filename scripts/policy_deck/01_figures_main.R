@@ -118,8 +118,15 @@ save16x9(p1, "fig1_model_comparison.png", h = 6.6)
 # FIGURE 2 - "simpler wins" strip
 # =============================================================================
 sl <- rd(P2, "sl_rank_loss_scores.csv")
-sl_mean <- sl |> group_by(arm) |> summarise(v = mean(spearman, na.rm = TRUE), .groups = "drop")
-gv <- function(a) { x <- sl_mean$v[sl_mean$arm == a]; if (!length(x)) NA_real_ else x }
+# Paired comparison: cell medians over draws, then the mean over the cells that
+# EVERY displayed arm scored (an arm that fails a near-empty cell would otherwise
+# be compared on an easier set of cells than the index).
+sl_arms <- c("domain_index", "rank_nnls", "rank_discrete", "rf", "mse_nnls", "mse_discrete", "enet")
+sl_cell <- sl |> filter(arm %in% sl_arms) |> group_by(country, outcome, arm) |> summarise(sp = median(spearman, na.rm = TRUE), .groups = "drop") |>
+  tidyr::pivot_wider(names_from = arm, values_from = sp)
+sl_ok <- stats::complete.cases(sl_cell[, intersect(sl_arms, names(sl_cell))])
+sl_cell <- sl_cell[sl_ok, ]; SL_CELLS <- nrow(sl_cell)
+gv <- function(a) if (a %in% names(sl_cell)) mean(sl_cell[[a]], na.rm = TRUE) else NA_real_
 
 # All five arms come from ONE table and ONE set of folds, so they are directly
 # comparable. The eighth arm in that file is the no-model national average
@@ -150,7 +157,7 @@ p2 <- ggplot(F2, aes(x = value, y = method)) +
   labs(
        subtitle = "With 14 to 87 districts per country, methods that tune themselves overfit.",
        x = "Ranking accuracy", y = NULL,
-       caption = "Same folds for all five. Person-level prediction is not shown: it is no better than a coin toss.") +
+       caption = sprintf("Same folds and the same %d country-outcome cells for all five. Person-level prediction is not shown: it is no better than a coin toss.", SL_CELLS)) +
   theme_deck()
 save16x9(p2, "fig2_simpler_wins.png", h = 6.2)
 
