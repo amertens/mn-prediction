@@ -174,16 +174,6 @@ if (!is.null(IT)) { ci20 <- IT |> filter(outcome == "child_iron", target == "lev
 Photo credit: Latter-day Saint Charities. GMS 2017 collaborators: University of Ghana, GroundWork, University of Wisconsin-Madison, KEMRI-Wellcome Trust; with UNICEF and Global Affairs Canada.
 :::
 
-## Changes since January
-
-- A methods audit found that the January headline numbers rested on evaluation artefacts: one unreplicated fold draw, a baseline that included the scored district, and a country dropped by a spelling mismatch.
-- Every result in this deck comes from the corrected protocol: replicated folds, information-matched baselines, permutation nulls, and three separately scored estimands.
-- The estimator of record is a zero-tuning index over domain principal components. The SuperLearner ensemble is retained as a comparison.
-
-::: {.notes}
-The audit and every corrected figure are documented in docs/findings; TWO_READINGS_2026-09f.md is the current summary and SANDBOX_LOG_2026-09.md records every experiment. Likely question: what changed numerically. The within-country headline moved from a median of 0.06 (one fold draw) to `r f2(Q$infill_index)` (replicated); the regional transport figure of 0.50 to 0.56 over three countries was withdrawn.
-:::
-
 ## Aims
 
 :::: {.columns}
