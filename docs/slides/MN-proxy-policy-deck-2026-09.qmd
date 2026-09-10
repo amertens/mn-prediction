@@ -1,0 +1,156 @@
+---
+title: "Predicting Micronutrient Deficiency Without a Survey"
+subtitle: "What public data can and cannot tell a programme about its districts"
+# NOTE: no `date:` field. With this reference-doc, pandoc renders a date field
+# as a bare <p:sp/> (a shape with no properties), which is invalid
+# PresentationML and makes PowerPoint refuse the file. LibreOffice ignores it,
+# so a PDF conversion will not catch the problem. The date is carried in the
+# author line instead. See scripts/fix_pptx_dangling_rels.py.
+author: "Andrew N. Mertens, University of California, Berkeley  |  9 September 2026"
+format:
+  pptx:
+    reference-doc: "C:/Users/andre/Dropbox/MN prediction/MN-proxy-Ghana-presentation.pptx"
+    slide-level: 2
+execute:
+  echo: false
+  warning: false
+  message: false
+  cache: false
+---
+
+```{r setup}
+# Rendering note (carried from MN-proxy-Ghana-presentation-2026-09.qmd): pandoc's
+# PowerPoint writer puts a figure on a slide of its own and moves any text that
+# follows it onto an untitled continuation slide. So each slide below is a title
+# plus EITHER short text OR one image, never both, and every interpretation lives
+# in the speaker notes.
+#
+# All nine figures are pre-built PNGs, so this file does no computation:
+#   Rscript scripts/policy_deck/01_figures_main.R      figures 1-6, 8
+#   Rscript scripts/policy_deck/02_figure_ghana_map.R  figure 7
+#   Rscript scripts/policy_deck/03_figure_geostat.R    figure 9
+FIG <- "../../results/figures/policy_deck"
+```
+
+## Blood tests are rare. Decisions are not.
+
+- A national micronutrient survey costs millions and happens about once a decade. Most countries in sub-Saharan Africa have none from the last ten years.
+- The decisions are local: which districts get fortification, supplements, or the next survey team.
+- Even where a survey exists, it was not designed to speak district by district. Across our four countries, most districts hold one or two sampled communities.
+
+::: {.notes}
+Framing slide. The gap is not "we have no data" but "we have no data at the level where money is allocated". District counts and clusters per district: results/tables/protocol_v2/targets_v2.csv and variance_components_ceiling.csv (mean_clusters_per_unit, share_single_cluster). In Ghana 83 percent of districts contain a single survey cluster, so the survey's own district value is itself noisy - which is why the reliability ceiling matters and why we score ranking rather than level.
+:::
+
+## Four surveys, six deficiencies, 206 districts
+
+- The Gambia 2018, Ghana 2017, Malawi 2015-16, Sierra Leone 2013: national surveys that drew blood.
+- Vitamin A, iron, folate and vitamin B12, in children and in women.
+- 206 districts with a measured value. That is the entire evidence base, and everything in this talk is scored against it.
+
+::: {.notes}
+Survey years and fieldwork windows: metadata/survey_years.csv. Districts per country: Gambia 30, Ghana 75, Malawi 87, Sierra Leone 14 (targets_v2.csv). Six outcomes across four countries give 24 country-outcome combinations; 22 can be scored for a new country and 18 inside a country, because Sierra Leone's 14 districts cannot support in-country folds. Whenever a number in this deck is a mean, say over how many combinations.
+:::
+
+## To every district we attach 454 things anyone can get for free
+
+- Satellite imagery, climate, soil, crops, livestock, malaria, prices, and routine household-survey aggregates.
+- They exist for districts never surveyed, and countries never surveyed.
+- The model is plain: summarise each kind of data, weight it by how well it tracked deficiency, add up, rank. Nothing is tuned.
+- We test it three ways, hiding what a user would not know: one district, one region, one country.
+
+::: {.notes}
+Predictor list: data/covariates/harmonized/predictors_admin2_shared_metadata.csv, 454 columns in 24 domains; plain descriptions in results/tables/protocol_v2/variable_sheet.csv. The three tests are the "in-fill", "region" and "new country" estimands in benchmarks_v2_summary.csv; the new-country test is leave-one-country-out. The two baselines are what a programme could do today without us: the survey's own regional average, computed without the district being scored, and a spatial smoother over neighbouring districts. "Nothing is tuned" is the point of the next two slides.
+:::
+
+## Inside a country every method ties. Only ours works with no survey.
+
+![](`r file.path(FIG, "fig1_model_comparison.png")`)
+
+::: {.notes}
+Source: benchmarks_v2_summary.csv (biomarker level) and weight_sources_summary.csv for the twenty-layer composite. Read left to right. Inside a surveyed country, the proxy index (0.40), the neighbour smoother with covariates (0.40) and the smoother alone (0.39) are a three-way tie - differences under 0.03 are not differences here. That is an honest result and it is worth saying out loud: if you already have a survey, a smoother gets you most of the way. The column that matters is the right-hand one. The two smoothers and the survey's regional average need survey data in the country; only the proxy methods produce anything at all, at 0.26 to 0.29 against a chance level of 0.08. Grey band is the 95th percentile of a permutation null (transport_null_calibration.csv): 0.08 for districts, 0.16 for regions.
+:::
+
+## Nothing more complicated does better
+
+![](`r file.path(FIG, "fig2_simpler_wins.png")`)
+
+::: {.notes}
+Source: sl_rank_loss_scores.csv - all five arms scored on the same folds, so they are directly comparable. The untuned index (0.28) edges the best machine-learning ensemble (0.27), which is a tie by our own 0.03 rule; the honest claim is that nothing beats it, not that it wins. Random forest 0.24, ensemble tuned for squared error 0.23, penalised regression 0.13. The reason is sample size: 14 to 87 districts per country is not enough for a method to learn its own settings. Also tested and beaten: highly adaptive ridge (0.21) and ridge/lasso/elastic-net weightings (weight_sources_summary.csv). Person-level prediction reaches AUC 0.51 to 0.53 (individual_level_models.csv) - a coin toss - and we do not propose it.
+:::
+
+## The geostatistical model gives a better number and a worse ranking
+
+![](`r file.path(FIG, "fig9_geostatistical.png")`)
+
+::: {.notes}
+Source: results/tables/cluster_level/mbg_comparison_cells.csv, 24 country-outcome combinations, same district folds. This is the DHS-style approach: a spatial field plus covariates fitted at survey cluster locations. Run twice, with our covariates and with the DHS Program's own ten-layer list (0.28 in-fill on the level, 0.15 on prevalence, 0.21 for a held-out region), the conclusion is the same under both. It ranks districts worse (0.27 against 0.38 in-fill, 0.28 against 0.36 for a held-out region; the index is better in 20 of 24), it ties on ranking prevalence (0.21 each), and it is genuinely better at the absolute number - 9.2 percentage points of error against 10.7 - because it shrinks toward the mean. So if a country needs a prevalence figure to publish, that is the better tool. But it is fitted to survey clusters, so it cannot be run for a country with no survey, which is the case this project exists for. The spatial field on its own scores 0.20 in-fill and 0.10 on prevalence.
+:::
+
+## The broad pattern comes back. The fine detail does not.
+
+![](`r file.path(FIG, "fig7_ghana_map.png")`)
+
+::: {.notes}
+Ghana, children's vitamin A. Each district is predicted with itself removed from the model (5 folds, averaged over 10 repeats), so nothing here is fitted to the district it scores. Ranking accuracy 0.28, against 0.08 for chance - and consistent with the 0.29 in-fill prevalence figure in the comparison slide. What the eye should take: the north comes out as the worst region in both maps without the model being told anything about survey results. What it should not take: that any single district is correctly placed. Grey districts had no survey clusters at all, which is precisely the gap the model fills. This is the only figure in the deck that runs a fit; it reuses the code in docs/slides/MN-proxy-Ghana-presentation-2026-09.qmd because no committed table stores per-district predicted ranks.
+:::
+
+## One gradient runs through every deficiency
+
+![](`r file.path(FIG, "fig3_top_predictors.png")`)
+
+::: {.notes}
+Source: index_importance_top.csv, biomarker level, top five per outcome. The same picture recurs for all six: districts that are drier and grassier, less productive, more pastoral, poorer - fewer women owning their home or in paid work, less schooling - and with more stunted and underweight children rank worst on every deficiency we measured. Two cautions to say aloud. First, these are not causes. A weight tells you where deficiency is, not what to change. Second, livestock density ranking positive for iron and B12 is ecological, not dietary: pastoral zones are the dry, poor zones. Nobody should leave this room thinking the finding is "cattle cause iron deficiency". Colour groups the kind of data, not its strength.
+:::
+
+## Twenty public layers, and every one holds across borders
+
+![](`r file.path(FIG, "fig8_twenty_layers.png")`)
+
+::: {.notes}
+Source: index_importance_top.csv, child iron, top twenty. This is the whole composite for one outcome - the sort of list a country could actually assemble. All twenty keep the same direction in every leave-one-country-out fit; thirteen of the twenty also keep it in each country's own separate fit, which is the stricter test (fourteen before the survey-based inputs were re-estimated with the DHS-style model on 9 September; ten of the twenty are now survey aggregates). None of these requires a blood sample. The twenty-layer equal-weight composite scores 0.29 for a new country, slightly above the full 454-column index at 0.26 (weight_sources_summary.csv, arm sparse20) - so a parsimonious, auditable list is not a compromise here.
+:::
+
+## The data that carries the model is not the data that travels
+
+![](`r file.path(FIG, "fig4_domain_scatter.png")`)
+
+::: {.notes}
+Sources: index_importance_domains.csv (pooled, biomarker level) for the horizontal axis, domain_ablation_loco_summary.csv for the vertical. Satellite imagery, climate and soil together carry 30 to 48 percent of the model inside a country (40 to 50 before the survey-based inputs were re-estimated on 9 September), and climate and soil are also the two whose removal costs a new country most (0.019 and 0.015), with the modelled nutrition surfaces, agriculture and livestock behind. The household-survey domains sit below the line: they hold several of the largest single weights, yet removing all 130 DHS columns IMPROVES new-country accuracy from 0.275 to 0.331 (source_ablation_loco_summary.csv). The practical reading is that household-survey indicators are country-specific in a way that does not export, while the physical environment does. This is the evidence behind the climate-and-soil result on the next slides - and the reason it needs confirming, since it was found on these same four countries.
+:::
+
+## Every country we add makes the next country better
+
+![](`r file.path(FIG, "fig5_learning_curve.png")`)
+
+::: {.notes}
+Source: training_country_curve.csv, proxy index, biomarker level, mean over held-out country-outcome combinations. Each additional training country buys roughly 0.05 of ranking accuracy in the next country, and the curve has not flattened at four. This is the direct argument for adding surveys to the training set rather than for any change of method. Two things to state here: rankings cross borders but absolute levels do not - raw ferritin differs six-fold between these surveys - so the model tells a new country which districts are worst, not how bad. And a two-domain index built only from climate and soil reaches 0.37 across districts and 0.45 across regions, better than the full index; but that pair was chosen on these same four countries, so it is pre-registered and labelled to be confirmed on the next country, not presented as a finding.
+:::
+
+## A country with no survey, ranked from public data alone
+
+![](`r file.path(FIG, "fig10_civ_ranking.png")`)
+
+::: {.notes}
+Cote d'Ivoire has the full proxy database and no biomarker survey, so it is the case the project exists for. The climate-and-soil index was fitted on the four surveyed countries and applied to CIV's 33 districts; it has never seen a Cote d'Ivoire biomarker. Left panel: the worst-ranked districts are the northern savanna belt (Tchologo, Bounkani, Bagoue, Poro, Hambol), the drier, poorer, more pastoral half of the country and the gradient the earlier slide describes. Right panel: how firmly each district is placed. The training set was resampled 400 times and the index refitted each time, so each district has a distribution of ranks rather than one; the map shows the width of the 90 percent range, in places out of 33. The median is 5 places, the five worst-ranked districts stay in the worst third in every refit, and 10 of 33 districts have at least an 80 percent chance of being in the worst third while 21 have at most 20 percent. The honest reading is that the extremes of the list are firm and the middle is not, which is exactly how a priority list should be used. Say clearly what this uncertainty is: it is estimation uncertainty, covering how much the ranking depends on which training districts we learned from. It is not a test of whether the model transports to Cote d'Ivoire at all, because there is no CIV ground truth; the external bound on that is the held-out transport accuracy of 0.37. Two guards ran before any of this was trusted. First, the same code with each surveyed country held out reproduces the published transport figure exactly: mean 0.369 over 22 cells, 22 positive, against 0.369 in nested_domain_selection.csv. Second, adding CIV to the column intersection costs seven of the 95 climate-and-soil columns (its SoilGrids block covers only 8 of 33 districts) and does not degrade transport: 0.386, still 22 of 22. Tables: results/tables/policy_deck/civ_climate_soil_ranking.csv, civ_rank_uncertainty.csv and civ_transport_guards.csv.
+:::
+
+## Sent to the worst fifth of districts, the model finds the most deficiency
+
+![](`r file.path(FIG, "fig6_targeting.png")`)
+
+::: {.notes}
+Source: nce_targeting_summary.csv, in-fill, mean_capture over 24 combinations. Direct effort at the fifth of districts the model ranks worst and you reach 22 percent of the country's deficient people; the survey's own regional averages reach 20 percent, no information reaches 14 percent, and perfect knowledge would reach 47 percent. So the model closes roughly a fifth of the gap between guessing and knowing - useful, not transformative, and worth saying in exactly those terms. Two further numbers for questions. Risk bands: a transported ranking puts a district in the right WHO band 52 to 54 percent of the time and within one band 91 to 92 percent (risk_category_accuracy_summary.csv, bands_5_20_40). Survey design: sampling regions and letting the model rank districts within them gives a district error of 10.3 percentage points, against 12.3 for regional averages alone and 19.5 for a thin district survey of the same size (anchor_and_rank_summary.csv, sandbox log AR-01).
+:::
+
+## What we are not claiming
+
+- Differences under 0.03 are ties. These are rank correlations over a few dozen districts.
+- Where a survey exists, a neighbour smoother does almost as well. The model earns its place in unsurveyed regions and countries.
+- It ranks; it does not give a publishable prevalence number. The geostatistical model is better for that.
+- The climate-and-soil shortcut was found on these same four countries: pre-registered, unconfirmed.
+- Person-level prediction does not work here, and we do not propose it.
+
+::: {.notes}
+Close on the boundary rather than the promise; this audience will be asked to defend whatever they take away. The 0.03 tie rule is ours and applies to every comparison in the deck, including the one where our own method comes first. The smoother point is on the first comparison slide and is repeated here deliberately. If asked what would change these numbers: more training countries (about 0.05 each), and household consumption and expenditure data, which is the largest source we hold and do not yet use.
+:::

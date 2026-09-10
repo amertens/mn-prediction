@@ -494,11 +494,14 @@ haemoglobin C allele frequency and cattle for child iron, the modelled anaemia
 surfaces for women's iron, helminth treatment coverage and the drought index
 for folate, and elevation and distance to the coast for B12. No single
 predictor carries more than two percent of the index's variance; by domain,
-the satellite embedding, climate and soil together carry 40 to 50 percent in
-every outcome, which is the same answer the ablation gives. Signs are
-replicated in every country's own independent fit for all ten of child
-iron's leading predictors and for most of the others; the exceptions are
-marked in the figure. The two importances answer different questions and
+the satellite embedding, climate and soil together carry 30 to 48 percent
+depending on the outcome, which is the same answer the ablation gives. Signs
+are replicated in every country's own independent fit for all ten of women's
+B12's leading predictors, eight of child iron's and most of the others; the
+exceptions are marked in the figure. Re-estimating the survey aggregates with
+the cluster-level model (DS-01) raised their share of the index's variance
+from 0.24 to 0.34 and put more of them in the leading ten, the same shift
+that cost the index across borders in RR-10. The two importances answer different questions and
 part where they should. The back-projection says what the fitted index
 computes; the ablation says what a new country needs. They agree on soil and
 climate, and they disagree on the survey-derived domains, which hold several
@@ -541,15 +544,15 @@ Across countries it scores
 `r { wsS <- rd(P2, "weight_sources_summary.csv"); sprintf("%.2f", get(wsS$mean_spearman[wsS$estimand == "country" & wsS$arm == "sparse20" & wsS$target == "level"])) }`
 on the concentration against
 `r { wsS <- rd(P2, "weight_sources_summary.csv"); sprintf("%.2f", get(wsS$mean_spearman[wsS$estimand == "country" & wsS$arm == "domain_index" & wsS$target == "level"])) }`
-for the index, positive in 20 of 22 cells against 17, and it ties on
-prevalence; inside a surveyed country it costs 0.04 in-fill and 0.07 under
+for the index, positive in 18 of 22 cells against 17, and it loses 0.02 on
+prevalence; inside a surveyed country it costs 0.02 in-fill and 0.04 under
 region extrapolation, because there the breadth of the full vocabulary is
 what neighbouring districts reward. Five predictors are too few under every
 estimand, and weighting the members by their index weights instead of
 equally changes nothing, the small-sample result of @dawes1979 reproduced.
 The composites for the six outcomes, as the four-country fit would deploy
-them, are listed in Supplement S4; for child iron all twenty members carry
-the same sign in every country's own fit.
+them, are listed in Supplement S4; for child iron thirteen of the twenty
+members carry the same sign in every country's own fit.
 
 ```{r tbl-sparse}
 #| tbl-cap: "Sparse equal-weight composites against the full index: mean Spearman over the scored cells (18 in-fill and region, 22 transport), membership chosen inside each training fold by back-projected index weight. Sierra Leone's six cells score NA in-country on every arm (14 districts)."
@@ -673,12 +676,14 @@ every point of that family that estimates more joint structure loses:
 ridge by 0.04 to 0.05 on the concentration in-fill, the elastic net and
 lasso by 0.08, the one-standard-error penalty rule by 0.2 because it returns
 the null model in a third of cells, and a highly adaptive ridge on the
-components by 0.09 (Supplement S1). Two variants tie the index exactly
-in-country and gain 0.02 across borders, a soft threshold that zeroes
-components whose training evidence is below one standard error (better in 18
-of 22 transport cells) and a decorrelation of the components across domains;
-both were chosen among twenty-one arms on these same cells and are
-pre-registered for the next country rather than adopted
+components by 0.09 (Supplement S1). One variant ties the index exactly
+in-country and gains 0.03 across borders on both the direct and the
+cluster-model versions of the survey columns, a decorrelation of the
+components across domains (better in 11 of 22 transport cells); a soft
+threshold on the component weights gained as much on the noisier columns and
+nothing once they were smoothed. The decorrelated index was chosen among
+twenty-one arms on these same cells and is pre-registered for the next
+country rather than adopted
 (`results/tables/protocol_v2/weight_sources_summary.csv`).
 
 Two further sensitivity analyses are reported in the supplement. Fitting the

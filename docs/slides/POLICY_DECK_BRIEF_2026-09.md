@@ -153,3 +153,38 @@ file lacks arms other than sparse*, say "pending"), individual-level prediction 
 
 `docs/findings/SANDBOX_LOG_2026-09.md` (entries MB-01, WS-01, WS-02), `docs/manuscript_mcn_v2.qmd` (Results and
 Supplement S4), `docs/slides/MN-proxy-Ghana-presentation-2026-09.qmd` (the technical deck this one simplifies).
+
+## RR-10 refresh (2026-09-09 afternoon): what changed after the brief was written
+
+The DHS-derived predictors were rebuilt with a cluster-level spatial model (DS-01; every district has a value,
+no covariates) and the benchmark rerun (RR-10). All figure scripts read the result tables, so re-running
+`scripts/policy_deck/01_figures_main.R` and `03_figure_geostat.R` picks the new numbers up; the notes and two
+titles need editing by hand. Do the refresh only AFTER `results/tables/protocol_v2/weight_sources_summary.csv`
+carries a `sparse20` row dated 2026-09-09 16:20 or later (the weight-source rerun on the new set).
+
+- Slide "Inside a country every method ties": in-country figures unchanged (0.40 / 0.40 / 0.39); the new-country
+  index is now 0.26 (was 0.28), prevalence 0.19 (was 0.21); climate + soil unchanged at 0.37 / 0.45.
+- Slide "The geostatistical model gives a better number and a worse ranking": add the DHS Program's own ten-layer
+  covariate list, now run: 0.28 in-fill on the level (0.27 with our covariates, 0.38 for the index), 0.15 on
+  prevalence, 0.21 for a held-out region; the conclusion is the same under both covariate sets. Optionally one
+  sentence in the notes: our own DHS-derived inputs are now built with the DHS Program's kind of model, which
+  changed nothing inside a country and cost 0.01 to 0.02 across borders.
+- Slide "One gradient runs through every deficiency": same gradient; the survey aggregates now hold more of the top
+  five (they carry 0.34 of the index's variance, up from 0.24); satellite + climate + soil carry 0.30 to 0.48
+  depending on the outcome (was 0.40 to 0.50). Regenerate fig3.
+- Slide "Twenty public layers, and all twenty point the same way": the title is no longer true on the stricter test.
+  Child iron's twenty: all twenty keep their direction in every leave-one-country-out fit, but thirteen (was
+  fourteen) keep it in each country's own separate fit, and ten of the twenty are now survey aggregates. Retitle
+  to "Twenty public layers, and every one holds across borders" and say "thirteen of twenty in each country's own
+  fit" in the notes; or switch the example to women's B12 (seventeen of twenty in each country's own fit).
+- Slide "The data that carries the model is not the data that travels": the point is stronger. Dropping every
+  survey column now gains 0.07 in a new country (was 0.06); soil +0.015 and climate +0.019 are still the domains
+  whose removal costs most, with the modelled nutrition surfaces (+0.011), agriculture (+0.010) and livestock
+  (+0.009) behind; honest nested selection of domains now beats the full index (+0.04, 13 of 22; it lost 0.02
+  before). Regenerate fig4; update the notes' numbers.
+- Slide "Every country we add": slope 0.054 per training country (was 0.049 / 0.051); fine as is.
+- Slides "A country with no survey" (climate + soil only) and "Sent to the worst fifth" (22 percent): unchanged.
+- Slide "Nothing more complicated does better": its source (sl_rank_loss_scores.csv) predates RR-10 and was not
+  rerun; keep, and say "on the September 7 vocabulary" in the notes if asked.
+- Caveat slide: consider a fourth bullet: "Survey-based inputs help inside a country and hurt in a new one; the
+  cross-border model should lean on the environment."

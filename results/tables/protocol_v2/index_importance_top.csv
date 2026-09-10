@@ -1,241 +1,241 @@
 "outcome","target","rank","column","domain","beta","beta_std","share","loco_sign_agree","loco_fits","incountry_sign_agree","incountry_fits"
-"child_vitA","level",1,"lcover_grass_frac_t0","Built environment",3.55627375647735,3.52151993806391,0.0211969226520088,4,4,4,4
-"child_vitA","level",2,"npp_gpp_t0","Ecosystem productivity/greenness",-3.02391314638174,-2.99436184195925,0.0187804774593273,4,4,4,4
-"child_vitA","level",3,"ihme_underweightprevalence","Nutrition status (MODELLED SURFACE)",2.93311207849387,2.90444813090643,0.0174163221634649,4,4,3,4
-"child_vitA","level",4,"ihme_stuntingprevalence","Nutrition status (MODELLED SURFACE)",2.91096561601329,2.88251809555949,0.014231923407369,4,4,3,4
-"child_vitA","level",5,"wpop_share_under5","Household assets and characteristics",2.73433859163457,2.69727870538978,0.011769708985261,4,4,4,4
-"child_vitA","level",6,"wpop_dependency_ratio","Household assets and characteristics",2.71400740614932,2.68098351370779,0.0141972878365231,4,4,4,4
-"child_vitA","level",7,"fprice_staple_rel","Food prices and supply",-2.63866648886655,-2.61287622322704,0.0107004989861702,4,4,3,4
-"child_vitA","level",8,"npp_npp_t0","Ecosystem productivity/greenness",-2.59479867929391,-2.56304347757415,0.0147414047727701,4,4,4,4
-"child_vitA","level",9,"dhs_CN_NUTS_C_WH2","Adult nutrition",2.46583040484396,2.40502617059742,0.00870888848525705,4,4,3,4
-"child_vitA","level",10,"dhs_w_primary_edu","Education, employment, SES",-2.38035261434553,-2.30251355243059,0.0142128306722903,4,4,3,4
-"child_vitA","level",11,"dhs_w_no_education","Education, employment, SES",2.38035261434553,2.30251355243059,0.0142128306722903,4,4,3,4
-"child_vitA","level",12,"lcover_crops_frac_t0","Built environment",2.24488227941719,2.22294408330495,0.00966393823159595,4,4,4,4
-"child_vitA","level",13,"wapor_sd_t0","Ecosystem productivity/greenness",2.24137500733785,2.2194710861733,0.00911510851013266,4,4,3,4
-"child_vitA","level",14,"dhs_hh_sheep","Agricultural production, land use",2.41476938518604,2.21562595360418,0.00938259024893728,4,4,4,4
-"child_vitA","level",15,"ihme_wastingprevalence","Nutrition status (MODELLED SURFACE)",2.22677434864671,2.20501311296579,0.0137319274957417,4,4,4,4
-"child_vitA","level",16,"glw_ruminant_share","Livestock density",2.21936735023097,2.18672496821196,0.00899868978270382,4,4,4,4
-"child_vitA","level",17,"dhs_w_bmi_overweight","Adult nutrition",-2.24596046345567,-2.18461709207614,0.00961845452621616,4,4,4,4
-"child_vitA","level",18,"aef_A54","Satellite embedding",-2.18932437602708,-2.16792912160551,0.0111462994126553,4,4,4,4
-"child_vitA","level",19,"glw_tlu_per_capita","Livestock density",2.1822179542215,2.16089214757306,0.00972246583625123,4,4,2,4
-"child_vitA","level",20,"dhs_CN_NUTS_C_HA2","Adult nutrition",2.18688175383106,2.13295603770386,0.00575537783832442,4,4,3,4
-"child_vitA","prev",1,"glw_tlu_per_capita","Livestock density",3.14593034812238,3.11518662602819,0.0239720422944317,4,4,3,4
-"child_vitA","prev",2,"dhs_CN_NUTS_C_HA2","Adult nutrition",2.96146013398942,2.88843430247028,0.0122837145850989,4,4,4,4
-"child_vitA","prev",3,"wapor_sd_t0","Ecosystem productivity/greenness",2.57269047168783,2.5475487577452,0.0153057872714885,4,4,4,4
-"child_vitA","prev",4,"ihme_stuntingprevalence","Nutrition status (MODELLED SURFACE)",2.48505989619035,2.4607745553272,0.0174458896599015,4,4,3,4
-"child_vitA","prev",5,"ihme_underweightprevalence","Nutrition status (MODELLED SURFACE)",2.44795832306217,2.4240355587113,0.0188284827709011,4,4,4,4
-"child_vitA","prev",6,"lcover_grass_frac_t0","Built environment",2.35631623409022,2.33328904548444,0.0167497530994093,4,4,3,4
-"child_vitA","prev",7,"npp_gpp_t0","Ecosystem productivity/greenness",-2.21963211189609,-2.19794067399118,0.015130300116846,4,4,4,4
-"child_vitA","prev",8,"dhs_CN_NUTS_C_WH2","Adult nutrition",2.16929500044023,2.11580295123137,0.00697810890253967,4,4,3,4
-"child_vitA","prev",9,"fprice_staple_rel","Food prices and supply",-2.12613804955127,-2.10535722510242,0.0116338496728594,3,4,2,4
-"child_vitA","prev",10,"wdist_coast_km_mean","Water and coast proximity",2.00289200017066,1.9833186631212,0.0129096119252902,4,4,3,4
-"child_vitA","prev",11,"wpop_dependency_ratio","Household assets and characteristics",1.97816400443148,1.95409381392056,0.0133137319588022,4,4,3,4
-"child_vitA","prev",12,"wpop_share_under5","Household assets and characteristics",1.95400344553714,1.92751983972655,0.0113986253410171,4,4,3,4
-"child_vitA","prev",13,"ihme_wastingprevalence","Nutrition status (MODELLED SURFACE)",1.83844311370403,1.82047685955367,0.0102589482660734,4,4,3,4
-"child_vitA","prev",14,"wdist_coast_km_min","Water and coast proximity",1.90050342405065,1.8090597638943,0.0101606833602007,4,4,3,4
-"child_vitA","prev",15,"lcover_urban_frac_t0","Built environment",-1.77172246618722,-1.75440824206239,0.0121310018169033,4,4,3,4
-"child_vitA","prev",16,"tclim_vap_t0","Climate and weather",-1.73849469564388,-1.72150519115056,0.0111075001950078,4,4,3,4
-"child_vitA","prev",17,"dhs_hh_sheep","Agricultural production, land use",1.84242050304832,1.69047806761549,0.00981046647039324,4,4,3,4
-"child_vitA","prev",18,"dhs_w_any_media","Fertility, reproductive health",-1.74946932174688,-1.66646645451776,0.00999297188352114,4,4,4,4
-"child_vitA","prev",19,"dhs_w_bmi_overweight","Adult nutrition",-1.67606488494553,-1.63028693276591,0.0103480564643763,4,4,4,4
-"child_vitA","prev",20,"dhs_c_mean_waz","Infant and child morbidity/mortality",-1.66565435277185,-1.62458143987372,0.00792986815227111,4,4,4,4
-"women_vitA","level",1,"lcover_grass_frac_t0","Built environment",2.97918530258966,2.95007110269501,0.0157747581994554,4,4,3,4
-"women_vitA","level",2,"ihme_underweightprevalence","Nutrition status (MODELLED SURFACE)",2.9355572250473,2.90686938217364,0.0162445484034192,4,4,4,4
-"women_vitA","level",3,"glw_tlu_per_capita","Livestock density",2.9086936018069,2.88026828469698,0.0103453944291898,4,4,3,4
-"women_vitA","level",4,"glw_sheep_km2","Livestock density",2.87273035438205,2.84465648945387,0.0107944650559837,4,4,4,4
-"women_vitA","level",5,"npp_npp_t0","Ecosystem productivity/greenness",-2.83046276529824,-2.79582350145493,0.0164747071974133,4,4,3,4
-"women_vitA","level",6,"npp_gpp_t0","Ecosystem productivity/greenness",-2.72870667739335,-2.70204028924003,0.0154563318532186,4,4,4,4
-"women_vitA","level",7,"ihme_stuntingprevalence","Nutrition status (MODELLED SURFACE)",2.71173878802264,2.68523821920338,0.0117303107576473,4,4,3,4
-"women_vitA","level",8,"dhs_w_primary_edu","Education, employment, SES",-2.63127470365376,-2.54523032798498,0.0149522244858391,4,4,3,4
-"women_vitA","level",9,"dhs_w_no_education","Education, employment, SES",2.63127470365376,2.54523032798498,0.0149522244858391,4,4,3,4
-"women_vitA","level",10,"dhs_ML_NETP_H_IT2","Malaria",-2.59671144476684,-2.53267985092806,0.00484744700439295,4,4,2,4
-"women_vitA","level",11,"dhs_CN_NUTS_C_WH2","Adult nutrition",2.5746918179426,2.51120320002983,0.00964465774696007,4,4,4,4
-"women_vitA","level",12,"fprice_staple_rel","Food prices and supply",-2.52010067330478,-2.49546926722254,0.00818784296193884,4,4,4,4
-"women_vitA","level",13,"ihme_wastingprevalence","Nutrition status (MODELLED SURFACE)",2.30122332132193,2.27873453026856,0.0144956293691479,4,4,3,4
-"women_vitA","level",14,"dhs_c_mean_whz","Infant and child morbidity/mortality",-2.17327034022801,-2.1196802642079,0.00466785577938509,4,4,4,4
-"women_vitA","level",15,"dhs_w_edu_years_mean","Education, employment, SES",-2.15914151256429,-2.10589983542238,0.0110836288664608,4,4,3,4
-"women_vitA","level",16,"aef_A24","Satellite embedding",2.03056977125633,2.01072595215283,0.00700846755960844,4,4,4,4
-"women_vitA","level",17,"glw_goats_km2","Livestock density",2.00492105256338,1.98532788652346,0.00531865513903749,4,4,4,4
-"women_vitA","level",18,"ihme_allanemia","Nutrition status (MODELLED SURFACE)",1.95263677779873,1.9335545617912,0.00845552509859706,4,4,3,4
-"women_vitA","level",19,"glw_ruminant_share","Livestock density",1.96052180777855,1.93168651748763,0.00816017816687171,4,4,3,4
-"women_vitA","level",20,"ihme_moderateanemia","Nutrition status (MODELLED SURFACE)",1.94610111063093,1.92708276467546,0.00863263098027062,4,4,3,4
-"women_vitA","prev",1,"dhs_ML_NETP_H_IT2","Malaria",-2.73966387823834,-2.6721072596315,0.012974877627663,4,4,3,4
-"women_vitA","prev",2,"espen_sth_cov_mean","Helminth burden and control",-2.43748758195508,-2.21496662121207,0.00391327418575865,4,4,3,4
-"women_vitA","prev",3,"dhs_w_deworm_pregnancy","Food fortification and supplementation",2.1120354556629,2.05992431069647,0.00227343536557936,4,4,3,4
-"women_vitA","prev",4,"dhs_hh_crowding","Household assets and characteristics",1.91173520313688,1.86442954686423,0.00597703010286988,4,4,4,4
-"women_vitA","prev",5,"dhs_w_barrier_permission","Healthcare access",-1.91241941074571,-1.83986776995217,0.00149702194832965,4,4,2,4
-"women_vitA","prev",6,"dhs_CN_NUTS_C_HA2","Adult nutrition",1.80248842104294,1.75804135446266,0.00898358645579366,4,4,4,4
-"women_vitA","prev",7,"dhs_hh_itn_any","Household assets and characteristics",-1.70255816738126,-1.65344782893855,-0.000505054455038492,4,4,3,4
-"women_vitA","prev",8,"ihme_underweightprevalence","Nutrition status (MODELLED SURFACE)",1.52773748387969,1.51280761212798,0.0142295148749089,4,4,3,4
-"women_vitA","prev",9,"map_blooddisorders201201globalsicklehaemoglobinhbsallelefrequency","Malaria incidence and treatment",1.5226054257286,1.50772570720729,-0.000933423873671634,4,4,1,4
-"women_vitA","prev",10,"ihme_stuntingprevalence","Nutrition status (MODELLED SURFACE)",1.46986873552756,1.45550438828543,0.0105165280452503,4,4,3,4
-"women_vitA","prev",11,"map_sy_pf_mortality_rate","Malaria incidence and treatment",-1.43171269905576,-1.41772123310841,0.00890352162851453,4,4,2,4
-"women_vitA","prev",12,"map_blooddisorders201201africahbcallelefrequency","Malaria incidence and treatment",1.42724361525214,1.41329582359356,0.00928249059387756,4,4,2,4
-"women_vitA","prev",13,"dhs_c_mean_birthweight","Infant and child morbidity/mortality",-1.44660885752888,-1.41093732729569,0.00447477099897106,4,4,4,4
-"women_vitA","prev",14,"soil_aluminium_mean_20_50","Soil characteristics",-1.38338320931314,-1.3698640451135,0.0121900623268005,4,4,4,4
-"women_vitA","prev",15,"dhs_w_health_insurance","Healthcare access",-1.53261650226774,-1.36718617015833,0.00349909132456003,4,4,2,4
-"women_vitA","prev",16,"wapor_mean_t0","Ecosystem productivity/greenness",-1.36770977427469,-1.3543437793057,0.009630242493638,4,4,3,4
-"women_vitA","prev",17,"wdist_coast_km_mean","Water and coast proximity",1.36313975953371,1.34981842520485,0.00958128737762224,4,4,3,4
-"women_vitA","prev",18,"wdist_coast_km_min","Water and coast proximity",1.3819539461628,1.31546055004184,0.00869900839391361,4,4,3,4
-"women_vitA","prev",19,"dhs_w_bmi_overweight","Adult nutrition",-1.33993539252641,-1.30333806334554,0.00856172637135076,4,4,3,4
-"women_vitA","prev",20,"glw_sheep_km2","Livestock density",1.30223125372034,1.28950515004464,0.0101704166679056,4,4,3,4
-"child_iron","level",1,"dhs_w_owns_house","Education, employment, SES",-3.87916165151939,-3.78211660614619,0.00905665648652294,4,4,4,4
-"child_iron","level",2,"glw_ruminant_share","Livestock density",3.57460429488956,3.52202913244589,0.0176156884531742,4,4,4,4
-"child_iron","level",3,"dhs_w_working","Education, employment, SES",-3.13010058996757,-3.05288195492865,0.00620706992296807,4,4,4,4
-"child_iron","level",4,"fprice_staple_rel","Food prices and supply",-2.69235715779304,-2.66604212078896,0.0114807970574698,4,4,4,4
-"child_iron","level",5,"map_blooddisorders201201africahbcallelefrequency","Malaria incidence and treatment",2.68250503848898,2.6562901575814,0.0122704114521302,4,4,4,4
-"child_iron","level",6,"glw_cattle_km2","Livestock density",2.71915274423486,2.61319174488567,0.0128610064154995,4,4,4,4
-"child_iron","level",7,"dhs_hh_cows","Agricultural production, land use",2.91164443496627,2.55929477253607,0.0131306277394833,4,4,4,4
-"child_iron","level",8,"dhs_hh_cows_any","Agricultural production, land use",2.82376766008155,2.48205231535658,0.0126564077769504,4,4,4,4
-"child_iron","level",9,"npp_npp_t0","Ecosystem productivity/greenness",-2.50883905806914,-2.47813583203193,0.0150165508832437,4,4,4,4
-"child_iron","level",10,"spam_share_cereals","Agricultural production, land use",2.64182887210219,2.47589931164502,0.0099395298957712,4,4,4,4
-"child_iron","level",11,"soil_phosphorus_stdev_0_20","Soil characteristics",2.46915477250979,2.44502486506321,0.00818685609989307,4,4,3,4
-"child_iron","level",12,"npp_gpp_t0","Ecosystem productivity/greenness",-2.40296465946051,-2.37948159737151,0.0132786546719191,4,4,4,4
-"child_iron","level",13,"spam_share_roots","Agricultural production, land use",-2.52327579486208,-2.34379730639351,0.00705619774052031,4,4,4,4
-"child_iron","level",14,"map_sy_pf_parasite_rate","Malaria incidence and treatment",-2.35745810324122,-2.33441975567641,0.00511738070627664,4,4,3,4
-"child_iron","level",15,"map_sy_pf_incidence_rate","Malaria incidence and treatment",-2.34779708932471,-2.32485315438006,0.00506563120523528,4,4,3,4
-"child_iron","level",16,"wdist_coast_km_mean","Water and coast proximity",2.31237814879309,2.28978034677068,0.0102298376875488,4,4,3,4
-"child_iron","level",17,"lcover_crops_frac_t0","Built environment",2.28646025227486,2.2641157338664,0.0101525635263226,4,4,3,4
-"child_iron","level",18,"wdist_coast_km_min","Water and coast proximity",2.36226379500285,2.24860230671703,0.00982599726620829,4,4,3,4
-"child_iron","level",19,"dhs_hh_improved_water","Water and sanitation",2.25177418393153,2.18150180402026,0.000576979490812998,4,4,4,4
-"child_iron","level",20,"dhs_FP_CUSA_W_MOD","Fertility, reproductive health",-2.20750430614977,-2.15307006417282,0.00468340267885951,4,4,4,4
-"child_iron","prev",1,"wdist_coast_km_mean","Water and coast proximity",3.06195882011521,3.03203571292193,0.0161535930765917,4,4,3,4
-"child_iron","prev",2,"dhs_w_owns_house","Education, employment, SES",-3.10219211264424,-3.0245845259096,0.00508327440231615,4,4,3,4
-"child_iron","prev",3,"glw_ruminant_share","Livestock density",2.96099986362543,2.91744957498275,0.0127336471867375,4,4,4,4
-"child_iron","prev",4,"wdist_coast_km_min","Water and coast proximity",3.06125144448556,2.91395782049091,0.0146465967803484,4,4,3,4
-"child_iron","prev",5,"fprice_staple_rel","Food prices and supply",-2.70367649522112,-2.67725082327308,0.012503717457931,4,4,2,4
-"child_iron","prev",6,"npp_npp_t0","Ecosystem productivity/greenness",-2.57271979979452,-2.54123479987416,0.013562929575088,4,4,3,4
-"child_iron","prev",7,"npp_gpp_t0","Ecosystem productivity/greenness",-2.52188450487845,-2.49723929414837,0.0140105343122443,4,4,4,4
-"child_iron","prev",8,"lcover_crops_frac_t0","Built environment",2.40608393620899,2.3825703908712,0.0101403594909449,4,4,3,4
-"child_iron","prev",9,"rwi_sd","Education, employment, SES",-2.36628088974189,-2.33732632404614,0.00628390080008755,4,4,3,4
-"child_iron","prev",10,"map_blooddisorders201201africahbcallelefrequency","Malaria incidence and treatment",2.31325100644391,2.29064467438743,0.0109377807561142,4,4,4,4
-"child_iron","prev",11,"spam_share_cereals","Agricultural production, land use",2.44260756203485,2.28919081221513,0.00833766229689895,4,4,4,4
-"child_iron","prev",12,"dhs_w_working","Education, employment, SES",-2.34538646137282,-2.28752648659551,0.00303361446481672,4,4,3,4
-"child_iron","prev",13,"dhs_hh_cows","Agricultural production, land use",2.53555226392192,2.22871500950374,0.0109821105867658,4,4,4,4
-"child_iron","prev",14,"map_sy_itn_access","Malaria incidence and treatment",2.20960212537743,2.18800870589125,0.00703709912695451,4,4,3,4
-"child_iron","prev",15,"dhs_hh_cows_any","Agricultural production, land use",2.47145879308016,2.17237774424253,0.0107897061447961,4,4,4,4
-"child_iron","prev",16,"wapor_mean_t0","Ecosystem productivity/greenness",-2.13513846279454,-2.11427274223848,0.00646768283737695,4,4,3,4
-"child_iron","prev",17,"soil_phosphorus_stdev_0_20","Soil characteristics",2.01846080345971,1.99873531969729,0.00433839059205286,4,4,3,4
-"child_iron","prev",18,"dhs_hh_sheep","Agricultural production, land use",2.10884689630894,1.93493256304462,0.00899325464928658,4,4,4,4
-"child_iron","prev",19,"dhs_FP_CUSA_W_MOD","Fertility, reproductive health",-1.98093980964986,-1.93209235932333,0.00383834935631262,4,4,4,4
-"child_iron","prev",20,"ihme_overweightprevalence","Infant and child morbidity/mortality",-1.93725428076718,-1.91832239078772,0.0114460897009113,4,4,3,4
-"women_iron","level",1,"dhs_w_owns_house","Education, employment, SES",-3.56581586664564,-3.4766097974849,0.012651356179303,4,4,4,4
-"women_iron","level",2,"glw_ruminant_share","Livestock density",3.13889161452039,3.09272489985426,0.0220161379762808,4,4,4,4
-"women_iron","level",3,"glw_pigs_km2","Livestock density",-2.95729802754832,-2.91341941969692,0.00625756091508614,4,4,4,4
-"women_iron","level",4,"soil_phosphorus_stdev_0_20","Soil characteristics",2.72144853328149,2.69485307561322,0.0191424246898516,4,4,3,4
-"women_iron","level",5,"ihme_severeanemia","Nutrition status (MODELLED SURFACE)",2.71194781952815,2.68544520794068,0.0207777978483041,4,4,4,4
-"women_iron","level",6,"ihme_allanemia","Nutrition status (MODELLED SURFACE)",2.64584823355843,2.61999158264928,0.0200225954600654,4,4,3,4
-"women_iron","level",7,"ihme_moderateanemia","Nutrition status (MODELLED SURFACE)",2.58985793791039,2.56454845426144,0.0197525860652387,4,4,3,4
-"women_iron","level",8,"ihme_mildanemia","Nutrition status (MODELLED SURFACE)",2.49242144621516,2.46806416432882,0.0163290544852745,4,4,3,4
-"women_iron","level",9,"dhs_FP_CUSA_W_MOD","Fertility, reproductive health",-2.47221991590789,-2.41125812446411,0.0103043246796473,4,4,4,4
-"women_iron","level",10,"dhs_hh_soap_available","Water and sanitation",2.48396575354477,2.36296173902233,0.00133254525268089,4,4,2,4
-"women_iron","level",11,"dhs_w_modern_fp","Fertility, reproductive health",-2.39894372321405,-2.33975669078519,0.00779836076600889,4,4,4,4
-"women_iron","level",12,"lcover_grass_frac_t0","Built environment",2.25718775430703,2.23512930248077,0.00998581309711837,4,4,2,4
-"women_iron","level",13,"dhs_w_working","Education, employment, SES",-2.25918784904195,-2.20345436796512,0.00807441732815032,4,4,3,4
-"women_iron","level",14,"dhs_hh_improved_water","Water and sanitation",2.24796362992465,2.1778101681095,0.00280673500292521,4,4,3,4
-"women_iron","level",15,"glw_sheep_km2","Livestock density",2.18196273379793,2.16063942130063,0.00953802978761191,4,4,4,4
-"women_iron","level",16,"map_blooddisorders201201globalsicklehaemoglobinhbsallelefrequency","Malaria incidence and treatment",2.1257609965539,2.10498691763771,-0.00257617267100523,4,4,3,4
-"women_iron","level",17,"map_sy_pf_mortality_rate","Malaria incidence and treatment",-2.04535453944832,-2.0253662356442,0.00952298328820943,4,4,4,4
-"women_iron","level",18,"dhs_hh_mean_hhsize","Household assets and characteristics",2.04327198421701,1.99288407380397,0.00848646439048047,4,4,4,4
-"women_iron","level",19,"soil_aluminium_mean_20_50","Soil characteristics",-1.90954473362437,-1.89088363623167,0.010229310010853,4,4,4,4
-"women_iron","level",20,"soil_phosphorus_stdev_20_50","Soil characteristics",1.8960976980405,1.87756801230643,0.00375877298292775,4,4,3,4
-"women_iron","prev",1,"glw_ruminant_share","Livestock density",2.63864357355631,2.59983449062956,0.0225585765311789,4,4,4,4
-"women_iron","prev",2,"dhs_w_owns_house","Education, employment, SES",-2.55759019894106,-2.49360692647159,0.0119364326936718,4,4,4,4
-"women_iron","prev",3,"dhs_hh_improved_water","Water and sanitation",2.35822623974216,2.2846317508194,0.00619651425719987,4,4,4,4
-"women_iron","prev",4,"map_sy_pf_mortality_rate","Malaria incidence and treatment",-2.12200288663347,-2.10126553398717,0.0150576944210578,4,4,4,4
-"women_iron","prev",5,"map_sy_pf_incidence_rate","Malaria incidence and treatment",-2.0666758343465,-2.04647916738982,0.0143903246598578,4,4,3,4
-"women_iron","prev",6,"map_sy_pf_parasite_rate","Malaria incidence and treatment",-2.05639869990594,-2.03630246663031,0.0143376433545154,4,4,3,4
-"women_iron","prev",7,"dhs_w_barrier_permission","Healthcare access",-2.08218636386355,-2.00319425769301,0.00661291899362653,4,4,3,4
-"women_iron","prev",8,"ihme_severeanemia","Nutrition status (MODELLED SURFACE)",1.92498073341673,1.90616878713822,0.0169285363070645,4,4,4,4
-"women_iron","prev",9,"soil_phosphorus_stdev_0_20","Soil characteristics",1.90561694826496,1.88699423530172,0.0162666228741193,4,4,3,4
-"women_iron","prev",10,"dhs_hh_soap_available","Water and sanitation",1.96394560361613,1.86827387303686,0.00143770860859228,4,4,3,4
-"women_iron","prev",11,"glw_pigs_km2","Livestock density",-1.88990114111574,-1.86185992569665,0.00403810549444402,4,4,3,4
-"women_iron","prev",12,"fprice_pulses_rel","Food prices and supply",-1.85269206826497,-1.83458656567276,0.000573294968730762,4,4,3,4
-"women_iron","prev",13,"map_blooddisorders201201globalsicklehaemoglobinhbsallelefrequency","Malaria incidence and treatment",1.80644652815024,1.78879296183,-0.000816707331096765,4,4,3,4
-"women_iron","prev",14,"ihme_allanemia","Nutrition status (MODELLED SURFACE)",1.79715490519268,1.77959214160562,0.0147901356404281,4,4,3,4
-"women_iron","prev",15,"dhs_FP_CUSA_W_MOD","Fertility, reproductive health",-1.81392833451417,-1.76919917425174,0.00805386599162671,4,4,3,4
-"women_iron","prev",16,"dhs_hh_cows","Agricultural production, land use",1.99269593706736,1.75155188378949,0.0117816753150118,4,4,4,4
-"women_iron","prev",17,"ihme_moderateanemia","Nutrition status (MODELLED SURFACE)",1.75409253457927,1.73695059962105,0.0144702982501647,4,4,3,4
-"women_iron","prev",18,"map_sy_pf_reproductive_number","Malaria incidence and treatment",-1.71473833411927,-1.69798098955826,0.012404260264125,4,4,3,4
-"women_iron","prev",19,"glw_sheep_km2","Livestock density",1.70992193501786,1.69321165889738,0.00942272289432921,4,4,4,4
-"women_iron","prev",20,"npp_npp_t0","Ecosystem productivity/greenness",-1.70714497634735,-1.68625289962425,0.015327034169249,4,4,3,4
-"women_folate","level",1,"espen_sth_cov_mean","Helminth burden and control",3.12948457009254,3.00984612827555,0.013621677615878,3,3,3,3
-"women_folate","level",2,"dhs_w_working","Education, employment, SES",-3.00458019355404,-2.92851554147647,0.0129325016192692,3,3,3,3
-"women_folate","level",3,"npp_npp_t0","Ecosystem productivity/greenness",-2.95599047178498,-2.92418525306242,0.0206611014627389,3,3,2,3
-"women_folate","level",4,"spam_share_oilcrops","Agricultural production, land use",-3.17238523645923,-2.89127965324886,0.0183444059370701,3,3,2,3
-"women_folate","level",5,"dhs_w_health_insurance","Healthcare access",3.17137872593978,2.82781492111013,0.0107158749639295,3,3,3,3
-"women_folate","level",6,"dhs_AN_NUTS_W_THN","Adult nutrition",2.87540809196222,2.80265057425976,0.0122506305837411,3,3,2,3
-"women_folate","level",7,"fprice_staple_rel","Food prices and supply",-2.37304173033255,-2.35434680135148,0.00970065512150194,3,3,1,3
-"women_folate","level",8,"tclim_pdsi_t0","Climate and weather",-2.33252291253814,-2.31415111861415,0.0129768953245749,3,3,3,3
-"women_folate","level",9,"wdist_perm_km_mean","Water and coast proximity",-2.17682454371003,-2.1596790864411,0.0131834217719675,3,3,3,3
-"women_folate","level",10,"dhs_CN_NUTS_C_HA2","Adult nutrition",-2.20151719443285,-2.14581138811828,0.00534230771591943,3,3,3,3
-"women_folate","level",11,"ihme_severeanemia","Nutrition status (MODELLED SURFACE)",2.15758974836508,2.1405957912998,0.0176870398523775,3,3,2,3
-"women_folate","level",12,"ihme_allanemia","Nutrition status (MODELLED SURFACE)",2.15306217509926,2.13610387883823,0.0202828153949035,3,3,3,3
-"women_folate","level",13,"lcover_water_seasonal_frac_t0","Built environment",2.2367443850286,2.12098496648093,0.0164101143179345,3,3,3,3
-"women_folate","level",14,"ihme_moderateanemia","Nutrition status (MODELLED SURFACE)",2.11201710616628,2.0953820957105,0.0202686777813206,3,3,3,3
-"women_folate","level",15,"wdist_any_km_mean","Water and coast proximity",-2.08401734114629,-2.06760286696481,0.0109888071864876,3,3,3,3
-"women_folate","level",16,"soil_sulfur_stdev_20_50","Soil characteristics",-2.08347716126608,-2.06706694173667,0.00392612555762812,3,3,3,3
-"women_folate","level",17,"spam_prod_oilcrops","Agricultural production, land use",-2.25429578631963,-2.05454226191812,0.0109565236033523,3,3,3,3
-"women_folate","level",18,"soilgrids_silt","Soil characteristics",2.04930931685119,2.02725960739686,0.0099549862040762,3,3,3,3
-"women_folate","level",19,"ihme_mildanemia","Nutrition status (MODELLED SURFACE)",2.02320666864467,2.0072711613096,0.0169579087338704,3,3,3,3
-"women_folate","level",20,"aef_A13","Satellite embedding",1.91117178666596,1.89611870657434,0.0164570027872085,3,3,3,3
-"women_folate","prev",1,"espen_sth_cov_mean","Helminth burden and control",3.33546063721563,3.20794784575088,0.0163765677031541,3,3,3,3
-"women_folate","prev",2,"npp_npp_t0","Ecosystem productivity/greenness",-2.84537731307371,-2.81476224558471,0.0221240205077244,3,3,2,3
-"women_folate","prev",3,"elevation","Built environment",-2.58587743198505,-2.56551012625024,0.0204366805527686,3,3,2,3
-"women_folate","prev",4,"spam_share_oilcrops","Agricultural production, land use",-2.61035682483637,-2.37905267261689,0.0150096089336659,3,3,3,3
-"women_folate","prev",5,"wdist_perm_km_mean","Water and coast proximity",-2.32080340662907,-2.30252391977152,0.0166845048922995,3,3,3,3
-"women_folate","prev",6,"lcover_water_seasonal_frac_t0","Built environment",2.31475154862264,2.19495498396179,0.0203522194333856,3,3,3,3
-"women_folate","prev",7,"wdist_any_km_mean","Water and coast proximity",-2.21218629299598,-2.1947623138025,0.0146259501307644,3,3,3,3
-"women_folate","prev",8,"grassland_frac","Ecosystem productivity/greenness",-2.2338239862189,-2.18180081722284,0.00191592741711616,2,3,1,3
-"women_folate","prev",9,"soil_zinc_stdev_0_20","Soil characteristics",-2.12446680863674,-2.10773373982236,0.0161252602493082,3,3,3,3
-"women_folate","prev",10,"tclim_pdsi_t0","Climate and weather",-2.05194673524355,-2.03578486075123,0.0100505828734901,3,3,3,3
-"women_folate","prev",11,"dhs_AN_NUTS_W_THN","Adult nutrition",2.04805927511333,1.99623647146286,0.0077833951395325,3,3,2,3
-"women_folate","prev",12,"map_sy_itn_use","Malaria incidence and treatment",2.0050911575971,1.98929833457779,0.0118689452292366,3,3,3,3
-"women_folate","prev",13,"dhs_RH_ANCN_W_N4P","Fertility, reproductive health",-1.9639735627531,-1.91427841107755,0.0106749897328888,3,3,2,3
-"women_folate","prev",14,"spam_prod_oilcrops","Agricultural production, land use",-2.08220325821483,-1.89769888133899,0.0104874508716126,3,3,3,3
-"women_folate","prev",15,"ihme_allanemia","Nutrition status (MODELLED SURFACE)",1.84946351820691,1.83489647475203,0.0200364741556431,3,3,3,3
-"women_folate","prev",16,"dhs_w_anc_visits","Fertility, reproductive health",-1.88057287749292,-1.83297112932077,0.0104392841779228,3,3,2,3
-"women_folate","prev",17,"ihme_moderateanemia","Nutrition status (MODELLED SURFACE)",1.81988835098679,1.80555425224363,0.0198376802062107,3,3,3,3
-"women_folate","prev",18,"soil_zinc_stdev_20_50","Soil characteristics",-1.81849969865477,-1.80417653743953,0.0121705428551011,3,3,2,3
-"women_folate","prev",19,"dhs_w_anc4plus","Fertility, reproductive health",-1.89049887607409,-1.79806304892278,0.00894937790904731,3,3,2,3
-"women_folate","prev",20,"soilgrids_silt","Soil characteristics",1.77632902697922,1.75721647104726,0.00809287680042523,3,3,3,3
-"women_b12","level",1,"ihme_stuntingprevalence","Nutrition status (MODELLED SURFACE)",5.20090698045648,5.15994275637569,0.0196574456026607,3,3,3,3
-"women_b12","level",2,"ihme_underweightprevalence","Nutrition status (MODELLED SURFACE)",4.40363288104256,4.36894827607146,0.014978721585013,3,3,3,3
-"women_b12","level",3,"lcover_crops_frac_t0","Built environment",4.09372717946957,4.06148350386923,0.0113359612727055,3,3,3,3
-"women_b12","level",4,"glw_tlu_per_capita","Livestock density",4.08737913926325,4.05518546312309,0.0164856888627574,3,3,3,3
-"women_b12","level",5,"wapor_sd_t0","Ecosystem productivity/greenness",3.66353120668964,3.63467591013431,0.0136728360635863,3,3,3,3
-"women_b12","level",6,"grassland_frac","Ecosystem productivity/greenness",3.52664031596297,3.44450895454976,0.0103256834011542,3,3,3,3
-"women_b12","level",7,"wdist_coast_km_mean","Water and coast proximity",3.07149224143272,3.04730005785527,0.0106353767357771,3,3,3,3
-"women_b12","level",8,"elevation","Built environment",3.05589171412695,3.03182240594387,0.00592802701558651,3,3,2,3
-"women_b12","level",9,"npp_gpp_t0","Ecosystem productivity/greenness",-3.02462916943247,-3.00080609635627,0.0112373279351825,3,3,3,3
-"women_b12","level",10,"fprice_staple_rel","Food prices and supply",-3.00705687670061,-2.98336714801469,0.00881400182754003,2,3,2,3
-"women_b12","level",11,"ihme_wastingprevalence","Nutrition status (MODELLED SURFACE)",2.99140728196071,2.96784587648363,0.00766088213793556,3,3,2,3
-"women_b12","level",12,"glw_cattle_km2","Livestock density",3.09294685835999,2.96268094519247,0.00491545658684216,3,3,3,3
-"women_b12","level",13,"wdist_coast_km_min","Water and coast proximity",2.97798797695886,2.89907045593762,0.00915309288182968,3,3,3,3
-"women_b12","level",14,"rwi_mean","Education, employment, SES",-2.90641287804048,-2.88352091922354,0.010734806654364,3,3,3,3
-"women_b12","level",15,"dhs_CN_NUTS_C_HA2","Adult nutrition",2.95809866500838,2.88324879705865,0.00625371078630314,3,3,3,3
-"women_b12","level",16,"ihme_prevalence","Infant and child morbidity/mortality",2.86703735636008,2.8444555333905,0.0105909582342973,3,3,3,3
-"women_b12","level",17,"ihme_ebfprevalence","Infant and child morbidity/mortality",2.8486553437288,2.82621830413784,0.0114952860297798,3,3,3,3
-"women_b12","level",18,"lcover_grass_frac_t0","Built environment",2.81557026851323,2.79339381893857,0.00982465917753897,3,3,3,3
-"women_b12","level",19,"aef_A58","Satellite embedding",-2.68005167422115,-2.65894261810009,0.0112421627838723,3,3,3,3
-"women_b12","level",20,"dhs_CN_BRFS_C_EXB","Adult nutrition",2.71422855376607,2.58113525672414,0.00443847001362476,3,3,3,3
-"women_b12","prev",1,"ihme_stuntingprevalence","Nutrition status (MODELLED SURFACE)",3.47752523583611,3.45013498956893,0.0203604098246655,3,3,2,3
-"women_b12","prev",2,"ihme_underweightprevalence","Nutrition status (MODELLED SURFACE)",2.71676484921577,2.69536662685258,0.0118717669188215,3,3,2,3
-"women_b12","prev",3,"glw_tlu_per_capita","Livestock density",2.70991549135391,2.68857121701004,0.0170147609415588,3,3,2,3
-"women_b12","prev",4,"dhs_CN_NUTS_C_HA2","Adult nutrition",2.6630829503617,2.59569797448796,0.0109340071976509,3,3,3,3
-"women_b12","prev",5,"grassland_frac","Ecosystem productivity/greenness",2.57011664835506,2.51026161341864,0.0120848043592132,3,3,2,3
-"women_b12","prev",6,"glw_pigs_km2","Livestock density",2.38734994277293,2.36130230014972,0.00535144212475138,3,3,2,3
-"women_b12","prev",7,"lcover_crops_frac_t0","Built environment",2.37325123463008,2.35455864971351,0.00967973929324004,3,3,2,3
-"women_b12","prev",8,"ihme_severeanemia","Nutrition status (MODELLED SURFACE)",-2.29591371423607,-2.27783026759618,0.00711235760056605,2,3,3,3
-"women_b12","prev",9,"elevation","Built environment",2.28889952067705,2.27087132036204,0.00973609394731964,3,3,3,3
-"women_b12","prev",10,"wdist_coast_km_mean","Water and coast proximity",2.18716718659749,2.16994026693317,0.0127400328225061,3,3,2,3
-"women_b12","prev",11,"espen_sth_cov_mean","Helminth burden and control",-2.15005583640639,-2.06786040635205,0.000808919592101787,3,3,3,3
-"women_b12","prev",12,"wdist_coast_km_min","Water and coast proximity",2.10631906761992,2.05050101845974,0.0108863135476737,3,3,2,3
-"women_b12","prev",13,"wapor_sd_t0","Ecosystem productivity/greenness",2.06261185939762,2.04636598253084,0.012185902098657,3,3,2,3
-"women_b12","prev",14,"soilgrids_sand","Soil characteristics",1.98111577219595,1.95979979670454,0.00841883607590046,2,3,3,3
-"women_b12","prev",15,"dhs_w_health_decision","Fertility, reproductive health",-2.02999989451623,-1.94682925722706,0.00308837394112179,3,3,3,3
-"women_b12","prev",16,"dhs_hh_crowding","Household assets and characteristics",1.95274662634253,1.90313834471642,0.00608429370883682,3,3,3,3
-"women_b12","prev",17,"lcover_water_seasonal_frac_t0","Built environment",-1.98087413990546,-1.87835690986952,0.00185157001909366,3,3,2,3
-"women_b12","prev",18,"spam_share_oilcrops","Agricultural production, land use",2.03665555685761,1.85618716937132,0.00608035641336533,2,3,2,3
-"women_b12","prev",19,"soilgrids_cec","Soil characteristics",-1.87891652137487,-1.84781794681405,0.0106560583532059,3,3,3,3
-"women_b12","prev",20,"aef_A58","Satellite embedding",-1.83498295296401,-1.82052996367732,0.0123533876095373,3,3,2,3
+"child_vitA","level",1,"npp_gpp_t0","Ecosystem productivity/greenness",-3.02391314638174,-2.99436184195925,0.0153472154230227,4,4,4,4
+"child_vitA","level",2,"dhs_CN_NUTS_C_HA2","Adult nutrition",2.98153220703229,2.95239507192611,0.0117702078046366,4,4,3,4
+"child_vitA","level",3,"lcover_grass_frac_t0","Built environment",2.97515965904076,2.94608479989838,0.0146618037486084,4,4,4,4
+"child_vitA","level",4,"ihme_underweightprevalence","Nutrition status (MODELLED SURFACE)",2.93311207849387,2.90444813090643,0.0154030993805101,4,4,3,4
+"child_vitA","level",5,"ihme_stuntingprevalence","Nutrition status (MODELLED SURFACE)",2.91096561601329,2.88251809555949,0.0129954425600746,4,4,3,4
+"child_vitA","level",6,"fprice_staple_rel","Food prices and supply",-2.63866648886655,-2.61287622322704,0.00909242709138093,4,4,3,4
+"child_vitA","level",7,"npp_npp_t0","Ecosystem productivity/greenness",-2.59479867929391,-2.56304347757415,0.0118570435559874,4,4,4,4
+"child_vitA","level",8,"dhs_CN_NUTS_C_WH2","Adult nutrition",2.58348195119565,2.55823477711556,0.0101195626026543,4,4,4,4
+"child_vitA","level",9,"dhs_w_no_education","Education, employment, SES",2.51998060196288,2.49535399719532,0.0140995081703283,4,4,3,4
+"child_vitA","level",10,"dhs_w_primary_edu","Education, employment, SES",-2.51780760119615,-2.49320223215992,0.0140826264047667,4,4,3,4
+"child_vitA","level",11,"wpop_share_under5","Household assets and characteristics",2.46148267486206,2.4281209440936,0.00937574510281005,4,4,4,4
+"child_vitA","level",12,"wpop_dependency_ratio","Household assets and characteristics",2.4116344086006,2.38228977411748,0.01091632210658,4,4,4,4
+"child_vitA","level",13,"wapor_sd_t0","Ecosystem productivity/greenness",2.24137500733785,2.2194710861733,0.00784230126092902,4,4,3,4
+"child_vitA","level",14,"ihme_wastingprevalence","Nutrition status (MODELLED SURFACE)",2.22677434864671,2.20501311296579,0.0115111595936987,4,4,4,4
+"child_vitA","level",15,"glw_ruminant_share","Livestock density",2.21936735023097,2.18672496821196,0.00683685509805835,4,4,4,4
+"child_vitA","level",16,"aef_A54","Satellite embedding",-2.18932437602708,-2.16792912160551,0.00917241871149364,4,4,4,4
+"child_vitA","level",17,"glw_tlu_per_capita","Livestock density",2.1822179542215,2.16089214757306,0.00813895173805685,4,4,2,4
+"child_vitA","level",18,"lcover_crops_frac_t0","Built environment",2.17292761554155,2.15169259907564,0.00776378168282354,4,4,4,4
+"child_vitA","level",19,"dhs_c_fg_dairy","Dietary diversity",-2.16113516149346,-2.14001538722618,0.00984158453969979,4,4,3,4
+"child_vitA","level",20,"dhs_w_bmi_overweight","Adult nutrition",-2.14911102344882,-2.12810875552071,0.0107492047587042,4,4,4,4
+"child_vitA","prev",1,"dhs_CN_NUTS_C_HA2","Adult nutrition",3.27801201862091,3.24597752345734,0.0180622133138797,4,4,4,4
+"child_vitA","prev",2,"glw_tlu_per_capita","Livestock density",3.14593034812238,3.11518662602819,0.0189377221243218,4,4,3,4
+"child_vitA","prev",3,"wapor_sd_t0","Ecosystem productivity/greenness",2.57269047168783,2.5475487577452,0.0125588248895786,4,4,4,4
+"child_vitA","prev",4,"ihme_stuntingprevalence","Nutrition status (MODELLED SURFACE)",2.48505989619035,2.4607745553272,0.0149462689613538,4,4,3,4
+"child_vitA","prev",5,"dhs_CN_NUTS_C_WH2","Adult nutrition",2.48145743185717,2.45720729621157,0.0102388686739519,4,4,4,4
+"child_vitA","prev",6,"ihme_underweightprevalence","Nutrition status (MODELLED SURFACE)",2.44795832306217,2.4240355587113,0.0160239093237814,4,4,4,4
+"child_vitA","prev",7,"npp_gpp_t0","Ecosystem productivity/greenness",-2.21963211189609,-2.19794067399118,0.0124163889573443,4,4,4,4
+"child_vitA","prev",8,"fprice_staple_rel","Food prices and supply",-2.12613804955127,-2.10535722510242,0.00978291421350968,3,4,2,4
+"child_vitA","prev",9,"wdist_coast_km_mean","Water and coast proximity",2.00289200017066,1.9833186631212,0.0101457071857307,4,4,3,4
+"child_vitA","prev",10,"wpop_share_under5","Household assets and characteristics",1.91489443284253,1.88894089143803,0.00954581217024544,4,4,4,4
+"child_vitA","prev",11,"ihme_wastingprevalence","Nutrition status (MODELLED SURFACE)",1.83844311370403,1.82047685955367,0.00897323300081506,4,4,3,4
+"child_vitA","prev",12,"wdist_coast_km_min","Water and coast proximity",1.90050342405065,1.8090597638943,0.00798331368442612,4,4,3,4
+"child_vitA","prev",13,"dhs_hh_horses_any","Agricultural production, land use",1.82540301314073,1.80756419386128,0.00921326700659326,4,4,3,4
+"child_vitA","prev",14,"wpop_dependency_ratio","Household assets and characteristics",1.76371672076154,1.74225591297163,0.0100140611220567,4,4,3,4
+"child_vitA","prev",15,"tclim_vap_t0","Climate and weather",-1.73849469564388,-1.72150519115056,0.00889771894028231,4,4,3,4
+"child_vitA","prev",16,"dhs_c_mean_waz","Infant and child morbidity/mortality",-1.75340725718505,-1.71017046953492,0.00653255661571229,4,4,4,4
+"child_vitA","prev",17,"dhs_c_fg_dairy","Dietary diversity",-1.71945893327337,-1.70265545648041,0.00998904892878102,4,4,4,4
+"child_vitA","prev",18,"dhs_w_any_media","Fertility, reproductive health",-1.71355718091844,-1.6968113792213,0.0108637948302358,4,4,4,4
+"child_vitA","prev",19,"lcover_grass_frac_t0","Built environment",1.68746407884721,1.67097327296686,0.00989435640065578,4,4,4,4
+"child_vitA","prev",20,"dhs_c_underweight","Infant and child morbidity/mortality",1.65346262668195,1.63730410126571,0.00851459525220067,4,4,4,4
+"women_vitA","level",1,"ihme_underweightprevalence","Nutrition status (MODELLED SURFACE)",2.9355572250473,2.90686938217364,0.0146634823187772,4,4,4,4
+"women_vitA","level",2,"glw_tlu_per_capita","Livestock density",2.9086936018069,2.88026828469698,0.00906601061825665,4,4,3,4
+"women_vitA","level",3,"glw_sheep_km2","Livestock density",2.87273035438205,2.84465648945387,0.00880866284024613,4,4,4,4
+"women_vitA","level",4,"npp_npp_t0","Ecosystem productivity/greenness",-2.83046276529824,-2.79582350145493,0.0138061765903651,4,4,3,4
+"women_vitA","level",5,"lcover_grass_frac_t0","Built environment",2.74760488196155,2.72075381039664,0.0125210624327938,4,4,3,4
+"women_vitA","level",6,"npp_gpp_t0","Ecosystem productivity/greenness",-2.72870667739335,-2.70204028924003,0.0132527913064731,4,4,4,4
+"women_vitA","level",7,"ihme_stuntingprevalence","Nutrition status (MODELLED SURFACE)",2.71173878802264,2.68523821920338,0.0110029452401718,4,4,3,4
+"women_vitA","level",8,"dhs_CN_NUTS_C_WH2","Adult nutrition",2.6392375409005,2.61344549323281,0.0106561957381163,4,4,4,4
+"women_vitA","level",9,"dhs_w_height_low","Adult nutrition",-2.57278443706062,-2.54764180483786,0.00822769415918482,4,4,4,4
+"women_vitA","level",10,"fprice_staple_rel","Food prices and supply",-2.52010067330478,-2.49546926722254,0.0074614469652571,4,4,4,4
+"women_vitA","level",11,"dhs_w_primary_edu","Education, employment, SES",-2.51426865702162,-2.48969787244983,0.01304905101355,4,4,3,4
+"women_vitA","level",12,"dhs_w_no_education","Education, employment, SES",2.51381673790126,2.48925036972599,0.0130531122635293,4,4,3,4
+"women_vitA","level",13,"dhs_CN_BRFS_C_EXB","Adult nutrition",2.50884906723587,2.48433124580814,0.00833557236789037,4,4,3,4
+"women_vitA","level",14,"dhs_c_wasted","Infant and child morbidity/mortality",2.45659974294385,2.4325925299937,0.00985161072261253,4,4,4,4
+"women_vitA","level",15,"dhs_ML_NETP_H_IT2","Malaria",-2.31545532376333,-2.29282744993333,0.00374926728725027,3,4,2,4
+"women_vitA","level",16,"ihme_wastingprevalence","Nutrition status (MODELLED SURFACE)",2.30122332132193,2.27873453026856,0.0124450766341074,4,4,3,4
+"women_vitA","level",17,"dhs_hh_horses_any","Agricultural production, land use",2.26839370699495,2.24622574457656,0.00664279141122893,4,4,3,4
+"women_vitA","level",18,"dhs_c_fg_legumes","Dietary diversity",2.23243160946262,2.2106150879886,0.00528407009178196,4,4,3,4
+"women_vitA","level",19,"dhs_c_underweight","Infant and child morbidity/mortality",2.13851266624302,2.11761397115744,0.00870823466077868,4,4,4,4
+"women_vitA","level",20,"dhs_w_barrier_distance","Healthcare access",2.05329900919895,2.03323306776679,0.00669877780940627,4,4,4,4
+"women_vitA","prev",1,"espen_sth_cov_mean","Helminth burden and control",-2.43748758195508,-2.21496662121207,0.00127723755800362,4,4,3,4
+"women_vitA","prev",2,"dhs_ML_NETP_H_IT2","Malaria",-2.2222318331171,-2.20051498933924,0.00907668895162145,4,4,4,4
+"women_vitA","prev",3,"dhs_w_health_insurance","Healthcare access",-2.13357871469254,-2.11272823683319,0.006048807457565,4,4,3,4
+"women_vitA","prev",4,"dhs_CN_NUTS_C_HA2","Adult nutrition",1.97659979869169,1.95728340316543,0.0134441006188366,4,4,4,4
+"women_vitA","prev",5,"dhs_w_barrier_permission","Healthcare access",-1.70518849087602,-1.6885244725156,-0.000303534541432427,3,4,3,4
+"women_vitA","prev",6,"dhs_hh_itn_any","Household assets and characteristics",-1.65435604992614,-1.63818879349781,-0.00151108373175621,3,4,2,4
+"women_vitA","prev",7,"dhs_w_deworm_pregnancy","Food fortification and supplementation",1.65217715848167,1.63603119535154,0.0029711735657797,4,4,2,4
+"women_vitA","prev",8,"dhs_c_fg_legumes","Dietary diversity",1.59066338110493,1.57511856366697,0.0105495883015295,4,4,3,4
+"women_vitA","prev",9,"dhs_hh_crowding","Household assets and characteristics",1.55610483483751,1.54089774208664,0.00209754927983037,4,4,3,4
+"women_vitA","prev",10,"ihme_underweightprevalence","Nutrition status (MODELLED SURFACE)",1.52773748387969,1.51280761212798,0.0142025204006758,4,4,3,4
+"women_vitA","prev",11,"map_blooddisorders201201globalsicklehaemoglobinhbsallelefrequency","Malaria incidence and treatment",1.5226054257286,1.50772570720729,-0.00254179987306926,4,4,1,4
+"women_vitA","prev",12,"ihme_stuntingprevalence","Nutrition status (MODELLED SURFACE)",1.46986873552756,1.45550438828543,0.0110022458739257,4,4,3,4
+"women_vitA","prev",13,"ihme_overweightprevalence","Infant and child morbidity/mortality",-1.45180403011149,-1.43761622087929,0.0121161957427054,4,4,4,4
+"women_vitA","prev",14,"map_sy_pf_mortality_rate","Malaria incidence and treatment",-1.43171269905576,-1.41772123310841,0.00617945374118388,4,4,2,4
+"women_vitA","prev",15,"dhs_c_deworm_6mo","Food fortification and supplementation",-1.4278752233294,-1.41392125925724,0.00451747475418217,4,4,2,4
+"women_vitA","prev",16,"map_blooddisorders201201africahbcallelefrequency","Malaria incidence and treatment",1.42724361525214,1.41329582359356,0.0077802946448701,4,4,2,4
+"women_vitA","prev",17,"soil_aluminium_mean_20_50","Soil characteristics",-1.38338320931314,-1.3698640451135,0.0102226928779351,4,4,4,4
+"women_vitA","prev",18,"wapor_mean_t0","Ecosystem productivity/greenness",-1.36770977427469,-1.3543437793057,0.00766080072998645,4,4,3,4
+"women_vitA","prev",19,"wdist_coast_km_mean","Water and coast proximity",1.36313975953371,1.34981842520485,0.00838283389692201,4,4,3,4
+"women_vitA","prev",20,"dhs_c_mean_birthweight","Infant and child morbidity/mortality",-1.3730843378508,-1.33922582854094,0.00339038504174075,4,4,4,4
+"child_iron","level",1,"glw_ruminant_share","Livestock density",3.57460429488956,3.52202913244589,0.0142686567933961,4,4,4,4
+"child_iron","level",2,"dhs_w_owns_house","Education, employment, SES",-3.43530859368568,-3.40173691185392,0.00711354636547702,4,4,4,4
+"child_iron","level",3,"dhs_w_birth_interval_short","Fertility, reproductive health",-3.05398703230463,-3.02414182970615,0.00891764118832682,4,4,4,4
+"child_iron","level",4,"dhs_w_health_insurance","Healthcare access",3.01993729833342,2.99042484803482,0.00287603764564258,4,4,3,4
+"child_iron","level",5,"dhs_w_working","Education, employment, SES",-2.96586230774853,-2.9368783073197,0.00711292807913443,4,4,3,4
+"child_iron","level",6,"spam_share_cereals","Agricultural production, land use",2.85757872013936,2.67809821479263,0.00939968697670861,4,4,4,4
+"child_iron","level",7,"fprice_staple_rel","Food prices and supply",-2.69235715779304,-2.66604212078896,0.0101020569929761,4,4,4,4
+"child_iron","level",8,"map_blooddisorders201201africahbcallelefrequency","Malaria incidence and treatment",2.68250503848898,2.6562901575814,0.0104230672095462,4,4,4,4
+"child_iron","level",9,"glw_cattle_km2","Livestock density",2.71915274423486,2.61319174488567,0.0104489776527374,4,4,4,4
+"child_iron","level",10,"dhs_FP_CUSA_W_MOD","Fertility, reproductive health",-2.59024308227276,-2.56492983478611,0.00692281175707923,4,4,4,4
+"child_iron","level",11,"dhs_w_modern_fp","Fertility, reproductive health",-2.59024308227276,-2.56492983478611,0.00692281175707922,4,4,4,4
+"child_iron","level",12,"npp_npp_t0","Ecosystem productivity/greenness",-2.50883905806914,-2.47813583203193,0.0126275987176205,4,4,4,4
+"child_iron","level",13,"soil_phosphorus_stdev_0_20","Soil characteristics",2.46915477250979,2.44502486506321,0.00648715157699602,4,4,3,4
+"child_iron","level",14,"dhs_hh_soap_available","Water and sanitation",2.46912888923563,2.44499923473432,-0.00162926959606321,4,4,3,4
+"child_iron","level",15,"npp_gpp_t0","Ecosystem productivity/greenness",-2.40296465946051,-2.37948159737151,0.0115602312877345,4,4,4,4
+"child_iron","level",16,"dhs_w_bmi_low","Adult nutrition",2.3807187064058,2.35745304372581,0.0106892141195595,4,4,3,4
+"child_iron","level",17,"dhs_AN_NUTS_W_THN","Adult nutrition",2.36458924242574,2.3414812055363,0.010685486288777,4,4,3,4
+"child_iron","level",18,"map_sy_pf_parasite_rate","Malaria incidence and treatment",-2.35745810324122,-2.33441975567641,0.00341158781315283,4,4,3,4
+"child_iron","level",19,"dhs_hh_cows_any","Agricultural production, land use",2.35183097058807,2.32884761438776,0.0113910247268709,4,4,4,4
+"child_iron","level",20,"spam_share_roots","Agricultural production, land use",-2.50501846164614,-2.32683860195836,0.00592357000850671,4,4,4,4
+"child_iron","prev",1,"wdist_coast_km_mean","Water and coast proximity",3.06195882011521,3.03203571292193,0.0131249325528747,4,4,3,4
+"child_iron","prev",2,"glw_ruminant_share","Livestock density",2.96099986362543,2.91744957498275,0.0100260125232135,4,4,4,4
+"child_iron","prev",3,"wdist_coast_km_min","Water and coast proximity",3.06125144448556,2.91395782049091,0.0117692180224419,4,4,3,4
+"child_iron","prev",4,"dhs_w_owns_house","Education, employment, SES",-2.7429579737224,-2.71615231424221,0.00373731232933259,4,4,3,4
+"child_iron","prev",5,"fprice_staple_rel","Food prices and supply",-2.70367649522112,-2.67725082327308,0.0106324607956858,4,4,2,4
+"child_iron","prev",6,"ihme_overweightprevalence","Infant and child morbidity/mortality",-2.60478620260411,-2.57933083192961,0.0127760244004488,4,4,3,4
+"child_iron","prev",7,"dhs_w_birth_interval_short","Fertility, reproductive health",-2.58136061379916,-2.55613417056818,0.00649184760897439,4,4,3,4
+"child_iron","prev",8,"npp_npp_t0","Ecosystem productivity/greenness",-2.57271979979452,-2.54123479987416,0.0112562802642252,4,4,3,4
+"child_iron","prev",9,"dhs_AN_NUTS_W_THN","Adult nutrition",2.55937233951602,2.5343607775186,0.0114716014142289,4,4,3,4
+"child_iron","prev",10,"dhs_w_bmi_low","Adult nutrition",2.55860860231489,2.53360450396786,0.0113183283576072,4,4,3,4
+"child_iron","prev",11,"npp_gpp_t0","Ecosystem productivity/greenness",-2.52188450487845,-2.49723929414837,0.0118976008037726,4,4,4,4
+"child_iron","prev",12,"dhs_w_working","Education, employment, SES",-2.47345679883333,-2.44928484967346,0.00470745463326356,4,4,3,4
+"child_iron","prev",13,"dhs_c_fg_dairy","Dietary diversity",-2.40111739836711,-2.37765238870631,0.0106239159176369,4,4,3,4
+"child_iron","prev",14,"dhs_CN_BRFS_C_EXB","Adult nutrition",2.34292715514908,2.32003081181847,0.00739052562318403,4,4,3,4
+"child_iron","prev",15,"rwi_sd","Education, employment, SES",-2.34381122404218,-2.31513160432367,0.00497833963382284,4,4,3,4
+"child_iron","prev",16,"dhs_c_overweight","Infant and child morbidity/mortality",-2.3233101673859,-2.30060553180255,0.00994711011086493,4,4,3,4
+"child_iron","prev",17,"map_blooddisorders201201africahbcallelefrequency","Malaria incidence and treatment",2.31325100644391,2.29064467438743,0.00875072908334195,4,4,4,4
+"child_iron","prev",18,"lcover_crops_frac_t0","Built environment",2.28724503434801,2.26489284662737,0.00820035438795932,4,4,3,4
+"child_iron","prev",19,"dhs_FP_CUSA_W_MOD","Fertility, reproductive health",-2.22418936176669,-2.20245338796682,0.00521895373494973,4,4,4,4
+"child_iron","prev",20,"dhs_w_modern_fp","Fertility, reproductive health",-2.22418936176668,-2.20245338796682,0.00521895373494972,4,4,4,4
+"women_iron","level",1,"glw_ruminant_share","Livestock density",3.13889161452039,3.09272489985426,0.019818212988989,4,4,4,4
+"women_iron","level",2,"glw_pigs_km2","Livestock density",-2.95729802754832,-2.91341941969692,0.00576477059306031,4,4,4,4
+"women_iron","level",3,"dhs_hh_soap_available","Water and sanitation",2.80923040307803,2.78177709380108,-0.000160969495518225,4,4,2,4
+"women_iron","level",4,"dhs_FP_CUSA_W_MOD","Fertility, reproductive health",-2.80744661038847,-2.78001073329235,0.0142262919570781,4,4,3,4
+"women_iron","level",5,"dhs_w_modern_fp","Fertility, reproductive health",-2.80744661038847,-2.78001073329234,0.014226291957078,4,4,3,4
+"women_iron","level",6,"dhs_w_working","Education, employment, SES",-2.74636046776796,-2.71952155728734,0.0109908321477676,4,4,3,4
+"women_iron","level",7,"soil_phosphorus_stdev_0_20","Soil characteristics",2.72144853328149,2.69485307561322,0.0171298133975024,4,4,3,4
+"women_iron","level",8,"ihme_severeanemia","Nutrition status (MODELLED SURFACE)",2.71194781952815,2.68544520794068,0.0192334521284852,4,4,4,4
+"women_iron","level",9,"ihme_allanemia","Nutrition status (MODELLED SURFACE)",2.64584823355843,2.61999158264928,0.0193090278543603,4,4,3,4
+"women_iron","level",10,"dhs_w_barrier_permission","Healthcare access",-2.63972723934088,-2.61393040607685,0.00499640056262643,4,4,3,4
+"women_iron","level",11,"ihme_moderateanemia","Nutrition status (MODELLED SURFACE)",2.58985793791039,2.56454845426144,0.0192127269030831,4,4,3,4
+"women_iron","level",12,"ihme_mildanemia","Nutrition status (MODELLED SURFACE)",2.49242144621516,2.46806416432882,0.0156680508844453,4,4,3,4
+"women_iron","level",13,"dhs_w_owns_house","Education, employment, SES",-2.42405802013392,-2.40036882238812,0.00796077712988451,4,4,4,4
+"women_iron","level",14,"dhs_hh_handwash_facility","Water and sanitation",2.28606919444474,2.26372849766357,0.0043896929219553,4,4,3,4
+"women_iron","level",15,"dhs_hh_mean_hhsize","Household assets and characteristics",2.32022080770062,2.2630032277113,0.00952380813567476,4,4,4,4
+"women_iron","level",16,"glw_sheep_km2","Livestock density",2.18196273379793,2.16063942130063,0.0083656797570551,4,4,4,4
+"women_iron","level",17,"map_blooddisorders201201globalsicklehaemoglobinhbsallelefrequency","Malaria incidence and treatment",2.1257609965539,2.10498691763771,-0.00273097238527617,4,4,3,4
+"women_iron","level",18,"map_sy_pf_mortality_rate","Malaria incidence and treatment",-2.04535453944832,-2.0253662356442,0.00776808068061433,4,4,4,4
+"women_iron","level",19,"dhs_hh_improved_water","Water and sanitation",2.03367390275259,2.01379974840784,-4.32158314077224e-05,4,4,2,4
+"women_iron","level",20,"dhs_w_unmet_fp","Fertility, reproductive health",1.96593099477071,1.94671886053015,0.00735417299342607,4,4,3,4
+"women_iron","prev",1,"dhs_w_barrier_permission","Healthcare access",-2.71322698756552,-2.68671187526053,0.0106008861118711,4,4,3,4
+"women_iron","prev",2,"glw_ruminant_share","Livestock density",2.63864357355631,2.59983449062956,0.0210110476724959,4,4,4,4
+"women_iron","prev",3,"map_sy_pf_mortality_rate","Malaria incidence and treatment",-2.12200288663347,-2.10126553398717,0.0137102639847894,4,4,4,4
+"women_iron","prev",4,"map_sy_pf_incidence_rate","Malaria incidence and treatment",-2.0666758343465,-2.04647916738982,0.0132338321538755,4,4,3,4
+"women_iron","prev",5,"map_sy_pf_parasite_rate","Malaria incidence and treatment",-2.05639869990594,-2.03630246663031,0.0132179402408039,4,4,3,4
+"women_iron","prev",6,"dhs_hh_soap_available","Water and sanitation",1.99016275564544,1.97071381561463,0.000357929350056029,4,4,3,4
+"women_iron","prev",7,"dhs_hh_improved_water","Water and sanitation",1.95284176946001,1.93375755016379,0.00217944928970175,4,4,3,4
+"women_iron","prev",8,"dhs_w_owns_house","Education, employment, SES",-1.931013406341,-1.9121425055405,0.00913794521835326,4,4,4,4
+"women_iron","prev",9,"ihme_severeanemia","Nutrition status (MODELLED SURFACE)",1.92498073341673,1.90616878713822,0.0161808711390178,4,4,4,4
+"women_iron","prev",10,"soil_phosphorus_stdev_0_20","Soil characteristics",1.90561694826496,1.88699423530172,0.0153823423456139,4,4,3,4
+"women_iron","prev",11,"glw_pigs_km2","Livestock density",-1.88990114111574,-1.86185992569665,0.00384386241758672,4,4,3,4
+"women_iron","prev",12,"fprice_pulses_rel","Food prices and supply",-1.85269206826497,-1.83458656567276,0.00085621926344919,4,4,3,4
+"women_iron","prev",13,"dhs_FP_CUSA_W_MOD","Fertility, reproductive health",-1.85029879229983,-1.83221667808658,0.0103899886432581,4,4,3,4
+"women_iron","prev",14,"dhs_w_modern_fp","Fertility, reproductive health",-1.85029879229982,-1.83221667808657,0.0103899886432581,4,4,3,4
+"women_iron","prev",15,"ihme_overweightprevalence","Infant and child morbidity/mortality",-1.82201122482507,-1.80420555192391,0.0129336732289283,4,4,3,4
+"women_iron","prev",16,"map_blooddisorders201201globalsicklehaemoglobinhbsallelefrequency","Malaria incidence and treatment",1.80644652815024,1.78879296183,-0.000918869337438605,4,4,3,4
+"women_iron","prev",17,"ihme_allanemia","Nutrition status (MODELLED SURFACE)",1.79715490519268,1.77959214160562,0.0146078668668894,4,4,3,4
+"women_iron","prev",18,"ihme_moderateanemia","Nutrition status (MODELLED SURFACE)",1.75409253457927,1.73695059962105,0.0144147313325184,4,4,3,4
+"women_iron","prev",19,"map_sy_pf_reproductive_number","Malaria incidence and treatment",-1.71473833411927,-1.69798098955826,0.0114183210934332,4,4,3,4
+"women_iron","prev",20,"glw_sheep_km2","Livestock density",1.70992193501786,1.69321165889738,0.00848962502865869,4,4,4,4
+"women_folate","level",1,"dhs_w_working","Education, employment, SES",-3.67555120674656,-3.64660123632421,0.019107105548499,3,3,3,3
+"women_folate","level",2,"dhs_w_health_insurance","Healthcare access",3.27675270861077,3.25094381936948,0.0119575478182257,3,3,3,3
+"women_folate","level",3,"spam_share_oilcrops","Agricultural production, land use",-3.37916517963972,-3.07973679128705,0.0174221320039636,3,3,2,3
+"women_folate","level",4,"espen_sth_cov_mean","Helminth burden and control",3.12948457009254,3.00984612827555,0.0129576604268804,3,3,3,3
+"women_folate","level",5,"npp_npp_t0","Ecosystem productivity/greenness",-2.95599047178498,-2.92418525306242,0.0187886413656611,3,3,2,3
+"women_folate","level",6,"dhs_w_bmi_low","Adult nutrition",2.45820724959832,2.43884552038687,0.0158773539374799,3,3,3,3
+"women_folate","level",7,"dhs_AN_NUTS_W_THN","Adult nutrition",2.38814436961091,2.36933448097771,0.0149889176397431,3,3,3,3
+"women_folate","level",8,"fprice_staple_rel","Food prices and supply",-2.37304173033255,-2.35434680135148,0.00981590942419723,3,3,1,3
+"women_folate","level",9,"tclim_pdsi_t0","Climate and weather",-2.33252291253814,-2.31415111861415,0.0120764665180264,3,3,3,3
+"women_folate","level",10,"dhs_c_fg_roots","Dietary diversity",2.21563827109887,2.19818710287757,0.0051868990629756,3,3,2,3
+"women_folate","level",11,"wdist_perm_km_mean","Water and coast proximity",-2.17682454371003,-2.1596790864411,0.0112369620206643,3,3,3,3
+"women_folate","level",12,"ihme_severeanemia","Nutrition status (MODELLED SURFACE)",2.15758974836508,2.1405957912998,0.0164695794981618,3,3,2,3
+"women_folate","level",13,"ihme_allanemia","Nutrition status (MODELLED SURFACE)",2.15306217509926,2.13610387883823,0.0191162772520348,3,3,3,3
+"women_folate","level",14,"lcover_water_seasonal_frac_t0","Built environment",2.21711456085742,2.10237105501192,0.014617197980889,3,3,3,3
+"women_folate","level",15,"ihme_moderateanemia","Nutrition status (MODELLED SURFACE)",2.11201710616628,2.0953820957105,0.0191945320615224,3,3,3,3
+"women_folate","level",16,"elevation","Built environment",-2.0873551429083,-2.07091437899316,0.0101188313342775,2,3,2,3
+"women_folate","level",17,"wdist_any_km_mean","Water and coast proximity",-2.08401734114629,-2.06760286696481,0.00928909629935193,3,3,3,3
+"women_folate","level",18,"soil_sulfur_stdev_20_50","Soil characteristics",-2.08347716126608,-2.06706694173667,0.00394577953171034,3,3,3,3
+"women_folate","level",19,"soilgrids_silt","Soil characteristics",2.04930931685119,2.02725960739686,0.00883316523505679,3,3,3,3
+"women_folate","level",20,"ihme_mildanemia","Nutrition status (MODELLED SURFACE)",2.02320666864467,2.0072711613096,0.0159745428016181,3,3,3,3
+"women_folate","prev",1,"espen_sth_cov_mean","Helminth burden and control",3.33546063721563,3.20794784575088,0.0157220682041862,3,3,3,3
+"women_folate","prev",2,"npp_npp_t0","Ecosystem productivity/greenness",-2.84537731307371,-2.81476224558471,0.0205777145163474,3,3,2,3
+"women_folate","prev",3,"elevation","Built environment",-2.64608032677823,-2.62523884127402,0.0184124657779536,3,3,2,3
+"women_folate","prev",4,"spam_share_oilcrops","Agricultural production, land use",-2.7748848728354,-2.52900186293001,0.0147713006448237,3,3,2,3
+"women_folate","prev",5,"dhs_w_anc4plus","Fertility, reproductive health",-2.42284975412274,-2.40376651333129,0.0164340395654204,3,3,2,3
+"women_folate","prev",6,"dhs_RH_ANCN_W_N4P","Fertility, reproductive health",-2.42161929202608,-2.40254574279906,0.0163036848116122,3,3,2,3
+"women_folate","prev",7,"dhs_w_bmi_low","Adult nutrition",2.33467053332311,2.31628182396121,0.0184440345911975,3,3,3,3
+"women_folate","prev",8,"wdist_perm_km_mean","Water and coast proximity",-2.32080340662907,-2.30252391977152,0.0144529408931724,3,3,3,3
+"women_folate","prev",9,"dhs_AN_NUTS_W_THN","Adult nutrition",2.26925432647654,2.25138085881496,0.0173740561608798,3,3,3,3
+"women_folate","prev",10,"dhs_w_working","Education, employment, SES",-2.25636534058474,-2.23859339123683,0.011149112116006,3,3,3,3
+"women_folate","prev",11,"wdist_any_km_mean","Water and coast proximity",-2.21218629299598,-2.1947623138025,0.0125517230236865,3,3,3,3
+"women_folate","prev",12,"grassland_frac","Ecosystem productivity/greenness",-2.2338239862189,-2.18180081722284,0.00169297872846167,2,3,1,3
+"women_folate","prev",13,"lcover_water_seasonal_frac_t0","Built environment",2.22570820056536,2.11051994352591,0.0175376050995186,3,3,3,3
+"women_folate","prev",14,"soil_zinc_stdev_0_20","Soil characteristics",-2.12446680863674,-2.10773373982236,0.0156012756055884,3,3,3,3
+"women_folate","prev",15,"tclim_pdsi_t0","Climate and weather",-2.05194673524355,-2.03578486075123,0.00964640713535724,3,3,3,3
+"women_folate","prev",16,"map_sy_itn_use","Malaria incidence and treatment",2.0050911575971,1.98929833457779,0.0112378934233141,3,3,3,3
+"women_folate","prev",17,"dhs_w_anc_visits","Fertility, reproductive health",-1.91759122585751,-1.86905245571844,0.00982244118210909,3,3,2,3
+"women_folate","prev",18,"ihme_allanemia","Nutrition status (MODELLED SURFACE)",1.84946351820691,1.83489647475203,0.0189024238582373,3,3,3,3
+"women_folate","prev",19,"ihme_moderateanemia","Nutrition status (MODELLED SURFACE)",1.81988835098679,1.80555425224363,0.0187682165464344,3,3,3,3
+"women_folate","prev",20,"soil_zinc_stdev_20_50","Soil characteristics",-1.81849969865477,-1.80417653743953,0.0118395561748323,3,3,2,3
+"women_b12","level",1,"ihme_stuntingprevalence","Nutrition status (MODELLED SURFACE)",5.20090698045648,5.15994275637569,0.0174930543901789,3,3,3,3
+"women_b12","level",2,"ihme_underweightprevalence","Nutrition status (MODELLED SURFACE)",4.40363288104256,4.36894827607146,0.0136552749291397,3,3,3,3
+"women_b12","level",3,"glw_tlu_per_capita","Livestock density",4.08737913926325,4.05518546312309,0.0135524377640597,3,3,3,3
+"women_b12","level",4,"dhs_c_fg_grains","Dietary diversity",-3.87988148212809,-3.84932213256886,0.013111865174188,3,3,3,3
+"women_b12","level",5,"dhs_CN_NUTS_C_HA2","Adult nutrition",3.87011843940104,3.83963598709675,0.0118516171231732,3,3,3,3
+"women_b12","level",6,"dhs_c_fg_legumes","Dietary diversity",3.74199306584022,3.71251977530957,0.00441725737545288,3,3,3,3
+"women_b12","level",7,"lcover_crops_frac_t0","Built environment",3.71917939000462,3.68988578823452,0.00911213376286798,3,3,3,3
+"women_b12","level",8,"wapor_sd_t0","Ecosystem productivity/greenness",3.66353120668964,3.63467591013431,0.0116725596965078,3,3,3,3
+"women_b12","level",9,"dhs_CN_BRFS_C_EXB","Adult nutrition",3.48126168623859,3.4538420103369,0.00817708098254459,3,3,3,3
+"women_b12","level",10,"grassland_frac","Ecosystem productivity/greenness",3.52664031596297,3.44450895454976,0.0087217346736069,3,3,3,3
+"women_b12","level",11,"dhs_c_deworm_6mo","Food fortification and supplementation",-3.33463847421369,-3.30837365575041,0.00647579473492419,3,3,3,3
+"women_b12","level",12,"elevation","Built environment",3.16359332744247,3.13867572240688,0.0048732075425166,3,3,2,3
+"women_b12","level",13,"dhs_hh_agland_ha","Agricultural production, land use",3.19387475038541,3.10368547927852,0.00358801256199418,3,3,3,3
+"women_b12","level",14,"wdist_coast_km_mean","Water and coast proximity",3.07149224143272,3.04730005785527,0.00873154043759852,3,3,3,3
+"women_b12","level",15,"npp_gpp_t0","Ecosystem productivity/greenness",-3.02462916943247,-3.00080609635627,0.00973951101898467,3,3,3,3
+"women_b12","level",16,"fprice_staple_rel","Food prices and supply",-3.00705687670061,-2.98336714801469,0.00771682471170447,2,3,2,3
+"women_b12","level",17,"ihme_ebfprevalence","Infant and child morbidity/mortality",2.99179446052853,2.96823000549304,0.0103378448191616,3,3,3,3
+"women_b12","level",18,"ihme_wastingprevalence","Nutrition status (MODELLED SURFACE)",2.99140728196071,2.96784587648363,0.00719965388143209,3,3,2,3
+"women_b12","level",19,"glw_cattle_km2","Livestock density",3.09294685835999,2.96268094519247,0.00438703435243632,3,3,3,3
+"women_b12","level",20,"wdist_coast_km_min","Water and coast proximity",2.97798797695886,2.89907045593762,0.00752555143662187,3,3,3,3
+"women_b12","prev",1,"ihme_stuntingprevalence","Nutrition status (MODELLED SURFACE)",3.47752523583611,3.45013498956893,0.0194269625997955,3,3,2,3
+"women_b12","prev",2,"dhs_CN_NUTS_C_HA2","Adult nutrition",3.21256865012564,3.1872652977386,0.0183161779958415,3,3,3,3
+"women_b12","prev",3,"elevation","Built environment",2.78442300449433,2.76249188203426,0.0105247489030135,3,3,3,3
+"women_b12","prev",4,"ihme_underweightprevalence","Nutrition status (MODELLED SURFACE)",2.71676484921577,2.69536662685258,0.0117265622845215,3,3,2,3
+"women_b12","prev",5,"glw_tlu_per_capita","Livestock density",2.70991549135391,2.68857121701004,0.0150949995761509,3,3,2,3
+"women_b12","prev",6,"dhs_hh_agland_ha","Agricultural production, land use",2.71382374034296,2.63719024523656,0.00773082129484564,3,3,3,3
+"women_b12","prev",7,"grassland_frac","Ecosystem productivity/greenness",2.57011664835506,2.51026161341864,0.0113652317180025,3,3,2,3
+"women_b12","prev",8,"glw_pigs_km2","Livestock density",2.38734994277293,2.36130230014972,0.00499555941014469,3,3,2,3
+"women_b12","prev",9,"lcover_crops_frac_t0","Built environment",2.31949496823897,2.30122578711532,0.0093309819408975,3,3,2,3
+"women_b12","prev",10,"ihme_severeanemia","Nutrition status (MODELLED SURFACE)",-2.29591371423607,-2.27783026759618,0.00586769845377381,2,3,3,3
+"women_b12","prev",11,"wdist_coast_km_mean","Water and coast proximity",2.18716718659749,2.16994026693317,0.0116528334101938,3,3,2,3
+"women_b12","prev",12,"lcover_water_seasonal_frac_t0","Built environment",-2.19676339772415,-2.08307313641872,0.00132566713776664,3,3,2,3
+"women_b12","prev",13,"dhs_hh_handwash_facility","Water and sanitation",-2.09317610307777,-2.07668949117541,0.000677596254603848,3,3,3,3
+"women_b12","prev",14,"espen_sth_cov_mean","Helminth burden and control",-2.15005583640639,-2.06786040635205,0.000441223195559916,3,3,3,3
+"women_b12","prev",15,"wdist_coast_km_min","Water and coast proximity",2.10631906761992,2.05050101845974,0.010024747564007,3,3,2,3
+"women_b12","prev",16,"wapor_sd_t0","Ecosystem productivity/greenness",2.06261185939762,2.04636598253084,0.0113285607127036,3,3,2,3
+"women_b12","prev",17,"ihme_ebfprevalence","Infant and child morbidity/mortality",2.04523053586365,2.0291215605863,0.0125209598656995,3,3,2,3
+"women_b12","prev",18,"dhs_c_fg_flesh","Dietary diversity",-2.04282779896454,-2.02673774851185,0.00778707331495707,3,3,3,3
+"women_b12","prev",19,"ihme_hivprevalence","Infant and child morbidity/mortality",-1.99157553571576,-1.97588916662179,0.0134903147880002,3,3,2,3
+"women_b12","prev",20,"soilgrids_sand","Soil characteristics",1.98111577219595,1.95979979670454,0.00774864367002196,2,3,3,3

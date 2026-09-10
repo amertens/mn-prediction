@@ -2398,6 +2398,46 @@ back-projection and the composite, fig-importance, tbl-sparse, Supplement S4.
 `index_importance_{columns,domains,top,patterns}.csv`,
 `results/figures/protocol_v2/index_importance_top10_{level,prev}.png`.
 
+**WS-01 / WS-02 rerun on the RR-10 set (2026-09-09 16:20 to 19:18, same
+design; the tables above are superseded by `weight_sources_*.csv` as now on
+disk).** With the DHS columns re-estimated by the cluster-level model (DS-01):
+
+| Weights | In-fill level / prev | Region level / prev | Transport level / prev |
+|---|---|---|---|
+| Production index | 0.397 / 0.275 | 0.378 / 0.264 | 0.263 (17 of 22) / 0.185 |
+| Soft-thresholded, c = 1 | 0.398 (+0.000; 9/18) / 0.268 | 0.372 (-0.006) / 0.250 | 0.265 (+0.002; 10 of 22) / 0.189 (+0.005) |
+| Decorrelated across domains | 0.399 (+0.001; 9/18) / 0.266 | 0.386 (+0.008; 12/18) / 0.261 | **0.289 (+0.026; 11 of 22, 19 positive)** / 0.181 |
+| Replication-weighted (meta z) | 0.147 / 0.106 | 0.116 / 0.091 | 0.276 (+0.013; 10/22) / 0.170 |
+| Ridge, lambda.min | 0.351 (-0.046) / 0.210 | 0.303 (-0.075) / 0.096 | 0.271 (+0.008) / 0.195 (+0.019) |
+| Ridge, nested rank CV | 0.359 / 0.231 | 0.344 / 0.202 | 0.225 (-0.039) / 0.170 |
+| Elastic net, lambda.min | 0.337 (-0.060) / 0.176 | 0.295 (-0.083) / 0.097 | 0.218 (-0.046) / 0.159 |
+| Lasso, lambda.min | 0.338 / 0.203 | 0.302 / 0.099 | 0.229 (-0.034) / 0.146 |
+| Nested rank CV, enet / lasso | 0.347 / 0.337 | 0.334 / 0.325 | 0.191 / 0.198 (-0.07) |
+| lambda.1se and one-SE arms | 0.19 to 0.35 | 0.01 to 0.31 | constant in 3 to 13 of 22 cells |
+| Sparse, top 20, equal weights | 0.375 (-0.023; 5/18) / 0.266 | 0.342 (-0.037) / 0.234 | **0.291 (+0.028; 12 of 22, 18 positive)** / 0.164 (-0.021) |
+| Sparse, top 10 / top 5 | 0.356 / 0.330 | 0.320 / 0.279 | 0.161 / 0.100 |
+
+Reading against the RR-09 run: (i) the in-country ordering is identical
+(index >= decorrelated = soft threshold > ridge > elastic net = lasso; the
+lambda.1se and one-SE rules still collapse); (ii) the soft threshold's
+transport gain has gone (+0.024 in 18 of 22 on RR-09, +0.002 in 10 of 22
+now): once the survey axes are smoothed their training evidence clears
+|z| = 1 and the threshold no longer removes them, so that result was a
+property of the noisy DHS columns, not of the estimator, and it leaves the
+pre-registration list; (iii) the decorrelated index (+0.026, 11 of 22; +0.021
+on RR-09) and the twenty-predictor composite (+0.028, 12 of 22; +0.022) keep
+their gains and are the two transport candidates that survive a change of
+the input, and the composite's in-country cost has halved (-0.023 in-fill,
+-0.037 region); (iv) every joint fit loses more across borders than before
+(elastic net -0.046 from -0.018, nested ridge -0.039 from +0.015), the same
+mechanism as RR-10 itself: cleaner survey columns are easier to fit and
+carry worse. The sparse top 5 and top 10 now transport poorly (0.10, 0.16)
+because their members are drawn from the survey aggregates that lead the
+in-sample ranking. The importance figure and tables were recomputed on the
+same set (share of the survey-derived domains 0.24 -> 0.34; satellite +
+climate + soil 0.45 -> 0.38; child iron's leading twenty replicate in every
+country's own fit in 13 of 20, women's B12 in 17 of 20).
+
 ## DS-01 · DHS-derived Admin-2 predictors the DHS way: surveyPrev cluster-level BYM2, every district (scripts/covariates/build_dhs_admin2_clustermodel.R; builder hook 2b; RR-10)
 
 **Q.** The shared set's 145 DHS columns were direct estimates (a
