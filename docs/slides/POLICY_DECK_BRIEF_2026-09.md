@@ -201,7 +201,7 @@ Forum guidelines applied: widescreen 16:9 on the Forum template; the first slide
 presenters' names; at most one slide per two minutes of speaking; slides with unpublished data are
 labelled. So the main body is nine slides and everything else moved to the appendix:
 
-- Main: title (paste the submitted abstract title); two placeholders for Sonja's slides; What we built
+- Main: title (the submitted abstract title, from the April abstract in Dropbox); two placeholders for Sonja's slides; What we built
   (the big-data and small-data framing from the meeting); How we tested it (held-out scoring,
   comparators, measured chance, the noise ceiling); the Ghana three-panel map; the model comparison;
   the learning curve with the feedback loop and the 5 percent anchored survey design; and the closing
