@@ -58,6 +58,8 @@ null_d = float(one(rows("transport_null_calibration.csv"), tier="admin2")["null_
 ND = rows("nested_domain_selection.csv")
 cs = mean([r["spearman"] for r in ND if r["arm"] == "fixed_cs" and r["target"] == "level"])
 sparse20 = float(one(rows("weight_sources_summary.csv"), estimand="country", arm="sparse20", target="level")["mean_spearman"])
+dhs = one(rows("source_ablation_loco_summary.csv"), target="level", source="DHS")
+dhs_cols, dhs_full, dhs_drop = int(dhs["n_cols"]), float(dhs["full"]), float(dhs["drop"])
 
 # share of the index carried by satellite imagery, climate and soil, per outcome (pooled fit, biomarker level)
 IMP = rows("index_importance_domains.csv")
@@ -83,20 +85,24 @@ def pcr(x):
     return "%d" % round(100 * x)
 
 
-TITLE = "Which public data predict micronutrient deficiency? The same climate, soil and satellite layers hold across four African countries"
-AUTHORS = "Andrew N. Mertens (University of California, Berkeley) and Sonja Y. Hess (University of California, Davis)"
+# The Forum asks for the submitted abstract title on the first slide, verbatim
+# (Dropbox: "MNF abstract_proxy modeling_V2.docx", April 2026), with its authors.
+TITLE = "Predicting Micronutrient Deficiency Prevalence in Sub-Saharan Africa Using Proxy Indicators: A Multi-country Machine Learning Framework"
+AUTHORS = ("Andrew N. Mertens (presenting), Reed Atkin, Sorrel Namaste, Demewoz Haile, Kenneth H. Brown, Saskia Osendarp, "
+           "Xiuping Tan, Eric Stewart, Keith Lividini, Seth Adu-Afarwuah, Nicolai Petry, Aminata S. Koroma, Mary H. Hodges, "
+           "Fabian Rohner, Haddy Crookes, James P. Wirth, Jonathan Gorstein, Kathy Banke, Sonja Y. Hess")
 
 S1 = [
     "Aim: find which freely available data layers track blood-measured micronutrient deficiency across districts, and whether the same layers hold in a country never surveyed.",
     "Data: four national micronutrient surveys (The Gambia 2018, Ghana 2017, Malawi 2015 to 16, Sierra Leone 2013), 206 districts, vitamin A, iron, folate and B12 in children and women.",
-    "Predictors: 454 public layers in 24 groups, from satellite imagery, climate and soil to crops, livestock, malaria, prices and household surveys.",
+    "Predictors: 454 public layers in 24 groups: satellite imagery, climate, soil, crops, livestock, malaria, prices and household surveys.",
     "Model: each group is reduced to a few summary axes, weighted by its correlation with deficiency and summed, with nothing tuned. Scored on held-out districts and on held-out countries.",
 ]
 S2 = [
     "Inside a surveyed country the index ranks held-out districts at %s, against %s for chance." % (f2(infill), f2(null_d)),
-    "In a country never surveyed: %s, positive in %d of %d country-outcome pairs. With climate and soil layers only: %s." % (f2(tr), tr_pos, tr_n, f2(cs)),
-    "Satellite, climate and soil layers carry %s to %s percent of the index, and the same gradient ranks worst on every deficiency: drier, grassier, poorer, more pastoral districts." % (pcr(env_lo), pcr(env_hi)),
-    "Household-survey layers help at home and hurt abroad; the physical environment travels.",
+    "In a country never surveyed it scores %s, positive in %d of %d country-outcome pairs, and %s with climate and soil layers only." % (f2(tr), tr_pos, tr_n, f2(cs)),
+    "Satellite, climate and soil layers carry %s to %s percent of the index, and the same kind of district ranks worst on every deficiency: drier, grassier, poorer and more pastoral." % (pcr(env_lo), pcr(env_hi)),
+    "Household-survey layers help inside a country and hurt in a new one: dropping all %d of them raises transport from %s to %s." % (dhs_cols, f2(dhs_full), f2(dhs_drop)),
 ]
 S3 = [
     "One environmental gradient underlies all six deficiencies. A twenty-layer public list ranks a new country as well as the full database (%s against %s)." % (f2(sparse20), f2(tr)),
@@ -164,13 +170,14 @@ title = shape_by_name(s1, "Title 1")
 title.left, title.top, title.width, title.height = Inches(0.27), Inches(0.15), Inches(12.8), Inches(1.15)
 set_text(title, TITLE, size=22)
 byline = shape_by_name(s1, "TextBox 5")
-byline.left, byline.top, byline.width, byline.height = Inches(0.27), Inches(1.4), Inches(12.8), Inches(0.45)
-set_text(byline, AUTHORS, size=16)
+byline.left, byline.top, byline.width, byline.height = Inches(0.27), Inches(1.35), Inches(12.8), Inches(0.7)
+byline.text_frame.word_wrap = True
+set_text(byline, AUTHORS, size=12)
 heading = shape_by_name(s1, "Title 23")
-heading.top = Inches(1.9)
+heading.top = Inches(2.1)
 set_text(heading, "Background, aims and methods")
 body = shape_by_name(s1, "Text Placeholder 2")
-body.left, body.top, body.width, body.height = Inches(0.39), Inches(2.6), Inches(12.4), Inches(4.2)
+body.left, body.top, body.width, body.height = Inches(0.39), Inches(2.8), Inches(12.4), Inches(4.0)
 set_bullets(body, S1, size=18)
 
 set_text(shape_by_name(s2, "Title 1"), "Results")

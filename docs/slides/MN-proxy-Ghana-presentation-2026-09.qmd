@@ -163,8 +163,8 @@ if (!is.null(IT)) { ci20 <- IT |> filter(outcome == "child_iron", target == "lev
 
 :::: {.columns}
 ::: {.column width="55%"}
-- Biomarker surveys are infrequent and costly, and programmes need sub-national estimates of vitamin and mineral deficiencies between surveys.
-- This project predicts deficiency (iron, vitamin A, folate, B12, zinc) from proxies available across sub-Saharan Africa, using four biomarker surveys linked to `r Q$n_pred` district-level indicators.
+- Biomarker surveys are rare and costly; programmes need district estimates between them.
+- Four biomarker surveys linked to `r Q$n_pred` district-level proxies predict iron, vitamin A, folate, B12 and zinc deficiency.
 :::
 ::: {.column width="45%"}
 ![](img/old_s02_intro_photo_1.png){width="4.2in"}
@@ -178,12 +178,12 @@ Photo credit: Latter-day Saint Charities. GMS 2017 collaborators: University of 
 ## Aims
 
 :::: {.columns}
-::: {.column width="62%"}
-- Sub-national deficiency estimates from proxies, validated against biomarker surveys.
-- Identification of the districts at greatest risk, and a statement of which product survives validation: a ranking or a level.
-- A statement of what a country without a survey can expect from the model, and what it must still measure.
+::: {.column width="66%"}
+- Estimate district deficiency from proxies, validated against biomarker surveys.
+- Identify the districts at greatest risk; say whether a ranking or a level survives.
+- Say what a country with no survey can expect, and what it must still measure.
 :::
-::: {.column width="38%"}
+::: {.column width="34%"}
 ![](img/old_s03_goals_2.png){width="2.1in"}
 :::
 ::::
@@ -559,7 +559,7 @@ The dashed line is the share a random fifth of districts would capture. The marg
 
 :::: {.columns}
 ::: {.column width="34%"}
-Loss in transported Spearman (biomarker level, `r Q$tr_cells` cells) when each domain is dropped and the components rebuilt, mean over cells with a 95% interval. The load-bearing domains are `r paste(head(Q$da_top$domain, 3), collapse = ", ")`; `r Q$da_neg` of `r Q$da_n` domains cost nothing to remove or help.
+Loss in transported Spearman (biomarker level, `r Q$tr_cells` cells) when each domain is dropped and the components rebuilt, mean over cells with a 95% interval. The load-bearing domains are `r paste(head(Q$da_top$domain, 3), collapse = ", ")`; removing `r Q$da_neg` of the `r Q$da_n` domains costs nothing or helps.
 :::
 ::: {.column width="66%"}
 ```{r ablation, fig.width=5.8, fig.height=5.6, dpi=160}
