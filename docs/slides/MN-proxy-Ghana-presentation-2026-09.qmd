@@ -552,7 +552,7 @@ if (!is.null(NT)) {
 ::::
 
 ::: {.notes}
-The dashed line is the share a random fifth of districts would capture. The margin over the survey's own regional averages is small per cell and concentrates where regions hold three to five districts. Under transport, burden captured is at chance: the transported product is an ordering, not a targeting gain. Likely question: why the ceiling is only `r pc(Q$cap_oracle)`. Burden is spread across districts; even the true worst fifth holds under half of it.
+The dashed line is the share a random fifth of districts would capture. The margin over the survey's own regional averages is small per cell and concentrates where regions hold three to five districts. Under transport, burden captured is at chance: the transported product is an ordering and brings no targeting gain. Likely question: why the ceiling is only `r pc(Q$cap_oracle)`. Burden is spread across districts; even the true worst fifth holds under half of it.
 :::
 
 ## Domain ablation under transport
