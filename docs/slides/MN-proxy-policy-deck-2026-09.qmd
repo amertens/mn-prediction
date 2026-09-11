@@ -105,7 +105,7 @@ Replace with Sonja's slide. The workshop point matters for the closing slide, wh
 
 ## What we built
 
-- A big-data problem and a small-data problem at once: 454 public data layers for every district, but blood results for only 206 districts across four countries.
+- We have 454 public data layers for every district but blood results for only 206 districts in four countries, so this is a big-data and a small-data problem at once.
 - Each kind of data is summarised, weighted by how well it tracked deficiency where blood was drawn, and added up. The sum ranks districts from worst to best.
 - The simplest version won. With a few dozen districts per country, every method that tunes itself did worse.
 - The output is an ordering. One national number on top turns it into prevalence.
@@ -118,14 +118,14 @@ Hand-over from Sonja. The big-and-small framing is the one-sentence description 
 
 - Every district is scored with itself hidden from the model, over repeated random splits, and every country with the whole country hidden.
 - Each method is compared with what a programme could do without it: the survey's own regional average, or smoothing between neighbouring districts.
-- Chance is measured, not assumed: shuffling the outcome shows that a ranking reaches `r f2(Q$null_d)` with no information, on a scale of 0 to 1.
+- Shuffling the outcome measures chance: with no information at all a ranking still reaches `r f2(Q$null_d)` on a scale of 0 to 1.
 - Survey district values are themselves noisy, so a perfect predictor could only reach about `r f2(Q$ceiling_level)`. The model reaches `r f2(Q$infill)`, two-thirds of the way.
 
 ::: {.notes}
-The score is ranking accuracy: how closely the model's order of districts matches the survey's, from 0 to 1. One split on its own can move a result by 0.1, so everything is averaged over repeated splits. Plainer versions of the same accuracy are in the appendix: of the truly worst quarter of districts the model finds `r pc(Q$topk)` (a random pick finds 25%), and it places a district in the correct WHO vitamin A band `r pc(Q$band_exact)` of the time, within one band `r pc(Q$band_w1)`. The ceiling: most districts hold one or two survey clusters, so the survey's own district value is itself an estimate; from the variance components we can say what correlation a perfect predictor of the true district value could reach (variance_components_ceiling.csv, ceiling_vc). On the biomarker level the ceiling is about `r f2(Q$ceiling_level)` and the model reaches `r f2(Q$infill)`; on prevalence `r f2(Q$ceiling)` and `r f2(Q$infill_prev)`; the model is at the ceiling in 5 of 48 cells. What Reid raised in the meeting belongs here too: the model estimates status as a survey would measure it, and part of any between-country difference is survey difference (different years, seasons and teams). An earlier version of this work rested on one split and a baseline that had seen the answer; an audit found it and everything here is from the corrected protocol (docs/findings/TWO_READINGS_2026-09f.md, SANDBOX_LOG_2026-09.md).
+The score is ranking accuracy: how closely the model's order of districts matches the survey's, from 0 to 1. One split on its own can move a result by 0.1, so everything is averaged over repeated splits. Plainer versions of the same accuracy are in the appendix: of the survey's worst quarter of districts the model finds `r pc(Q$topk)` (a random pick finds 25%), and it places a district in the correct WHO vitamin A band `r pc(Q$band_exact)` of the time, within one band `r pc(Q$band_w1)`. The ceiling: most districts hold one or two survey clusters, so the survey's own district value is itself an estimate; from the variance components we can say what correlation a perfect predictor of the true district value could reach (variance_components_ceiling.csv, ceiling_vc). On the biomarker level the ceiling is about `r f2(Q$ceiling_level)` and the model reaches `r f2(Q$infill)`; on prevalence `r f2(Q$ceiling)` and `r f2(Q$infill_prev)`; the model is at the ceiling in 5 of 48 cells. What Reid raised in the meeting belongs here too: the model estimates status as a survey would measure it, and part of any between-country difference is survey difference (different years, seasons and teams). An earlier version of this work rested on one split and a baseline that had seen the answer; an audit found it and everything here is from the corrected protocol (docs/findings/TWO_READINGS_2026-09f.md, SANDBOX_LOG_2026-09.md).
 :::
 
-## The broad pattern comes back. The fine detail does not.
+## In Ghana the model recovers the regional pattern but misplaces single districts
 
 ![](`r file.path(FIG, "fig7_ghana_map.png")`)
 
@@ -133,7 +133,7 @@ The score is ranking accuracy: how closely the model's order of districts matche
 Ghana, children's vitamin A. Each district is predicted with itself removed from the model (5 folds, averaged over 10 repeats), so nothing in the middle map is fitted to the district it scores. Ranking accuracy `r f2(as.numeric(readLines(file.path(root, "results", "figures", "policy_deck", "fig7_ghana_rho.txt"))))` for this cell, against `r f2(Q$null_d)` for chance. What the eye should take: the north comes out as the worst region in both maps without the model being told anything about survey results. What it should not take: that any single district is correctly placed. The third map is the deployment case: the model fitted on all 75 surveyed districts and applied to every one of Ghana's districts, so the grey gaps in the middle map are filled. Surveyed districts are in-sample in that panel; the honest check of the model is the middle panel. How firmly each district is placed is the appendix slide "How sure is the model about each district?".
 :::
 
-## Inside a country every method ties. Only ours works with no survey.
+## With a survey every method ties; without one only the proxy index can run
 
 ![](`r file.path(FIG, "fig1_model_comparison.png")`)
 
@@ -200,7 +200,7 @@ The 0.03 tie rule is ours and applies to every comparison in the deck, including
 
 ## Two plainer measures of accuracy
 
-- Of the truly worst quarter of districts, the model finds `r pc(Q$topk)` inside a surveyed country and `r pc(Q$topk_tr)` in a country never seen. A random pick finds 25%.
+- Of the survey's worst quarter of districts, the model finds `r pc(Q$topk)` inside a surveyed country and `r pc(Q$topk_tr)` in a country never seen. A random pick finds 25%.
 - It places a district in the correct WHO vitamin A band `r pc(Q$band_exact)` of the time, and within one band `r pc(Q$band_w1)`.
 - On the biomarker level the ceiling set by survey noise is about `r f2(Q$ceiling_level)` and the model reaches `r f2(Q$infill)`; on prevalence `r f2(Q$ceiling)` and `r f2(Q$infill_prev)`.
 
@@ -224,7 +224,7 @@ Source: results/tables/policy_deck/worst_fifth_probability.csv, script 07. The m
 Cote d'Ivoire has the full proxy database and no biomarker survey, so it is the case the project exists for. The climate-and-soil index was fitted on the four surveyed countries and applied to CIV's 33 districts; it has never seen a Cote d'Ivoire biomarker. Left panel: the worst-ranked districts are the northern savanna belt (Tchologo, Bounkani, Bagoue, Poro, Hambol), the drier, poorer, more pastoral half of the country. Right panel: how firmly each district is placed. The training set was resampled 400 times and the index refitted each time; the map shows the width of the 90 percent range of ranks, in places out of 33. The median is 5 places, the five worst-ranked districts stay in the worst third in every refit, and 10 of 33 districts have at least an 80 percent chance of being in the worst third while 21 have at most 20 percent. This uncertainty covers how much the ranking depends on which training districts we learned from. It does not test whether the model transports to Cote d'Ivoire at all, because there is no CIV ground truth; the external bound on that is the held-out transport accuracy of `r f2(Q$cs)`. Two guards ran first: the same code with each surveyed country held out reproduces the published transport figure exactly (0.369 over 22 cells, 22 positive), and adding CIV to the column intersection costs seven of the 95 climate-and-soil columns without degrading transport (0.386, still 22 of 22). Tables: results/tables/policy_deck/civ_climate_soil_ranking.csv, civ_rank_uncertainty.csv, civ_transport_guards.csv.
 :::
 
-## Targeting the worst fifth of districts, the model finds the most deficiency
+## Targeting the model's worst fifth reaches more deficient people
 
 ![](`r file.path(FIG, "fig6_targeting.png")`)
 

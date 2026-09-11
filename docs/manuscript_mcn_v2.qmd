@@ -137,7 +137,7 @@ at render time, so a re-run of the pipeline re-renders the paper.
 
 Micronutrient deficiencies remain a leading driver of preventable morbidity
 and mortality among children and women in low- and middle-income countries,
-contributing to anaemia, impaired growth, immune dysfunction and adverse
+and contribute to anaemia, impaired growth, immune dysfunction and adverse
 pregnancy outcomes [@stevens2022micronutrient; @who2020anaemia]. National
 biomarker surveys collated under the WHO Vitamin and Mineral Nutrition
 Information System [@who_vmnis] and the BRINDA pooled analyses
@@ -177,7 +177,7 @@ Three questions are answered separately because they have different answers:
 whether covariates can fill in unsurveyed districts inside a surveyed country,
 whether they can extrapolate to a region none of whose districts was seen,
 and whether they transport to a country held entirely out of training. Each is
-scored against the cheapest alternative a programme actually has, against a
+scored against the cheapest alternative a programme has, against a
 permutation null, and against the reliability of the target itself. The
 result is a deliverable stated at the resolution the evidence supports: a
 ranked district priority list that transports across borders, and a level that
@@ -231,14 +231,13 @@ if (!is.null(TG)) {
 
 Most districts contribute between six and forty biomarker measurements, and
 in three of the four surveys most districts contain a single primary sampling
-unit. The precision of the district target, not the number of districts, is
-the binding constraint on everything that follows, and Section 3 and Section
-4.5 treat it explicitly.
+unit. The precision of the district target is the binding constraint on
+everything that follows; Sections 3 and 4.5 treat it explicitly.
 
 ## Predictors
 
-Every predictor available at district resolution was assembled, not Earth
-observation alone. The vocabulary in this version holds
+We assembled every predictor available at district resolution, whatever its
+source. The vocabulary in this version holds
 `r if (!is.null(MD)) nrow(MD) else 473` columns in
 `r if (!is.null(MD)) length(unique(MD$domain)) else 24` domains
 (@tbl-domains): Google Earth Engine zonal aggregates [@gorelick2017google]
@@ -368,7 +367,7 @@ vocabulary.
 
 Within a surveyed country the covariates beat the honest survey baseline and
 tie the covariate-free smoother (@tbl-infill). Against a jackknifed regional
-mean, the only sub-national alternative a programme actually has, the domain
+mean, the only sub-national alternative a programme has, the domain
 index reaches a mean rank correlation of
 `r sprintf("%.2f", get(BM$mean_spearman[BM$estimand == "infill" & BM$arm == "domain_index" & BM$target == "level"]))`
 against
@@ -503,8 +502,8 @@ B12's leading predictors, eight of child iron's and most of the others; the
 exceptions are marked in the figure. Re-estimating the survey aggregates with
 the cluster-level model (DS-01) raised their share of the index's variance
 from 0.24 to 0.34 and put more of them in the leading ten, the same shift
-that cost the index across borders in RR-10. The two importances answer different questions and
-part where they should. The back-projection says what the fitted index
+that cost the index across borders in RR-10. The two importances answer
+different questions. The back-projection says what the fitted index
 computes; the ablation says what a new country needs. They agree on soil and
 climate, and they disagree on the survey-derived domains, which hold several
 of the largest individual weights yet improve transport when removed
@@ -607,8 +606,8 @@ percentage points, against 20 for a district survey of the same size and 12
 for a regional one; the district survey needs about 40% of the full sample,
 roughly 400 respondents, before it does better on level error. It loses on
 burden captured at every sample size, because burden concentrates in populous
-districts that a survey measures precisely, so the design is a level
-calibration for a ranking, not a substitute for a survey.
+districts that a survey measures precisely, so the design calibrates the
+level of a ranking and does not substitute for a survey.
 
 ```{r tbl-anchor}
 #| tbl-cap: "Survey design: median district error in percentage points over 22 cells, by share of the full survey sample. National anchor + ranking measures only a national prevalence and orders districts by the transported climate + soil index; the district and regional surveys spend the same sample on direct estimates."
@@ -732,14 +731,14 @@ answer; the jackknifed arm cost one additional run and reversed a finding.
 Second, a dropped country, a mis-filed domain or a blanked block does not
 announce itself in a column count: the vocabulary had 451 columns before and
 after the IHME defect, and the regional headline had 12 cells before and after
-Sierra Leone vanished. Per-country coverage and per-country cell counts, not
-totals, are the checks that found them.
+Sierra Leone vanished. The checks that found them were per-country coverage
+and per-country cell counts.
 
 # Limitations
 
 Four countries, three of them West African, bound the transport result; the
 pre-registration for the next countries is the test that can move it. The
-deliverable is a ranking, not a level: absolute prevalence differs between
+deliverable is a ranking without a level: absolute prevalence differs between
 surveys by more than covariates explain, and the level must come from a
 national measurement. Within a surveyed country geography supplies most of the
 attainable accuracy, so the covariates earn their place mainly where no survey
