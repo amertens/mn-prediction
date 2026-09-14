@@ -92,7 +92,7 @@ mod_civ_server <- function(id) {
       title <- switch(layer, priority = "Priority score", rank_width = "Places the rank can move", p_worst3rd = "Chance of worst third")
       labels <- sprintf("<strong>%s</strong><br/>%s<br/>Rank %s of %d<br/>%s", d$Admin2, d$Admin1, d$rank_worst, nrow(d),
                         ifelse(is.finite(d$rank_lo), sprintf("Rank range %s to %s; chance of worst third %s", fmt_num(d$rank_lo, 0), fmt_num(d$rank_hi, 0), fmt_pct(d$p_worst3rd, 0)), "")) |> lapply(HTML)
-      leaflet(d) |> addProviderTiles(providers$CartoDB.Positron) |>
+      leaflet(d) |> addProviderTiles(providers$Esri.WorldGrayCanvas) |>
         addPolygons(fillColor = pal(vals), fillOpacity = 0.78, color = "#666", weight = 0.7,
                     highlightOptions = highlightOptions(weight = 3, color = "#333", bringToFront = TRUE),
                     label = labels, labelOptions = labelOptions(textsize = "13px")) |>

@@ -125,7 +125,7 @@ mod_map_explorer_server <- function(id) {
                         if (area_col() == "Admin2") df$n_districts else nrow(df),
                         fmt_pct(df$prev_anchored), ifelse(is.finite(df$survey_prev), fmt_pct(df$survey_prev), "not surveyed"),
                         ifelse(is.finite(df$p_worst_fifth), fmt_pct(df$p_worst_fifth, 0), "—"), fmt_count(df$population)) |> lapply(HTML)
-      m <- leaflet(df) |> addProviderTiles(providers$CartoDB.Positron) |>
+      m <- leaflet(df) |> addProviderTiles(providers$Esri.WorldGrayCanvas) |>
         addPolygons(fillColor = fill, fillOpacity = 0.78, color = ifelse(surveyed, "#1a1a1a", "#9aa0a6"),
                     weight = ifelse(surveyed, 1.6, 0.5), opacity = 1,
                     highlightOptions = highlightOptions(weight = 3, color = "#333", bringToFront = TRUE),

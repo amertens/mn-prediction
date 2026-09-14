@@ -177,7 +177,7 @@ mod_catalogue_server <- function(id) {
       bnd <- bnd[!is_water(bnd$Admin2), ]
       vals <- xr[match(.key(bnd$Admin1, bnd$Admin2), rownames(xr)), col]
       pal <- colorNumeric("YlGnBu", domain = range(vals, na.rm = TRUE), na.color = "#d9d9d9")
-      leaflet(bnd) |> addProviderTiles(providers$CartoDB.Positron) |>
+      leaflet(bnd) |> addProviderTiles(providers$Esri.WorldGrayCanvas) |>
         addPolygons(fillColor = pal(vals), fillOpacity = 0.8, color = "#777", weight = 0.4,
                     label = sprintf("%s (%s): %s", bnd$Admin2, bnd$Admin1, fmt_num(vals, 2))) |>
         addLegend(pal = pal, values = vals[is.finite(vals)], title = "Within-country rank (normal scale)", position = "bottomright")
