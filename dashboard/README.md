@@ -18,7 +18,7 @@ Live app: <https://amertens.shinyapps.io/micronutrient-burden/>
 
 | Menu | Tab | What it shows |
 |---|---|---|
-| | Start here | What the dashboard is, how to read the map, a worked example, the checklist of what the models can and cannot do yet |
+| | Start here | A plain-language abstract (the project, the four training surveys, how the model was built and checked), the three headline numbers, how to use the map, the checklist of what the model can and cannot do yet, and a folded-away worked example |
 | Where is deficiency? | Map explorer | Priority score per district, chance of the worst fifth, planning prevalence anchored to the national survey, the survey's own estimate; click a district for its numbers and drivers |
 | | District profiles | One district across every outcome, with the exact predictor decomposition of its score |
 | | Cote d'Ivoire | 33 districts ranked from climate and soil alone, with rank uncertainty |
@@ -27,7 +27,7 @@ Live app: <https://amertens.shinyapps.io/micronutrient-burden/>
 | | Predictor catalogue | Every predictor with definition, source, coverage, weight per outcome, replication and a small map |
 | Can we trust it? | How well it works | The three tests against matched comparators and the null, the reliability ceiling, the learning curve, the geostatistical comparator, what else was tried |
 | | What the ranking buys | Burden reached by the worst fifth, calibration of the worst-fifth probability, WHO band accuracy |
-| | Methods | The model, the protocol, performance, surveys, data, what changed, limits |
+| | Methods | The model, how it is tested and the performance table, the surveys, limits; the audit history and biomarker notes are folded away |
 | | Plan a survey | The anchor-and-rank survey design against district and regional surveys |
 
 ## Structure

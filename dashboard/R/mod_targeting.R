@@ -113,7 +113,7 @@ mod_targeting_server <- function(id) {
                 transport_anchored_climate_soil = "Transported ranking + national anchor, climate and soil")
       d <- RC[RC$scheme == "who_vitA" & RC$arm %in% names(lab2), ]
       t <- data.frame(Method = lab2[d$arm], `Correct band` = fmt_pct(d$exact_admin2, 0), `Within one band` = fmt_pct(d$within1_admin2, 0), Cells = d$cells, check.names = FALSE)
-      reactable(t, compact = TRUE, striped = TRUE, pagination = FALSE)
+      reactable(t, compact = TRUE, striped = TRUE, pagination = FALSE, rownames = FALSE)
     })
   })
 }

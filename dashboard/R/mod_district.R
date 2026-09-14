@@ -90,7 +90,7 @@ mod_district_server <- function(id) {
                       `Planning prevalence` = fmt_pct(d$prev_anchored),
                       `Survey estimate` = ifelse(is.finite(d$survey_prev), sprintf("%s (%s to %s)", fmt_pct(d$survey_prev), fmt_pct(d$survey_lo, 0), fmt_pct(d$survey_hi, 0)), "not surveyed"),
                       `WHO class` = d$who_class, check.names = FALSE)
-      reactable(t, compact = TRUE, striped = TRUE, defaultPageSize = 8)
+      reactable(t, compact = TRUE, striped = TRUE, defaultPageSize = 8, rownames = FALSE)
     })
 
     output$drivers <- renderPlotly({
