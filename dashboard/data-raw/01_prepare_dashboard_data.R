@@ -7,6 +7,16 @@
 # Run this script to refresh the dashboard data after pipeline updates.
 # The dashboard never reads from _targets_full directly — only from
 # the curated files this script produces.
+#
+# NOTE 2026-09-13. The app now reads only four of this script's outputs:
+# admin2_population.rds, admin2_boundaries.rds, admin1_boundaries.rds and
+# metadata.rds (plus oos_cote_divoire.rds for its boundaries). Everything else
+# it writes (the person-level SuperLearner predictions, cv_performance,
+# national_estimates, benchmarks, diagnostics, importance, transport and
+# anchoring bundles) is no longer shown and is not shipped by deploy.R; those
+# tabs were replaced by dashboard/data-raw/05_build_protocol_v2_bundles.R,
+# which reads the protocol-v2 result tables. Run this script only when the
+# population, boundaries or metadata need refreshing.
 # =============================================================================
 
 suppressPackageStartupMessages({

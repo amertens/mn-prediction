@@ -50,38 +50,8 @@ args <- commandArgs(trailingOnly = TRUE)
 countries <- if (length(args)) args else c("gambia", "ghana", "sierraleone", "malawi")
 
 # ── Companion CSVs, straight from the same tables the brief prints ──────────
-write_csvs <- function(ck) {
-  owd <- setwd(here::here("dashboard")); on.exit(setwd(owd), add = TRUE)
-  suppressPackageStartupMessages(source("global.R"))
-  clab <- unname(meta$countries[[ck]])
-  pd   <- pred_model_data(DEFAULT_PRED_MODEL)
-  ocs  <- intersect(names(meta$outcome_labels), unique(pd$outcome[pd$country == clab]))
-
-  dis <- do.call(rbind, lapply(ocs, function(oc) {
-    d <- attach_prevalence_range(
-      get_country_admin2(ck, oc, admin2_bnds, pd, admin2_pop), clab, oc)
-    d <- sf::st_drop_geometry(d)
-    data.frame(country = clab, outcome = oc,
-               outcome_label = unname(meta$outcome_labels[oc]),
-               district = d$Admin2, region = d$Admin1,
-               estimated_prev = d$pred_prev,
-               range_lo = d$prev_lo, range_hi = d$prev_hi,
-               survey_prev = d$obs_prev, who_class = d$who_class,
-               population = d$population, people_affected = d$pop_at_risk,
-               stringsAsFactors = FALSE)
-  }))
-  nat <- do.call(rbind, lapply(ocs, function(oc) {
-    a <- national_aggregate(get_country_admin2(ck, oc, admin2_bnds, pd, admin2_pop))
-    data.frame(country = clab, outcome = oc,
-               outcome_label = unname(meta$outcome_labels[oc]),
-               estimated_prev = a$pred_prev_natl,
-               people_affected = a$pop_at_risk_natl,
-               population = a$pop_total, stringsAsFactors = FALSE)
-  }))
-  utils::write.csv(dis, file.path(OUT, sprintf("%s_districts.csv", ck)), row.names = FALSE)
-  utils::write.csv(nat, file.path(OUT, sprintf("%s_national.csv", ck)), row.names = FALSE)
-  cat(sprintf("    csv: %d district rows, %d national rows\n", nrow(dis), nrow(nat)))
-}
+source(here::here("dashboard", "report", "write_brief_csvs.R"))
+write_csvs <- function(ck) write_brief_csvs(ck, OUT)
 
 failed <- character(0)
 for (ck in countries) {
@@ -133,11 +103,11 @@ for (ck in countries) {
   tryCatch(write_csvs(ck), error = function(e) cat("    csv failed:", conditionMessage(e), "\n"))
 }
 
-# ── The two documents that are not per-country ─────────────────────────────
-# overview.qmd  — all four countries side by side (the portfolio view)
-# technical_annex.qmd — the printed form of the dashboard's Technical appendix
+# ── The document that is not per-country ───────────────────────────────────
+# overview.qmd — all four countries side by side (the portfolio view). The
+# technical annex was retired on 2026-09-13 with the tabs it printed.
 if (!length(args)) {
-  for (doc in c("overview", "technical_annex")) {
+  for (doc in c("overview")) {
     cat(sprintf("\n== %s ==\n", doc))
     src_qmd <- here::here("dashboard", "report", paste0(doc, ".qmd"))
     if (!file.exists(src_qmd)) { cat("  missing:", src_qmd, "\n"); next }

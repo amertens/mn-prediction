@@ -1,233 +1,138 @@
 # =============================================================================
-# Module: Predictor Importance
+# Module: What drives the estimate
 # =============================================================================
-# Three views of what drives a predicted prevalence, ordered so the one a
-# program decision actually turns on comes first:
-#   (1) Per-district SHAP factors — why THIS district's estimate is where it is,
-#       and the panel to sense-check against local knowledge.
-#   (2) Domain ablation heatmap — AUC drop when each predictor family is
-#       permuted, by country × outcome.
-#   (3) Top single-variable importance — the predictors that lose the most AUC
-#       when individually shuffled.
-#
-# (1) used to be last. It is the only one framed around a place rather than
-# around the model, so it now leads.
+# The index is linear in the rank-normalised predictors, so its weights project
+# back exactly onto the columns. This tab shows that projection: the leading
+# predictors per outcome, which kinds of data carry the model and which travel
+# to a new country, the twenty-layer composite, and the gradient that recurs.
 
 mod_importance_ui <- function(id) {
   ns <- NS(id)
-
   navset_card_tab(
-
-    # "Why is this district high?" comes first. It used to be third, behind two
-    # panels about the model rather than about a place.
     nav_panel(
-      title = "Why a district is high",
-      icon = bsicons::bs_icon("crosshair"),
-      div(
-        p("Pick a district to see which conditions pushed its estimate up or ",
-          "down: malaria burden, rainfall, soil, food prices, and so on. ",
-          "Read it as the model showing its working, and check it against what ",
-          "you know about the place."),
-        layout_columns(
-          col_widths = c(4, 4, 4),
-          selectInput(ns("shap_country"), "Country",
-                      choices = country_choices, selected = "ghana"),
-          selectInput(ns("shap_outcome"), "Outcome",
-                      choices = outcome_choices, selected = "women_iron"),
-          uiOutput(ns("shap_district_picker"))
-        ),
-        plotlyOutput(ns("shap_plot"), height = "450px"),
-        methods_note(
-          "Bars are SHAP values: each predictor's contribution to this ",
-          "district's estimate. Red pushes the estimate above the country ",
-          "average, blue pulls it below, and bar length is how much. ",
-          tags$br(), tags$br(),
-          "They are computed against the fitted ensemble's own predictions ",
-          "using sampling (Monte-Carlo) Shapley values, so they reflect the ",
-          "whole model rather than one component. To keep computation ",
-          "manageable, they cover each outcome's most important predictors over ",
-          "a sample of individuals per district. ",
-          tags$br(), tags$br(),
-          "This is the most useful panel for sense-checking. If a district's ",
-          "top factors match what local health staff know about the area, that ",
-          "is a point in the model's favor. If they do not, the estimate is ",
-          "worth questioning."
-        )
-      )
+      title = "Leading predictors", icon = bsicons::bs_icon("bar-chart-line"),
+      layout_columns(col_widths = c(3, 9),
+        div(selectInput(ns("outcome"), "Outcome", choices = NULL),
+            radioButtons(ns("target"), "Target", choices = c("Biomarker level" = "level", "Prevalence" = "prev"), selected = "level"),
+            p(style = "font-size:0.85em; color:#555;",
+              "Bar length is the predictor's exact weight in the four-country fit, per unit of its within-country rank.",
+              " Right means the district ranks worse. Colour is the kind of data. A star marks a sign that is not",
+              " reproduced in every country's own fit.")),
+        plotlyOutput(ns("top"), height = "460px")),
+      methods_note("These weights say where deficiency is, not what to change. Livestock density weighting toward",
+                   " more iron and B12 deficiency is ecological: in these four countries the pastoral zones are the",
+                   " dry, poor zones. No single predictor carries more than about 2 percent of the model.")
     ),
-
     nav_panel(
-      title = "Which data sources matter",
-      icon = bsicons::bs_icon("grid-3x3"),
-      div(
-        p("How much each family of predictors contributes, by country and ",
-          "nutrient. Each family is scrambled in turn and we measure how much ",
-          "worse the model gets. Darker cells mean the model leans on that ",
-          "family more."),
-        plotlyOutput(ns("ablation_heatmap"), height = "550px"),
-        methods_note(
-          "Cells show the drop in ROC-AUC when a thematic group of predictors ",
-          "is permuted, for each country × outcome model. ",
-          tags$br(), tags$br(),
-          "This describes the model overall, not any one district — for that, ",
-          "use the first panel. A near-zero cell means the family is either ",
-          "uninformative for that outcome or redundant with another family. ",
-          tags$br(), tags$br(),
-          "The measure understates predictors that overlap: when two families ",
-          "carry the same information, removing either alone changes little, ",
-          "even though the information itself matters."
-        )
-      )
+      title = "Which data carry it", icon = bsicons::bs_icon("layers"),
+      layout_columns(col_widths = c(7, 5),
+        card(card_header("Inside a country against across borders"),
+             plotlyOutput(ns("domain_scatter"), height = "460px")),
+        card(card_header("Dropping a whole data source"),
+             plotlyOutput(ns("source_ablation"), height = "460px"))),
+      methods_note(sprintf(paste("Horizontal axis: the share of the model a data group carries inside a surveyed country (pooled fit,",
+                                 "mean over outcomes). Vertical: what a country the model has never seen loses when that group is",
+                                 "removed. Satellite imagery, climate and soil carry %s to %s of the model; climate and soil are",
+                                 "what a new country needs, and the household-survey aggregates sit below zero: they help inside",
+                                 "a country and hurt in a new one."), fmt_pct(Q$env_lo, 0), fmt_pct(Q$env_hi, 0)))
     ),
-
     nav_panel(
-      title = "Individual predictors",
-      icon = bsicons::bs_icon("list-ol"),
-      div(
-        p("The thirty predictors the model relies on most, for one country and ",
-          "nutrient."),
-        layout_columns(
-          col_widths = c(6, 6),
-          selectInput(ns("var_country"), "Country",
-                      choices = country_choices, selected = "ghana"),
-          selectInput(ns("var_outcome"), "Outcome",
-                      choices = outcome_choices, selected = "women_iron")
-        ),
-        plotlyOutput(ns("varimp_plot"), height = "500px"),
-        methods_note(
-          "Each predictor is scrambled three times, the model re-predicts, and ",
-          "the bar is the average drop in ROC-AUC. Longer bars mean heavier ",
-          "reliance. ",
-          tags$br(), tags$br(),
-          "Name prefixes: ", tags$code("chirps_*"), " rainfall, ",
-          tags$code("gee_*"), " satellite-derived, ",
-          tags$code("MAP_*"), " Malaria Atlas Project, ",
-          tags$code("worldpop_*"), " population, ",
-          tags$code("wfp_*"), " food security and food prices, ",
-          tags$code("dhs*_*"), " DHS district indicators, ",
-          tags$code("ihme_*"), " IHME modeled health indicators, ",
-          tags$code("soil_*"), " soil properties."
-        )
-      )
+      title = "Twenty public layers", icon = bsicons::bs_icon("list-ol"),
+      layout_columns(col_widths = c(3, 9),
+        div(selectInput(ns("outcome20"), "Outcome", choices = NULL),
+            p(style = "font-size:0.85em; color:#555;",
+              sprintf(paste("An equal-weight composite of the twenty predictors with the largest weights, membership chosen",
+                            "inside each training fold, ranks a new country at %s against %s for the full %d-column index.",
+                            "A country can assemble this list itself; none of it needs a blood sample."),
+                      fmt_num(Q$sparse20_tr), fmt_num(Q$tr), Q$n_predictors))),
+        reactableOutput(ns("twenty")))
+    ),
+    nav_panel(
+      title = "One gradient", icon = bsicons::bs_icon("arrow-down-up"),
+      p(class = "lead", "The same kind of district ranks worst on every deficiency."),
+      p("Predictors in the leading twenty of three or more of the six outcomes, with the sign in each. Districts that are",
+        " drier and grassier, less productive, more pastoral, poorer and with more stunted children rank worst on every",
+        " deficiency measured. Outcome-specific signals sit beneath that gradient."),
+      reactableOutput(ns("patterns"))
     )
   )
 }
 
-
 mod_importance_server <- function(id) {
   moduleServer(id, function(input, output, session) {
-    ns <- session$ns
+    IT <- EV$importance_top
+    observe({
+      req(IT)
+      ocs <- intersect(names(outcome_short), unique(IT$outcome))
+      updateSelectInput(session, "outcome", choices = setNames(ocs, outcome_short[ocs]), selected = "child_iron")
+      updateSelectInput(session, "outcome20", choices = setNames(ocs, outcome_short[ocs]), selected = "child_iron")
+    })
+    src_pal <- c("DHS / MICS household surveys" = "#C8641E", "IHME modelled surfaces" = "#6a3d9a", "Malaria Atlas Project" = "#cab2d6",
+                 "Earth Engine (climate, land, built environment)" = "#0F7B8A", "AlphaEarth satellite embedding" = "#7fcdbb",
+                 "SoilGrids / iSDA soil" = "#8c510a", "MapSPAM crops" = "#33a02c", "Gridded Livestock of the World" = "#b15928",
+                 "WHO ESPEN helminths" = "#9e9ac8", "WFP market prices" = "#fdbf6f")
+    col_of <- function(s) { c <- src_pal[s]; c[is.na(c)] <- "#8c8c8c"; unname(c) }
 
-    # ── Domain ablation heatmap ──────────────────────────────────────────
-    output$ablation_heatmap <- renderPlotly({
-      abl <- importance_data$ablation
-      if (is.null(abl) || nrow(abl) == 0) {
-        return(plotly_empty(type = "scatter", mode = "markers") |>
-          layout(annotations = list(text = "Domain ablation data not yet built. Re-run pipeline.",
-                                      showarrow = FALSE,
-                                      font = list(size = 14))))
-      }
-
-      # Compute baseline AUC per country×outcome (domain_removed == "none")
-      base <- abl[abl$domain_removed == "none", c("country", "outcome", "auc")]
-      colnames(base)[3] <- "auc_baseline"
-      d <- merge(abl[abl$domain_removed != "none", ], base,
-                  by = c("country", "outcome"), all.x = TRUE)
-      d$drop <- d$auc_baseline - d$auc
-
-      d$label <- paste0(d$country, " — ", meta$outcome_labels[d$outcome])
-
-      plot_ly(d,
-              x = ~domain_removed, y = ~label, z = ~drop,
-              type = "heatmap",
-              colorscale = "YlOrRd",
-              hoverinfo = "text",
-              text = ~sprintf("%s × %s<br>Domain: %s<br>AUC drop: %.3f",
-                                country, outcome, domain_removed, drop)) |>
-        layout(xaxis = list(title = "Domain", tickangle = -45),
-               yaxis = list(title = ""),
-               margin = list(l = 250, b = 100))
+    output$top <- renderPlotly({
+      req(IT, input$outcome, input$target)
+      d <- IT[IT$outcome == input$outcome & IT$target == input$target & IT$rank <= 10, ]
+      validate(need(nrow(d) > 0, "No importance rows for this outcome."))
+      d$source <- pred_source(d$column); d$label <- pred_label(d$column)
+      d$label <- ifelse(d$incountry_sign_agree == d$incountry_fits, d$label, paste(d$label, "*"))
+      d <- d[order(d$beta_std), ]; d$label <- factor(d$label, levels = d$label)
+      plot_ly(d, x = ~beta_std, y = ~label, type = "bar", orientation = "h", marker = list(color = col_of(d$source)),
+              text = ~sprintf("%s<br>%s<br>%s<br>weight %+.2f, share of model %.1f%%<br>same sign in %d of %d countries' own fits",
+                              column, source, domain, beta_std, 100 * share, incountry_sign_agree, incountry_fits), hoverinfo = "text") |>
+        layout(xaxis = list(title = "Weight in the index (right = more deficiency)"), yaxis = list(title = ""),
+               margin = list(l = 10, r = 10, t = 10, b = 50)) |> config(displayModeBar = FALSE)
     })
 
-    # ── Single-variable importance plot ──────────────────────────────────
-    output$varimp_plot <- renderPlotly({
-      vi <- importance_data$varimp
-      ctry_label <- meta$countries[input$var_country]
-      if (is.null(vi) || nrow(vi) == 0) {
-        return(plotly_empty(type = "scatter", mode = "markers") |>
-          layout(annotations = list(
-            text = "Per-variable importance data not yet built. Re-run pipeline with single_var_ablation targets.",
-            showarrow = FALSE, font = list(size = 14))))
-      }
-
-      d <- vi[vi$country == ctry_label & vi$outcome == input$var_outcome, ,
-              drop = FALSE]
-      if (nrow(d) == 0) {
-        return(plotly_empty(type = "scatter", mode = "markers") |>
-          layout(annotations = list(
-            text = sprintf("No variable importance data for %s × %s",
-                            ctry_label, input$var_outcome),
-            showarrow = FALSE, font = list(size = 14))))
-      }
-
-      d$variable <- factor(d$variable, levels = rev(d$variable[order(d$drop_mean)]))
-
-      plot_ly(d,
-              x = ~drop_mean, y = ~variable,
-              type = "bar", orientation = "h",
-              marker = list(color = "#2c7bb6"),
-              hoverinfo = "text",
-              text = ~sprintf("%s<br>AUC drop: %.4f", variable, drop_mean)) |>
-        layout(xaxis = list(title = "AUC drop when permuted"),
-               yaxis = list(title = ""),
-               margin = list(l = 250))
+    output$domain_scatter <- renderPlotly({
+      D <- CAT$domains; validate(need(!is.null(D) && "share_mean" %in% names(D), "Domain table not built."))
+      D <- D[is.finite(D$share_mean), ]
+      D$carry <- ifelse(is.finite(D$transport_cost) & D$transport_cost > 0.008, "carries a new country",
+                        ifelse(is.finite(D$transport_cost) & D$transport_cost < -0.004, "holds a new country back", "little effect"))
+      plot_ly(D, x = ~share_mean, y = ~transport_cost, type = "scatter", mode = "markers+text", text = ~domain, textposition = "top center",
+              textfont = list(size = 10), color = ~carry, colors = c("carries a new country" = PROXY_COL, "holds a new country back" = SURVEY_COL, "little effect" = "#9a9a9a"),
+              marker = list(size = 11), hovertext = ~sprintf("%s<br>%d columns, %d axes kept<br>share of model %.1f%%<br>transport cost when dropped %+.3f",
+                                                            domain, n_columns, n_axes, 100 * share_mean, transport_cost), hoverinfo = "text") |>
+        layout(xaxis = list(title = "Share of the model inside a surveyed country", tickformat = ".0%"),
+               yaxis = list(title = "Accuracy a new country loses if the group is dropped", zeroline = TRUE),
+               legend = list(orientation = "h", y = -0.2), margin = list(l = 10, r = 10, t = 10, b = 40)) |> config(displayModeBar = FALSE)
     })
 
-    # ── Per-district SHAP picker ─────────────────────────────────────────
-    output$shap_district_picker <- renderUI({
-      sh <- importance_data$shap
-      ctry_label <- meta$countries[input$shap_country]
-      if (is.null(sh) || nrow(sh) == 0) {
-        return(p(em("SHAP data not yet available."), style = "color: #888;"))
-      }
-      ds <- sort(unique(sh$Admin2[sh$country == ctry_label &
-                                     sh$outcome == input$shap_outcome]))
-      if (length(ds) == 0) {
-        return(p(em("No districts with SHAP data."), style = "color: #888;"))
-      }
-      selectInput(ns("shap_district"), "District",
-                  choices = ds, selected = ds[1])
+    output$source_ablation <- renderPlotly({
+      S <- EV$source_ablation; validate(need(!is.null(S), "Source ablation not built."))
+      S <- S[S$target == "level" & S$n_cols >= 4, ]; S$source <- sub(" [(;].*$", "", S$source)
+      S <- S[order(S$delta_drop), ]; S$source <- factor(S$source, levels = S$source)
+      plot_ly(S, x = ~delta_drop, y = ~source, type = "bar", orientation = "h",
+              marker = list(color = ifelse(S$delta_drop > 0, PROXY_COL, SURVEY_COL)),
+              text = ~sprintf("%s: %d columns<br>transport %.3f with, %.3f without (%+.3f)", source, n_cols, full, drop, delta_drop), hoverinfo = "text") |>
+        layout(xaxis = list(title = "Accuracy lost in a new country when the source is dropped (negative = it helps to drop)"),
+               yaxis = list(title = ""), margin = list(l = 10, r = 10, t = 10, b = 50)) |> config(displayModeBar = FALSE)
     })
 
-    output$shap_plot <- renderPlotly({
-      sh <- importance_data$shap
-      ctry_label <- meta$countries[input$shap_country]
-      req(input$shap_district, sh)
-
-      d <- sh[sh$country == ctry_label &
-              sh$outcome == input$shap_outcome &
-              sh$Admin2 == input$shap_district, , drop = FALSE]
-      if (nrow(d) == 0) {
-        return(plotly_empty(type = "scatter", mode = "markers"))
-      }
-
+    output$twenty <- renderReactable({
+      req(IT, input$outcome20)
+      d <- IT[IT$outcome == input$outcome20 & IT$target == "level" & IT$rank <= 20, ]
       d <- d[order(d$rank), ]
-      d$variable <- factor(d$variable, levels = rev(d$variable))
-      d$bar_color <- ifelse(d$shap > 0, "#d7191c", "#2c7bb6")
-
-      plot_ly(d,
-              x = ~shap, y = ~variable,
-              type = "bar", orientation = "h",
-              marker = list(color = ~bar_color),
-              hoverinfo = "text",
-              text = ~sprintf("%s<br>SHAP: %+.4f<br>%s",
-                                variable, shap, direction)) |>
-        layout(xaxis = list(title = "SHAP value (effect on predicted prevalence)",
-                             zeroline = TRUE, zerolinecolor = "#333",
-                             zerolinewidth = 1),
-               yaxis = list(title = ""),
-               margin = list(l = 250))
+      t <- data.frame(Rank = d$rank, Predictor = pred_label(d$column), Column = d$column,
+                      Direction = ifelse(d$beta > 0, "more deficiency", "less deficiency"),
+                      Source = pred_source(d$column), Domain = d$domain,
+                      `Same sign, every held-out country` = sprintf("%d of %d", d$loco_sign_agree, d$loco_fits),
+                      `Same sign, each country alone` = sprintf("%d of %d", d$incountry_sign_agree, d$incountry_fits), check.names = FALSE)
+      reactable(t, compact = TRUE, striped = TRUE, pagination = FALSE, searchable = TRUE,
+                columns = list(Column = colDef(show = FALSE)),
+                details = function(i) div(style = "padding:6px 24px; font-size:0.85em; color:#555;", t$Column[i]))
     })
 
+    output$patterns <- renderReactable({
+      IP <- EV$importance_patterns; validate(need(!is.null(IP), "Pattern table not built."))
+      d <- IP[IP$target == "level" & IP$outcomes_in_top20 >= 3, ]
+      d <- d[order(-d$outcomes_in_top20, d$mean_rank), ]
+      t <- data.frame(Predictor = pred_label(d$column), Domain = d$domain, `Outcomes (in top 20)` = d$outcomes_in_top20,
+                      Signs = d$signs, `Mean rank` = round(d$mean_rank, 1), check.names = FALSE)
+      reactable(t, compact = TRUE, striped = TRUE, defaultPageSize = 15)
+    })
   })
 }

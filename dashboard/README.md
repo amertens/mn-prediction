@@ -1,112 +1,109 @@
 # Micronutrient Burden Dashboard
 
-Interactive Shiny dashboard for exploring sub-national micronutrient
-deficiency predictions across The Gambia, Ghana, Sierra Leone, and Malawi.
+Shiny dashboard of district rankings of micronutrient deficiency for The
+Gambia, Ghana, Sierra Leone and Malawi, built from public data and scored
+against the four national biomarker surveys under the corrected protocol
+(protocol v2), with a ranking for Cote d'Ivoire, which has no survey.
+
+Rebuilt on 2026-09-13. Everything the app shows comes from the committed
+protocol result tables plus one fit (the deployment ranking); the earlier
+layers (person-level SuperLearner, area-level recipe, Fay-Herriot, BYM2, the
+old leaderboard, the P1 to P8 comparison, the GBD placeholder, the Sierra
+Leone chiefdom layer) were removed because each rested on an evaluation the
+audit withdrew or on a model the protocol found no better than chance.
+
+Live app: <https://amertens.shinyapps.io/micronutrient-burden/>
 
 ## Tabs
 
-1. **Map explorer** — Interactive choropleth with layer toggles (predicted prevalence, observed prevalence, confidence interval width, population at risk, WHO classification). Click any district for a side-panel detail card.
-2. **District profiles** — Pick a country and district to see all available micronutrient outcomes side by side, with country-average comparison line and 95% conformal CIs.
-3. **National burden** — Population-weighted national prevalence with toggleable population year (survey year vs 2023 projection), "hidden burden" indicator, and pipeline-vs-survey comparison.
-4. **Scenarios** — Two modes:
-    - **Coverage scenario:** simulate an intervention applied to all districts, only above-average districts, or top-N highest prevalence; specify coverage and effect size; see before/after maps and cases averted.
-    - **Sensitivity scenario:** illustrative tool for projecting how prevalence might shift under climate, food price, food security, or conflict perturbations.
-5. **GBD comparison** — Compare pipeline national estimates against IHME Global Burden of Disease estimates. Currently using placeholder values; an RA task is documented inline for replacing with actual GBD Results Tool exports.
-6. **Methods** — Plain-language description of modelling, validation, conformal CIs, limitations, and data sources.
-
-Every table includes a 1–3 paragraph methods note below it.
+| Menu | Tab | What it shows |
+|---|---|---|
+| | Start here | What the dashboard is, how to read the map, a worked example, the checklist of what the models can and cannot do yet |
+| Where is deficiency? | Map explorer | Priority score per district, chance of the worst fifth, planning prevalence anchored to the national survey, the survey's own estimate; click a district for its numbers and drivers |
+| | District profiles | One district across every outcome, with the exact predictor decomposition of its score |
+| | Cote d'Ivoire | 33 districts ranked from climate and soil alone, with rank uncertainty |
+| What drives it? | What drives the estimate | Back-projected index weights per outcome, which data groups carry the model and which travel, the twenty-layer composite, the recurring gradient |
+| | What tracks which nutrient | Cross-country sign replication of district associations (signal probes) |
+| | Predictor catalogue | Every predictor with definition, source, coverage, weight per outcome, replication and a small map |
+| Can we trust it? | How well it works | The three tests against matched comparators and the null, the reliability ceiling, the learning curve, the geostatistical comparator, what else was tried |
+| | What the ranking buys | Burden reached by the worst fifth, calibration of the worst-fifth probability, WHO band accuracy |
+| | Methods | The model, the protocol, performance, surveys, data, what changed, limits |
+| | Plan a survey | The anchor-and-rank survey design against district and regional surveys |
 
 ## Structure
 
 ```
 dashboard/
-├── app.R                              # Entry point — sources global.R, builds UI/server
-├── global.R                           # Shared data loading and config
-├── deploy.R                           # shinyapps.io deployment script
-├── README.md
+├── app.R                      # entry point
+├── global.R                   # data loading, headline numbers (Q), caveats, about, glossary
+├── deploy.R                   # shinyapps.io deployment
 ├── R/
-│   ├── fct_helpers.R                  # Reusable helpers (formatting, joining, aggregation)
-│   ├── mod_map_explorer.R             # Tab 1
-│   ├── mod_district_profile.R         # Tab 2
-│   ├── mod_national_burden.R          # Tab 3
-│   ├── mod_scenarios.R                # Tab 4 (coverage + sensitivity)
-│   ├── mod_gbd_compare.R              # Tab 5
-│   └── mod_methods.R                  # Tab 6
-├── data/                              # Pre-built data (built by data-raw scripts)
-│   ├── admin2_predictions.rds
-│   ├── admin2_population.rds          (with 2023 projection)
-│   ├── admin2_boundaries.rds
-│   ├── admin1_boundaries.rds
-│   ├── national_estimates.rds
-│   ├── cv_performance.rds
-│   ├── gbd_estimates.rds              (placeholder — see RA task in module)
-│   └── metadata.rds
-├── data-raw/                          # Build scripts and tests (not deployed)
-│   ├── 01_prepare_dashboard_data.R    # Main data builder
-│   ├── 02_gbd_placeholder.R           # GBD framework data
+│   ├── fct_helpers.R          # joins, decomposition, plot helpers
+│   ├── mod_start_here.R
+│   ├── mod_map_explorer.R
+│   ├── mod_district.R
+│   ├── mod_civ.R
+│   ├── mod_importance.R
+│   ├── mod_nutrient_signal.R
+│   ├── mod_catalogue.R
+│   ├── mod_trust.R
+│   ├── mod_targeting.R
+│   ├── mod_methods.R
+│   └── mod_survey_design.R
+├── data/                      # built bundles (gitignored)
+│   ├── admin2_index.rds       # the deployment ranking, survey estimates, anchors, per-column weights
+│   ├── civ_index.rds
+│   ├── protocol_evidence.rds  # benchmark, targeting, ceiling, design, importance, comparator tables
+│   ├── predictor_catalogue.rds
+│   ├── nutrient_signal.rds
+│   ├── admin2_population.rds, admin2_boundaries.rds, admin1_boundaries.rds, metadata.rds
+│   └── oos_cote_divoire.rds   # kept for its Cote d'Ivoire boundaries
+├── data-raw/
+│   ├── 01_prepare_dashboard_data.R   # population, boundaries, metadata (targets-based; run rarely)
+│   ├── 03_build_nutrient_signal.R
+│   ├── 05_build_protocol_v2_bundles.R  # everything else
 │   ├── smoke_test.R
-│   ├── test_app_construction.R
-│   ├── test_endpoints.R
-│   ├── test_endpoints_v2.R
-│   ├── test_server.R
-│   └── test_deploy_ready.R
-└── www/                               # Optional static assets
+│   └── test_server.R
+└── report/                    # printable country briefs and the overview
 ```
 
-## Running locally
+## Building the data and running
 
 ```r
-# 1. Build dashboard data (only needed when pipeline outputs change)
-Rscript dashboard/data-raw/01_prepare_dashboard_data.R
-Rscript dashboard/data-raw/02_gbd_placeholder.R
-
-# 2. Launch the app
-setwd("dashboard")
-shiny::runApp()
+# from the repo root
+Rscript dashboard/data-raw/05_build_protocol_v2_bundles.R   # a minute or two
+Rscript dashboard/data-raw/03_build_nutrient_signal.R
+Rscript dashboard/data-raw/smoke_test.R
+Rscript dashboard/data-raw/test_server.R
+# then
+setwd("dashboard"); shiny::runApp()
 ```
 
-## Deploying to shinyapps.io
+Rebuild the bundles whenever the protocol tables under
+`results/tables/protocol_v2/` or `results/tables/policy_deck/` change. The
+builder fits the index once per country and outcome (24 cells) and reads
+everything else from those tables.
+
+## Deploying
 
 ```bash
 Rscript dashboard/deploy.R
 ```
 
-Prerequisites and one-time setup are documented at the top of `deploy.R`.
-On the current machine the `amertens` shinyapps.io account is already
-configured.
-
-## Required packages
-
-- `shiny`, `bslib`, `bsicons`
-- `dplyr`, `tidyr`, `sf`
-- `leaflet`, `plotly`, `reactable`, `htmltools`
-- `rsconnect` (for deployment only)
-
-## Data refresh
-
-Whenever the upstream pipeline (`_targets_full`) is rerun, regenerate the
-dashboard data:
+## Briefs
 
 ```bash
-Rscript dashboard/data-raw/01_prepare_dashboard_data.R
-Rscript dashboard/data-raw/02_gbd_placeholder.R
+Rscript dashboard/report/render_reports.R            # all countries + overview
+Rscript dashboard/report/render_reports.R ghana      # one
 ```
 
-The dashboard never reads from `_targets_full` directly — only from the
-curated RDS files in `dashboard/data/`. This keeps the dashboard fast and
-makes it easy to deploy to a server that doesn't have the full pipeline.
+The briefs source `global.R`, so they cannot disagree with the screen.
 
-## Outstanding RA tasks
+## Known gaps
 
-- **GBD Results Tool data** — The GBD comparison tab uses placeholder values.
-  An RA needs to download actual GBD prevalence estimates for the relevant
-  countries, outcomes, and years from
-  https://vizhub.healthdata.org/gbd-results/ and save as
-  `dashboard/data-raw/gbd_estimates.csv`. Detailed instructions are in the
-  GBD Comparison tab itself and at the top of
-  `dashboard/data-raw/02_gbd_placeholder.R`.
-
-- **Population projection refinement** — Current 2023 projections use
-  uniform country-level annual growth rates from World Bank Population
-  Estimates. For more accurate sub-national projections, this could be
-  replaced with WorldPop 2023 raster data extracted to Admin-2 polygons.
+- The variable annotation sheet defines 308 of the 454 predictors; the
+  catalogue shows the rest as "definition pending" and is the worklist.
+- The chance of being in the worst fifth exists for surveyed districts in
+  three countries; Sierra Leone's 14 districts cannot be cross-validated.
+- Nothing in the app is linkable (no URL state), and the boundary files are
+  most of the bundle size. Both are on the roadmap.

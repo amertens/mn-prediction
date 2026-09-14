@@ -27,7 +27,7 @@ e.g. SL→BYM2) rather than to lead with the individual-level SL.
 | SL fitting engine | [`R/sensitivity/sl_fitting.R`](../R/sensitivity/sl_fitting.R), [`R/sensitivity/mlr3_fitting.R`](../R/sensitivity/mlr3_fitting.R) | Still auto-sourced by `tar_source("R/")` (recursive), so the pipeline is unaffected by the move. |
 | Pipeline targets | `_targets.R` → "DYNAMIC TARGET FACTORY" | `sl_fit_*`, conformal CIs, ablations, diagnostics, SHAP, national estimates, and `aggregate_admin2_sl`. Marked as the sensitivity analysis in-file. |
 | Standalone scripts | [`09_cluster_cv_sensitivity.R`](09_cluster_cv_sensitivity.R) | Cluster-CV sensitivity for the individual-level SL. |
-| Dashboard layer | `dashboard/R/mod_map_explorer.R` | "Individual SuperLearner — sensitivity (surveyed districts)" map layer; the SAE layers are the default. |
+| Dashboard layer | removed 2026-09-13 | The dashboard now shows only the protocol-v2 index; the person-level result appears as one number (AUC about 0.52) on its Methods and How well it works tabs. |
 
 ## Results produced by this analysis
 

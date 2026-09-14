@@ -1,101 +1,54 @@
-# Smoke test — run from the repo root:
+# Smoke test, run from the repo root:
 #   Rscript dashboard/data-raw/smoke_test.R
-# Exercises the data bundle the way the app does: loads global.R, walks every
-# country x outcome through the map helpers for every prediction layer, and
-# constructs both app UIs. Restored from archive/ after the 2026-08 data refresh
-# (the app has no other regression check before deployment).
+# Loads global.R the way the app does, walks every country x outcome through
+# the map helpers at both levels, checks the district decomposition is exact,
+# and constructs the app UI. The app has no other regression check before
+# deployment.
 
 owd <- setwd(here::here("dashboard"))
 on.exit(setwd(owd), add = TRUE)
 source("global.R")
 
-stopifnot(nrow(admin2_pred) > 0, nrow(admin2_pop) > 0, length(admin2_bnds) == 4)
-
-layers <- list(
-  sl     = admin2_pred,
-  area   = admin2_area_pred,
-  fh     = admin2_fh_pred,
-  bym2   = admin2_bym2_pred,
-  recipe = admin2_recipe_pred
-)
-layers <- layers[!vapply(layers, is.null, logical(1))]
-cat("Prediction layers present:", paste(names(layers), collapse = ", "), "\n\n")
-
 fails <- character(0)
+note <- function(ok, msg) { cat(sprintf("  [%s] %s\n", if (ok) "ok" else "FAIL", msg)); if (!ok) fails <<- c(fails, msg) }
 
-# ── Admin-2 key hygiene ───────────────────────────────────────────────────
-# GADM ships inland water as Admin-2 polygons and repeats Admin-2 names, and
-# both reach the map: the area/recipe layers are built from the polygon-ordered
-# covariate frame, which keeps them on purpose. A water row here means Lake
-# Malawi is being painted with a deficiency prevalence; a duplicated key means
-# get_country_admin2()'s !duplicated() drops one polygon's prediction and paints
-# the survivor's value on both. Assert both are gone.
-source(here::here("R", "admin2_key_hygiene.R"))
-cat("Admin-2 key hygiene:\n")
-for (lname in names(layers)) {
-  d <- layers[[lname]]
-  w <- unique(d$Admin2[is_water_admin2(as.character(d$Admin2))])
-  if (length(w))
-    fails <- c(fails, sprintf("%s layer contains water polygons: %s",
-                              lname, paste(w, collapse = ", ")))
-  paired <- "Admin1" %in% names(d) &&
-    any(!is.na(d$Admin1) & nzchar(as.character(d$Admin1)))
-  k <- if (paired) paste(d$country, d$outcome, d$Admin1, d$Admin2)
-       else paste(d$country, d$outcome, d$Admin2)
-  if (any(duplicated(k))) {
-    dk <- unique(d$Admin2[duplicated(k)])
-    fails <- c(fails, sprintf("%s layer has %d duplicated %s key(s): %s", lname,
-                              sum(duplicated(k)),
-                              if (paired) "country/outcome/Admin1/Admin2"
-                              else "country/outcome/Admin2",
-                              paste(utils::head(dk, 6), collapse = ", ")))
+cat("Bundles\n")
+note(nrow(idx_districts) > 0, sprintf("admin2_index: %d district rows, %d cells", nrow(idx_districts), length(idx_fits)))
+note(all(is.finite(idx_national$national_prev)), "every cell has a national anchor")
+note(all(is.finite(idx_national$anchor_shift)), "every cell's anchor converged")
+note(!any(is_water(idx_districts$Admin2)), "no water polygons in the ranking table")
+k <- paste(idx_districts$country, idx_districts$outcome, idx_districts$Admin1, idx_districts$Admin2)
+note(!any(duplicated(k)), "district keys unique within each cell")
+note(!is.null(CIV) && nrow(CIV$ranking) > 0, "Cote d'Ivoire bundle present")
+note(length(EV) > 5, sprintf("protocol evidence: %d tables", length(EV) - 1))
+note(!is.null(CAT) && nrow(CAT$variables) > 400, sprintf("catalogue: %d predictors", if (is.null(CAT)) 0 else nrow(CAT$variables)))
+note(all(is.finite(c(Q$infill, Q$tr, Q$cs, Q$null_d, Q$cap_index, Q$ar_a1, Q$ceiling_prev))), "headline numbers computed")
+
+cat("\nMap helpers\n")
+n_ok <- 0L
+for (ck in names(meta$countries)) {
+  for (oc in outcomes_for(ck)) {
+    res <- tryCatch({
+      a2 <- get_country_admin2(ck, oc); stopifnot(!is.null(a2), nrow(a2) > 0, any(is.finite(a2$priority)))
+      a1 <- get_country_admin1(ck, oc); stopifnot(!is.null(a1), nrow(a1) > 0)
+      # the decomposition must reproduce the score exactly
+      r <- sf::st_drop_geometry(a2); r <- r[is.finite(r$score_logit), ][1, ]
+      dec <- decompose_district(ck, oc, r$Admin1, r$Admin2); stopifnot(!is.null(dec))
+      fit <- idx_fits[[paste(ck, oc)]]
+      mean_tr <- fit$intercept + sum(fit$beta * fit$mu)
+      gap <- abs(attr(dec, "total") - (r$score_logit - mean_tr))
+      stopifnot(gap < 1e-6)
+      TRUE
+    }, error = function(e) conditionMessage(e))
+    if (isTRUE(res)) n_ok <- n_ok + 1L else fails <- c(fails, sprintf("%s / %s: %s", ck, oc, res))
   }
-  cat(sprintf("  %-7s water=%d duplicate-keys=%d key=%s\n", lname, length(w),
-              sum(duplicated(k)), if (paired) "pair" else "name-only"))
 }
-for (nm in c("boundaries", "population")) {
-  obj <- if (nm == "boundaries") do.call(rbind, lapply(admin2_bnds, function(b)
-             data.frame(Admin2 = b$Admin2))) else admin2_pop
-  w <- unique(obj$Admin2[is_water_admin2(as.character(obj$Admin2))])
-  if (length(w))
-    fails <- c(fails, sprintf("%s contains water polygons: %s", nm, paste(w, collapse = ", ")))
-  cat(sprintf("  %-7s water=%d\n", nm, length(w)))
-}
-cat("\n")
+cat(sprintf("  %d country x outcome combinations through both levels and the decomposition\n", n_ok))
 
-for (lname in names(layers)) {
-  pd <- layers[[lname]]
-  n_ok <- 0L
-  for (ctry in names(meta$countries)) {
-    clab <- meta$countries[[ctry]]
-    for (oc in unique(pd$outcome[pd$country == clab])) {
-      res <- tryCatch({
-        df <- get_country_admin2(ctry, oc, admin2_bnds, pd, admin2_pop)
-        stopifnot(!is.null(df), nrow(df) > 0)
-        natl <- national_aggregate(df)
-        df1 <- get_country_admin1(ctry, oc, admin1_bnds, admin2_bnds, pd, admin2_pop)
-        stopifnot(nrow(df1) > 0)
-        list(ok = TRUE, natl = natl$pred_prev_natl)
-      }, error = function(e) list(ok = FALSE, msg = conditionMessage(e)))
-      if (isTRUE(res$ok)) {
-        n_ok <- n_ok + 1L
-      } else {
-        fails <- c(fails, sprintf("%s / %s / %s: %s", lname, ctry, oc, res$msg))
-      }
-    }
-  }
-  cat(sprintf("  %-7s %3d country x outcome combos OK\n", lname, n_ok))
-}
+cat("\nApp UI\n")
+res <- tryCatch({ eval(parse("app.R")[[2]]); TRUE },
+                error = function(e) { fails <<- c(fails, sprintf("app.R: %s", conditionMessage(e))); FALSE })
+note(isTRUE(res), "app.R UI constructs")
 
-cat("\nConstructing app UIs...\n")
-for (entry in c("app.R", "app_public.R")) {
-  res <- tryCatch({ eval(parse(entry)[[2]]); TRUE },
-                  error = function(e) { fails <<- c(fails, sprintf("%s: %s", entry, conditionMessage(e))); FALSE })
-  cat(sprintf("  %-14s %s\n", entry, if (isTRUE(res)) "sourced OK" else "FAILED"))
-}
-
-if (length(fails)) {
-  cat("\nFAILURES:\n"); cat(paste0("  - ", fails, collapse = "\n"), "\n")
-  quit(status = 1)
-}
+if (length(fails)) { cat("\nFAILURES:\n"); cat(paste0("  - ", fails, collapse = "\n"), "\n"); quit(status = 1) }
 cat("\nAll smoke checks passed.\n")

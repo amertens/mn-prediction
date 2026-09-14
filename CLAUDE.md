@@ -16,9 +16,10 @@ Two parallel analyses share the same pipeline:
 - **Primary — Admin-2 area-level small-area estimation (SAE).** Models fit
   directly at Admin-2 level on survey-weighted prevalences + GEE raster
   aggregates: area-level SuperLearner, Fay-Herriot, SL→BYM2, benchmarked
-  against standard SAE methods. These are the headline results and the
-  dashboard default (`R/benchmark_models.R`, the "PRIMARY ANALYSIS" section of
-  `_targets.R`).
+  against standard SAE methods. These are the pipeline's headline results
+  (`R/benchmark_models.R`, the "PRIMARY ANALYSIS" section of `_targets.R`).
+  The dashboard no longer reads them: since 2026-09-13 it is built from the
+  protocol-v2 result tables (see Downstream consumers).
 - **Sensitivity — individual-level SuperLearner.** A person-level ensemble
   aggregated up to Admin-2. Retained for comparison but not the headline
   estimator (shrinkage of a noisy individual classifier biases area means).
@@ -129,10 +130,14 @@ is a separate consumer, not part of the `targets` DAG — its `data-raw/`
 scripts read pipeline outputs and pre-build `.rds` bundles into
 `dashboard/data/`, which `app.R`/`global.R` load at Shiny startup. When
 pipeline output shapes change, the corresponding `dashboard/data-raw/*`
-builder usually needs re-running before the dashboard reflects it. The
-individual-level SL sensitivity results surface in the dashboard as a
-labelled "sensitivity" layer (`mod_map_explorer.R`) alongside the SAE
-default — see `sensitivity/README.md` for the full list of shared artifacts.
+builder usually needs re-running before the dashboard reflects it. Since
+2026-09-13 the dashboard reads only the protocol-v2 tables
+(`results/tables/protocol_v2/`, `results/tables/policy_deck/`) through
+`dashboard/data-raw/05_build_protocol_v2_bundles.R`, which also fits the
+deployment ranking (the zero-tuning index on all surveyed districts, applied
+to every district); the person-level SL, area-level, Fay-Herriot and BYM2
+layers are no longer shown. Rebuild the bundles, then run
+`dashboard/data-raw/smoke_test.R` and `test_server.R`, before deploying.
 
 **Legacy/reference code**, not part of the active pipeline unless noted
 above: `src/` (country-specific data cleaning/merging scripts — some are

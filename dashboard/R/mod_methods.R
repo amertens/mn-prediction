@@ -1,316 +1,116 @@
 # =============================================================================
-# Module: Methods Explainer
+# Module: Methods
 # =============================================================================
-# Plain-language description of the modelling approach, validation, and
-# limitations. Targeted at technical stakeholders (ministry of health
-# advisors, academic collaborators) who need to assess credibility.
+# Plain-language account of the data, the model, the protocol it is scored
+# under, what the audit changed, and the limits. Numbers come from the bundles.
 
 mod_methods_ui <- function(id) {
   ns <- NS(id)
-
   layout_columns(
     col_widths = 12,
-
-    card(
-      card_header("How these estimates are produced"),
-      card_body(
-        h5("In short"),
-        p("We trained machine learning models on individual-level biomarker data ",
-          "from nationally representative micronutrient surveys in four ",
-          "sub-Saharan African countries, linked to a wide range of routinely ",
-          "available proxy data (satellite imagery, climate reanalysis, modeled ",
-          "disease burden, food security indicators, household survey ",
-          "indicators, and food prices). The trained models then predict ",
-          "deficiency prevalence at the district level, including for districts ",
-          "without direct survey coverage."),
-
-        h5("Why proxy-only?"),
-        p("The models exclude all variables from the original biomarker survey ",
-          "as predictors. This is intentional: it ensures the predictions can ",
-          "be applied to areas where no biomarker survey exists, using only ",
-          "publicly or routinely available data sources."),
-
-        h5("How predictions are validated"),
-        p("Models are evaluated using two complementary cross-validation ",
-          "designs:"),
-        tags$ul(
-          tags$li(strong("Cluster-blocked cross-validation: "),
-                  "individuals from the same survey cluster are assigned to ",
-                  "the same fold, so the model is always tested on individuals ",
-                  "spatially separated from those used to train it. This ",
-                  "guards against optimistic estimates that would result from ",
-                  "splitting clusters across folds."),
-          tags$li(strong("Leave-one-country-out (LOCO) cross-validation: "),
-                  "the model is trained on three countries and tested on the ",
-                  "fourth. This estimates how well the model would perform if ",
-                  "applied to a new country with no biomarker data — a key ",
-                  "consideration for scaling up.")
-        )
-      )
-    ),
-
-    card(
-      card_header("Model performance summary"),
-      card_body(
-        p("Cross-validated discrimination (ROC-AUC) for binary deficiency ",
-          "models. AUC ranges from 0.5 (no discrimination, random) to 1.0 ",
-          "(perfect discrimination)."),
-        reactableOutput(ns("perf_table")),
-        methods_note(
-          "ROC-AUC is computed on cluster-blocked cross-validated predictions, ",
-          "so it reflects performance on held-out clusters (not held-out individuals ",
-          "within clusters). PR-AUC (precision-recall area under curve) is more ",
-          "informative than ROC-AUC for rare outcomes — when prevalence is below ",
-          "10%, ROC-AUC can appear high simply because the model correctly ",
-          "predicts most non-events. ",
-          tags$br(), tags$br(),
-          "Brier skill score compares the model's mean squared prediction error ",
-          "against a baseline that always predicts the prevalence. Positive values ",
-          "mean the model improves on the baseline; values near zero mean the ",
-          "model adds little signal beyond knowing the overall prevalence. ",
-          tags$br(), tags$br(),
-          "Sample sizes (N) reflect the number of individuals with non-missing ",
-          "outcome and at least some predictor data after preprocessing. Models ",
-          "with N below approximately 500 may be unstable; treat their estimates ",
-          "as preliminary. ",
-          tags$br(), tags$br(),
-          "These are within-country, cross-validated figures and are optimistic ",
-          "relative to applying the model in a new country; the leave-one-",
-          "country-out results (see Limitations) are the deployment-honest ",
-          "benchmark."
-        )
-      )
-    ),
-
-    card(
-      card_header("Prediction intervals"),
-      card_body(
-        h5("Per-district 95% intervals"),
-        p("Uncertainty around predicted prevalence is shown as a 95% interval, ",
-          "estimated by resampling the model's cross-validated predictions for ",
-          "each district, rather than from an assumed statistical distribution."),
-        p("These intervals aim for 95% coverage; in our own out-of-sample checks ",
-          "they contained the true value about 90% of the time, so treat them as ",
-          "indicative rather than exact. They are computed per district — there ",
-          "is no region-to-district broadcast. Where a district's interval is ",
-          "not available under the SuperLearner model, the Map explorer's ",
-          "Fay-Herriot layer provides an interval for every district."),
-        p("Wider intervals indicate sparser data or higher variability for that ",
-          "area; narrower intervals indicate a more confident prediction.")
-      )
-    ),
-
-    card(
-      card_header("Limitations"),
-      card_body(
-        tags$ul(
-          tags$li(strong("Cross-country generalizability is limited. "),
-                  "When models are trained in three countries and applied to a ",
-                  "fourth, performance drops substantially (LOCO AUC 0.50–0.73). ",
-                  "Predictions for unsurveyed countries should be treated as ",
-                  "screening estimates rather than definitive."),
-          tags$li(strong("Survey-vintage assumption. "),
-                  "Each prediction reflects conditions at the time of the original ",
-                  "biomarker survey. We assume the relationship between proxy ",
-                  "indicators and deficiency status is stable over time, which ",
-                  "may not hold under rapid food system or climate change."),
-          tags$li(strong("Population denominators are uncertain. "),
-                  "Population-affected counts use WorldPop estimates, which ",
-                  "themselves carry uncertainty (typically 5–15% at Admin-2 level). ",
-                  "Counts should be interpreted as planning estimates."),
-          tags$li(strong("Some outcomes are very rare. "),
-                  "When deficiency prevalence is below approximately 5%, models ",
-                  "have few positive examples to learn from and predictions may ",
-                  "be unstable.")
-        )
-      )
-    ),
-
-    card(
-      card_header("Data sources"),
-      card_body(
-        reactableOutput(ns("sources_table")),
-        methods_note(
-          "All external data sources are publicly available or accessible through ",
-          "common APIs. Variables from each source are linked to individual survey ",
-          "respondents through their cluster's geographic location (latitude/longitude) ",
-          "or by matching cluster Admin-2 districts to externally aggregated values. ",
-          tags$br(), tags$br(),
-          "Where multiple temporal versions of a source exist, we select the ",
-          "version closest to the survey fieldwork year. For climate variables ",
-          "(rainfall, temperature) the survey year is used directly; for slowly ",
-          "changing indicators (soil properties) the most recent global version is used."
-        )
-      )
-    ),
-
-    card(
-      card_header("Biomarker and data-quality caveats"),
-      card_body(
-        p("Estimates depend on how each nutrient was measured and on differences ",
-          "between surveys. Read the per-nutrient notes below alongside any ",
-          "estimate:"),
-        tags$ul(
-          tags$li(strong("Vitamin A (women): "), biomarker_caveats$women_vitA),
-          tags$li(strong("Vitamin A (children): "), biomarker_caveats$child_vitA),
-          tags$li(strong("Vitamin B12 (women): "), biomarker_caveats$women_b12),
-          tags$li(strong("Folate (women): "), biomarker_caveats$women_folate),
-          tags$li(strong("Zinc: "), biomarker_caveats$child_zinc)
-        ),
-        p(GENERAL_CAVEAT, style = "color:#555;")
-      )
-    ),
-
-    card(
-      card_header("How this compares to GBD and other models"),
-      card_body(
-        p("Different modelling efforts answer related questions with different ",
-          "inputs, which is the main reason their estimates diverge. This ",
-          "qualitative comparison of predictor families is a starting point for a ",
-          "fuller covariate comparison with the GBD and nutrient-inadequacy teams:"),
-        reactableOutput(ns("covariate_compare")),
-        p(strong("Zinc is the clearest example: "),
-          "GBD and dietary-inadequacy models infer zinc status largely from food ",
-          "supply / dietary data, whereas this project predicts from measured ",
-          "biomarkers — so the two can differ substantially even where both are ",
-          "well executed."),
-        methods_note(
-          "The GBD (Bayesian meta-regression, DisMod-MR) and WP nutrient-",
-          "inadequacy columns are summarised at the predictor-family level from ",
-          "published methods; exact per-nutrient covariate lists will be confirmed ",
-          "with the respective teams. An estimate-level comparison against GBD ",
-          "will be added once GBD Results Tool data is sourced."
-        )
-      )
-    )
+    card(card_header("The model"),
+         card_body(
+           p(sprintf(paste("To every district we attach %d public data layers in %d groups. Inside each country every layer is",
+                           "replaced by its rank across districts, so that surveys on different scales can be pooled. Each group is",
+                           "reduced to a few summary axes (principal components to 80 percent of its variance, at most 12), each axis is",
+                           "weighted by how strongly it tracked deficiency in the training districts (a Fisher-z of its rank",
+                           "correlation), and the weighted axes are summed. Nothing is tuned; the index has no setting a modeller",
+                           "chooses. The sum is rescaled to the training districts' mean and spread and ranked."), Q$n_predictors, Q$n_domains)),
+           p("Because the index is linear in the ranked layers, its weights project back exactly onto the original",
+             " layers, which is what What drives the estimate and the district decompositions show. The same projection",
+             " defines the twenty-layer composite a country could compute for itself."),
+           p("For the maps, the index is fitted on all of a country's surveyed districts and applied to every district. The",
+             " planning prevalence anchors the resulting ranking to the survey's national prevalence: the order is the model's,",
+             " the level the survey's."))),
+    card(card_header("How it is tested"),
+         card_body(
+           tags$ol(
+             tags$li(strong("Three questions, answered separately. "), "A district hidden inside a surveyed country (five folds over districts,",
+                     " ten random draws); a whole region hidden; a whole country hidden. They have different answers and are reported as such."),
+             tags$li(strong("Every comparator sees what the model sees. "), "The survey's own regional average is computed without the scored",
+                     " district; a covariate-free neighbour smoother runs on the same folds."),
+             tags$li(strong("Every random split is repeated. "), "One split of 14 to 87 districts can move a result by 0.1; every number is the",
+                     " median of ten draws."),
+             tags$li(strong("Chance is measured. "), sprintf("Shuffling the outcome across countries shows what a ranking reaches with no information: %s across districts, %s across regions.",
+                                                           fmt_num(Q$null_d), fmt_num(Q$null_a1))),
+             tags$li(strong("The target's own reliability is reported. "), sprintf("Most districts hold one or two survey clusters; a variance model gives the ceiling a perfect predictor could reach (about %s on prevalence, %s on the biomarker level).",
+                                                                                   fmt_num(Q$ceiling_prev), fmt_num(Q$ceiling_level)))
+           ),
+           p("Districts are weighted by an effective sample size from measured design effects (median 2.4). Two targets are carried",
+             " for every country and outcome: the survey-weighted district prevalence, and the district mean of the log biomarker",
+             " concentration, which keeps information a cut-off discards."))),
+    card(card_header("Performance, in one table"),
+         card_body(reactableOutput(ns("perf")),
+                   methods_note("Mean ranking accuracy over country-outcome combinations, biomarker level, by test and method.",
+                                " Differences under 0.03 are ties. The chance level is the 95th percentile of the permutation null."))),
+    card(card_header("The surveys and outcomes"),
+         card_body(reactableOutput(ns("outcomes")),
+                   p(style = "font-size:0.9em; color:#555;", "Vitamin A uses each survey's own calibration of retinol-binding protein to",
+                     " retinol before the 0.70 micromol per litre cut-off; iron is inflammation-adjusted by each survey's method. Fieldwork",
+                     " dates were recovered for every cluster so that time-varying layers match the survey year."))),
+    card(card_header("The data"),
+         card_body(reactableOutput(ns("sources")),
+                   p(style = "font-size:0.9em; color:#555;", "Any household-survey indicator that names a target nutrient or its biomarker",
+                     " is excluded as leakage. National values enter pooled models only. The full list, with definitions, is the",
+                     " Predictor catalogue."))),
+    card(card_header("What changed since the earlier version"),
+         card_body(
+           p("An audit of the first version of this work found that evaluation choices had decided its headlines, in both directions:"),
+           tags$ul(
+             tags$li("A within-country accuracy of 0.06 was one random split; the replicated median was 0.22, and the corrected index reaches ",
+                     fmt_num(Q$infill), "."),
+             tags$li("A baseline the models appeared to lose to had read the scored district's own respondents; recomputed without them it loses to the index."),
+             tags$li("A regional transport headline of 0.50 to 0.56 rested on three of four countries because of a spelling mismatch in a population file; it is withdrawn."),
+             tags$li("A reliability ceiling used to argue that districts were unresolvable was biased low by a factor of about five."),
+             tags$li("The anchoring gain shown on an earlier version of this dashboard (0.16 to 0.41) did not survive a matched control and is withdrawn."),
+             tags$li("Person-level prediction of who is deficient, the earlier headline estimator, has an AUC of about ", fmt_num(Q$il_auc),
+                     " under honest folds and is no longer offered.")
+           ),
+           p("Everything on this dashboard comes from the corrected protocol. The findings notes, the protocol scripts and the",
+             " pre-registration for the next countries are in the project repository."))),
+    card(card_header("Limits"),
+         card_body(
+           tags$ul(
+             tags$li("The model ranks. For a publishable prevalence figure in a surveyed district, the geostatistical model is the better tool."),
+             tags$li("Levels do not cross borders; rankings do. A country with no survey gets a ranking and needs one national number to turn it into prevalence."),
+             tags$li("Four countries, three of them West African, bound the transport result. The next survey added is the real test."),
+             tags$li("Where a survey exists, smoothing between neighbours does almost as well; the model's value is where there is no survey."),
+             tags$li("Household-survey inputs help inside a country and hurt in a new one; the cross-border model leans on the physical environment."),
+             tags$li("Rare outcomes (women's vitamin A under 3 percent everywhere) and Malawi-only zinc have low ceilings or no cross-border test.")
+           ),
+           h6("Biomarker notes"),
+           tags$ul(lapply(names(biomarker_caveats), function(k) tags$li(strong(meta$outcome_labels[[k]], ": "), biomarker_caveats[[k]])))))
   )
 }
 
-
 mod_methods_server <- function(id) {
   moduleServer(id, function(input, output, session) {
-
-    output$perf_table <- renderReactable({
-      df <- cv_perf
-      df <- df[df$model_type == "binary" & !is.na(df$auc), , drop = FALSE]
-
-      df$Outcome <- meta$outcome_labels[df$outcome]
-      df_show <- df[, c("country", "Outcome", "n", "auc", "brier")]
-      colnames(df_show) <- c("Country", "Outcome", "N", "AUC", "Brier")
-
-      reactable(
-        df_show,
-        compact = TRUE, striped = TRUE,
-        searchable = TRUE, defaultPageSize = 12,
-        columns = list(
-          AUC = colDef(name = "ROC-AUC",
-                       format = colFormat(digits = 2),
-                       style = function(value) {
-                         if (is.na(value)) return(NULL)
-                         color <- if (value >= 0.80) "#1a9850"
-                           else if (value >= 0.70) "#91cf60"
-                           else if (value >= 0.60) "#fdae61"
-                           else "#d7191c"
-                         list(color = color, fontWeight = "bold")
-                       }),
-          Brier = colDef(format = colFormat(digits = 3))
-        )
-      )
+    output$perf <- renderReactable({
+      B <- EV$benchmarks_summary; validate(need(!is.null(B), "Benchmark summary not built."))
+      d <- B[B$target == "level" & B$arm %in% names(arm_label), ] |> select(arm, estimand, mean_spearman) |>
+        pivot_wider(names_from = estimand, values_from = mean_spearman)
+      d$Method <- arm_label[d$arm]; d <- d[order(-d$infill), ]
+      t <- data.frame(Method = d$Method, `District hidden` = round(d$infill, 2), `Region hidden` = round(d$region, 2),
+                      `Country hidden` = round(d$country, 2), check.names = FALSE)
+      t <- rbind(t, data.frame(Method = "Chance level (permutation null, 95th percentile)", `District hidden` = NA, `Region hidden` = NA,
+                               `Country hidden` = round(Q$null_d, 2), check.names = FALSE))
+      reactable(t, compact = TRUE, striped = TRUE, pagination = FALSE)
     })
-
-    output$sources_table <- renderReactable({
-      sources <- data.frame(
-        Source = c(
-          "Biomarker surveys (GMNS, GMS, SLMS, MNS)",
-          "CHIRPS rainfall",
-          "WorldPop population density and age structure",
-          "VIIRS / NASA Black Marble nighttime lights",
-          "Malaria Atlas Project (MAP)",
-          "ISRIC SoilGrids",
-          "Global Data Lab Subnational HDI",
-          "WFP HungerMap (food security)",
-          "WFP food prices",
-          "IPC / Cadre Harmonisé food security",
-          "ACLED conflict events",
-          "HarvestStat Africa crop statistics",
-          "DHS Admin-2 indicators (smoothed)",
-          "MODIS land surface temperature, NDVI",
-          "FLDAS climate reanalysis",
-          "GHSL settlement, GPW grasslands"
-        ),
-        Domain = c(
-          "Outcome",
-          "Climate",
-          "Demography",
-          "Infrastructure",
-          "Disease burden",
-          "Soil",
-          "Development",
-          "Food security",
-          "Food prices",
-          "Food security",
-          "Conflict",
-          "Agriculture",
-          "Health system / sociodemographic",
-          "Environment",
-          "Climate",
-          "Settlement / land use"
-        ),
-        Resolution = c(
-          "Individual (cluster-georef.)",
-          "5 km, monthly",
-          "100 m, annual",
-          "500 m, annual",
-          "5 km, annual",
-          "250 m, static",
-          "Admin-1, annual",
-          "Admin-1, current",
-          "Market, monthly",
-          "Admin-2, annual",
-          "Event-level",
-          "Admin-1, annual",
-          "Admin-2, smoothed",
-          "500 m – 1 km, annual",
-          "10 km, monthly",
-          "100 m – 1 km, annual"
-        ),
-        stringsAsFactors = FALSE
-      )
-
-      reactable(sources, compact = TRUE, striped = TRUE,
-               defaultPageSize = 20)
+    output$outcomes <- renderReactable({
+      t <- data.frame(
+        Survey = c("The Gambia 2018", "Ghana 2017", "Sierra Leone 2013", "Malawi 2015 to 2016"),
+        Fieldwork = c("January to April 2018", "April to June 2017", "November to December 2013", "December 2015 to February 2016"),
+        Districts = vapply(c("Gambia", "Ghana", "Sierra Leone", "Malawi"), function(c) g1(idx_national$n_districts[idx_national$country == c]), numeric(1)),
+        Surveyed = vapply(c("Gambia", "Ghana", "Sierra Leone", "Malawi"), function(c) g1(idx_national$n_surveyed[idx_national$country == c]), numeric(1)),
+        Outcomes = vapply(c("Gambia", "Ghana", "Sierra Leone", "Malawi"), function(c) paste(outcome_short[idx_national$outcome[idx_national$country == c]], collapse = "; "), character(1)),
+        stringsAsFactors = FALSE)
+      reactable(t, compact = TRUE, striped = TRUE, pagination = FALSE, columns = list(Outcomes = colDef(minWidth = 300)))
     })
-
-    output$covariate_compare <- renderReactable({
-      cmp <- data.frame(
-        `Predictor family` = c(
-          "Satellite remote sensing (rain, vegetation, temperature, night lights)",
-          "Soil & agriculture (SoilGrids, crop statistics)",
-          "Disease burden (Malaria Atlas, IHME indicators)",
-          "Food security & prices (WFP, IPC/Cadre Harmonisé)",
-          "Conflict events (ACLED)",
-          "Household-survey / DHS area indicators",
-          "Dietary intake / diversity",
-          "Socio-demographic / development index",
-          "Outcome modelled",
-          "Spatial resolution",
-          "Core method"),
-        `This project (proxy ML)` = c(
-          "Core", "Yes", "Yes", "Yes", "Yes", "Yes (Admin-2)", "No",
-          "Some (GDL HDI)", "Measured biomarker deficiency",
-          "District (Admin-2)", "ML ensemble + small-area estimation"),
-        `GBD (DisMod-MR)` = c(
-          "Rarely", "No", "Indirect", "No", "No", "Yes (study data)", "Some",
-          "Core (SDI)", "Modelled deficiency / anaemia",
-          "National / Admin-1", "Bayesian meta-regression"),
-        `WP nutrient inadequacy` = c(
-          "Some (climate)", "Some", "No", "No", "No", "Yes (diversity, SES)",
-          "Core", "Yes (SES)", "Inadequate intake (diet-based)",
-          "National / Admin-1", "Transferable ML"),
-        check.names = FALSE, stringsAsFactors = FALSE)
-      reactable(cmp, compact = TRUE, striped = TRUE, defaultPageSize = 11,
-                columns = list(`Predictor family` = colDef(minWidth = 220)))
+    output$sources <- renderReactable({
+      S <- CAT$sources; validate(need(!is.null(S), "Source table not built."))
+      t <- S[order(-S$n_columns), ]
+      names(t) <- c("Source", "Layers", "Domains", "With a definition")
+      reactable(t, compact = TRUE, striped = TRUE, pagination = FALSE, columns = list(Domains = colDef(minWidth = 320)))
     })
-
   })
 }

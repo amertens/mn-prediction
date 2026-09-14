@@ -22,10 +22,12 @@
 #                         "plotly", "reactable", "sf", "shiny",
 #                         "dplyr", "tidyr", "htmltools"))
 #
-# 5. Refresh the dashboard data (so /data/ is up to date):
+# 5. Refresh the dashboard data (so /data/ is up to date) and run the checks:
 #
-#      Rscript dashboard/data-raw/01_prepare_dashboard_data.R
-#      Rscript dashboard/data-raw/02_gbd_placeholder.R
+#      Rscript dashboard/data-raw/05_build_protocol_v2_bundles.R
+#      Rscript dashboard/data-raw/03_build_nutrient_signal.R
+#      Rscript dashboard/data-raw/smoke_test.R
+#      Rscript dashboard/data-raw/test_server.R
 #
 # 6. Deploy with:
 #
@@ -44,15 +46,12 @@ APP_TITLE <- "Micronutrient Burden Dashboard"
 dashboard_dir <- here::here("dashboard")
 data_dir <- file.path(dashboard_dir, "data")
 
+# Exactly the bundles the app reads (global.R and mod_nutrient_signal.R).
+# Listed explicitly so a stale file left in data/ is not shipped by accident.
 required_files <- c(
-  "admin2_predictions.rds",
-  "admin2_population.rds",
-  "admin2_boundaries.rds",
-  "admin1_boundaries.rds",
-  "national_estimates.rds",
-  "cv_performance.rds",
-  "metadata.rds",
-  "gbd_estimates.rds"
+  "admin2_index.rds", "civ_index.rds", "protocol_evidence.rds", "predictor_catalogue.rds",
+  "nutrient_signal.rds", "admin2_population.rds", "admin2_boundaries.rds",
+  "admin1_boundaries.rds", "metadata.rds", "oos_cote_divoire.rds"
 )
 
 missing <- setdiff(required_files, list.files(data_dir))
@@ -60,10 +59,12 @@ if (length(missing) > 0) {
   cat("\nMissing data files:\n")
   cat("  ", missing, sep = "\n  ")
   cat("\nRun the following first:\n")
-  cat("  Rscript dashboard/data-raw/01_prepare_dashboard_data.R\n")
-  cat("  Rscript dashboard/data-raw/02_gbd_placeholder.R\n\n")
+  cat("  Rscript dashboard/data-raw/05_build_protocol_v2_bundles.R\n")
+  cat("  Rscript dashboard/data-raw/03_build_nutrient_signal.R\n\n")
   stop("Cannot deploy with missing data files.")
 }
+extra <- setdiff(list.files(data_dir), required_files)
+if (length(extra)) cat("Not shipped (not read by the app):", paste(extra, collapse = ", "), "\n")
 
 # ── Verify rsconnect account is configured ────────────────────────────────
 accts <- rsconnect::accounts()
@@ -85,7 +86,7 @@ deploy_files <- c(
   "app.R",
   "global.R",
   file.path("R",    list.files(file.path(dashboard_dir, "R"))),
-  file.path("data", list.files(file.path(dashboard_dir, "data")))
+  file.path("data", required_files)
 )
 if (dir.exists(file.path(dashboard_dir, "www"))) {
   deploy_files <- c(deploy_files,

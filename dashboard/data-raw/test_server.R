@@ -1,9 +1,7 @@
-# Server-side checks — run from the repo root:
+# Server-side checks, run from the repo root:
 #   Rscript dashboard/data-raw/test_server.R
-# smoke_test.R proves the UI constructs and the data joins; this exercises the
-# reactives that decide which numbers a user actually sees. Added when the
-# prediction-model default was unified, because a UI that builds fine can still
-# open on the wrong estimator.
+# smoke_test.R proves the UI constructs and the joins work; this exercises the
+# reactives that decide what a user sees, module by module.
 
 owd <- setwd(here::here("dashboard"))
 on.exit(setwd(owd), add = TRUE)
@@ -11,116 +9,69 @@ source("global.R")
 library(shiny)
 
 fails <- character(0)
-note  <- function(ok, msg) {
-  cat(sprintf("  [%s] %s\n", if (ok) "ok" else "FAIL", msg))
-  if (!ok) fails <<- c(fails, msg)
-}
+note <- function(ok, msg) { cat(sprintf("  [%s] %s\n", if (ok) "ok" else "FAIL", msg)); if (!ok) fails <<- c(fails, msg) }
+renders <- function(x) !is.null(x) && nzchar(as.character(x$html %||% x))
 
-cat("Default estimator\n")
-note(DEFAULT_PRED_MODEL == "recipe",
-     "DEFAULT_PRED_MODEL is the recipe layer (docs/AREA_LEVEL_RECIPE_SPEC.md)")
-note(!is.null(admin2_recipe_pred) && nrow(admin2_recipe_pred) > 0,
-     "the recipe layer is loaded and non-empty")
-note(DEFAULT_PRED_MODEL %in% unname(pred_model_choices()),
-     "the default appears in the selector choices")
-note(identical(pred_model_data(DEFAULT_PRED_MODEL), admin2_recipe_pred),
-     "pred_model_data() resolves the default to the recipe table")
-
-cat("\nMap explorer and district profiles agree\n")
-shiny::testServer(mod_map_explorer_server, args = list(id = "map"), {
-  session$setInputs(country = "ghana", outcome = "women_iron",
-                    admin_level = "admin2", layer = "pred_prev",
-                    pred_model = DEFAULT_PRED_MODEL)
-  note(identical(pred_df(), admin2_recipe_pred),
-       "map explorer opens on the recipe layer")
-  map_val <<- as.data.frame(map_data())
-})
-shiny::testServer(mod_district_profile_server, args = list(id = "district"), {
-  session$setInputs(country = "ghana", scope = "district",
-                    dp_model = DEFAULT_PRED_MODEL)
-  note(identical(dp_pred(), admin2_recipe_pred),
-       "district profiles open on the same layer")
+cat("Map explorer\n")
+testServer(mod_map_explorer_server, args = list(id = "map"), {
+  session$setInputs(country = "ghana", outcome = "child_vitA", admin_level = "admin2", layer = "priority")
+  d <- map_data()
+  note(!is.null(d) && nrow(d) == 260, sprintf("Ghana joins %d districts", if (is.null(d)) 0 else nrow(d)))
+  note(sum(is.finite(d$priority)) == 260, "every Ghana district has a priority score")
+  note(sum(d$surveyed, na.rm = TRUE) == 75, sprintf("%d surveyed districts carry a survey estimate", sum(d$surveyed, na.rm = TRUE)))
+  note(renders(output$headline), "headline renders")
+  session$setInputs(admin_level = "admin1")
+  note(nrow(map_data()) == 16, sprintf("Ghana aggregates to %d regions", nrow(map_data())))
+  session$setInputs(country = "malawi", outcome = "child_zinc", admin_level = "admin2")
+  note(nrow(map_data()) > 200, "Malawi zinc draws")
 })
 
-# The same district must not read differently on the two tabs.
-d_map <- map_val[is.finite(map_val$pred_prev), c("Admin2", "pred_prev")]
-d_dp  <- pred_model_data(DEFAULT_PRED_MODEL)
-d_dp  <- d_dp[d_dp$country == "Ghana" & d_dp$outcome == "women_iron",
-              c("Admin2", "pred_prev")]
-m <- merge(d_map, d_dp, by = "Admin2", suffixes = c("_map", "_dp"))
-note(nrow(m) > 0 && max(abs(m$pred_prev_map - m$pred_prev_dp), na.rm = TRUE) < 1e-9,
-     sprintf("%d Ghana districts match between the two tabs", nrow(m)))
-
-cat("\nScenario ranges\n")
-shiny::testServer(mod_scenarios_server, args = list(id = "scenarios"), {
-  session$setInputs(country = "ghana", outcome = "women_iron",
-                    targeting = "all", coverage = 50, effect = 30, top_n = 10)
-  b <- as.data.frame(base_data())
-  note(all(c("prev_lo", "prev_hi") %in% names(b)),
-       "base data carries a 95% prevalence range")
-  note(sum(is.finite(b$prev_lo)) > 0,
-       sprintf("%d of %d districts got a range", sum(is.finite(b$prev_lo)), nrow(b)))
-  note(all(b$prev_lo <= b$pred_prev + 1e-9, na.rm = TRUE) &&
-       all(b$prev_hi >= b$pred_prev - 1e-9, na.rm = TRUE),
-       "the range brackets the point estimate")
-
-  s <- as.data.frame(scenario_data())
-  lo <- sum(s$cases_averted_lo, na.rm = TRUE)
-  pt <- sum(s$cases_averted,    na.rm = TRUE)
-  hi <- sum(s$cases_averted_hi, na.rm = TRUE)
-  note(lo <= pt + 1e-6 && pt <= hi + 1e-6,
-       sprintf("cases averted %.0f <= %.0f <= %.0f", lo, pt, hi))
-  note(is.finite(pt) && pt > 0, "cases averted is a positive, finite number")
+cat("\nDistrict profiles\n")
+testServer(mod_district_server, args = list(id = "district"), {
+  session$setInputs(country = "ghana", district = "Northern|Tamale", outcome = "child_vitA")
+  r <- rows()
+  note(nrow(r) == 6, sprintf("Tamale has %d outcomes", nrow(r)))
+  note(renders(output$summary), "summary renders")
 })
-
-cat("\nInterval-bearing layers are sane\n")
-# A small-area fit that collapses toward zero still produces a tidy-looking
-# table, so compare each layer's median district against the national survey
-# figure. This is how the BYM2 collapse of 2026-08-27 was found, after it had
-# already been deployed.
-.ne <- read.csv(here::here("results", "tables", "national_estimates_all.csv"),
-                stringsAsFactors = FALSE)
-layer_health <- function(d) {
-  s <- do.call(rbind, lapply(split(d, list(d$country, d$outcome), drop = TRUE), function(x)
-    data.frame(country = x$country[1], outcome = x$outcome[1],
-               med = median(x$pred_prev, na.rm = TRUE))))
-  s$survey <- vapply(seq_len(nrow(s)), function(i) {
-    r <- .ne[.ne$country == s$country[i] & .ne$outcome == s$outcome[i], ]
-    if (nrow(r)) r$obs_prev[1] else NA_real_
-  }, numeric(1))
-  s$ratio <- s$med / s$survey
-  sum(s$ratio < 0.25 | s$ratio > 4, na.rm = TRUE)
-}
-fh_bad <- layer_health(admin2_fh_pred)
-note(fh_bad <= 2, sprintf("Fay-Herriot: %d of 24 cells off by >4x from the survey", fh_bad))
-if (!is.null(admin2_bym2_pred)) {
-  # Gates at 3, the count before the degenerate-SE guard was briefly applied
-  # here and took it to 10. See the note in _build_bym2_layer.R.
-  by_bad <- layer_health(admin2_bym2_pred)
-  note(by_bad <= 3, sprintf("BYM2: %d of 24 cells off by >4x from the survey", by_bad))
-}
-# Whatever supplies scenario ranges must be one of the sane ones.
-rng <- attach_prevalence_range(
-  as.data.frame(get_country_admin2("ghana", "women_iron", admin2_bnds,
-                                   pred_model_data(DEFAULT_PRED_MODEL), admin2_pop)),
-  "Ghana", "women_iron")
-w <- median(rng$prev_hi - rng$prev_lo, na.rm = TRUE)
-note(is.finite(w) && w > 0.02,
-     sprintf("scenario range is a usable width (median %.1f pp, not a collapsed one)", 100 * w))
 
 cat("\nStart here\n")
-shiny::testServer(mod_start_here_server,
-                  args = list(id = "start", go_to = function(...) invisible(NULL)), {
-  h <- output$hero
-  note(!is.null(h) && nzchar(as.character(h$html %||% h)),
-       "hero stat renders")
-  g <- output$ghana_example
-  note(!is.null(g) && nzchar(as.character(g$html %||% g)),
-       "worked example renders")
+testServer(mod_start_here_server, args = list(id = "start", go_to = function(...) invisible(NULL)), {
+  note(renders(output$hero), "hero renders")
+  note(renders(output$example), "worked example renders")
+  note(renders(output$checklist), "checklist renders")
 })
 
-if (length(fails)) {
-  cat("\nFAILURES:\n"); cat(paste0("  - ", fails, collapse = "\n"), "\n")
-  quit(status = 1)
-}
+cat("\nCatalogue\n")
+testServer(mod_catalogue_server, args = list(id = "catalogue"), {
+  session$setInputs(by = "domain", pick = character(0), outcome = "child_iron", only_defined = FALSE, only_composite = FALSE, only_travel = FALSE)
+  f <- filtered()
+  note(nrow(f) == nrow(CAT$variables), sprintf("all %d predictors listed", nrow(f)))
+  note(sum(is.finite(f$weight)) > 300, sprintf("%d carry a weight for child iron", sum(is.finite(f$weight))))
+  session$setInputs(only_travel = TRUE)
+  note(all(filtered()$climate_soil), "climate and soil filter works")
+})
+
+cat("\nTrust, targeting, survey design, Cote d'Ivoire\n")
+testServer(mod_trust_server, args = list(id = "trust"), {
+  session$setInputs(estimand = "country", target = "level", ceil_target = "prev")
+  note(renders(output$test_text), "trust text renders")
+})
+testServer(mod_targeting_server, args = list(id = "targeting"), {
+  session$setInputs(outcome = "child_vitA")
+  note(renders(output$calibration_text), "calibration text renders")
+})
+testServer(mod_survey_design_server, args = list(id = "planning"), {
+  session$setInputs(rank_from = "prev", set = "climate_soil", fraction = 0.05)
+  d <- dat()
+  note(nrow(d) > 0, sprintf("%d design rows", nrow(d)))
+  note(renders(output$at_fraction), "design table renders")
+})
+testServer(mod_civ_server, args = list(id = "civ"), {
+  session$setInputs(outcome = "child_iron", layer = "priority")
+  d <- dat()
+  note(nrow(d) == 33, sprintf("Cote d'Ivoire joins %d districts", nrow(d)))
+  note(sum(is.finite(d$p_worst3rd)) == 33, "rank uncertainty joined for children's iron")
+})
+
+if (length(fails)) { cat("\nFAILURES:\n"); cat(paste0("  - ", fails, collapse = "\n"), "\n"); quit(status = 1) }
 cat("\nAll server checks passed.\n")

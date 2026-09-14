@@ -1,7 +1,43 @@
 # Dashboard roadmap — big-ticket items
 
+## Rebuild on the corrected protocol (2026-09-13)
+
+Ahead of the Micronutrient Forum stakeholder lunch the dashboard was rebuilt
+so that it says what the decks and the manuscript say. Before this, none of
+its 28 data bundles read the protocol-v2 tables: every number came from the
+pre-audit pipeline, and the entry page carried two withdrawn results (the
+anchoring gain and the "no proxy survives correction" claim).
+
+Removed: Model diagnostics, Methods comparison (P1 to P8), Benchmarks (the old
+leaderboard), National burden, Resolution and anchoring, the GBD placeholder
+module and bundle, the Sierra Leone Admin-3 layer, the five estimator layers
+(person-level SL, area, Fay-Herriot, BYM2, recipe), `app_public.R` (it
+referenced a module that no longer existed), the technical annex report, and
+the builders for all of the above.
+
+Replaced or added: one estimator (the zero-tuning index fitted on all surveyed
+districts and applied to every district) with four views; the worst-fifth
+probability as the "how sure" layer; a planning prevalence anchored to the
+national survey; exact per-predictor decomposition of any district's score;
+How well it works (three tests, ceiling, learning curve, geostatistical
+comparator); What the ranking buys (burden, calibration, WHO bands); Plan a
+survey on the anchor-and-rank design; Cote d'Ivoire from climate and soil;
+What drives the estimate on back-projected weights; the Predictor catalogue;
+Start here and Methods rewritten with the closing checklist. Builder:
+`dashboard/data-raw/05_build_protocol_v2_bundles.R`.
+
+Still open from the list below: shinyapps tier, boundary simplification, URL
+state, accessibility. New: finish the 146 missing predictor definitions (the
+catalogue is the worklist); compute the worst-fifth probability for
+unsurveyed districts (would need refits over draws in the deployment fit);
+decide whether to add the geostatistical prevalence with intervals as a
+"measured number" layer for surveyed districts.
+
+---
+
 Plan for the larger dashboard work flagged after the UC Davis / BMGF bi-weekly
-call (June 2026), updated 2026-08-27. Smaller call items (#1 Start-here guide,
+call (June 2026), updated 2026-08-27. Items below that refer to the recipe,
+Fay-Herriot, BYM2, GBD or Admin-3 layers are historical. Smaller call items (#1 Start-here guide,
 #2 Ghana use case, #3 misclassification layer, #5 biomarker caveats) are **done
 and deployed**.
 
