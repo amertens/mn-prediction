@@ -178,7 +178,7 @@ mod_map_explorer_server <- function(id) {
                          tags$td(style = if (top$contribution[i] > 0) "color:#b2182b;" else "color:#2166ac;",
                                  if (top$contribution[i] > 0) "▲" else "▼"),
                          tags$td(top$label[i]), tags$td(style = "color:#777;", top$source[i]))))),
-            tags$small(style = "color:#777;", "Up means the predictor pushes the district toward more deficiency. Exact decomposition of the model's score; not causes.")
+            tags$small(style = "color:#777;", "Up means the predictor pushes the district toward more deficiency. These are the exact parts of the model's score, not causes of deficiency.")
           )
         }
       )

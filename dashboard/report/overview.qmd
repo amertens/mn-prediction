@@ -120,8 +120,9 @@ if (!is.null(tr) && nrow(tr)) {
 
 Across the 22 country-outcome combinations the full index averages
 `r num(Q$tr)` (positive in `r Q$tr_pos`), an index from climate and soil layers
-alone `r num(Q$cs)`, against `r num(Q$null_d)` for chance. Rankings cross
-borders; absolute levels do not.
+alone `r num(Q$cs)`, against `r num(Q$null_d)` for chance. The ranking crosses
+borders; the prevalence level does not, so a new country needs one national
+survey number to anchor it.
 
 `r GENERAL_CAVEAT`
 

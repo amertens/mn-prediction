@@ -38,8 +38,8 @@ mod_start_here_ui <- function(id) {
                   " is shown alongside the model's. Thin outlines are districts the survey never reached, which is",
                   " where the model earns its place."),
           tags$li(strong("How sure "), "shows, for surveyed districts, how often the district landed in the worst fifth",
-                  " when the model was refitted 40 times with that district hidden. Firm at the top and bottom,",
-                  " uncertain in the middle."),
+                  " when the model was refitted 40 times with that district hidden. It is firm at the top and",
+                  " bottom of the list and uncertain in the middle."),
           tags$li(strong("Planning prevalence "), "turns the ranking into a percentage by anchoring it to the",
                   " country's national survey figure. The order is the model's; the level is the survey's."),
           tags$li(strong("Click a district "), "for its numbers and for the predictors that push it up or down the list.")

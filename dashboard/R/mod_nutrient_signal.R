@@ -37,13 +37,13 @@ mod_nutrient_signal_ui <- function(id) {
         reactable::reactableOutput(ns("headline")),
         tags$br(),
         div(class = "alert alert-warning border",
-          tags$strong("How to read these — important. "),
+          tags$strong("How to read these. "),
           "These are district-level associations, and several run ",
           tags$strong("opposite"), " to what individual-level nutrition would ",
           "predict. Districts where more households eat legumes or keep cattle ",
           "have ", tags$em("more"), " deficiency, not less. That is because ",
           "legume-eating and cattle-keeping mark rural subsistence districts, ",
-          "which are poorer and more deficient — it is not evidence that ",
+          "which are poorer and more deficient. It is not evidence that ",
           "legumes or cattle harm anyone. Treating these as dietary effects ",
           "would be an ecological fallacy. Use them to decide ",
           tags$em("where"), " to look, never ", tags$em("what"),
@@ -63,9 +63,9 @@ mod_nutrient_signal_ui <- function(id) {
                                 "Biomarker concentration"), width = "320px"),
         reactable::reactableOutput(ns("domains")),
         p(class = "text-muted mt-2",
-          "No single family is decisive: the signal is spread across many ",
-          "indicators each carrying a little. The practical consequence is that ",
-          "there is no shortcut indicator to collect instead of a survey.")
+          "No single family is decisive; the signal is spread across many ",
+          "indicators, each carrying a little. So there is no shortcut ",
+          "indicator to collect instead of a survey.")
       )
     ),
 
@@ -86,8 +86,8 @@ mod_nutrient_signal_ui <- function(id) {
         p(class = "text-muted mt-2",
           "Sorted by strength of association. Positive strength means the ",
           "indicator tracks MORE deficiency. No malaria burden indicator ",
-          "reaches the top of any list, which is a real result: it was tested ",
-          "for and not found. The strongest malaria-domain signal is indoor ",
+          "reaches the top of any list; it was tested for and not found. The ",
+          "strongest malaria-domain signal is indoor ",
           "residual spraying coverage, which marks where control programmes ",
           "operate rather than where transmission is high.")
       )

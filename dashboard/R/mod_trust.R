@@ -68,9 +68,9 @@ mod_trust_server <- function(id) {
                    sprintf("Inside a surveyed country the proxy index (%s), the neighbour smoother with proxies and the smoother alone are a three-way tie, all above the survey's own regional averages (%s). Where a survey exists, geography does most of the work.",
                            fmt_num(Q$infill), fmt_num(Q$infill_jk))),
         region = p(style = "font-size:0.88em; color:#555;",
-                   sprintf("With a whole region hidden the smoother must extrapolate past the edge of its data. The index scores %s on the level and stays close to the smoother; the survey has nothing to say about a region it has not seen.", fmt_num(Q$region))),
+                   sprintf("With a whole region hidden the smoother must extrapolate past the edge of its data. The index scores %s on the level and stays close to the smoother; the survey's own regional average cannot be computed for a region it did not sample.", fmt_num(Q$region))),
         country = p(style = "font-size:0.88em; color:#555;",
-                    sprintf("With a whole country hidden only the proxy methods produce anything: %s with everything, %s from climate and soil alone, against %s for chance. Rankings cross borders; absolute levels do not.",
+                    sprintf("With a whole country hidden only the proxy methods produce anything: %s with everything, %s from climate and soil alone, against %s for chance. The ranking crosses borders; the prevalence level does not, so a new country needs one national survey number to anchor it.",
                             fmt_num(Q$tr), fmt_num(Q$cs), fmt_num(Q$null_d))))
     })
 
@@ -92,8 +92,8 @@ mod_trust_server <- function(id) {
     output$ceiling_text <- renderUI({
       p(style = "font-size:0.88em; color:#555;",
         sprintf(paste("On prevalence the honest ceiling averages %s and the model reaches %s; on the biomarker level %s and %s.",
-                      "The model is at its ceiling in %s of %s cells. What closes the remaining third is more clusters per",
-                      "district in the next survey, which raises the ceiling itself, as much as better predictors."),
+                      "The model is at its ceiling in %s of %s cells. More clusters per district in the next survey would raise",
+                      "the ceiling itself and close as much of the remaining third as better predictors would."),
                 fmt_num(Q$ceiling_prev), fmt_num(Q$infill_prev), fmt_num(Q$ceiling_level), fmt_num(Q$infill), Q$vc_at, Q$vc_n))
     })
 
@@ -178,7 +178,7 @@ mod_trust_server <- function(id) {
           tags$li(sprintf("Machine-learning ensembles (SuperLearner, twelve to sixteen learners) tie the untuned index at best and trail it under squared-error tuning. With 14 to 87 districts per country, every method that learns its own settings loses. Person-level prediction of who is deficient reaches an AUC of about %s, a coin toss, so it is not offered here.", fmt_num(Q$il_auc))),
           tags$li("Ridge, lasso and elastic-net weightings of the same domain components lose inside a country; the index is the infinite-penalty limit of that family. Two variants gain about 0.03 across borders and are pre-registered for the fifth country rather than adopted."),
           tags$li("Fitting at the survey cluster instead of the district does not beat the district fit on any test."),
-          tags$li("Adding data blocks (livestock, water and coast distance, helminths, re-extracted IHME surfaces, fieldwork-month prices and temperatures) moves the index by less than 0.01 each. The vocabulary is saturated; the two remotely sensed domains carry it.")
+          tags$li("Adding data blocks (livestock, water and coast distance, helminths, re-extracted IHME surfaces, fieldwork-month prices and temperatures) moves the index by less than 0.01 each. More kinds of data no longer help; the two remotely sensed domains carry the model.")
         ),
         rows,
         methods_note("An earlier version of this work rested on one random split and a baseline that had seen the answer;",

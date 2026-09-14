@@ -20,7 +20,7 @@ mod_importance_ui <- function(id) {
               " reproduced in every country's own fit.")),
         plotlyOutput(ns("top"), height = "460px")),
       methods_note("These weights say where deficiency is, not what to change. Livestock density weighting toward",
-                   " more iron and B12 deficiency is ecological: in these four countries the pastoral zones are the",
+                   " more iron and B12 deficiency is ecological, because in these four countries the pastoral zones are the",
                    " dry, poor zones. No single predictor carries more than about 2 percent of the model.")
     ),
     nav_panel(
@@ -33,7 +33,7 @@ mod_importance_ui <- function(id) {
       methods_note(sprintf(paste("Horizontal axis: the share of the model a data group carries inside a surveyed country (pooled fit,",
                                  "mean over outcomes). Vertical: what a country the model has never seen loses when that group is",
                                  "removed. Satellite imagery, climate and soil carry %s to %s of the model; climate and soil are",
-                                 "what a new country needs, and the household-survey aggregates sit below zero: they help inside",
+                                 "what a new country needs, and the household-survey aggregates sit below zero because they help inside",
                                  "a country and hurt in a new one."), fmt_pct(Q$env_lo, 0), fmt_pct(Q$env_hi, 0)))
     ),
     nav_panel(

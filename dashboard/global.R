@@ -187,7 +187,7 @@ about_content <- div(
   h5("About this dashboard", style = "margin-top: 0;"),
   p("District rankings of micronutrient deficiency for The Gambia, Ghana, Sierra Leone and Malawi,",
     " built from public data and scored against the four national biomarker surveys, with a ranking",
-    " for Cote d'Ivoire, which has no survey. For ministries, funders and researchers deciding where",
+    " for Cote d'Ivoire, which has no survey. It is for ministries, funders and researchers deciding where",
     " to look first and where the next survey should sample."),
   h6("Method"),
   p(sprintf(paste("To every district we attach %d public data layers in %d groups: satellite imagery, climate,",
