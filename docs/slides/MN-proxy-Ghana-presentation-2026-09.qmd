@@ -948,7 +948,7 @@ kb(df(`January slide` = c("Individual-level proxy versus survey-only models (Bri
 ```
 
 ::: {.notes}
-The individual-level SuperLearner remains a sensitivity analysis because shrinking a noisy individual classifier biases area means; it is retained and labelled in the dashboard.
+The individual-level SuperLearner remains a sensitivity analysis because shrinking a noisy individual classifier biases area means; it was removed from the dashboard on 13 September, which now shows only the protocol's index (amertens.shinyapps.io/micronutrient-burden).
 :::
 
 ## Status of the January analyses (2)
