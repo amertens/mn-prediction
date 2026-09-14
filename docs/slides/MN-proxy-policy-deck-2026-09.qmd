@@ -177,14 +177,14 @@ Close on the checklist Sonja asked for, one line per question. Numbers behind ea
 
 ## The dashboard: every number in this talk, for every district
 
-- amertens.shinyapps.io/micronutrient-burden, rebuilt on the same result tables as this talk.
-- Map: a priority score for every district, how sure the model is, a planning prevalence anchored to the national survey, and the survey's own estimate where one exists. Click a district for what pushes it up or down the list.
-- Cote d'Ivoire ranked from climate and soil; a catalogue of all `r Q$n_predictors %||% 454` predictors by data source and domain, with each one's weight per outcome.
-- The evidence behind the claims: the three tests, the ceiling, what the ranking buys, and the survey design.
-- A country brief per country, printable, from the same tables.
+- amertens.shinyapps.io/micronutrient-burden
+- Start here: the project, the four training surveys, how the model was built, three headline numbers, the closing checklist.
+- Where is deficiency? A priority score for every district, how sure the model is, a planning prevalence; click for what drives it. Cote d'Ivoire from climate and soil.
+- What drives it? Leading predictors, which data travel across borders, a catalogue of all `r Q$n_predictors %||% 454` predictors.
+- Can we trust it? Three tests, the ceiling, what the ranking buys, methods. Plan a survey: the anchor-and-rank design.
 
 ::: {.notes}
-The dashboard was rebuilt on 13 September so that it says exactly what this talk says: before that, none of its data came from the corrected protocol, and its entry page carried two withdrawn results. Removed with the rebuild: the person-level machine-learning layer (a coin toss under honest folds), the earlier area-level estimators and their intervals, the old leaderboard, the GBD placeholder and the Sierra Leone chiefdom layer. One estimator now feeds every tab: the index fitted on all surveyed districts of a country and applied to every district. The chance of being in the worst fifth exists for surveyed districts in three countries; Sierra Leone's 14 districts cannot be cross-validated. Open items: sharing a view by URL, faster loading (the boundary files are most of the bundle), the worst-fifth probability for unsurveyed districts, and plain-language descriptions for the predictors (81 of 454 have one; the catalogue is the worklist). Open the URL a few minutes before showing it: the free tier stops idle instances and the restart takes a minute.
+The dashboard was rebuilt on 13 September on the corrected protocol, so that it says exactly what this talk says, and simplified on 14 September for a reader with no statistics. Start here now opens with a plain-language abstract (the project, the four training surveys, how the model was built and checked), then the three numbers, one card on how to use the map, and the checklist; the Ghana worked example and the audit history sit in folded panels. Removed with the rebuild: the person-level machine-learning layer (a coin toss under honest folds), the earlier area-level estimators and their intervals, the old leaderboard, the GBD placeholder and the Sierra Leone chiefdom layer. One estimator feeds every tab: the index fitted on all surveyed districts of a country and applied to every district. The chance of being in the worst fifth exists for surveyed districts in three countries; Sierra Leone's 14 districts cannot be cross-validated. A printable brief per country comes from the same tables, and a 25-page static walkthrough of every tab (dashboard_walkthrough_2026-09-14.pdf in the Dropbox folder) is there for written comments. Open items: sharing a view by URL, faster loading (the boundary files are most of the bundle), the worst-fifth probability for unsurveyed districts, and plain-language descriptions for the predictors (81 of 454 have one; the catalogue is the worklist). Open the URL a few minutes before showing it: the free tier stops idle instances and the restart takes a minute.
 :::
 
 ## Where this goes next
