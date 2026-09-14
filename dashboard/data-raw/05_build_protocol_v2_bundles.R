@@ -252,14 +252,21 @@ vars <- MD |>
             countries = gsub("[|;]", ", ", gsub("SierraLeone", "Sierra Leone", countries)),
             completeness, subnational = as.logical(subnational))
 if (!is.null(VS)) {
-  vs <- VS |> transmute(column = variable, definition, unit, temporal_kind, var_type,
+  # The sheet's "definition" is a mechanism template per sub-domain (one string
+  # covers 97 DHS columns, another 64 satellite bands), not a per-variable
+  # definition, and its RA-verified columns are empty. It is carried as
+  # `mechanism`; the per-variable text is the plain-name map.
+  vs <- VS |> transmute(column = variable, mechanism = definition, unit, temporal_kind, var_type,
                         median = suppressWarnings(as.numeric(median)), value_range,
                         pct_missing = suppressWarnings(as.numeric(pct_missing_overall)),
                         coverage_note, source_note, subdomain = proposed_subdomain,
                         ra_priority = suppressWarnings(as.integer(ra_priority)), flags)
   vars <- left_join(vars, vs, by = "column")
 }
-vars$definition[!nzchar(trimws(vars$definition %||% ""))] <- NA_character_
+if ("mechanism" %in% names(vars)) vars$mechanism[!nzchar(trimws(vars$mechanism %||% ""))] <- NA_character_
+source("R/predictor_plain_names.R")
+vars$plain_name <- unname(PLAIN[vars$column])
+vars$label <- ifelse(is.na(vars$plain_name), clean_code(vars$column), vars$plain_name)
 vars$climate_soil <- vars$domain %in% c("Climate and weather", "Soil characteristics")
 # membership of the twenty-predictor composite, per outcome (pooled fit, biomarker level)
 if (!is.null(IT)) {
@@ -286,7 +293,7 @@ if (!is.null(signal)) {
 }
 domains <- vars |> group_by(domain) |>
   summarise(n_columns = n(), sources = paste(sort(unique(source_label)), collapse = "; "),
-            n_defined = sum(!is.na(definition)), .groups = "drop")
+            n_named = sum(!is.na(plain_name)), .groups = "drop")
 if (!is.null(ID)) {
   dsh <- ID |> filter(scope == "pooled", target == "level") |> group_by(domain) |>
     summarise(share_mean = mean(share), share_min = min(share), share_max = max(share),
@@ -297,13 +304,13 @@ if (!is.null(DA)) domains <- left_join(domains, DA |> filter(target == "level") 
                                          transmute(domain, transport_cost = delta_drop, transport_alone = only), by = "domain")
 sources <- vars |> group_by(source_label) |>
   summarise(n_columns = n(), domains = paste(sort(unique(domain)), collapse = "; "),
-            n_defined = sum(!is.na(definition)), .groups = "drop")
+            n_named = sum(!is.na(plain_name)), .groups = "drop")
 saveRDS(list(variables = vars, weights = weights, signal = signal, domains = domains, sources = sources,
              domain_shares = if (!is.null(ID)) ID |> filter(scope == "pooled", target == "level") |> select(domain, outcome, share, n_axes) else NULL,
              xr = XR, build_time = BUILD_TIME),
         file.path(OUT, "predictor_catalogue.rds"))
-cat(sprintf("   wrote predictor_catalogue.rds: %d variables (%d with a definition), %d domains, %d sources\n",
-            nrow(vars), sum(!is.na(vars$definition)), nrow(domains), nrow(sources)))
+cat(sprintf("   wrote predictor_catalogue.rds: %d variables (%d with a plain name, %d with a mechanism template), %d domains, %d sources\n",
+            nrow(vars), sum(!is.na(vars$plain_name)), sum(!is.na(vars$mechanism)), nrow(domains), nrow(sources)))
 
 # ── E. build stamp ──────────────────────────────────────────────────────────
 meta$build_timestamp <- BUILD_TIME

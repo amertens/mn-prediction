@@ -77,7 +77,7 @@ mod_importance_server <- function(id) {
       req(IT, input$outcome, input$target)
       d <- IT[IT$outcome == input$outcome & IT$target == input$target & IT$rank <= 10, ]
       validate(need(nrow(d) > 0, "No importance rows for this outcome."))
-      d$source <- pred_source(d$column); d$label <- pred_label(d$column)
+      d$source <- pred_source(d$column); d$label <- unique_labels(pred_label(d$column), d$column)
       d$label <- ifelse(d$incountry_sign_agree == d$incountry_fits, d$label, paste(d$label, "*"))
       d <- d[order(d$beta_std), ]; d$label <- factor(d$label, levels = d$label)
       plot_ly(d, x = ~beta_std, y = ~label, type = "bar", orientation = "h", marker = list(color = col_of(d$source)),

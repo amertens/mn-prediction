@@ -27,8 +27,10 @@ Start here and Methods rewritten with the closing checklist. Builder:
 `dashboard/data-raw/05_build_protocol_v2_bundles.R`.
 
 Still open from the list below: shinyapps tier, boundary simplification, URL
-state, accessibility. New: finish the 146 missing predictor definitions (the
-catalogue is the worklist); compute the worst-fifth probability for
+state, accessibility. New: write per-variable descriptions (the annotation
+sheet holds mechanism templates per sub-domain, not definitions; the plain-name
+map in `R/predictor_plain_names.R` covers 81 of 454 and the catalogue is the
+worklist); compute the worst-fifth probability for
 unsurveyed districts (would need refits over draws in the deployment fit);
 decide whether to add the geostatistical prevalence with intervals as a
 "measured number" layer for surveyed districts.

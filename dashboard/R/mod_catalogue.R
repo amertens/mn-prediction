@@ -16,7 +16,7 @@ mod_catalogue_ui <- function(id) {
       radioButtons(ns("by"), "Browse by", choices = c("Conceptual domain" = "domain", "Data source" = "source"), inline = TRUE),
       selectizeInput(ns("pick"), "Show", choices = NULL, multiple = TRUE, options = list(placeholder = "all")),
       selectInput(ns("outcome"), "Weight shown for", choices = NULL),
-      checkboxInput(ns("only_defined"), "Only predictors with a definition", FALSE),
+      checkboxInput(ns("only_defined"), "Only predictors with a plain-language name", FALSE),
       checkboxInput(ns("only_composite"), "Only members of a twenty-layer composite", FALSE),
       checkboxInput(ns("only_travel"), "Only climate and soil (the layers that travel)", FALSE),
       hr(),
@@ -30,7 +30,9 @@ mod_catalogue_ui <- function(id) {
                      methods_note("Weight is the predictor's exact contribution per unit of its within-country rank in the",
                                   " four-country fit for the chosen outcome; positive means more deficiency. Replicated counts",
                                   " the outcomes for which the predictor's district association carries the same sign in every",
-                                  " country that measured them. Click a row for detail and a map."))),
+                                  " country that measured them. Mechanism is the annotation sheet's template for the predictor's",
+                                  " group, not a per-variable definition; predictors without a plain-language name show a",
+                                  " cleaned code. Click a row for detail and a map."))),
       card(card_header("Selected predictor"), card_body(uiOutput(ns("detail"))))
     )
   )
@@ -56,7 +58,7 @@ mod_catalogue_server <- function(id) {
       req(V)
       d <- V
       if (length(input$pick)) d <- d[(if (input$by == "domain") d$domain else d$source_label) %in% input$pick, ]
-      if (isTRUE(input$only_defined)) d <- d[!is.na(d$definition), ]
+      if (isTRUE(input$only_defined)) d <- d[!is.na(d$plain_name), ]
       if (isTRUE(input$only_composite)) d <- d[!is.na(d$composite_outcomes), ]
       if (isTRUE(input$only_travel)) d <- d[d$climate_soil, ]
       if (!is.null(CAT$weights) && nzchar(input$outcome %||% "")) {
@@ -72,8 +74,8 @@ mod_catalogue_server <- function(id) {
 
     output$selection_summary <- renderUI({
       d <- filtered(); req(nrow(d) > 0)
-      lines <- list(p(sprintf("%d predictors, %d with a definition, from %d sources across %d domains.",
-                              nrow(d), sum(!is.na(d$definition)), length(unique(d$source_label)), length(unique(d$domain))), style = "font-size:0.9em;"))
+      lines <- list(p(sprintf("%d predictors from %d sources across %d domains; %d have a plain-language name, the rest show a cleaned code.",
+                              nrow(d), length(unique(d$source_label)), length(unique(d$domain)), sum(!is.na(d$plain_name))), style = "font-size:0.9em;"))
       if (input$by == "domain" && length(input$pick) && !is.null(CAT$domains)) {
         dm <- CAT$domains[CAT$domains$domain %in% input$pick, ]
         if (nrow(dm) && "share_mean" %in% names(dm))
@@ -89,8 +91,8 @@ mod_catalogue_server <- function(id) {
 
     output$table <- renderReactable({
       d <- filtered(); req(nrow(d) > 0)
-      t <- data.frame(Predictor = d$column,
-                      Definition = ifelse(is.na(d$definition), "definition pending", d$definition),
+      t <- data.frame(Predictor = d$label, Code = d$column,
+                      Mechanism = ifelse(is.na(d$mechanism), "", d$mechanism),
                       Unit = ifelse(is.na(d$unit), "", d$unit),
                       Domain = d$domain, Source = d$source_label,
                       Countries = d$n_countries, Complete = d$completeness,
@@ -101,8 +103,9 @@ mod_catalogue_server <- function(id) {
       reactable(t, compact = TRUE, striped = TRUE, searchable = TRUE, filterable = TRUE, defaultPageSize = 15,
                 selection = "single", onClick = "select", highlight = TRUE,
                 columns = list(
-                  Predictor = colDef(minWidth = 160, style = list(fontFamily = "monospace", fontSize = "0.85em")),
-                  Definition = colDef(minWidth = 260, style = function(v) if (v == "definition pending") list(color = "#a94442", fontStyle = "italic") else NULL),
+                  Predictor = colDef(minWidth = 170, style = function(v, i) if (is.na(d$plain_name[i])) list(color = "#666", fontStyle = "italic") else NULL),
+                  Code = colDef(minWidth = 150, style = list(fontFamily = "monospace", fontSize = "0.8em")),
+                  Mechanism = colDef(minWidth = 240, style = list(color = "#666", fontSize = "0.9em")),
                   Unit = colDef(width = 90), Countries = colDef(width = 90, align = "center"),
                   Complete = colDef(width = 90, format = colFormat(percent = TRUE, digits = 0)),
                   Weight = colDef(width = 90, format = colFormat(digits = 2),
@@ -122,8 +125,9 @@ mod_catalogue_server <- function(id) {
       if (is.null(col)) return(p(em("Click a row above to see the predictor's definition, its weight for every outcome, and a map of its values."), style = "color:#888;"))
       v <- V[V$column == col, ][1, ]
       tagList(
-        h5(col, style = "margin-top:0; font-family:monospace;"),
-        p(if (is.na(v$definition)) em("Definition pending: this predictor has not yet been annotated in the variable sheet.") else v$definition),
+        h5(v$label, tags$small(style = "color:#888; font-family:monospace; margin-left:8px;", col), style = "margin-top:0;"),
+        if (is.na(v$plain_name)) p(em("No plain-language name yet; the code is shown cleaned. The mechanism below is the annotation sheet's template for this predictor's group.")),
+        if (!is.na(v$mechanism)) p(strong("Mechanism (group template): "), v$mechanism),
         tags$dl(class = "row", style = "font-size:0.9em;",
                 tags$dt(class = "col-sm-3", "Domain"), tags$dd(class = "col-sm-9", v$domain),
                 tags$dt(class = "col-sm-3", "Source"), tags$dd(class = "col-sm-9", sprintf("%s (%s)", v$source_label, v$source)),

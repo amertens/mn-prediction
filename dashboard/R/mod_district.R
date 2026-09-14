@@ -97,7 +97,7 @@ mod_district_server <- function(id) {
       d <- rows(); req(nrow(d) > 0, input$outcome)
       dec <- decompose_district(input$country, input$outcome, d$Admin1[1], d$Admin2[1])
       validate(need(!is.null(dec) && nrow(dec) > 0, "No fit for this country and outcome."))
-      top <- head(dec, 12); top$label <- factor(top$label, levels = rev(top$label))
+      top <- head(dec, 12); top$label <- unique_labels(top$label, top$column); top$label <- factor(top$label, levels = rev(top$label))
       plot_ly(top, x = ~contribution, y = ~label, type = "bar", orientation = "h",
               marker = list(color = ifelse(top$contribution > 0, "#b2182b", "#2166ac")),
               text = ~sprintf("%s<br>%s<br>contribution %+.2f", column, source, contribution), hoverinfo = "text") |>

@@ -101,8 +101,11 @@ The briefs source `global.R`, so they cannot disagree with the screen.
 
 ## Known gaps
 
-- The variable annotation sheet defines 308 of the 454 predictors; the
-  catalogue shows the rest as "definition pending" and is the worklist.
+- Per-variable descriptions barely exist. The annotation sheet's "definition"
+  is a mechanism template per sub-domain (one string covers 97 household-survey
+  columns), and its RA-verified columns are empty; the only per-variable text
+  is the plain-name map in `R/predictor_plain_names.R`, 81 of the 454. The
+  catalogue shows a cleaned code for the rest and is the worklist.
 - The chance of being in the worst fifth exists for surveyed districts in
   three countries; Sierra Leone's 14 districts cannot be cross-validated.
 - Nothing in the app is linkable (no URL state), and the boundary files are

@@ -166,69 +166,9 @@ save16x9(p2, "fig2_simpler_wins.png", h = 6.2)
 # =============================================================================
 TOP <- rd(P2, "index_importance_top.csv") |> filter(target == "level")
 
-PLAIN <- c(
-  # added 2026-09-09 after RR-10 (cluster-model DHS columns moved several survey aggregates into the leading lists)
-  dhs_CN_NUTS_C_HA2 = "Stunted children (survey)", dhs_CN_NUTS_C_WH2 = "Wasted children (survey)",
-  dhs_w_height_low = "Short-stature women", dhs_w_birth_interval_short = "Short birth intervals",
-  dhs_w_health_insurance = "Women with health insurance", dhs_FP_CUSA_W_MOD = "Modern contraceptive use",
-  dhs_w_modern_fp = "Modern family planning use", dhs_hh_soap_available = "Households with soap",
-  dhs_w_barrier_permission = "Need permission to seek care", dhs_w_bmi_low = "Thin women (BMI)",
-  dhs_AN_NUTS_W_THN = "Thin women (survey)", dhs_c_fg_roots = "Children eating roots and tubers",
-  dhs_c_fg_legumes = "Children eating legumes", dhs_c_fg_grains = "Children eating grains",
-  dhs_c_fg_dairy = "Children eating dairy", dhs_c_fg_flesh = "Children eating meat or fish",
-  dhs_c_fg_eggs = "Children eating eggs", dhs_c_fg_other_fruitveg = "Children eating other fruit and vegetables",
-  dhs_CN_BRFS_C_EXB = "Exclusive breastfeeding", dhs_hh_cows = "Household cattle ownership",
-  dhs_hh_cows_any = "Any household cattle", dhs_hh_cattle = "Household cattle", dhs_hh_cattle_any = "Any household cattle",
-  dhs_hh_goats = "Household goats", dhs_hh_goats_any = "Any household goats", dhs_hh_sheep = "Household sheep",
-  dhs_w_decides_earnings = "Women deciding on earnings", dhs_w_occ_agric = "Women in farm work",
-  dhs_hh_improved_water = "Improved water source", dhs_hh_crowding = "Household crowding",
-  dhs_w_deworm_pregnancy = "Deworming in pregnancy", dhs_hh_itn_any = "Bed net in household",
-  dhs_ML_NETP_H_IT2 = "Bed net per two people", dhs_c_deworm_6mo = "Child deworming",
-  dhs_w_sib_maternal_any = "Sibling maternal death", ihme_severeanemia = "Modelled severe anaemia",
-  ihme_allanemia = "Modelled anaemia (any)", ihme_moderateanemia = "Modelled moderate anaemia",
-  ihme_mildanemia = "Modelled mild anaemia", ihme_wastingprevalence = "Modelled child wasting",
-  espen_sth_cov_mean = "Deworming coverage", tclim_pdsi_t0 = "Drought index", lcover_crops_frac_t0 = "Cropland cover",
-  wapor_sd_t0 = "Vegetation seasonality", grassland_frac = "Grassland share", wdist_coast_km_mean = "Distance to coast",
-  wdist_coast_km_min = "Distance to coast (nearest)", wdist_perm_km_mean = "Distance to permanent water",
-  wdist_any_km_mean = "Distance to any water", elevation = "Elevation", glw_ruminant_share = "Ruminant share of livestock",
-  glw_cattle_km2 = "Cattle density", glw_pigs_km2 = "Pig density", spam_share_cereals = "Cereal share of cropland",
-  spam_share_oilcrops = "Oil-crop share of cropland", soil_phosphorus_stdev_0_20 = "Soil phosphorus variability",
-  soil_zinc_stdev_0_20 = "Soil zinc variability", map_blooddisorders201201africahbcallelefrequency = "Haemoglobin C gene frequency",
-  map_blooddisorders201201globalsicklehaemoglobinhbsallelefrequency = "Sickle-cell gene frequency",
-  map_sy_pf_mortality_rate = "Malaria mortality", map_sy_pf_incidence_rate = "Malaria incidence", map_sy_pf_parasite_rate = "Malaria parasite rate",
-  rwi_sd = "Wealth index spread", lcover_water_seasonal_frac_t0 = "Seasonal water cover",
-  lcover_grass_frac_t0 = "Grassland cover", npp_gpp_t0 = "Vegetation growth (gross)",
-  npp_npp_t0 = "Vegetation growth (net)", ihme_stuntingprevalence = "Modelled child stunting",
-  ihme_underweightprevalence = "Modelled child underweight", wpop_share_under5 = "Share of people under five",
-  wpop_dependency_ratio = "Dependency ratio", dhs_w_primary_edu = "Women with primary schooling",
-  dhs_w_no_education = "Women with no schooling", fprice_staple_rel = "Relative staple food price",
-  glw_tlu_per_capita = "Livestock per person", glw_sheep_km2 = "Sheep density",
-  glw_cattle_km2 = "Cattle density", glw_pigs_km2 = "Pig density",
-  glw_ruminant_share = "Ruminant share of livestock", dhs_w_owns_house = "Women owning their home",
-  dhs_w_working = "Women in paid work", dhs_hh_cows = "Household cattle ownership",
-  dhs_hh_cows_any = "Household owns any cattle", spam_share_cereals = "Cereal share of cropland",
-  spam_share_roots = "Root-crop share of cropland", spam_share_oilcrops = "Oil-crop share of cropland",
-  map_blooddisorders201201africahbcallelefrequency = "Haemoglobin C gene frequency",
-  soil_phosphorus_stdev_0_20 = "Soil phosphorus variability",
-  ihme_severeanemia = "Modelled severe anaemia", ihme_anemia = "Modelled anaemia",
-  dhs_FP_CUSA_W_MOD = "Modern contraceptive use", espen_sth_cov_mean = "Deworming coverage",
-  dhs_w_health_insurance = "Health insurance", dhs_AN_NUTS_W_THN = "Thin women",
-  dhs_CN_NUTS_C_HA2 = "Stunted children (survey)", dhs_CN_NUTS_C_WH2 = "Wasted children (survey)",
-  tclim_pdsi_t0 = "Drought index", wdist_perm_km_mean = "Distance to permanent water",
-  wdist_coast_km_mean = "Distance to the coast", wdist_coast_km_min = "Distance to the coast (nearest)",
-  lcover_crops_frac_t0 = "Cropland cover", wapor_sd_t0 = "Vegetation seasonality",
-  grassland_frac = "Grassland share", elevation = "Elevation",
-  map_sy_pf_parasite_rate = "Malaria parasite rate", map_sy_pf_incidence_rate = "Malaria incidence",
-  dhs_hh_improved_water = "Households with improved water")
-
-plain_of <- function(x) {
-  out <- unname(PLAIN[x])
-  if (any(is.na(out))) {   # fall back to a cleaned code rather than failing the whole figure set (2026-09-09)
-    warning("no plain-language name for: ", paste(x[is.na(out)], collapse = ", "), " (cleaned code used)")
-    out[is.na(out)] <- gsub("_", " ", sub("_t0$", "", sub("^(dhs|glw|ihme|map|spam|lcover|wdist|tclim|soil|wpop)_", "", x[is.na(out)])))
-  }
-  out
-}
+# Plain-language names live in R/predictor_plain_names.R (shared with the dashboard catalogue).
+source("R/predictor_plain_names.R")
+plain_of_warn <- function(x) plain_of(x, warn = TRUE)
 group_of <- function(x) ifelse(grepl("^dhs_", x), "Household survey (DHS)",
                         ifelse(grepl("^(ihme_|glw_|map_|fprice_|espen_|wpop_)", x),
                                "Modelled or administrative", "Remotely sensed environment"))
@@ -241,7 +181,7 @@ OUTLAB <- c(child_vitA = "Children: vitamin A", child_iron = "Children: iron",
             women_folate = "Women: folate",    women_b12 = "Women: B12")
 
 F3 <- TOP |> group_by(outcome) |> slice_min(rank, n = 5) |> ungroup() |>
-  mutate(name = plain_of(column), grp = group_of(column),
+  mutate(name = plain_of_warn(column), grp = group_of(column),
          panel = factor(OUTLAB[outcome], levels = unname(OUTLAB)),
          key = paste0(panel, "§", name))
 F3 <- F3 |> arrange(panel, beta_std) |> mutate(key = factor(key, levels = key))
@@ -381,7 +321,7 @@ save16x9(p6, "fig6_targeting.png", h = 6.0)
 # FIGURE 8 - the twenty public layers behind child iron
 # =============================================================================
 F8 <- TOP |> filter(outcome == "child_iron", rank <= 20) |>
-  mutate(name = plain_of(column), grp = group_of(column),
+  mutate(name = plain_of_warn(column), grp = group_of(column),
          dir = ifelse(beta_std > 0, "more deficiency", "less deficiency")) |>
   arrange(desc(rank))
 F8$name <- factor(F8$name, levels = F8$name)

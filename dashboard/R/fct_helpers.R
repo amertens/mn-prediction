@@ -76,12 +76,17 @@ get_country_admin1 <- function(ck, oc) {
   out
 }
 
-#' Predictor label for display: the annotation sheet's definition when short, else the column name.
+#' Predictor label for display: the plain-language name where one exists, else a cleaned code.
 pred_label <- function(cols) {
-  if (is.null(CAT)) return(cols)
+  if (is.null(CAT) || !"label" %in% names(CAT$variables)) return(cols)
   v <- CAT$variables
-  def <- v$definition[match(cols, v$column)]
-  ifelse(!is.na(def) & nchar(def) <= 80, def, cols)
+  l <- v$label[match(cols, v$column)]
+  ifelse(is.na(l), cols, l)
+}
+#' Labels made unique for a categorical axis: two columns can share a definition.
+unique_labels <- function(labels, cols) {
+  dup <- duplicated(labels) | duplicated(labels, fromLast = TRUE)
+  ifelse(dup, paste0(labels, " (", cols, ")"), labels)
 }
 pred_source <- function(cols) {
   if (is.null(CAT)) return(rep(NA_character_, length(cols)))
