@@ -196,17 +196,23 @@ survey cluster so that time-varying predictors could be matched to the
 fieldwork window; each survey's matching year is the calendar year of the
 respondent-weighted median interview date (2018, 2017, 2013 and 2016), held in
 one table that every extractor reads. Outcomes are deficiency indicators for children aged 6–59
-months (vitamin A from retinol-binding protein or retinol, iron from ferritin,
-zinc where measured) and women aged 15–49 (vitamin A, iron, folate, vitamin
-B12, zinc where measured), each defined uniformly across surveys at the WHO
+months (vitamin A from retinol-binding protein, iron from ferritin,
+zinc where measured) and non-pregnant women aged 15–49 (vitamin A, iron, folate, vitamin
+B12, zinc where measured), the populations the survey reports themselves
+tabulate, each defined uniformly across surveys at the WHO
 cut-off after BRINDA inflammation adjustment where acute-phase proteins were
-available [@brinda2017adjustment; @who_vmnis_thresholds]. All four surveys
-measured retinol-binding protein on the same laboratory's ELISA, but each
-calibrated it to serum retinol on its own subsample of 14 to 300 specimens
-and obtained a different line, so that 0.70 µmol/L of RBP corresponds to
-0.61 to 0.91 µmol/L of retinol across the four; the adjusted RBP is
-therefore converted to retinol-equivalents with each survey's published
-regression before the 0.70 µmol/L threshold is applied. Malawi's vitamin
+available [@brinda2017adjustment; @who_vmnis_thresholds]. Iron deficiency is
+inflammation-adjusted ferritin below 12 µg/L (children) or 15 µg/L (women),
+taken from each survey's own deficiency indicator, never the iron-deficiency-anaemia
+indicator that also requires low haemoglobin. All four surveys
+measured retinol-binding protein on the same laboratory's ELISA; vitamin A
+status is defined as BRINDA-adjusted RBP below 0.70 µmol/L in every survey
+and reported as *low RBP* rather than vitamin A deficiency, because the
+surveys' own RBP-to-retinol calibrations (subsamples of 14 to 300 specimens,
+fitted in different regression directions, with R^2^ from 0.13 in Malawi to
+0.91 in The Gambia) do not define one comparable retinol scale; the
+survey-specific retinol-equivalent conversion is carried as a sensitivity
+analysis. Malawi's vitamin
 B12, reported in pg/mL, is converted to pmol/L before its threshold. Two targets are
 carried for every cell: the survey-weighted district prevalence, and the
 survey-weighted district mean of the log biomarker concentration, which

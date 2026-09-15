@@ -199,6 +199,18 @@ The dashboard was rebuilt on 13 September on the corrected protocol, so that it 
 Pre-registered predictions: docs/findings/PREREGISTRATION_NEW_COUNTRIES_2026-09.md. The product exists as the dashboard on the previous slide; the ranking, the probability map, the anchored planning prevalence, the survey design and the catalogue are joined. What remains is engineering (URL state, boundary simplification, the geostatistical layer) and annotation. Likely question: which country next. Any with a recent micronutrient survey and district identifiers; Tanzania's 2010 module is already staged in the pipeline.
 :::
 
+## What the model is trained to rank
+
+- Iron deficiency: inflammation-adjusted ferritin under 12 µg/L (children) or 15 µg/L (women); not iron-deficiency anaemia.
+- Low vitamin A: BRINDA-adjusted retinol-binding protein under 0.70 µmol/L, one adjustment for all four surveys.
+- Folate under 10 nmol/L, B12 under 148 pmol/L (women); zinc by IZiNCG cut-offs (Malawi).
+- Children 6 to 59 months and non-pregnant women 15 to 49, as the survey reports tabulate.
+- Sierra Leone's child data as supplied cover the survey's anaemic children only.
+
+::: {.notes}
+Reconciled against the four final reports and the 21 papers that re-analyse them on 15 September 2026 (docs/survey_report_reconciliation.md): every iron, zinc, folate and B12 national estimate now matches its report to the decimal, and the Gambia LGA estimates track the report at r = 0.98 to 0.99. What changed: the iron binaries had been the surveys' iron-deficiency-anaemia columns (ferritin plus haemoglobin) in three countries; Malawi's iron flag came from a mis-specified local BRINDA that under-counted by half; pregnant women and children outside 6 to 59 months had been kept; and vitamin A had been converted to retinol-equivalents with each survey's own RBP-to-retinol line. That conversion is now a sensitivity analysis: the four lines were fitted in different directions on 14 to 300 specimens, Malawi's has an R-squared of 0.13, and the survey's own re-analysis (Likoswe 2021, Nutrients) recommends BRINDA-adjusted RBP below 0.70, which is what is used. Why "low RBP": Ghana's MRDR test found 6.7 percent of children with depleted liver stores and Malawi's found none, so RBP below 0.70 (15 and 10 percent) is a marker of low status, not a deficiency count. Likely question: does the adjustment matter. Yes, a lot: the Ghana report gives child vitamin A as 29, 21 or 13 percent depending on none, Thurnham or BRINDA, and child iron as 17, 22 or 30; one method everywhere is the only way the countries compare. Caveats if asked: Sierra Leone's child file as supplied contains only the survey's anaemic children (532 of 654 assayed), so its child cells are anaemic-subgroup estimates until the full file arrives; folate was measured on an immunoassay in Ghana and Sierra Leone and a microbiologic assay in Malawi, which read differently, so its cross-border numbers are indicative only. National values under these definitions: child low RBP 17 percent in The Gambia, 15 in Ghana, 12 in Sierra Leone (anaemic children), 10 in Malawi; child iron deficiency 59, 22, 5 and 22; women's iron deficiency 41, 14, 13 and 15.
+:::
+
 ## Limitations and context
 
 - Differences under 0.03 are ties over a few dozen districts.
@@ -206,10 +218,10 @@ Pre-registered predictions: docs/findings/PREREGISTRATION_NEW_COUNTRIES_2026-09.
 - It ranks; for a publishable prevalence number the geostatistical model is better.
 - The climate-and-soil shortcut was found on these four countries and is unconfirmed until the next.
 - Household-survey inputs help at home and hurt abroad; person-level prediction does not work here.
-- Part of any between-country difference is survey difference: different years, seasons and teams.
+- Part of any between-country difference is survey difference: different years, seasons, teams and assays.
 
 ::: {.notes}
-The 0.03 tie rule is ours and applies to every comparison in the deck, including the one where our own method comes first. The household-survey point is the appendix slide on what carries the model and what travels; dropping every DHS column improves new-country accuracy by 0.07. Person-level prediction reaches AUC 0.51 to 0.53 (individual_level_models.csv), a coin toss. The last bullet is the reason levels do not transport and rankings do.
+The 0.03 tie rule is ours and applies to every comparison in the deck, including the one where our own method comes first. The household-survey point is the appendix slide on what carries the model and what travels; dropping every DHS column improves new-country accuracy by 0.07. Person-level prediction reaches AUC 0.51 to 0.53 (individual_level_models.csv), a coin toss. The seasons bullet is the reason levels do not transport and rankings do: the four surveys ran from the dry season (The Gambia, malaria under 1 percent) to the end of the rains (Sierra Leone, 53 percent), and the inflammation adjustment does not remove all of that. The Sierra Leone bullet: the child file holds 532 children, all with haemoglobin under 11 g/dL, against 654 children with assays in the report, so the child cells there are estimates for anaemic children (docs/survey_report_reconciliation.md).
 :::
 
 ## Two plainer measures of accuracy

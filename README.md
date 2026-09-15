@@ -49,7 +49,7 @@ install.packages(c("mlr3", "mlr3learners", "mlr3extralearners",
 install.packages("ck37r", repos = "https://cloud.r-project.org")
 install.packages("washb", repos = "https://cloud.r-project.org")
 
-# Note: the legacy sl3 path (R/sl_fitting.R, R/bootstrap.R) is retained for
+# Note: the legacy sl3 path (archive/R/sensitivity/sl_fitting.R, archive/R/bootstrap.R) is archived for
 # reference only and is NOT part of the active `targets` graph.
 ```
 
@@ -134,7 +134,7 @@ in fast mode and 15 in full. This was previously listed as a full-mode feature,
 which it is not.
 
 **`B_boot` does nothing.** Its only reader is `run_bootstrap_ci()` in
-`R/bootstrap.R`, which has no call sites and is preserved for reference outside
+`archive/R/bootstrap.R` (moved 2026-09-15), which has no call sites and is preserved for reference outside
 the `targets` graph. Changing it has no effect on a `tar_make()` run.
 
 **`B_admin2` was removed** (2026-08). It was documented as controlling an
@@ -199,9 +199,7 @@ mn-prediction/
 │   ├── config.R              #   Country configs, outcome definitions, mode params
 │   ├── data_prep.R           #   Load data, build outcome-specific datasets
 │   ├── mlr3_fitting.R        #   SuperLearner fitting (active, mlr3) + out-of-fold preds
-│   ├── sl_fitting.R          #   Legacy sl3 fitting (reference only)
 │   ├── conformal.R           #   Conformal prediction intervals (active uncertainty)
-│   ├── bootstrap.R           #   Legacy cluster bootstrap (reference only)
 │   ├── admin1_analysis.R     #   Admin-1 aggregation and CV performance
 │   ├── admin2_analysis.R     #   Admin-2 analysis + area-level GEE model
 │   ├── area_level_comparison.R #  Area-level SL + cross-country LOCO (GEE-only)
@@ -293,9 +291,9 @@ Ghana = list(
 
 - **Ecological prediction model:** Area-level predictors map to area-level prevalence. This is explicitly *not* individual risk prediction or causal inference.
 - **Survey design:** Stratified cluster sampling with `srvyr::as_survey_design()`. PSU = cluster number, weights = survey weights.
-- **SuperLearner:** `mlr3superlearner` (`R/mlr3_fitting.R`) with cluster-blocked cross-validation (cluster IDs passed via `group=`, so a PSU's observations stay together across folds). Discrete SuperLearner — CV selects the single best learner. The legacy `sl3` path (`R/sl_fitting.R`) is retained for reference only.
+- **SuperLearner:** `mlr3superlearner` (`R/mlr3_fitting.R`) with cluster-blocked cross-validation (cluster IDs passed via `group=`, so a PSU's observations stay together across folds). Discrete SuperLearner — CV selects the single best learner. The legacy `sl3` path is archived (`archive/R/sensitivity/sl_fitting.R`, 2026-09-15).
 - **Out-of-fold predictions:** Reported CV performance and the residuals feeding the conformal intervals use genuine out-of-fold predictions (`res$yhat_full`), recomputed by resampling the fitted learners (`mlr3_oof_predictions()`), since `mlr3superlearner` does not retain its internal CV predictions. `res$yhat_insample` keeps the resubstitution predictions for reference and for permutation-importance baselines.
-- **Uncertainty:** Conformal prediction intervals (`R/conformal.R`) — split (constant-width) and locally-adaptive variants — built from out-of-fold residuals. (The earlier cluster-bootstrap path in `R/bootstrap.R` is retained for reference only.)
+- **Uncertainty:** Conformal prediction intervals (`R/conformal.R`) — split (constant-width) and locally-adaptive variants — built from out-of-fold residuals. (The earlier cluster-bootstrap path is archived: `archive/R/bootstrap.R`, 2026-09-15.)
 - **Individual-level area aggregation:** Out-of-fold individual predictions are survey-weighted and aggregated to Admin-1/Admin-2 prevalence.
 - **Area-level model:** Elastic net (`glmnet`, alpha = 0.5) trained on survey-weighted Admin-2 prevalence ~ GEE raster zonal means. Enables prediction to Admin-2 areas with no survey data.
 - **Cross-country transportability (`R/transportability_area.R`):** A universal, parsimonious within-country-centered elastic net on harmonized GEE + IHME + Malaria-Atlas + food-security proxies, validated by leave-one-country-out CV (`area_transport_*` targets).

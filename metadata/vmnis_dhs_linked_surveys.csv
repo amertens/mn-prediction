@@ -1,0 +1,11 @@
+iso3c,year_from,year_to,survey,basis
+MWI,2015,2016,Malawi Micronutrient Survey 2015-16 (MNS),"Subsample of 105 of 850 MDHS 2015-16 clusters; VMNIS methodology text says 'carried out jointly with the 2015-16 Malawi Demographic and Health Survey'; individual linkage verified (docs/findings/WSC4_MALAWI_BLOCK.md)"
+KHM,2014,2014,Cambodia Micronutrient Survey 2014 (CDHS-linked),"Subsample of CDHS 2014 households (19 sampling domains); docs/micronutrient_survey_candidates.md section 1"
+UGA,2000,2001,Uganda DHS 2000-01 vitamin A module (FR128),"Serum retinol measured within the UDHS 2000-01 sample; docs/micronutrient_survey_candidates.md section 1"
+UGA,2006,2006,Uganda DHS 2006 vitamin A (RBP on DBS),"DHS-carried module; docs/micronutrient_survey_candidates.md section 1"
+UGA,2011,2011,Uganda DHS 2011 vitamin A (RBP on DBS),"DHS-carried module; docs/micronutrient_survey_candidates.md section 1"
+UGA,2016,2016,Uganda DHS 2016 vitamin A (RBP on DBS),"DHS-carried module (flagged invalid by DHS; listed for completeness); docs/micronutrient_survey_candidates.md section 1"
+TZA,2009,2010,Tanzania DHS 2009-10 micronutrient module (NUT5),"DHS-carried module; docs/micronutrient_survey_candidates.md section 1"
+ZWE,2010,2011,Zimbabwe DHS 2010-11 vitamin A (RBP on DBS),"DHS-carried module; docs/micronutrient_survey_candidates.md section 1 (round approximate)"
+RWA,2019,2020,Rwanda DHS 2019-20 micronutrient module,"DHS-carried module (non-standard release); docs/micronutrient_survey_candidates.md section 1"
+COL,2004,2005,Colombia ENSIN 2005 (jointly with ENDS 2005),"VMNIS methodology text: carried out jointly with the 2005 Demographic and Health Survey (ENDS)"

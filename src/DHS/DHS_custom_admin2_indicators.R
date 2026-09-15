@@ -46,8 +46,15 @@ COUNTRY_REGISTRY <- list(
   list(country = "Malawi",       iso3 = "MWI", years = 2015)
 )
 
-# Set to a subset to only run specific countries, e.g. c("Gambia")
-COUNTRIES_TO_RUN <- NULL
+# Set to a subset to only run specific countries, e.g. c("Gambia"), or
+# DHS_COUNTRIES_TO_RUN="Malawi" Rscript -e "source('src/DHS/DHS_custom_admin2_indicators.R')"
+COUNTRIES_TO_RUN <- if (nzchar(Sys.getenv("DHS_COUNTRIES_TO_RUN")))
+  trimws(strsplit(Sys.getenv("DHS_COUNTRIES_TO_RUN"), ",")[[1]]) else NULL
+
+# LK-02 (2026-09-15): clusters re-sampled by the country's micronutrient survey
+# (Malawi only; metadata/mns_dhs_overlap_clusters.csv) are dropped from every
+# recode before any indicator is derived. Sourced after rm(list = ls()).
+source(here::here("R", "mns_dhs_overlap.R"))
 
 OUT_DIR <- here("data", "DHS", "clean")
 dir.create(OUT_DIR, showWarnings = FALSE, recursive = TRUE)
@@ -1113,6 +1120,12 @@ for (entry in COUNTRY_REGISTRY) {
       HRdata = dhs_raw[["HRdata"]],
       BRdata = dhs_raw[["BRdata"]]
     )
+    # LK-02: drop the clusters the micronutrient survey re-sampled (no-op
+    # unless the country has rows in metadata/mns_dhs_overlap_clusters.csv).
+    for (rc in names(dhs_data_list))
+      dhs_data_list[[rc]] <- drop_mns_overlap(
+        dhs_data_list[[rc]], entry$country,
+        if (rc %in% c("PRdata", "HRdata")) "hv001" else "v001")
 
     # --- Step 2: Derive custom indicators ---
     cat("  [2/4] Deriving custom indicators from raw microdata...\n")

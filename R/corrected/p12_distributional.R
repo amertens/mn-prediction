@@ -175,12 +175,10 @@ run_distributional_cell <- function(merged, area_cov, svy, cc, oc, seed = 12345L
   if (is.null(bio)) return(NULL)
 
   d <- merged
-  pop_col <- cc$child_flag
   val <- bio$value
-  if (!is.null(pop_col) && pop_col %in% colnames(d)) {
-    keep <- !is.na(d[[pop_col]]) & d[[pop_col]] == oc$child_flag_val
-    d <- d[keep, , drop = FALSE]; val <- val[keep]
-  }
+  # Same population definition as build_outcome_dataset() (R/data_prep.R).
+  keep <- outcome_population_mask(d, cc, oc, label = "[p12]")
+  d <- d[keep, , drop = FALSE]; val <- val[keep]
 
   w <- suppressWarnings(as.numeric(d[[cc$weight_col]]))
   w[!is.finite(w) | w <= 0] <- 1

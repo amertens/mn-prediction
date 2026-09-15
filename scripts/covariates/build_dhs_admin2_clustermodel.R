@@ -40,6 +40,7 @@
 suppressPackageStartupMessages({library(dplyr); library(tibble); library(surveyPrev); library(INLA)})
 setwd("C:/Users/andre/OneDrive/Documents/mn-prediction")
 source("R/survey_years.R")
+source("R/mns_dhs_overlap.R")   # LK-02: same-survey clusters (Malawi MNS = 105 MDHS clusters) are dropped from every recode
 
 CN <- Sys.getenv("DHS_COUNTRY", "Gambia")
 CACHE <- "C:/Users/andre/AppData/Local/andre/rdhs/Cache/datasets"
@@ -52,7 +53,9 @@ DHS_SETS <- list(   # same rounds and GPS files as build_shared_predictor_set.R
 sp <- DHS_SETS[[CN]]; if (is.null(sp)) stop("unknown DHS_COUNTRY: ", CN)
 BUILTINS <- c("AN_NUTS_W_THN", "CH_DIAT_C_ORT", "CH_VACC_C_BAS", "CH_VACC_C_DP1", "CH_VACC_C_DP3", "CH_VACC_C_MSL", "CH_VACC_C_NON",
               "CM_ECMR_C_NNR", "CN_BRFS_C_EXB", "CN_NUTS_C_HA2", "CN_NUTS_C_WH2", "FP_CUSA_W_MOD", "FP_NADA_W_UNT", "ML_NETP_H_IT2",
-              "RH_ANCN_W_N4P", "RH_DELA_C_SKP", "WS_TLET_H_IMP", "WS_TLET_P_BAS")
+              "RH_ANCN_W_N4P", "RH_DELA_C_SKP", "WS_TLET_H_IMP", "WS_TLET_P_BAS",
+              # LK-02 (2026-09-15): the surveyPrev anaemia built-ins are back in the vocabulary
+              "AN_ANEM_W_ANY", "CN_ANMC_C_ANY")
 
 # ── the derivation functions, without running either script's main loop ──────
 ex <- parse("src/DHS/DHS_custom_admin2_indicators.R"); n_fun <- 0L
@@ -64,6 +67,9 @@ cat(sprintf("[DS-01] %s: %d custom derivation functions, extra derivers for %s\n
 rd <- function(x) { p <- file.path(CACHE, paste0(x, ".rds")); if (file.exists(p)) readRDS(p) else NULL }
 t0 <- Sys.time()
 dl <- list(IRdata = rd(sp$IR), KRdata = rd(sp$KR), PRdata = rd(sp$PR), HRdata = rd(sp$HR), BRdata = rd(sp$BR))
+# LK-02 (2026-09-15): the micronutrient survey's own clusters never enter a DHS-derived predictor.
+# Only Malawi has any (metadata/mns_dhs_overlap_clusters.csv); for the other countries this is a no-op.
+for (rc in names(dl)) dl[[rc]] <- drop_mns_overlap(dl[[rc]], CN, if (rc %in% c("PRdata", "HRdata")) "hv001" else "v001")
 cat(sprintf("[DS-01] recodes: %s (%.0f s)\n", paste(sprintf("%s %d", names(dl), sapply(dl, function(d) if (is.null(d)) 0L else nrow(d))), collapse = ", "), as.numeric(Sys.time() - t0, units = "secs")))
 info <- readRDS(file.path("data/DHS/clean", paste0(sp$clean, "_cluster_admin_info.rds")))
 cluster.info <- info$cluster.info; admin.info2 <- info$admin.info2
@@ -73,6 +79,25 @@ irc <- unique(as_num(dl$IRdata$v001)); ov <- mean(irc %in% cluster.info$data$clu
 cat(sprintf("[DS-01] recode/GPS cluster overlap %.0f%%\n", 100 * ov)); if (ov < 0.95) stop("cluster overlap below 95%: wrong round")
 SHARED <- names(read.csv(file.path(HDIR, "predictors_admin2_shared.csv"), nrows = 2, check.names = FALSE))
 want <- sub("^dhs_", "", grep("^dhs_", SHARED, value = TRUE))
+# DHS_CM_ONLY_NEW=1: incremental mode. Keep every column the existing
+# dhs_admin2_clustermodel_<CN>.csv already holds and fit only the shared-set
+# dhs_ columns it lacks (a full pass is ~4 h per country; adding a handful of
+# indicators should not cost that). The new columns are merged into the
+# existing file and the log rows appended.
+ONLY_NEW <- identical(Sys.getenv("DHS_CM_ONLY_NEW", "0"), "1")
+PREV <- NULL; PREV_LOG <- NULL
+if (ONLY_NEW) {
+  pf <- file.path(HDIR, paste0("dhs_admin2_clustermodel_", CN, ".csv"))
+  if (!file.exists(pf)) stop("DHS_CM_ONLY_NEW=1 but no existing file: ", pf)
+  PREV <- read.csv(pf, check.names = FALSE, stringsAsFactors = FALSE)
+  lf <- file.path(HDIR, paste0("dhs_admin2_clustermodel_", CN, "_log.csv"))
+  if (file.exists(lf)) PREV_LOG <- read.csv(lf, stringsAsFactors = FALSE)
+  have <- sub("^dhs_", "", grep("^dhs_", names(PREV), value = TRUE))
+  if (!is.null(PREV_LOG)) have <- union(have, sub("^dhs_", "", PREV_LOG$column))   # continuous / failed ones were logged, not written
+  cat(sprintf("[DS-01] incremental: %d dhs_ columns already fitted or logged, %d new to fit\n", length(have), length(setdiff(want, have))))
+  want <- setdiff(want, have)
+  if (!length(want)) { cat("[DS-01] nothing new to fit\n"); quit(save = "no") }
+}
 
 # ── the indicator table: name -> surveyPrev-format data (cluster, householdID, weight, value) ──
 IND <- list(); origin <- character()
@@ -121,7 +146,15 @@ for (nm in names(IND)) {
   cat(sprintf("  [%3d/%d] %-32s %3d areas  %5.1f s\n", i, length(IND), nm, rec$areas, rec$secs)); flush.console()
   if (i %% 10 == 0) write.csv(out, file.path(HDIR, paste0("dhs_admin2_clustermodel_", CN, "_partial.csv")), row.names = FALSE)
 }
+LOGDF <- bind_rows(lapply(LOG, as.data.frame))
+if (ONLY_NEW) {
+  newcols <- setdiff(names(out), c("country", "Admin1", "Admin2"))
+  PREV <- PREV[, setdiff(names(PREV), newcols), drop = FALSE]
+  out <- dplyr::left_join(PREV, out, by = c("country", "Admin1", "Admin2"))
+  if (!is.null(PREV_LOG)) LOGDF <- bind_rows(PREV_LOG[!PREV_LOG$column %in% LOGDF$column, ], LOGDF)
+  cat(sprintf("[DS-01] incremental: %d column(s) added to the existing %d\n", length(newcols), ncol(PREV) - 3L))
+}
 write.csv(out, file.path(HDIR, paste0("dhs_admin2_clustermodel_", CN, ".csv")), row.names = FALSE)
-write.csv(bind_rows(lapply(LOG, as.data.frame)), file.path(HDIR, paste0("dhs_admin2_clustermodel_", CN, "_log.csv")), row.names = FALSE)
+write.csv(LOGDF, file.path(HDIR, paste0("dhs_admin2_clustermodel_", CN, "_log.csv")), row.names = FALSE)
 unlink(file.path(HDIR, paste0("dhs_admin2_clustermodel_", CN, "_partial.csv")))
 cat(sprintf("[DS-01] %s done: %d columns modelled over %d areas in %.1f min\n", CN, ncol(out) - 3L, nrow(out), as.numeric(Sys.time() - t0, units = "mins")))

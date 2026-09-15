@@ -106,12 +106,9 @@ aggregate_outcome_to_clusters <- function(cc, oc, min_per_cluster = 1L) {
     warning("[cluster] missing cluster id or outcome column"); return(NULL)
   }
 
-  # Population filter (children vs women).
-  if (!is.null(cc$child_flag) && cc$child_flag %in% names(d) &&
-      !is.null(oc$child_flag_val)) {
-    d <- d[!is.na(d[[cc$child_flag]]) & d[[cc$child_flag]] == oc$child_flag_val,
-           , drop = FALSE]
-  }
+  # Population filter (children vs women; non-pregnant; 6-59 months) -- the
+  # same definition build_outcome_dataset() uses (R/data_prep.R).
+  d <- d[outcome_population_mask(d, cc, oc, label = "[cluster]"), , drop = FALSE]
 
   # Uniform cross-country outcome override (match compute_svy_admin2()).
   if (!is.null(oc$tag) && exists("UNIFORM_TRANSPORT_TAGS") &&

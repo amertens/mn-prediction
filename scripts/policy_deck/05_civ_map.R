@@ -20,6 +20,7 @@
 # =============================================================================
 suppressPackageStartupMessages({library(dplyr); library(ggplot2); library(sf)})
 setwd("C:/Users/andre/OneDrive/Documents/mn-prediction")
+source("R/admin2_key_hygiene.R")   # admin2_join_by()
 
 OUT   <- "results/figures/policy_deck"; dir.create(OUT, recursive = TRUE, showWarnings = FALSE)
 PROXY <- "#0F7B8A"; INK <- "#1A1A1A"
@@ -30,7 +31,7 @@ B <- readRDS("dashboard/data/oos_cote_divoire.rds")$boundaries
 nD <- nrow(U)
 
 U$pct <- 100 * (U$rank_med - 0.5) / nD
-g <- dplyr::left_join(B, U[, c("Admin2", "pct", "rank_med", "rank_width")], by = "Admin2")
+g <- dplyr::left_join(B, U[, intersect(c("Admin1", "Admin2", "pct", "rank_med", "rank_width"), names(U))], by = admin2_join_by(B, U))   # JK-01: pair key when both sides carry Admin1
 cat("districts joined:", sum(is.finite(g$pct)), "of", nrow(B), "\n")
 
 cent <- suppressWarnings(sf::st_coordinates(sf::st_centroid(sf::st_geometry(g))))

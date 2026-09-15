@@ -9,7 +9,7 @@ check,what,status,detail
 7-unique-keys,one row per country x admin-2,PASS,0 duplicate keys
 8-no-dead-columns,no all-NA or zero-variance predictors,PASS,"0 all-NA, 0 constant"
 9-no-duplicate-columns,no two predictors are value-identical,PASS,
-10-values-reproduce,canonical values re-derive from raw + declared units,PASS,"1176 of 1176 (country, variable) pairs re-derive exactly"
+10-values-reproduce,canonical values re-derive from raw + declared units,PASS,"1212 of 1212 (country, variable) pairs re-derive exactly"
 11a-lst-celsius,night LST is in a plausible Celsius range,PASS,range 9.3 to 26.3 C over 15 columns
 11b-ndvi-scaled,"NDVI lies in [-1, 1]",PASS,range -0.022 to 0.390 over 8 years
 11c-cover-fractions,"cover fractions lie in [0, 100]",PASS,range 0.00 to 100.00

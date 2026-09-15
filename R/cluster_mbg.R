@@ -76,12 +76,11 @@ cluster_mbg_covariates <- function() DIST_COVARIATE_PATTERNS
 #' @return data.frame with cluster, lon, lat, Admin2, n, k, p_w, or NULL
 build_cluster_dataset <- function(merged, cc, oc, value, threshold) {
   d <- merged
-  pop_col <- cc$child_flag
-  if (!is.null(pop_col) && pop_col %in% colnames(d)) {
-    keep  <- !is.na(d[[pop_col]]) & d[[pop_col]] == oc$child_flag_val
-    d     <- d[keep, , drop = FALSE]
-    value <- value[keep]
-  }
+  # Same population definition as build_outcome_dataset() (R/data_prep.R):
+  # the child/women flag, non-pregnant women, children 6-59 months.
+  keep  <- outcome_population_mask(d, cc, oc, label = "[mbg]")
+  d     <- d[keep, , drop = FALSE]
+  value <- value[keep]
   lon <- suppressWarnings(as.numeric(d$lon))
   lat <- suppressWarnings(as.numeric(d$lat))
   w   <- suppressWarnings(as.numeric(d[[cc$weight_col]]))

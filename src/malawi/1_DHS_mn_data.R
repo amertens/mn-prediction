@@ -39,17 +39,29 @@ define_mn_deficiency <- function(
   population <- match.arg(population)
 
   # --- helper: BRINDA regression adjustment ---
-  brinda_adjust <- function(y, crp, agp) {
+  # 2026-09-15 FIX. The previous version took exp(residual + intercept) for
+  # every observation, i.e. it re-centred EVERYONE to log(CRP) = log(AGP) = 0
+  # (CRP = 1 mg/L, AGP = 1 g/L). For the majority of children with CRP well
+  # below 1 mg/L that RAISED ferritin (and lowered RBP), so iron deficiency
+  # came out at 9.7% against the survey's own BRINDA flag of 20.1% (sf_c1;
+  # report 21.7%). BRINDA (Namaste 2017; Larson 2017) instead uses the 10th
+  # percentile of CRP and AGP as the reference and adjusts only observations
+  # ABOVE it, leaving the uninflamed untouched; direction is fixed by `sign`
+  # (+1: inflammation raises the marker, ferritin; -1: depresses it, RBP),
+  # with a coefficient of the wrong sign clamped to zero.
+  brinda_adjust <- function(y, crp, agp, sign = +1) {
     ok <- is.finite(y) & is.finite(crp) & is.finite(agp) &
       y > 0 & crp > 0 & agp > 0
-
     y_adj <- rep(NA_real_, length(y))
-
     if (sum(ok) > 20) {
-      fit <- lm(log(y[ok]) ~ log(crp[ok]) + log(agp[ok]))
-      y_adj[ok] <- exp(resid(fit) + coef(fit)[1])
+      ly <- log(y[ok]); lc <- log(crp[ok]); la <- log(agp[ok])
+      c_ref <- as.numeric(quantile(lc, 0.10)); a_ref <- as.numeric(quantile(la, 0.10))
+      b  <- coef(lm(ly ~ lc + la))
+      bC <- if (sign > 0) max(b[["lc"]], 0) else min(b[["lc"]], 0)
+      bA <- if (sign > 0) max(b[["la"]], 0) else min(b[["la"]], 0)
+      corr <- bC * pmax(lc - c_ref, 0) + bA * pmax(la - a_ref, 0)
+      y_adj[ok] <- exp(ly - corr)
     }
-
     y_adj
   }
 
@@ -66,23 +78,33 @@ define_mn_deficiency <- function(
   fast[is.na(fast)] <- 0
 
   # --- Vitamin A ---
+  # Inflammation depresses RBP: sign = -1. (The pipeline re-derives the VAD
+  # binary at run time with R/brinda_adjustment.R; this column is a fallback.)
   if (population == "young_child") {
-    rbp_adj <- brinda_adjust(rbp, crp, agp)
+    rbp_adj <- brinda_adjust(rbp, crp, agp, sign = -1)
     vad <- as.integer(rbp_adj < 0.70)
   } else {
     vad <- as.integer(rbp < 0.70)
   }
 
   # --- Iron ---
-  fer_adj <- brinda_adjust(fer, crp, agp)
+  # Prefer the survey's own BRINDA internal-regression ferritin (`sf_reg`,
+  # report section 2.9) when the file carries it; its cut-off flag `sf_c1` is
+  # exactly sf_reg < 12 (PSC) / < 15 (others). Fall back to the local BRINDA
+  # (inflammation RAISES ferritin: sign = +1) only when sf_reg is absent.
+  fer_adj <- if ("sf_reg" %in% names(df)) df[["sf_reg"]] else brinda_adjust(fer, crp, agp, sign = +1)
 
-  if (population %in% c("young_child", "school_child")) {
+  # Report Table 2.3: ferritin < 12 ug/L for preschool children, < 15 ug/L for
+  # school-aged children, women and men (the old code used 12 for SAC too).
+  if (population == "young_child") {
     id <- as.integer(fer_adj < 12)
   } else {
     id <- as.integer(fer_adj < 15)
   }
 
   # --- Zinc ---
+  # zn_gdl carries sentinel values (-100, 0) that are not measurements.
+  zn[!is.na(zn) & zn <= 0] <- NA_real_
   zn_def <- rep(NA_integer_, length(zn))
 
   for (i in seq_along(zn)) {

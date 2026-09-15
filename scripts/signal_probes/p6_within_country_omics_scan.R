@@ -58,7 +58,7 @@ S  <- read.csv("data/covariates/harmonized/predictors_admin2_shared.csv",
                check.names = FALSE)
 MD <- read.csv("data/covariates/harmonized/predictors_admin2_shared_metadata.csv")
 SHARED_NONGEE <- MD$column[MD$source != "GEE"]
-source("R/config.R")
+source("R/config.R"); source("R/admin2_key_hygiene.R")   # admin2_join_by()
 num <- function(x) suppressWarnings(as.numeric(haven::zap_labels(x)))
 wmean <- function(x, w) { ok <- is.finite(x) & is.finite(w) & w > 0
   if (!any(ok)) NA_real_ else sum(x[ok] * w[ok]) / sum(w[ok]) }
@@ -81,9 +81,7 @@ for (lc in names(COUNTRIES)) {
   gtab <- g[, c(keys, gee_cols)]
   sh <- S[S$country == COUNTRIES[[lc]],
           c("Admin1", "Admin2", intersect(SHARED_NONGEE, names(S)))]
-  by <- intersect(keys, c("Admin1", "Admin2"))
-  m <- if (length(by) == 2) full_join(gtab, sh, by = by) else
-       full_join(gtab, sh, by = "Admin2")
+  m <- full_join(gtab, sh, by = admin2_join_by(gtab, sh))   # JK-01: pair key when both sides carry Admin1
   native[[lc]] <- m
   cat(lc, ": native GEE", length(gee_cols), "cols + shared non-GEE",
       ncol(sh) - 2, "-> matrix", nrow(m), "x", ncol(m) - 2, "\n")

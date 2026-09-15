@@ -212,15 +212,15 @@ if (!is.null(sy)) {
 ## Outcomes
 
 ```{r outcomes}
-kb(df(Outcome = c("Iron status", "Vitamin A status", "Folate", "Vitamin B12", "Zinc"),
-  Population = c("Children 6 to 59 months; women 15 to 49 years", "Children 6 to 59 months; women 15 to 49 years", "Women 15 to 49 years", "Women 15 to 49 years", "Children; women"),
+kb(df(`Nutrient status` = c("Iron", "Vitamin A", "Folate", "B12", "Zinc"),
+  Population = c("Children 6-59 mo; non-pregnant women 15-49 y", "Children 6-59 mo; non-pregnant women 15-49 y", "Non-pregnant women 15-49 y", "Non-pregnant women 15-49 y", "Children 6-59 mo; non-pregnant women"),
   Countries = c("All four", "All four", "Ghana, Sierra Leone, Malawi", "Ghana, Sierra Leone, Malawi", "Malawi only"),
-  Biomarker = c("Serum ferritin, BRINDA-adjusted", "Retinol-binding protein, BRINDA-adjusted, retinol equivalent", "Serum folate", "Serum B12", "Serum zinc"),
-  `Uniform cut-off` = c("< 12 / < 15 ug/L", "< 0.70 umol/L retinol equivalent", "< 10 nmol/L", "< 150 pmol/L", "IZiNCG, by time of draw")), digits = 0)
+  Biomarker = c("Ferritin, inflammation-adjusted (survey flag; not IDA)", "Retinol-binding protein, one BRINDA adjustment for all", "Serum folate (immunoassay GH, SL; microbiologic MW)", "Serum B12", "Serum zinc, IZiNCG flag, unadjusted"),
+  `Uniform cut-off` = c("< 12 / < 15 ug/L", "< 0.70 umol/L RBP", "< 10 nmol/L", "< 148-150 pmol/L", "IZiNCG, by draw time")), digits = 0)
 ```
 
 ::: {.notes}
-Two targets per cell: the deficiency prevalence, and the district mean of the negated log biomarker concentration (higher means worse), which carries more signal than the dichotomy and is reported alongside it. Vitamin A uses each survey's published RBP-to-retinol calibration before the 0.70 cut-off (VA-01). Iodine (The Gambia, Sierra Leone) is analysed within country only; a one- or two-country outcome has no cross-border test.
+Two targets per cell: the deficiency prevalence, and the district mean of the negated log biomarker concentration (higher means worse), which carries more signal than the dichotomy and is reported alongside it. Definitions were reconciled against the four survey reports and the 21 papers that re-analyse them on 15 September 2026 (docs/survey_report_reconciliation.md): every iron, zinc, folate and B12 national estimate now reproduces its report to the decimal, and the Gambia LGA estimates track the report at r = 0.98 to 0.99. What changed then: the iron binaries had been the surveys' iron-deficiency-ANAEMIA columns in three countries (ferritin plus haemoglobin), Malawi's iron flag came from a mis-specified local BRINDA that under-counted by half, pregnant women and children outside 6 to 59 months were being kept, and vitamin A had been converted to retinol-equivalents with each survey's own RBP-to-retinol line. That conversion is now the sensitivity analysis, not the primary: the four lines were fitted in different directions on 14 to 300 specimens, and Malawi's has R-squared 0.13, which manufactures near-zero deficiency by construction; the survey's own re-analysis (Likoswe 2021) recommends exactly BRINDA-adjusted RBP below 0.70, the estimand used here. Call it low RBP rather than vitamin A deficiency: Ghana's MRDR found 6.7 percent depleted and Malawi's none. Two caveats to say if asked. Sierra Leone's child file as supplied holds only the survey's anaemic children (532 of 654 assayed), so its child cells are anaemic-subgroup estimates until the full file arrives. Folate is not comparable across the two assays (Malawi's microbiologic assay reads higher than the Roche immunoassay), so its cross-border numbers are indicative only. Iodine (The Gambia, Sierra Leone) is analysed within country only; a one- or two-country outcome has no cross-border test.
 :::
 
 ## Conceptual framework: iron deficiency

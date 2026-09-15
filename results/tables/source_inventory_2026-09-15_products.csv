@@ -1,0 +1,46 @@
+product,provider,paper_entry,columns,all4,subnational,national_constant
+"DHS recodes, surveyPrev Admin-2 (BYM2)",DHS Program,T1 Demographic and Health Surveys,161,149,161,0
+AlphaEarth Foundations 2017 embedding,Google DeepMind (GEE),not in paper (GEE catalogue),64,64,64,0
+iSDAsoil 30 m soil properties,iSDA,not in paper,38,38,38,0
+IHME LBD geospatial surfaces (13 families),IHME,T2 IHME GHDx,30,19,30,0
+GFDx fortification programme fields,GFDx,T2 GFDx,23,21,0,23
+MICS by region via WHO Health Inequality Data Repository,WHO / UNICEF,T1 MICS via T2 WHO Health Inequality Data Repository,20,18,20,0
+Oxford MAP night LST (MODIS),Oxford MAP,T2 Malaria Atlas Project,17,17,17,0
+TerraClimate,University of Idaho,T2 Google Earth Engine,13,13,13,0
+MapSPAM 2010 crop allocation,IFPRI,not in paper,12,12,12,0
+Malaria Atlas Project rasters at survey year,Malaria Atlas Project,T2 Malaria Atlas Project,12,12,12,0
+TRMM 3B43 precipitation,NASA,T2 NASA EarthData / GEE,10,10,10,0
+WFP Food Price Database (via HDX HAPI),WFP / OCHA HDX,T2 WFP Food Price Database,9,5,9,0
+Koppen-Geiger 1991-2020 + HarvestChoice AEZ16,Beck et al. / IFPRI,not in paper,9,9,9,0
+AVHRR NDVI CDR v5,NOAA,T2 NASA EarthData / GEE,8,8,8,0
+Copernicus Global Land Cover,Copernicus,T2 Copernicus / GEE,8,8,8,0
+WorldPop age-sex + GHS-SMOD,WorldPop / JRC,T2 WorldPop,8,8,8,0
+WHO ESPEN implementation-unit database,WHO AFRO,T2 WHO ESPEN,8,8,8,0
+Gridded Livestock of the World 4 (2020),FAO,not in paper,8,8,8,0
+FAOSTAT Food Balance Sheets,FAO,T2 FAOSTAT / FBS / SUA,8,8,0,8
+SoilGrids v2 0-5 cm,ISRIC,T2 ISRIC SoilGrids,7,7,7,0
+JRC Global Surface Water + LSIB coastline,JRC / US DoS,not in paper (GEE catalogue),6,6,6,0
+Tang et al. 2026 (WFP / MIMI) nutrient inadequacy,WFP / MIMI,T2 MIMI,6,0,6,0
+WHO Global Anaemia Estimates,WHO / UNICEF,T2 WHO Global Anaemia Estimates,5,5,0,5
+"GFDx nutrition-status fields (WHO 2011 anaemia, W&B zinc)",GFDx,T2 GFDx,4,0,0,4
+HFID (IPC / CH / FEWS NET / WFP mVAM),FEWS NET / IPC / WFP,T2 HFID / IPC / FEWS NET,4,0,4,0
+GPW v4.11 population density,CIESIN,T2 NASA EarthData / GEE,3,3,3,0
+GPW v4.11 age-sex / density,CIESIN,T2 NASA EarthData / GEE,3,3,3,0
+Meta Relative Wealth Index,Meta Data for Good,not in paper,3,3,3,0
+WHO FluNet,WHO,T1 FluNet,3,0,0,3
+GHSL built-up surface,JRC,not in paper (GEE catalogue),2,2,2,0
+MODIS MOD17A3 NPP,NASA MODIS,T2 NASA EarthData / GEE,2,2,2,0
+Global Data Lab subnational HDI,GDL,not in paper,2,2,2,0
+FAO WaPOR NPP,FAO,T2 Google Earth Engine,2,2,2,0
+GHSL population,JRC,not in paper (GEE catalogue),1,1,1,0
+FEWS NET NDVI anomaly,FEWS NET / USGS,T2 FEWS NET,1,1,1,0
+CCNL night-time lights,BNU,not in paper (GEE catalogue),1,1,1,0
+Global Pasture Watch grasslands,Global Pasture Watch,not in paper (GEE catalogue),1,1,1,0
+MODIS MOD15A2H LAI,NASA MODIS,T2 NASA EarthData / GEE,1,1,1,0
+MODIS MOD13Q1 EVI,NASA MODIS,T2 NASA EarthData / GEE,1,1,1,0
+MODIS MOD08 aerosol optical depth,NASA MODIS,T2 NASA EarthData / GEE,1,1,1,0
+Global Human Modification,CSP,not in paper (GEE catalogue),1,1,1,0
+Oxford MAP travel time to healthcare,Oxford MAP,T2 Malaria Atlas Project,1,1,1,0
+SRTM elevation,USGS,T2 NASA EarthData / GEE,1,1,1,0
+UNICEF vitamin A supplementation coverage (WDI mirror),UNICEF / World Bank,T2 UNICEF Global Databases,1,1,0,1
+World Settlement Footprint 2015,DLR,not in paper (GEE catalogue),1,1,1,0

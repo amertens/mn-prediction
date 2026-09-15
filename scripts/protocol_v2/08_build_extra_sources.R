@@ -57,6 +57,10 @@ setwd("C:/Users/andre/OneDrive/Documents/mn-prediction")
 
 HDIR <- "data/covariates/harmonized"
 source("R/survey_years.R"); SURVEY_YEAR <- survey_years()   # single source: metadata/survey_years.csv (Gambia 2018, Ghana 2017, Malawi 2016, Sierra Leone 2013)
+# columns an EARLIER run of this script put into the shared set (renamed or
+# withdrawn since) must leave it again, as script 59 does for its blocks
+PREV_EXTRASRC_COLS <- if (file.exists(file.path(HDIR, "predictors_admin2_extrasrc.csv")))
+  setdiff(names(read.csv(file.path(HDIR, "predictors_admin2_extrasrc.csv"), check.names = FALSE, nrows = 1)), c("country", "Admin1", "Admin2")) else character(0)
 COUNTRIES <- names(SURVEY_YEAR)
 kk <- function(x) tolower(gsub("[^a-z]", "", tolower(x)))
 
@@ -112,7 +116,26 @@ for (cn in COUNTRIES) {
   # EBF, MCV run to 2019). One year per country kept only the indicators whose
   # series reached that year: with 2021 as Gambia's year the pick was 2019 and
   # 18 of Gambia's 29 indicators went all-NA (found 2026-09-04).
-  d$.key <- paste0("ihme_", kk(d$measure))
+  # IH-03 (2026-09-15). Two defects in the key: (a) kk() dropped digits, so the
+  # three education categories (0 / 6-11 / 12+ years) collapsed into one column
+  # that averaged to 0.25 everywhere; (b) "Prevalence" / "Incidence" / "Deaths"
+  # are measure names shared by several IHME products (malaria, under-5
+  # diarrhoea, lymphatic filariasis, onchocerciasis, u5 mortality), and pooling
+  # them by measure alone averaged four diseases into one number. The key now
+  # keeps digits and carries the product where the measure name is generic.
+  kk2 <- function(x) tolower(gsub("[^a-z0-9]", "", tolower(x)))
+  src <- tolower(as.character(d$source))
+  tag <- ifelse(grepl("malaria", src), "malaria_", ifelse(grepl("diarrh", src), "u5diarrhoea_", ifelse(grepl("lymphatic", src), "lf_",
+         ifelse(grepl("onchocerc", src), "oncho_", ifelse(grepl("mortality", src), "u5mort_", "")))))
+  d$.key <- paste0("ihme_", tag, kk2(d$measure))
+  IHME_RENAME <- c(ihme_proportionofpopulationachieving0yearseducation = "ihme_edu_0y_share",
+                   ihme_proportionofpopulationachieving611yearseducation = "ihme_edu_6_11y_share",
+                   ihme_proportionofpopulationachieving12yearseducation = "ihme_edu_12plus_share",
+                   ihme_u5diarrhoea_prevalence = "ihme_u5_diarrhoea_prev", ihme_u5diarrhoea_incidence = "ihme_u5_diarrhoea_incidence",
+                   ihme_malaria_prevalence = "ihme_malaria_pfpr", ihme_malaria_incidence = "ihme_malaria_incidence_rate", ihme_malaria_deaths = "ihme_malaria_mortality_rate",
+                   ihme_lf_prevalence = "ihme_lf_prevalence", ihme_oncho_prevalence = "ihme_oncho_prevalence", ihme_u5mort_deaths = "ihme_u5_mortality_rate",
+                   ihme_mcv1coverage = "ihme_mcvcoverage")   # keep the raster block's name (script 48) so the swap still matches
+  d$.key <- ifelse(d$.key %in% names(IHME_RENAME), unname(IHME_RENAME[d$.key]), d$.key)
   d$year <- suppressWarnings(as.numeric(d$year)); d <- d[is.finite(d$year), ]
   yp <- d |> group_by(.key) |>
     summarise(.pick = year[which.min(abs(year - SURVEY_YEAR[[cn]]))], .groups = "drop")
@@ -170,9 +193,14 @@ if (length(ihme_blocks)) {
     IR <- read.csv(rf, check.names = FALSE); RM <- read.csv(rm, stringsAsFactors = FALSE)
     okcol <- unique(RM$column[is.finite(RM$rho_all) & RM$rho_all >= 0.5])
     swap <- intersect(intersect(okcol, names(IR)), keep)
-    if (length(swap)) {
-      IH <- IH |> select(-all_of(swap)) |>
-        left_join(IR[, c("country", "Admin1", "Admin2", swap)], by = c("country", "Admin1", "Admin2"))
+    # IH-03: a surface with no tabular twin (the under-5 diarrhoea prevalence
+    # raster, whose tabular product only reports counts) is ADDED rather than
+    # lost; it used to ride in under the generic name "ihme_prevalence".
+    addr <- setdiff(intersect(okcol, names(IR)), keep)
+    if (length(swap) || length(addr)) {
+      IH <- IH |> select(-any_of(swap)) |>
+        left_join(IR[, c("country", "Admin1", "Admin2", c(swap, addr))], by = c("country", "Admin1", "Admin2"))
+      keep <- c(keep, addr); swap <- c(swap, addr)
       IH <- IH[, c("country", "Admin1", "Admin2", keep), drop = FALSE]
     }
     writeLines(sprintf("  -> %d IHME columns taken from raster zonal means (script 48); tabular kept for: %s",
@@ -470,9 +498,11 @@ for (f in c("predictors_admin2_shared.csv", "predictors_admin2_shared_metadata.c
   if (!file.exists(file.path(HDIR, paste0(f, ".pre_extrasrc"))))
     file.copy(file.path(HDIR, f), file.path(HDIR, paste0(f, ".pre_extrasrc")))
 
-SH2 <- SH |> select(-any_of(c(newcols, MAP_DROP))) |>
+stale <- setdiff(PREV_EXTRASRC_COLS, newcols)
+if (length(stale)) cat("  removing stale extra-source columns:", paste(stale, collapse = ", "), "\n")
+SH2 <- SH |> select(-any_of(c(newcols, MAP_DROP, stale))) |>
   left_join(EX, by = c("country", "Admin1", "Admin2"))
-SHM2 <- bind_rows(SHM |> filter(!column %in% c(newcols, MAP_DROP)),
+SHM2 <- bind_rows(SHM |> filter(!column %in% c(newcols, MAP_DROP, stale)),
                   MD |> transmute(column, domain, source, n_countries, countries,
                                   completeness, subnational))
 write.csv(SH2, file.path(HDIR, "predictors_admin2_shared.csv"), row.names = FALSE)

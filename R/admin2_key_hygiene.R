@@ -90,7 +90,22 @@ can_pair_join <- function(x, y) {
 }
 
 #' The join-by vector for an Admin-2 join: the pair when both sides support it.
-admin2_join_by <- function(x, y) if (can_pair_join(x, y)) c("Admin1", "Admin2") else "Admin2"
+#'
+#' JK-01 (2026-09-15): degrading to the name-only key is no longer silent. The
+#' first degradation in a session is reported with the calling function, so a
+#' table that lost its Admin1 somewhere upstream is noticed rather than joined
+#' on a key that fans rows in Malawi. Set options(mnp.admin2.quiet = TRUE) to
+#' silence it.
+.a2_degrade_env <- new.env(parent = emptyenv())
+admin2_join_by <- function(x, y) {
+  if (can_pair_join(x, y)) return(c("Admin1", "Admin2"))
+  if (!isTRUE(getOption("mnp.admin2.quiet", FALSE)) && !isTRUE(.a2_degrade_env$reported)) {
+    .a2_degrade_env$reported <- TRUE
+    caller <- tryCatch(deparse(sys.call(-1)[[1]]), error = function(e) "?")
+    message(sprintf("[admin2_join_by] name-only Admin-2 join (Admin1 absent on one side) in %s; further degradations in this session are not repeated", caller))
+  }
+  "Admin2"
+}
 
 #' Rows whose Admin-2 name denotes a water body rather than a district.
 is_water_admin2 <- function(x) grepl(ADMIN2_WATER_PATTERN, x, ignore.case = TRUE)

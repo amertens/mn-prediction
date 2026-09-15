@@ -714,13 +714,39 @@ for (country_name in names(all_country_configs)) {
             new_gee <- setdiff(gee_cols, existing_gee)
             if (length(new_gee) > 0) {
               admin2_col <- cc_val$admin2_col
+              admin1_col <- cc_val$admin1_col
               n_before <- nrow(d)
-              d <- merge(d, gee[, c("Admin2", new_gee), drop = FALSE],
-                         by.x = admin2_col, by.y = "Admin2",
+              # 2026-09-15 fix: join on the (Admin1, Admin2) PAIR when both sides
+              # carry Admin1, not on the Admin-2 name alone. GADM Malawi has four
+              # Traditional Authorities whose names repeat across districts (TA
+              # Lundu: Blantyre/Chikwawa; TA Malemia: Nsanje/Zomba; TA Ngabu:
+              # Chikwawa/Nsanje; TA Pemba: Dedza/Salima). A name-only merge gave
+              # every respondent in those TAs TWO rows -- one with the right
+              # district's covariates and one with the other district's -- and
+              # the cached merged_malawi carried 3212 rows for 3099 respondents
+              # (47 preschool children and 30 women double-counted, so n_raw in
+              # targets_v2 was doubled for TA Lundu/Malemia/Pemba). The warning
+              # below fired but was only a warning. Same class of defect as
+              # R/admin2_key_hygiene.R (2026-08-28), which fixed the AREA-level
+              # joins but not this individual-level one.
+              gee_keep <- gee
+              gee_side <- data.frame(Admin2 = gee_keep$Admin2, stringsAsFactors = FALSE)
+              d_side   <- data.frame(Admin2 = d[[admin2_col]], stringsAsFactors = FALSE)
+              if (!is.null(admin1_col) && admin1_col %in% names(d) && "Admin1" %in% names(gee_keep)) {
+                gee_side$Admin1 <- gee_keep$Admin1
+                d_side$Admin1   <- d[[admin1_col]]
+              }
+              by_cols <- if (exists("admin2_join_by")) admin2_join_by(d_side, gee_side) else "Admin2"
+              gee_sub <- gee_keep[, c(by_cols, new_gee), drop = FALSE]
+              gee_sub <- gee_sub[!duplicated(gee_sub[, by_cols, drop = FALSE]), , drop = FALSE]
+              by_x <- c(if ("Admin1" %in% by_cols) admin1_col, admin2_col)
+              d <- merge(d, gee_sub, by.x = by_x, by.y = by_cols,
                          all.x = TRUE, sort = FALSE)
               if (nrow(d) != n_before) {
-                warning(sprintf("[merge_gee] Row count changed: %d -> %d", n_before, nrow(d)))
+                stop(sprintf("[merge_gee] Row count changed: %d -> %d (duplicated %s key in the covariate table)",
+                             n_before, nrow(d), paste(by_cols, collapse = "+")))
               }
+              cat(sprintf("[merge_gee] joined on %s\n", paste(by_cols, collapse = " + ")))
               cat(sprintf("[merge_gee] Added %d GEE Admin-2 raster columns to %s\n",
                           length(new_gee), cc_val$country))
             }

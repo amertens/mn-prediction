@@ -42,7 +42,7 @@ MD <- read.csv("data/covariates/harmonized/predictors_admin2_shared_metadata.csv
 PREDS <- drop_near_outcome_v2(intersect(MD$column, names(S)), MD)
 domain_of <- stats::setNames(MD$domain, MD$column)
 BND <- readRDS("dashboard/data/admin2_boundaries.rds"); POP <- readRDS("dashboard/data/admin2_population.rds")
-POP$country <- gsub(" ", "", POP$country)  # FIX 2026-09-04: the file spells "Sierra Leone" with a space; without this the join silently dropped the country
+POP$country <- gsub(" ", "", POP$country)  # (label also normalised inside admin2_population_v2(), JK-01)
 COUNTRIES <- c(gambia = "Gambia", ghana = "Ghana", malawi = "Malawi", sierraleone = "SierraLeone")
 pop_for <- function(on) if (grepl("^child", on)) "pop_child" else "pop_women"
 CENT <- do.call(rbind, lapply(names(COUNTRIES), function(lc) {
@@ -59,8 +59,8 @@ cat("Malawi districts mapped:", length(mw), "of", length(mw), "| regions:", past
 build <- function(cn, on) {
   t <- TG[TG$country == cn & TG$outcome == on, ]
   t <- t[is.finite(t$y_prev) & is.finite(t$n_eff) & t$n_eff > 0, ]; if (!nrow(t)) return(NULL)
-  pc <- pop_for(on); pp <- POP[POP$country == cn, c("Admin2", pc)]; names(pp)[2] <- "pop"
-  t <- left_join(t, pp, by = "Admin2"); t <- t[is.finite(t$pop) & t$pop > 0, ]; if (!nrow(t)) return(NULL)
+  t <- join_admin2_v2(t, admin2_population_v2(POP, cn, pop_for(on)), what = paste("pop", cn, on), quiet = TRUE)   # JK-01 pair key, no fan
+  t <- t[is.finite(t$pop) & t$pop > 0, ]; if (!nrow(t)) return(NULL)
   if (cn == "Malawi") {
     a <- t |> group_by(Admin1) |> summarise(y = stats::weighted.mean(y_prev, n_eff), w = sum(n_eff), pop = sum(pop), .groups = "drop")
     x <- S[S$country == cn, c("Admin1", PREDS)] |> group_by(Admin1) |> summarise(across(all_of(PREDS), ~ mean(.x, na.rm = TRUE)), .groups = "drop")

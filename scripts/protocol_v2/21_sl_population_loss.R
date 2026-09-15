@@ -47,7 +47,7 @@ PREDS <- drop_near_outcome_v2(intersect(MD$column, names(S)), MD)
 domain_of <- stats::setNames(MD$domain, MD$column)
 BND <- readRDS("dashboard/data/admin2_boundaries.rds")
 POP <- readRDS("dashboard/data/admin2_population.rds")
-POP$country <- gsub(" ", "", POP$country)  # FIX 2026-09-04: the file spells "Sierra Leone" with a space; without this the join silently dropped the country
+POP$country <- gsub(" ", "", POP$country)  # (label also normalised inside admin2_population_v2(), JK-01)
 COUNTRIES <- c(gambia = "Gambia", ghana = "Ghana", malawi = "Malawi",
                sierraleone = "SierraLeone")
 pop_for <- function(on) if (grepl("^child", on)) "pop_child" else "pop_women"
@@ -65,12 +65,11 @@ build <- function(cn, on) {
   t <- TG[TG$country == cn & TG$outcome == on, ]
   t <- t[is.finite(t$y_prev) & is.finite(t$n_eff) & t$n_eff > 0, ]
   if (nrow(t) < 12) return(NULL)
-  pp <- POP[POP$country == cn, c("Admin2", pop_for(on))]; names(pp)[2] <- "pop"
   m <- inner_join(t, S[S$country == cn, c("Admin1", "Admin2", PREDS)],
                   by = c("Admin1", "Admin2")) |>
     inner_join(CENT[CENT$country == cn, c("Admin1","Admin2","lon","lat")],
-               by = c("Admin1", "Admin2")) |>
-    left_join(pp, by = "Admin2")
+               by = c("Admin1", "Admin2"))
+  m <- join_admin2_v2(m, admin2_population_v2(POP, cn, pop_for(on)), what = paste("pop", cn, on), quiet = TRUE)   # JK-01 pair key, no fan
   m <- m[is.finite(m$pop) & m$pop > 0, ]
   if (nrow(m) < 12) return(NULL)
   Xr <- prep_predictors_v2(as.matrix(m[, PREDS, drop = FALSE]))

@@ -500,11 +500,16 @@ for (ctry in countries) {
                         colnames(ext))[1]
   if (is.na(pop_col)) next
 
-  # CRITICAL: deduplicate by Admin2 — Malawi cache has cartesian-join inflation
+  # CRITICAL: deduplicate — Malawi cache has cartesian-join inflation
   # (16.7M rows from duplicate "Lake Malawi" / "Lake Chilwa" polygon names).
-  # We take the first value per unique Admin2 (population is constant across
-  # duplicates by definition).
-  ext_dedup <- ext[!duplicated(ext$Admin2),
+  # We take the first value per unique unit (population is constant across
+  # duplicates by definition). JK-02 (2026-09-15): the key is the (Admin1,
+  # Admin2) PAIR, not the name - deduplicating by name dropped one TA of each
+  # of Malawi's four same-name pairs (TA Lundu, TA Ngabu, TA Pemba, TA
+  # Malemia), two of them surveyed, from every burden-weighted arm. The live
+  # table was repaired by scripts/covariates/fix_admin2_population_pairs.R.
+  .dk <- if ("Admin1" %in% colnames(ext)) paste(ext$Admin1, ext$Admin2, sep = "||") else ext$Admin2
+  ext_dedup <- ext[!duplicated(.dk),
                     intersect(colnames(ext), c("Admin1", "Admin2", pop_col)),
                     drop = FALSE]
   cat(sprintf("    %s: deduplicated %d → %d rows\n",

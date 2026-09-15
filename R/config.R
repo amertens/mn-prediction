@@ -35,6 +35,17 @@ get_country_configs <- function() {
       weight_col    = "gw_svy_weight",
       strata_col    = "gw_strata",
       child_flag    = "gw_child_flag",
+      # 2026-09-15 (survey-report reconciliation): the GMNS report and Petry
+      # et al. 2019 estimate every biomarker in NON-PREGNANT women and in
+      # children 6-59 months. The women's file carries 158 self-reported
+      # pregnant women, 32 of them with ferritin/RBP, and the child file 21
+      # children aged 60-64 months (aged out since the MICS listing) and 5
+      # aged <6 months with assays. build_outcome_dataset() now applies both
+      # restrictions; with them the ID count among women reproduces the
+      # report's numerator (632) exactly.
+      preg_col      = "gw_wPreg",              # 1 = pregnant by self-report
+      child_age_col = "gw_cAgeMonths_GMNS",    # completed months; keep 6-59
+      child_age_range = c(6, 59),
 
       # Outcomes (each is population x micronutrient)
       outcomes = list(
@@ -60,13 +71,24 @@ get_country_configs <- function() {
           cutoff_dir     = "less",
           cutoff_scale   = "original"
         ),
+        # 2026-09-15 fix: the binary was gw_cIDA_Brinda / gw_wIDA_Brinda, whose
+        # Stata labels read "Iron Deficiency ANEMIA with ID from adjusted
+        # ferritin" (ID + Hb < 110/120): 42% / 31% of the sample, against the
+        # report's ID of 59.0% / 41.4%. The continuous target (BRINDA log
+        # ferritin < log 12/15) IS iron deficiency, so the two targets described
+        # different conditions. resolve_uniform_outcome() masked this on the
+        # area path by re-deriving the binary from the continuous, but every
+        # consumer that reads oc$binary directly (national_estimates, the
+        # individual-level SL, corrected/p1, cluster_aggregation, mrp, the
+        # !is.na(binary) row filter) got IDA. gw_cID_Brinda / gw_wID_Brinda are
+        # the survey's own BRINDA iron-deficiency flags (GMNS Table 18 / 32).
         child_iron = list(
           tag            = "child_iron",
           label          = "Iron deficiency (children)",
           population     = "children",
           child_flag_val = 1L,
           continuous     = "gw_LogFerAdj",
-          binary         = "gw_cIDA_Brinda",
+          binary         = "gw_cID_Brinda",
           cutoff         = log(12),
           cutoff_dir     = "less",
           cutoff_scale   = "log"
@@ -77,7 +99,7 @@ get_country_configs <- function() {
           population     = "women",
           child_flag_val = 0L,
           continuous     = "gw_LogFerAdj",
-          binary         = "gw_wIDA_Brinda",
+          binary         = "gw_wID_Brinda",
           cutoff         = log(15),
           cutoff_dir     = "less",
           cutoff_scale   = "log"
@@ -147,6 +169,13 @@ get_country_configs <- function() {
       weight_col    = "gw_PSUStrat_weight",
       strata_col    = "gw_strata",
       child_flag    = "gw_child_flag",   # derived in load_merged_data()
+      # 2026-09-15: report estimates are for non-pregnant women and children
+      # 6-59 months. Pregnant women in the GMS gave finger-prick Hb/malaria
+      # only, so only 5 carry ferritin/RBP -- the filter is near no-op here
+      # but keeps the population definition identical across countries.
+      preg_col      = "gw_wPreg",
+      child_age_col = "gw_cAgeMonths",
+      child_age_range = c(6, 59),
 
       outcomes = list(
         child_vitA = list(
@@ -197,7 +226,12 @@ get_country_configs <- function() {
           population     = "women",
           child_flag_val = 0L,
           continuous     = "gw_wFerrAdjThurn",   # Thurnham-adjusted ferritin (linear µg/L)
-          binary         = "gw_wIDA_Thurn",
+          # 2026-09-15 fix: was gw_wIDA_Thurn, labelled "Iron Deficiency Anemia
+          # with ID from adjusted ferritin" (ID + Hb < 120; 7.7% of the sample,
+          # report IDA 8.9%). gw_wIDAdjThurn is the survey's iron-deficiency
+          # flag (Thurnham ferritin < 15; report ID 13.7%, GMS Table 39) and
+          # matches the continuous target and the children's gw_cIDAdjThurn.
+          binary         = "gw_wIDAdjThurn",
           cutoff         = 15,                    # WHO: serum ferritin <15 µg/L (women) = ID
           cutoff_dir     = "less",
           cutoff_scale   = "original"
@@ -258,11 +292,30 @@ get_country_configs <- function() {
     # ── Sierra Leone (SLMS 2013) ────────────────────────────────────────
     # Sierra Leone Micronutrient Survey. Fieldwork: 11 Nov – 2 Dec 2013.
     # 1477 individuals (532 children, 945 women).
+    #
+    # *** DATA-PROVENANCE WARNING (found 2026-09-15) ***
+    # The child file GroundWork supplied ("Sierra Leone_Child data_Davis-
+    # Berkeley.dta", n = 532) contains ONLY THE ANAEMIC CHILDREN of the survey.
+    # Every one of its 532 children has Hb <= 10.9 g/dL; the SLMS report's
+    # Table 23 gives anaemia = 532 cases of 710 children (76.3%), and Table
+    # A8-10's severity counts (190 mild / 315 moderate / 27 severe) match the
+    # file's cAnemiaSev tabulation exactly. The report's ferritin and RBP
+    # denominators are 654 children, so 168 non-anaemic children with assays
+    # are missing from this file, and cIDA == cFeDefAdj for every child (all
+    # are anaemic, so ID and IDA coincide). Every Sierra Leone child outcome
+    # in this pipeline is therefore estimated on a selected subgroup, with
+    # weights that were built for the full sample. The full child file must
+    # be requested from GroundWork; until then treat SL child results as
+    # anaemic-subgroup estimates (see docs/survey_report_reconciliation.md).
+    #
     # Biomarker columns use different naming (no Thurn/Brinda suffix):
     #   Vitamin A: gw_cRBPAdj / gw_wRBPAdj (continuous), no binary VAD column
-    #   Iron: gw_cFerrAdj / gw_wFerrAdj (continuous), gw_cIDA / gw_wIDA (binary)
+    #   Iron: gw_cFerrAdj / gw_wFerrAdjThurn (continuous, Thurnham), binary
+    #         gw_cFeDefAdj / gw_wFeDefAdjThurn (Thurnham ferritin < 12 / < 15)
     # Binary VAD derived in load_merged_data() from continuous RBP < 0.70.
     # No MICS, LSMS, FluNet, or WFP data. DHS 2013 aligned.
+    # The women's file is non-pregnant women only (wPregNow == 2 throughout),
+    # so no preg_col is needed.
     SierraLeone = list(
       country     = "Sierra Leone",
       gadm_code   = "SLE",
@@ -279,6 +332,8 @@ get_country_configs <- function() {
       weight_col    = "gw_svy_weight",
       strata_col    = "gw_hStratum",
       child_flag    = "gw_child_flag",
+      child_age_col = "gw_cAge",          # months (6.0-59.6 in the file)
+      child_age_range = c(6, 59),
 
       outcomes = list(
         child_vitA = list(
@@ -303,13 +358,18 @@ get_country_configs <- function() {
           cutoff_dir     = "less",
           cutoff_scale   = "original"
         ),
+        # 2026-09-15 fix: the binaries were gw_cIDA / gw_wIDA, labelled "Both
+        # iron deficiency (Thurnham adjusted ferritin) and anemia". The survey's
+        # iron-deficiency flags are gw_cFeDefAdj ("Iron deficiency using Thurnham
+        # adjusted ferritin") and gw_wFeDefAdjThurn ("... (<15 mcg/L)"), coded
+        # 1 = deficient / 2 = not; build_outcome_dataset() recodes {1,2}.
         child_iron = list(
           tag            = "child_iron",
           label          = "Iron deficiency (children)",
           population     = "children",
           child_flag_val = 1L,
           continuous     = "gw_cFerrAdj",
-          binary         = "gw_cIDA",
+          binary         = "gw_cFeDefAdj",
           cutoff         = 12,
           cutoff_dir     = "less",
           cutoff_scale   = "original"
@@ -319,8 +379,17 @@ get_country_configs <- function() {
           label          = "Iron deficiency (women)",
           population     = "women",
           child_flag_val = 0L,
-          continuous     = "gw_wFerAdjBR1",   # gw_wFerrAdj has 0 values for women; wFerAdjBR1 has 774
-          binary         = "gw_wIDA",
+          # 2026-09-15: was gw_wFerAdjBR1 (BRINDA-adjusted, 134 women < 15 =
+          # 18% weighted), chosen because "gw_wFerrAdj has 0 values for women"
+          # -- that column is the CHILD file's mothers' variable; the women's
+          # file carries gw_wFerrAdjThurn (n = 774). Thurnham is the survey's
+          # own method, is what the children's gw_cFerrAdj uses, and gives 97
+          # women < 15 (12.8% weighted). NOTE the SLMS report's published 8.3%
+          # (65 cases) is ferritin < 12, the CHILD cut-off, applied to women
+          # (66 cases < 12 in this file; Wirth et al. 2016 Fig 1 caption says
+          # "<12"); < 15 is the WHO definition and is kept here.
+          continuous     = "gw_wFerrAdjThurn",
+          binary         = "gw_wFeDefAdjThurn",
           cutoff         = 15,
           cutoff_dir     = "less",
           cutoff_scale   = "original"
@@ -393,6 +462,14 @@ get_country_configs <- function() {
       weight_col  = "svy_weight",
       strata_col  = NULL,          # no strata in Malawi MNS
       child_flag  = "population",  # text column, not binary
+      # 2026-09-15: the MNS report tabulates biomarkers for NON-PREGNANT WRA
+      # (34 of 838 women were pregnant; 31 of them have RBP/B12/zinc assays,
+      # and the survey's own sf_reg is already NA for them). Filter them out
+      # of every women's outcome, as the report does. age_month is 6-59 in
+      # the file, so the child age filter is a guard only.
+      preg_col        = "preg",           # 1 = pregnant; NA = unknown (kept)
+      child_age_col   = "age_month",
+      child_age_range = c(6, 59),
 
       outcomes = list(
         child_vitA = list(
@@ -417,13 +494,24 @@ get_country_configs <- function() {
           cutoff_dir     = "less",
           cutoff_scale   = "original"
         ),
+        # 2026-09-15 fix: the binary was `iron_def`, derived in
+        # src/malawi/1_DHS_mn_data.R by a home-grown "BRINDA" that regressed
+        # log ferritin on log CRP + log AGP and took exp(residual + intercept)
+        # for EVERY child -- i.e. it re-centred everyone to CRP = 1 mg/L and
+        # AGP = 1 g/L, raising ferritin for the (majority) low-inflammation
+        # children instead of lowering it only above the BRINDA reference
+        # deciles. It flagged 107 of 1102 children (9.7%) against the survey's
+        # own inflammation-corrected flag sf_c1 (222 = 20.1%; report Table 7.1:
+        # 21.7% weighted) and 74 vs 131 women (report 15.1%). sf_c1 is exactly
+        # sf_reg < 12 (PSC) / < 15 (WRA), the survey's BRINDA internal-regression
+        # ferritin (report section 2.9), so binary and continuous now agree.
         child_iron = list(
           tag            = "child_iron",
           label          = "Iron deficiency (children)",
           population     = "children",
           child_flag_val = "preschool children",
           continuous     = "sf_reg",
-          binary         = "iron_def",
+          binary         = "sf_c1",
           cutoff         = 12,
           cutoff_dir     = "less",
           cutoff_scale   = "original"
@@ -434,7 +522,7 @@ get_country_configs <- function() {
           population     = "women",
           child_flag_val = "women",
           continuous     = "sf_reg",
-          binary         = "iron_def",
+          binary         = "sf_c1",
           cutoff         = 15,
           cutoff_dir     = "less",
           cutoff_scale   = "original"
@@ -467,13 +555,21 @@ get_country_configs <- function() {
           cutoff_dir     = "less",
           cutoff_scale   = "original"
         ),
+        # 2026-09-15: binary switched from the locally recomputed `zinc_def` to
+        # the survey's own `low_zn` (IZiNCG cut-offs by age, time of draw and
+        # fasting status; report Tables 9.1 / 9.3: 60.4% PSC, 62.5% WRA). The two
+        # agreed for 1085/1086 children (the exception is a -100 sentinel in
+        # zn_gdl that zinc_def coded as deficient; load_merged_data() now sets
+        # zn_gdl <= 0 to NA) and differed for 13 women. Zinc is NOT
+        # inflammation-adjusted, matching the report; Likoswe 2020 / Gebremedhin
+        # 2020 show adjustment lowers the PSC prevalence by 2-10 pp.
         child_zinc = list(
           tag            = "child_zinc",
           label          = "Zinc deficiency (children)",
           population     = "children",
           child_flag_val = "preschool children",
           continuous     = "zn_gdl",            # serum zinc, ug/dL
-          binary         = "zinc_def",           # pre-computed with IZiNCG cutoffs
+          binary         = "low_zn",             # survey flag, IZiNCG cutoffs
           cutoff         = 65,                   # IZiNCG morning/fasting (conservative)
           cutoff_dir     = "less",
           cutoff_scale   = "original"
@@ -484,8 +580,51 @@ get_country_configs <- function() {
           population     = "women",
           child_flag_val = "women",
           continuous     = "zn_gdl",
-          binary         = "zinc_def",
+          binary         = "low_zn",
           cutoff         = 66,                   # IZiNCG morning/fasting (conservative)
+          cutoff_dir     = "less",
+          cutoff_scale   = "original"
+        ),
+        # Added 2026-09-15 (MW-SE / MW-IO). The MNS 2015-16 also measured plasma
+        # selenium (all groups; Phiri et al. 2019) and urinary iodine (women,
+        # school-age children). Malawi-only outcomes: no cross-border test, in-
+        # country arms only (scripts/protocol_v2/61_malawi_selenium_iodine.R).
+        # `sel_def` / `iod_def` are derived in load_merged_data() from the
+        # cut-offs below. Selenium is the one outcome in the panel with a known
+        # geochemical driver (soil pH / soil Se), so it is the cleanest
+        # soil -> biomarker test case the project has.
+        child_selenium = list(
+          tag            = "child_selenium",
+          label          = "Selenium deficiency (children)",
+          population     = "children",
+          child_flag_val = "preschool children",
+          continuous     = "sel",               # plasma selenium, ug/L
+          binary         = "sel_def",           # derived: sel < 84.6 ug/L
+          cutoff         = 84.6,                # 1.07 umol/L, optimal GPX3 activity (Thomson 2004);
+                                                # the threshold the MNS analyses used (Phiri et al. 2019)
+          cutoff_dir     = "less",
+          cutoff_scale   = "original"
+        ),
+        women_selenium = list(
+          tag            = "women_selenium",
+          label          = "Selenium deficiency (women)",
+          population     = "women",
+          child_flag_val = "women",
+          continuous     = "sel",
+          binary         = "sel_def",
+          cutoff         = 84.6,
+          cutoff_dir     = "less",
+          cutoff_scale   = "original"
+        ),
+        women_iodine = list(
+          tag            = "women_iodine",
+          label          = "Iodine insufficiency (women, UIC < 100 ug/L)",
+          population     = "women",
+          child_flag_val = "women",
+          continuous     = "iod",               # urinary iodine concentration, ug/L
+          binary         = "iod_def",           # derived: iod < 100 ug/L (WHO insufficient, non-pregnant)
+          cutoff         = 100,                 # WHO classifies POPULATION iodine status by the median UIC;
+                                                # the individual < 100 share is the convention IO-01 used
           cutoff_dir     = "less",
           cutoff_scale   = "original"
         )

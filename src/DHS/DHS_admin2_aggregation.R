@@ -39,6 +39,11 @@ suppressPackageStartupMessages({
 has_inla <- requireNamespace("INLA", quietly = TRUE)
 if (has_inla) library(INLA) else message("INLA not installed — Fay-Herriot smoothed estimates will be skipped.")
 
+# LK-02 (2026-09-15): the clusters a micronutrient survey re-sampled from its
+# DHS round are dropped from every indicator before estimation (Malawi only;
+# metadata/mns_dhs_overlap_clusters.csv). Sourced after rm(list = ls()).
+source(here::here("R", "mns_dhs_overlap.R"))
+
 # =============================================================================
 # 0. Configuration
 # =============================================================================
@@ -56,8 +61,10 @@ COUNTRY_REGISTRY <- list(
 )
 
 # Set this to a subset if you only want to re-run specific countries
-# e.g., COUNTRIES_TO_RUN <- c("Gambia")
-COUNTRIES_TO_RUN <- NULL  # NULL = all countries
+# e.g., COUNTRIES_TO_RUN <- c("Gambia"), or non-interactively
+# DHS_COUNTRIES_TO_RUN="Malawi" Rscript -e "source('src/DHS/DHS_admin2_aggregation.R')"
+COUNTRIES_TO_RUN <- if (nzchar(Sys.getenv("DHS_COUNTRIES_TO_RUN")))
+  trimws(strsplit(Sys.getenv("DHS_COUNTRIES_TO_RUN"), ",")[[1]]) else NULL  # NULL = all countries
 
 # Output directory
 OUT_DIR <- here("data", "DHS", "clean")
@@ -92,6 +99,9 @@ download_and_process_indicators <- function(country, year, indicators) {
     res <- tryCatch({
       dhsData <- getDHSdata(country = country, indicator = ind_id, year = year)
       dat <- getDHSindicator(dhsData, indicator = ind_id)
+      # LK-02: no-op unless this DHS round was re-sampled by the country's
+      # micronutrient survey (Malawi 2015-16); then those clusters are removed.
+      dat <- drop_mns_overlap(dat, country, "cluster", quiet = TRUE)
       n_valid <- sum(!is.na(dat$value))
       cat(sprintf("OK (n = %d)\n", n_valid))
       list(ok = TRUE, data = dat, msg = "")
@@ -342,6 +352,8 @@ for (entry in COUNTRY_REGISTRY) {
 
     # --- Step 1: Download and process indicators ---
     cat("  [1/5] Downloading DHS microdata and processing indicators...\n")
+    n_ex <- length(mns_overlap_clusters(entry$country))
+    if (n_ex) cat(sprintf("    LK-02: %d clusters re-sampled by the micronutrient survey are excluded from every indicator\n", n_ex))
     ind_res <- tryCatch(
       download_and_process_indicators(entry$country, yr, ALL_INDICATORS),
       error = function(e) {

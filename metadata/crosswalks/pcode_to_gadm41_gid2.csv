@@ -1,0 +1,752 @@
+"pcode","pcode_name","gid_2","Admin1","Admin2","share_of_cod_unit","n_gadm_polys","country","cod_level"
+"GM0101","Banjul Central","GMB.1.1_1","Banjul","Banjul",0.995,1,"Gambia",2
+"GM0102","Banjul North","GMB.1.1_1","Banjul","Banjul",0.669,2,"Gambia",2
+"GM0103","Banjul South","GMB.1.1_1","Banjul","Banjul",0.997,1,"Gambia",2
+"GM0201","Basse","GMB.5.1_1","Upper River","Fulladu East",0.966,3,"Gambia",2
+"GM0202","Kantora","GMB.5.2_1","Upper River","Kantora",0.966,3,"Gambia",2
+"GM0203","Sandu","GMB.5.3_1","Upper River","Sandu",0.992,4,"Gambia",2
+"GM0204","Jimara","GMB.5.1_1","Upper River","Fulladu East",0.935,3,"Gambia",2
+"GM0205","Tumana","GMB.5.1_1","Upper River","Fulladu East",0.957,3,"Gambia",2
+"GM0206","Wuli West","GMB.5.4_1","Upper River","Wuli",0.979,3,"Gambia",2
+"GM0207","Wuli East","GMB.5.4_1","Upper River","Wuli",0.981,2,"Gambia",2
+"GM0301","Foni Bintang Karenai","GMB.6.1_1","Western","Foni Bintang Karanai",0.95,4,"Gambia",2
+"GM0302","Foni Bondali","GMB.6.2_1","Western","Foni Bondali",0.825,4,"Gambia",2
+"GM0303","Foni Brefet","GMB.6.3_1","Western","Foni Brefet",0.98,2,"Gambia",2
+"GM0304","Foni Jarrol","GMB.6.4_1","Western","Foni Jarrol",0.832,3,"Gambia",2
+"GM0305","Foni Kansala","GMB.6.5_1","Western","Foni Kansala",0.743,4,"Gambia",2
+"GM0306","Kombo Central","GMB.6.6_1","Western","Kombo Central",0.97,4,"Gambia",2
+"GM0307","Kombo East","GMB.6.7_1","Western","Kombo East",0.841,4,"Gambia",2
+"GM0308","Kombo North/St Marie","GMB.6.8_1","Western","Kombo Saint Mary",0.867,4,"Gambia",2
+"GM0309","Kombo South","GMB.6.9_1","Western","Kombo South",0.962,3,"Gambia",2
+"GM0401","Lower Fuladu West","GMB.3.1_1","Maccarthy Island","Fulladu West",0.919,4,"Gambia",2
+"GM0402","Janjanbureh","GMB.3.2_1","Maccarthy Island","Janjanbureh",0.843,2,"Gambia",2
+"GM0403","Niamina Dankunku","GMB.3.4_1","Maccarthy Island","Niamina Dankunku",0.869,5,"Gambia",2
+"GM0404","Niamina East","GMB.3.5_1","Maccarthy Island","Niamina East",0.817,7,"Gambia",2
+"GM0405","Niamina West","GMB.3.6_1","Maccarthy Island","Niamina West",0.829,6,"Gambia",2
+"GM0406","Upper Fuladu West","GMB.3.1_1","Maccarthy Island","Fulladu West",0.945,5,"Gambia",2
+"GM0501","Bakau","GMB.1.2_1","Banjul","Kanifing",0.998,1,"Gambia",2
+"GM0502","Jeshwang","GMB.1.2_1","Banjul","Kanifing",0.998,1,"Gambia",2
+"GM0503","Mangrove","GMB.1.2_1","Banjul","Kanifing",0.484,3,"Gambia",2
+"GM0504","Sere Kunda Central","GMB.1.2_1","Banjul","Kanifing",0.877,2,"Gambia",2
+"GM0505","Sere Kunda East","GMB.6.8_1","Western","Kombo Saint Mary",0.633,2,"Gambia",2
+"GM0506","Sere Kunda West","GMB.1.2_1","Banjul","Kanifing",0.847,2,"Gambia",2
+"GM0601","Central Baddibu","GMB.4.1_1","North Bank","Central Baddibu",0.967,3,"Gambia",2
+"GM0602","Jokadu","GMB.4.2_1","North Bank","Jokadu",0.745,3,"Gambia",2
+"GM0603","Lower Baddibu","GMB.4.3_1","North Bank","Lower Baddibu",0.894,2,"Gambia",2
+"GM0604","Lower Niumi","GMB.4.4_1","North Bank","Lower Nuimi",0.981,3,"Gambia",2
+"GM0605","Illiassa","GMB.4.5_1","North Bank","Upper Baddibu",0.94,2,"Gambia",2
+"GM0606","Upper Niumi","GMB.4.6_1","North Bank","Upper Nuimi",0.884,3,"Gambia",2
+"GM0607","Sabach - Sanjal","GMB.4.5_1","North Bank","Upper Baddibu",0.996,2,"Gambia",2
+"GM0701","Lower Saloum","GMB.3.3_1","Maccarthy Island","Lower Saloum",0.971,3,"Gambia",2
+"GM0702","Niani","GMB.3.7_1","Maccarthy Island","Niani",0.99,5,"Gambia",2
+"GM0703","Nianija","GMB.3.8_1","Maccarthy Island","Nianija",0.919,3,"Gambia",2
+"GM0704","Sami","GMB.3.9_1","Maccarthy Island","Sami",0.979,3,"Gambia",2
+"GM0705","Upper Saloum","GMB.3.10_1","Maccarthy Island","Upper Saloum",0.952,4,"Gambia",2
+"GM0801","Jarra Central","GMB.2.1_1","Lower River","Jarra Central",0.889,3,"Gambia",2
+"GM0802","Jarra East","GMB.2.2_1","Lower River","Jarra East",0.869,5,"Gambia",2
+"GM0803","Jarra West","GMB.2.3_1","Lower River","Jarra West",0.86,4,"Gambia",2
+"GM0804","Kiang Central","GMB.2.4_1","Lower River","Kiang Central",0.931,2,"Gambia",2
+"GM0805","Kiang East","GMB.2.5_1","Lower River","Kiang East",0.669,3,"Gambia",2
+"GM0806","Kiang West","GMB.2.6_1","Lower River","Kiang West",0.959,5,"Gambia",2
+"GH0101","Asunafo North Municipal","GHA1.1_2","Ahafo","Asunafo North",0.998,8,"Ghana",2
+"GH0102","Asunafo South","GHA1.2_2","Ahafo","Asunafo South",0.995,6,"Ghana",2
+"GH0103","Asutifi North","GHA1.3_2","Ahafo","Asutifi North",0.998,7,"Ghana",2
+"GH0104","Asutifi South","GHA1.4_2","Ahafo","Asutifi South",0.994,8,"Ghana",2
+"GH0105","Tano North Municipal","GHA1.5_2","Ahafo","Tano North",0.997,8,"Ghana",2
+"GH0106","Tano South Municipal","GHA1.6_2","Ahafo","Tano South",0.997,5,"Ghana",2
+"GH0201","Adansi Akrofuom","GHA2.1_2","Ashanti","Adansi Akrofuom",0.996,9,"Ghana",2
+"GH0202","Adansi Asokwa","GHA2.2_2","Ashanti","Adansi Asokwa",0.996,7,"Ghana",2
+"GH0203","Adansi North","GHA2.3_2","Ashanti","Adansi North",0.995,7,"Ghana",2
+"GH0204","Adansi South","GHA2.4_2","Ashanti","Adansi South",0.995,7,"Ghana",2
+"GH0205","Afigya Kwabre North","GHA2.5_2","Ashanti","Afigya-Kwabre North",0.993,5,"Ghana",2
+"GH0206","Afigya Kwabre South","GHA2.6_2","Ashanti","Afigya-Kwabre South",0.994,8,"Ghana",2
+"GH0207","Ahafo Ano North","GHA2.7_2","Ashanti","Ahafo-Ano North",0.996,5,"Ghana",2
+"GH0208","Ahafo Ano South East","GHA2.8_2","Ashanti","Ahafo-Ano South East",0.997,8,"Ghana",2
+"GH0209","Ahafo Ano South West","GHA2.9_2","Ashanti","Ahafo-Ano South West",0.996,6,"Ghana",2
+"GH0210","Amansie Central","GHA2.10_2","Ashanti","Amansie Central",0.995,8,"Ghana",2
+"GH0211","Amansie South","GHA2.11_2","Ashanti","Amansie South",0.995,6,"Ghana",2
+"GH0212","Amansie West","GHA2.12_2","Ashanti","Amansie West",0.996,7,"Ghana",2
+"GH0213","Asante Akim Central Municipal","GHA2.13_2","Ashanti","Asante-Akim Central",0.994,7,"Ghana",2
+"GH0214","Asante Akim North","GHA2.14_2","Ashanti","Asante-Akim North",0.997,8,"Ghana",2
+"GH0215","Asante Akim South","GHA2.15_2","Ashanti","Asante-Akim South",0.997,9,"Ghana",2
+"GH0216","Asokore Mampong Municipal","GHA2.16_2","Ashanti","Asokore-Mampong",0.987,6,"Ghana",2
+"GH0217","Asokwa Municipal","GHA2.17_2","Ashanti","Asokwa",0.989,6,"Ghana",2
+"GH0218","Atwima Kwanwoma","GHA2.18_2","Ashanti","Atwima-Kwanwoma",0.994,6,"Ghana",2
+"GH0219","Atwima Mponua","GHA2.19_2","Ashanti","Atwima-Mponua",0.997,10,"Ghana",2
+"GH0220","Atwima Nwabiagya North","GHA2.20_2","Ashanti","Atwima-Nwabiagya North",0.993,6,"Ghana",2
+"GH0221","Atwima Nwabiagya South","GHA2.21_2","Ashanti","Atwima-Nwabiagya South",0.994,8,"Ghana",2
+"GH0222","Bekwai Municipal","GHA2.22_2","Ashanti","Bekwai",0.996,7,"Ghana",2
+"GH0223","Bosome Freho","GHA2.23_2","Ashanti","Bosome Freho",0.995,10,"Ghana",2
+"GH0224","Bosomtwe","GHA2.24_2","Ashanti","Bosomtwe",0.996,7,"Ghana",2
+"GH0225","Ejisu Municipal","GHA2.25_2","Ashanti","Ejisu",0.995,8,"Ghana",2
+"GH0226","Ejura-Sekyedumase","GHA2.26_2","Ashanti","Ejura-Sekyedumase",0.998,10,"Ghana",2
+"GH0227","Juaben Municipal","GHA2.27_2","Ashanti","Juaben",0.995,6,"Ghana",2
+"GH0228","Kumasi Metropolitan","GHA2.28_2","Ashanti","Kumasi",0.994,7,"Ghana",2
+"GH0229","Kwabre East","GHA2.29_2","Ashanti","Kwabre East",0.993,7,"Ghana",2
+"GH0230","Kwadaso Municipal","GHA2.30_2","Ashanti","Kwadaso",0.992,7,"Ghana",2
+"GH0231","Mampong Municipal","GHA2.31_2","Ashanti","Mampong",0.997,5,"Ghana",2
+"GH0232","Obuasi East","GHA2.33_2","Ashanti","Obuasi East",0.995,5,"Ghana",2
+"GH0233","Obuasi Municipal","GHA2.32_2","Ashanti","Obuasi",0.995,5,"Ghana",2
+"GH0234","Offinso Municipal","GHA2.34_2","Ashanti","Offinso",0.997,7,"Ghana",2
+"GH0235","Offinso North","GHA2.35_2","Ashanti","Offinso North",0.997,9,"Ghana",2
+"GH0236","Oforikrom Municipal","GHA2.36_2","Ashanti","Oforikrom",0.989,6,"Ghana",2
+"GH0237","Old Tafo Municipal","GHA2.37_2","Ashanti","Old Tafo",0.99,6,"Ghana",2
+"GH0238","Sekyere Afram Plains North","GHA2.38_2","Ashanti","Sekyere Afram Plains North",0.998,8,"Ghana",2
+"GH0239","Sekyere Central","GHA2.39_2","Ashanti","Sekyere Central",0.998,6,"Ghana",2
+"GH0240","Sekyere East","GHA2.40_2","Ashanti","Sekyere East",0.995,6,"Ghana",2
+"GH0241","Sekyere Kumawu","GHA2.41_2","Ashanti","Sekyere Kumawu",0.996,7,"Ghana",2
+"GH0242","Sekyere South","GHA2.42_2","Ashanti","Sekyere South",0.997,9,"Ghana",2
+"GH0243","Suame Municipal","GHA2.43_2","Ashanti","Suame",0.983,7,"Ghana",2
+"GH0301","Banda","GHA3.1_2","Bono","Banda",0.999,6,"Ghana",2
+"GH0302","Berekum East Municipal","GHA3.2_2","Bono","Berekum East",0.997,7,"Ghana",2
+"GH0303","Berekum West","GHA3.3_2","Bono","Berekum West",0.998,5,"Ghana",2
+"GH0304","Dormaa East","GHA3.5_2","Bono","Dormaa East",0.997,7,"Ghana",2
+"GH0305","Dormaa Municipal","GHA3.4_2","Bono","Dormaa",0.999,7,"Ghana",2
+"GH0306","Dormaa West","GHA3.6_2","Bono","Dormaa West",0.997,4,"Ghana",2
+"GH0307","Jaman North","GHA3.7_2","Bono","Jaman North",0.998,5,"Ghana",2
+"GH0308","Jaman South Municipal","GHA3.8_2","Bono","Jaman South",0.998,5,"Ghana",2
+"GH0309","Sunyani Municipal","GHA3.9_2","Bono","Sunyani",0.996,5,"Ghana",2
+"GH0310","Sunyani West","GHA3.10_2","Bono","Sunyani West",0.997,9,"Ghana",2
+"GH0311","Tain","GHA3.11_2","Bono","Tain",0.998,6,"Ghana",2
+"GH0312","Wenchi Municipal","GHA3.12_2","Bono","Wenchi",0.997,7,"Ghana",2
+"GH0401","Atebubu Amantin","GHA4.1_2","Bono East","Atebubu-Amantin",0.998,8,"Ghana",2
+"GH0402","Kintampo North Municipal","GHA4.2_2","Bono East","Kintampo North",0.999,6,"Ghana",2
+"GH0403","Kintampo South","GHA4.3_2","Bono East","Kintampo South",0.999,8,"Ghana",2
+"GH0404","Nkoranza North","GHA4.4_2","Bono East","Nkoranza North",0.998,8,"Ghana",2
+"GH0405","Nkoranza South","GHA4.5_2","Bono East","Nkoranza South",0.998,5,"Ghana",2
+"GH0406","Pru East","GHA4.6_2","Bono East","Pru East",0.999,6,"Ghana",2
+"GH0407","Pru West","GHA4.7_2","Bono East","Pru West",0.998,7,"Ghana",2
+"GH0408","Sene East","GHA4.8_2","Bono East","Sene East",0.999,10,"Ghana",2
+"GH0409","Sene West","GHA4.9_2","Bono East","Sene West",0.999,6,"Ghana",2
+"GH0410","Techiman Municipal","GHA4.10_2","Bono East","Techiman",0.998,7,"Ghana",2
+"GH0411","Techiman North","GHA4.11_2","Bono East","Techiman North",0.997,5,"Ghana",2
+"GH0501","Abura-Asebu-Kwamankese","GHA5.1_2","Central","Abura-Asebu-Kwamankese",0.994,6,"Ghana",2
+"GH0502","Agona East","GHA5.2_2","Central","Agona East",0.996,6,"Ghana",2
+"GH0503","Agona West Municipal","GHA5.3_2","Central","Agona West",0.996,7,"Ghana",2
+"GH0504","Ajumako-Enyan-Essiam","GHA5.4_2","Central","Ajumako-Enyan-Essiam",0.996,6,"Ghana",2
+"GH0505","Asikuma-Odoben-Brakwa","GHA5.5_2","Central","Asikuma-Odoben-Brakwa",0.997,8,"Ghana",2
+"GH0506","Assin Fosu","GHA5.6_2","Central","Assin Central",0.996,5,"Ghana",2
+"GH0507","Assin North","GHA5.7_2","Central","Assin North",0.996,8,"Ghana",2
+"GH0508","Assin South","GHA5.8_2","Central","Assin South",0.998,7,"Ghana",2
+"GH0509","Awutu Senya","GHA5.9_2","Central","Awutu Senya West",0.994,6,"Ghana",2
+"GH0510","Awutu Senya East","GHA5.10_2","Central","Awutu Senya East",0.994,5,"Ghana",2
+"GH0511","Cape Coast Metropolitan","GHA5.11_2","Central","Cape Coast",0.99,4,"Ghana",2
+"GH0512","Effutu Municipal","GHA5.12_2","Central","Effutu",0.992,4,"Ghana",2
+"GH0513","Ekumfi","GHA5.13_2","Central","Ekumfi",0.997,4,"Ghana",2
+"GH0514","Gomoa Central","GHA5.14_2","Central","Gomoa Central",0.996,4,"Ghana",2
+"GH0515","Gomoa East","GHA5.15_2","Central","Gomoa East",0.996,9,"Ghana",2
+"GH0516","Gomoa West","GHA5.16_2","Central","Gomoa West",0.996,7,"Ghana",2
+"GH0517","Komenda-Edina-Eguafo-Abirem Municipal","GHA5.17_2","Central","Komenda-Edina-Eguafo-Abirem-",0.997,5,"Ghana",2
+"GH0518","Mfantseman Municipal","GHA5.18_2","Central","Mfantseman",0.994,4,"Ghana",2
+"GH0519","Twifo Atti-Morkwa","GHA5.19_2","Central","Twifo-Atti-Morkwa",0.997,9,"Ghana",2
+"GH0520","Twifo Hemang Lower Denkyira","GHA5.20_2","Central","Twifo-Hemang-Lower Denkyira",0.996,7,"Ghana",2
+"GH0521","Upper Denkyira East Municipal","GHA5.21_2","Central","Upper Denkyira East",0.995,6,"Ghana",2
+"GH0522","Upper Denkyira West","GHA5.22_2","Central","Upper Denkyira West",0.995,7,"Ghana",2
+"GH0601","Abuakwa North","GHA6.1_2","Eastern","Abuakwa North",0.996,5,"Ghana",2
+"GH0602","Abuakwa South","GHA6.2_2","Eastern","Abuakwa South",0.996,7,"Ghana",2
+"GH0603","Achiase","GHA6.3_2","Eastern","Achiase",0.997,6,"Ghana",2
+"GH0604","Akwapem North","GHA6.4_2","Eastern","Akwapem North",0.994,8,"Ghana",2
+"GH0605","Akwapem South","GHA6.5_2","Eastern","Akwapem South",0.994,8,"Ghana",2
+"GH0606","Akyem Mansa","GHA6.6_2","Eastern","Akyemansa",0.995,9,"Ghana",2
+"GH0607","Asene Akroso Manso","GHA6.7_2","Eastern","Asene-Manso-Akroso",0.996,9,"Ghana",2
+"GH0608","Asuogyaman","GHA6.8_2","Eastern","Asuogyaman",0.998,7,"Ghana",2
+"GH0609","Atiwa East","GHA6.9_2","Eastern","Atiwa East",0.997,8,"Ghana",2
+"GH0610","Atiwa West","GHA6.10_2","Eastern","Atiwa West",0.997,8,"Ghana",2
+"GH0611","Ayensuano","GHA6.11_2","Eastern","Ayensuano",0.995,9,"Ghana",2
+"GH0612","Birim Central Municipal","GHA6.12_2","Eastern","Birim Central",0.99,5,"Ghana",2
+"GH0613","Birim North","GHA6.13_2","Eastern","Birim North",0.994,6,"Ghana",2
+"GH0614","Birim South","GHA6.14_2","Eastern","Birim South",0.993,7,"Ghana",2
+"GH0615","Denkyembour","GHA6.15_2","Eastern","Denkyembour",0.995,7,"Ghana",2
+"GH0616","Fanteakwa North","GHA6.16_2","Eastern","Fanteakwa North",0.999,6,"Ghana",2
+"GH0617","Fanteakwa South","GHA6.17_2","Eastern","Fanteakwa South",0.993,8,"Ghana",2
+"GH0618","Kwaebibirem","GHA6.18_2","Eastern","Kwaebibirem",0.998,6,"Ghana",2
+"GH0619","Kwahu Afram Plains North","GHA6.19_2","Eastern","Kwahu Afram Plains North",0.999,9,"Ghana",2
+"GH0620","Kwahu Afram Plains South","GHA6.20_2","Eastern","Kwahu Afram Plains South",0.999,8,"Ghana",2
+"GH0621","Kwahu East","GHA6.21_2","Eastern","Kwahu East",0.995,6,"Ghana",2
+"GH0622","Kwahu South","GHA6.22_2","Eastern","Kwahu South",0.998,6,"Ghana",2
+"GH0623","Kwahu West","GHA6.23_2","Eastern","Kwahu West",0.995,6,"Ghana",2
+"GH0624","Lower Manya","GHA6.24_2","Eastern","Lower Manya-Krobo",0.995,5,"Ghana",2
+"GH0625","New Juaben North Municipal","GHA6.25_2","Eastern","New Juaben North",0.993,6,"Ghana",2
+"GH0626","New Juaben South Municipal","GHA6.26_2","Eastern","New Juaben South",0.989,6,"Ghana",2
+"GH0627","Nsawam Adoagyiri","GHA6.27_2","Eastern","Nsawam Adoagyiri",0.995,6,"Ghana",2
+"GH0628","Okere","GHA6.28_2","Eastern","Okere",0.996,5,"Ghana",2
+"GH0629","Suhum Municipal","GHA6.29_2","Eastern","Suhum",0.995,6,"Ghana",2
+"GH0630","Upper Manya","GHA6.30_2","Eastern","Upper Manya",0.998,8,"Ghana",2
+"GH0631","Upper West Akim","GHA6.31_2","Eastern","Upper West Akim",0.996,9,"Ghana",2
+"GH0632","West Akim","GHA6.32_2","Eastern","West Akim",0.995,6,"Ghana",2
+"GH0633","Yilo Krobo","GHA6.33_2","Eastern","Yilo-Krobo",0.995,9,"Ghana",2
+"GH0701","Ablekuma Central Municipal","GHA7.1_2","Greater Accra","Ablekuma Central",0.991,5,"Ghana",2
+"GH0702","Ablekuma North Municipal","GHA7.2_2","Greater Accra","Ablekuma North",0.99,8,"Ghana",2
+"GH0703","Ablekuma West Municipal","GHA7.3_2","Greater Accra","Ablekuma West",0.993,5,"Ghana",2
+"GH0704","Accra Metropolis","GHA7.4_2","Greater Accra","Accra",0.975,4,"Ghana",2
+"GH0705","Ada East","GHA7.5_2","Greater Accra","Ada East",0.995,4,"Ghana",2
+"GH0706","Ada West","GHA7.6_2","Greater Accra","Ada West",0.996,6,"Ghana",2
+"GH0707","Adenta Municipal","GHA7.7_2","Greater Accra","Adenta",0.995,6,"Ghana",2
+"GH0708","Ashaiman Municipal","GHA7.8_2","Greater Accra","Ashaiman",0.986,4,"Ghana",2
+"GH0709","Ayawaso Central Municipal","GHA7.9_2","Greater Accra","Ayawaso Central",0.988,4,"Ghana",2
+"GH0710","Ayawaso East Municipal","GHA7.10_2","Greater Accra","Ayawaso East",0.983,6,"Ghana",2
+"GH0711","Ayawaso North Municipal","GHA7.11_2","Greater Accra","Ayawaso North",0.986,6,"Ghana",2
+"GH0712","Ayawaso West","GHA7.12_2","Greater Accra","Ayawaso West",0.985,9,"Ghana",2
+"GH0713","Ga Central Municipal","GHA7.13_2","Greater Accra","Ga Central",0.987,5,"Ghana",2
+"GH0714","Ga East","GHA7.14_2","Greater Accra","Ga East",0.99,6,"Ghana",2
+"GH0715","Ga North Municipal","GHA7.15_2","Greater Accra","Ga North",0.995,6,"Ghana",2
+"GH0716","Ga South Municipal","GHA7.16_2","Greater Accra","Ga South",0.994,5,"Ghana",2
+"GH0717","Ga West Municipal","GHA7.17_2","Greater Accra","Ga West",0.992,8,"Ghana",2
+"GH0718","Korle Klottey Municipal","GHA7.18_2","Greater Accra","Korle-Klottey",0.99,6,"Ghana",2
+"GH0719","Kpone Katamanso","GHA7.19_2","Greater Accra","Kpone-Katamanso",0.995,10,"Ghana",2
+"GH0720","Krowor Municipal","GHA7.20_2","Greater Accra","Krowor",0.983,4,"Ghana",2
+"GH0721","La Dade-Kotopon","GHA7.21_2","Greater Accra","La-Dade-Kotopon",0.99,5,"Ghana",2
+"GH0722","La-Nkwantanang-Madina","GHA7.22_2","Greater Accra","La-Nkwantanang-Madina",0.992,6,"Ghana",2
+"GH0723","Ledzokuku Municipal","GHA7.23_2","Greater Accra","Ledzokuku",0.989,5,"Ghana",2
+"GH0724","Ningo/Prampram","GHA7.24_2","Greater Accra","Ningo-Prampram",0.998,4,"Ghana",2
+"GH0725","Okaikwei North Municipal","GHA7.25_2","Greater Accra","Okaikwei North",0.984,8,"Ghana",2
+"GH0726","Shai Osudoku","GHA7.26_2","Greater Accra","Shai Osudoku",0.998,9,"Ghana",2
+"GH0727","Tema Metropolitan","GHA7.27_2","Greater Accra","Tema",0.995,4,"Ghana",2
+"GH0728","Tema West Municipal","GHA7.28_2","Greater Accra","Tema West",0.99,6,"Ghana",2
+"GH0729","Weija Gbawe Municipal","GHA7.29_2","Greater Accra","Weija Gbawe",0.994,8,"Ghana",2
+"GH0801","Gushegu","GHA9.1_2","Northern","Gushegu",0.998,8,"Ghana",2
+"GH0802","Karaga","GHA9.2_2","Northern","Karaga",0.998,7,"Ghana",2
+"GH0803","Kpandai","GHA9.3_2","Northern","Kpandai",0.998,6,"Ghana",2
+"GH0804","Kumbungu","GHA9.4_2","Northern","Kumbungu",0.998,7,"Ghana",2
+"GH0805","Mion","GHA9.5_2","Northern","Mion",0.998,10,"Ghana",2
+"GH0806","Nanton","GHA9.6_2","Northern","Nanton",0.997,6,"Ghana",2
+"GH0807","Nanumba North","GHA9.7_2","Northern","Nanumba North",0.997,6,"Ghana",2
+"GH0808","Nanumba South","GHA9.8_2","Northern","Nanumba South",0.997,7,"Ghana",2
+"GH0809","Saboba","GHA9.9_2","Northern","Saboba",0.998,6,"Ghana",2
+"GH0810","Sagnerigu","GHA9.10_2","Northern","Sagnerigu",0.995,6,"Ghana",2
+"GH0811","Savelugu","GHA9.11_2","Northern","Savelugu",0.997,6,"Ghana",2
+"GH0812","Tamale Metropolitan","GHA9.12_2","Northern","Tamale",0.996,7,"Ghana",2
+"GH0813","Tatale Sanguli","GHA9.13_2","Northern","Tatale Sanguli",0.995,5,"Ghana",2
+"GH0814","Tolon","GHA9.14_2","Northern","Tolon",0.998,6,"Ghana",2
+"GH0815","Yendi Municipal","GHA9.15_2","Northern","Yendi",0.997,6,"Ghana",2
+"GH0816","Zabzugu","GHA9.16_2","Northern","Zabzugu",0.997,6,"Ghana",2
+"GH0901","Bunkpurugu Nakpanduri","GHA8.1_2","North East","Bunkpurugu Nakpanduri",0.997,6,"Ghana",2
+"GH0902","Chereponi","GHA8.2_2","North East","Chereponi",0.997,4,"Ghana",2
+"GH0903","East Mamprusi","GHA8.3_2","North East","East Mamprusi",0.998,9,"Ghana",2
+"GH0904","Mamprugu Moagduri","GHA8.4_2","North East","Mamprugu Moagduri",0.998,7,"Ghana",2
+"GH0905","West Mamprusi Municipal","GHA8.5_2","North East","West Mamprusi",0.998,9,"Ghana",2
+"GH0906","Yunyoo-Nasuan","GHA8.6_2","North East","Yunyoo-Nasuan",0.998,4,"Ghana",2
+"GH1001","Biakoye","GHA10.1_2","Oti","Biakoye",0.997,8,"Ghana",2
+"GH1002","Jasikan","GHA10.2_2","Oti","Jasikan",0.996,4,"Ghana",2
+"GH1003","Kadjebi","GHA10.3_2","Oti","Kadjebi",0.997,5,"Ghana",2
+"GH1004","Krachi East Municipal","GHA10.4_2","Oti","Krachi East",0.999,7,"Ghana",2
+"GH1005","Krachi Nchumuru","GHA10.5_2","Oti","Krachi Nchumuru",0.999,7,"Ghana",2
+"GH1006","Krachi West","GHA10.6_2","Oti","Krachi West",0.999,4,"Ghana",2
+"GH1007","Nkwanta North","GHA10.7_2","Oti","Nkwanta North",0.998,4,"Ghana",2
+"GH1008","Nkwanta South Municipal","GHA10.8_2","Oti","Nkwanta South",0.998,6,"Ghana",2
+"GH1101","Bole","GHA11.1_2","Savannah","Bole",0.999,7,"Ghana",2
+"GH1102","Central Gonja","GHA11.2_2","Savannah","Central Gonja",0.999,8,"Ghana",2
+"GH1103","East Gonja Municipal","GHA11.3_2","Savannah","East Gonja",0.999,6,"Ghana",2
+"GH1104","North East Gonja","GHA11.4_2","Savannah","North East Gonja",0.998,11,"Ghana",2
+"GH1105","North Gonja","GHA11.5_2","Savannah","North Gonja",0.999,8,"Ghana",2
+"GH1106","Sawla-Tuna-Kalba","GHA11.6_2","Savannah","Sawla-Tuna-Kalba",0.999,6,"Ghana",2
+"GH1107","West Gonja","GHA11.7_2","Savannah","West Gonja",0.999,5,"Ghana",2
+"GH1201","Bawku Municipal","GHA12.1_2","Upper East","Bawku",0.995,5,"Ghana",2
+"GH1202","Bawku West","GHA12.2_2","Upper East","Bawku West",0.998,6,"Ghana",2
+"GH1203","Binduri","GHA12.3_2","Upper East","Binduri",0.996,4,"Ghana",2
+"GH1204","Bolga East","GHA12.4_2","Upper East","Bolga East",0.992,5,"Ghana",2
+"GH1205","Bolgatanga Municipal","GHA12.5_2","Upper East","Bolgatanga",0.995,6,"Ghana",2
+"GH1206","Bongo","GHA12.6_2","Upper East","Bongo",0.997,5,"Ghana",2
+"GH1207","Builsa North","GHA12.7_2","Upper East","Builsa North",0.997,4,"Ghana",2
+"GH1208","Builsa South","GHA12.8_2","Upper East","Builsa South",0.997,7,"Ghana",2
+"GH1209","Garu","GHA12.9_2","Upper East","Garu",0.997,7,"Ghana",2
+"GH1210","Kasena Nankana East","GHA12.10_2","Upper East","Kasena Nankana East",0.995,7,"Ghana",2
+"GH1211","Kasena Nankana West","GHA12.11_2","Upper East","Kasena Nankana West",0.996,7,"Ghana",2
+"GH1212","Nabdam","GHA12.12_2","Upper East","Nabdam",0.995,5,"Ghana",2
+"GH1213","Pusiga","GHA12.13_2","Upper East","Pusiga",0.995,3,"Ghana",2
+"GH1214","Talensi","GHA12.14_2","Upper East","Talensi",0.997,8,"Ghana",2
+"GH1215","Tempane","GHA12.15_2","Upper East","Tempane",0.997,4,"Ghana",2
+"GH1301","Daffiama Bussie Issa","GHA13.1_2","Upper West","Daffiama-Bussie-Issa",0.998,7,"Ghana",2
+"GH1302","Jirapa","GHA13.2_2","Upper West","Jirapa",0.998,6,"Ghana",2
+"GH1303","Lambussie-Karni","GHA13.3_2","Upper West","Lambussie-Karni",0.998,5,"Ghana",2
+"GH1304","Lawra","GHA13.4_2","Upper West","Lawra",0.996,4,"Ghana",2
+"GH1305","Nadowli-Kaleo","GHA13.5_2","Upper West","Nadowli-Kaleo",0.998,5,"Ghana",2
+"GH1306","Nandom","GHA13.6_2","Upper West","Nandom",0.997,3,"Ghana",2
+"GH1307","Sissala East","GHA13.7_2","Upper West","Sissala East",0.999,7,"Ghana",2
+"GH1308","Sissala West","GHA13.8_2","Upper West","Sissala West",0.998,5,"Ghana",2
+"GH1309","Wa East","GHA13.10_2","Upper West","Wa East",0.999,8,"Ghana",2
+"GH1310","Wa Municipal","GHA13.9_2","Upper West","Wa Municipal",0.997,5,"Ghana",2
+"GH1311","Wa West","GHA13.11_2","Upper West","Wa West",0.998,5,"Ghana",2
+"GH1401","Adaklu","GHA14.1_2","Volta","Adaklu",0.997,5,"Ghana",2
+"GH1402","Afadzato South","GHA14.2_2","Volta","Afadzato South",0.995,6,"Ghana",2
+"GH1403","Agotime Ziope","GHA14.3_2","Volta","Agotime Ziope",0.996,6,"Ghana",2
+"GH1404","Akatsi North","GHA14.4_2","Volta","Akatsi North",0.997,4,"Ghana",2
+"GH1405","Akatsi South","GHA14.5_2","Volta","Akatsi South",0.995,7,"Ghana",2
+"GH1406","Anloga","GHA14.6_2","Volta","Anloga",0.997,4,"Ghana",2
+"GH1407","Central Tongu","GHA14.7_2","Volta","Central Tongu",0.996,7,"Ghana",2
+"GH1408","Ho Municipal","GHA14.8_2","Volta","Ho Municipal",0.996,4,"Ghana",2
+"GH1409","Ho West","GHA14.9_2","Volta","Ho West",0.996,8,"Ghana",2
+"GH1410","Hohoe Municipal","GHA14.10_2","Volta","Hohoe",0.997,5,"Ghana",2
+"GH1411","Keta Municipal","GHA14.11_2","Volta","Keta Municipal",0.998,6,"Ghana",2
+"GH1412","Ketu North","GHA14.12_2","Volta","Ketu North",0.996,5,"Ghana",2
+"GH1413","Ketu South","GHA14.13_2","Volta","Ketu South",0.997,3,"Ghana",2
+"GH1414","Kpando Municipal","GHA14.14_2","Volta","Kpando",0.997,6,"Ghana",2
+"GH1415","North Dayi","GHA14.15_2","Volta","North Dayi",0.997,5,"Ghana",2
+"GH1416","North Tongu","GHA14.16_2","Volta","North Tongu",0.998,8,"Ghana",2
+"GH1417","South Dayi","GHA14.17_2","Volta","South Dayi",0.997,6,"Ghana",2
+"GH1418","South Tongu","GHA14.18_2","Volta","South Tongu",0.996,8,"Ghana",2
+"GH1501","Ahanta West Municipal","GHA15.1_2","Western","Ahanta West",0.995,6,"Ghana",2
+"GH1502","Effia Kwesimintsim Municipal","GHA15.2_2","Western","Effia Kwesimintsim",0.993,4,"Ghana",2
+"GH1503","Ellembelle","GHA15.3_2","Western","Ellembelle",0.997,5,"Ghana",2
+"GH1504","Jomoro","GHA15.4_2","Western","Jomoro",0.998,4,"Ghana",2
+"GH1505","Mpohor","GHA15.5_2","Western","Mpohor",0.996,7,"Ghana",2
+"GH1506","Nzema East","GHA15.6_2","Western","Nzema East",0.996,6,"Ghana",2
+"GH1507","Prestea/Huni Valley","GHA15.7_2","Western","Prestea-Huni Valley",0.998,7,"Ghana",2
+"GH1508","Sekondi Takoradi Metropolis","GHA15.8_2","Western","Sekondi Takoradi",0.991,5,"Ghana",2
+"GH1509","Shama","GHA15.9_2","Western","Shama",0.994,5,"Ghana",2
+"GH1510","Tarkwa Nsuaem","GHA15.10_2","Western","Tarkwa Nsuaem",0.997,6,"Ghana",2
+"GH1511","Wassa Amenfi Central","GHA15.11_2","Western","Wassa Amenfi Central",0.997,8,"Ghana",2
+"GH1512","Wassa Amenfi East","GHA15.12_2","Western","Wassa Amenfi East",0.997,7,"Ghana",2
+"GH1513","Wassa Amenfi West","GHA15.13_2","Western","Wassa Amenfi West",0.997,7,"Ghana",2
+"GH1514","Wassa East","GHA15.14_2","Western","Wassa East",0.998,8,"Ghana",2
+"GH1601","Aowin","GHA16.1_2","Western North","Aowin",0.998,5,"Ghana",2
+"GH1602","Bia East","GHA16.2_2","Western North","Bia East",0.997,5,"Ghana",2
+"GH1603","Bia West","GHA16.3_2","Western North","Bia West",0.998,3,"Ghana",2
+"GH1604","Bibiani-Anhwiaso-Bekwai Municipal","GHA16.4_2","Western North","Bibiani-Anhwiaso-Bekwai-",0.997,7,"Ghana",2
+"GH1605","Bodi","GHA16.5_2","Western North","Bodi",0.997,5,"Ghana",2
+"GH1606","Juaboso","GHA16.6_2","Western North","Juaboso",0.998,8,"Ghana",2
+"GH1607","Sefwi Akontombra","GHA16.8_2","Western North","Sefwi-Akontombra",0.998,6,"Ghana",2
+"GH1608","Sefwi-Wiawso","GHA16.7_2","Western North","Sefwi-Wiawso",0.997,9,"Ghana",2
+"GH1609","Suaman","GHA16.9_2","Western North","Suaman",0.997,5,"Ghana",2
+"MW10101","TA Mwabulambya","MWI.5.4_1","Chitipa","TA Mwabulambya",0.909,4,"Malawi",3
+"MW10102","STA Bulambya Songwe","MWI.5.4_1","Chitipa","TA Mwabulambya",0.972,2,"Malawi",3
+"MW10103","TA Mwenemisuku","MWI.5.5_1","Chitipa","TA Mwenemisuku",0.973,5,"Malawi",3
+"MW10104","STA Lwangwa","MWI.5.5_1","Chitipa","TA Mwenemisuku",0.971,3,"Malawi",3
+"MW10105","TA Mwenewenya","MWI.5.6_1","Chitipa","TA Mwenewenya",0.965,4,"Malawi",3
+"MW10106","TA Nthalire","MWI.5.7_1","Chitipa","TA Nthalire",0.967,2,"Malawi",3
+"MW10107","STA Nthengatenga","MWI.5.7_1","Chitipa","TA Nthalire",0.977,5,"Malawi",3
+"MW10108","STA Wavikaza","MWI.5.2_1","Chitipa","Nyika N.P. - Chitipa",0.746,2,"Malawi",3
+"MW10109","TA Kameme","MWI.5.3_1","Chitipa","TA Kameme",0.922,2,"Malawi",3
+"MW10110","Nyika Ntational Park-Chitipa","MWI.5.2_1","Chitipa","Nyika N.P. - Chitipa",0.698,5,"Malawi",3
+"MW10120","Chitipa Boma","MWI.5.1_1","Chitipa","Chitipa Boma",0.809,2,"Malawi",3
+"MW10201","TA Kilupula","MWI.8.6_1","Karonga","TA Kilupula",0.956,3,"Malawi",3
+"MW10202","TA Mwakaboko","MWI.8.4_1","Karonga","SC Mwakaboko",0.968,3,"Malawi",3
+"MW10203","TA Kyungu","MWI.8.7_1","Karonga","TA Kyungu",0.912,8,"Malawi",3
+"MW10204","TA Wasambo","MWI.8.8_1","Karonga","TA Wasambo",0.948,4,"Malawi",3
+"MW10205","TA Mwirang'ombe","MWI.8.5_1","Karonga","SC Mwirang'ombe",0.65,4,"Malawi",3
+"MW10206","Nyika National Park-Karonga","MWI.8.3_1","Karonga","Nyipa N. P. - Karonga",0.987,5,"Malawi",3
+"MW10220","Karonga Town","MWI.8.1_1","Karonga","Karonga Town",0.928,2,"Malawi",3
+"MW10301","TA Kabunduli","MWI.19.7_1","Nkhata Bay","TA Kabunduli",0.986,9,"Malawi",3
+"MW10302","TA Fukamapiri","MWI.19.6_1","Nkhata Bay","TA Fukamapiri",0.958,4,"Malawi",3
+"MW10303","TA Malenga Mzoma","MWI.19.8_1","Nkhata Bay","TA Malenga Mzoma",0.911,3,"Malawi",3
+"MW10304","TA Malanda","MWI.19.3_1","Nkhata Bay","SC Malanda",0.947,5,"Malawi",3
+"MW10305","TA Zilakoma","MWI.19.5_1","Nkhata Bay","SC Zilakoma",0.972,5,"Malawi",3
+"MW10307","TA Fukamalaza","MWI.19.2_1","Nkhata Bay","SC Fukamalaza",0.517,3,"Malawi",3
+"MW10309","TA M'bwana","MWI.19.9_1","Nkhata Bay","TA Musisya",0.818,4,"Malawi",3
+"MW10310","STA Nyaluwanga","MWI.19.4_1","Nkhata Bay","SC Nyaluwanga",0.521,5,"Malawi",3
+"MW10311","STA Kondowe","MWI.19.9_1","Nkhata Bay","TA Musisya",0.019,1,"Malawi",3
+"MW10312","TA Timbiri","MWI.19.10_1","Nkhata Bay","TA Timbiri",0.679,4,"Malawi",3
+"MW10314","TA Boghoyo","MWI.19.9_1","Nkhata Bay","TA Musisya",0.061,1,"Malawi",3
+"MW10401","TA Chikulamayembe","MWI.25.9_1","Rumphi","TA Chikulamayembe",0.983,6,"Malawi",3
+"MW10402","TA Mwamlowe","MWI.25.11_1","Rumphi","TA Mwamlowe",0.948,2,"Malawi",3
+"MW10403","TA Mwahenga","MWI.25.6_1","Rumphi","SC Mwahenga",0.93,4,"Malawi",3
+"MW10404","TA Mwalweni","MWI.25.7_1","Rumphi","SC Mwalweni",0.929,7,"Malawi",3
+"MW10405","STA Kachulu","MWI.25.5_1","Rumphi","SC Kachulu",0.961,5,"Malawi",3
+"MW10406","STA Chapinduka","MWI.25.4_1","Rumphi","SC Chapinduka",0.944,3,"Malawi",3
+"MW10407","TA Mwankhunikira","MWI.25.8_1","Rumphi","SC Mwankhunikira",0.973,5,"Malawi",3
+"MW10408","TA Katumbi","MWI.25.10_1","Rumphi","TA Katumbi",0.661,4,"Malawi",3
+"MW10409","STA Zolokere","MWI.25.12_1","Rumphi","Vwaza Marsh Game Reserve - Rumph",0.948,2,"Malawi",3
+"MW10410","STA Chisovya","MWI.25.9_1","Rumphi","TA Chikulamayembe",0.919,6,"Malawi",3
+"MW10411","STA Njikula","MWI.25.11_1","Rumphi","TA Mwamlowe",1,1,"Malawi",3
+"MW10412","Nyika National Park","MWI.25.2_1","Rumphi","Nyika National Park - Rumphi",0.921,8,"Malawi",3
+"MW10413","Vwaza Marsh Reserve","MWI.25.12_1","Rumphi","Vwaza Marsh Game Reserve - Rumph",0.968,3,"Malawi",3
+"MW10420","Rumphi Boma","MWI.25.3_1","Rumphi","Rumphi Boma",0.925,3,"Malawi",3
+"MW10501","TA M'Mbelwa","MWI.17.7_1","Mzimba","TA M'Mbelwa",0.965,7,"Malawi",3
+"MW10502","TA Mtwalo","MWI.17.10_1","Mzimba","TA Mtwalo",0.98,13,"Malawi",3
+"MW10503","TA Kampingo Sibande","MWI.17.4_1","Mzimba","SC Kampingo Sibande",0.98,7,"Malawi",3
+"MW10504","TA Jaravikuba Munthali","MWI.17.3_1","Mzimba","SC Jaravikuba Munthali",0.956,5,"Malawi",3
+"MW10505","TA Chindi","MWI.17.6_1","Mzimba","TA Chindi",0.983,5,"Malawi",3
+"MW10506","TA Mzikubola","MWI.17.11_1","Mzimba","TA Mzikubola",0.99,9,"Malawi",3
+"MW10507","TA Mabulabo","MWI.17.8_1","Mzimba","TA Mabulabo",0.98,4,"Malawi",3
+"MW10508","TA Khosolo Gwaza Jere","MWI.17.5_1","Mzimba","SC Khosolo Gwaza Jere",0.953,8,"Malawi",3
+"MW10509","TA Mpherembe","MWI.17.9_1","Mzimba","TA Mpherembe",0.924,6,"Malawi",3
+"MW10510","TA Mzukuzuku","MWI.17.12_1","Mzimba","TA Mzukuzuku",0.959,3,"Malawi",3
+"MW10511","STA Levi Jere","MWI.17.8_1","Mzimba","TA Mabulabo",0.971,5,"Malawi",3
+"MW10512","Vwaza Marsh Reserve","MWI.25.12_1","Rumphi","Vwaza Marsh Game Reserve - Rumph",0.609,3,"Malawi",3
+"MW10520","Mzimba Boma","MWI.17.1_1","Mzimba","Mzimba Boma",0.856,3,"Malawi",3
+"MW10701","Chibavi East Ward","MWI.17.2_1","Mzimba","Mzuzu City",1,1,"Malawi",3
+"MW10702","Chibavi West Ward","MWI.17.2_1","Mzimba","Mzuzu City",1,1,"Malawi",3
+"MW10703","Chibanja Ward","MWI.17.2_1","Mzimba","Mzuzu City",1,1,"Malawi",3
+"MW10704","Chiputula Ward","MWI.17.2_1","Mzimba","Mzuzu City",1,1,"Malawi",3
+"MW10705","Jombo - Kaning'ina Ward","MWI.17.2_1","Mzimba","Mzuzu City",0.99,2,"Malawi",3
+"MW10706","Katawa Ward","MWI.17.2_1","Mzimba","Mzuzu City",0.981,2,"Malawi",3
+"MW10707","Luwinga Ward","MWI.17.2_1","Mzimba","Mzuzu City",1,1,"Malawi",3
+"MW10708","Masasa Ward","MWI.17.2_1","Mzimba","Mzuzu City",0.872,2,"Malawi",3
+"MW10709","Mchengautuwa East Ward","MWI.17.2_1","Mzimba","Mzuzu City",1,1,"Malawi",3
+"MW10710","Mchengautuwa West Ward","MWI.17.2_1","Mzimba","Mzuzu City",0.832,3,"Malawi",3
+"MW10711","Msongwe Ward","MWI.17.2_1","Mzimba","Mzuzu City",0.876,2,"Malawi",3
+"MW10712","Mzilawaingwe Ward","MWI.17.2_1","Mzimba","Mzuzu City",1,1,"Malawi",3
+"MW10713","Nkhorongo - Lupaso Ward","MWI.17.2_1","Mzimba","Mzuzu City",0.979,4,"Malawi",3
+"MW10714","Zolozolo East Ward","MWI.17.2_1","Mzimba","Mzuzu City",0.95,2,"Malawi",3
+"MW10715","Zolozolo West Ward","MWI.17.2_1","Mzimba","Mzuzu City",1,1,"Malawi",3
+"MW20101","TA Kaluluma","MWI.9.11_1","Kasungu","TA Kaluluma",0.977,5,"Malawi",3
+"MW20102","TA Chisemphere","MWI.9.11_1","Kasungu","TA Kaluluma",0.965,4,"Malawi",3
+"MW20103","TA Simlemba","MWI.9.9_1","Kasungu","SC Simlemba",0.95,7,"Malawi",3
+"MW20104","STA M'nyanja","MWI.9.7_1","Kasungu","SC M'nyanja",0.963,5,"Malawi",3
+"MW20105","STA Chisikwa","MWI.9.4_1","Kasungu","SC Chisikwa",0.928,2,"Malawi",3
+"MW20106","TA Kaomba","MWI.9.12_1","Kasungu","TA Kaomba",0.96,8,"Malawi",3
+"MW20107","TA Kawamba","MWI.9.5_1","Kasungu","SC Kawamba",0.995,6,"Malawi",3
+"MW20108","STA Nthunduwala","MWI.9.5_1","Kasungu","SC Kawamba",0.939,2,"Malawi",3
+"MW20109","TA Njombwa","MWI.9.8_1","Kasungu","SC Njombwa",0.902,4,"Malawi",3
+"MW20110","TA Chilowamatambe","MWI.9.3_1","Kasungu","SC Chilowamatambe",0.961,5,"Malawi",3
+"MW20111","STA Chambwe","MWI.9.3_1","Kasungu","SC Chilowamatambe",0.902,4,"Malawi",3
+"MW20112","TA Chulu","MWI.9.10_1","Kasungu","TA Chulu",0.986,4,"Malawi",3
+"MW20113","STA Chisinga","MWI.9.10_1","Kasungu","TA Chulu",0.973,4,"Malawi",3
+"MW20114","STA Mphomwa","MWI.9.10_1","Kasungu","TA Chulu",0.987,4,"Malawi",3
+"MW20115","STA Chaima","MWI.9.15_1","Kasungu","TA Santhe",0.996,2,"Malawi",3
+"MW20116","TA Kaphaizi","MWI.9.6_1","Kasungu","SC Lukwa",0.93,2,"Malawi",3
+"MW20117","STA Mangwazu","MWI.9.6_1","Kasungu","SC Lukwa",0.977,2,"Malawi",3
+"MW20118","STA Mawawa","MWI.9.6_1","Kasungu","SC Lukwa",0.993,2,"Malawi",3
+"MW20119","TA Lukwa","MWI.9.6_1","Kasungu","SC Lukwa",0.644,5,"Malawi",3
+"MW20120","Kasungu Boma","MWI.9.1_1","Kasungu","Kasungu Boma",0.901,4,"Malawi",3
+"MW20121","TA Santhe","MWI.9.15_1","Kasungu","TA Santhe",0.985,5,"Malawi",3
+"MW20122","TA Chidzuma","MWI.9.15_1","Kasungu","TA Santhe",0.997,2,"Malawi",3
+"MW20123","TA Wimbe","MWI.9.16_1","Kasungu","TA Wimbe",0.989,6,"Malawi",3
+"MW20124","TA Kapelula","MWI.9.13_1","Kasungu","TA Kapelula",0.972,3,"Malawi",3
+"MW20125","STA Kapichira","MWI.9.13_1","Kasungu","TA Kapelula",0.915,2,"Malawi",3
+"MW20126","STA Mdunga","MWI.9.13_1","Kasungu","TA Kapelula",0.924,4,"Malawi",3
+"MW20127","TA Mwase","MWI.9.14_1","Kasungu","TA Mwase",0.951,6,"Malawi",3
+"MW20128","Kasungu National Park","MWI.9.2_1","Kasungu","Kasungu National Park",0.901,5,"Malawi",3
+"MW20201","TA Kanyenda","MWI.20.7_1","Nkhotakota","TA Kanyenda",0.975,4,"Malawi",3
+"MW20202","TA Kafuzila","MWI.20.4_1","Nkhotakota","SC Kafuzila",0.966,5,"Malawi",3
+"MW20203","STA Kalimanjira","MWI.20.8_1","Nkhotakota","TA Malenga Chanzi",0.906,2,"Malawi",3
+"MW20204","TA Malenga Chanzi","MWI.20.8_1","Nkhotakota","TA Malenga Chanzi",0.988,3,"Malawi",3
+"MW20205","TA Mphonde","MWI.20.5_1","Nkhotakota","SC Mphonde",0.696,5,"Malawi",3
+"MW20206","TA Mwadzama","MWI.20.9_1","Nkhotakota","TA Mwadzama",0.981,4,"Malawi",3
+"MW20207","TA Mwansambo","MWI.20.6_1","Nkhotakota","SC Mwansambo",0.976,4,"Malawi",3
+"MW20208","Nkhotakota Game Reserve","MWI.20.3_1","Nkhotakota","Nkhotakota Game Reserve",0.984,11,"Malawi",3
+"MW20220","Nkhotakota Boma","MWI.20.2_1","Nkhotakota","Nkhotakota Boma",0.938,2,"Malawi",3
+"MW20301","TA Kasakula","MWI.23.7_1","Ntchisi","TA Kasukula",0.515,4,"Malawi",3
+"MW20302","TA Chikho","MWI.23.4_1","Ntchisi","TA Chikho",0.982,6,"Malawi",3
+"MW20303","TA Kalumo","MWI.23.5_1","Ntchisi","TA Kalumo",0.977,7,"Malawi",3
+"MW20304","TA Nthondo","MWI.23.3_1","Ntchisi","SC Nthondo",0.836,7,"Malawi",3
+"MW20305","TA Chilooko","MWI.23.2_1","Ntchisi","SC Chilooko",0.98,6,"Malawi",3
+"MW20306","TA Vuso Jere","MWI.23.4_1","Ntchisi","TA Chikho",0.954,5,"Malawi",3
+"MW20307","TA Malenga","MWI.23.5_1","Ntchisi","TA Kalumo",0.992,5,"Malawi",3
+"MW20320","Ntchisi Boma","MWI.23.1_1","Ntchisi","Ntchisi Boma",0.871,2,"Malawi",3
+"MW20401","TA Dzoole","MWI.7.8_1","Dowa","TA Dzoole",0.947,8,"Malawi",3
+"MW20402","TA Chakhaza","MWI.7.3_1","Dowa","SC Chakhaza",0.971,9,"Malawi",3
+"MW20403","TA Kayembe","MWI.7.4_1","Dowa","SC Kayembe",0.967,6,"Malawi",3
+"MW20404","TA Chiwere","MWI.7.7_1","Dowa","TA Chiwere",0.98,7,"Malawi",3
+"MW20405","TA Mkukula","MWI.7.5_1","Dowa","SC Mkukula",0.957,8,"Malawi",3
+"MW20406","TA Msakambewa","MWI.7.9_1","Dowa","TA Msakambewa",0.97,9,"Malawi",3
+"MW20407","TA Mponela","MWI.7.6_1","Dowa","SC Mponela",0.879,6,"Malawi",3
+"MW20420","Dowa Boma","MWI.7.1_1","Dowa","Dowa Boma",0.824,3,"Malawi",3
+"MW20421","Mponela Urban","MWI.7.2_1","Dowa","Mponela Urban",0.922,3,"Malawi",3
+"MW20501","TA Maganga","MWI.26.9_1","Salima","TA Maganga",0.887,4,"Malawi",3
+"MW20502","TA Karonga","MWI.26.6_1","Salima","TA Karonga",0.97,8,"Malawi",3
+"MW20503","TA Pemba","MWI.26.11_1","Salima","TA Pemba",0.908,3,"Malawi",3
+"MW20504","TA Kambwiri","MWI.26.4_1","Salima","SC Kambwiri",0.98,7,"Malawi",3
+"MW20505","TA Ndindi","MWI.26.10_1","Salima","TA Ndindi",0.979,5,"Malawi",3
+"MW20506","TA Kambalame","MWI.26.3_1","Salima","SC Kambalame",0.955,4,"Malawi",3
+"MW20507","TA Khombedza","MWI.26.7_1","Salima","TA Khombedza",0.804,7,"Malawi",3
+"MW20508","TA Mwanza","MWI.26.5_1","Salima","SC Mwanza",0.748,3,"Malawi",3
+"MW20509","TA Kuluunda","MWI.26.8_1","Salima","TA Kuluunda",0.965,3,"Malawi",3
+"MW20510","TA Msosa","MWI.26.7_1","Salima","TA Khombedza",0.104,3,"Malawi",3
+"MW20520","Salima Town","MWI.26.2_1","Salima","Salima Town",0.868,4,"Malawi",3
+"MW20521","Chipoka Urban","MWI.26.10_1","Salima","TA Ndindi",0.149,1,"Malawi",3
+"MW20601","TA Chadza","MWI.11.6_1","Lilongwe","TA Chadza",0.971,8,"Malawi",3
+"MW20602","TA Kalolo","MWI.11.11_1","Lilongwe","TA Kalolo",0.981,6,"Malawi",3
+"MW20603","TA Masula","MWI.11.8_1","Lilongwe","TA Chiseka",0.973,2,"Malawi",3
+"MW20604","TA Masumbankhunda","MWI.11.8_1","Lilongwe","TA Chiseka",0.998,3,"Malawi",3
+"MW20605","TA Chiseka","MWI.11.8_1","Lilongwe","TA Chiseka",0.983,4,"Malawi",3
+"MW20606","TA Mazengera","MWI.11.16_1","Lilongwe","TA Mazengera",0.964,8,"Malawi",3
+"MW20607","STA Chitekwele","MWI.11.2_1","Lilongwe","SC Chitekwele",0.977,7,"Malawi",3
+"MW20608","TA Khongoni","MWI.11.14_1","Lilongwe","TA Khongoni",0.98,7,"Malawi",3
+"MW20609","TA Chimutu","MWI.11.7_1","Lilongwe","TA Chimutu",0.979,6,"Malawi",3
+"MW20610","TA Chitukula","MWI.11.9_1","Lilongwe","TA Chitukula",0.963,4,"Malawi",3
+"MW20611","TA Mtema","MWI.11.3_1","Lilongwe","SC Mtema",0.887,6,"Malawi",3
+"MW20612","TA Kalumbu","MWI.11.13_1","Lilongwe","TA Kalumbu",0.982,5,"Malawi",3
+"MW20613","TA Tsabango","MWI.11.5_1","Lilongwe","SC Tsabango",0.879,5,"Malawi",3
+"MW20614","TA Kalumba","MWI.11.12_1","Lilongwe","TA Kalumba",0.887,4,"Malawi",3
+"MW20615","TA Njewa","MWI.11.4_1","Lilongwe","SC Njewa",0.92,4,"Malawi",3
+"MW20616","TA Malili","MWI.11.15_1","Lilongwe","TA Malili",0.902,6,"Malawi",3
+"MW20617","TA Kabudula","MWI.11.10_1","Lilongwe","TA Kabudula",0.982,7,"Malawi",3
+"MW20618","STA Mbang'ombe","MWI.11.9_1","Lilongwe","TA Chitukula",0.984,2,"Malawi",3
+"MW20701","TA Mlonyeni","MWI.14.6_1","Mchinji","TA Mlonyeni",0.866,5,"Malawi",3
+"MW20702","TA Mavwere","MWI.14.3_1","Mchinji","SC Mavwere",0.955,5,"Malawi",3
+"MW20703","TA Zulu","MWI.14.7_1","Mchinji","TA Zulu",0.952,5,"Malawi",3
+"MW20704","TA Simphasi","MWI.14.7_1","Mchinji","TA Zulu",0.987,3,"Malawi",3
+"MW20705","TA Mduwa","MWI.14.4_1","Mchinji","SC Mduwa",0.975,3,"Malawi",3
+"MW20706","STA Nyoka","MWI.14.4_1","Mchinji","SC Mduwa",0.96,3,"Malawi",3
+"MW20707","TA Mkanda","MWI.14.5_1","Mchinji","TA Mkanda",0.902,3,"Malawi",3
+"MW20708","STA Gumba","MWI.14.5_1","Mchinji","TA Mkanda",1,1,"Malawi",3
+"MW20709","STA Pitala","MWI.14.5_1","Mchinji","TA Mkanda",0.981,2,"Malawi",3
+"MW20710","STA Kapunula","MWI.14.5_1","Mchinji","TA Mkanda",0.809,2,"Malawi",3
+"MW20711","TA Kazyozyo","MWI.14.5_1","Mchinji","TA Mkanda",0.948,3,"Malawi",3
+"MW20712","TA Dambe","MWI.14.2_1","Mchinji","SC Dambe",0.982,4,"Malawi",3
+"MW20713","TA Kapondo","MWI.14.2_1","Mchinji","SC Dambe",0.884,3,"Malawi",3
+"MW20720","Mchinji Boma","MWI.14.1_1","Mchinji","Mchinji Boma",0.679,3,"Malawi",3
+"MW20801","TA Kachere","MWI.6.9_1","Dedza","TA Pemba",0.903,3,"Malawi",3
+"MW20802","TA Chilikumwendo","MWI.6.4_1","Dedza","SC Chilikumwendo",0.969,5,"Malawi",3
+"MW20803","TA Kaphuka","MWI.6.7_1","Dedza","TA Kaphuka",0.979,9,"Malawi",3
+"MW20804","TA Tambala","MWI.6.10_1","Dedza","TA Tambala",0.988,6,"Malawi",3
+"MW20805","TA Chauma","MWI.6.3_1","Dedza","SC Chauma",0.959,4,"Malawi",3
+"MW20806","TA Kasumbu","MWI.6.8_1","Dedza","TA Kasumbu",0.978,8,"Malawi",3
+"MW20807","TA Kachindamoto","MWI.6.6_1","Dedza","TA Kachindamoto",0.987,4,"Malawi",3
+"MW20808","TA Kamenya Gwaza","MWI.6.5_1","Dedza","SC Kamenya Gwaza",0.977,5,"Malawi",3
+"MW20820","Dedza Boma","MWI.6.1_1","Dedza","Dedza Boma",0.888,5,"Malawi",3
+"MW20901","TA Phambala","MWI.22.10_1","Ntcheu","TA Phambala",0.993,5,"Malawi",3
+"MW20902","STA Tsikulamowa","MWI.22.10_1","Ntcheu","TA Phambala",0.974,5,"Malawi",3
+"MW20903","TA Mpando","MWI.22.8_1","Ntcheu","TA Mpando",0.972,7,"Malawi",3
+"MW20904","TA Kwataine","MWI.22.6_1","Ntcheu","TA Kwataine",0.975,6,"Malawi",3
+"MW20905","TA Makwangwala","MWI.22.4_1","Ntcheu","SC Makwangwala",0.989,6,"Malawi",3
+"MW20906","STA Mkutumula","MWI.22.4_1","Ntcheu","SC Makwangwala",0.98,4,"Malawi",3
+"MW20907","TA Champiti","MWI.22.2_1","Ntcheu","SC Champiti",0.988,5,"Malawi",3
+"MW20908","TA Njolomole","MWI.22.9_1","Ntcheu","TA Njolomole",0.964,4,"Malawi",3
+"MW20909","TA Chakhumbira","MWI.22.5_1","Ntcheu","TA Chakhumbira",0.967,3,"Malawi",3
+"MW20910","TA Goodson Ganya","MWI.22.3_1","Ntcheu","SC Goodson Ganya",0.989,7,"Malawi",3
+"MW20911","TA Masasa","MWI.22.7_1","Ntcheu","TA Masasa",0.953,6,"Malawi",3
+"MW20920","Ntcheu Boma","MWI.22.1_1","Ntcheu","Ntcheu Boma",0.885,2,"Malawi",3
+"MW21031","Area 1","MWI.11.1_1","Lilongwe","Lilongwe City",1,1,"Malawi",3
+"MW21032","Area 2","MWI.11.1_1","Lilongwe","Lilongwe City",1,1,"Malawi",3
+"MW21033","Area 3","MWI.11.1_1","Lilongwe","Lilongwe City",1,1,"Malawi",3
+"MW21034","Area 4","MWI.11.1_1","Lilongwe","Lilongwe City",1,1,"Malawi",3
+"MW21035","Area 5","MWI.11.1_1","Lilongwe","Lilongwe City",1,1,"Malawi",3
+"MW21036","Area 6","MWI.11.1_1","Lilongwe","Lilongwe City",1,1,"Malawi",3
+"MW21037","Area 7","MWI.11.1_1","Lilongwe","Lilongwe City",1,1,"Malawi",3
+"MW21038","Area 8","MWI.11.1_1","Lilongwe","Lilongwe City",1,1,"Malawi",3
+"MW21039","Area 9","MWI.11.1_1","Lilongwe","Lilongwe City",1,1,"Malawi",3
+"MW21040","Area 10","MWI.11.1_1","Lilongwe","Lilongwe City",1,1,"Malawi",3
+"MW21041","Area 11","MWI.11.1_1","Lilongwe","Lilongwe City",1,1,"Malawi",3
+"MW21042","Area 12","MWI.11.1_1","Lilongwe","Lilongwe City",1,1,"Malawi",3
+"MW21043","Area 13","MWI.11.1_1","Lilongwe","Lilongwe City",1,1,"Malawi",3
+"MW21044","Area 14","MWI.11.1_1","Lilongwe","Lilongwe City",1,1,"Malawi",3
+"MW21045","Area 15","MWI.11.1_1","Lilongwe","Lilongwe City",1,1,"Malawi",3
+"MW21046","Area 16","MWI.11.1_1","Lilongwe","Lilongwe City",1,1,"Malawi",3
+"MW21047","Area 17","MWI.11.1_1","Lilongwe","Lilongwe City",1,1,"Malawi",3
+"MW21048","Area 18","MWI.11.1_1","Lilongwe","Lilongwe City",1,1,"Malawi",3
+"MW21049","Area 19","MWI.11.1_1","Lilongwe","Lilongwe City",1,1,"Malawi",3
+"MW21050","Area 20","MWI.11.1_1","Lilongwe","Lilongwe City",1,1,"Malawi",3
+"MW21051","Area 21","MWI.11.1_1","Lilongwe","Lilongwe City",1,1,"Malawi",3
+"MW21052","Area 22","MWI.11.1_1","Lilongwe","Lilongwe City",1,1,"Malawi",3
+"MW21053","Area 23","MWI.11.1_1","Lilongwe","Lilongwe City",0.975,2,"Malawi",3
+"MW21054","Area 24","MWI.11.1_1","Lilongwe","Lilongwe City",1,1,"Malawi",3
+"MW21055","Area 25","MWI.11.1_1","Lilongwe","Lilongwe City",0.998,2,"Malawi",3
+"MW21056","Area 26","MWI.11.1_1","Lilongwe","Lilongwe City",1,1,"Malawi",3
+"MW21057","Area 27","MWI.11.1_1","Lilongwe","Lilongwe City",0.999,2,"Malawi",3
+"MW21058","Area 28","MWI.11.1_1","Lilongwe","Lilongwe City",1,1,"Malawi",3
+"MW21059","Area 29","MWI.11.1_1","Lilongwe","Lilongwe City",1,1,"Malawi",3
+"MW21060","Area 30","MWI.11.1_1","Lilongwe","Lilongwe City",1,1,"Malawi",3
+"MW21061","Area 31","MWI.11.1_1","Lilongwe","Lilongwe City",1,1,"Malawi",3
+"MW21062","Area 32","MWI.11.1_1","Lilongwe","Lilongwe City",1,1,"Malawi",3
+"MW21063","Area 33","MWI.11.1_1","Lilongwe","Lilongwe City",1,1,"Malawi",3
+"MW21064","Area 34","MWI.11.1_1","Lilongwe","Lilongwe City",1,1,"Malawi",3
+"MW21065","Area 35","MWI.11.1_1","Lilongwe","Lilongwe City",1,1,"Malawi",3
+"MW21066","Area 36","MWI.11.1_1","Lilongwe","Lilongwe City",0.987,2,"Malawi",3
+"MW21067","Area 37","MWI.11.1_1","Lilongwe","Lilongwe City",1,1,"Malawi",3
+"MW21068","Area 38","MWI.11.1_1","Lilongwe","Lilongwe City",0.868,3,"Malawi",3
+"MW21069","Area 39","MWI.11.1_1","Lilongwe","Lilongwe City",1,1,"Malawi",3
+"MW21070","Area 40","MWI.11.1_1","Lilongwe","Lilongwe City",1,1,"Malawi",3
+"MW21071","Area 41","MWI.11.1_1","Lilongwe","Lilongwe City",1,1,"Malawi",3
+"MW21072","Area 42","MWI.11.1_1","Lilongwe","Lilongwe City",1,1,"Malawi",3
+"MW21073","Area 43","MWI.11.1_1","Lilongwe","Lilongwe City",1,1,"Malawi",3
+"MW21074","Area 44","MWI.11.1_1","Lilongwe","Lilongwe City",0.918,3,"Malawi",3
+"MW21075","Area 45","MWI.11.1_1","Lilongwe","Lilongwe City",0.895,2,"Malawi",3
+"MW21076","Area 46","MWI.11.1_1","Lilongwe","Lilongwe City",1,1,"Malawi",3
+"MW21077","Area 47","MWI.11.1_1","Lilongwe","Lilongwe City",1,1,"Malawi",3
+"MW21078","Area 48","MWI.11.1_1","Lilongwe","Lilongwe City",1,1,"Malawi",3
+"MW21079","Area 49","MWI.11.1_1","Lilongwe","Lilongwe City",0.995,2,"Malawi",3
+"MW21080","Area 50","MWI.11.1_1","Lilongwe","Lilongwe City",0.992,2,"Malawi",3
+"MW21081","Area 51","MWI.11.1_1","Lilongwe","Lilongwe City",1,1,"Malawi",3
+"MW21082","Area 52","MWI.11.1_1","Lilongwe","Lilongwe City",0.99,3,"Malawi",3
+"MW21083","Area 53","MWI.11.1_1","Lilongwe","Lilongwe City",0.969,3,"Malawi",3
+"MW21084","Area 54","MWI.11.1_1","Lilongwe","Lilongwe City",0.96,2,"Malawi",3
+"MW21085","Area 55","MWI.11.1_1","Lilongwe","Lilongwe City",0.997,3,"Malawi",3
+"MW21086","Area 56","MWI.11.1_1","Lilongwe","Lilongwe City",0.985,2,"Malawi",3
+"MW21087","Area 57","MWI.11.1_1","Lilongwe","Lilongwe City",1,1,"Malawi",3
+"MW21088","Area 58","MWI.11.1_1","Lilongwe","Lilongwe City",0.921,2,"Malawi",3
+"MW30101","TA Mponda","MWI.13.12_1","Mangochi","TA Mponda",0.988,6,"Malawi",3
+"MW30102","TA Chimwala","MWI.13.8_1","Mangochi","TA Chimwala",0.982,3,"Malawi",3
+"MW30103","TA Chilipa","MWI.13.8_1","Mangochi","TA Chimwala",0.985,4,"Malawi",3
+"MW30104","TA Nankumba","MWI.13.13_1","Mangochi","TA Nankumba",0.925,7,"Malawi",3
+"MW30105","TA Jalasi","MWI.13.9_1","Mangochi","TA Jalasi",0.99,4,"Malawi",3
+"MW30106","TA Mbwana Nyambi","MWI.13.6_1","Mangochi","SC Mbwana Nyambi",0.989,5,"Malawi",3
+"MW30107","TA Chowe","MWI.13.5_1","Mangochi","SC Chowe",0.979,5,"Malawi",3
+"MW30108","TA Katuli","MWI.13.10_1","Mangochi","TA Katuli",0.984,3,"Malawi",3
+"MW30109","TA Makanjila","MWI.13.11_1","Mangochi","TA Makanjila",0.987,2,"Malawi",3
+"MW30110","STA Lulanga","MWI.13.11_1","Mangochi","TA Makanjila",0.993,1,"Malawi",3
+"MW30111","TA Namabvi","MWI.13.7_1","Mangochi","SC Namabvi",0.971,3,"Malawi",3
+"MW30112","Lake Malawi National Park","MWI.13.13_1","Mangochi","TA Nankumba",0.025,2,"Malawi",3
+"MW30113","STA Ntonda","MWI.13.8_1","Mangochi","TA Chimwala",0.995,2,"Malawi",3
+"MW30114","STA Chiunda","MWI.13.5_1","Mangochi","SC Chowe",0.968,4,"Malawi",3
+"MW30120","Mangochi Town","MWI.13.3_1","Mangochi","Mangochi Town",0.934,3,"Malawi",3
+"MW30121","Monkey Bay Urban","MWI.13.4_1","Mangochi","Monkey Bay Urban",0.895,2,"Malawi",3
+"MW30201","TA Liwonde","MWI.12.13_1","Machinga","TA Liwonde",0.935,6,"Malawi",3
+"MW30202","STA Nsanama","MWI.12.13_1","Machinga","TA Liwonde",0.967,6,"Malawi",3
+"MW30203","TA Sitola","MWI.12.11_1","Machinga","SC Sitola",0.994,5,"Malawi",3
+"MW30204","TA Nkula","MWI.12.11_1","Machinga","SC Sitola",0.957,4,"Malawi",3
+"MW30205","STA Nchinguza","MWI.12.12_1","Machinga","TA Kawinga",0.991,2,"Malawi",3
+"MW30206","TA Kawinga","MWI.12.12_1","Machinga","TA Kawinga",0.996,4,"Malawi",3
+"MW30207","TA Nkoola","MWI.12.12_1","Machinga","TA Kawinga",0.982,4,"Malawi",3
+"MW30208","TA Chamba","MWI.12.5_1","Machinga","SC Chamba",0.98,5,"Malawi",3
+"MW30209","TA Mposa","MWI.12.9_1","Machinga","SC Mposa",0.979,5,"Malawi",3
+"MW30210","TA Mlomba","MWI.12.8_1","Machinga","SC Mlomba",0.836,5,"Malawi",3
+"MW30211","TA Chikweo","MWI.12.6_1","Machinga","SC Chikweo",0.994,3,"Malawi",3
+"MW30212","TA Ngokwe","MWI.12.10_1","Machinga","SC Ngokwe",0.986,2,"Malawi",3
+"MW30213","TA Chiwalo","MWI.12.7_1","Machinga","SC Chiwalo",0.945,5,"Malawi",3
+"MW30214","TA Kapoloma","MWI.12.7_1","Machinga","SC Chiwalo",0.968,3,"Malawi",3
+"MW30215","TA Nyambi","MWI.12.14_1","Machinga","TA Nyambi",0.989,6,"Malawi",3
+"MW30216","STA Chesale","MWI.12.14_1","Machinga","TA Nyambi",0.962,3,"Malawi",3
+"MW30217","Liwonde National Park","MWI.12.3_1","Machinga","Liwonda National Park",0.896,4,"Malawi",3
+"MW30220","Machinga Boma","MWI.12.11_1","Machinga","SC Sitola",1,1,"Malawi",3
+"MW30221","Liwonde Town","MWI.12.4_1","Machinga","Liwonde Town",0.955,5,"Malawi",3
+"MW30301","TA Kuntumanji","MWI.28.5_1","Zomba","TA Kuntumanji",0.998,3,"Malawi",3
+"MW30302","TA Mwambo","MWI.28.8_1","Zomba","TA Mwambo",0.988,4,"Malawi",3
+"MW30303","TA Mkumbira","MWI.28.3_1","Zomba","SC Mkumbira",0.914,1,"Malawi",3
+"MW30304","TA Chikowi","MWI.28.4_1","Zomba","TA Chikowi",0.982,4,"Malawi",3
+"MW30305","TA Mbiza","MWI.28.2_1","Zomba","SC Mbiza",0.992,4,"Malawi",3
+"MW30306","TA Malemia","MWI.28.6_1","Zomba","TA Malemia",0.98,7,"Malawi",3
+"MW30307","TA Mlumbe","MWI.28.7_1","Zomba","TA Mlumbe",0.985,11,"Malawi",3
+"MW30308","STA Nkagula","MWI.28.5_1","Zomba","TA Kuntumanji",0.968,3,"Malawi",3
+"MW30309","STA Ntholowa","MWI.28.2_1","Zomba","SC Mbiza",0.979,5,"Malawi",3
+"MW30310","STA Ngwelero","MWI.28.2_1","Zomba","SC Mbiza",0.968,3,"Malawi",3
+"MW30311","STA Nkapita","MWI.28.7_1","Zomba","TA Mlumbe",0.987,4,"Malawi",3
+"MW30401","TA Mpama","MWI.4.5_1","Chiradzulu","TA Mpama",0.971,9,"Malawi",3
+"MW30402","TA Likoswe","MWI.4.4_1","Chiradzulu","TA Likoswe",0.976,7,"Malawi",3
+"MW30403","TA Kadewere","MWI.4.3_1","Chiradzulu","TA Kadewere",0.987,5,"Malawi",3
+"MW30404","TA Nkalo","MWI.4.7_1","Chiradzulu","TA Nkalo",0.976,8,"Malawi",3
+"MW30405","TA Chitera","MWI.4.2_1","Chiradzulu","TA Chitera",0.936,5,"Malawi",3
+"MW30406","TA Nchema","MWI.4.6_1","Chiradzulu","TA Nchema",0.985,4,"Malawi",3
+"MW30407","STA Mpunga","MWI.4.3_1","Chiradzulu","TA Kadewere",0.964,4,"Malawi",3
+"MW30408","STA Sandareki","MWI.4.6_1","Chiradzulu","TA Nchema",0.957,4,"Malawi",3
+"MW30409","STA Onga","MWI.4.5_1","Chiradzulu","TA Mpama",0.965,3,"Malawi",3
+"MW30420","Chiradzulu Boma","MWI.4.1_1","Chiradzulu","Chiradzulu Boma",0.867,3,"Malawi",3
+"MW30501","TA Kapeni","MWI.2.3_1","Blantyre","TA Kapeni",0.963,9,"Malawi",3
+"MW30502","TA Lundu","MWI.2.6_1","Blantyre","TA Lundu",0.986,5,"Malawi",3
+"MW30503","TA Chigaru","MWI.2.2_1","Blantyre","TA Chigaru",0.981,6,"Malawi",3
+"MW30504","TA Kunthembwe","MWI.2.5_1","Blantyre","TA Kunthembwe",0.987,6,"Malawi",3
+"MW30505","TA Makata","MWI.2.8_1","Blantyre","TA Makata",0.946,6,"Malawi",3
+"MW30506","TA Kuntaja","MWI.2.4_1","Blantyre","TA Kuntaja",0.977,7,"Malawi",3
+"MW30507","TA Machinjiri","MWI.2.7_1","Blantyre","TA Machinjili",0.945,8,"Malawi",3
+"MW30508","TA Somba","MWI.2.9_1","Blantyre","TA Somba",0.971,8,"Malawi",3
+"MW30601","TA Kanduku","MWI.16.3_1","Mwanza","TA Kanduku",0.714,8,"Malawi",3
+"MW30602","TA Nthache","MWI.16.4_1","Mwanza","TA Nthache",0.977,3,"Malawi",3
+"MW30603","STA Govati","MWI.16.4_1","Mwanza","TA Nthache",0.961,3,"Malawi",3
+"MW30604","Majete Game Reserve - Mwanza","MWI.16.1_1","Mwanza","Majete Game Reserve - Mwanza",0.789,5,"Malawi",3
+"MW30620","Mwanza Boma","MWI.16.2_1","Mwanza","Mwanza Boma",0.948,3,"Malawi",3
+"MW30701","TA Nsabwe","MWI.27.11_1","Thyolo","TA Nsabwe",0.98,5,"Malawi",3
+"MW30702","STA Thukuta","MWI.27.5_1","Thyolo","SC Thukuta",0.944,3,"Malawi",3
+"MW30703","STA Mbawela","MWI.27.3_1","Thyolo","SC Mbawela",0.962,5,"Malawi",3
+"MW30704","TA Changata","MWI.27.7_1","Thyolo","TA Changata",0.963,8,"Malawi",3
+"MW30705","TA Mphuka","MWI.27.4_1","Thyolo","SC Mphuka",0.987,7,"Malawi",3
+"MW30706","TA Kwethemule","MWI.27.2_1","Thyolo","SC Kwethemule",0.978,5,"Malawi",3
+"MW30707","TA Kapichi","MWI.27.9_1","Thyolo","TA Kapichi",0.971,8,"Malawi",3
+"MW30708","TA Nchilamwela","MWI.27.10_1","Thyolo","TA Nchilamwela",0.959,8,"Malawi",3
+"MW30709","TA Chimaliro","MWI.27.8_1","Thyolo","TA Chimaliro",0.997,3,"Malawi",3
+"MW30710","TA Bvumbwe","MWI.27.6_1","Thyolo","TA Bvumbwe",0.971,11,"Malawi",3
+"MW30711","TA Thomas","MWI.27.12_1","Thyolo","TA Thomas",0.959,5,"Malawi",3
+"MW30712","TA Nanseta","MWI.27.8_1","Thyolo","TA Chimaliro",0.962,6,"Malawi",3
+"MW30713","TA Ngolongoliwa","MWI.27.8_1","Thyolo","TA Chimaliro",0.968,3,"Malawi",3
+"MW30714","STA Boyidi","MWI.27.8_1","Thyolo","TA Chimaliro",0.979,3,"Malawi",3
+"MW30720","Thyolo Boma","MWI.27.13_1","Thyolo","Thyolo Boma",0.743,2,"Malawi",3
+"MW30721","Luchenza Town","MWI.27.1_1","Thyolo","Luchenza Town",0.89,4,"Malawi",3
+"MW30801","TA Mabuka","MWI.15.6_1","Mulanje","TA Mabuka",0.966,5,"Malawi",3
+"MW30802","TA Laston Njema","MWI.15.4_1","Mulanje","SC Laston Njema",0.913,4,"Malawi",3
+"MW30803","TA Chikumbu","MWI.15.5_1","Mulanje","TA Chikumbu",0.983,6,"Malawi",3
+"MW30804","TA Nthiramanja","MWI.15.8_1","Mulanje","TA Nthiramanja",0.984,8,"Malawi",3
+"MW30805","TA Nkanda","MWI.15.7_1","Mulanje","TA Nkanda",0.967,7,"Malawi",3
+"MW30806","TA Juma","MWI.15.3_1","Mulanje","SC Juma",0.983,6,"Malawi",3
+"MW30807","STA Sunganinzeru","MWI.15.6_1","Mulanje","TA Mabuka",0.979,3,"Malawi",3
+"MW30808","STA Tombondiya","MWI.15.6_1","Mulanje","TA Mabuka",0.958,4,"Malawi",3
+"MW30809","Mulanje Mountain Reserve","MWI.15.2_1","Mulanje","Mulanje Mountain Forest Reserve",0.984,6,"Malawi",3
+"MW30820","Mulanje Boma","MWI.15.1_1","Mulanje","Mulanje Boma",0.867,4,"Malawi",3
+"MW30901","TA Mkhumba","MWI.24.2_1","Phalombe","TA Mkhumba",0.97,4,"Malawi",3
+"MW30902","TA Nazombe","MWI.24.3_1","Phalombe","TA Nazombe",0.986,2,"Malawi",3
+"MW30903","TA Chiwalo","MWI.24.3_1","Phalombe","TA Nazombe",0.986,2,"Malawi",3
+"MW30904","TA Nkhulambe","MWI.24.3_1","Phalombe","TA Nazombe",0.96,3,"Malawi",3
+"MW30905","TA Jenala","MWI.24.2_1","Phalombe","TA Mkhumba",0.997,5,"Malawi",3
+"MW30906","TA Kaduya","MWI.24.2_1","Phalombe","TA Mkhumba",0.996,2,"Malawi",3
+"MW30920","Phalombe Boma","MWI.24.2_1","Phalombe","TA Mkhumba",1,1,"Malawi",3
+"MW31001","TA Ngabu","MWI.3.11_1","Chikwawa","TA Ngabu",0.984,5,"Malawi",3
+"MW31002","TA Lundu","MWI.3.8_1","Chikwawa","TA Lundu",0.958,6,"Malawi",3
+"MW31003","TA Chapananga","MWI.3.5_1","Chikwawa","TA Chapananga",0.982,4,"Malawi",3
+"MW31004","TA Maseya","MWI.3.10_1","Chikwawa","TA Maseya",0.958,7,"Malawi",3
+"MW31005","TA Katunga","MWI.3.7_1","Chikwawa","TA Katunga",0.974,4,"Malawi",3
+"MW31006","TA Kasisi","MWI.3.6_1","Chikwawa","TA Kasisi",0.877,6,"Malawi",3
+"MW31007","TA Makhwira","MWI.3.9_1","Chikwawa","TA Makhwira",0.983,8,"Malawi",3
+"MW31008","STA Ndakwela","MWI.3.5_1","Chikwawa","TA Chapananga",0.837,5,"Malawi",3
+"MW31009","TA Mlilima","MWI.3.6_1","Chikwawa","TA Kasisi",0.923,5,"Malawi",3
+"MW31010","STA Masache","MWI.3.11_1","Chikwawa","TA Ngabu",0.956,3,"Malawi",3
+"MW31011","TA Ngowe","MWI.3.11_1","Chikwawa","TA Ngabu",0.99,3,"Malawi",3
+"MW31012","Lengwe National Park","MWI.3.2_1","Chikwawa","Lengwe National Park",0.985,4,"Malawi",3
+"MW31013","Majete Game Reserve - Chikwawa","MWI.3.3_1","Chikwawa","Majete Game Reserve - Chikwawa",0.984,5,"Malawi",3
+"MW31020","Chikwawa Boma","MWI.3.1_1","Chikwawa","Chikwawa Boma",0.9,3,"Malawi",3
+"MW31021","Ngabu Urban","MWI.3.4_1","Chikwawa","Ngabu Urban",0.841,2,"Malawi",3
+"MW31101","TA Ndamera","MWI.21.8_1","Nsanje","TA Ndamera",0.961,4,"Malawi",3
+"MW31102","TA Chimombo","MWI.21.5_1","Nsanje","TA Chimombo",0.975,4,"Malawi",3
+"MW31103","TA Nyachikadza","MWI.21.10_1","Nsanje","TA Nyachikadza",0.92,4,"Malawi",3
+"MW31104","TA Mlolo","MWI.21.7_1","Nsanje","TA Mlolo",0.984,6,"Malawi",3
+"MW31105","TA Tengani","MWI.21.11_1","Nsanje","TA Tengani",0.973,4,"Malawi",3
+"MW31106","TA Malemia","MWI.21.6_1","Nsanje","TA Malemia",0.964,4,"Malawi",3
+"MW31107","TA Mbenje","MWI.21.4_1","Nsanje","SC Mbenje",0.995,5,"Malawi",3
+"MW31108","TA Ngabu","MWI.21.9_1","Nsanje","TA Ngabu",0.931,5,"Malawi",3
+"MW31109","TA Makoko","MWI.21.3_1","Nsanje","SC Makoka",0.97,4,"Malawi",3
+"MW31110","Mwabvi Game Reserve","MWI.21.1_1","Nsanje","Mwabvi Game Reserve",0.97,4,"Malawi",3
+"MW31120","Nsanje Boma","MWI.21.2_1","Nsanje","Nsanje Boma",0.943,2,"Malawi",3
+"MW31201","TA Msamala","MWI.1.3_1","Balaka","TA Nsamala",0.995,5,"Malawi",3
+"MW31202","TA Kalembo","MWI.1.2_1","Balaka","TA Kalembo",1,3,"Malawi",3
+"MW31203","STA Kachenga","MWI.1.2_1","Balaka","TA Kalembo",0.992,3,"Malawi",3
+"MW31204","TA Amidu","MWI.1.2_1","Balaka","TA Kalembo",0.969,4,"Malawi",3
+"MW31205","TA Nkaya","MWI.1.3_1","Balaka","TA Nsamala",0.985,4,"Malawi",3
+"MW31206","STA Phalula","MWI.1.3_1","Balaka","TA Nsamala",0.982,3,"Malawi",3
+"MW31207","TA Chanthunya","MWI.1.3_1","Balaka","TA Nsamala",1,1,"Malawi",3
+"MW31208","TA Sawali","MWI.1.3_1","Balaka","TA Nsamala",0.895,3,"Malawi",3
+"MW31209","STA Matola","MWI.1.3_1","Balaka","TA Nsamala",0.995,2,"Malawi",3
+"MW31210","STA Toleza","MWI.1.3_1","Balaka","TA Nsamala",0.991,2,"Malawi",3
+"MW31220","Balaka Town","MWI.1.1_1","Balaka","Balaka Town",0.806,2,"Malawi",3
+"MW31221","Liwonde Town","MWI.12.4_1","Machinga","Liwonde Town",0.943,2,"Malawi",3
+"MW31301","TA Dambe","MWI.18.2_1","Neno","TA Dambe",0.876,4,"Malawi",3
+"MW31302","TA Mlauli","MWI.18.3_1","Neno","TA Mlauli",0.98,6,"Malawi",3
+"MW31303","TA Symon Likongwe","MWI.18.5_1","Neno","TA Symon",0.984,7,"Malawi",3
+"MW31304","TA Chekucheku","MWI.18.4_1","Neno","TA Ngozi",0.965,5,"Malawi",3
+"MW31320","Neno Boma","MWI.18.4_1","Neno","TA Ngozi",0.869,2,"Malawi",3
+"MW31431","Mpira Ward","MWI.28.9_1","Zomba","Zomba City",0.836,3,"Malawi",3
+"MW31432","Mbedza Ward","MWI.28.9_1","Zomba","Zomba City",0.832,3,"Malawi",3
+"MW31433","Chinamwali Ward","MWI.28.9_1","Zomba","Zomba City",0.774,3,"Malawi",3
+"MW31434","Chirunga Ward","MWI.28.9_1","Zomba","Zomba City",0.921,3,"Malawi",3
+"MW31435","Mtiya Ward","MWI.28.9_1","Zomba","Zomba City",0.963,3,"Malawi",3
+"MW31436","Masongola Ward","MWI.28.9_1","Zomba","Zomba City",1,1,"Malawi",3
+"MW31437","Zomba Central Ward","MWI.28.9_1","Zomba","Zomba City",1,1,"Malawi",3
+"MW31438","Likangala Ward","MWI.28.9_1","Zomba","Zomba City",1,1,"Malawi",3
+"MW31439","Chambo Ward","MWI.28.9_1","Zomba","Zomba City",1,1,"Malawi",3
+"MW31440","Sadzi Ward","MWI.28.9_1","Zomba","Zomba City",0.856,2,"Malawi",3
+"MW31531","Michiru Ward","MWI.2.1_1","Blantyre","Blantyre City",0.989,2,"Malawi",3
+"MW31532","South Lunzu Ward","MWI.2.1_1","Blantyre","Blantyre City",0.987,2,"Malawi",3
+"MW31533","Mapanga Ward","MWI.2.1_1","Blantyre","Blantyre City",0.89,4,"Malawi",3
+"MW31534","Nkolokoti Ward","MWI.2.1_1","Blantyre","Blantyre City",1,1,"Malawi",3
+"MW31535","Ndirande Matope Ward","MWI.2.1_1","Blantyre","Blantyre City",1,1,"Malawi",3
+"MW31536","Ndirande Makata Ward","MWI.2.1_1","Blantyre","Blantyre City",1,1,"Malawi",3
+"MW31537","Ndirande Gamulani Ward","MWI.2.1_1","Blantyre","Blantyre City",1,1,"Malawi",3
+"MW31538","Nyambadwe Ward","MWI.2.1_1","Blantyre","Blantyre City",1,1,"Malawi",3
+"MW31539","Mbayani Ward","MWI.2.1_1","Blantyre","Blantyre City",1,1,"Malawi",3
+"MW31540","Chilomoni Ward","MWI.2.1_1","Blantyre","Blantyre City",0.98,2,"Malawi",3
+"MW31541","Blantyre City Centre Ward","MWI.2.1_1","Blantyre","Blantyre City",0.999,3,"Malawi",3
+"MW31542","Namalimwe Ward","MWI.2.1_1","Blantyre","Blantyre City",1,1,"Malawi",3
+"MW31543","Limbe Central Ward","MWI.2.1_1","Blantyre","Blantyre City",1,1,"Malawi",3
+"MW31544","Mzedi Ward","MWI.2.1_1","Blantyre","Blantyre City",0.972,2,"Malawi",3
+"MW31545","Bangwe Ward","MWI.2.1_1","Blantyre","Blantyre City",1,1,"Malawi",3
+"MW31546","Bangwe Mthandizi Ward","MWI.2.1_1","Blantyre","Blantyre City",1,1,"Malawi",3
+"MW31547","Soche East Ward","MWI.2.1_1","Blantyre","Blantyre City",1,1,"Malawi",3
+"MW31548","Blantyre South Ward","MWI.2.1_1","Blantyre","Blantyre City",1,1,"Malawi",3
+"MW31549","Green Corner Ward","MWI.2.1_1","Blantyre","Blantyre City",0.91,3,"Malawi",3
+"MW31550","Soche West Ward","MWI.2.1_1","Blantyre","Blantyre City",0.952,3,"Malawi",3
+"MW31551","Namiyango Ward","MWI.2.1_1","Blantyre","Blantyre City",0.983,2,"Malawi",3
+"MW31552","Chigumula Ward","MWI.2.1_1","Blantyre","Blantyre City",0.92,5,"Malawi",3
+"MW31553","Misesa Ward","MWI.2.1_1","Blantyre","Blantyre City",0.975,3,"Malawi",3
+"SL0101","Kailahun","SLE.1.1_1","Eastern","Kailahun",0.968,3,"SierraLeone",2
+"SL0102","Kenema","SLE.1.2_1","Eastern","Kenema",0.936,6,"SierraLeone",2
+"SL0103","Kono","SLE.1.3_1","Eastern","Kono",0.958,5,"SierraLeone",2
+"SL0201","Bombali","SLE.2.1_1","Northern","Bombali",0.971,5,"SierraLeone",2
+"SL0203","Koinadugu","SLE.2.3_1","Northern","Koinadugu",0.963,4,"SierraLeone",2
+"SL0205","Tonkolili","SLE.2.5_1","Northern","Tonkolili",0.945,8,"SierraLeone",2
+"SL0206","Fabala","SLE.2.3_1","Northern","Koinadugu",0.984,2,"SierraLeone",2
+"SL0301","Bo","SLE.3.1_1","Southern","Bo",0.961,6,"SierraLeone",2
+"SL0302","Bonthe","SLE.3.2_1","Southern","Bonthe",0.981,4,"SierraLeone",2
+"SL0303","Moyamba","SLE.3.3_1","Southern","Moyamba",0.975,6,"SierraLeone",2
+"SL0304","Pujehun","SLE.3.4_1","Southern","Pujehun",0.914,4,"SierraLeone",2
+"SL0401","Western Area Rural","SLE.4.1_1","Western","Western Rural",0.928,4,"SierraLeone",2
+"SL0402","Western Area Urban","SLE.4.2_1","Western","Western Urban",0.515,3,"SierraLeone",2
+"SL0501","Kambia","SLE.2.2_1","Northern","Kambia",0.951,3,"SierraLeone",2
+"SL0502","Karene","SLE.2.1_1","Northern","Bombali",0.744,4,"SierraLeone",2
+"SL0503","Port Loko","SLE.2.4_1","Northern","Port Loko",0.964,6,"SierraLeone",2

@@ -91,7 +91,7 @@ bivariate_admin2_map <- function(sf_admin2, values, x_col, y_col,
   if (!requireNamespace("cowplot", quietly = TRUE))
     stop("bivariate_admin2_map() needs the 'cowplot' package")
 
-  d <- merge(sf_admin2, values, by = "Admin2", all.x = TRUE)
+  d <- merge(sf_admin2, values, by = admin2_join_by(sf_admin2, values), all.x = TRUE)   # JK-01: pair key when both sides carry Admin1
   d$bi_class <- bivariate_class(d[[x_col]], d[[y_col]], dim = dim)
   d$fill <- unname(BIVARIATE_PAL_3[d$bi_class])
   d$fill[is.na(d$fill)] <- "grey92"          # no estimate for this area

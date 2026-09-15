@@ -2581,3 +2581,404 @@ unchanged):
 (gitignored data), `scripts/covariates/build_dhs_admin2_clustermodel.R`,
 hook 2b in `scripts/covariates/build_shared_predictor_set.R`, the rerun
 tables under `results/tables/protocol_v2/` (RR-10, 2026-09-09 13:37 to 15:58).
+
+## LK-02 · Leakage is the same survey instance, not the analyte name (exclusions.csv; R/mns_dhs_overlap.R; R/national_covariates.R; 2026-09-15)
+
+**The user's rule.** A predictor leaks only when it is measured on the same
+individuals as the outcome. Anaemia, supplementation or nutrient intake from
+an independent source — a DHS round, UNICEF, WHO, IHME — is external
+information about a district and is admissible; it is exactly what a country
+without a micronutrient survey has, and DHS haemoglobin exists in far more
+country-years than ferritin. LK-01's name-based rules were also internally
+inconsistent: they kept IHME's anaemia surfaces (fitted to DHS haemoglobin)
+and GFDx's anaemia while excluding the DHS anaemia they were built from.
+
+**What changed.**
+- `metadata/covariates/exclusions.csv`: the seven `policy == leakage` rows
+  removed (backup `.pre_LK02`); six `data_defect` rows stay.
+  `dhs_leakage_review.csv` decisions turned to include with the reasoning.
+  `drop_near_outcome_v2()` reads the file and now drops nothing by default;
+  `V2_DROP_MODELLED=1` still removes the modelled outcome-adjacent surfaces.
+- Back in the DHS block (all four countries unless the round lacks the item):
+  `AN_ANEM_W_ANY`, `CN_ANMC_C_ANY`, `w_anemia_any/_moderate`,
+  `c_anemia_any/_moderate`, `c_mean_hemoglobin`, `w_iron_supplement`,
+  `w_iron_pregnancy/_days/_90plus`, `w_vitA_postpartum` (Ghana, Sierra
+  Leone), `c_vita_supplement`, `c_vita_capsule`, `c_iron_rich_food`,
+  `c_vita_rich_food`, `c_fg_vitA_fruitveg`, `c_zinc_diarrhea` (the last two
+  were false positives of the class regex even under LK-01). Nothing outside
+  the DHS block had been excluded; UNICEF VAS had never been wired into the
+  shared set at all (AB-01 adds it).
+- **Malawi is the one real same-survey case.** The MNS 2015-16 re-sampled 105
+  of the 850 MDHS clusters (WSC4 linked 3,097 of 3,099 rows to a DHS person).
+  `metadata/mns_dhs_overlap_clusters.csv` (built by
+  `scripts/covariates/build_mns_overlap_clusters.R`, checked against
+  MWGE7AFL) and `R/mns_dhs_overlap.R::drop_mns_overlap()` remove those
+  clusters from EVERY DHS-derived Malawi predictor — surveyPrev built-ins
+  (`src/DHS/DHS_admin2_aggregation.R`), the custom block
+  (`DHS_custom_admin2_indicators.R`), the cluster-model BYM2
+  (`build_dhs_admin2_clustermodel.R`) and the builder's direct block. Dropped
+  per recode: IR 3,138 of 24,562 rows, KR 2,250 of 17,286, PR 15,317 of
+  120,492, HR 3,255 of 26,361, BR 8,981 of 68,074. Not only the blood-draw
+  items: shared cluster noise leaks too. The other three surveys drew their
+  own samples; the filter is a no-op for them. Second-order overlap that
+  cannot be removed and is only flagged: IHME's and WHO's Malawi anaemia
+  models ingest the full MDHS 2015-16 haemoglobin sample.
+- Both DHS scripts read `DHS_COUNTRIES_TO_RUN`; the cluster-model builder has
+  `DHS_CM_ONLY_NEW=1` (fit only the shared-set `dhs_` columns the existing CSV
+  lacks and merge them in; a full pass is ~4 h per country).
+- **National track.** `build_panel_covariates()` keeps the measured
+  anaemia/Hb columns and blanks the cells of DHS-linked VMNIS country-years
+  before the nearest-year carry (`dhs_linked_vmnis_surveys()`: the
+  Surveymethodology text names the DHS for Malawi 2016 and Colombia 2005;
+  `metadata/vmnis_dhs_linked_surveys.csv` adds the DHS-carried modules the
+  text does not name — Cambodia 2014, Uganda 2000-01/2006/2011/2016, Tanzania
+  2009-10, Zimbabwe 2010-11, Rwanda 2019-20). Rebuilt cache
+  `data/national/panel_national_cov50_lk02.rds`: 13 anaemia/Hb status
+  columns, 105 cells blanked, 1,589 covariates after the 50% coverage rule; of
+  the 13 only the two annual WHO-estimate series (FAOSTAT `fs21043`,
+  `fs210430`) clear the coverage rule, so for the national model the change
+  is small. Old key `panel_national_cov50.rds` untouched.
+- Tests: `test-mns-dhs-overlap.R` (18), `test-national-same-survey.R` (14);
+  suite 146 pass, the 2 failures are the pre-existing join-lint ratchet on
+  scripts 12–35 / viz / policy deck, untouched here.
+
+## AB-01 · Sources added back to the harmonized set (scripts/protocol_v2/59, 59a, 60; 2026-09-15)
+
+See `docs/findings/AB-01_SOURCE_ADDBACK_2026-09-15.md` for the full table,
+the user task list and the list of sources deliberately not harmonised.
+Order in a rebuild: builder → 07 → 08 → **59** → (60 when an ACLED export
+exists) → 53. Blocks: UNICEF VAS (1, national), FluNet (3, national, Ghana &
+Sierra Leone), GFDx programme fields (21, national: legislation in force at
+the survey year, vehicle intake, share industrially processed, potential
+nutrient delivery), WHO Global Anaemia Estimates at the survey year (5,
+national), Tang 2026 / MIMI nutrient inadequacy (6, Ghana Admin-1), GDL
+subnational HDI (2, Admin-1), MICS immunisation by subnational region from the
+WHO Health Inequality Data Repository (20, Admin-1; Malawi MICS 2014 at
+district level — the first MICS block covering Sierra Leone and Malawi). ACLED
+conflict exposure (8 per district, 36-month window) is scripted and tested on
+a synthetic export; it waits for the user's ACLED download under `data/ACLED/`.
+Found on the way: the legacy Gambia merge swapped the two Central River LGAs
+and its `dhs2019_` Admin-1 join never matched outside Banjul (LGA names
+against GADM division names; 20 columns NA for five of six divisions) - the
+mapping is corrected in the script and in `gambia_lga()` (script 59); script
+08's GFDx block was WHO 2011 anaemia and Wessells & Brown zinc, not
+fortification data.
+
+**Rebuild outcome (RR-11 inputs, no models run).** Shared set 454 -> **530**
+predictors (17 restored DHS + 60 add-back - 1 all-NA); 482 in all four
+countries, 45 national constants, 0 duplicates; 130 DHS columns carry
+cluster-model BYM2 estimates, Malawi's from the 745 non-MNS clusters (median
+rank agreement with the old columns 0.967 over 143 columns). Two defects found
+by the audit and fixed before sign-off: `match_names()` in script 59 emptied the
+HEAT block for lower-case region labels; `dhs_w_barrier_transport` was all-NA
+(now a `data_defect` rule). The Gambia legacy merge was also rebuilt after its
+DHS Admin-1 join was found never to have matched outside Banjul (599 `gw_`
+columns identical before and after). Repo cleanup the same day:
+`archive/ARCHIVE_MANIFEST.md` 2026-09-15 entry. The next protocol re-run
+starts from this 530-column set; check `nrow(metadata) == 530` before launching
+rr_driver, and score the restored anaemia columns as a with/without arm.
+
+## MW-SE / MW-IO · Malawi selenium and iodine as outcomes (R/config.R, R/malawi_outcomes.R, script 61; 2026-09-15)
+
+**Q.** The RA's literature set on the four surveys showed the MNS 2015-16
+measured plasma selenium (all groups) and urinary iodine (women, school-age
+children); neither was an outcome. Selenium has a known geochemical driver in
+Malawi (soil pH / soil Se, Phiri et al. 2019), so it is the cleanest
+soil -> biomarker test of the transport logic the panel has.
+**Design.** Three Malawi-only outcomes added to `get_country_configs()`:
+`child_selenium`, `women_selenium` (plasma Se < 84.6 ug/L = 1.07 umol/L,
+the MNS analyses' threshold) and `women_iodine` (UIC < 100 ug/L, the IO-01
+convention; WHO classifies by the median). `derive_malawi_binary()`
+(R/malawi_outcomes.R, called from load_merged_data()) derives `sel_def` /
+`iod_def` the way folate_def and b12_def are derived; rows added to
+`config/who_thresholds.csv` as project conventions; tests
+`test-malawi-selenium-iodine.R` (14 assertions, including the survey's own
+prevalences: 86.4% of preschool children and 65.5% of women below 84.6 ug/L,
+10.5% of women below 100 ug/L UIC). Script 61 mirrors IO-01: TA targets
+(78-80 TAs with >= 5 respondents in all 27 districts), in-fill 5-fold x 10
+draws and leave-one-district-out, on the 530-column set.
+**Result (Spearman, median over draws).** Child selenium: in-fill domain index
+0.43 (prev) / 0.45 (level) against the jackknifed district mean 0.28 / 0.32
+and the smoother 0.40 / 0.29; leave-one-district-out index 0.37 / 0.40.
+Women's selenium: in-fill 0.42-0.44 for index, smoother and spatial+domain
+alike (jackknifed mean 0.24); leave-one-district-out 0.42-0.44. Women's
+iodine: in-fill index 0.28 (prev), leave-one-district-out 0.24-0.26 - the
+weakest cell, as in Gambia. Descriptive: TA mean log Se correlates with
+SoilGrids CEC (+0.36 children, +0.29 women) and clay (+0.22) more than with pH
+(+0.12 / +0.15) at the TA zonal scale. Selenium is the strongest in-country
+cell Malawi has: the index beats the covariate-free district mean by 0.15-0.18
+in-fill, the size of gap the iron and vitamin A cells never show. Not yet in
+the DAG store (the new outcome targets exist in the config and build at the
+next `tar_make()`); no cross-border test is possible.
+-> `malawi_selenium_iodine_targets.csv`, `malawi_selenium_iodine_in_country.csv`
+
+## HC-01 / RT-01 · Household diet (HCES) and local food prices (RTFP) in the shared set (scripts/covariates/build_hces_diet_block.R, build_rtfp_price_block.R; script 62; 2026-09-15)
+
+**Question.** Every ablation said the missing domain was what households
+eat and what food costs where they live; the RA's 2026-09 folder
+(`data/RA_2026-09/`) delivered the three HCES the set lacked (Malawi IHS4
+2016-17, The Gambia IHS 2015/16, SLIHS 2018), the MICS GPS files that
+geolocate the SLIHS clusters, and the World Bank RTFP market panel.
+**Design.** HC-01: one household table per country
+(`hces_household_<Country>.csv`), weighted means per Admin-2 with a
+15-household floor (Malawi TAs below it take the district mean: 215 own,
+28 broadcast; Gambia 37 of 37 districts own after aliasing the 2013-census
+districts to GADM - Kanifing wards, Illiasa / Sabach Sanjal -> Upper Baddibu,
+Basse / Jimara / Tumana -> Fulladu East, Wuli East / West -> Wuli, Fuladu
+West -> Fulladu West, `metadata/hces_gambia_district_map.csv`; Sierra Leone
+505 of 684 clusters by MICS 2017 GPS point-in-polygon, 179 by district name,
+14 of 14; Ghana GLSS7 10 regions broadcast through the 16-to-10 crosswalk).
+Indicators: food share, own-production share (by value where the aggregate
+splits it, by item elsewhere), log consumption per adult equivalent centred
+on the national mean (four currencies), and for the two 7-day-recall surveys
+HDDS, ten any-group shares and the animal-source purchase share; the
+keyword classifier's item -> HDDS group map is written for review
+(`metadata/hces_food_groups_{Malawi,Gambia}.csv`; 141 and 165 items,
+condiments and stimulants to "misc", cassava/potato leaves to vegetables).
+RT-01: RTFP has The Gambia (28 markets) and Malawi (129) but not Ghana or
+Sierra Leone; the index is on a common national base (it tracks the maize
+price across Malawi markets). Six market indicators over the 12 months
+ending in the survey's last fieldwork month (`metadata/survey_years.csv`:
+Malawi Mar 2015 - Feb 2016, The Gambia May 2017 - Apr 2018) - relative
+price level, 12-month inflation, volatility, seasonal range, staple level
+and inflation - inverse-distance-weighted from the three nearest markets to
+each Admin-2 centroid, plus distance to the nearest market. Script 62
+appends both blocks (audit-only columns `hces_n_hh`, `hces_level`,
+`rtfp_n_markets` stay in the block files); 53 and the audit re-run.
+**Result.** Shared set **552 predictors** (530 + 15 HCES + 7 RTFP), 7
+data-defect rules, nothing excluded. Country means: food share 0.72 Gambia /
+0.53 Ghana / 0.62 Malawi / 0.61 Sierra Leone; own production 0.06 / 0.07 /
+0.21 / 0.13; HDDS 8.7 Gambia, 7.6 Malawi; any animal-source food 0.97 /
+0.81. Malawi 2015/16: national food inflation 24% and maize +57% over the
+exposure window (the El Nino year), local price levels spread sd 0.08 log
+points across markets. FPN (T1.4) also built from the RA's DataBank export
+(`data/FPN/`, national constants, not in the shared set). No models re-run.
+Open: Sierra Leone food groups need the SLIHS diary item codes; Ghana needs
+the GLSS7 food module; a four-country price block needs the FAO FPMA
+full-history export (RA brief T1.6, T1.7).
+-> `predictors_admin2_hces.csv`, `predictors_admin2_rtfp.csv`, `predictor_audit_2026-09-15*`
+
+## TP-01 · Predictor tiers and the national-constant policy (R/protocol_v2.R, metadata/covariates/predictor_tiers.csv, scripts/covariates/stamp_predictor_metadata.R; 2026-09-15)
+
+**Question.** The review of the rebuilt set said the DHS block (161 of 552
+columns) is the least defensible part of a proxy database meant for
+unsurveyed settings - DA-04 shows the set transports better without it, it
+exists only where a DHS round exists, and its microdata cannot be
+redistributed - and that the 45 national constants (GFDx, FAOSTAT, WHO
+anaemia, FluNet, VAS, one WFP price column) cannot rank districts and are a
+three-value country effect in a four-country transport.
+**Design.** Every column gets a `tier` from its source
+(`metadata/covariates/predictor_tiers.csv`, first match wins): `open` (any
+gridded / modelled / administrative product obtainable without fielding a
+survey; 354 columns from 24 sources), `survey_public` (HCES microdata and
+MICS-via-HEAT; 35) and `survey_dhs` (161). `drop_near_outcome_v2()`, the
+fit-time guard every protocol script already calls, now applies four rules in
+order: the leakage regexes; national constants out (`subnational == FALSE`,
+45 columns; `V2_KEEP_NATIONAL=1` restores them - they were already removed
+silently by the per-country zero-variance filter in `prep_predictors_v2()`,
+so no arm changes, the policy is now declared and logged); the tiers named in
+`V2_PREDICTOR_TIERS` (default all three); the modelled-surface sensitivity.
+Script 02b, the transport driver, defaults `V2_PREDICTOR_TIERS` to
+`open,survey_public` - the pre-registered no-DHS arm is the transport
+headline - and every result row of 02 / 02b records `predictor_tiers`, so a
+with-DHS run (`V2_PREDICTOR_TIERS=open,survey_public,survey_dhs`) is
+distinguishable in the outputs. `stamp_predictor_metadata.R` (new step after
+53) recomputes `subnational` from the live data (one correction:
+`fprice_staple_volatility` was declared subnational and is constant) and
+writes `tier`; the audit reports by tier. Tests: `test-predictor-policy.R`
+(17 assertions).
+**Result.** No model re-run. The declared set at the default tiers is 505
+of 550 columns (45 national constants out); the transport headline set is
+344 (open + survey_public, no DHS).
+
+## NV-01 · MODIS NDVI at the survey replaces the AVHRR year columns (scripts/covariates/extract_gee_ndvi_modis.py; 2026-09-15)
+
+**Question.** The eight `ndvi_y2011..2018` columns came from NOAA AVHRR CDR
+v5, an asset the layer manifest declares available only to 2013, whose
+post-2018 values collapse country-dependently (two exclusion rules already),
+and whose one-column-per-year design lags the survey by up to 8 years.
+MOD13Q1, which already supplies `evi_t0`, covers every survey year.
+**Design.** Six columns from MOD13Q1 NDVI (250 m, SummaryQA <= 1):
+survey-year mean, 12-month fieldwork-window mean, peak, seasonal amplitude,
+the 2001-2020 climatology and a per-pixel z-score anomaly of the survey year
+against it; area- and WorldPop-weighted zonal means (the `_aw` set appended
+under the plain names, both kept in `gee_ndvi_modis_admin2.csv`). Appended
+by script 62 (now `62_append_blocks.R`, which also carries HCES and RTFP);
+the AVHRR columns leave through a `superseded` rule in exclusions.csv.
+**Result.** 554 polygons, no missing values. Rank agreement with the
+same-year AVHRR column is only 0.42-0.63 across countries (the 5 km AVHRR
+product is not a district-scale layer); with `evi_t0` 0.77-0.91. The anomaly
+column reads as expected: Malawi 2016 -0.91 s.d. (the El Nino drought),
+Gambia 2018 -0.48, Ghana 2017 -0.24, Sierra Leone 2013 +0.59. Shared set
+552 -> **550** predictors.
+
+## TA-01 · Temporal alignment stamped per column (metadata/covariates/temporal_alignment.csv, stamp step; 2026-09-15)
+
+**Question.** Alignment to the survey year was uneven and undocumented at
+the column level (AlphaEarth fixed at 2017, GHSL epochs, DHS rounds, the
+year-series columns).
+**Design.** A rules table (46 rules: `survey_year`, `fixed:YYYY`,
+`from_name`, `per_country:...`, `nearest_in_range:Y0-Y1`,
+`epoch5_nearest:Y0-Y1`, `static`) matched to every column by regex; the
+stamp writes `alignment_rule`, `year_used` (per country where it differs)
+and `year_offset_max_abs` into the shared metadata and a column x country
+table to `results/tables/predictor_alignment_<date>.csv`; an unmatched
+column stops the stamp, so a new block must declare its year. The audit
+reports the offsets by source and rule.
+**Result.** 489 dated columns (61 static); 309 are >= 3 years from the
+survey in some country with data. By construction: the year-series columns
+(`precip_y2010-2019`, `popdens_y2010/2015/2020`; up to 8 years), MapSPAM
+2010 (6-8), GPW 2010, WorldPop age-sex 2020 (up to 7 for Sierra Leone),
+AlphaEarth 2017 (4 for Sierra Leone), the DHS rounds (3 for Ghana), MICS
+2010 for Sierra Leone (3), HCES SLIHS 2018 (5). Recorded, not yet acted on:
+the year-series columns should follow NDVI to "survey year + anomaly"
+(precipitation from CHIRPS or TerraClimate, density from WorldPop at the
+survey year, which `wpop_log_density_survey_year` already is).
+
+## JK-01 · Checked Admin-2 joins, a coded spine, reviewed matching (R/admin2_keys.R, metadata/admin2_spine.csv; 2026-09-15)
+
+**Question.** Joins were by administrative names, 69 of them name-only
+(the pair-key migration WS8g left them grandfathered), no table carried a
+stable code, and every fuzzy match was ad hoc.
+**Design.** (1) `metadata/admin2_spine.csv`: the 554 units with GADM 4.1
+`gid_1` / `gid_2` / HASC codes (the spine equals GADM level 2 exactly, minus
+Malawi's 13 water bodies) and a `pcode` column for the OCHA COD-AB P-code,
+filled by `build_pcode_crosswalk.R` (spatial, largest-overlap, records the
+share and any many-to-one) from the four COD-AB packages downloaded from
+HDX on 2026-09-15 (`data/COD_AB/<ISO3>/`, CC BY-IGO): 554 of 554 units
+coded (COD ADM2 for The Gambia, Ghana and Sierra Leone, ADM3 for Malawi);
+the reverse table `pcode_to_gadm41_gid2.csv` (751 COD units -> GADM, median
+0.99 of each COD unit inside its GADM unit) is the one to use when a
+P-coded source is ingested. (2) `join_admin2_v2()`: a pair-key join that refuses
+to fan (duplicate keys on the right are an error), reports unmatched keys
+and can validate both sides against the spine; `admin2_population_v2()`
+loads the dashboard population table on the pair key with the country label
+normalised (the "Sierra Leone" spelling that three scripts patched
+separately). The eleven name-only joins outside the baseline (eight
+protocol scripts, the bivariate map, the CIV policy map, probe p6) now use
+them; `admin2_join_by()` reports the first degradation to a name-only key
+in a session instead of degrading silently. (3) `admin2_match_v2()`: exact
+on a normalised key, then an aliases CSV, then Jaro-Winkler within 0.15,
+always writing a review file; script 59's `match_names()` now delegates to
+it (`metadata/crosswalks/review_59_*.csv`: every match in the GDL and HEAT
+blocks is exact except Janjanbureh -> GDL's "Janjabureh"). The join-lint
+baseline shrank from 70 to 59 sites (the remainder are legacy DAG,
+dashboard and CIV-validation code) and the lint fails on any new one.
+Tests: `test-admin2-keys.R` (29 assertions).
+**Result.** No numerical change to any protocol table (every population
+table already had unique names); the fan and the silent country drop are
+now errors rather than possibilities.
+
+## MC-01 · MICS microdata block, all four countries (scripts/covariates/build_mics_admin2_block.R; 2026-09-15)
+
+**Question.** MICS is the one survey programme besides DHS that measures,
+on the same households, what the biomarkers respond to - the household salt
+iodine test, infant and young child feeding, WASH, wealth, anthropometry,
+recent illness, women's education, malaria prophylaxis in pregnancy - and
+all four countries now have public microdata near their survey (Gambia
+MICS6 2018, Ghana MICS6 2017-18, Malawi MICS5 2013-14, Sierra Leone MICS6
+2017; `data/MICS/`).
+**Design.** 30 indicators (weighted; JMP / WHO code lists in
+`metadata/mics_codes.csv`). Geography: The Gambia by GPS point-in-polygon to
+GADM districts, LGA mean where a district has < 30 households or < 5
+clusters (19 own, 18 broadcast); Ghana 10 regions broadcast; Malawi 27
+districts + 4 cities, city estimates to the city TAs; Sierra Leone 14
+districts. **The GMNS 2018 was fielded inside the MICS6 2018 sample** - its
+3,209 respondents sit in 70 of the 390 MICS clusters and carry the MICS
+household number (`gw_MICS_Cluster_Number`, `gw_MICS_Household_Number`) - so
+the Gambia block is built from the other 320 clusters, the same LK-02 rule
+as Malawi's MNS inside the MDHS; `metadata/mns_dhs_overlap_clusters.csv` now
+carries a `programme` column (DHS / MICS) and `mns_overlap_clusters()` /
+`drop_mns_overlap()` take `programme`. Tier `survey_public`; alignment rule
+per country; appended by script 62.
+**Result.** 30 columns, 28 in all four countries (VAS is MICS5-only, cough
+and electricity MICS6-only). Plausible against the reports: stunting 0.21 /
+0.17 / 0.42 / 0.27 (Gambia / Ghana / Malawi / Sierra Leone), MDD 0.16-0.25,
+salt >= 15 ppm 0.35 / 0.39 / 0.50 / 0.80. Cross-programme agreement with
+the DHS block (within-country Spearman) is high for education (0.57-0.93)
+and wealth (0.33-0.89), moderate for stunting (0.31-0.78) and sanitation
+(0.12-0.54), near zero for improved water (near-universal) and for two-week
+illness recall - survey noise at district level, and the size of the gap
+that separates any two rounds. Malawi and Ghana are coarse until their GPS
+arrive (RA brief T1.2).
+
+## IH-03 · IHME tabular keys were pooling products (scripts/protocol_v2/08_build_extra_sources.R, 48; 2026-09-15)
+
+**Question.** Three IHME columns had generic names (`ihme_prevalence`,
+`ihme_deaths`, `ihme_incidence`) and one (`ihme_proportionofpopulation
+achievingyearseducation`) was 0.25 +/- 0.001 everywhere.
+**Finding.** Script 08 keyed the tabular IHME rows by measure name only,
+with a normaliser that dropped digits. "Prevalence / Rate" is a measure name
+shared by the malaria, under-5 diarrhoea, lymphatic filariasis and
+onchocerciasis products, so the tabular `ihme_prevalence` was a
+population-weighted mean of four diseases (it survived only because the
+diarrhoea raster happened to be swapped in under the same name); the three
+education categories (0, 6-11, 12+ years) collapsed into one key and were
+averaged.
+**Fix.** The key keeps digits and carries the product where the measure is
+generic; readable names (`ihme_malaria_pfpr`, `ihme_malaria_mortality_rate`,
+`ihme_u5_diarrhoea_prev`, `ihme_lf_prevalence`, `ihme_oncho_prevalence`,
+`ihme_edu_0y_share` / `_6_11y_share` / `_12plus_share`); a raster surface
+without a tabular twin is added rather than lost; script 08 removes the
+columns of its own earlier run. Alignment rules and domain overrides
+updated for the new names.
+
+## RV-01 · Critical review before the re-run (scripts/covariates/review_predictor_set.R; 2026-09-15)
+
+**Design.** A modelling-side review to sit beside the audit: what reaches
+the design matrix in each arm (per-country prep, coverage >= 0.7 and sd > 0,
+then the four-country intersection for transport), value sanity,
+redundancy (pooled rank |r| >= 0.98), cross-source agreement for the same
+construct, and broadcast structure.
+**Findings and actions.** (1) 19 near-duplicate pairs: eight STATcompiler
+-style DHS columns duplicating the custom recode indicators (r 0.987-1.000),
+`dhs_w_primary_edu` (the complement of no_education), `dhs_w_iron_supplement`
+= `dhs_w_iron_pregnancy`, `dhs_c_vita_rich_food` = `dhs_c_fg_vitA_fruitveg`,
+the ESPEN `_base` columns (the earliest year is the nearest year), malaria
+incidence = parasite rate in both MAP and IHME, `wpop_log_density` (2020) vs
+the survey-year density, `wsf` vs `lcover_urban_frac_t0`, HEAT Hib vs DPT,
+RTFP market distance vs the WFP one - 19 columns retired as `redundant` /
+`superseded` in exclusions.csv; no pair remains. (2) The MAP 2025-08 PfPR
+surface for The Gambia runs west-high (Banjul 0.06, Upper River 0.03) while
+IHME's runs east-high, which is the country's known epidemiology; the MAP
+raster itself carries the gradient (checked band by band), so this is a
+product disagreement, not a join defect - both are kept, flagged. (3) The
+share-like check needs a curated list (means, z-scores and percentages
+trip a name-based rule); left as a reported count. (4) Broadcast structure:
+MICS (Ghana regions, Malawi districts), GFDx, HEAT and the IHME tabular
+columns carry parent-level values in at least one country, as documented.
+**Result.** Shared set **522 predictors**; the transport headline arm
+(open + survey_public) puts 266 columns from 20 domains into the common
+matrix (open alone 220 / 18; with DHS 404 / 24). Tests 212 / 0 failures.
+
+## JK-02 · The population table was missing one TA of each Malawi same-name pair (scripts/covariates/fix_admin2_population_pairs.R; 2026-09-15)
+
+**Finding.** `dashboard/data/admin2_population.rds` had 550 rows for 554
+spine units. The dashboard builder deduplicated the legacy external cache
+by NAME (`!duplicated(ext$Admin2)`), so one TA of each of Malawi's four
+same-name pairs - Chikwawa/TA Lundu, Nsanje/TA Ngabu, Salima/TA Pemba,
+Zomba/TA Malemia, two of them surveyed - had no population, and every
+burden-weighted arm (scripts 12, 16, 21, 22, 27, 28, 32, 35 filter
+`is.finite(pop) & pop > 0`) dropped those two districts silently. Found by
+the spine check that `admin2_population_v2()` made possible.
+**Fix.** The four rows are filled from the survey-year WorldPop density the
+shared set carries (`wpop_log_density_survey_year`) times the polygon area,
+calibrated to the table's own scale (the existing rows sit a constant 1.16x
+above density x area; rank agreement 1.00 over the 239 rows), with the
+country's 2023 projection factor and child / women shares from its existing
+rows; backup `.pre_pairfix`. The dashboard builder now deduplicates on the
+(Admin1, Admin2) pair, and `test-admin2-keys.R` asserts every spine unit
+has a population row.
+
+## RR-11 launcher (scripts/protocol_v2/rerun_benchmarks.sh; 2026-09-15)
+
+Guards (522 rows, join lint), a copy of the previous results to
+`results/tables/protocol_v2_pre_RR11_<date>/`, two shard sets of 02 (every
+tier; `_nodhs` = open + survey_public), four 02b arms (headline = default
+shards with transport on open + survey_public; `_withdhs`; `_open`;
+`_nodhs` = no DHS anywhere), and with `RUN_DOWNSTREAM=1` the sixteen
+headline-figure scripts in sequence. 02 takes `V2_SHARD_SUFFIX`, 02b takes
+`V2_SHARD_SUFFIX` and `V2_OUT_SUFFIX`; every result row carries
+`predictor_tiers`. The outcome targets (`targets_v2.csv`, 2026-09-08) were
+checked against the rebuilt Gambia dataset: respondents' Admin keys and all
+599 `gw_` columns are identical, so 01 does not need to run.

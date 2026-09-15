@@ -178,6 +178,10 @@ for (cn in COUNTRIES) {
   cmap <- data.frame(clust = pts$clust, Admin1 = a1[ix], Admin2 = a2[ix],
                      stringsAsFactors = FALSE)
   cmap <- cmap[!is.na(cmap$Admin2), , drop = FALSE]
+  # LK-02 (2026-09-15): a micronutrient survey's own clusters never feed its
+  # DHS-derived predictors (Malawi's MNS re-sampled 105 MDHS clusters; the
+  # other three surveys were independent samples, so this is a no-op for them).
+  cmap <- drop_mns_overlap(cmap, cn, "clust")
 
   # GUARD: the GPS file must belong to the same round as the recodes. Cluster
   # numbering repeats across rounds, so a mismatch produces a plausible join

@@ -44,7 +44,7 @@ set.seed(20260903L)
 
 TG  <- read.csv(file.path(OUTDIR, "targets_v2.csv"), stringsAsFactors = FALSE)
 POP <- readRDS("dashboard/data/admin2_population.rds")
-POP$country <- gsub(" ", "", POP$country)  # FIX 2026-09-04: the file spells "Sierra Leone" with a space; without this the join silently dropped the country
+POP$country <- gsub(" ", "", POP$country)  # (label also normalised inside admin2_population_v2(), JK-01)
 M   <- read.csv(file.path(OUTDIR, "nce_targeting_metrics.csv"))
 B   <- read.csv(file.path(OUTDIR, "benchmarks_v2_cells.csv"))
 pop_for <- function(on) if (grepl("^child", on)) "pop_child" else "pop_women"
@@ -64,8 +64,7 @@ cells <- unique(M[M$estimand == "infill" & M$arm == "domain_index", c("country",
 for (i in seq_len(nrow(cells))) {
   cn <- cells$country[i]; on <- cells$outcome[i]
   t <- TG[TG$country == cn & TG$outcome == on, ]
-  pp <- POP[POP$country == cn, c("Admin2", pop_for(on))]; names(pp)[2] <- "pop"
-  m <- merge(t, pp, by = "Admin2")
+  m <- join_admin2_v2(t, admin2_population_v2(POP, cn, pop_for(on)), how = "inner", what = paste("pop", cn, on), quiet = TRUE)   # JK-01 pair key, no fan
   m <- m[is.finite(m$y_prev) & is.finite(m$n_eff) & m$n_eff > 0 & is.finite(m$pop) & m$pop > 0, ]
   n <- nrow(m); if (n < 12) next
   reg <- as.character(m$Admin1); y <- m$y_prev; w <- m$n_eff

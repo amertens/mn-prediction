@@ -87,3 +87,6 @@ results/harmonization/*.log
 sandbox_parsimony/
 
 __pycache__/
+
+# run logs (rebuild / rerun launchers write here)
+logs/

@@ -15,14 +15,24 @@
 #   Food security   HFID covers all four, and its Admin-2
 #                   counts match ours exactly (260/243/37/14) -> BUILD
 #   WFP prices      4 of 4 files, commodity overlap TBD     -> checked, reported
-#   MICS            2 of 4 (Gambia, Ghana only)             -> BLOCKED, no data
-#   LSMS            1 of 4 (Ghana only)                     -> BLOCKED, no data
+#   MICS            2 of 4 on disk (Gambia 2018, Ghana 2017) -> NOT INGESTED for the other two
+#   LSMS / HCES     1 of 4 on disk (Ghana GLSS7)             -> NOT INGESTED for the other three
 #   FluNet          country-level weekly surveillance       -> USELESS at Admin-2
 #
-# The last three are not harmonization problems. MICS and LSMS were never
-# collected in the other countries, and FluNet has no within-country variation
-# at all, so as an Admin-2 predictor it is a constant per country and cannot
-# contribute to a district ranking.
+# Correction (2026-09-15). An earlier version of this note said MICS and LSMS
+# "were never collected in the other countries". That is wrong: the surveys
+# exist and are simply not on disk. Sierra Leone has MICS 2010 and 2017 and
+# Malawi MICS 2013-14 (and 2019-20); Malawi's IHS4 2016-17 is an LSMS-ISA
+# survey, Sierra Leone's SLIHS 2018 (and 2011) and The Gambia's IHS 2015/16 are
+# the national household consumption and expenditure surveys, all held by the
+# World Bank Microdata Library or the national statistics offices behind a
+# registration. Harmonising MICS and HCES across the four countries is an
+# ingestion task (download, then a curated indicator set), not a data gap;
+# see docs/findings/SANDBOX_LOG_2026-09.md (AB-01) for the task list. FluNet
+# is the only one of the three that genuinely cannot help at Admin-2: it has no
+# within-country variation, so it is carried as a national constant
+# (scripts/protocol_v2/59_build_addback_sources.R) and cannot contribute to a
+# district ranking.
 #
 # THE FAILURE MODE THIS GUARDS AGAINST
 # ------------------------------------

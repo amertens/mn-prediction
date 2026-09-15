@@ -1,0 +1,166 @@
+"code","item","group","dgl","vita"
+101,"Long-grained rice (imported)","cereals",FALSE,FALSE
+102,"Paddy rice long grain (local)","cereals",FALSE,FALSE
+103,"Medium-grained rice (imported)","cereals",FALSE,FALSE
+104,"Small grained rice (imported)","cereals",FALSE,FALSE
+105,"Basmati Rice (imported)","cereals",FALSE,FALSE
+106,"Uncle Ben's Rice (imported)","cereals",FALSE,FALSE
+107,"Maize","cereals",FALSE,FALSE
+108,"Millet","cereals",FALSE,FALSE
+109,"Sorghum","cereals",FALSE,FALSE
+110,"Findi","cereals",FALSE,FALSE
+111,"Maize flour","cereals",FALSE,FALSE
+112,"Millet flour","cereals",FALSE,FALSE
+113,"Sorghum flour","cereals",FALSE,FALSE
+114,"Wheat flour","cereals",FALSE,FALSE
+115,"Gari (cassava flour)","roots",FALSE,FALSE
+116,"Other grains and flour","cereals",FALSE,FALSE
+117,"Bread","cereals",FALSE,FALSE
+118,"Biscuit","cereals",FALSE,FALSE
+119,"Cake (pan, etc.)","cereals",FALSE,FALSE
+120,"Pasta and pasta products","cereals",FALSE,FALSE
+121,"Meat pie/fish pie/sausage roll","cereals",FALSE,FALSE
+122,"Other cereal and cereal products","cereals",FALSE,FALSE
+123,"Chicken (local)","meat",FALSE,FALSE
+124,"Chicken (imported)","meat",FALSE,FALSE
+125,"Duck","meat",FALSE,FALSE
+126,"Eggs","eggs",FALSE,FALSE
+127,"Other poultry & products","meat",FALSE,FALSE
+128,"Beef","meat",FALSE,FALSE
+129,"Sheep (mutton)","meat",FALSE,FALSE
+130,"Goat meat","meat",FALSE,FALSE
+131,"Pork","meat",FALSE,FALSE
+132,"Canned meat","meat",FALSE,FALSE
+133,"Other meat (excl. poultry)","meat",FALSE,FALSE
+134,"Fresh Bonga","fish",FALSE,FALSE
+135,"Smoked Bonga","fish",FALSE,FALSE
+136,"Cat Fish","fish",FALSE,FALSE
+137,"Fresh Grouper/Ladyfish","fish",FALSE,FALSE
+138,"Fresh Barracuda","fish",FALSE,FALSE
+139,"Dried Couta/Tenny","fish",FALSE,FALSE
+140,"Oyster","fish",FALSE,FALSE
+141,"Dried fish","fish",FALSE,FALSE
+142,"Smoked fish","fish",FALSE,FALSE
+143,"Frozen fish","fish",FALSE,FALSE
+144,"Shrimps","fish",FALSE,FALSE
+145,"Snail fish","fish",FALSE,FALSE
+146,"Saul fish","fish",FALSE,FALSE
+147,"Tilapia","fish",FALSE,FALSE
+148,"Crab","fish",FALSE,FALSE
+149,"Canned fish/seafood","fish",FALSE,FALSE
+150,"Fried fish","fish",FALSE,FALSE
+151,"Other fish/seafood","fish",FALSE,FALSE
+152,"Fresh Milk","dairy",FALSE,FALSE
+153,"Sour Milk","dairy",FALSE,FALSE
+154,"Evaporated Milk","dairy",FALSE,FALSE
+155,"Powdered Milk","dairy",FALSE,FALSE
+156,"Cream","dairy",FALSE,FALSE
+157,"Cheese","dairy",FALSE,FALSE
+158,"Yoghurt","dairy",FALSE,FALSE
+159,"Vitalait","dairy",FALSE,FALSE
+160,"Baby milk powder","dairy",FALSE,FALSE
+161,"Other milk products","dairy",FALSE,FALSE
+162,"Groundnut oil","oils",FALSE,FALSE
+163,"Palm oil","oils",FALSE,FALSE
+164,"Margarine","oils",FALSE,FALSE
+165,"Butter","oils",FALSE,FALSE
+166,"Vegetable oil","oils",FALSE,FALSE
+167,"Mayonnaise","oils",FALSE,FALSE
+168,"Palm Kernels oil","oils",FALSE,FALSE
+169,"Peanut butter","pulses_nuts",FALSE,FALSE
+170,"Other oils and fats","oils",FALSE,FALSE
+171,"Groundnuts-Unshelled","pulses_nuts",FALSE,FALSE
+172,"Groundnuts-Shelled","pulses_nuts",FALSE,FALSE
+173,"Kola Nuts","misc",FALSE,FALSE
+174,"Coconuts","fruit",FALSE,FALSE
+175,"Banana","fruit",FALSE,FALSE
+176,"Oranges","fruit",FALSE,FALSE
+177,"Mangoes","fruit",FALSE,TRUE
+178,"Lime","fruit",FALSE,FALSE
+179,"Apple","fruit",FALSE,FALSE
+180,"Baobab fruit","fruit",FALSE,FALSE
+181,"Palm nut (fruit kernels)","oils",FALSE,FALSE
+182,"Daharr","fruit",FALSE,FALSE
+183,"Cashew","fruit",FALSE,FALSE
+184,"Paw - paw","fruit",FALSE,TRUE
+185,"Water melon","fruit",FALSE,FALSE
+186,"Ananas","fruit",FALSE,FALSE
+187,"Grapes","fruit",FALSE,FALSE
+188,"Cabaa","fruit",FALSE,FALSE
+189,"Bitter Cola nut (Imported)","misc",FALSE,FALSE
+190,"Roasted groundnut","pulses_nuts",FALSE,FALSE
+191,"Raw ground nut Powder","pulses_nuts",FALSE,FALSE
+192,"Groundnut Cake","pulses_nuts",FALSE,FALSE
+193,"Dates","fruit",FALSE,FALSE
+194,"Avocado","fruit",FALSE,FALSE
+195,"Plum (Saloum Plum)","fruit",FALSE,FALSE
+196,"Other fruits and nuts","fruit",FALSE,FALSE
+197,"Potatoes (Irish)","roots",FALSE,FALSE
+198,"Sweet potatoes","roots",FALSE,FALSE
+199,"Cassava","roots",FALSE,FALSE
+200,"Plantain","roots",FALSE,FALSE
+201,"Other roots and tubers","roots",FALSE,FALSE
+202,"Dry Beans","pulses_nuts",FALSE,FALSE
+203,"Other beans","pulses_nuts",FALSE,FALSE
+204,"Small Pepper-fresh","veg",FALSE,FALSE
+205,"Tomatoes-fresh","veg",FALSE,FALSE
+206,"Bitter Tomato","veg",FALSE,FALSE
+207,"Garden eggs","veg",FALSE,FALSE
+208,"Okra","veg",FALSE,FALSE
+209,"Onion","veg",FALSE,FALSE
+210,"Pumpkin","veg",FALSE,TRUE
+211,"Big Red Pepper","veg",FALSE,FALSE
+212,"Kren-Kren","veg",TRUE,TRUE
+213,"Bisap","veg",TRUE,TRUE
+214,"Cabbage","veg",FALSE,FALSE
+215,"Lettuce (salad)","veg",FALSE,FALSE
+216,"Tomato puree (paste)","misc",FALSE,FALSE
+217,"Carrot","veg",FALSE,TRUE
+218,"Cucumber","veg",FALSE,FALSE
+219,"Onion Leaves","veg",TRUE,TRUE
+220,"Green peas","pulses_nuts",FALSE,FALSE
+221,"Okra Powder","veg",FALSE,FALSE
+222,"Cassava Leaves","veg",TRUE,TRUE
+223,"Potato Leaves","veg",TRUE,TRUE
+224,"Green Leaves","veg",TRUE,TRUE
+225,"Other vegetables and pulses","veg",FALSE,FALSE
+226,"Sugar","sugar",FALSE,FALSE
+227,"Black mint","misc",FALSE,FALSE
+228,"Chewing gum","sugar",FALSE,FALSE
+229,"Honey","sugar",FALSE,FALSE
+230,"Jam","sugar",FALSE,FALSE
+231,"Chocolate","sugar",FALSE,FALSE
+232,"Ice cream","sugar",FALSE,FALSE
+233,"Mint stick","sugar",FALSE,FALSE
+234,"Other sweets/confectionary","sugar",FALSE,FALSE
+235,"Salt","misc",FALSE,FALSE
+236,"Garlic","misc",FALSE,FALSE
+237,"Maggi Cube","misc",FALSE,FALSE
+238,"Small dry pepper","misc",FALSE,FALSE
+239,"Locust beans (Neteetu)","misc",FALSE,FALSE
+240,"Chilli powder (black pepper)","misc",FALSE,FALSE
+241,"Vinegar","misc",FALSE,FALSE
+242,"Powder Pepper","misc",FALSE,FALSE
+243,"Curry Powder","misc",FALSE,FALSE
+244,"Mustard","misc",FALSE,FALSE
+245,"Other food n.e.c.","misc",FALSE,FALSE
+246,"Tea bags","misc",FALSE,FALSE
+247,"Other Tea (local)","misc",FALSE,FALSE
+248,"Coffee-Nescafe (50 gr)","misc",FALSE,FALSE
+249,"Powdered Tea (Ovaltine, 200 gr)","misc",FALSE,FALSE
+250,"Juices (Wonjo)","misc",FALSE,FALSE
+251,"Chinese Green Tea(20)(Ataya)","misc",FALSE,FALSE
+252,"Soft drinks","misc",FALSE,FALSE
+253,"Mineral water","misc",FALSE,FALSE
+254,"Cold water in plastic bag","misc",FALSE,FALSE
+255,"Mborr Mborr (Tea)","misc",FALSE,FALSE
+256,"Jambakatang","misc",FALSE,FALSE
+257,"Other non-alcoholic","misc",FALSE,FALSE
+258,"Wines (red, white, etc.)","misc",FALSE,FALSE
+259,"Spirits","misc",FALSE,FALSE
+260,"Stout","misc",FALSE,FALSE
+261,"Palm wine","misc",FALSE,FALSE
+262,"Beer (lager and porter, etc.)","misc",FALSE,FALSE
+263,"Beer (imported)","misc",FALSE,FALSE
+264,"Local brew (illicit brews)","misc",FALSE,FALSE
+265,"Other alcoholic beverages","misc",FALSE,FALSE

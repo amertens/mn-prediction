@@ -1,0 +1,142 @@
+"code","item","block","group","dgl","vita"
+101,"Maize ufa mgaiwa (normal flour)","cereals","cereals",FALSE,FALSE
+102,"Maize ufa refined (fine flour)","cereals","cereals",FALSE,FALSE
+103,"Maize ufa madeya (bran flour)","cereals","cereals",FALSE,FALSE
+104,"Maize grain (not as ufa)","cereals","cereals",FALSE,FALSE
+105,"Green maize","cereals","cereals",FALSE,FALSE
+106,"Rice","cereals","cereals",FALSE,FALSE
+107,"Finger millet (mawere)","cereals","cereals",FALSE,FALSE
+108,"Sorghum (mapira)","cereals","cereals",FALSE,FALSE
+109,"Pearl millet (mchewere)","cereals","cereals",FALSE,FALSE
+110,"Wheat flour","cereals","cereals",FALSE,FALSE
+111,"Bread","cereals","cereals",FALSE,FALSE
+112,"Buns, scones","cereals","cereals",FALSE,FALSE
+113,"Biscuits","cereals","cereals",FALSE,FALSE
+114,"Spaghetti, macaroni, pasta","cereals","cereals",FALSE,FALSE
+115,"Breakfast cereal","cereals","cereals",FALSE,FALSE
+116,"Infant feeding cereals","cereals","cereals",FALSE,FALSE
+117,"Other (specify)","cereals","cereals",FALSE,FALSE
+201,"Cassava tubers","roots","roots",FALSE,FALSE
+202,"Cassava flour","roots","roots",FALSE,FALSE
+203,"White sweet potato","roots","roots",FALSE,FALSE
+204,"Orange sweet potato","roots","roots",FALSE,TRUE
+205,"Irish potato","roots","roots",FALSE,FALSE
+206,"Potato crisps","roots","roots",FALSE,FALSE
+207,"Plantain, cooking banana","roots","roots",FALSE,FALSE
+208,"Cocoyam (masimbi)","roots","roots",FALSE,FALSE
+209,"Other (specify)","roots","roots",FALSE,FALSE
+301,"Bean, white","pulses_nuts","pulses_nuts",FALSE,FALSE
+302,"Bean, brown","pulses_nuts","pulses_nuts",FALSE,FALSE
+303,"Pigeonpea (nandolo)","pulses_nuts","pulses_nuts",FALSE,FALSE
+305,"Groundnut flour","pulses_nuts","pulses_nuts",FALSE,FALSE
+306,"Soyabean flour","pulses_nuts","pulses_nuts",FALSE,FALSE
+307,"Ground bean (nzama)","pulses_nuts","pulses_nuts",FALSE,FALSE
+308,"Cowpea (khobwe)","pulses_nuts","pulses_nuts",FALSE,FALSE
+309,"Macademia nuts","pulses_nuts","pulses_nuts",FALSE,FALSE
+310,"Other (specify)","pulses_nuts","pulses_nuts",FALSE,FALSE
+311,"Groundnut (shelled)","pulses_nuts","pulses_nuts",FALSE,FALSE
+312,"Groundnut (unshelled)","pulses_nuts","pulses_nuts",FALSE,FALSE
+313,"Groundnut fresh (unshelled)","pulses_nuts","pulses_nuts",FALSE,FALSE
+401,"Onion","veg","veg",FALSE,FALSE
+402,"Cabbage","veg","veg",FALSE,FALSE
+403,"Tanaposi/Rape","veg","veg",TRUE,TRUE
+404,"Nkhwani","veg","veg",TRUE,TRUE
+405,"Chinese cabbage","veg","veg",TRUE,TRUE
+406,"Other cultivated green leafy vegetables","veg","veg",TRUE,TRUE
+407,"Gathered wild green leaves","veg","veg",TRUE,TRUE
+408,"Tomato","veg","veg",FALSE,FALSE
+409,"Cucumber","veg","veg",FALSE,FALSE
+410,"Pumpkin","veg","veg",FALSE,TRUE
+411,"Okra / Therere","veg","veg",FALSE,FALSE
+412,"Tinned vegetables (Specify)","veg","veg",FALSE,FALSE
+413,"Mushroom","veg","veg",FALSE,FALSE
+414,"Other vegetables (Specify)","veg","veg",FALSE,FALSE
+501,"Eggs","meat","eggs",FALSE,FALSE
+504,"Beef","meat","meat",FALSE,FALSE
+505,"Goat","meat","meat",FALSE,FALSE
+506,"Pork","meat","meat",FALSE,FALSE
+507,"Mutton","meat","meat",FALSE,FALSE
+508,"Chicken","meat","meat",FALSE,FALSE
+509,"Other poultry - guinea fowl, doves, etc.","meat","meat",FALSE,FALSE
+510,"Small animal ï¿½ rabbit, mice, etc.","meat","meat",FALSE,FALSE
+511,"Termites, other insects (eg Ngumbi, caterpillar)","meat","meat",FALSE,FALSE
+512,"Tinned meat or fish","meat","fish",FALSE,FALSE
+514,"Fish Soup/Sauce","meat","fish",FALSE,FALSE
+515,"Other (specify)","meat","meat",FALSE,FALSE
+522,"Chicken/Pieces","meat","meat",FALSE,FALSE
+601,"Mango","fruit","fruit",FALSE,TRUE
+602,"Banana","fruit","fruit",FALSE,FALSE
+603,"Citrus ï¿½ naartje, orange, etc.","fruit","fruit",FALSE,FALSE
+604,"Pineapple","fruit","fruit",FALSE,FALSE
+605,"Papaya","fruit","fruit",FALSE,TRUE
+606,"Guava","fruit","fruit",FALSE,FALSE
+607,"Avocado","fruit","fruit",FALSE,FALSE
+608,"Wild fruit (masau, malambe, etc.)","fruit","fruit",FALSE,FALSE
+609,"Apple","fruit","fruit",FALSE,FALSE
+610,"Other fruits (specify)","fruit","fruit",FALSE,FALSE
+701,"Fresh milk","dairy","dairy",FALSE,FALSE
+702,"Powdered milk","dairy","dairy",FALSE,FALSE
+703,"Margarine - Blue band","dairy","oils",FALSE,FALSE
+704,"Butter","dairy","oils",FALSE,FALSE
+705,"Chambiko - soured milk","dairy","dairy",FALSE,FALSE
+706,"Yoghurt","dairy","dairy",FALSE,FALSE
+707,"Cheese","dairy","dairy",FALSE,FALSE
+708,"Infant feeding formula (for bottle)","dairy","dairy",FALSE,FALSE
+709,"Other (specify)","dairy","dairy",FALSE,FALSE
+801,"Sugar","misc","sugar",FALSE,FALSE
+802,"Sugar Cane","misc","sugar",FALSE,FALSE
+803,"Cooking oil","misc","oils",FALSE,FALSE
+804,"Other (specify)","misc","misc",FALSE,FALSE
+810,"Salt","misc","misc",FALSE,FALSE
+811,"Spices","misc","misc",FALSE,FALSE
+812,"Yeast, baking powder, bicarbonate of soda","misc","misc",FALSE,FALSE
+813,"Tomato sauce (bottle)","misc","misc",FALSE,FALSE
+814,"Hot sauce (Nali, etc.)","misc","misc",FALSE,FALSE
+815,"Jam, jelly","misc","sugar",FALSE,FALSE
+816,"Sweets, candy, chocolates","misc","sugar",FALSE,FALSE
+817,"Honey","misc","sugar",FALSE,FALSE
+818,"Other (specify)","misc","misc",FALSE,FALSE
+820,"Maize - boiled or roasted (vendor)","misc","cereals",FALSE,FALSE
+821,"Chips (vendor)","misc","roots",FALSE,FALSE
+822,"Cassava - boiled (vendor)","misc","roots",FALSE,FALSE
+823,"Eggs - boiled (vendor)","misc","eggs",FALSE,FALSE
+824,"Chicken (vendor)","misc","meat",FALSE,FALSE
+825,"Meat (vendor)","misc","meat",FALSE,FALSE
+826,"Fish (vendor)","misc","fish",FALSE,FALSE
+827,"Mandazi, doughnut (vendor)","misc","cereals",FALSE,FALSE
+828,"Samosa (vendor)","misc","cereals",FALSE,FALSE
+829,"Meal eaten at restaurant","misc","cereals",FALSE,FALSE
+830,"Other (specify)","misc","misc",FALSE,FALSE
+831,"Boiled sweet potatoes","misc","roots",FALSE,FALSE
+832,"Rosted sweet potatoes","misc","roots",FALSE,FALSE
+833,"Boiled groundnuts","misc","pulses_nuts",FALSE,FALSE
+834,"Rosted groundnuts","misc","pulses_nuts",FALSE,FALSE
+835,"Popcorn","misc","cereals",FALSE,FALSE
+836,"Zikondamoyo/Nkate","misc","cereals",FALSE,FALSE
+837,"Other(specify)","misc","misc",FALSE,FALSE
+838,"Cassava - roasted (vendor)","misc","roots",FALSE,FALSE
+901,"Tea","misc","misc",FALSE,FALSE
+902,"Coffee","misc","misc",FALSE,FALSE
+903,"Cocoa, millo","misc","misc",FALSE,FALSE
+904,"Squash (Sobo drink concentrate)","misc","misc",FALSE,FALSE
+905,"Fruit juice","misc","fruit",FALSE,FALSE
+906,"Freezes (flavoured ice)","misc","misc",FALSE,FALSE
+907,"Soft drinks (Coca-cola, Fanta, Sprite, etc.)","misc","misc",FALSE,FALSE
+908,"Chibuku (commercial traditional-style beer)","misc","misc",FALSE,FALSE
+909,"Bottled water","misc","misc",FALSE,FALSE
+910,"Maheu","misc","misc",FALSE,FALSE
+911,"Bottled / canned beer (Carlsberg, etc.)","misc","misc",FALSE,FALSE
+912,"Thobwa","misc","misc",FALSE,FALSE
+913,"Traditional beer (masese)","misc","misc",FALSE,FALSE
+914,"Wine or commercial liquor","misc","misc",FALSE,FALSE
+915,"Locally brewed liquor (kachasu)","misc","misc",FALSE,FALSE
+916,"Other (specify)","misc","misc",FALSE,FALSE
+5021,"Sun Dried fish (Large Variety)","fish","fish",FALSE,FALSE
+5022,"Sun Dried fish (Medium Variety)","fish","fish",FALSE,FALSE
+5023,"Sun Dried fish (Small Variety)","fish","fish",FALSE,FALSE
+5031,"Fresh fish (Large Variety)","fish","fish",FALSE,FALSE
+5032,"Fresh fish (Medium Variety)","fish","fish",FALSE,FALSE
+5033,"Fresh fish (Small Variety)","fish","fish",FALSE,FALSE
+5121,"Smoked fish (Large Variety)","fish","fish",FALSE,FALSE
+5122,"Smoked fish (Medium Variety)","fish","fish",FALSE,FALSE
+5123,"Smoked fish (Small Variety)","fish","fish",FALSE,FALSE

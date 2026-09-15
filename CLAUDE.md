@@ -103,7 +103,7 @@ main pipeline, or both.
 - SuperLearner fitting: `mlr3superlearner` (`R/mlr3_fitting.R`) with
   cluster-blocked CV (PSU ids passed via `group=` so a cluster's observations
   never split across folds); discrete SuperLearner (CV picks the single best
-  learner). The legacy `sl3`-based path (`R/sl_fitting.R`) is reference-only
+  learner). The legacy `sl3`-based path is archived (`archive/R/sensitivity/sl_fitting.R`)
   and not part of the active DAG.
 - Out-of-fold predictions: CV performance and conformal-interval residuals use
   genuine out-of-fold predictions (`res$yhat_full`), recomputed via
@@ -113,7 +113,7 @@ main pipeline, or both.
 - Uncertainty: conformal prediction intervals (`R/conformal.R`) — split
   (constant-width) and locally-adaptive variants — built from out-of-fold
   residuals; no refitting needed. The older cluster-bootstrap path
-  (`R/bootstrap.R`) is reference-only.
+  is archived (`archive/R/bootstrap.R`).
 - Area-level model: elastic net (`glmnet`, alpha = 0.5) on survey-weighted
   Admin-2 prevalence ~ GEE raster zonal means — this is what lets the
   pipeline predict into Admin-2 areas with no survey data.
@@ -140,12 +140,14 @@ layers are no longer shown. Rebuild the bundles, then run
 `dashboard/data-raw/smoke_test.R` and `test_server.R`, before deploying.
 
 **Legacy/reference code**, not part of the active pipeline unless noted
-above: `src/` (country-specific data cleaning/merging scripts — some are
-still the provenance for `data/IPD/*`, so check before deleting), `archive/`
-(retired files, moved not deleted — see `archive/ARCHIVE_MANIFEST.md` to
-restore anything), `national_prediction/` (a separate sub-pipeline with its
-own `_targets.R`), `mn_proxy_tutorial/` (self-contained teaching artifact),
-`simplified subset/` (a scoped-down build for a specific use case).
+above: `src/` (the country cleaning/merging scripts `src/<Country>/` are the
+provenance for `data/IPD/*` — keep; `src/analysis/`, `src/combined results/`
+and the sl3-era scratch files were moved to `archive/src/` on 2026-09-15),
+`archive/` (retired files, moved not deleted — see `archive/ARCHIVE_MANIFEST.md`
+to restore anything; the 2026-09-15 entry lists `national_prediction/`,
+`shap_kernel/`, `sandbox_lsff/`, `R/bootstrap.R` and `R/sensitivity/sl_fitting.R`),
+`mn_proxy_tutorial/` (self-contained teaching artifact), `simplified subset/`
+(a scoped-down build for a specific use case).
 
 ## Working conventions
 
@@ -160,3 +162,12 @@ own `_targets.R`), `mn_proxy_tutorial/` (self-contained teaching artifact),
 - Files with `_tmp_`, `_run_` prefixes or living in `archive/`/`sandbox*` are
   throwaway/retired — don't build on them without checking
   `archive/ARCHIVE_MANIFEST.md` first.
+- Outcome populations are defined in ONE place, `outcome_population_mask()`
+  in `R/data_prep.R` (child/women flag, non-pregnant women, children 6–59
+  months, per the survey reports); any new code path that subsets a merged
+  dataset by population must call it rather than re-filter on the flag.
+  Binary iron/zinc outcomes are the surveys' own deficiency flags (never the
+  IDA columns). `docs/survey_report_reconciliation.md` (2026-09-15) records
+  the report-vs-pipeline reconciliation, the Sierra Leone child file being the
+  anaemic subset only (n = 532 of 654 assayed), and why the vitamin A
+  retinol-equivalent rule should be treated as a sensitivity analysis.

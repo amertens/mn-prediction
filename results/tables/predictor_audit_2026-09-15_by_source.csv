@@ -1,0 +1,29 @@
+"source","n_columns","n_domains","tier","n_all_countries","n_subnational","n_national_constant","n_low_completeness","n_duplicates","n_modelled_surface","n_year_offset_3plus","max_year_offset","finite_Gambia","finite_Ghana","finite_Malawi","finite_SierraLeone"
+"DHS",150,16,"survey_dhs",138,150,0,10,0,0,140,3,0.98,0.91,0.96,0.99
+"AlphaEarth (GEE)",64,1,"open",64,64,0,0,0,0,64,4,1,1,1,1
+"GEE",60,4,"open",60,60,0,0,0,0,3,6,1,1,1,1
+"IHME (modelled surfaces)",34,7,"open",21,34,0,7,0,34,0,1,0.84,0.76,0.98,1
+"MICS microdata (UNICEF MICS6 2017/2018, MICS5 2013-14)",30,7,"survey_public",27,30,0,3,0,0,29,4,0.97,0.97,0.93,0.97
+"GFDx (Global Fortification Data Exchange) programme fields",23,1,"open",21,0,23,1,0,0,0,0,1,1,0.96,0.91
+"WHO Health Inequality Data Repository (HEAT) - UNICEF MICS by subnational region",19,1,"survey_public",17,19,0,0,0,0,17,3,1,1,1,0.89
+"SoilGrids / iSDA",17,1,"open",17,17,0,0,0,0,0,NA,1,0.99,1,1
+"HCES microdata (IHS4, IHS 2015/16, SLIHS 2018, GLSS7)",15,1,"survey_public",2,15,0,12,0,0,15,5,0.93,0.2,1,0.2
+"MapSPAM",12,1,"open",12,12,0,0,0,0,12,8,0.97,0.94,0.87,1
+"Koppen-Geiger 1991-2020 / IFPRI-HarvestChoice AEZ16",9,1,"open",9,9,0,0,0,0,0,NA,1,1,1,1
+"WFP / HDX market prices",9,1,"open",5,8,1,4,0,0,0,0,1,0.89,0.56,1
+"FAOSTAT (national, broadcast)",8,1,"open",8,0,8,0,0,0,0,0,1,1,1,1
+"Gridded Livestock of the World 4 (2020, 5 arc-min, dasymetric; FAO catalog)",8,1,"open",8,8,0,0,0,0,8,3,0.99,1,1,1
+"Malaria Atlas Project (latest release, layer at each survey year)",8,1,"open",8,8,0,0,0,0,0,0,1,1,1,1
+"JRC Global Surface Water 1.4; USDOS LSIB 2017 (Earth Engine)",6,1,"open",6,6,0,0,0,0,0,NA,1,1,1,1
+"Tang et al. 2026 Nature Food (WFP / MIMI), Supplementary Table S1",6,1,"open",0,6,0,6,0,6,0,1,0,1,0,0
+"WHO ESPEN implementation-unit database 2014-2025 (portal export, no key)",6,1,"open",6,6,0,0,0,0,4,3,0.96,0.93,1,1
+"World Bank Real-Time Food Prices (RTFP) market panel, vintage 2026-02-10",6,1,"open",0,6,0,6,0,0,0,0,1,0,1,0
+"WorldPop age-sex / JRC GHS-SMOD (Earth Engine)",6,2,"open",6,6,0,0,0,0,5,7,1,1,1,1
+"WHO Global Anaemia Estimates (GHO, WHO/UNICEF joint estimates)",5,1,"open",5,0,5,0,0,5,0,0,1,1,1,1
+"GFDx",4,3,"open",0,0,4,0,0,3,3,6,0,1,1,1
+"HFID (FEWS NET / IPC / WFP mVAM)",4,1,"open",0,4,0,4,0,0,0,0,0.75,0,0.99,0.5
+"Meta/Data for Good RWI; WorldPop; CIESIN GPW v4.11 (Earth Engine)",4,2,"open",4,4,0,0,0,0,3,6,0.99,1,0.99,1
+"Malaria Atlas",3,1,"open",3,3,0,0,0,0,3,6,1,1,1,1
+"WHO FluNet (VIW_FNT export)",3,1,"open",0,0,3,3,0,0,0,0,0,1,0,1
+"Global Data Lab Subnational HDI (SHDI)",2,1,"open",2,2,0,0,0,0,0,0,1,1,1,1
+"UNICEF VAS (World Bank WDI mirror SN.ITK.VITA.ZS)",1,1,"open",1,0,1,0,0,0,0,0,1,1,1,1

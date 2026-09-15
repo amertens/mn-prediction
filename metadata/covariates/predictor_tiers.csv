@@ -1,0 +1,6 @@
+source_regex,tier,rationale
+^DHS$,survey_dhs,DHS Program microdata (registration required). Exists only where a DHS round was fielded near the survey - the same settings that could host a biomarker module - and the microdata cannot be redistributed; the Admin-2 aggregates can.
+^HCES microdata,survey_public,"Household consumption and expenditure survey microdata (World Bank Microdata Library / national statistics offices). Near-universal, public after registration; redistributable as Admin-2 aggregates."
+^WHO Health Inequality Data Repository.*MICS,survey_public,UNICEF MICS regional estimates republished by WHO HEAT. Survey-derived and public; MICS is still being fielded.
+^MICS microdata,survey_public,"UNICEF MICS microdata (public after registration; near-universal, still being fielded); Admin-2 aggregates redistributable. The Gambia block excludes the 70 clusters in which the GMNS 2018 was fielded (LK-02)."
+.*,open,"Gridded, modelled or administrative product obtainable for any country without fielding a household survey (Earth observation, soil, climate, modelled surfaces, market prices, fortification programme data, national statistics)."

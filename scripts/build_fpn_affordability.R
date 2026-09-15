@@ -51,20 +51,36 @@ if (!length(raw_files))
   stop("No FPN CSV in data/FPN/raw/. Export from ",
        "https://databank.worldbank.org/source/food-prices-for-nutrition (see script header).")
 
-# read + stack all raw CSVs; detect DataBank wide layout
+# read + stack all raw CSVs; detect either DataBank wide layout:
+#   (a) rows = country x series, "YYYY [YRYYYY]" year columns
+#   (b) rows = country x Time, one "Label [SERIES_CODE]" column per series
+#       (the layout DataBank gives when Time is put on rows; the RA's 2026-09
+#       export, latin-1 encoded, with footer rows that have no Time)
 read_databank <- function(f) {
-  d <- utils::read.csv(f, check.names=FALSE, stringsAsFactors=FALSE)
+  d <- utils::read.csv(f, check.names=FALSE, stringsAsFactors=FALSE, fileEncoding="latin1")
   nm <- names(d)
   cc <- nm[grep("Country Code|Country.Code|iso3|REF_AREA", nm, ignore.case=TRUE)][1]
   sc <- nm[grep("Series Code|Series.Code|INDICATOR|Indicator Code", nm, ignore.case=TRUE)][1]
   yr <- nm[grepl("^\\s*\\d{4}", nm) | grepl("YR\\d{4}", nm)]
-  if (is.na(cc) || is.na(sc) || !length(yr)) return(NULL)
-  long <- do.call(rbind, lapply(yr, function(y){
-    year <- as.integer(sub(".*?(\\d{4}).*", "\\1", y))
-    data.frame(iso3=toupper(trimws(d[[cc]])), series=trimws(d[[sc]]),
-               year=year, value=suppressWarnings(as.numeric(d[[y]])),
-               stringsAsFactors=FALSE)
-  }))
+  tm <- nm[grep("^Time$", nm)][1]
+  if (is.na(cc)) return(NULL)
+  if (!is.na(sc) && length(yr)) {
+    long <- do.call(rbind, lapply(yr, function(y){
+      year <- as.integer(sub(".*?(\\d{4}).*", "\\1", y))
+      data.frame(iso3=toupper(trimws(d[[cc]])), series=trimws(d[[sc]]),
+                 year=year, value=suppressWarnings(as.numeric(d[[y]])),
+                 stringsAsFactors=FALSE)
+    }))
+  } else if (!is.na(tm)) {
+    sv <- nm[grepl("\\[[A-Za-z0-9_]+\\]\\s*$", nm)]
+    if (!length(sv)) return(NULL)
+    d <- d[grepl("^\\s*\\d{4}\\s*$", d[[tm]]), ]
+    long <- do.call(rbind, lapply(sv, function(s){
+      data.frame(iso3=toupper(trimws(d[[cc]])), series=sub(".*\\[([A-Za-z0-9_]+)\\]\\s*$", "\\1", s),
+                 year=as.integer(d[[tm]]), value=suppressWarnings(as.numeric(d[[s]])),
+                 stringsAsFactors=FALSE)
+    }))
+  } else return(NULL)
   long[is.finite(long$value), ]
 }
 fpn <- do.call(rbind, Filter(Negate(is.null), lapply(raw_files, read_databank)))

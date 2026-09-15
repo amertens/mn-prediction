@@ -93,20 +93,35 @@ apply_brinda_vita_binary <- function(d, cc, oc, label = "") {
 #' each survey's own adjusted (Malawi: raw) RBP.
 #' @return numeric vector the length of nrow(d) with attribute "n_fallback",
 #'   or NULL if the country's biomarker columns are unavailable.
-# ── Retinol-equivalent RBP (VA-01, 2026-09-08) ───────────────────────────────
+# ── Vitamin A rule: rbp070 (primary) vs retinol_equiv (sensitivity) ──────────
 # The four surveys used the same VitMin ELISA for RBP but each calibrated RBP to
 # serum retinol on its own subsample and got a different line (AS-01, RP-01):
 # 0.70 umol/L of RBP is 0.70 umol/L of retinol in The Gambia, 0.61 in Ghana,
 # 0.75 in Sierra Leone and 0.91 in Malawi, whose report therefore adopted an RBP
-# cut-point of 0.46. Rule (b) chosen by the user: convert each survey's
-# BRINDA-adjusted RBP to retinol-equivalents with its published regression,
-# then cut at the WHO retinol threshold of 0.70. The lines live in
-# metadata/rbp_retinol_calibration.csv (retinol = a + b * RBP, by country and,
-# where the survey fitted them separately, population). VITA_RULE=rbp070
-# restores the previous rule (adjusted RBP < 0.70 without conversion) for the
-# sensitivity analysis.
+# cut-point of 0.46. VA-01 (2026-09-08) made the retinol-equivalent conversion
+# the default: convert each survey's BRINDA-adjusted RBP to retinol-equivalents
+# with its published regression, then cut at the WHO retinol threshold of 0.70.
+#
+# 2026-09-15 (survey-report reconciliation, docs/survey_report_reconciliation.md
+# section 4.2): the PRIMARY rule is now `rbp070` -- uniformly BRINDA-adjusted
+# RBP < 0.70 umol/L, no conversion -- and `retinol_equiv` is the sensitivity
+# analysis. The calibrations are not one estimand: Gambia (n = 14) and Ghana
+# fitted RBP on retinol and are inverted here, Sierra Leone (n = 33 women)
+# and Malawi fitted retinol on RBP, and the two directions differ by the
+# factor R^2. Malawi's line has R^2 = 0.13 (r = 0.36; women r = 0.19): in its
+# own 74-child subsample 20% have HPLC retinol < 0.70 and 23% RBP < 0.70 but
+# 1.4% RBP < 0.46, so the inverse regression manufactures near-zero deficiency
+# by construction. The survey's re-analysis (Likoswe et al. 2021, Nutrients
+# 13:849) and the survey team (Williams et al. 2021, AJCN 113:854; the 2009
+# calibration gave 0.78 with the same RBP laboratory) both reject it, and
+# Likoswe recommend exactly BRINDA-adjusted RBP < 0.70. Under retinol_equiv
+# child low-RBP read Ghana 27%, Gambia 17%, SL 6.5%, Malawi 0.4%; under
+# rbp070 Gambia 17%, Ghana 15%, SL 12%, Malawi 10%, matching the three
+# GroundWork reports' own estimand. The lines still live in
+# metadata/rbp_retinol_calibration.csv (retinol = a + b * RBP) for the
+# sensitivity run: VITA_RULE=retinol_equiv.
 .vita_rule <- function() {
-  r <- Sys.getenv("VITA_RULE", "retinol_equiv")
+  r <- Sys.getenv("VITA_RULE", "rbp070")
   if (!r %in% c("retinol_equiv", "rbp070")) stop("VITA_RULE must be retinol_equiv or rbp070")
   r
 }

@@ -77,7 +77,7 @@ IH <- list(
   ihme_wunimp    = list(dir = "data/IHME/WASH access/GeoTIFF", pat = "_W_UNIMP_PERCENT_MEAN_%d_", yrs = 2000:2017),
   ihme_incidence  = list(dir = "data/IHME/u5 diarrhea/GeoTIFF", pat = "DIARRHEA_2000_2017_INC_RT_MEAN_%d_", yrs = 2000:2017),
   ihme_deaths     = list(dir = "data/IHME/u5 diarrhea/GeoTIFF", pat = "DIARRHEA_2000_2017_MORT_RT_MEAN_%d_", yrs = 2000:2017),
-  ihme_prevalence = list(dir = "data/IHME/u5 diarrhea/GeoTIFF", pat = "DIARRHEA_2000_2017_PREV_RT_MEAN_%d_", yrs = 2000:2017),
+  ihme_u5_diarrhoea_prev = list(dir = "data/IHME/u5 diarrhea/GeoTIFF", pat = "DIARRHEA_2000_2017_PREV_RT_MEAN_%d_", yrs = 2000:2017),   # was ihme_prevalence (IH-03: generic name)
   ihme_mcvcoverage = list(file = "data/IHME/mcv1/Data [GeoTIFF]/IHME_LMIC_MCV1_2000_2019_MEAN_Y2020M12D16.TIF", band_year0 = 1999, yrs = 2000:2019)
 )
 find_file <- function(spec, yr) {

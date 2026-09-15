@@ -1,0 +1,50 @@
+rule_id,column_regex,year_rule,note
+dhs_round,^dhs_,per_country:Gambia=2019;Ghana=2014;Malawi=2015;SierraLeone=2013,"DHS round paired with each micronutrient survey (R/config.R dhs_year): Gambia 2019-20 (no 2018 round), Ghana 2014 (MICS 2017-18 is the same-year alternative), Malawi 2015-16 (nested in the MNS; 105 overlapping clusters dropped), Sierra Leone 2013."
+alphaearth_2017,^aef_,fixed:2017,AlphaEarth Foundations embeddings start in 2017; one fixed year for every country (scripts/covariates/01_extract_alphaearth.R). Unavoidable -4 years for Sierra Leone.
+hces_year,^hces_,per_country:Gambia=2015;Ghana=2016;Malawi=2016;SierraLeone=2018,"IHS 2015/16, GLSS7 2016/17, IHS4 2016-17, SLIHS 2018 (fieldwork start year)."
+rtfp_window,^rtfp_,survey_year,12 months ending in the survey's last fieldwork month (metadata/survey_years.csv).
+mics_heat_round,^mics_heat_,per_country:Gambia=2018;Ghana=2017;Malawi=2014;SierraLeone=2010,MICS round nearest the survey in the WHO HEAT export (script 59 block G).
+mics_microdata,^mics_,per_country:Gambia=2018;Ghana=2017;Malawi=2014;SierraLeone=2017,"MICS microdata block (scripts/covariates/build_mics_admin2_block.R): MICS6 2018, MICS6 2017-18, MICS5 2013-14, MICS6 2017."
+gfdx_who_anaemia_2011,^gfdx_anemia_,fixed:2011,WHO 2011 anaemia prevalence carried by GFDx; not a fortification field.
+gfdx_zinc_2012,^gfdx_zinc_def_,fixed:2012,Wessells & Brown 2012 zinc-deficiency risk carried by GFDx.
+gfdx_ntd_2015,^gfdx_ntd_,fixed:2015,Neural-tube-defect rate carried by GFDx (Blencowe et al. 2018 estimates for 2015).
+gfdx_survey_year,^gfdx_.*_sy$,survey_year,GFDx programme fields at the survey year (script 59 block C).
+map_blood_2012,^map_blooddisorders2012,fixed:2012,"MAP blood-disorder allele-frequency surfaces, 2012 release (static genetics)."
+map_survey_year,^map_sy_,survey_year,Malaria Atlas annual layer at the survey year (script 52).
+espen_base,^espen_.*_base$,fixed:2014,ESPEN endemicity at the earliest reported year (2014).
+espen_mda,^espen_.*_(mda_share|cov_mean)$,fixed:2016,ESPEN mass-drug-administration share / coverage over 2014-2018 (window midpoint).
+espen_nearest,^espen_,nearest_in_range:2014-2025,ESPEN implementation-unit endemicity at the year nearest the survey (script 49).
+ihme_to_2019,^ihme_(allanemia|mildanemia|moderateanemia|severeanemia|ebfprevalence|mcv1?coverage|malaria_),nearest_in_range:2000-2019,"IHME LBD surfaces whose series run to 2019 (anaemia, EBF, MCV, malaria); year nearest the survey (script 08 / 48)."
+ihme_to_2018,^ihme_(hivprevalence|lf_|oncho_),nearest_in_range:2000-2018,"IHME HIV, lymphatic filariasis and onchocerciasis surfaces run to 2018; year nearest the survey."
+ihme_to_2017,^ihme_,nearest_in_range:2000-2017,"IHME LBD surfaces whose series stop at 2017 (child growth failure, education, WASH, ORS); year nearest the survey."
+fprice_window,^fprice_,survey_year,WFP market prices averaged over survey year +/- 2 (script 07).
+fao_supply,^fao_,survey_year,"FAOSTAT food balance at the survey year, national (script 07)."
+fsec_window,^fsec_,survey_year,HFID food-security indicators averaged over survey year +/- 2 (script 08).
+who_anaemia_sy,^who_anaemia_,survey_year,WHO Global Anaemia Estimates at the survey year; trend5 = change over the five years to it (script 59).
+vas_sy,^vas_,survey_year,UNICEF VAS coverage at the year nearest the survey (script 59).
+flunet_sy,^flunet_,survey_year,FluNet at the survey year (script 59).
+gdl_sy,^gdl_,survey_year,GDL subnational HDI at the year nearest the survey (script 59).
+mimi_glss7,^mimi_,fixed:2016,Tang et al. 2026 MIMI estimates from GLSS7 2016/17 (Ghana only).
+spam_2010,^spam_,fixed:2010,MapSPAM 2010 v2 crop allocation.
+glw4,^glw_,fixed:2015,Gridded Livestock of the World 4: reference year 2015 (released 2022; the block's source string says 2020).
+wpop_density_sy,^wpop_log_density_survey_year$,survey_year,WorldPop density at each country's survey year (script 08 step 6).
+wpop_2020,^wpop_,fixed:2020,WorldPop age-sex collection is a single 2020 vintage (script 08 caveat).
+ghsl_epoch,^(ghs_pop|built_surface|built_surface_nres|ghsl_smod_mean)$,epoch5_nearest:1975-2030,"GHSL P2023A 5-year epochs, nearest to the survey year (Gambia 2018 -> 2020, the others -> 2015)."
+gpw_2010,^gpw2010_,fixed:2010,"GPW v4.11 basic demographic characteristics, 2010 round."
+popdens_epoch,^popdens_y(\d{4})$,from_name,GPW v4.11 UN-adjusted density at the epoch in the column name.
+rwi_2019,^rwi_,fixed:2019,"Meta Relative Wealth Index (Chi et al. 2022), imagery 2016-2020."
+wsf_2015,^wsf$,fixed:2015,World Settlement Footprint 2015.
+ccnl_2013,^ntl_ccnl$,fixed:2013,Consistent corrected night-time lights end in 2013; the nearest year <= 2013 is 2013 for every survey.
+ghm_2016,^human_modification$,fixed:2016,Global Human Modification 2016.
+access_2019,^access_healthcare_min$,fixed:2019,MAP accessibility to healthcare 2019.
+grassland_gpw,^grassland_frac$,nearest_in_range:2000-2022,"Global Pasture Watch annual grassland class, year nearest the survey (verify the extraction year in the targets store)."
+lcover_copernicus,^lcover_,nearest_in_range:2015-2019,Copernicus 100 m land cover is annual 2015-2019; nearest year to the survey (Sierra Leone 2013 -> 2015).
+lst_oxford,^lst_night_,nearest_in_range:2001-2020,"Oxford MAP gap-filled night LST monthly, year nearest the survey; the layer manifest lists availability to 2015, so the Gambia 2018 and Ghana 2017 values may be 2015 - verify in the targets store."
+ndvi_avhrr_year,^ndvi_y(\d{4})$,from_name,"NOAA AVHRR CDR v5 annual NDVI at the year in the name (superseded by MODIS NDVI, 2026-09-15)."
+ndvi_modis,^ndvi_modis_,survey_year,MOD13Q1 NDVI at the survey year / fieldwork window (scripts/covariates/extract_gee_ndvi_modis.py); the climatology and anomaly columns are relative to 2001-2020.
+precip_trmm_year,^precip_y(\d{4})$,from_name,TRMM 3B43 annual mean precipitation at the year in the name (TRMM ends 2019).
+gee_t0,_t0$,survey_year,Annual value at the survey year (the legacy GEE pipeline's t0 convention).
+koppen_static,^koppen_,static,Koppen-Geiger 1991-2020 climate classification.
+aez_static,^aez16_,static,IFPRI / HarvestChoice agro-ecological zones (2009 delineation).
+water_static,^wdist_,static,Distance to surface water / coast from the JRC GSW occurrence layer (1984-2021) and LSIB.
+soil_static,^(soil_|soilgrids_|elevation$),static,"Soil properties (iSDA 2020 product, SoilGrids v2) and SRTM elevation: static."

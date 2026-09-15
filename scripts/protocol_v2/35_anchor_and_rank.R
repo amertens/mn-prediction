@@ -79,8 +79,8 @@ clamp <- function(p, eps = 0.005) pmin(pmax(p, eps), 1 - eps)
 build <- function(cn, on) {
   t <- TG[TG$country == cn & TG$outcome == on, ]
   t <- t[is.finite(t$y_prev) & is.finite(t$n_eff) & t$n_eff > 0, ]; if (!nrow(t)) return(NULL)
-  pc <- pop_for(on); pp <- POP[POP$country == cn, c("Admin2", pc)]; names(pp)[2] <- "pop"
-  t <- left_join(t, pp, by = "Admin2"); t <- t[is.finite(t$pop) & t$pop > 0, ]; if (!nrow(t)) return(NULL)
+  t <- join_admin2_v2(t, admin2_population_v2(POP, cn, pop_for(on)), what = paste("pop", cn, on), quiet = TRUE)   # JK-01 pair key, no fan
+  t <- t[is.finite(t$pop) & t$pop > 0, ]; if (!nrow(t)) return(NULL)
   if (cn == "Malawi") {
     a <- t |> group_by(Admin1) |> summarise(y = wm(y_prev, n_eff), yl = wm(y_level, n_eff_cont), w = sum(n_eff), n_raw = sum(n_raw), pop = sum(pop), .groups = "drop")
     x <- S[S$country == cn, c("Admin1", PREDS)] |> group_by(Admin1) |> summarise(across(all_of(PREDS), ~ mean(.x, na.rm = TRUE)), .groups = "drop")

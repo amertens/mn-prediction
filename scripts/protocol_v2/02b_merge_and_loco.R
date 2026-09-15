@@ -17,6 +17,14 @@ TG <- read.csv(file.path(OUTDIR, "targets_v2.csv"), stringsAsFactors = FALSE)
 S  <- read.csv("data/covariates/harmonized/predictors_admin2_shared.csv",
                check.names = FALSE)
 MD <- read.csv("data/covariates/harmonized/predictors_admin2_shared_metadata.csv")
+# TP-01 (2026-09-15): the transport headline uses the open + public-survey tiers
+# (the pre-registered no-DHS arm, which DA-04 showed transports better). Set
+# V2_PREDICTOR_TIERS explicitly ("open,survey_public,survey_dhs") for the
+# with-DHS arm; the tier setting is recorded in every result row.
+if (!nzchar(Sys.getenv("V2_PREDICTOR_TIERS"))) Sys.setenv(V2_PREDICTOR_TIERS = "open,survey_public")
+# V2_OUT_SUFFIX lets a second arm (e.g. "_withdhs", "_open") write beside the
+# headline files instead of over them; the in-country shards are shared.
+OUT_SUF <- Sys.getenv("V2_OUT_SUFFIX", "")
 PREDS <- drop_near_outcome_v2(intersect(MD$column, names(S)), MD)
 domain_of <- stats::setNames(MD$domain, MD$column)
 BND <- readRDS("dashboard/data/admin2_boundaries.rds")
@@ -57,9 +65,12 @@ build_cell <- function(cn, on, target) {
        lon = m$lon, lat = m$lat)
 }
 
-shards <- list.files(OUTDIR, pattern = "^benchmarks_v2_raw_.*\\.csv$",
+# V2_SHARD_SUFFIX selects which shard set to merge ("" = the default set run
+# with every tier; "_nodhs" = the set run with V2_PREDICTOR_TIERS=open,survey_public)
+SHARD_SUF <- Sys.getenv("V2_SHARD_SUFFIX", "")
+shards <- list.files(OUTDIR, pattern = sprintf("^benchmarks_v2_raw_(gambia|ghana|malawi|sierraleone)%s\\.csv$", SHARD_SUF),
                      full.names = TRUE)
-if (!length(shards)) stop("no shards found - run 02 with V2_COUNTRY set")
+if (!length(shards)) stop("no shards found - run 02 with V2_COUNTRY set", if (nzchar(SHARD_SUF)) paste0(" and V2_SHARD_SUFFIX=", SHARD_SUF))
 cat("merging", length(shards), "shards\n")
 RAW <- bind_rows(lapply(shards, read.csv, stringsAsFactors = FALSE))
 
@@ -108,7 +119,7 @@ for (target in c("prev", "level")) {
         loco_rows[[paste(target, on, a, cn)]] <- cbind(
           data.frame(country = cn, outcome = on, target = target,
                      estimand = "country", arm = a, rep = 1L,
-                     n_areas = length(k)), s)
+                     n_areas = length(k), predictor_tiers = paste(predictor_tiers_v2(), collapse = ",")), s)
       }
     }
     cat("loco done", target, on, "\n")
@@ -116,7 +127,7 @@ for (target in c("prev", "level")) {
 }
 
 RAW <- bind_rows(RAW, bind_rows(loco_rows))
-write.csv(RAW, file.path(OUTDIR, "benchmarks_v2_raw.csv"), row.names = FALSE)
+write.csv(RAW, file.path(OUTDIR, paste0("benchmarks_v2_raw", OUT_SUF, ".csv")), row.names = FALSE)
 
 CELLS <- RAW |> group_by(country, outcome, target, estimand, arm) |>
   summarise(reps = n(), n_areas = max(n_areas),
@@ -128,7 +139,7 @@ CELLS <- RAW |> group_by(country, outcome, target, estimand, arm) |>
             mae = mean(mae, na.rm = TRUE), wmae = mean(wmae, na.rm = TRUE),
             bias = mean(bias, na.rm = TRUE), topk = mean(topk, na.rm = TRUE),
             .groups = "drop")
-write.csv(CELLS, file.path(OUTDIR, "benchmarks_v2_cells.csv"), row.names = FALSE)
+write.csv(CELLS, file.path(OUTDIR, paste0("benchmarks_v2_cells", OUT_SUF, ".csv")), row.names = FALSE)
 
 SUMM <- CELLS |> group_by(estimand, target, arm) |>
   summarise(cells = n(),
@@ -138,7 +149,7 @@ SUMM <- CELLS |> group_by(estimand, target, arm) |>
             mean_wmae = round(mean(wmae, na.rm = TRUE), 2),
             mean_topk = round(mean(topk, na.rm = TRUE), 3), .groups = "drop") |>
   arrange(estimand, target, desc(mean_spearman))
-write.csv(SUMM, file.path(OUTDIR, "benchmarks_v2_summary.csv"), row.names = FALSE)
+write.csv(SUMM, file.path(OUTDIR, paste0("benchmarks_v2_summary", OUT_SUF, ".csv")), row.names = FALSE)
 
 cat("\n================ CORRECTED LEADERBOARD ================\n")
 for (es in c("infill", "region", "country")) {

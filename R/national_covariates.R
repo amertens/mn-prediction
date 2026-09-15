@@ -14,11 +14,89 @@
 # country x year panel (~1,400 usable columns, essentially the DHS set).
 # "both" is the union, restricted to the countries both cover.
 #
-# ANAEMIA COLUMNS ARE DROPPED. Predicting iron deficiency from measured anaemia
-# is close to predicting a deficiency from a deficiency; supplementation and
-# dietary columns are kept, because those are exposures and interventions.
+# ANAEMIA COLUMNS: THE SAME-SURVEY RULE (LK-02, 2026-09-15). Until LK-02 every
+# measured anaemia / haemoglobin column was dropped from the panel. That
+# confused two things. A DHS round's anaemia prevalence is external information
+# about a country-year, measured on different people from the VMNIS survey,
+# and is a legitimate predictor of that survey's deficiency prevalence. It is
+# leakage only where the VMNIS survey IS the DHS round (a micronutrient module
+# carried by a DHS: Malawi 2015-16, Tanzania 2010, Uganda 2006/2011/2016,
+# Cambodia 2014 ...), because then anaemia and deficiency were measured on the
+# same respondents. VMNIS records that linkage in its Surveymethodology text.
+# So the columns are kept and the cells of the DHS-linked country-years are
+# blanked before the nearest-year carry, which then fills them from another
+# round. `drop_anaemia = TRUE` restores the pre-LK-02 behaviour.
 # =============================================================================
 suppressPackageStartupMessages({library(dplyr)})
+
+#' Panel columns whose Stata label names measured anaemia or haemoglobin.
+#' @param labs Named character vector: column name -> variable label.
+anaemia_status_columns <- function(labs) {
+  names(labs)[grepl("an(a)?emi|h(a)?emoglobin", labs, ignore.case = TRUE)]
+}
+
+#' VMNIS surveys that were carried out as part of a DHS round.
+#'
+#' Read from the Surveymethodology text: "jointly with the ... Demographic and
+#' Health Survey", "module of the 2011 UDHS", and the like. A methodology that
+#' only says the sample was drawn "independently of the DHS" is not linked.
+#' The text catches only surveys that name the DHS (Malawi 2015-16, Colombia
+#' 2005); DHS-carried micronutrient modules whose VMNIS entry describes the
+#' design without naming it (Cambodia 2014, Uganda 2000-01, Tanzania 2009-10 ...)
+#' come from the curated table metadata/vmnis_dhs_linked_surveys.csv. The two
+#' are unioned; pass `curated = NULL` for the text rule alone.
+#'
+#' @param nat The VMNIS national panel (vmnis_national()) or any frame with
+#'   iso3c, Beginyear, Endyear, Surveymethodology.
+#' @param curated Path to the curated table, or NULL.
+#' @return data.frame(iso3c, year_from, year_to), one row per linked survey.
+dhs_linked_vmnis_surveys <- function(nat,
+                                     curated = here::here("metadata", "vmnis_dhs_linked_surveys.csv")) {
+  txt <- as.character(nat$Surveymethodology); txt[is.na(txt)] <- ""
+  mentions <- grepl("demographic and health survey|\\bDHS\\b|[A-Z]DHS\\b", txt,
+                    ignore.case = TRUE, perl = TRUE)
+  independent <- grepl("independent(ly)? of the DHS|not (part of|linked to) the DHS",
+                       txt, ignore.case = TRUE)
+  hit <- mentions & !independent
+  out <- data.frame(iso3c = as.character(nat$iso3c)[hit],
+                    year_from = suppressWarnings(as.numeric(nat$Beginyear))[hit],
+                    year_to   = suppressWarnings(as.numeric(nat$Endyear))[hit],
+                    stringsAsFactors = FALSE)
+  out <- out[!is.na(out$iso3c) & is.finite(out$year_from), , drop = FALSE]
+  out$year_to[!is.finite(out$year_to)] <- out$year_from[!is.finite(out$year_to)]
+  if (!is.null(curated) && file.exists(curated)) {
+    cu <- utils::read.csv(curated, stringsAsFactors = FALSE)
+    out <- rbind(out, data.frame(iso3c = as.character(cu$iso3c),
+                                 year_from = as.numeric(cu$year_from),
+                                 year_to = as.numeric(cu$year_to),
+                                 stringsAsFactors = FALSE))
+  }
+  unique(out[order(out$iso3c, out$year_from), , drop = FALSE])
+}
+
+#' Blank the cells of the DHS-linked country-years in the named columns.
+#' @param M Numeric matrix (rows = country-years) with column names.
+#' @param iso3c,year Row keys.
+#' @param cols Columns to blank (typically anaemia_status_columns()).
+#' @param linked data.frame(iso3c, year_from, year_to) from
+#'   dhs_linked_vmnis_surveys().
+null_same_survey_cells <- function(M, iso3c, year, cols, linked) {
+  cols <- intersect(cols, colnames(M))
+  n <- 0L
+  if (length(cols) && !is.null(linked) && nrow(linked)) {
+    rows <- rep(FALSE, nrow(M))
+    for (i in seq_len(nrow(linked)))
+      rows <- rows | (iso3c == linked$iso3c[i] & year >= linked$year_from[i] &
+                        year <= linked$year_to[i])
+    rows[is.na(rows)] <- FALSE
+    if (any(rows)) {
+      n <- sum(!is.na(M[rows, cols, drop = FALSE]))
+      M[rows, cols] <- NA_real_
+    }
+  }
+  attr(M, "n_cells_blanked") <- as.integer(n)
+  M
+}
 
 PANEL_DTA <- Sys.getenv(
   "NAT_PANEL_DTA",
@@ -108,7 +186,11 @@ load_wdi_covariates <- function(max_gap = 5L) {
 build_panel_covariates <- function(min_coverage = 0.5,
                                    yr_range     = c(1990L, 2022L),
                                    max_gap      = 5L,
-                                   drop_anaemia = TRUE) {
+                                   drop_anaemia = FALSE,
+                                   dhs_linked   = NULL) {
+  # dhs_linked: data.frame(iso3c, year_from, year_to) of VMNIS surveys carried
+  # out as part of a DHS round (dhs_linked_vmnis_surveys()); their anaemia /
+  # haemoglobin cells are blanked before the carry. NULL = blank nothing.
   stopifnot(requireNamespace("haven", quietly = TRUE))
   if (!file.exists(PANEL_DTA))
     stop("national panel not found at: ", PANEL_DTA)
@@ -134,19 +216,25 @@ build_panel_covariates <- function(min_coverage = 0.5,
   num  <- vapply(raw, is.numeric, logical(1))
   vars <- setdiff(names(raw)[num], c("year", "population"))
 
+  # Measured anaemia/haemoglobin STATUS only. Supplementation and dietary
+  # columns ("received iron tablets", "vitamin A-rich foods", "micronutrient
+  # powder") mention the nutrients but are interventions and exposures.
+  hit <- anaemia_status_columns(labs[vars])
   n_anaemia <- 0L
-  if (drop_anaemia) {
-    # Measured anaemia/haemoglobin STATUS only. Supplementation and dietary
-    # columns ("received iron tablets", "vitamin A-rich foods", "micronutrient
-    # powder") mention the nutrients but are interventions and exposures, which
-    # are legitimate -- and mechanistically among the most relevant -- proxies.
-    hit <- vars[grepl("an(a)?emi|h(a)?emoglobin", labs[vars], ignore.case = TRUE)]
+  if (drop_anaemia) {                       # pre-LK-02 behaviour, on request
     n_anaemia <- length(hit)
     vars <- setdiff(vars, hit)
   }
 
   M <- as.matrix(raw[, vars])
   storage.mode(M) <- "double"
+  # LK-02: the DHS-linked VMNIS country-years lose their own anaemia cells
+  # BEFORE the carry, so the nearest other DHS round fills them instead.
+  n_blank <- 0L
+  if (!drop_anaemia && !is.null(dhs_linked) && nrow(dhs_linked)) {
+    M <- null_same_survey_cells(M, raw$iso3c, raw$year, cols = hit, linked = dhs_linked)
+    n_blank <- attr(M, "n_cells_blanked"); attr(M, "n_cells_blanked") <- NULL
+  }
   M <- fill_near_matrix(M, raw$iso3c, max_gap)
 
   in_win <- raw$year >= yr_range[1] & raw$year <= yr_range[2]
@@ -156,8 +244,8 @@ build_panel_covariates <- function(min_coverage = 0.5,
   keep   <- cover >= min_coverage & nuniq > 1L
 
   message(sprintf(
-    "  numeric %d | anaemia/Hb status dropped %d | >=%.0f%% covered after +/-%dy carry: %d",
-    sum(num), n_anaemia, 100 * min_coverage, max_gap, sum(keep)))
+    "  numeric %d | anaemia/Hb status columns %d (dropped %d; %d cells of DHS-linked country-years blanked) | >=%.0f%% covered after +/-%dy carry: %d",
+    sum(num), length(hit), n_anaemia, n_blank, 100 * min_coverage, max_gap, sum(keep)))
 
   kept <- vars[keep]
   out <- data.frame(iso3c = raw$iso3c, year = raw$year,
@@ -169,18 +257,31 @@ build_panel_covariates <- function(min_coverage = 0.5,
   # point of running this at all.
   attr(out, "labels")            <- setNames(unname(labs[kept]), names(out)[-(1:2)])
   attr(out, "n_anaemia_dropped") <- n_anaemia
+  attr(out, "n_anaemia_kept")    <- length(intersect(hit, kept))
+  attr(out, "n_cells_blanked")   <- n_blank
+  attr(out, "dhs_linked")        <- dhs_linked
   attr(out, "n_raw_columns")     <- sum(num)
   out
 }
 
-load_panel_covariates <- function(min_coverage = 0.5, refresh = FALSE, ...) {
-  key <- sprintf("%s_cov%02d.rds", sub("\\.rds$", "", PANEL_CACHE),
-                 round(100 * min_coverage))
+load_panel_covariates <- function(min_coverage = 0.5, refresh = FALSE,
+                                  drop_anaemia = FALSE, ...) {
+  # LK-02 caches under a new key so a pre-LK-02 panel (anaemia dropped) is
+  # never read back by mistake; drop_anaemia = TRUE reproduces the old file.
+  key <- sprintf("%s_cov%02d%s.rds", sub("\\.rds$", "", PANEL_CACHE),
+                 round(100 * min_coverage), if (drop_anaemia) "" else "_lk02")
   if (!refresh && file.exists(key)) {
     p <- readRDS(key)
     message(sprintf("using cached panel (%d covariates)", ncol(p) - 2L))
   } else {
-    p <- build_panel_covariates(min_coverage = min_coverage, ...)
+    if (!drop_anaemia && !exists("vmnis_national", mode = "function"))
+      source(here::here("R", "national_vmnis.R"))
+    linked <- if (drop_anaemia) NULL else dhs_linked_vmnis_surveys(vmnis_national())
+    if (!drop_anaemia)
+      message(sprintf("  DHS-linked VMNIS surveys (anaemia cells blanked): %d in %d countries",
+                      nrow(linked), length(unique(linked$iso3c))))
+    p <- build_panel_covariates(min_coverage = min_coverage,
+                                drop_anaemia = drop_anaemia, dhs_linked = linked, ...)
     saveRDS(p, key)
   }
   v <- setdiff(names(p), c("iso3c", "year"))

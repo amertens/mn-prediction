@@ -597,7 +597,80 @@ score_v2 <- function(obs, pred, w = NULL, scale = c("prev", "level")) {
   NULL
 }
 
+#' Find a project file upward from the working directory (scripts setwd() to
+#' the project root, tests run from tests/testthat).
+.v2_project_file <- function(...) {
+  d <- getwd()
+  for (i in 1:6) {
+    f <- file.path(d, ...)
+    if (file.exists(f)) return(f)
+    d <- dirname(d)
+  }
+  NULL
+}
+
+# ── Predictor tiers (TP-01, 2026-09-15) ─────────────────────────────────────
+#
+# Every column of the shared set belongs to one of three tiers, assigned from
+# its `source` by the first matching row of metadata/covariates/predictor_tiers.csv:
+#   open           gridded / modelled / administrative products obtainable for
+#                  any country without fielding a household survey
+#   survey_public  derived from public household surveys other than DHS
+#                  (HCES microdata, MICS regional estimates via WHO HEAT)
+#   survey_dhs     derived from DHS microdata
+# V2_PREDICTOR_TIERS (comma-separated) selects the tiers a run may use; the
+# default is every tier. The transport driver (02b) defaults to
+# "open,survey_public" - the pre-registered no-DHS arm, which DA-04 showed
+# transports better - so the headline transport figure never depends on DHS
+# unless a run asks for it.
+V2_TIERS_ALL <- c("open", "survey_public", "survey_dhs")
+
+tier_rules_v2 <- function() {
+  f <- .v2_project_file("metadata", "covariates", "predictor_tiers.csv")
+  if (is.null(f)) stop("metadata/covariates/predictor_tiers.csv not found above ", getwd())
+  r <- read.csv(f, stringsAsFactors = FALSE)
+  stopifnot(all(c("source_regex", "tier") %in% names(r)), all(r$tier %in% V2_TIERS_ALL))
+  r
+}
+
+#' Tier of every row of a metadata table, from its `source`
+assign_tier_v2 <- function(meta) {
+  rules <- tier_rules_v2()
+  src <- as.character(meta$source); src[is.na(src)] <- ""
+  tier <- rep(NA_character_, length(src))
+  for (i in seq_len(nrow(rules))) {
+    hit <- is.na(tier) & grepl(rules$source_regex[i], src, perl = TRUE)
+    tier[hit] <- rules$tier[i]
+  }
+  if (anyNA(tier)) stop("predictor_tiers.csv has no rule for source(s): ", paste(unique(src[is.na(tier)]), collapse = "; "))
+  tier
+}
+
+#' The tiers this run may use (V2_PREDICTOR_TIERS, default all)
+predictor_tiers_v2 <- function() {
+  s <- Sys.getenv("V2_PREDICTOR_TIERS", "")
+  if (!nzchar(s)) return(V2_TIERS_ALL)
+  t <- trimws(strsplit(s, ",")[[1]])
+  bad <- setdiff(t, V2_TIERS_ALL)
+  if (length(bad)) stop("V2_PREDICTOR_TIERS: unknown tier(s) ", paste(bad, collapse = ", "), "; valid: ", paste(V2_TIERS_ALL, collapse = ", "))
+  t
+}
+
+.v2_as_logical <- function(x) { x <- toupper(trimws(as.character(x))); out <- x %in% c("TRUE", "T", "1"); out[is.na(x) | x == "" | x == "NA"] <- NA; out }
+
+#' The fit-time predictor policy. Applied by every script to the column list
+#' it takes from the shared set, so a column that reaches the file by any route
+#' is still governed here. In order:
+#'   1. leakage rules in exclusions.csv (policy == "leakage")           always
+#'   2. national constants (metadata subnational == FALSE)               unless V2_KEEP_NATIONAL=1
+#'      A value broadcast to every district of a country cannot rank its
+#'      districts; in the four-country transport it is a three-value country
+#'      effect. (The per-country zero-variance filter in prep_predictors_v2()
+#'      already removed them silently; this makes the policy explicit.)
+#'   3. predictor tiers (V2_PREDICTOR_TIERS)                             default: all tiers
+#'   4. modelled surfaces                                                only with V2_DROP_MODELLED=1
 drop_near_outcome_v2 <- function(preds, meta) {
+  n0 <- length(preds)
   # Leakage policy (LK-01, 2026-09-07): the rows of exclusions.csv flagged policy == "leakage"
   # are enforced at fit time as well as in the builder, so a column that reaches the shared
   # set by any route is still kept out of the design matrix. Always on.
@@ -610,11 +683,38 @@ drop_near_outcome_v2 <- function(preds, meta) {
       preds <- setdiff(preds, bad)
     }
   }
+  # National-constant policy (TP-01)
+  n_nat <- 0L
+  if (!identical(Sys.getenv("V2_KEEP_NATIONAL", "0"), "1") && "subnational" %in% names(meta)) {
+    sub <- .v2_as_logical(meta$subnational)
+    nat <- meta$column[!is.na(sub) & !sub]
+    bad <- intersect(preds, nat); n_nat <- length(bad)
+    preds <- setdiff(preds, bad)
+  }
+  # Tier policy (TP-01)
+  tiers <- predictor_tiers_v2(); n_tier <- 0L
+  if (!setequal(tiers, V2_TIERS_ALL) && length(preds)) {
+    tier <- if ("tier" %in% names(meta)) as.character(meta$tier) else assign_tier_v2(meta)
+    tier_of <- stats::setNames(tier, meta$column)
+    bad <- preds[!(tier_of[preds] %in% tiers)]; n_tier <- length(bad)
+    preds <- setdiff(preds, bad)
+  }
+  message(sprintf("[protocol v2] predictor policy: %d of %d kept | tiers %s | %d national constant(s) %s | %d outside the tiers",
+                  length(preds), n0, paste(tiers, collapse = ","), n_nat,
+                  if (identical(Sys.getenv("V2_KEEP_NATIONAL", "0"), "1")) "kept (V2_KEEP_NATIONAL=1)" else "dropped", n_tier))
   if (!identical(Sys.getenv("V2_DROP_MODELLED", "0"), "1")) return(preds)
-  if (!"domain" %in% names(meta)) return(preds)
-  bad <- meta$column[grepl("MODELLED SURFACE", meta$domain, fixed = TRUE)]
+  bad <- if ("modelled_surface" %in% names(meta)) meta$column[.v2_as_logical(meta$modelled_surface) %in% TRUE]
+         else if ("domain" %in% names(meta)) meta$column[grepl("MODELLED SURFACE", meta$domain, fixed = TRUE)] else character(0)
   keep <- setdiff(preds, bad)
   n <- length(preds) - length(keep)
   if (n) message(sprintf("[protocol v2] sensitivity: excluded %d modelled-surface predictors", n))
   keep
+}
+
+# ── JK-01: checked Admin-2 joins travel with the protocol ────────────────────
+# Scripts that source only this file get join_admin2_v2(), admin2_population_v2()
+# and admin2_spine() from R/admin2_keys.R.
+if (!exists("join_admin2_v2", mode = "function")) {
+  .a2 <- .v2_project_file("R", "admin2_keys.R")
+  if (!is.null(.a2)) source(.a2)
 }

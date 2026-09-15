@@ -59,7 +59,9 @@ if (PROFILE == "smoke") COUNTRIES <- COUNTRIES["ghana"]
 .v2_args <- commandArgs(trailingOnly = TRUE)
 SHARD <- if (length(.v2_args)) .v2_args[1] else Sys.getenv("V2_COUNTRY", "")
 if (nzchar(SHARD)) COUNTRIES <- COUNTRIES[SHARD]
-SUF <- if (nzchar(SHARD)) paste0("_", SHARD) else ""
+# V2_SHARD_SUFFIX names a second shard set (e.g. "_nodhs" for shards run with
+# V2_PREDICTOR_TIERS=open,survey_public) so it can sit beside the default set.
+SUF <- if (nzchar(SHARD)) paste0("_", SHARD, Sys.getenv("V2_SHARD_SUFFIX", "")) else ""
 
 # ── centroids on the pair key ───────────────────────────────────────────────
 CENT <- do.call(rbind, lapply(names(COUNTRIES), function(lc) {
@@ -126,7 +128,8 @@ run_one_draw <- function(cell, estimand, folds, rep_id) {
                   scale = if (cell$target == "prev") "prev" else "level")
     out[[a]] <- cbind(data.frame(country = cell$country, outcome = cell$outcome,
                                  target = cell$target, estimand = estimand,
-                                 arm = a, rep = rep_id, n_areas = cell$n),
+                                 arm = a, rep = rep_id, n_areas = cell$n,
+                                 predictor_tiers = paste(predictor_tiers_v2(), collapse = ",")),
                       s)
   }
   bind_rows(out)
@@ -162,6 +165,12 @@ for (i in seq_len(nrow(cells_index))) {
 # twin of fix 3), so only rank metrics are meaningful and only those are read.
 loco_rows <- list()
 if (PROFILE != "smoke" && !nzchar(SHARD)) {
+  # TP-01: this unsharded path scores transport with the SAME tiers as the
+  # in-country estimands (V2_PREDICTOR_TIERS, default all). The headline
+  # transport figure is the open + public-survey arm that 02b runs by default;
+  # use the sharded route (V2_COUNTRY shards, then 02b) for it.
+  message(sprintf("[02] estimand C here uses tiers %s; the transport headline (open,survey_public) is 02b's default",
+                  paste(predictor_tiers_v2(), collapse = ",")))
   for (target in c("prev", "level")) {
     for (on in unique(TG$outcome)) {
       cl <- list()
@@ -203,7 +212,7 @@ if (PROFILE != "smoke" && !nzchar(SHARD)) {
           loco_rows[[paste(target, on, a, cn)]] <- cbind(
             data.frame(country = cn, outcome = on, target = target,
                        estimand = "country", arm = a, rep = 1L,
-                       n_areas = length(k)), s)
+                       n_areas = length(k), predictor_tiers = paste(predictor_tiers_v2(), collapse = ",")), s)
         }
       }
       cat("loco done", target, on, "\n")

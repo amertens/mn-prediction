@@ -87,7 +87,18 @@ poly.adm <- st_transform(poly.adm, crs = 4326)
 #update admin 1 naming to old convention to match DHS and MICS
 poly.adm <- poly.adm %>%
   mutate(
+    # CORRECTED 2026-09-15 (AB-01). The earlier mapping swapped the two Central
+    # River LGAs and folded Kanifing into Banjul: Kuntaur LGA is CRR-NORTH (the
+    # Saloums, Nianija, Niani, Sami), Janjanbureh LGA is CRR-SOUTH (the
+    # Niaminas, Fulladu West, Janjanbureh), and Kanifing is its own LGA in DHS
+    # 2019 and MICS 2018. Central Baddibu (North Bank), Fulladu East and
+    # Kantora (Upper River) never belonged in the Maccarthy Island lists. The
+    # same mapping lives in gambia_lga() in
+    # scripts/protocol_v2/59_build_addback_sources.R. Takes effect at the next
+    # re-run of this script (Gambia_merged_dataset.rds was built with the old
+    # mapping; the shared Admin-2 set uses GPS point-in-polygon and is unaffected).
     Admin1_old = dplyr::case_when(
+      Admin2 == "Kanifing" ~ "Kanifing",
       Admin1 == "Banjul" ~ "Banjul",
       Admin1 == "Western" ~ "Brikama",
       Admin1 == "Lower River" ~ "Mansakonko",
@@ -96,23 +107,20 @@ poly.adm <- poly.adm %>%
 
       # Central River North → Kuntaur
       Admin1 == "Maccarthy Island" & Admin2 %in% c(
-        "Central Baddibu",
-        "Fulladu East",
-        "Fulladu West",
         "Lower Saloum",
-        "Niamina Dankunku",
-        "Niamina East",
-        "Niamina West",
-        "Niani"
+        "Upper Saloum",
+        "Nianija",
+        "Niani",
+        "Sami"
       ) ~ "Kuntaur",
 
       # Central River South → Janjanbureh
       Admin1 == "Maccarthy Island" & Admin2 %in% c(
+        "Fulladu West",
         "Janjanbureh",
-        "Kantora",
-        "Nianija",
-        "Sami",
-        "Upper Saloum"
+        "Niamina Dankunku",
+        "Niamina East",
+        "Niamina West"
       ) ~ "Janjanbureh",
 
       TRUE ~ NA_character_
@@ -627,7 +635,13 @@ table(df$Admin1_old)
 
 mics_vars <- colnames(mics)
 
-df <- left_join(df, mics, by = c("Admin1" = "mics_region"))
+# CORRECTED 2026-09-15 (AB-01). The MICS 2018 summary is keyed on the six old
+# divisions PLUS Kanifing as its own region. Joining on Admin1 alone gave the
+# Kanifing clusters (Admin1 == "Banjul") the Banjul row and left the Kanifing
+# row unused; Kanifing is a third of the Gambia sample.
+df$mics_key <- ifelse(df$Admin2 == "Kanifing", "Kanifing", df$Admin1)
+df <- left_join(df, mics, by = c("mics_key" = "mics_region"))
+df$mics_key <- NULL
 summary(df$mics_hc4)
 
 
@@ -656,7 +670,13 @@ dhs2019_adm1 <- load_dhs_admin1(
 )
 if (!is.null(dhs2019_adm1)) {
   dhs_vars <- setdiff(names(dhs2019_adm1), "dhs2019_DHSREGEN")
-  df <- left_join(as.data.frame(df), dhs2019_adm1, by = c("Admin1_old" = "dhs2019_DHSREGEN"))
+  # CORRECTED 2026-09-15 (AB-01). load_dhs_admin1() keys DHSREGEN on the GADM
+  # admin-1 names (the six divisions), the same names df$Admin1 carries. The
+  # earlier join on Admin1_old (LGA names) matched only Banjul, so the 20
+  # dhs2019_ admin-1 columns were NA for five of the six divisions. Sierra
+  # Leone's merge joins on Admin1 the same way.
+  df <- left_join(as.data.frame(df), dhs2019_adm1, by = c("Admin1" = "dhs2019_DHSREGEN"))
+  stopifnot(mean(is.na(df[[dhs_vars[1]]])) < 0.5)   # the join must match most clusters
   cat(sprintf("  DHS admin-1 merge complete: %d dhs2019_ columns added\n",
               sum(grepl("^dhs2019_", colnames(df)))))
 } else {

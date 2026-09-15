@@ -90,12 +90,10 @@ build_pooled_dataset <- function(all_merged, all_configs, outcome_tag) {
     # R/dhs_harmonization.R). No-op if no dhs*_adm2 columns are present.
     d <- harmonize_dhs_admin2(d)
 
-    # Filter to population. !is.na() guard: `d[[col]] == val` is NA for missing
-    # flags and `d[NA, ]` injects all-NA phantom rows instead of dropping them.
-    pop_col <- cc$child_flag
-    if (!is.null(pop_col) && pop_col %in% colnames(d)) {
-      d <- d[!is.na(d[[pop_col]]) & d[[pop_col]] == oc$child_flag_val, , drop = FALSE]
-    }
+    # Filter to population -- the same definition as build_outcome_dataset()
+    # (child/women flag, non-pregnant women, children 6-59 months; see
+    # outcome_population_mask() in R/data_prep.R).
+    d <- d[outcome_population_mask(d, cc, oc, label = "[pool]"), , drop = FALSE]
 
     # 2026-06-24 (DC-H2 #2): apply the uniform BRINDA VAD binary so the
     # individual-level LOCO transport uses the SAME VitA definition as the

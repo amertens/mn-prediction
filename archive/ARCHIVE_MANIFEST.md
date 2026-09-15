@@ -108,3 +108,64 @@ archive:
   the canonical driver scripts were moved to `corrected_driver/`
   (`run_corrected_full.R`, `verify_corrected.R`).
 - Several throwaway verify scripts created while building the corrected pipeline.
+
+## 2026-09-15 — retired modelling code and side experiments
+
+Executed after review of `ARCHIVE_MANIFEST_2026-09-15_PROPOSED.md` (that draft
+is folded into this entry and removed). Everything below was **moved** with
+`git mv` and is restorable with `git mv archive/<path> <path>`; only regenerable
+caches, run logs and stale markers were deleted. Every item was checked for
+callers over `_targets.R`, `R/`, `scripts/`, `dashboard/` and `docs/*.qmd`
+before moving; none had any.
+
+### Moved
+
+| Original path | Archive path | Why |
+|---|---|---|
+| `R/bootstrap.R` | `archive/R/bootstrap.R` | cluster bootstrap replaced by conformal intervals; `run_bootstrap_ci()` had no call sites (`B_boot` in `R/config.R` is its only reader and is documented as a no-op) |
+| `R/sensitivity/sl_fitting.R` | `archive/R/sensitivity/sl_fitting.R` | the `sl3` fitting path; both DAG fits use `fit_mlr3_models()` |
+| `shap_kernel/`, `run_shap_kernel.ps1` | `archive/shap_kernel/`, `archive/run_shap_kernel.ps1` | June 2026 SHAP-kernel experiment; per-district drivers now come from protocol-v2 importance |
+| `sandbox_lsff/` | `archive/sandbox_lsff/` | Tang et al. external check; result recorded in `docs/findings/EXTERNAL_CHECK_TANG_LSFF_2026.md` and script 59 |
+| `national_prediction/` (9 tracked files; its 55 MB `_targets/` store deleted) | `archive/national_prediction/` | national sub-pipeline superseded by `R/national_vmnis.R` / `R/national_covariates.R` (promoted 2026-08-31) |
+| `src/analysis/` (8 files) | `archive/src/analysis/` | pre-`targets` analysis scripts 01–05 + `sl_helpers.R`; every step has an `R/` module |
+| `src/combined results/` (15 files) | `archive/src/combined results/` | result compilers and VIM plots for the pre-`targets` outputs |
+| `src/test_updated_SL_admin2_code.R`, `src/tutorial on spatial SL.R`, `src/project to_do.R`, `src/spatial_ensemble_example/` | `archive/src/…` | sl3-era scratch, an empty stub, a to-do list, an unused worked example |
+| `external docs/aaai12080_am.pdf` | `archive/external docs/` | a reference PDF, not an input |
+
+### Deleted (git-ignored, regenerable)
+
+- `_targets_corrected/` (36 MB): store of the former parallel corrected
+  pipeline, whose script is already in `archive/` and whose section now lives
+  in `_targets.R`.
+- `.corrected_done`, `.corrected_driver.pid`: markers of the June corrected-driver run.
+- Root `pipeline_full*`, `pipeline_reported*`, `pipeline_tier1*` logs (36 MB,
+  29–30 August full-mode runs): moved, not deleted, to `logs/archive_2026-08/`.
+
+### Held (conditional in the proposal; still in place)
+
+- `data/covariates/harmonized/*.pre_*`, `data/covariates/cluster/*.pre_*`
+  (17 files, 19 MB): delete after the LK-02 predictor audit is signed off;
+  `pre_LK02/` is the rollback snapshot.
+- `.claude/worktrees/silly-swirles-b31d3f/`: removed later the same day
+  (`git worktree remove --force`, branch `mert/silly-swirles-b31d3f` deleted;
+  it had no commits beyond `signal-audit-and-protocol-v2` and its uncommitted
+  edits to `R/area_level_comparison.R` / `R/area_weighted_sl.R` were confirmed
+  dead by the owner).
+- Ask-first items (`sandbox_parsimony/`, `mn_proxy_tutorial/`,
+  `simplified subset/`, `scripts/run_full_pipeline.R`, `scripts/06–08_*.R`,
+  `src/dm/`, `src/data_availability_heatmaps.R`, `src/vmnis_heatmaps.R`): untouched.
+
+### Not moved, and why
+
+`data/IPD/<Country>/<Country>_merged_dataset.rds` and
+`src/<Country>/2_GW_<Country>_data_merge.R` (outcome source of record for the
+DAG and protocol v2); `src/0-functions.R` (sourced by `_targets.R:175`),
+`src/0-SL-setup.R`, `src/country_workflow_utils.R`, `src/<Country>/*_workflow.R`,
+`src/DHS/`, `src/GEE/`, `src/IHME/`, `src/fuzzy_match_admin2.R`,
+`src/food_price_merging.R`; `R/sensitivity/mlr3_fitting.R`,
+`R/sensitivity/gp_sensitivity.R`, `sensitivity/` (active DAG sensitivity);
+`R/corrected/` (wired into `_targets.R`); `dashboard/`, `harness/`,
+`scripts/protocol_v2/`, `scripts/covariates/`, `scripts/accuracy_impact/`,
+`scripts/cluster_level/`, `scripts/policy_deck/`, `scripts/signal_probes/`.
+
+README.md and CLAUDE.md were updated to point at the archive paths.

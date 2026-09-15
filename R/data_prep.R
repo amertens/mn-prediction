@@ -104,13 +104,43 @@ load_merged_data <- function(data_path) {
       }
     }
 
-    # ── Zinc: zinc_def already exists in raw data (IZiNCG time-of-day cutoffs)
-    # No derivation needed, but log for completeness
-    if ("zinc_def" %in% colnames(d) && "zn_gdl" %in% colnames(d)) {
-      n_def <- sum(d$zinc_def == 1, na.rm = TRUE)
-      n_tot <- sum(!is.na(d$zinc_def))
-      cat(sprintf("  Zinc: zinc_def present, %d/%d deficient\n", n_def, n_tot))
+    # ── Zinc: the survey ships `low_zn` (IZiNCG cut-offs by age, time of draw
+    # and fasting) and the local `zinc_def` recomputation. 2026-09-15: zn_gdl
+    # carries sentinel values (-100 in one child, 0 in one woman) that the
+    # local recode counted as deficient and that would enter the LEVEL target
+    # as log(<= 0). A serum zinc of 0 is not a measurement: set it, and the
+    # flags derived from it, to NA.
+    if ("zn_gdl" %in% colnames(d)) {
+      bad <- !is.na(d$zn_gdl) & d$zn_gdl <= 0
+      if (any(bad)) {
+        cat(sprintf("  Zinc: %d zn_gdl value(s) <= 0 (sentinels) set to NA\n", sum(bad)))
+        d$zn_gdl[bad] <- NA_real_
+        for (zc in intersect(c("zinc_def", "low_zn"), colnames(d))) d[[zc]][bad] <- NA
+      }
+      for (zc in intersect(c("low_zn", "zinc_def"), colnames(d))) {
+        cat(sprintf("  Zinc: %s present, %d/%d deficient\n", zc,
+                    sum(d[[zc]] == 1, na.rm = TRUE), sum(!is.na(d[[zc]]))))
+      }
     }
+
+    # ── Iron: the survey's own inflammation-corrected flag sf_c1 is exactly
+    # sf_reg < 12 (PSC) / < 15 (WRA); the configs now point at it. `iron_def`
+    # (the local recode) is left in place but is no longer an outcome -- see
+    # the child_iron note in R/config.R for why it under-counted by half.
+    if (all(c("sf_c1", "sf_reg") %in% colnames(d))) {
+      cat(sprintf("  Iron: sf_c1 present, %d/%d deficient (survey BRINDA flag)\n",
+                  sum(d$sf_c1 == 1, na.rm = TRUE), sum(!is.na(d$sf_c1))))
+    }
+
+    # ── Selenium and iodine (MW-SE / MW-IO, 2026-09-15): plasma Se and urinary
+    # iodine are continuous only in the survey file; derive the binary
+    # indicators from the cut-offs in R/config.R (R/malawi_outcomes.R).
+    if (!exists("derive_malawi_binary", mode = "function"))
+      source(here::here("R", "malawi_outcomes.R"))
+    d <- derive_malawi_binary(d, "sel", "sel_def", 84.6)
+    d <- derive_malawi_binary(d, "iod", "iod_def", 100)
+    for (v in intersect(c("sel_def", "iod_def"), colnames(d)))
+      cat(sprintf("  Derived %s: %d/%d deficient\n", v, sum(d[[v]] == 1, na.rm = TRUE), sum(!is.na(d[[v]]))))
 
     return(d)
   }
@@ -760,6 +790,67 @@ prune_predictor_cols <- function(cols, survey_year = NA_integer_) {
 }
 
 
+#' Which rows of a merged dataset belong to an outcome's target population?
+#'
+#' THE ONE DEFINITION OF THE POPULATION, shared by build_outcome_dataset(),
+#' the cluster-level track (cluster_aggregation.R, cluster_mbg.R), the LOCO
+#' pooling in transportability.R and corrected/p12. Until 2026-09-15 each of
+#' those sites filtered on the child/women flag alone, and none applied the
+#' two restrictions every survey report applies before tabulating a biomarker:
+#'
+#'   1. WOMEN are NON-PREGNANT women 15-49. Pregnancy lowers ferritin, RBP,
+#'      zinc and B12 (haemodilution, fetal demand) and the WHO ferritin
+#'      cut-offs used here are for non-pregnant women. Gambia's women's file
+#'      carries 158 self-reported pregnant women, 32 with assays (15 of them
+#'      iron deficient); Malawi's 34, 31 with RBP/B12/zinc; Ghana's 153, only
+#'      5 with assays (pregnant women gave finger-prick Hb only). With the
+#'      filter the Gambia ID numerator reproduces the report's 632 exactly.
+#'   2. CHILDREN are 6-59 completed months. The Gambia file has 21 children
+#'      aged 60-64 months (aged out between the MICS listing and the GMNS)
+#'      and 5 aged under 6 months, all with assays; the report's VAD numerator
+#'      (218) is the file's (222) minus those.
+#'
+#' Both are declared per country in R/config.R (`preg_col`, `child_age_col`,
+#' `child_age_range`) and are no-ops where the column is absent. The !is.na()
+#' guard on the flag matters: `d[[col]] == val` is NA for missing flags and
+#' `d[NA, ]` injects all-NA phantom rows instead of dropping them.
+#'
+#' @param d merged individual-level data.frame
+#' @param cc,oc country and outcome configs
+#' @param label prefix for the log lines
+#' @return logical vector, TRUE for rows to keep
+outcome_population_mask <- function(d, cc, oc, label = "[population]") {
+  keep <- rep(TRUE, nrow(d))
+  pop_col <- cc$child_flag
+  if (!is.null(pop_col) && pop_col %in% colnames(d) && !is.null(oc$child_flag_val)) {
+    keep <- !is.na(d[[pop_col]]) & d[[pop_col]] == oc$child_flag_val
+  }
+  is_women <- !is.null(oc$population) && identical(oc$population, "women")
+  if (is_women && !is.null(cc$preg_col) && cc$preg_col %in% colnames(d)) {
+    pg <- suppressWarnings(as.numeric(d[[cc$preg_col]]))
+    drop <- keep & !is.na(pg) & pg == 1
+    if (any(drop)) {
+      cat(sprintf("  %s %s %s: dropping %d pregnant women (%s == 1); %d remain\n",
+                  label, cc$country, oc$tag, sum(drop), cc$preg_col, sum(keep & !drop)))
+      keep <- keep & !drop
+    }
+  }
+  is_child <- !is.null(oc$population) && identical(oc$population, "children")
+  if (is_child && !is.null(cc$child_age_col) && cc$child_age_col %in% colnames(d)) {
+    rng <- if (is.null(cc$child_age_range)) c(6, 59) else cc$child_age_range
+    ag <- suppressWarnings(as.numeric(d[[cc$child_age_col]]))
+    # completed months: 59.6 months is 59 completed months and stays in range
+    drop <- keep & !is.na(ag) & (ag < rng[1] | ag >= rng[2] + 1)
+    if (any(drop)) {
+      cat(sprintf("  %s %s %s: dropping %d children outside %d-%d months (%s); %d remain\n",
+                  label, cc$country, oc$tag, sum(drop), rng[1], rng[2], cc$child_age_col,
+                  sum(keep & !drop)))
+      keep <- keep & !drop
+    }
+  }
+  keep
+}
+
 #' Build an outcome-specific dataset (one population x one micronutrient)
 #'
 #' Filters to the correct population, selects predictors, removes leakage
@@ -782,10 +873,7 @@ build_outcome_dataset <- function(merged_data, cc, oc,
   # Filter to population. The !is.na() guard matters: a bare `d[[col]] == val`
   # comparison yields NA for missing flags, and `d[NA, ]` injects all-NA phantom
   # rows rather than dropping them. Matches cluster_aggregation.R's filter.
-  pop_col <- cc$child_flag
-  if (!is.null(pop_col) && pop_col %in% colnames(d)) {
-    d <- d[!is.na(d[[pop_col]]) & d[[pop_col]] == oc$child_flag_val, , drop = FALSE]
-  }
+  d <- d[outcome_population_mask(d, cc, oc, label = "[build]"), , drop = FALSE]
 
   # 2026-06-24: Gambia biomarker outcomes — the configured `gw_svy_weight` is
   # NA/zero across the blood (biomarker) subsample, so it mis-weights every
