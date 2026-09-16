@@ -9,6 +9,7 @@
 #   rtfp         data/covariates/harmonized/predictors_admin2_rtfp.csv        scripts/covariates/build_rtfp_price_block.R
 #   ndvi_modis   data/covariates/harmonized/predictors_admin2_ndvi_modis.csv  scripts/covariates/extract_gee_ndvi_modis.py
 #   mics         data/covariates/harmonized/predictors_admin2_mics.csv        scripts/covariates/build_mics_admin2_block.R
+#   clim         data/covariates/harmonized/predictors_admin2_clim.csv        scripts/covariates/build_climate_normals_block.R
 # plus <block>_metadata.csv with column, domain, source, subnational,
 # assumption, n_countries, countries, completeness. A block whose files are
 # absent is skipped with a message, so the step is safe on a partial rebuild.
@@ -31,7 +32,7 @@
 suppressPackageStartupMessages({library(dplyr)})
 setwd("C:/Users/andre/OneDrive/Documents/mn-prediction")
 HDIR <- "data/covariates/harmonized"
-BLOCKS <- c(hces = "^hces_", rtfp = "^rtfp_", ndvi_modis = "^ndvi_modis_", mics = "^mics_(?!heat_)")   # block -> column prefix it owns (perl regex; mics_heat_ belongs to script 59)
+BLOCKS <- c(hces = "^hces_", rtfp = "^rtfp_", ndvi_modis = "^ndvi_modis_", mics = "^mics_(?!heat_)", clim = "^clim_")   # block -> column prefix it owns (perl regex; mics_heat_ belongs to script 59)
 AUDIT_ONLY <- c("hces_n_hh", "hces_level", "rtfp_n_markets", "mics_n_hh", "mics_level")
 META_COLS <- c("column", "domain", "source", "n_countries", "countries", "completeness", "subnational")
 

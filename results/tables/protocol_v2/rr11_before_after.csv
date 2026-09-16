@@ -1,0 +1,33 @@
+"estimand","target","arm","RR10","headline","with_dhs","open_only"
+"infill","level","domain_enet","0.344 (16/24)","0.325 (16/24)","0.337 (16/24)",NA
+"infill","level","domain_index","0.399 (16/24)","0.402 (16/24)","0.402 (16/24)",NA
+"infill","level","null_train_mean","-0.228 (0/24)","-0.228 (0/24)","-0.228 (0/24)",NA
+"infill","level","raw_enet","0.325 (15/24)","0.314 (14/24)","0.308 (15/24)",NA
+"infill","level","region_mean_jk","0.314 (17/24)","0.314 (17/24)","0.314 (17/24)",NA
+"infill","level","spatial","0.390 (17/24)","0.390 (17/24)","0.390 (17/24)",NA
+"infill","level","spatial_plus_domain","0.399 (17/24)","0.399 (17/24)","0.397 (17/24)",NA
+"infill","prev","domain_enet","0.182 (12/24)","0.171 (11/24)","0.186 (12/24)",NA
+"infill","prev","domain_index","0.285 (15/24)","0.286 (15/24)","0.286 (15/24)",NA
+"infill","prev","null_train_mean","-0.218 (0/24)","-0.218 (0/24)","-0.218 (0/24)",NA
+"infill","prev","raw_enet","0.166 (12/24)","0.179 (13/24)","0.156 (12/24)",NA
+"infill","prev","region_mean_jk","0.220 (15/24)","0.220 (15/24)","0.220 (15/24)",NA
+"infill","prev","spatial","0.257 (14/24)","0.257 (14/24)","0.257 (14/24)",NA
+"infill","prev","spatial_plus_domain","0.253 (14/24)","0.262 (14/24)","0.258 (14/24)",NA
+"region","level","domain_enet","0.292 (16/24)","0.242 (14/24)","0.269 (15/24)",NA
+"region","level","domain_index","0.378 (16/24)","0.386 (16/24)","0.380 (16/24)",NA
+"region","level","null_train_mean","-0.604 (0/24)","-0.604 (0/24)","-0.604 (0/24)",NA
+"region","level","raw_enet","0.202 (14/24)","0.230 (14/24)","0.204 (15/24)",NA
+"region","level","spatial","0.377 (17/24)","0.377 (17/24)","0.377 (17/24)",NA
+"region","level","spatial_plus_domain","0.386 (17/24)","0.385 (17/24)","0.385 (17/24)",NA
+"region","prev","domain_enet","0.110 (11/24)","0.032 (9/24)","0.069 (9/24)",NA
+"region","prev","domain_index","0.264 (15/24)","0.267 (15/24)","0.259 (15/24)",NA
+"region","prev","null_train_mean","-0.535 (0/24)","-0.535 (0/24)","-0.535 (0/24)",NA
+"region","prev","raw_enet","-0.011 (9/24)","-0.031 (9/24)","-0.064 (8/24)",NA
+"region","prev","spatial","0.229 (14/24)","0.229 (14/24)","0.229 (14/24)",NA
+"region","prev","spatial_plus_domain","0.238 (14/24)","0.229 (14/24)","0.237 (14/24)",NA
+"country","level","domain_enet","0.234 (19/22)","0.285 (19/22)","0.250 (18/22)","0.296 (20/22)"
+"country","level","domain_index","0.263 (17/22)","0.293 (18/22)","0.263 (16/22)","0.308 (19/22)"
+"country","level","null_train_mean","NA (0/22)","NA (0/22)","NA (0/22)","NA (0/22)"
+"country","prev","domain_enet","0.180 (18/22)","0.205 (18/22)","0.131 (13/22)","0.245 (21/22)"
+"country","prev","domain_index","0.185 (15/22)","0.205 (19/22)","0.157 (15/22)","0.228 (19/22)"
+"country","prev","null_train_mean","NA (0/22)","NA (0/22)","NA (0/22)","NA (0/22)"

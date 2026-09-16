@@ -1,21 +1,21 @@
 # Predictor set review, 2026-09-15
 
-554 units x 522 predictors. Tiers: open 308, survey_dhs 150, survey_public 64.
+554 units x 542 predictors. Tiers: open 328, survey_dhs 150, survey_public 64.
 
 ## 1. Design matrix by arm (per-country prep: coverage >= 0.7 and sd > 0; transport = 4-country intersection)
 
 | tiers | declared (after policy) | Gambia | Ghana | Malawi | Sierra Leone | transport common | domains in common |
 |---|---:|---:|---:|---:|---:|---:|---:|
-| open | 263 | 246 | 239 | 249 | 243 | 220 | 18 |
-| open+survey_public | 327 | 308 | 290 | 311 | 292 | 266 | 20 |
-| open+survey_public+survey_dhs | 477 | 457 | 430 | 460 | 440 | 404 | 24 |
+| open | 283 | 266 | 259 | 269 | 263 | 240 | 18 |
+| open+survey_public | 347 | 328 | 310 | 331 | 312 | 286 | 20 |
+| open+survey_public+survey_dhs | 497 | 477 | 450 | 480 | 460 | 424 | 24 |
 
 Transport headline arm (open + survey_public): columns in the common matrix by domain
 
 | domain | columns |
 |---|---:|
 | Satellite embedding | 64 |
-| Climate and weather | 36 |
+| Climate and weather | 56 |
 | Infection and inflammation burden | 22 |
 | Immunisation | 18 |
 | Soil characteristics | 17 |

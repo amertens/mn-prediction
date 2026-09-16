@@ -1,7 +1,7 @@
 "source","n_columns","n_domains","tier","n_all_countries","n_subnational","n_national_constant","n_low_completeness","n_duplicates","n_modelled_surface","n_year_offset_3plus","max_year_offset","finite_Gambia","finite_Ghana","finite_Malawi","finite_SierraLeone"
 "DHS",150,16,"survey_dhs",138,150,0,10,0,0,140,3,0.98,0.91,0.96,0.99
+"GEE",80,4,"open",80,80,0,0,0,0,3,6,1,1,1,1
 "AlphaEarth (GEE)",64,1,"open",64,64,0,0,0,0,64,4,1,1,1,1
-"GEE",60,4,"open",60,60,0,0,0,0,3,6,1,1,1,1
 "IHME (modelled surfaces)",34,7,"open",21,34,0,7,0,34,0,1,0.84,0.76,0.98,1
 "MICS microdata (UNICEF MICS6 2017/2018, MICS5 2013-14)",30,7,"survey_public",27,30,0,3,0,0,29,4,0.97,0.97,0.93,0.97
 "GFDx (Global Fortification Data Exchange) programme fields",23,1,"open",21,0,23,1,0,0,0,0,1,1,0.96,0.91

@@ -43,6 +43,8 @@ lst_oxford,^lst_night_,nearest_in_range:2001-2020,"Oxford MAP gap-filled night L
 ndvi_avhrr_year,^ndvi_y(\d{4})$,from_name,"NOAA AVHRR CDR v5 annual NDVI at the year in the name (superseded by MODIS NDVI, 2026-09-15)."
 ndvi_modis,^ndvi_modis_,survey_year,MOD13Q1 NDVI at the survey year / fieldwork window (scripts/covariates/extract_gee_ndvi_modis.py); the climatology and anomaly columns are relative to 2001-2020.
 precip_trmm_year,^precip_y(\d{4})$,from_name,TRMM 3B43 annual mean precipitation at the year in the name (TRMM ends 2019).
+clim_anomaly,^clim_.*_anom,survey_year,Survey-year / fieldwork-window anomaly against the 1991-2020 normal (scripts/covariates/build_climate_normals_block.R).
+clim_normals,^clim_,static,TerraClimate 1991-2020 and MODIS LST 2003-2020 climatological normals (CN-01).
 gee_t0,_t0$,survey_year,Annual value at the survey year (the legacy GEE pipeline's t0 convention).
 koppen_static,^koppen_,static,Koppen-Geiger 1991-2020 climate classification.
 aez_static,^aez16_,static,IFPRI / HarvestChoice agro-ecological zones (2009 delineation).

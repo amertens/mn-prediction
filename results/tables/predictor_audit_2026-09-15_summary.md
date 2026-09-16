@@ -1,10 +1,10 @@
 # Predictor set audit, 2026-09-15
 
-`predictors_admin2_shared.csv`: 554 Admin-2 rows x 522 predictors, 4 countries (Gambia, Ghana, Malawi, SierraLeone).
+`predictors_admin2_shared.csv`: 554 Admin-2 rows x 542 predictors, 4 countries (Gambia, Ghana, Malawi, SierraLeone).
 
 | flag | columns |
 |---|---:|
-| present in all 4 countries | 450 |
+| present in all 4 countries | 470 |
 | partial coverage (< 4 countries) | 72 |
 | national constants (no within-country variation) | 45 |
 | completeness < 70% | 56 |
@@ -18,7 +18,7 @@
 
 | tier | columns | sources | subnational | national const. |
 |---|---:|---:|---:|---:|
-| open | 308 | 24 | 263 | 45 |
+| open | 328 | 24 | 283 | 45 |
 | survey_dhs | 150 | 1 | 150 | 0 |
 | survey_public | 64 | 3 | 64 | 0 |
 
@@ -27,8 +27,8 @@
 | source | tier | columns | domains | all countries | subnational | national const. | <70% complete | duplicates | modelled | offset >= 3 y | max offset |
 |---|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
 | DHS | survey_dhs | 150 | 16 | 138 | 150 | 0 | 10 | 0 | 0 | 140 | 3 |
+| GEE | open | 80 | 4 | 80 | 80 | 0 | 0 | 0 | 0 | 3 | 6 |
 | AlphaEarth (GEE) | open | 64 | 1 | 64 | 64 | 0 | 0 | 0 | 0 | 64 | 4 |
-| GEE | open | 60 | 4 | 60 | 60 | 0 | 0 | 0 | 0 | 3 | 6 |
 | IHME (modelled surfaces) | open | 34 | 7 | 21 | 34 | 0 | 7 | 0 | 34 | 0 | 1 |
 | MICS microdata (UNICEF MICS6 2017/2018, MICS5 2013-14) | survey_public | 30 | 7 | 27 | 30 | 0 | 3 | 0 | 0 | 29 | 4 |
 | GFDx (Global Fortification Data Exchange) programme fields | open | 23 | 1 | 21 | 0 | 23 | 1 | 0 | 0 | 0 | 0 |
