@@ -135,8 +135,10 @@ local({
   IL <- .tbl("individual_level")
   Q$il_auc <<- if (is.null(IL)) NA else g1(mean(IL$auc, na.rm = TRUE))
 })
-Q$n_predictors <- if (!is.null(CAT)) nrow(CAT$variables) else 454
-Q$n_domains    <- if (!is.null(CAT)) nrow(CAT$domains) else 24
+Q$n_predictors <- if (!is.null(CAT)) nrow(CAT$variables) else 570
+Q$n_domains    <- if (!is.null(CAT)) nrow(CAT$domains) else 28
+Q$n_in_model   <- if (!is.null(CAT) && "in_model" %in% names(CAT$variables)) sum(CAT$variables$in_model, na.rm = TRUE) else NA
+Q$n_dhs        <- if (!is.null(CAT) && "tier" %in% names(CAT$variables)) sum(grepl("^DHS", CAT$variables$tier)) else NA
 Q$n_districts  <- length(unique(paste(idx_districts$country, idx_districts$Admin1, idx_districts$Admin2)))
 Q$n_surveyed   <- sum(idx_national$n_surveyed[!duplicated(idx_national$country)])
 f2 <- function(x, d = 2) ifelse(is.finite(x), formatC(x, format = "f", digits = d), "NA")
@@ -191,7 +193,9 @@ about_content <- div(
     " to look first and where the next survey should sample."),
   h6("Method"),
   p(sprintf(paste("To every district we attach %d public data layers in %d groups: satellite imagery, climate,",
-                  "soil, crops, livestock, malaria and other morbidity, prices and household-survey aggregates.",
+                  "soil, crops, livestock, malaria and other morbidity, prices, and summaries from the public MICS",
+                  "and household budget surveys. The DHS aggregates are held out as a check, so every layer the model",
+                  "uses is one a country without a recent DHS can rebuild.",
                   "Each group is summarised into a few axes, weighted by how well it tracked deficiency where",
                   "blood was drawn, and summed. Nothing is tuned. Every district is scored with itself hidden",
                   "from the model, every country with the whole country hidden, and every method is compared",

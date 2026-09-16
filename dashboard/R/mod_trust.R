@@ -178,6 +178,7 @@ mod_trust_server <- function(id) {
           tags$li(sprintf("Machine-learning ensembles (SuperLearner, twelve to sixteen learners) tie the untuned index at best and trail it under squared-error tuning. With 14 to 87 districts per country, every method that learns its own settings loses. Person-level prediction of who is deficient reaches an AUC of about %s, a coin toss, so it is not offered here.", fmt_num(Q$il_auc))),
           tags$li("Ridge, lasso and elastic-net weightings of the same domain components lose inside a country; the index is the infinite-penalty limit of that family. Two variants gain about 0.03 across borders and are pre-registered for the fifth country rather than adopted."),
           tags$li("Fitting at the survey cluster instead of the district does not beat the district fit on any test."),
+          tags$li("Rebuilt on 16 September 2026 on 570 layers with the DHS aggregates held out: nothing inside a country changed, the district ranking for a country with no survey rose from 0.26 to 0.31, and restoring the soil layers that a review had dropped brought the climate-and-soil result back to 0.38 across districts and 0.45 across regions."),
           tags$li("Adding data blocks (livestock, water and coast distance, helminths, re-extracted IHME surfaces, fieldwork-month prices and temperatures) moves the index by less than 0.01 each. More kinds of data no longer help; the two remotely sensed domains carry the model.")
         ),
         rows,

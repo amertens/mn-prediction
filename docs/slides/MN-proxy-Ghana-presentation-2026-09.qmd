@@ -128,7 +128,14 @@ abl_delta <- function(X, unit) {   # per cell: full-model Spearman (row "ALL") m
 if (!is.null(DA)) { das <- abl_delta(DA, "domain") |> filter(target == "level") |> group_by(domain) |> summarise(delta = mean(delta, na.rm = TRUE), .groups = "drop") |> arrange(desc(delta))
   Q$da_top <- head(das, 5); Q$da_neg <- sum(das$delta <= 0); Q$da_n <- nrow(das) }
 if (!is.null(SA)) { sas <- abl_delta(SA, "source") |> filter(target == "level") |> group_by(source) |> summarise(full = mean(full, na.rm = TRUE), drop = mean(spearman, na.rm = TRUE), .groups = "drop")
-  Q$sa_dhs_full <- get1(sas$full[sas$source == "DHS"]); Q$sa_dhs_drop <- get1(sas$drop[sas$source == "DHS"]); Q$sa_dhs_cols <- if (is.null(SAS)) NA else get1(SAS$n_cols[SAS$source == "DHS" & SAS$target == "level"]) }
+  Q$sa_dhs_full <- get1(sas$full[sas$source == "DHS"]); Q$sa_dhs_drop <- get1(sas$drop[sas$source == "DHS"]); Q$sa_dhs_cols <- if (is.null(SAS)) NA else get1(SAS$n_cols[SAS$source == "DHS" & SAS$target == "level"])
+  im <- grepl("^MICS microdata", sas$source); Q$sa_mics <- get1(sas$full[im] - sas$drop[im]); Q$sa_mics_cols <- if (is.null(SAS)) NA else get1(SAS$n_cols[grepl("^MICS microdata", SAS$source) & SAS$target == "level"]) }
+# RR-11 (2026-09-16): the headline set has no DHS; the with-DHS and open-only transport arms are read from their own summaries
+BMD <- rd(P2, "benchmarks_v2_summary_withdhs.csv"); BMO <- rd(P2, "benchmarks_v2_summary_open.csv")
+bmx <- function(X, est, tg, arm) if (is.null(X)) NA_real_ else get1(X$mean_spearman[X$estimand == est & X$target == tg & X$arm == arm])
+Q$tr_dhs <- bmx(BMD, "country", "level", "domain_index"); Q$tr_dhs_p <- bmx(BMD, "country", "prev", "domain_index")
+Q$tr_open <- bmx(BMO, "country", "level", "domain_index"); Q$tr_open_p <- bmx(BMO, "country", "prev", "domain_index")
+Q$n_dhs <- if (is.null(MD)) NA else sum(MD$source == "DHS"); Q$n_head <- if (is.null(MD) || !"tier" %in% names(MD)) NA else sum(MD$tier %in% c("open", "survey_public") & as.logical(toupper(as.character(MD$subnational))))
 # training curve slope
 if (!is.null(TC)) { tcm <- TC |> filter(arm == "domain_index", target == "level") |> group_by(n_train_countries) |> summarise(v = mean(spearman, na.rm = TRUE), .groups = "drop"); Q$tc_slope <- get1((tcm$v[tcm$n_train_countries == 3] - tcm$v[tcm$n_train_countries == 1]) / 2) }
 if (!is.null(TCS)) { tcc <- TCS |> filter(set == "climate_soil", target == "level"); Q$tcs_pos1 <- get1(mean(tcc$spearman[tcc$n_train_countries == 1] > 0, na.rm = TRUE)) }
@@ -235,7 +242,9 @@ Adapted from Hess et al., Ann N Y Acad Sci 2023. The framework is unchanged; the
 
 - Clean and merge the national micronutrient surveys, with one uniform outcome definition per nutrient across countries.
 - Link gridded layers to districts as zonal means, and to survey clusters as buffer means.
-- Aggregate DHS and MICS indicators to districts with a cluster-level spatial model, so every district has a value.
+- Aggregate the household surveys to districts: DHS with a cluster-level spatial model, MICS and the household budget surveys from their public microdata at the finest level each survey identifies.
+- Every layer is taken at the survey year or the nearest available one; climate enters as a 30-year normal plus the survey-year anomaly.
+- The headline models use only open layers and public survey microdata. The DHS aggregates are a sensitivity arm, so the set is one a country without a recent DHS can rebuild.
 - Rank-normalise every predictor within country before pooling, so that cross-country level offsets cannot act as signal.
 - Reduce each of `r Q$n_dom` domains to its leading principal components; nothing is selected on the outcome.
 
@@ -243,26 +252,31 @@ Adapted from Hess et al., Ann N Y Acad Sci 2023. The framework is unchanged; the
 
 :::: {.columns}
 ::: {.column width="34%"}
-`r Q$n_pred` predictors in `r Q$n_dom` domains. The household-survey aggregates and the Earth Engine layers are the largest blocks.
+`r Q$n_pred` predictors in `r Q$n_dom` domains; `r Q$n_head` enter the headline models. The DHS aggregates (`r Q$n_dhs`) are a sensitivity arm. The Earth Engine layers, the DHS block and the satellite embedding are the largest sources.
 :::
 ::: {.column width="66%"}
 ```{r sources, fig.width=5.8, fig.height=4.4, dpi=160}
 if (!is.null(MD)) {
   s <- MD$source
-  s <- dplyr::case_when(grepl("^DHS", s) ~ "DHS / MICS indicators", grepl("AlphaEarth", s) ~ "AlphaEarth satellite embedding", grepl("SoilGrids", s) ~ "SoilGrids / iSDA soil",
+  s <- dplyr::case_when(grepl("^DHS", s) ~ "DHS indicators (sensitivity arm)", grepl("^MICS microdata", s) ~ "MICS microdata aggregates", grepl("HEAT", s) ~ "MICS via WHO HEAT",
+    grepl("^HCES", s) ~ "Household budget surveys (HCES)", grepl("AlphaEarth", s) ~ "AlphaEarth satellite embedding", grepl("SoilGrids", s) ~ "SoilGrids / iSDA soil",
     grepl("^GEE", s) ~ "Earth Engine climate, land, built environment", grepl("IHME", s) ~ "IHME modelled surfaces", grepl("Malaria Atlas", s) ~ "Malaria Atlas Project",
-    grepl("MapSPAM", s) ~ "MapSPAM crops", grepl("Koppen", s) ~ "Koppen / agro-ecological zones", grepl("WFP", s) ~ "WFP market prices", grepl("FAOSTAT", s) ~ "FAOSTAT (national)",
-    grepl("Livestock", s) ~ "Gridded Livestock of the World", grepl("ESPEN", s) ~ "WHO ESPEN helminths", TRUE ~ "Other (WorldPop, GHS, RWI, water, HFID, GFDx)")
-  d <- as.data.frame(table(s), stringsAsFactors = FALSE); names(d) <- c("Source", "n"); d$Source <- factor(d$Source, levels = d$Source[order(d$n)])
-  ggplot(d, aes(n, Source)) + geom_col(fill = "#1f4e79", width = 0.7) + geom_text(aes(label = n), hjust = -0.2, size = 4) +
-    scale_x_continuous(expand = expansion(mult = c(0, 0.28))) + labs(x = "Predictors", y = NULL) + theme_minimal(base_size = 14) + theme(panel.grid.major.y = element_blank())
+    grepl("MapSPAM", s) ~ "MapSPAM crops", grepl("Koppen", s) ~ "Koppen / agro-ecological zones", grepl("^WFP|Real-Time Food Prices", s) ~ "WFP and World Bank market prices", grepl("FAOSTAT", s) ~ "FAOSTAT (national)",
+    grepl("Livestock", s) ~ "Gridded Livestock of the World", grepl("ESPEN", s) ~ "WHO ESPEN helminths", grepl("GFDx", s) ~ "GFDx fortification", grepl("Tang et al", s) ~ "MIMI dietary inadequacy (Ghana)",
+    TRUE ~ "Other (WorldPop, GHS, RWI, water, HFID, WHO anaemia, GDL, VAS, FluNet)")
+  tier <- if ("tier" %in% names(MD)) c(open = "Open", survey_public = "Public survey microdata", survey_dhs = "DHS")[MD$tier] else rep("Open", nrow(MD))
+  d <- as.data.frame(table(Source = s, Tier = tier), stringsAsFactors = FALSE); d <- d[d$Freq > 0, ]; tot <- tapply(d$Freq, d$Source, sum); d$Source <- factor(d$Source, levels = names(sort(tot)))
+  d$Tier <- factor(d$Tier, levels = c("Open", "Public survey microdata", "DHS"))
+  ggplot(d, aes(Freq, Source, fill = Tier)) + geom_col(width = 0.7) + geom_text(data = data.frame(Source = factor(names(tot), levels = levels(d$Source)), n = as.vector(tot)), aes(n, Source, label = n), inherit.aes = FALSE, hjust = -0.2, size = 4) +
+    scale_fill_manual(values = c(Open = "#1f4e79", `Public survey microdata` = "#6baed6", DHS = "grey65")) +
+    scale_x_continuous(expand = expansion(mult = c(0, 0.28))) + labs(x = "Predictors", y = NULL, fill = NULL) + theme_minimal(base_size = 14) + theme(panel.grid.major.y = element_blank(), legend.position = "bottom")
 }
 ```
 :::
 ::::
 
 ::: {.notes}
-The January deck listed LSMS (275) and FluNet (3) predictors; both are on disk but did not survive the all-country harmonisation and are scored as add-ons in the sensitivity section.
+The January deck listed LSMS (275) and FluNet (3) predictors; both are on disk but did not survive the all-country harmonisation and are scored as add-ons in the sensitivity section. Since 15 September the base set carries household budget survey microdata for all four countries (IHS 2015/16, GLSS7, IHS4, SLIHS 2018) and MICS microdata aggregates for all four; FluNet's three national counts are in the set but constant within a country, so the fit-time policy drops them. Bars are coloured by access tier: the headline models use the open and public-microdata tiers; the DHS tier is the with-DHS sensitivity arm.
 :::
 
 ## Predictor domains
@@ -572,14 +586,14 @@ if (!is.null(DA)) {
 ::::
 
 ::: {.notes}
-Positive values mean the domain is load-bearing. The survey-derived domains (household assets, fertility, education, child morbidity, health access) sit at or below zero: removing them does not hurt a new country and in several cases helps. A fixed climate-and-soil index transports at `r f2(Q$cs_d)` at district level and `r f2(Q$cs_a1)` regionally against `r f2(Q$tr_index)` and `r f2(Q$tr_a1)` for the full vocabulary; it was found on the same four countries it is scored on and enters the next country as a pre-registered prediction.
+Positive values mean the domain is load-bearing. Climate and soil carry most, with the anaemia surfaces, agriculture and greenness behind; the water-and-sanitation, education and infant-feeding domains sit at or below zero: removing them does not hurt a new country and in two cases helps. The DHS-derived domains are not in the headline set at all: with them in, the district transport index scores `r f2(Q$tr_dhs)` against `r f2(Q$tr_index)` without. A fixed climate-and-soil index transports at `r f2(Q$cs_d)` at district level and `r f2(Q$cs_a1)` regionally against `r f2(Q$tr_index)` and `r f2(Q$tr_a1)` for the full vocabulary; it was found on the same four countries it is scored on and enters the next country as a pre-registered prediction.
 :::
 
 ## Source ablation under transport
 
 :::: {.columns}
 ::: {.column width="34%"}
-The same ablation by data source. Dropping all `r Q$sa_dhs_cols` DHS and MICS columns moves the transported Spearman from `r f2(Q$sa_dhs_full)` to `r f2(Q$sa_dhs_drop)`.
+The same ablation by data source, within the headline set. The one source whose removal helps a new country is the MICS microdata block (`r Q$sa_mics_cols` columns, `r f2(Q$sa_mics)`); the DHS block is not in the set, and adding it back moves the transported Spearman from `r f2(Q$tr_index)` to `r f2(Q$tr_dhs)`. An index from the open layers alone scores `r f2(Q$tr_open)`.
 :::
 ::: {.column width="66%"}
 ```{r sources-ablation, fig.width=5.8, fig.height=4.8, dpi=160}
@@ -592,7 +606,7 @@ if (!is.null(SA)) {
 ::::
 
 ::: {.notes}
-The January deck's data-source importance was one country's in-sample change in mean squared error; this scores transport to a held-out country. Soil, the modelled IHME surfaces, crops and livestock carry it. The household-survey aggregates fit the training countries and do not carry, and the DHS Program's own cluster-level estimator of those aggregates (DS-01) did not change that.
+The January deck's data-source importance was one country's in-sample change in mean squared error; this scores transport to a held-out country. Soil, the Earth Engine layers, crops, livestock and the modelled IHME surfaces carry it. Household-survey aggregates fit the training countries and do not carry: the DHS block cost 0.07 abroad on the previous set and costs `r f2(Q$tr_index - Q$tr_dhs)` now, which is why the headline set leaves it out; the DHS Program's own cluster-level estimator of those aggregates (DS-01) did not change that, and the public MICS aggregates that remain in the set show the same pattern on a smaller scale. Whether the headline should drop to the open tier alone (`r f2(Q$tr_open)` against `r f2(Q$tr_index)`; `r f2(Q$tr_open_p)` against `r f2(Q$tr_index_p)` on prevalence) is an open decision; the difference sits inside the 0.03 tie rule.
 :::
 
 ## Transport by number of training countries
@@ -812,7 +826,7 @@ if (!is.null(LI)) {
 ::::
 
 ::: {.notes}
-LSMS exists for Ghana alone (GLSS7): 134 region-level household expenditure and asset means, broadcast to districts through the 16-to-10 region crosswalk, so the block varies only across ten regions. It does not improve any Ghana cell beyond noise and cannot be scored across borders. FluNet reports for Ghana and Sierra Leone only and is a national weekly count, constant within a country; it contributes nothing by construction. Both are candidates only if collected sub-nationally in the next countries.
+The LSMS block scored here is Ghana's GLSS7 as a svyby object: 134 region-level household expenditure and asset means, broadcast to districts through the 16-to-10 region crosswalk, so the block varies only across ten regions. It does not improve any Ghana cell beyond noise and cannot be scored across borders. The household budget surveys now enter the base set another way, as diet and consumption indicators computed from the microdata for all four countries (GLSS7 for Ghana, again at the region); that block is part of the base vocabulary this slide compares against. FluNet reports for Ghana and Sierra Leone only and is a national weekly count, constant within a country; it contributes nothing by construction.
 :::
 
 ## Individual-level models
@@ -955,6 +969,6 @@ The individual-level SuperLearner remains a sensitivity analysis because shrinki
 
 ```{r dropped2}
 kb(df(`January slide` = c("LSMS (275) and FluNet (3) predictors", "Data-source importance by change in MSE", "Admin-1 women's iron maps, predicted versus survey", "Prescreened SuperLearner as the model"),
-  Status = c("Re-added: LSMS is Ghana-only and region-level, FluNet national; neither adds skill", "Replaced by domain and source ablation under transport", "Replaced by district maps with held-out predictions", "Retained as comparison; does not beat the zero-tuning index"),
+  Status = c("Re-added: the GLSS7 region means add no skill; household budget survey microdata for all four countries are now in the base set; FluNet is national and inert", "Replaced by domain and source ablation under transport", "Replaced by district maps with held-out predictions", "Retained as comparison; does not beat the zero-tuning index"),
   Where = c("LSMS and FluNet predictors", "Domain and source ablation", "Ghana maps", "Estimators")), digits = 0)
 ```

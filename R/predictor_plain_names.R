@@ -51,7 +51,24 @@ PLAIN <- c(
   map_sy_pf_mortality_rate = "Malaria mortality", map_sy_pf_incidence_rate = "Malaria incidence",
   map_sy_pf_parasite_rate = "Malaria parasite rate", map_sy_itn_use_rate = "Bed-net use rate",
   rwi_sd = "Wealth index spread", wpop_share_under5 = "Share of people under five",
-  wpop_dependency_ratio = "Dependency ratio", fprice_staple_rel = "Relative staple food price"
+  wpop_dependency_ratio = "Dependency ratio", fprice_staple_rel = "Relative staple food price",
+  # 2026-09-16: the public-microdata and market-price blocks that reach the Malawi B12 forest plot (policy deck fig 12)
+  mics_c_fg_flesh = "Children 6-23 months fed meat or fish (MICS)", mics_c_fg_legumes = "Children 6-23 months fed legumes (MICS)",
+  mics_c_fg_dairy = "Children 6-23 months fed dairy (MICS)", mics_c_fg_eggs = "Children 6-23 months fed eggs (MICS)",
+  mics_c_mdd = "Children with minimum diet diversity (MICS)", mics_c_vas_6mo = "Children given vitamin A in the last 6 months (MICS)",
+  mics_wealth_score_mean = "Mean household wealth score (MICS)", mics_wealth_poorest40 = "Households in the poorest two fifths (MICS)",
+  mics_electricity = "Households with electricity (MICS)", mics_open_defecation = "Households practising open defecation (MICS)",
+  mics_w_no_education = "Women with no schooling (MICS)", mics_w_secondary_plus = "Women with secondary schooling or more (MICS)",
+  mics_c_stunted = "Stunted children (MICS)", mics_c_diarrhoea_2wk = "Children with diarrhoea in the last two weeks (MICS)",
+  hces_any_fish = "Households eating fish in the last week (budget survey)", hces_any_meat = "Households eating meat in the last week (budget survey)",
+  hces_any_dairy = "Households eating dairy in the last week (budget survey)", hces_hdds = "Household dietary diversity score (budget survey)",
+  hces_food_share = "Food share of household spending (budget survey)", hces_own_prod_share = "Own production share of food (budget survey)",
+  rtfp_fpi_seasonal_range = "Seasonal swing in local food prices (RTFP)", rtfp_staple_rel_national = "Local staple price against the national level (RTFP)",
+  rtfp_fpi_inflation_12m = "Local food price inflation over the survey year (RTFP)", rtfp_fpi_volatility = "Month-to-month food price volatility (RTFP)",
+  lcover_water_permanent_frac_t0 = "Permanent water cover", lcover_water_seasonal_frac_t0 = "Seasonal water cover",
+  ihme_malaria_mortality_rate = "Modelled malaria mortality (IHME)", ihme_ebfprevalence = "Modelled exclusive breastfeeding (IHME)",
+  clim_pr_ann_mean = "Mean annual rainfall, 30-year normal", clim_pr_sy_anom_z = "Survey-year rainfall anomaly", clim_pr_season_cv = "Rainfall seasonality",
+  clim_tmax_ann = "Mean daily maximum temperature, 30-year normal", clim_lst_diurnal = "Day-night land surface temperature range"
 )
 PLAIN <- PLAIN[!duplicated(names(PLAIN))]
 

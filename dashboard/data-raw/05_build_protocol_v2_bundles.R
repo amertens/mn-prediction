@@ -235,22 +235,34 @@ ID <- rd(P2, "index_importance_domains.csv")
 P4 <- rd("results/tables/signal_probes", "p4_admin1_continuous_predictors.csv")
 DA <- rd(P2, "domain_ablation_loco_summary.csv")
 
+# RR-11 (2026-09-16): the public-microdata blocks (MICS, household budget surveys), RTFP, MIMI, WHO anaemia, GDL, VAS and
+# FluNet are labelled in their own right instead of falling into the catch-all; HFID is tested before WFP because its
+# source string mentions WFP mVAM.
 source_label <- function(s) dplyr::case_when(
-  grepl("^DHS", s) ~ "DHS / MICS household surveys", grepl("AlphaEarth", s) ~ "AlphaEarth satellite embedding",
+  grepl("^DHS", s) ~ "DHS household surveys", grepl("^MICS microdata", s) ~ "MICS household surveys (public microdata)",
+  grepl("HEAT", s) ~ "MICS via WHO HEAT", grepl("^HCES", s) ~ "Household budget surveys (public microdata)",
+  grepl("AlphaEarth", s) ~ "AlphaEarth satellite embedding",
   grepl("SoilGrids", s) ~ "SoilGrids / iSDA soil", grepl("^GEE", s) ~ "Earth Engine (climate, land, built environment)",
   grepl("IHME", s) ~ "IHME modelled surfaces", grepl("Malaria Atlas", s) ~ "Malaria Atlas Project",
   grepl("MapSPAM", s) ~ "MapSPAM crops", grepl("Koppen", s) ~ "Koppen / agro-ecological zones",
-  grepl("WFP", s) ~ "WFP market prices", grepl("FAOSTAT", s) ~ "FAOSTAT (national)",
+  grepl("HFID", s) ~ "HFID food security", grepl("Real-Time Food Prices", s) ~ "World Bank RTFP market prices",
+  grepl("Tang et al", s) ~ "MIMI dietary inadequacy (Ghana)", grepl("WFP", s) ~ "WFP market prices", grepl("FAOSTAT", s) ~ "FAOSTAT (national)",
   grepl("Livestock", s) ~ "Gridded Livestock of the World", grepl("ESPEN", s) ~ "WHO ESPEN helminths",
   grepl("Surface Water", s) ~ "Earth Engine (water and coast distance)", grepl("GFDx", s) ~ "GFDx fortification",
-  grepl("HFID", s) ~ "HFID food prices", TRUE ~ "WorldPop / GHS / RWI")
+  grepl("Global Anaemia", s) ~ "WHO anaemia estimates",
+  grepl("Global Data Lab", s) ~ "Global Data Lab subnational HDI", grepl("VAS", s) ~ "UNICEF vitamin A supplementation",
+  grepl("FluNet", s) ~ "WHO FluNet", TRUE ~ "WorldPop / GHS / RWI")
+tier_label <- c(open = "Open data", survey_public = "Public survey microdata", survey_dhs = "DHS (sensitivity arm)")
 temporal_label <- c(annual_series = "annual series, matched to the survey year", static = "static layer",
                     survey_year = "matched to the survey year", fieldwork_matched = "matched to the fieldwork months")
 
 vars <- MD |>
   transmute(column, domain, source, source_label = source_label(source), n_countries,
             countries = gsub("[|;]", ", ", gsub("SierraLeone", "Sierra Leone", countries)),
-            completeness, subnational = as.logical(subnational))
+            completeness, subnational = as.logical(toupper(as.character(subnational))),
+            tier = if ("tier" %in% names(MD)) unname(tier_label[tier]) else "Open data",
+            # what the headline models see: open + public-microdata tiers, and only columns that vary within a country
+            in_model = (if ("tier" %in% names(MD)) MD$tier %in% c("open", "survey_public") else TRUE) & as.logical(toupper(as.character(subnational))))
 if (!is.null(VS)) {
   # The sheet's "definition" is a mechanism template per sub-domain (one string
   # covers 97 DHS columns, another 64 satellite bands), not a per-variable

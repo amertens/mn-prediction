@@ -33,8 +33,9 @@ mod_importance_ui <- function(id) {
       methods_note(sprintf(paste("Horizontal axis: the share of the model a data group carries inside a surveyed country (pooled fit,",
                                  "mean over outcomes). Vertical: what a country the model has never seen loses when that group is",
                                  "removed. Satellite imagery, climate and soil carry %s to %s of the model; climate and soil are",
-                                 "what a new country needs, and the household-survey aggregates sit below zero because they help inside",
-                                 "a country and hurt in a new one."), fmt_pct(Q$env_lo, 0), fmt_pct(Q$env_hi, 0)))
+                                 "what a new country needs, and the survey-derived groups (water and sanitation, education) sit at or",
+                                 "below zero: they help inside a country and not in a new one. The DHS aggregates showed the same",
+                                 "pattern more strongly, which is why they are not in the model."), fmt_pct(Q$env_lo, 0), fmt_pct(Q$env_hi, 0)))
     ),
     nav_panel(
       title = "Twenty public layers", icon = bsicons::bs_icon("list-ol"),
@@ -67,7 +68,9 @@ mod_importance_server <- function(id) {
       updateSelectInput(session, "outcome", choices = setNames(ocs, outcome_short[ocs]), selected = "child_iron")
       updateSelectInput(session, "outcome20", choices = setNames(ocs, outcome_short[ocs]), selected = "child_iron")
     })
-    src_pal <- c("DHS / MICS household surveys" = "#C8641E", "IHME modelled surfaces" = "#6a3d9a", "Malaria Atlas Project" = "#cab2d6",
+    src_pal <- c("DHS household surveys" = "#C8641E", "MICS household surveys (public microdata)" = "#e08214", "MICS via WHO HEAT" = "#fdb863",
+                 "Household budget surveys (public microdata)" = "#b35806", "World Bank RTFP market prices" = "#fee0b6",
+                 "IHME modelled surfaces" = "#6a3d9a", "Malaria Atlas Project" = "#cab2d6",
                  "Earth Engine (climate, land, built environment)" = "#0F7B8A", "AlphaEarth satellite embedding" = "#7fcdbb",
                  "SoilGrids / iSDA soil" = "#8c510a", "MapSPAM crops" = "#33a02c", "Gridded Livestock of the World" = "#b15928",
                  "WHO ESPEN helminths" = "#9e9ac8", "WFP market prices" = "#fdbf6f")

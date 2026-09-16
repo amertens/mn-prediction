@@ -1,0 +1,360 @@
+"column","full","median","lo","hi","sign_agree","domain","source","plain","label","rank"
+"mics_c_fg_flesh",-4.8924867209014,-4.60751507619154,-6.60673334459207,-2.66892635064035,1,"Infant and young child feeding","MICS microdata (UNICEF MICS6 2017/2018, MICS5 2013-14)","Children 6-23 months fed meat or fish (MICS)","Children 6-23 months fed meat or fish (MICS)",1
+"hces_any_fish",-3.57208311211312,-3.35845311704255,-4.63708777165328,-2.29723070920499,1,"Household diet and consumption (HCES)","HCES microdata (IHS4, IHS 2015/16, SLIHS 2018, GLSS7)","Households eating fish in the last week (budget survey)","Households eating fish in the last week (budget survey)",2
+"mics_wealth_score_mean",-3.20503054850809,-3.14219858384582,-4.49197091191751,-1.80921473046847,1,"Household assets and characteristics","MICS microdata (UNICEF MICS6 2017/2018, MICS5 2013-14)","Mean household wealth score (MICS)","Mean household wealth score (MICS)",3
+"mics_wealth_poorest40",2.99085138939909,3.02999876516755,1.54421706409923,4.92359478662216,1,"Household assets and characteristics","MICS microdata (UNICEF MICS6 2017/2018, MICS5 2013-14)","Households in the poorest two fifths (MICS)","Households in the poorest two fifths (MICS)",4
+"rtfp_fpi_seasonal_range",-3.14003656534927,-2.9643261361252,-4.54120936110399,-1.82029943991053,1,"Market prices (RTFP)","World Bank Real-Time Food Prices (RTFP) market panel, vintage 2026-02-10","Seasonal swing in local food prices (RTFP)","Seasonal swing in local food prices (RTFP)",5
+"mics_c_vas_6mo",-2.67074790149846,-2.7458580019289,-4.7195409406621,-1.12217206837981,1,"Food fortification and supplementation","MICS microdata (UNICEF MICS6 2017/2018, MICS5 2013-14)","Children given vitamin A in the last 6 months (MICS)","Children given vitamin A in the last 6 months (MICS)",6
+"mics_c_fg_legumes",2.84884971596797,2.46488749363562,1.22520275827846,4.00216690391194,0.996666666666667,"Infant and young child feeding","MICS microdata (UNICEF MICS6 2017/2018, MICS5 2013-14)","Children 6-23 months fed legumes (MICS)","Children 6-23 months fed legumes (MICS)",7
+"lcover_water_permanent_frac_t0",-2.46469206712875,-2.42399275074122,-3.74183733792588,-1.2474036210674,0.996666666666667,"Built environment","GEE","Permanent water cover","Permanent water cover",8
+"grassland_frac",1.82245179695315,2.4191481268853,0.925544974705902,3.87149122813347,1,"Ecosystem productivity/greenness","GEE","Grassland share","Grassland share",9
+"ihme_malaria_mortality_rate",-2.55820047300592,-2.41193250253764,-3.57788929033192,-1.15902367220865,1,"Infection and inflammation burden","IHME (modelled surfaces)","Modelled malaria mortality (IHME)","Modelled malaria mortality (IHME)",10
+"ihme_severeanemia",-2.35325962181213,-2.38907920407195,-3.26108795499323,-1.60357805068428,1,"Anaemia and haemoglobin","IHME (modelled surfaces)","Modelled severe anaemia","Modelled severe anaemia",11
+"ihme_moderateanemia",-2.37319198529265,-2.38274099409413,-3.31199773446159,-1.61307743620308,1,"Anaemia and haemoglobin","IHME (modelled surfaces)","Modelled moderate anaemia","Modelled moderate anaemia",12
+"ihme_allanemia",-2.38563877715019,-2.36741230900015,-3.34951599876756,-1.6430092796622,1,"Anaemia and haemoglobin","IHME (modelled surfaces)","Modelled anaemia (any)","Modelled anaemia (any)",13
+"ihme_ebfprevalence",2.29770984459024,2.33076945237634,0.787700920418283,3.90978625809417,0.996666666666667,"Infant and young child feeding","IHME (modelled surfaces)","Modelled exclusive breastfeeding (IHME)","Modelled exclusive breastfeeding (IHME)",14
+"map_sy_pf_mortality_rate",-2.61169869153176,-2.30527059037237,-3.5467190547537,-0.855056838213242,0.99,"Infection and inflammation burden","Malaria Atlas Project (latest release, layer at each survey year)","Malaria mortality","Malaria mortality",15
+"lcover_water_seasonal_frac_t0",-2.29629076505579,-2.30388269319197,-3.49612487784972,-1.16913620556806,0.996666666666667,"Built environment","GEE","Seasonal water cover","Seasonal water cover",16
+"ihme_mildanemia",-2.3222768735316,-2.29656269132711,-3.24033646077801,-1.61444482424761,1,"Anaemia and haemoglobin","IHME (modelled surfaces)","Modelled mild anaemia","Modelled mild anaemia",17
+"glw_pigs_km2",2.27433986376042,2.29348083519816,1.24989511734125,3.26896449834198,1,"Livestock density","Gridded Livestock of the World 4 (2020, 5 arc-min, dasymetric; FAO catalog)","Pig density","Pig density",18
+"wdist_perm_km_mean",2.28154950182093,2.28911049774498,1.25085749837952,3.39880901413721,1,"Water and coast proximity","JRC Global Surface Water 1.4; USDOS LSIB 2017 (Earth Engine)","Distance to permanent water","Distance to permanent water",19
+"rtfp_staple_rel_national",-1.85269074611958,-2.27103041609809,-3.72648563360388,-1.07080650698449,0.996666666666667,"Market prices (RTFP)","World Bank Real-Time Food Prices (RTFP) market panel, vintage 2026-02-10","Local staple price against the national level (RTFP)","Local staple price against the national level (RTFP)",20
+"mics_handwash_soap",-2.01749773451073,-2.25470892410275,-3.56197388797141,-0.867425995357505,1,"Water and sanitation","MICS microdata (UNICEF MICS6 2017/2018, MICS5 2013-14)",NA,"mics handwash soap",21
+"hces_any_asf",-2.37460948845401,-2.23162360019637,-3.1252443672215,-1.39121282729508,1,"Household diet and consumption (HCES)","HCES microdata (IHS4, IHS 2015/16, SLIHS 2018, GLSS7)",NA,"hces any asf",22
+"wdist_any_km_mean",2.20218325663607,2.2157506417547,1.13418870360114,3.26898897071657,1,"Water and coast proximity","JRC Global Surface Water 1.4; USDOS LSIB 2017 (Earth Engine)","Distance to any water","Distance to any water",23
+"mics_c_mean_haz",-1.93501175895612,-2.18147153531722,-3.17511156640438,-1.36964745617669,1,"Child anthropometry","MICS microdata (UNICEF MICS6 2017/2018, MICS5 2013-14)",NA,"mics c mean haz",24
+"ihme_stuntingprevalence",2.17966595793617,2.13281681218128,1.15790371805089,3.11185351126026,1,"Child anthropometry","IHME (modelled surfaces)","Modelled child stunting","Modelled child stunting",25
+"lcover_crops_frac_t0",2.09568878162955,2.10791472710828,0.961550405858245,3.24153327185832,1,"Built environment","GEE","Cropland cover","Cropland cover",26
+"hces_own_prod_share",2.06543194252193,2.0615310624097,0.902562094708505,3.45869976111238,0.99,"Household diet and consumption (HCES)","HCES microdata (IHS4, IHS 2015/16, SLIHS 2018, GLSS7)","Own production share of food (budget survey)","Own production share of food (budget survey)",27
+"ihme_oncho_prevalence",-2.22619718452695,-2.00456822371382,-2.84172313833108,-1.0081356185376,1,"Infection and inflammation burden","IHME (modelled surfaces)",NA,"oncho prevalence",28
+"rtfp_fpi_inflation_12m",1.73045805181814,2.00095749891946,0.510086677386998,3.88909914409254,0.983333333333333,"Market prices (RTFP)","World Bank Real-Time Food Prices (RTFP) market panel, vintage 2026-02-10","Local food price inflation over the survey year (RTFP)","Local food price inflation over the survey year (RTFP)",29
+"mics_water_piped",-2.0480113655594,-1.95092363604027,-2.90540277461682,-0.896768600646441,1,"Water and sanitation","MICS microdata (UNICEF MICS6 2017/2018, MICS5 2013-14)",NA,"mics water piped",30
+"wpop_dependency_ratio",-1.79512380536182,-1.87338553780517,-3.09608083835054,-0.355289599278809,0.99,"Household assets and characteristics","WorldPop age-sex / JRC GHS-SMOD (Earth Engine)","Dependency ratio","Dependency ratio",31
+"ihme_hivprevalence",-1.48083392483701,-1.87196827341047,-3.00791527607581,-1.10061663082979,1,"Infection and inflammation burden","IHME (modelled surfaces)",NA,"hivprevalence",32
+"glw_tlu_km2",1.91812444082113,1.86580461599412,0.814287077244936,2.72831998331425,1,"Livestock density","Gridded Livestock of the World 4 (2020, 5 arc-min, dasymetric; FAO catalog)",NA,"tlu km2",33
+"aef_A13",-1.90725943457219,-1.85828574040062,-2.51151449587379,-1.21744215685691,1,"Satellite embedding","AlphaEarth (GEE)",NA,"aef A13",34
+"soilgrids_cec",-2.08268501550645,-1.83476771370168,-2.45838464392845,-1.23462899099906,1,"Soil characteristics","SoilGrids / iSDA",NA,"soilgrids cec",35
+"hces_any_meat",1.92647834415279,1.83351184090682,0.733427404438927,3.11161145681754,1,"Household diet and consumption (HCES)","HCES microdata (IHS4, IHS 2015/16, SLIHS 2018, GLSS7)","Households eating meat in the last week (budget survey)","Households eating meat in the last week (budget survey)",36
+"elevation",1.53284212402689,1.80783763316486,0.44970177102031,3.53374192648433,0.99,"Built environment","GEE","Elevation","Elevation",37
+"aef_A41",1.99373225254035,1.80632330739657,1.10313667953314,2.61776153470855,1,"Satellite embedding","AlphaEarth (GEE)",NA,"aef A41",38
+"mics_c_stunted",1.6257249664276,1.80152148023135,0.974532804503012,2.70936291551971,1,"Child anthropometry","MICS microdata (UNICEF MICS6 2017/2018, MICS5 2013-14)","Stunted children (MICS)","Stunted children (MICS)",39
+"aef_A25",-1.90608336223615,-1.78851014263116,-2.51229253638088,-1.05742563265413,1,"Satellite embedding","AlphaEarth (GEE)",NA,"aef A25",40
+"glw_tlu_per_capita",1.50400470593596,1.76321823261074,0.467388786587742,3.85057497979341,0.99,"Livestock density","Gridded Livestock of the World 4 (2020, 5 arc-min, dasymetric; FAO catalog)","Livestock per person","Livestock per person",41
+"aef_A58",-1.82730998276358,-1.7580277938479,-2.26940456228579,-1.27064926149687,1,"Satellite embedding","AlphaEarth (GEE)",NA,"aef A58",42
+"soilgrids_sand",1.93434258159989,1.74369536555297,1.11074729409181,2.44410465805819,1,"Soil characteristics","SoilGrids / iSDA",NA,"soilgrids sand",43
+"ihme_overweightprevalence",1.79021836722276,1.73408744165443,0.26041283594739,3.19435773993767,0.973333333333333,"Child anthropometry","IHME (modelled surfaces)",NA,"overweightprevalence",44
+"soilgrids_silt",-1.98803099710266,-1.72754518956717,-2.47760138576694,-1.0001992631612,1,"Soil characteristics","SoilGrids / iSDA",NA,"soilgrids silt",45
+"ndvi_modis_amp_t0",1.61707464767524,1.72516206410868,0.695708865571329,2.93275859960297,0.996666666666667,"Ecosystem productivity/greenness","GEE",NA,"ndvi modis amp",46
+"mics_w_iptp_sp",1.71099896178557,1.70962398009833,0.772347825866854,2.59429725304856,0.996666666666667,"Infection and inflammation burden","MICS microdata (UNICEF MICS6 2017/2018, MICS5 2013-14)",NA,"mics w iptp sp",47
+"ihme_wpiped",-1.87775703900279,-1.70737322549853,-2.85281498966696,-0.534751504920781,1,"Water and sanitation","IHME (modelled surfaces)",NA,"wpiped",48
+"fsec_fcs_lit",1.66774809568654,1.68379347907173,0.655479480131973,2.73677233970532,0.996666666666667,"Food prices and supply","HFID (FEWS NET / IPC / WFP mVAM)",NA,"fsec fcs lit",49
+"espen_sth_cov_mean",-1.71296436255314,-1.67158241094172,-2.92059013418415,-0.404011840979998,0.986666666666667,"Infection and inflammation burden","WHO ESPEN implementation-unit database 2014-2025 (portal export, no key)","Deworming coverage","Deworming coverage",50
+"gdl_shdi_trend5",2.31898537687012,1.63999530516912,0.0642769108696814,3.38590426680728,0.956666666666667,"Education, employment, SES","Global Data Lab Subnational HDI (SHDI)",NA,"gdl shdi trend5",51
+"fprice_staple_rel",-1.96611409340506,-1.62125410708726,-3.04068083313811,-0.11964236031078,0.966666666666667,"Food prices and supply","WFP / HDX market prices","Relative staple food price","Relative staple food price",52
+"fsec_rcsi_lit",1.57242545680076,1.60897487189126,0.65068958042805,2.6778618171544,0.993333333333333,"Food prices and supply","HFID (FEWS NET / IPC / WFP mVAM)",NA,"fsec rcsi lit",53
+"glw_ruminant_share",-1.43727928076194,-1.60003852587529,-2.90373779223403,-0.0999393821309521,0.956666666666667,"Livestock density","Gridded Livestock of the World 4 (2020, 5 arc-min, dasymetric; FAO catalog)","Ruminant share of livestock","Ruminant share of livestock",54
+"mics_c_mdd",-1.67872221946635,-1.59987364459873,-2.44678474373895,-0.85732334994047,0.996666666666667,"Infant and young child feeding","MICS microdata (UNICEF MICS6 2017/2018, MICS5 2013-14)","Children with minimum diet diversity (MICS)","Children with minimum diet diversity (MICS)",55
+"glw_cattle_km2",1.71321997770673,1.59805774496139,-0.515530676571618,2.92139613633302,0.866666666666667,"Livestock density","Gridded Livestock of the World 4 (2020, 5 arc-min, dasymetric; FAO catalog)","Cattle density","Cattle density",56
+"wapor_sd_t0",1.26628661102321,1.58699563055287,0.473565114163653,3.18683435439049,1,"Ecosystem productivity/greenness","GEE","Vegetation seasonality","Vegetation seasonality",57
+"spam_share_oilcrops",1.71945717597608,1.58595087252675,0.792317920996579,2.56976204059926,1,"Agricultural production, land use","MapSPAM","Oil-crop share of cropland","Oil-crop share of cropland",58
+"ihme_u5_diarrhoea_prev",1.53845590071397,1.57950078366752,0.771062170568791,2.40242381085539,1,"Infection and inflammation burden","IHME (modelled surfaces)",NA,"u5 diarrhoea prev",59
+"evi_t0",-1.85276719199349,-1.55164134895673,-2.52713374289526,-0.660878279326489,0.993333333333333,"Ecosystem productivity/greenness","GEE",NA,"evi",60
+"aef_A02",-1.82601864153421,-1.55154077914113,-2.23107823271378,-0.873989990844313,1,"Satellite embedding","AlphaEarth (GEE)",NA,"aef A02",61
+"aef_A27",1.5890872676889,1.54555998442011,0.820147538390954,2.21718816061057,1,"Satellite embedding","AlphaEarth (GEE)",NA,"aef A27",62
+"mics_c_fg_n",-1.61471448090128,-1.52718178435529,-2.39023303010981,-0.708623235938771,0.99,"Infant and young child feeding","MICS microdata (UNICEF MICS6 2017/2018, MICS5 2013-14)",NA,"mics c fg n",63
+"spam_share_vegetables",1.63304539127679,1.52398021659533,0.757319300115645,2.36326262091058,1,"Agricultural production, land use","MapSPAM",NA,"share vegetables",64
+"npp_npp_t0",1.33180269050545,1.50198351321588,0.245713472125278,2.77504332254752,0.98,"Ecosystem productivity/greenness","GEE","Vegetation growth (net)","Vegetation growth (net)",65
+"spam_prod_vegetables",1.56125553317178,1.49716236366714,0.713715000370061,2.5387118884149,1,"Agricultural production, land use","MapSPAM",NA,"prod vegetables",66
+"ihme_spiped",-1.26883041956136,-1.47281232238437,-2.8878953074728,-0.348127749098194,0.996666666666667,"Water and sanitation","IHME (modelled surfaces)",NA,"spiped",67
+"clim_lst_diurnal",1.52444560856388,1.46178774279316,0.880718715708019,2.20533771946377,1,"Climate and weather","GEE","Day-night land surface temperature range","Day-night land surface temperature range",68
+"ihme_wunimp",1.66836541194831,1.43394530345268,0.461493310964574,2.41341974646374,0.993333333333333,"Water and sanitation","IHME (modelled surfaces)",NA,"wunimp",69
+"aef_A09",-1.4607553667635,-1.43283859144181,-1.91205338489868,-0.944636145338993,1,"Satellite embedding","AlphaEarth (GEE)",NA,"aef A09",70
+"soilgrids_clay",-1.53518186631696,-1.42677116429255,-2.11323132446618,-0.883212775891601,1,"Soil characteristics","SoilGrids / iSDA",NA,"soilgrids clay",71
+"mics_water_improved",-1.64074483752252,-1.42362551547458,-2.53602408554252,-0.0155646121032274,0.95,"Water and sanitation","MICS microdata (UNICEF MICS6 2017/2018, MICS5 2013-14)",NA,"mics water improved",72
+"soil_cec_mean_20_50",-1.61787357929199,-1.4202281227907,-2.08446909969685,-0.874604641104473,1,"Soil characteristics","SoilGrids / iSDA",NA,"cec mean 20 50",73
+"tclim_aet_t0",-1.610541067748,-1.41771236443523,-2.06683110047691,-0.800404536097967,1,"Climate and weather","GEE",NA,"aet",74
+"clim_aet_ann",-1.47819782868752,-1.41028512778643,-1.83368716277572,-1.03255467664864,1,"Climate and weather","GEE",NA,"clim aet ann",75
+"wdist_perm_km_min",1.43752072353423,1.39651280858032,0.874198848827136,2.05028438589582,1,"Water and coast proximity","JRC Global Surface Water 1.4; USDOS LSIB 2017 (Earth Engine)",NA,"perm km min",76
+"mics_heat_vrota24_35_sy",-1.52872240879653,-1.3874917869804,-2.66784139507399,-0.20578647328684,0.973333333333333,"Immunisation","WHO Health Inequality Data Repository (HEAT) - UNICEF MICS by subnational region",NA,"mics heat vrota24 35 sy",77
+"espen_sch_cov_mean",-1.4648065102383,-1.37040472178268,-2.72332973453576,0.0820262397722084,0.936666666666667,"Infection and inflammation burden","WHO ESPEN implementation-unit database 2014-2025 (portal export, no key)",NA,"sch cov mean",78
+"lst_night_m06_t0",-1.39041256554148,-1.3619755730194,-1.78800956932625,-0.945217508390349,1,"Climate and weather","GEE",NA,"lst night m06",79
+"soil_cec_mean_0_20",-1.51273235825556,-1.36162859907735,-2.03917041347895,-0.763342875320471,1,"Soil characteristics","SoilGrids / iSDA",NA,"cec mean 0 20",80
+"aef_A26",1.77063694765176,1.35787362191992,0.827838959805571,2.13231466107027,1,"Satellite embedding","AlphaEarth (GEE)",NA,"aef A26",81
+"rwi_n_points",1.08147482750241,1.34831975471145,-0.14533803284833,2.81976225682306,0.923333333333333,"Education, employment, SES","Meta/Data for Good RWI; WorldPop; CIESIN GPW v4.11 (Earth Engine)",NA,"n points",82
+"spam_prod_oilcrops",1.37390911525963,1.34677637243571,0.71081764703697,1.97194572492587,1,"Agricultural production, land use","MapSPAM",NA,"prod oilcrops",83
+"clim_pr_ann_mean",-1.40597187101312,-1.34191422194801,-1.75056347221056,-0.945758437983835,1,"Climate and weather","GEE","Mean annual rainfall, 30-year normal","Mean annual rainfall, 30-year normal",84
+"soil_potassium_mean_0_20",-1.5193586842981,-1.3397730547871,-2.08259067039551,-0.673687770382098,1,"Soil characteristics","SoilGrids / iSDA",NA,"potassium mean 0 20",85
+"lai_t0",-1.47873748233749,-1.33773292497737,-2.1343525312097,-0.558659432157745,0.996666666666667,"Ecosystem productivity/greenness","GEE",NA,"lai",86
+"soil_phosphorus_stdev_0_20",-1.39525527079199,-1.33616006197941,-2.02659500155407,-0.712643400719781,1,"Soil characteristics","SoilGrids / iSDA","Soil phosphorus variability","Soil phosphorus variability",87
+"hces_any_fruit",1.42967829368004,1.33068483218885,0.207719239116063,2.63854828679827,0.963333333333333,"Household diet and consumption (HCES)","HCES microdata (IHS4, IHS 2015/16, SLIHS 2018, GLSS7)",NA,"hces any fruit",88
+"aod_t0",-1.32706905348674,-1.3276978790485,-1.83543309293512,-0.890341607332452,1,"Climate and weather","GEE",NA,"aod",89
+"soil_aluminium_stdev_20_50",1.57235650762224,1.32312646859973,0.602532501425947,2.04604416946015,1,"Soil characteristics","SoilGrids / iSDA",NA,"aluminium stdev 20 50",90
+"aef_A19",-1.23301516973536,-1.3188410734966,-1.85313704383685,-0.763512455804773,1,"Satellite embedding","AlphaEarth (GEE)",NA,"aef A19",91
+"mics_heat_vtetprot_sy",1.246016495499,1.30589679552053,0.251073611219458,2.34099531600485,0.96,"Immunisation","WHO Health Inequality Data Repository (HEAT) - UNICEF MICS by subnational region",NA,"mics heat vtetprot sy",92
+"aef_A07",-1.32254320157921,-1.30376598417711,-1.96076151012402,-0.774892783045977,1,"Satellite embedding","AlphaEarth (GEE)",NA,"aef A07",93
+"rwi_mean",-0.931910790415613,-1.30211841125556,-2.53717975072997,0.168190184269493,0.943333333333333,"Education, employment, SES","Meta/Data for Good RWI; WorldPop; CIESIN GPW v4.11 (Earth Engine)",NA,"mean",94
+"rwi_sd",-1.52400862921762,-1.29847554505066,-2.93443775116998,-0.100886346159868,0.96,"Education, employment, SES","Meta/Data for Good RWI; WorldPop; CIESIN GPW v4.11 (Earth Engine)","Wealth index spread","Wealth index spread",95
+"rtfp_fpi_volatility",-1.74128176159244,-1.28348490731615,-2.93790745568726,0.313691360652945,0.91,"Market prices (RTFP)","World Bank Real-Time Food Prices (RTFP) market panel, vintage 2026-02-10","Month-to-month food price volatility (RTFP)","Month-to-month food price volatility (RTFP)",96
+"lst_night_annual_min_t0",-1.27521161110934,-1.25646644519223,-1.68342998954125,-0.893625322031117,1,"Climate and weather","GEE",NA,"lst night annual min",97
+"clim_lstd_ann",1.35302019593916,1.25228208238109,0.666512222567566,1.89019996347998,1,"Climate and weather","GEE",NA,"clim lstd ann",98
+"aef_A45",-1.29692198467538,-1.24361548987808,-1.83001039725814,-0.718375439603558,1,"Satellite embedding","AlphaEarth (GEE)",NA,"aef A45",99
+"hces_asf_purchase_share",-1.59200865889651,-1.24112214042303,-2.19170380786936,-0.138906730050022,0.976666666666667,"Household diet and consumption (HCES)","HCES microdata (IHS4, IHS 2015/16, SLIHS 2018, GLSS7)",NA,"hces asf purchase share",100
+"lst_night_m07_t0",-1.26477757457477,-1.24028587580471,-1.68732485785634,-0.867938444313908,1,"Climate and weather","GEE",NA,"lst night m07",101
+"soil_potassium_mean_20_50",-1.28497652276237,-1.2030041116463,-1.92002395280708,-0.5676262336705,1,"Soil characteristics","SoilGrids / iSDA",NA,"potassium mean 20 50",102
+"ndvi_modis_clim",-1.15803879341996,-1.19158874141971,-1.85957770931551,-0.600934690756014,1,"Ecosystem productivity/greenness","GEE",NA,"ndvi modis clim",103
+"aef_A11",-1.37638880098028,-1.19099939537129,-1.74437183198747,-0.740290714837032,1,"Satellite embedding","AlphaEarth (GEE)",NA,"aef A11",104
+"soil_aluminium_mean_20_50",-1.44310340397308,-1.1770747872472,-1.80345110096114,-0.494951442841139,1,"Soil characteristics","SoilGrids / iSDA",NA,"aluminium mean 20 50",105
+"mics_heat_vpolio24_35_sy",1.28663822726334,1.17530210803828,0.0757710616324289,2.30658484219808,0.963333333333333,"Immunisation","WHO Health Inequality Data Repository (HEAT) - UNICEF MICS by subnational region",NA,"mics heat vpolio24 35 sy",106
+"ihme_malecircumcisionprevalence",-1.10202139640956,-1.17086725440316,-2.27550910571867,-0.412184098537575,0.996666666666667,"Infection and inflammation burden","IHME (modelled surfaces)",NA,"malecircumcisionprevalence",107
+"aef_A61",1.220062529721,1.1698128517544,0.671945819190269,1.67021538685731,1,"Satellite embedding","AlphaEarth (GEE)",NA,"aef A61",108
+"lst_night_m05_t0",-1.16898256978795,-1.15902885420629,-1.57150298833846,-0.82887379640102,1,"Climate and weather","GEE",NA,"lst night m05",109
+"lcover_grass_frac_t0",1.66359611274096,1.15873971349921,-0.888348454135799,2.69913303991096,0.863333333333333,"Built environment","GEE","Grassland cover","Grassland cover",110
+"lst_night_m08_t0",-1.15897688654683,-1.14882377909545,-1.57032702506603,-0.80087682594701,1,"Climate and weather","GEE",NA,"lst night m08",111
+"ndvi_modis_win",-1.25618427079653,-1.13810596385682,-1.81674794944003,-0.544682359983793,1,"Ecosystem productivity/greenness","GEE",NA,"ndvi modis win",112
+"mics_heat_vdpt_sy",1.11033890487234,1.13737725155806,0.257498043188815,2.03780574952234,0.976666666666667,"Immunisation","WHO Health Inequality Data Repository (HEAT) - UNICEF MICS by subnational region",NA,"mics heat vdpt sy",113
+"tclim_pr_t0",-1.32196009472664,-1.10724781245085,-1.67001561728361,-0.595385937516995,1,"Climate and weather","GEE",NA,"pr",114
+"mics_heat_vpolio_sy",1.161716900776,1.08828205776728,0.147419857863304,1.98393021267953,0.966666666666667,"Immunisation","WHO Health Inequality Data Repository (HEAT) - UNICEF MICS by subnational region",NA,"mics heat vpolio sy",115
+"soil_phosphorus_mean_20_50",-1.15660797514712,-1.08539415495588,-1.71545105934405,-0.523591442707773,1,"Soil characteristics","SoilGrids / iSDA",NA,"phosphorus mean 20 50",116
+"ihme_edu_12plus_share",-1.09389872996366,-1.08271225086733,-1.72147767498001,-0.386715790589208,0.996666666666667,"Education, employment, SES","IHME (modelled surfaces)",NA,"edu 12plus share",117
+"soil_zinc_stdev_0_20",1.24268054712339,1.08239369757736,0.306328906798743,2.11823559542217,0.986666666666667,"Soil characteristics","SoilGrids / iSDA","Soil zinc variability","Soil zinc variability",118
+"mics_c_fg_vita_fv",1.03674331866666,1.07620960029226,-0.422387015592744,2.76841991738194,0.863333333333333,"Infant and young child feeding","MICS microdata (UNICEF MICS6 2017/2018, MICS5 2013-14)",NA,"mics c fg vita fv",119
+"soil_phosphorus_mean_0_20",-1.16205223885633,-1.07232212949294,-1.79253328035205,-0.552079727973562,1,"Soil characteristics","SoilGrids / iSDA",NA,"phosphorus mean 0 20",120
+"lst_night_annual_sd_t0",1.11625364648005,1.06791932934081,0.504149113568412,1.70304166335646,1,"Climate and weather","GEE",NA,"lst night annual sd",121
+"aef_A28",1.18725677791782,1.06741290365576,0.57867383392921,1.56906951621916,1,"Satellite embedding","AlphaEarth (GEE)",NA,"aef A28",122
+"lcover_tree_frac_t0",-1.29953336286175,-1.06059779790111,-2.16945220883261,-0.00798870070500269,0.95,"Built environment","GEE",NA,"tree frac",123
+"ihme_wimpother",1.13114751415323,1.03919595073784,-0.32252739599061,2.30545626328631,0.9,"Water and sanitation","IHME (modelled surfaces)",NA,"wimpother",124
+"ihme_oralrehydrationsolution",-0.85188104030088,-1.02636016445941,-1.84657127020396,-0.400848961210312,0.996666666666667,"Infection and inflammation burden","IHME (modelled surfaces)",NA,"oralrehydrationsolution",125
+"soil_sulfur_stdev_0_20",-1.21639273116232,-1.02200407613737,-1.68741837837183,-0.398272209787981,1,"Soil characteristics","SoilGrids / iSDA",NA,"sulfur stdev 0 20",126
+"ndvi_modis_t0",-1.01793038785092,-1.0216523415423,-1.80700237459696,-0.395418412761992,0.996666666666667,"Ecosystem productivity/greenness","GEE",NA,"ndvi modis",127
+"tclim_def_t0",1.13765388092549,1.01657800189452,0.516605106181287,1.49902493321426,1,"Climate and weather","GEE",NA,"def",128
+"tclim_soil_t0",-1.12669414673641,-1.01127511683097,-1.59532260946138,-0.38031551041814,0.996666666666667,"Climate and weather","GEE",NA,"soil",129
+"clim_tmin_ann",-1.01751750054898,-1.00509478986077,-1.49968240497374,-0.634322401555147,1,"Climate and weather","GEE",NA,"clim tmin ann",130
+"clim_pr_top3_share",0.988683015646172,1.00452773331379,0.569478140325043,1.61408722606078,1,"Climate and weather","GEE",NA,"clim pr top3 share",131
+"mics_c_fever_2wk",-1.11630702669814,-1.00004321105071,-2.23596358381566,0.288885281166842,0.923333333333333,"Infection and inflammation burden","MICS microdata (UNICEF MICS6 2017/2018, MICS5 2013-14)",NA,"mics c fever 2wk",132
+"clim_def_ann",1.0812189103641,0.999427565764677,0.622241101499105,1.44034250686052,1,"Climate and weather","GEE",NA,"clim def ann",133
+"hces_any_vita_fv",1.38191345508909,0.997239538022283,-0.15102637984305,2.15567872696717,0.926666666666667,"Household diet and consumption (HCES)","HCES microdata (IHS4, IHS 2015/16, SLIHS 2018, GLSS7)",NA,"hces any vita fv",134
+"aef_A14",1.09381683407714,0.996691892421006,0.409035865059699,1.63147071101361,0.996666666666667,"Satellite embedding","AlphaEarth (GEE)",NA,"aef A14",135
+"lst_night_annual_range_t0",1.03279681810131,0.988763335971881,0.433419480802998,1.6403414661353,1,"Climate and weather","GEE",NA,"lst night annual range",136
+"soil_potassium_stdev_20_50",1.0794194645894,0.984382949585871,0.339193778217155,1.76486179074411,0.996666666666667,"Soil characteristics","SoilGrids / iSDA",NA,"potassium stdev 20 50",137
+"aef_A22",0.806410612544978,0.970404665077551,0.263083020637792,1.69530361794846,0.996666666666667,"Satellite embedding","AlphaEarth (GEE)",NA,"aef A22",138
+"mics_heat_vmsl24_35_sy",-1.16519680061754,-0.958844375593871,-1.9457376834629,0.0185042780818443,0.94,"Immunisation","WHO Health Inequality Data Repository (HEAT) - UNICEF MICS by subnational region",NA,"mics heat vmsl24 35 sy",139
+"fprice_dist_nearest_market_km",0.989615769258776,0.942891711161408,-1.02688503366729,2.66725574898583,0.783333333333333,"Food prices and supply","WFP / HDX market prices",NA,"dist nearest market km",140
+"tclim_tmmn_t0",-0.963321754189179,-0.935068627496989,-1.3734695374722,-0.577257098381444,1,"Climate and weather","GEE",NA,"tmmn",141
+"tclim_ro_t0",-1.13241085231469,-0.932429982977517,-1.44987892790198,-0.475193173002116,1,"Climate and weather","GEE",NA,"ro",142
+"aef_A30",-1.12005773637301,-0.931700956708852,-1.61254605591957,-0.356984033241092,0.996666666666667,"Satellite embedding","AlphaEarth (GEE)",NA,"aef A30",143
+"mics_salt_any_iodine",1.03287582236509,0.925446675357781,-0.114094784716589,2.24417691499481,0.933333333333333,"Food fortification and supplementation","MICS microdata (UNICEF MICS6 2017/2018, MICS5 2013-14)",NA,"mics salt any iodine",144
+"aef_A34",1.07506541285136,0.910025719145298,0.24337064778182,1.46997034122277,0.983333333333333,"Satellite embedding","AlphaEarth (GEE)",NA,"aef A34",145
+"ihme_underweightprevalence",1.09448775453899,0.899507634147346,-0.152770398441704,1.91077077498871,0.923333333333333,"Child anthropometry","IHME (modelled surfaces)","Modelled child underweight","Modelled child underweight",146
+"hces_any_dgl",1.32168859227911,0.898860461242973,-0.290111032532647,2.22720096564387,0.876666666666667,"Household diet and consumption (HCES)","HCES microdata (IHS4, IHS 2015/16, SLIHS 2018, GLSS7)",NA,"hces any dgl",147
+"lst_night_m09_t0",-0.912937107596567,-0.891889786229884,-1.30263294074123,-0.553417840640828,1,"Climate and weather","GEE",NA,"lst night m09",148
+"soilgrids_ph",1.13061709079893,0.880780220877369,0.365665442998514,1.38626836176477,0.993333333333333,"Soil characteristics","SoilGrids / iSDA",NA,"soilgrids ph",149
+"aef_A29",-0.946257854257249,-0.878174310490493,-1.42024212970036,-0.214076474742161,0.98,"Satellite embedding","AlphaEarth (GEE)",NA,"aef A29",150
+"spam_parea_total",0.906168648876499,0.872749893631231,0.210492529344751,1.50682021541194,0.973333333333333,"Agricultural production, land use","MapSPAM",NA,"parea total",151
+"aef_A51",0.952266260958758,0.871360959546157,0.409229778405681,1.27199917290162,0.996666666666667,"Satellite embedding","AlphaEarth (GEE)",NA,"aef A51",152
+"lst_night_annual_mean_t0",-0.880200611053482,-0.863709513155685,-1.31313070898666,-0.498852944439154,1,"Climate and weather","GEE",NA,"lst night annual mean",153
+"mics_heat_vfull_sy",0.87117189641435,0.863221638377667,-0.118910504517285,1.72805144608457,0.94,"Immunisation","WHO Health Inequality Data Repository (HEAT) - UNICEF MICS by subnational region",NA,"mics heat vfull sy",154
+"tclim_vap_t0",-0.892336656031892,-0.854576386009533,-1.31301477909112,-0.551515263182443,1,"Climate and weather","GEE",NA,"vap",155
+"soil_magnesium_mean_0_20",-0.964193525997825,-0.848255707100913,-1.50190395958447,-0.312751648658362,0.996666666666667,"Soil characteristics","SoilGrids / iSDA",NA,"magnesium mean 0 20",156
+"mics_c_fg_dairy",-0.84652302367495,-0.848142954404566,-2.06865554437924,0.423516155267484,0.896666666666667,"Infant and young child feeding","MICS microdata (UNICEF MICS6 2017/2018, MICS5 2013-14)","Children 6-23 months fed dairy (MICS)","Children 6-23 months fed dairy (MICS)",157
+"ihme_wimp",-0.936302227387996,-0.847356785477741,-1.77795015670737,0.13524663105419,0.926666666666667,"Water and sanitation","IHME (modelled surfaces)",NA,"wimp",158
+"clim_pr_ann_sd",-0.912128793050435,-0.843479194129071,-1.35505854294625,-0.371547387314248,0.996666666666667,"Climate and weather","GEE",NA,"clim pr ann sd",159
+"aef_A35",-0.930394590830698,-0.84241822973167,-1.26261690146529,-0.433090290438127,0.996666666666667,"Satellite embedding","AlphaEarth (GEE)",NA,"aef A35",160
+"soil_phosphorus_stdev_20_50",-0.805328538661404,-0.84194657300696,-1.90322369111793,0.0268800218195808,0.943333333333333,"Soil characteristics","SoilGrids / iSDA",NA,"phosphorus stdev 20 50",161
+"soil_potassium_stdev_0_20",0.843442157083422,0.831597974717539,0.20114586601738,1.53743126233752,0.983333333333333,"Soil characteristics","SoilGrids / iSDA",NA,"potassium stdev 0 20",162
+"hces_any_pulses_nuts",0.744976344583252,0.828812095735759,-0.778945912315902,2.60813898423676,0.796666666666667,"Household diet and consumption (HCES)","HCES microdata (IHS4, IHS 2015/16, SLIHS 2018, GLSS7)",NA,"hces any pulses nuts",163
+"tclim_vs_t0",0.835282563249477,0.827799111641951,0.451259105602708,1.22108855505753,1,"Climate and weather","GEE",NA,"vs",164
+"clim_tmax_sy_anom",0.824441640769692,0.82773919444423,0.397818798183069,1.34507645745258,1,"Climate and weather","GEE",NA,"clim tmax sy anom",165
+"lcover_bare_frac_t0",0.589816594390471,0.82245509926493,-0.452181484952687,2.48239380177139,0.853333333333333,"Built environment","GEE",NA,"bare frac",166
+"soil_aluminium_stdev_0_20",1.04338427210874,0.821789840593426,0.11797468762282,1.42910434297672,0.963333333333333,"Soil characteristics","SoilGrids / iSDA",NA,"aluminium stdev 0 20",167
+"soil_aluminium_mean_0_20",-1.08035591613392,-0.820853604940161,-1.40152682507097,-0.101984055352733,0.98,"Soil characteristics","SoilGrids / iSDA",NA,"aluminium mean 0 20",168
+"soil_cec_stdev_20_50",-1.05393279816643,-0.795838404573403,-1.49755191935471,-0.118525323195456,0.973333333333333,"Soil characteristics","SoilGrids / iSDA",NA,"cec stdev 20 50",169
+"wdist_coast_km_mean",0.879368384486682,0.785314082912214,-0.239226259262774,2.09883559166835,0.88,"Water and coast proximity","JRC Global Surface Water 1.4; USDOS LSIB 2017 (Earth Engine)","Distance to the coast","Distance to the coast",170
+"mics_heat_vmsl_sy",-0.855059182517592,-0.784531018856268,-2.02380127875835,0.262862391204772,0.873333333333333,"Immunisation","WHO Health Inequality Data Repository (HEAT) - UNICEF MICS by subnational region",NA,"mics heat vmsl sy",171
+"map_blooddisorders201201globalsicklehaemoglobinhbsallelefrequency",0.807667677922573,0.783211252489782,0.00114165933361697,1.57668056044613,0.95,"Infection and inflammation burden","Malaria Atlas","Sickle-cell gene frequency","Sickle-cell gene frequency",172
+"clim_pr_season_cv",0.752724623771371,0.78015534296138,0.337021414035744,1.26066320616283,1,"Climate and weather","GEE","Rainfall seasonality","Rainfall seasonality",173
+"clim_soilm_ann",-0.884931998981368,-0.779659486626312,-1.22769060443578,-0.228678603995815,0.993333333333333,"Climate and weather","GEE",NA,"clim soilm ann",174
+"wdist_coast_km_min",0.888755065851381,0.777294794447899,-0.267634258514083,2.0310646487678,0.883333333333333,"Water and coast proximity","JRC Global Surface Water 1.4; USDOS LSIB 2017 (Earth Engine)","Distance to the coast (nearest)","Distance to the coast (nearest)",175
+"wpop_share_under5",-0.893242201590906,-0.771738554612677,-2.12642987152289,0.453680901721614,0.82,"Household assets and characteristics","WorldPop age-sex / JRC GHS-SMOD (Earth Engine)","Share of people under five","Share of people under five",176
+"hces_any_dairy",1.03678877319334,0.76826185890649,-0.188193313447532,1.7644978219979,0.92,"Household diet and consumption (HCES)","HCES microdata (IHS4, IHS 2015/16, SLIHS 2018, GLSS7)","Households eating dairy in the last week (budget survey)","Households eating dairy in the last week (budget survey)",177
+"map_sy_itn_access",-0.647944879717365,-0.764149002254604,-2.12544210870785,0.214514795382925,0.9,"Infection and inflammation burden","Malaria Atlas Project (latest release, layer at each survey year)",NA,"sy itn access",178
+"lst_night_m04_t0",-0.786238926328783,-0.76124867481832,-1.22087307179817,-0.360970239250974,1,"Climate and weather","GEE",NA,"lst night m04",179
+"ihme_wsurface",-0.981963579768522,-0.757311266152648,-2.0387855771005,0.346811804917231,0.846666666666667,"Water and sanitation","IHME (modelled surfaces)",NA,"wsurface",180
+"mics_c_underweight",0.681583682748192,0.752419813744354,-0.216760341063725,1.57261035217152,0.89,"Child anthropometry","MICS microdata (UNICEF MICS6 2017/2018, MICS5 2013-14)",NA,"mics c underweight",181
+"spam_prod_cereals",0.714807962878878,0.748549713962194,-0.475985768260562,1.63413320776027,0.863333333333333,"Agricultural production, land use","MapSPAM",NA,"prod cereals",182
+"ihme_meanyearsofattainment",-0.694180388300389,-0.745873041845281,-1.38728133810267,-0.161950039250317,0.98,"Education, employment, SES","IHME (modelled surfaces)",NA,"meanyearsofattainment",183
+"lst_night_m12_t0",-0.749648592751216,-0.737733318305815,-1.19714911964858,-0.335470516817828,1,"Climate and weather","GEE",NA,"lst night m12",184
+"lst_night_m10_t0",-0.747056956024599,-0.726380271495998,-1.14127538353802,-0.315335760034352,1,"Climate and weather","GEE",NA,"lst night m10",185
+"aef_A24",0.743150610941226,0.714533477026395,-0.000287814084021005,1.3867989176071,0.95,"Satellite embedding","AlphaEarth (GEE)",NA,"aef A24",186
+"mics_c_fg_eggs",-0.56704343512957,-0.707087960230125,-1.65783122437101,0.280918356333898,0.883333333333333,"Infant and young child feeding","MICS microdata (UNICEF MICS6 2017/2018, MICS5 2013-14)","Children 6-23 months fed eggs (MICS)","Children 6-23 months fed eggs (MICS)",187
+"map_sy_itn_use",-0.717124800360821,-0.706263944132668,-1.97159557752496,0.209450870561922,0.87,"Infection and inflammation burden","Malaria Atlas Project (latest release, layer at each survey year)",NA,"sy itn use",188
+"mics_sanitation_improved",0.881461324592057,0.705867747398778,-0.641585209279061,2.06113069444582,0.83,"Water and sanitation","MICS microdata (UNICEF MICS6 2017/2018, MICS5 2013-14)",NA,"mics sanitation improved",189
+"clim_lstn_ann",-0.735459186226005,-0.703428473826586,-1.25173469305773,-0.21500982457971,0.986666666666667,"Climate and weather","GEE",NA,"clim lstn ann",190
+"soil_iron_mean_20_50",-0.748059947250818,-0.678092446788985,-1.43003148358134,0.10076552800896,0.92,"Soil characteristics","SoilGrids / iSDA",NA,"iron mean 20 50",191
+"lst_night_m11_t0",-0.68284082857038,-0.6758064218027,-1.10272924077047,-0.275160511590666,1,"Climate and weather","GEE",NA,"lst night m11",192
+"mics_heat_vfull24_35_sy",0.72115980563804,0.671650737541925,-0.27111869820967,1.78081980714106,0.91,"Immunisation","WHO Health Inequality Data Repository (HEAT) - UNICEF MICS by subnational region",NA,"mics heat vfull24 35 sy",193
+"aef_A00",0.880665140497021,0.660416374664865,0.0303651103319367,1.15629555897911,0.96,"Satellite embedding","AlphaEarth (GEE)",NA,"aef A00",194
+"lst_night_annual_max_t0",-0.652646108665112,-0.656281944149376,-1.10331272193618,-0.238081211841646,1,"Climate and weather","GEE",NA,"lst night annual max",195
+"aef_A42",-0.864973372336793,-0.652480540432119,-1.29067781697995,-0.110189950192596,0.96,"Satellite embedding","AlphaEarth (GEE)",NA,"aef A42",196
+"lcover_shrub_frac_t0",0.636850576667486,0.649700722875015,-0.631243506644744,2.24512564980344,0.73,"Built environment","GEE",NA,"shrub frac",197
+"aef_A49",-0.631838317898162,-0.638680781332445,-1.26891200881003,-0.0669217492660518,0.966666666666667,"Satellite embedding","AlphaEarth (GEE)",NA,"aef A49",198
+"aef_A15",-0.824287205609773,-0.637602501822898,-1.17269198539321,-0.176065555839561,0.99,"Satellite embedding","AlphaEarth (GEE)",NA,"aef A15",199
+"spam_share_pulses",0.743684359000794,0.635734219798206,-0.265882206121679,1.38686895835507,0.883333333333333,"Agricultural production, land use","MapSPAM",NA,"share pulses",200
+"lst_night_m02_t0",-0.629188562664317,-0.634032307186877,-1.05464737131495,-0.219232380359758,1,"Climate and weather","GEE",NA,"lst night m02",201
+"aef_A12",-0.65289228834604,-0.633839371457078,-1.30656282827696,-0.0846710617857579,0.966666666666667,"Satellite embedding","AlphaEarth (GEE)",NA,"aef A12",202
+"mics_w_secondary_plus",-0.643707798028064,-0.627061364520973,-1.29113261612588,0.0012113549672021,0.946666666666667,"Education, employment, SES","MICS microdata (UNICEF MICS6 2017/2018, MICS5 2013-14)","Women with secondary schooling or more (MICS)","Women with secondary schooling or more (MICS)",203
+"aef_A10",0.608881080097612,0.626964747085129,0.0633577953930178,1.35842671884045,0.97,"Satellite embedding","AlphaEarth (GEE)",NA,"aef A10",204
+"glw_chickens_km2",0.58941739100261,0.624580840791767,-0.279235819788522,1.57157642288856,0.86,"Livestock density","Gridded Livestock of the World 4 (2020, 5 arc-min, dasymetric; FAO catalog)",NA,"chickens km2",205
+"soil_iron_mean_0_20",-0.536971275947696,-0.621815612624458,-1.4758589206866,0.0984210109368382,0.923333333333333,"Soil characteristics","SoilGrids / iSDA",NA,"iron mean 0 20",206
+"hces_any_eggs",0.772231987852475,0.621690616206066,-0.242867696857148,1.39877797097616,0.873333333333333,"Household diet and consumption (HCES)","HCES microdata (IHS4, IHS 2015/16, SLIHS 2018, GLSS7)",NA,"hces any eggs",207
+"mics_open_defecation",-0.476908100563244,-0.6014815687763,-1.61975667202258,0.377997735336921,0.833333333333333,"Water and sanitation","MICS microdata (UNICEF MICS6 2017/2018, MICS5 2013-14)","Households practising open defecation (MICS)","Households practising open defecation (MICS)",208
+"soil_magnesium_mean_20_50",-0.663572301936321,-0.600839146530985,-1.16029179826137,-0.0497152747121801,0.96,"Soil characteristics","SoilGrids / iSDA",NA,"magnesium mean 20 50",209
+"soil_zinc_mean_0_20",-0.888213421973546,-0.600715860050334,-1.17541945077001,-0.0276021344150882,0.96,"Soil characteristics","SoilGrids / iSDA",NA,"zinc mean 0 20",210
+"hces_food_share",0.280590739479256,0.600346779952855,-0.541492898537119,1.76023842537081,0.796666666666667,"Household diet and consumption (HCES)","HCES microdata (IHS4, IHS 2015/16, SLIHS 2018, GLSS7)","Food share of household spending (budget survey)","Food share of household spending (budget survey)",211
+"mics_heat_vdpt24_35_sy",0.630522626075803,0.596761729445925,-0.283223114740917,1.29864634721135,0.886666666666667,"Immunisation","WHO Health Inequality Data Repository (HEAT) - UNICEF MICS by subnational region",NA,"mics heat vdpt24 35 sy",212
+"mics_heat_vhib24_35_sy",0.630522626075803,0.596761729445924,-0.283223114740916,1.29864634721135,0.886666666666667,"Immunisation","WHO Health Inequality Data Repository (HEAT) - UNICEF MICS by subnational region",NA,"mics heat vhib24 35 sy",213
+"spam_prod_pulses",0.608863608512783,0.588705922206336,0.0281489162720884,1.13817871378253,0.956666666666667,"Agricultural production, land use","MapSPAM",NA,"prod pulses",214
+"soil_zinc_stdev_20_50",0.732108031861631,0.586705126305833,-0.21599250930712,1.57455932741475,0.886666666666667,"Soil characteristics","SoilGrids / iSDA",NA,"zinc stdev 20 50",215
+"mics_c_diarrhoea_2wk",0.665545986061349,0.582304286207243,-0.338663157748797,1.27033649496279,0.876666666666667,"Infection and inflammation burden","MICS microdata (UNICEF MICS6 2017/2018, MICS5 2013-14)","Children with diarrhoea in the last two weeks (MICS)","Children with diarrhoea in the last two weeks (MICS)",216
+"aef_A40",0.596652058483488,0.58113235814474,0.127813387812833,1.11389682596877,0.973333333333333,"Satellite embedding","AlphaEarth (GEE)",NA,"aef A40",217
+"lst_night_m01_t0",-0.581739050284587,-0.579899311737833,-1.02392631361876,-0.166620188272986,1,"Climate and weather","GEE",NA,"lst night m01",218
+"soil_totalcarbon_mean_20_50",0.662862020244334,0.578718972124298,-0.173418529170607,1.45642354570559,0.893333333333333,"Soil characteristics","SoilGrids / iSDA",NA,"totalcarbon mean 20 50",219
+"glw_goats_km2",0.403018334505177,0.578484767546655,-0.227448490220932,1.93789075775707,0.84,"Livestock density","Gridded Livestock of the World 4 (2020, 5 arc-min, dasymetric; FAO catalog)",NA,"goats km2",220
+"soil_calcium_stdev_20_50",-0.967097592574444,-0.577803556846195,-1.47317018426029,0.273798598068086,0.87,"Soil characteristics","SoilGrids / iSDA",NA,"calcium stdev 20 50",221
+"clim_tmax_range",0.59994311948481,0.572688240536468,-0.0250453505523215,1.21032819049625,0.943333333333333,"Climate and weather","GEE",NA,"clim tmax range",222
+"aef_A37",-0.616040235434825,-0.561278298200851,-0.983790639500924,-0.14789539099854,0.986666666666667,"Satellite embedding","AlphaEarth (GEE)",NA,"aef A37",223
+"aef_A20",0.499330973029111,0.550297213889481,0.0965950983282714,1.05885874300803,0.98,"Satellite embedding","AlphaEarth (GEE)",NA,"aef A20",224
+"soilgrids_organic_carbon",-0.735898691728424,-0.54927734103976,-1.21944163320263,-0.046365467099771,0.96,"Soil characteristics","SoilGrids / iSDA",NA,"soilgrids organic carbon",225
+"built_surface_nres",-0.698191449791433,-0.548572961822363,-1.82458291523983,0.337445769402635,0.823333333333333,"Ruralness, population density, built environment","GEE",NA,"built surface nres",226
+"soil_cec_stdev_0_20",-0.798551616496993,-0.544232056859787,-1.25610825863933,0.194556869485114,0.873333333333333,"Soil characteristics","SoilGrids / iSDA",NA,"cec stdev 0 20",227
+"mics_heat_vrota_sy",0.359359366517739,0.541242961512211,-0.538510579168995,1.80353423650535,0.79,"Immunisation","WHO Health Inequality Data Repository (HEAT) - UNICEF MICS by subnational region",NA,"mics heat vrota sy",228
+"aef_A52",0.5495114486839,0.537080584915422,0.181761346701143,0.92134574607911,0.993333333333333,"Satellite embedding","AlphaEarth (GEE)",NA,"aef A52",229
+"ihme_lf_prevalence",0.485516938906028,0.535249942037305,-0.917118215130177,1.86201706278215,0.75,"Infection and inflammation burden","IHME (modelled surfaces)",NA,"lf prevalence",230
+"soil_totalcarbon_mean_0_20",0.534715557816909,0.527001470156624,-0.223230709655604,1.28639194326197,0.886666666666667,"Soil characteristics","SoilGrids / iSDA",NA,"totalcarbon mean 0 20",231
+"aef_A31",0.678973965155027,0.526391226750663,-0.107636456320081,1.16924807884136,0.92,"Satellite embedding","AlphaEarth (GEE)",NA,"aef A31",232
+"soil_zinc_mean_20_50",-0.791165347443973,-0.518675334746041,-1.155938876895,0.0193519861025645,0.936666666666667,"Soil characteristics","SoilGrids / iSDA",NA,"zinc mean 20 50",233
+"koppen_is_11",0.537022285069071,0.513833549913353,0.350719239978973,0.704360476500537,1,"Climate and weather","Koppen-Geiger 1991-2020 / IFPRI-HarvestChoice AEZ16",NA,"koppen is 11",234
+"mics_heat_vbcg24_35_sy",-0.424866646468397,-0.513120954006959,-1.41942806689963,0.460376026437258,0.756666666666667,"Immunisation","WHO Health Inequality Data Repository (HEAT) - UNICEF MICS by subnational region",NA,"mics heat vbcg24 35 sy",235
+"hces_log_cons_pae_rel",0.520949293287639,0.50348060580151,-0.29342464489556,1.34742002557298,0.853333333333333,"Household diet and consumption (HCES)","HCES microdata (IHS4, IHS 2015/16, SLIHS 2018, GLSS7)",NA,"hces log cons pae rel",236
+"lst_night_m03_t0",-0.526038529254432,-0.50323392334975,-1.02697935756801,-0.0874576845491898,0.97,"Climate and weather","GEE",NA,"lst night m03",237
+"ihme_wastingprevalence",0.623491580156361,0.501030661086728,-0.586497076299757,1.52387046592039,0.753333333333333,"Child anthropometry","IHME (modelled surfaces)","Modelled child wasting","Modelled child wasting",238
+"wdist_any_km_min",0.537811346532899,0.500070994578409,0.180271866786248,0.854265928324157,1,"Water and coast proximity","JRC Global Surface Water 1.4; USDOS LSIB 2017 (Earth Engine)",NA,"any km min",239
+"aef_A33",-0.400662441020943,-0.49701043109192,-0.962989234436555,-0.0549927348127512,0.96,"Satellite embedding","AlphaEarth (GEE)",NA,"aef A33",240
+"ntl_ccnl",-0.693835427232424,-0.491166899976854,-1.74059370205813,0.324034369997324,0.813333333333333,"Ruralness, population density, built environment","GEE",NA,"ntl ccnl",241
+"rtfp_staple_inflation_12m",0.572612542216406,0.487970001531424,-0.738078281569964,2.11499267009003,0.74,"Market prices (RTFP)","World Bank Real-Time Food Prices (RTFP) market panel, vintage 2026-02-10",NA,"rtfp staple inflation 12m",242
+"aef_A63",0.38869995170298,0.483531568737601,0.036029498424328,0.986482349025228,0.956666666666667,"Satellite embedding","AlphaEarth (GEE)",NA,"aef A63",243
+"lcover_urban_frac_t0",-0.577254697058833,-0.483242114930376,-1.47795378010584,0.653821015891266,0.756666666666667,"Built environment","GEE",NA,"urban frac",244
+"aef_A62",-0.48998881490787,-0.482518870995973,-1.13190098419556,0.242831159493096,0.843333333333333,"Satellite embedding","AlphaEarth (GEE)",NA,"aef A62",245
+"aef_A21",0.454826097403629,0.478710166214068,-0.0377849710303244,0.986930474855794,0.93,"Satellite embedding","AlphaEarth (GEE)",NA,"aef A21",246
+"aef_A53",-0.677542977139574,-0.473068447489902,-0.97443519691138,0.0433202355948565,0.936666666666667,"Satellite embedding","AlphaEarth (GEE)",NA,"aef A53",247
+"aef_A08",0.422484049251005,0.464769848271261,-0.0158120232894254,0.952051955775626,0.946666666666667,"Satellite embedding","AlphaEarth (GEE)",NA,"aef A08",248
+"ihme_edu_0y_share",0.525142131631231,0.463179574777419,-0.235351353095252,1.16878795377661,0.836666666666667,"Education, employment, SES","IHME (modelled surfaces)",NA,"edu 0y share",249
+"spam_prod_total",0.376204212017623,0.451808083136907,-0.452841008500208,1.2554626204887,0.783333333333333,"Agricultural production, land use","MapSPAM",NA,"prod total",250
+"aez16_is_10",-0.44951843249203,-0.449708428645805,-0.636555629195222,-0.280907065245575,1,"Climate and weather","Koppen-Geiger 1991-2020 / IFPRI-HarvestChoice AEZ16",NA,"aez16 is 10",251
+"fprice_n_markets_100km",0.467928277465878,0.446655215795817,-0.431597021885448,1.47973203239497,0.776666666666667,"Food prices and supply","WFP / HDX market prices",NA,"n markets 100km",252
+"ndvi_modis_peak_t0",0.492485123528393,0.437014635426271,-0.533138150908236,1.2856566920044,0.783333333333333,"Ecosystem productivity/greenness","GEE",NA,"ndvi modis peak",253
+"aef_A16",0.433716916009757,0.432291270797835,-0.0990510569992474,1.03079052173571,0.89,"Satellite embedding","AlphaEarth (GEE)",NA,"aef A16",254
+"koppen_is_3",-0.466592378558681,-0.43043163172392,-0.649314903707738,-0.243849097480145,1,"Climate and weather","Koppen-Geiger 1991-2020 / IFPRI-HarvestChoice AEZ16",NA,"koppen is 3",255
+"soil_sulfur_stdev_20_50",-0.563367572167785,-0.427237028439357,-1.1995913544602,0.369509176785713,0.826666666666667,"Soil characteristics","SoilGrids / iSDA",NA,"sulfur stdev 20 50",256
+"ihme_recommendedhomefluids",0.530791392569283,0.425086053765625,-0.423394977817158,1.38229273855334,0.81,"Infection and inflammation burden","IHME (modelled surfaces)",NA,"recommendedhomefluids",257
+"ihme_simpother",0.0673654574204147,0.417760272417951,-0.699743190630197,1.62788921086255,0.733333333333333,"Water and sanitation","IHME (modelled surfaces)",NA,"simpother",258
+"npp_gpp_t0",-0.012612550554298,-0.413766059577402,-1.39037504755914,0.729291007634314,0.743333333333333,"Ecosystem productivity/greenness","GEE","Vegetation growth (gross)","Vegetation growth (gross)",259
+"mics_c_wasted",-0.526166102455121,-0.406934103522438,-1.73990258878733,1.13022408574304,0.71,"Child anthropometry","MICS microdata (UNICEF MICS6 2017/2018, MICS5 2013-14)",NA,"mics c wasted",260
+"spam_share_roots",-0.52527105293663,-0.399297554313306,-1.2608797139067,0.399758577318737,0.78,"Agricultural production, land use","MapSPAM","Root-crop share of cropland","Root-crop share of cropland",261
+"aef_A32",0.373609620759844,0.391435239525232,-0.234677053856182,0.985234049484245,0.87,"Satellite embedding","AlphaEarth (GEE)",NA,"aef A32",262
+"aef_A60",0.267159715378934,0.386974791166233,-0.199996841068744,0.891624565122303,0.896666666666667,"Satellite embedding","AlphaEarth (GEE)",NA,"aef A60",263
+"koppen_purity",0.409474687516326,0.384426203793469,0.0815845518559436,0.725196882021319,0.97,"Climate and weather","Koppen-Geiger 1991-2020 / IFPRI-HarvestChoice AEZ16",NA,"koppen purity",264
+"clim_tmax_ann",-0.360805389799933,-0.376075972464259,-0.904439819584086,0.059955987925308,0.893333333333333,"Climate and weather","GEE","Mean daily maximum temperature, 30-year normal","Mean daily maximum temperature, 30-year normal",265
+"tclim_tmmx_t0",-0.35711781642104,-0.36289659768512,-0.812688663999276,0.0691753203145531,0.906666666666667,"Climate and weather","GEE",NA,"tmmx",266
+"aef_A46",-0.168522006192902,-0.359722731976599,-0.936054037365376,0.376459828307723,0.816666666666667,"Satellite embedding","AlphaEarth (GEE)",NA,"aef A46",267
+"aef_A47",-0.542916490447592,-0.358022472700893,-0.880225914538478,0.324696630359145,0.803333333333333,"Satellite embedding","AlphaEarth (GEE)",NA,"aef A47",268
+"aef_A55",0.486033161388361,0.345305979122273,-0.437037868762657,1.04918565712228,0.77,"Satellite embedding","AlphaEarth (GEE)",NA,"aef A55",269
+"aef_A59",-0.344553902207932,-0.342993126764335,-1.01345638535907,0.239783295179255,0.796666666666667,"Satellite embedding","AlphaEarth (GEE)",NA,"aef A59",270
+"tclim_srad_t0",0.321888268479635,0.342924944907316,-0.21213617808214,0.846145576984892,0.856666666666667,"Climate and weather","GEE",NA,"srad",271
+"mics_w_no_education",0.438716426102752,0.33683421996843,-0.394905336709991,0.910533695093434,0.79,"Education, employment, SES","MICS microdata (UNICEF MICS6 2017/2018, MICS5 2013-14)","Women with no schooling (MICS)","Women with no schooling (MICS)",272
+"aef_A01",-0.229684894708823,-0.335034307216733,-1.10915885328422,0.283273843036635,0.82,"Satellite embedding","AlphaEarth (GEE)",NA,"aef A01",273
+"ihme_simp",-0.50882661681242,-0.333508444249055,-1.34215001792085,0.7275356545506,0.7,"Water and sanitation","IHME (modelled surfaces)",NA,"simp",274
+"wpop_share_wra",0.309178391023807,0.332992366173471,-0.919111387328653,1.94021022246445,0.713333333333333,"Household assets and characteristics","WorldPop age-sex / JRC GHS-SMOD (Earth Engine)",NA,"share wra",275
+"mics_heat_vzdpt_sy",-0.345025787293028,-0.331416923464263,-1.07915787264769,0.457784274935812,0.8,"Immunisation","WHO Health Inequality Data Repository (HEAT) - UNICEF MICS by subnational region",NA,"mics heat vzdpt sy",276
+"mics_salt_iodised_15ppm",0.539146227583937,0.327887148439351,-0.70919726119117,1.41463745435704,0.69,"Food fortification and supplementation","MICS microdata (UNICEF MICS6 2017/2018, MICS5 2013-14)",NA,"mics salt iodised 15ppm",277
+"tclim_pdsi_t0",-0.502088171018238,-0.32611328814312,-0.871320836606761,0.185227394153177,0.85,"Climate and weather","GEE","Drought index","Drought index",278
+"aez16_is_9",0.308532034625836,0.318315111622444,0.0925951528150395,0.524901720428842,0.986666666666667,"Climate and weather","Koppen-Geiger 1991-2020 / IFPRI-HarvestChoice AEZ16",NA,"aez16 is 9",279
+"clim_pr_win_anom_z",0.242606803504695,0.316249359191278,-0.23857673383304,0.94861976284331,0.816666666666667,"Climate and weather","GEE",NA,"clim pr win anom z",280
+"soil_calcium_stdev_0_20",-0.580349449580552,-0.314071178817031,-1.08661624348927,0.423767558250864,0.753333333333333,"Soil characteristics","SoilGrids / iSDA",NA,"calcium stdev 0 20",281
+"koppen_n_classes",-0.315246131282657,-0.309342495459061,-0.571529826608639,-0.0373381488576724,0.96,"Climate and weather","Koppen-Geiger 1991-2020 / IFPRI-HarvestChoice AEZ16",NA,"koppen n classes",282
+"aef_A50",0.426062461496724,0.298630399427246,-0.323716811122659,0.877104594494918,0.796666666666667,"Satellite embedding","AlphaEarth (GEE)",NA,"aef A50",283
+"soilgrids_nitrogen",-0.344342635626704,-0.297543544947356,-0.883417871766705,0.31766488445522,0.783333333333333,"Soil characteristics","SoilGrids / iSDA",NA,"soilgrids nitrogen",284
+"wapor_mean_t0",0.171027551650077,0.2933518397215,-0.663690207701245,1.23899054904381,0.673333333333333,"Ecosystem productivity/greenness","GEE",NA,"mean",285
+"map_sy_pf_reproductive_number",-0.506163198115647,-0.291027177085418,-1.31238521128559,0.741376801831877,0.666666666666667,"Infection and inflammation burden","Malaria Atlas Project (latest release, layer at each survey year)",NA,"sy pf reproductive number",286
+"aef_A04",0.493751975900012,0.290321416683741,-0.20325582757037,0.784648304180703,0.843333333333333,"Satellite embedding","AlphaEarth (GEE)",NA,"aef A04",287
+"aez16_purity",-0.300897602457155,-0.284748962413475,-0.591442963324754,-0.0148300542344368,0.96,"Climate and weather","Koppen-Geiger 1991-2020 / IFPRI-HarvestChoice AEZ16",NA,"aez16 purity",288
+"wpop_share_over60",0.42754836766312,0.282765024366621,-1.60900379628895,1.30528955333169,0.64,"Household assets and characteristics","WorldPop age-sex / JRC GHS-SMOD (Earth Engine)",NA,"share over60",289
+"clim_pr_cv",0.296575470037095,0.275662271812039,-0.26017925905355,0.915648559190576,0.786666666666667,"Climate and weather","GEE",NA,"clim pr cv",290
+"soil_calcium_mean_0_20",-0.24140145983437,-0.274671172713781,-0.881465643772465,0.320166557540577,0.763333333333333,"Soil characteristics","SoilGrids / iSDA",NA,"calcium mean 0 20",291
+"ihme_sod",-0.050127153277902,0.269393852373365,-0.769814014227964,1.31745782448529,0.64,"Water and sanitation","IHME (modelled surfaces)",NA,"sod",292
+"mics_heat_vtet_sy",-0.380342119097034,-0.265566669027474,-1.08320980706133,0.611651775243193,0.686666666666667,"Immunisation","WHO Health Inequality Data Repository (HEAT) - UNICEF MICS by subnational region",NA,"mics heat vtet sy",293
+"aez16_n_classes",0.268716378297342,0.262952294887414,0.0113042697378354,0.563868687378371,0.953333333333333,"Climate and weather","Koppen-Geiger 1991-2020 / IFPRI-HarvestChoice AEZ16",NA,"aez16 n classes",294
+"glw_sheep_km2",-0.514537803860144,-0.262641766780127,-1.26399462174323,1.20038635715307,0.636666666666667,"Livestock density","Gridded Livestock of the World 4 (2020, 5 arc-min, dasymetric; FAO catalog)","Sheep density","Sheep density",295
+"mics_heat_vzero24_35_sy",0.200519542228914,0.25927397899988,-0.517534507642657,0.911486385533343,0.69,"Immunisation","WHO Health Inequality Data Repository (HEAT) - UNICEF MICS by subnational region",NA,"mics heat vzero24 35 sy",296
+"clim_pet_ann",0.292456155538342,0.249082991368403,-0.223564065020238,0.778839402662489,0.783333333333333,"Climate and weather","GEE",NA,"clim pet ann",297
+"aef_A38",0.428602136632183,0.240717007428863,-0.303054175667879,0.794405863704416,0.766666666666667,"Satellite embedding","AlphaEarth (GEE)",NA,"aef A38",298
+"aef_A23",-0.135725830934768,-0.240394112472735,-0.921256517065233,0.457574929710117,0.716666666666667,"Satellite embedding","AlphaEarth (GEE)",NA,"aef A23",299
+"aef_A06",0.275338951970684,0.240382027763708,-0.380104508732608,0.94363341475672,0.723333333333333,"Satellite embedding","AlphaEarth (GEE)",NA,"aef A06",300
+"aef_A36",-0.271990302318532,-0.237114781153725,-0.912657289791682,0.294894516682925,0.756666666666667,"Satellite embedding","AlphaEarth (GEE)",NA,"aef A36",301
+"aef_A03",-0.274560058068226,-0.236079445720222,-0.666456039249488,0.25764074021621,0.763333333333333,"Satellite embedding","AlphaEarth (GEE)",NA,"aef A03",302
+"mics_heat_vzdpt24_35_sy",-0.200017916995133,-0.224517224910483,-1.001810863931,0.56514810811548,0.69,"Immunisation","WHO Health Inequality Data Repository (HEAT) - UNICEF MICS by subnational region",NA,"mics heat vzdpt24 35 sy",303
+"aef_A54",0.268393181071451,0.222615544968656,-0.471490916444265,1.04941563934348,0.696666666666667,"Satellite embedding","AlphaEarth (GEE)",NA,"aef A54",304
+"wpop_sex_ratio_wra",0.227878932366158,0.222434530918192,-0.733053052658676,1.19264522645982,0.663333333333333,"Household assets and characteristics","WorldPop age-sex / JRC GHS-SMOD (Earth Engine)",NA,"sex ratio wra",305
+"map_blooddisorders201201africahbcallelefrequency",0.393088243079802,0.219124262038473,-0.530858371744769,1.02811787399697,0.656666666666667,"Infection and inflammation burden","Malaria Atlas","Haemoglobin C gene frequency","Haemoglobin C gene frequency",306
+"aef_A43",-0.121170966801018,-0.218881561903056,-1.04509926187086,0.548565512080879,0.68,"Satellite embedding","AlphaEarth (GEE)",NA,"aef A43",307
+"gdl_shdi_sy",0.640662221405942,0.2088129288507,-0.563825789052161,1.24369820524914,0.716666666666667,"Education, employment, SES","Global Data Lab Subnational HDI (SHDI)",NA,"gdl shdi sy",308
+"map_sy_effective_treatment",0.331518556153985,0.20502852119405,-0.208091299005503,0.742714868820173,0.846666666666667,"Infection and inflammation burden","Malaria Atlas Project (latest release, layer at each survey year)",NA,"sy effective treatment",309
+"aef_A57",0.351829356740756,0.201925281938591,-0.402192898809634,0.737021973387343,0.733333333333333,"Satellite embedding","AlphaEarth (GEE)",NA,"aef A57",310
+"tclim_vpd_t0",-0.178324738138178,-0.197421388786075,-0.606851507551567,0.294334601870233,0.76,"Climate and weather","GEE",NA,"vpd",311
+"human_modification",-0.184008890940757,-0.182942697402977,-0.828628445929801,0.52789902447161,0.65,"Ruralness, population density, built environment","GEE",NA,"human modification",312
+"hces_hdds",0.228761359346987,0.174723210876801,-0.515440600253632,0.932810965290847,0.653333333333333,"Household diet and consumption (HCES)","HCES microdata (IHS4, IHS 2015/16, SLIHS 2018, GLSS7)","Household dietary diversity score (budget survey)","Household dietary diversity score (budget survey)",313
+"mics_heat_vzero_sy",-0.209228331317436,-0.1731987770301,-0.82922650514813,0.713345059104378,0.673333333333333,"Immunisation","WHO Health Inequality Data Repository (HEAT) - UNICEF MICS by subnational region",NA,"mics heat vzero sy",314
+"soil_sulfur_mean_0_20",-0.322929119264368,-0.161899638594482,-0.918704881116071,0.564525647816983,0.636666666666667,"Soil characteristics","SoilGrids / iSDA",NA,"sulfur mean 0 20",315
+"soil_iron_stdev_0_20",-0.285289402164021,-0.161803432134866,-0.79718492650828,0.467132195506423,0.673333333333333,"Soil characteristics","SoilGrids / iSDA",NA,"iron stdev 0 20",316
+"map_blooddisorders201201globalg6pddallelefrequency",-0.140039547406155,-0.154070858157198,-1.17748649542718,0.732103807198661,0.61,"Infection and inflammation burden","Malaria Atlas",NA,"blooddisorders201201globalg6pddallelefrequency",317
+"fsec_ipc_phase_ipcch",-0.0223866297671695,-0.146776542703105,-1.01918556537526,0.763319867541355,0.57,"Food prices and supply","HFID (FEWS NET / IPC / WFP mVAM)",NA,"fsec ipc phase ipcch",318
+"rtfp_fpi_rel_national",0.615244492436383,0.143714190646007,-1.40816689997186,1.69090848028922,0.563333333333333,"Market prices (RTFP)","World Bank Real-Time Food Prices (RTFP) market panel, vintage 2026-02-10",NA,"rtfp fpi rel national",319
+"soil_iron_stdev_20_50",0.00262555962474911,-0.140522862945571,-0.695942502226006,0.440758300461802,0.656666666666667,"Soil characteristics","SoilGrids / iSDA",NA,"iron stdev 20 50",320
+"mics_w_literate",-0.275991200721339,-0.137894125268702,-0.752432072821805,0.512664524447797,0.673333333333333,"Education, employment, SES","MICS microdata (UNICEF MICS6 2017/2018, MICS5 2013-14)",NA,"mics w literate",321
+"spam_prod_roots",0.0883417607142485,0.137071600467268,-0.596025801726635,0.854389349721389,0.636666666666667,"Agricultural production, land use","MapSPAM",NA,"prod roots",322
+"clim_vpd_ann",-0.104233044309405,-0.136072652558217,-0.669455641596564,0.33140784998623,0.67,"Climate and weather","GEE",NA,"clim vpd ann",323
+"espen_sch_prev_mid",-0.0935357752864991,-0.132932648079193,-0.731703141002702,0.402188381419198,0.686666666666667,"Infection and inflammation burden","WHO ESPEN implementation-unit database 2014-2025 (portal export, no key)",NA,"sch prev mid",324
+"aef_A39",0.0202696935165127,-0.130693841497592,-0.770028794031654,0.599443155534212,0.606666666666667,"Satellite embedding","AlphaEarth (GEE)",NA,"aef A39",325
+"mics_head_no_education",0.101553504854078,0.129043326351944,-0.524556902900835,0.797277359972877,0.643333333333333,"Education, employment, SES","MICS microdata (UNICEF MICS6 2017/2018, MICS5 2013-14)",NA,"mics head no education",326
+"fsec_ipc_phase_fews",-0.152551036794882,-0.128864459753474,-1.19344576237864,1.02023158035345,0.573333333333333,"Food prices and supply","HFID (FEWS NET / IPC / WFP mVAM)",NA,"fsec ipc phase fews",327
+"spam_share_cereals",0.210537032219106,0.127081286754414,-0.767235230510274,0.94837538302202,0.603333333333333,"Agricultural production, land use","MapSPAM","Cereal share of cropland","Cereal share of cropland",328
+"aef_A44",0.159278456720998,0.124584795318028,-0.571905073198197,0.727441291896299,0.63,"Satellite embedding","AlphaEarth (GEE)",NA,"aef A44",329
+"ihme_orsorrhf",-0.00884338623813165,-0.122133126896065,-0.861925157799776,0.728172368411052,0.58,"Infection and inflammation burden","IHME (modelled surfaces)",NA,"orsorrhf",330
+"aef_A05",0.163803278677732,0.121401153558585,-0.332528175046074,0.580346289620214,0.636666666666667,"Satellite embedding","AlphaEarth (GEE)",NA,"aef A05",331
+"soil_calcium_mean_20_50",-0.0219861907273848,-0.0928563354963084,-0.636057752957392,0.517905852352066,0.6,"Soil characteristics","SoilGrids / iSDA",NA,"calcium mean 20 50",332
+"soil_magnesium_stdev_20_50",-0.207473194494283,-0.0915617686739787,-0.806251842672561,0.605516439760032,0.606666666666667,"Soil characteristics","SoilGrids / iSDA",NA,"magnesium stdev 20 50",333
+"ihme_sunimp",0.520335939956215,-0.0842690708692785,-1.52386824808813,1.33954068053324,0.533333333333333,"Water and sanitation","IHME (modelled surfaces)",NA,"sunimp",334
+"map_sy_pf_parasite_rate",-0.204820657606408,0.0671699774604128,-0.755886559412007,0.908265031734394,0.543333333333333,"Infection and inflammation burden","Malaria Atlas Project (latest release, layer at each survey year)","Malaria parasite rate","Malaria parasite rate",335
+"aef_A17",0.0054757538898982,-0.0663371843258099,-0.675817199264201,0.58349088710823,0.596666666666667,"Satellite embedding","AlphaEarth (GEE)",NA,"aef A17",336
+"clim_pr_sy_anom_z",0.0623580701563699,0.0661092930129151,-0.536944054894704,0.663709307189385,0.573333333333333,"Climate and weather","GEE","Survey-year rainfall anomaly","Survey-year rainfall anomaly",337
+"mics_heat_vbcg_sy",-0.183719073353628,-0.0657684832398685,-0.919822363511049,0.684450387743799,0.553333333333333,"Immunisation","WHO Health Inequality Data Repository (HEAT) - UNICEF MICS by subnational region",NA,"mics heat vbcg sy",338
+"hces_any_veg",0.193134707025071,0.0587876082873244,-0.604501391823212,0.741007526097746,0.576666666666667,"Household diet and consumption (HCES)","HCES microdata (IHS4, IHS 2015/16, SLIHS 2018, GLSS7)",NA,"hces any veg",339
+"ihme_edu_6_11y_share",-0.033170470654407,-0.0554458575455669,-0.928486231014286,0.757269216459289,0.57,"Education, employment, SES","IHME (modelled surfaces)",NA,"edu 6 11y share",340
+"soil_sulfur_mean_20_50",-0.100118813217415,0.0452925997508695,-0.733608166976272,0.768925879251962,0.53,"Soil characteristics","SoilGrids / iSDA",NA,"sulfur mean 20 50",341
+"aef_A48",-0.187160347164294,-0.0436164021825373,-0.530296997910746,0.440875052777189,0.576666666666667,"Satellite embedding","AlphaEarth (GEE)",NA,"aef A48",342
+"soil_magnesium_stdev_0_20",0.0276508869639812,0.0314563447020946,-0.574379931174231,0.67412825238193,0.536666666666667,"Soil characteristics","SoilGrids / iSDA",NA,"magnesium stdev 0 20",343
+"wpop_log_density_survey_year",0.0612978895978271,-0.0289239394171302,-0.834217486814454,0.736921605345921,0.523333333333333,"Ruralness, population density, built environment","Meta/Data for Good RWI; WorldPop; CIESIN GPW v4.11 (Earth Engine)",NA,"log density survey year",344
+"ndvi_modis_anom_t0",0.0370809768142412,0.0266507049569779,-1.58058324343009,1.93558046322067,0.506666666666667,"Ecosystem productivity/greenness","GEE",NA,"ndvi modis anom",345
+"ihme_mcvcoverage",-0.168128262060006,0.0241155269228732,-1.0308748386071,1.20131500746517,0.51,"Immunisation","IHME (modelled surfaces)",NA,"mcvcoverage",346
+"ghs_pop",0.0760710640574598,-0.0225751211823857,-0.842315762576987,0.732010617757268,0.52,"Ruralness, population density, built environment","GEE",NA,"ghs pop",347
+"aef_A56",-0.0201513750524748,0.0221789636371227,-0.436668709581536,0.54770556561329,0.52,"Satellite embedding","AlphaEarth (GEE)",NA,"aef A56",348
+"ndvi_anomaly_t0",-0.891266268499432,0.0212519930972295,-1.46168035765465,1.92791518707256,0.513333333333333,"Ecosystem productivity/greenness","GEE",NA,"ndvi anomaly",349
+"tclim_pet_t0",-0.00927183362612296,-0.0195360968065783,-0.49461993958027,0.486220359201691,0.51,"Climate and weather","GEE",NA,"pet",350
+"built_surface",0.0826637913581971,-0.0190974814676023,-0.801803237906343,0.732343534319035,0.516666666666667,"Ruralness, population density, built environment","GEE",NA,"built surface",351
+"map_sy_itn_use_rate",-0.0721011738475086,0.014599175523114,-0.877643890779631,0.990606803289619,0.523333333333333,"Infection and inflammation burden","Malaria Atlas Project (latest release, layer at each survey year)","Bed-net use rate","Bed-net use rate",352
+"ihme_malaria_pfpr",0.0655145224799841,0.0137254933862196,-1.0242175065003,0.820563225042495,0.51,"Infection and inflammation burden","IHME (modelled surfaces)",NA,"malaria pfpr",353
+"clim_srad_ann",0.0325266888801144,0.0122756888585983,-0.57934636693453,0.563445012567544,0.516666666666667,"Climate and weather","GEE",NA,"clim srad ann",354
+"aef_A18",0.0874635057153958,-0.0102681258330924,-0.533592510244138,0.703459173739141,0.513333333333333,"Satellite embedding","AlphaEarth (GEE)",NA,"aef A18",355
+"access_healthcare_min",-0.0986088050203582,0.00882094800341892,-1.46976704403284,1.08232078931208,0.503333333333333,"Built environment","GEE",NA,"access healthcare min",356
+"map_sy_irs_coverage",-0.0456382059278185,0.00621878361027119,-0.326523125980063,0.352294387104905,0.526666666666667,"Infection and inflammation burden","Malaria Atlas Project (latest release, layer at each survey year)",NA,"sy irs coverage",357
+"fprice_pulses_rel",0.278002011392363,0.00525438840188562,-1.21453418287928,1.07630380368883,0.503333333333333,"Food prices and supply","WFP / HDX market prices",NA,"pulses rel",358
+"ghsl_smod_mean",0.101479400445785,-0.00516217932339365,-0.849652386433467,0.72656449852737,0.513333333333333,"Ruralness, population density, built environment","WorldPop age-sex / JRC GHS-SMOD (Earth Engine)",NA,"ghsl smod mean",359

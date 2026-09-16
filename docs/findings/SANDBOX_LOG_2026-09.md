@@ -3116,11 +3116,15 @@ above) plus the fix-up 03:52-05:34 (15 exit 0). Before = RR-10 backup
 Null calibration (33): observed 0.308 against a 95th-percentile null of
 0.081 at Admin-2 (p < 0.001), 0.280 against 0.177 at Admin-1 (p 0.002).
 Training-country curve (15, level): 0.202 / 0.263 / 0.307 for 1 / 2 / 3
-training countries (RR-10 0.177 / 0.240 / 0.278). Source ablation (43):
-the MICS microdata block is the source the transport index misses most
-(-0.017 when dropped); dropping the 45 soil columns from the FULL index
-gains +0.025 - dead weight in the everything-index, the core of the
-two-domain one (DA-01 stands). In-fill burden capture (12) 0.219 vs 0.225,
+training countries (RR-10 0.177 / 0.240 / 0.278). Source ablation (43, delta = full minus without): soil is load-bearing
+in the full index (+0.025 when dropped), with GEE and MapSPAM (+0.015),
+livestock, IHME and MAP (+0.010) behind; the MICS microdata block is the
+one source whose removal IMPROVES transport (-0.017: 0.308 -> 0.324),
+the same fit-at-home-do-not-travel pattern as DHS, and consistent with
+the open-only arm scoring above the headline (0.319 / 0.253 vs 0.308 /
+0.230). Domain ablation (23): climate +0.028 and soil +0.025 load-bearing,
+anaemia surfaces +0.021, agriculture +0.015; water-and-sanitation (-0.014)
+and education (-0.013) below the line. In-fill burden capture (12) 0.219 vs 0.225,
 risk-category accuracy (44) 0.596 / 0.891 exact / within one vs 0.597 /
 0.892, anchor-and-rank MAE (35) 10.3-10.5 pp vs 10.3 - all unchanged within
 noise. Iodine in-country (47): Gambia UIC < 100 in-fill 0.452 (0.372),
@@ -3137,3 +3141,56 @@ the regional climate + soil figure is back (SX-01) and the regional full
 index sits 0.03 lower on a tier whose SE is ~0.08. Decks: "454" becomes
 "570"; the DHS-free headline replaces the with-DHS one; the LSMS slide is
 reframed now that HCES microdata exist for all four countries.
+
+## PR-01 · Decks and dashboard refreshed on RR-11 (docs/slides, dashboard; 2026-09-16)
+
+Policy deck: predictor count now read from the metadata (570), the DHS-free
+headline stated on the "What we built" slide, notes updated for the CIV
+guards (0.378 / 0.394, 27 of 101 climate-and-soil columns missing for CIV
+because its climate normals were never extracted), the twenty-layer sign
+consistency (20 of 20 LOCO, 10 of 20 in-country), the SuperLearner tie (0.30
+vs 0.29, ensemble ahead in 5 of 17) and the domain-scatter reading (climate
+and soil load-bearing; WASH and education below the line; MICS microdata
+-0.017 when dropped; open-only 0.319). Ghana deck: data-assembly bullets
+(aggregation by survey type, time alignment, DHS-free headline), the
+source chart now coloured by access tier with the new blocks labelled, the
+ablation slides rewritten around the with-DHS arm (`Q$tr_dhs`) instead of a
+DHS row that no longer exists in the headline source ablation, the LSMS
+slide reframed now that HCES microdata are in the base set. Both rendered
+with scripts/render_deck.sh. Dashboard: catalogue bundle labels the new
+sources and carries `tier` and `in_model`; the catalogue table shows Access
+and In model; Start-here, Methods and Importance text say the DHS aggregates
+are held out; the audit list has an RR-11 line; smoke and server tests pass;
+deployed to amertens.shinyapps.io/micronutrient-burden 06:19. New companion
+deck docs/slides/MN-proxy-data-sources-2026-09.qmd (16 slides, 10 in the
+body): sources by tier, aggregation by data type, the spine and coded joins,
+temporal alignment (share of columns on the survey year by country),
+domains, the build chain, what carries the signal, what travels, and the
+add-on rule; figures drawn from the metadata and result tables at render
+time. Still from earlier runs by design: the geostatistical comparison
+(cluster-level MBG, RR-10 era; the index side is unchanged) and the add-on
+forest plot (a history of block admissions).
+
+## VF-01 · Variable-importance forest plot for one cell (scripts/policy_deck/09_vim_forest_example.R; 2026-09-16)
+
+The index is linear in the rank-normalised columns, so a fit gives every
+column a standardised weight; the script refits the index on 300 bootstrap
+resamples of one country's districts (components re-oriented, weights
+re-learned) and draws the twenty largest median |weights| with 5-95%
+intervals and the full-fit weight. Default cell: the best in-fill index cell
+on the level target (Malawi women's B12, 0.70, 87 districts). All twenty keep
+their sign in >= 99% of refits. Sign convention: the level target is the
+negated log concentration, so positive = worse status. Reading for Malawi:
+infant flesh-food feeding, household fish consumption and the wealth score
+mark better B12; poorest-two-fifths share, grassland, pig density and
+distance to permanent water mark worse; the anaemia and malaria surfaces run
+the other way (lakeshore / south against the uplands). Plain names for the
+public-microdata, RTFP and climate-normal columns added to
+R/predictor_plain_names.R (also feeds the dashboard catalogue). Data-sources
+deck: DHS framing removed at the user's request (DHS is one source with an
+access tier; the build table shows full-set counts 614 -> 570 -> 525 -> 464),
+sources chart is now built-vs-kept per source (45 columns built and excluded,
+reconstructed from the backup and block metadata), a qualitative slide on the
+predictors recurring in the leave-one-country-out top twenties
+(index_importance_columns.csv, scope loco), the forest-plot slide, and body
+text rendered at 18 pt / tables 11 pt through render_deck.sh --text.
