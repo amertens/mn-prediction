@@ -1,0 +1,261 @@
+# Illustrated replacements for the concept slides of MN-proxy-Ghana-presentation-2026-09.qmd.
+# Built by scripts/concept_slides/build.sh into MN-proxy-Ghana-concept-slides-2026-09.pptx.
+# Text may use {name} placeholders from the deck's quantities JSON: {x:.2f}, {x:.0f},
+# {x:pc} (percent), {x:sgn} (signed). Icons are Font Awesome 6 names, optionally
+# "name@colour" (blue, light, green, amber, grey, white).
+deck: MN-proxy-Ghana-presentation-2026-09.qmd
+slides:
+
+- replaces: 3
+  title: Motivation
+  layout: icon_rows
+  image: {file: img/old_s02_intro_photo_1.png, width: 4.3}
+  items:
+  - icon: vial
+    heading: Biomarker surveys are rare and costly
+    caption: About one national survey per country and decade; programmes need district estimates between them.
+  - icon: layer-group
+    heading: "{n_pred} district-level proxies"
+    caption: Open gridded layers and public survey microdata, linked to four national biomarker surveys.
+  - icon: bullseye
+    heading: Predict deficiency by district
+    caption: Iron, vitamin A, folate, B12 and zinc, in surveyed and unsurveyed districts.
+
+- replaces: 4
+  title: Aims
+  layout: icon_rows
+  items:
+  - icon: map-location-dot
+    heading: Estimate district deficiency from proxies
+    caption: Validated against the biomarker surveys, district by district.
+  - icon: ranking-star
+    heading: Identify the districts at greatest risk
+    caption: Say whether a ranking or a level survives out of sample.
+  - icon: earth-africa
+    heading: Say what a country with no survey can expect
+    caption: And what it must still measure.
+
+- replaces: 7
+  title: Outcomes
+  layout: cards
+  heading_size: 18
+  text_size: 13
+  icon_size: 0.75
+  items:
+  - icon: droplet
+    heading: Iron
+    lines:
+    - "Who: children 6-59 mo; non-pregnant women 15-49 y"
+    - "Where: all four countries"
+    - "Biomarker: ferritin, inflammation-adjusted (survey flag; not IDA)"
+    - "Cut-off: < 12 / < 15 ug/L"
+  - icon: carrot
+    heading: Vitamin A
+    lines:
+    - "Who: children 6-59 mo; non-pregnant women 15-49 y"
+    - "Where: all four countries"
+    - "Biomarker: retinol-binding protein, one BRINDA adjustment for all"
+    - "Cut-off: < 0.70 umol/L RBP"
+  - icon: leaf
+    heading: Folate
+    lines:
+    - "Who: non-pregnant women 15-49 y"
+    - "Where: Ghana, Sierra Leone, Malawi"
+    - "Biomarker: serum folate (immunoassay GH, SL; microbiologic MW)"
+    - "Cut-off: < 10 nmol/L"
+  - icon: egg
+    heading: B12
+    lines:
+    - "Who: non-pregnant women 15-49 y"
+    - "Where: Ghana, Sierra Leone, Malawi"
+    - "Biomarker: serum B12"
+    - "Cut-off: < 148-150 pmol/L"
+  - icon: wheat-awn
+    heading: Zinc
+    lines:
+    - "Who: children 6-59 mo; non-pregnant women"
+    - "Where: Malawi only"
+    - "Biomarker: serum zinc, IZiNCG flag, unadjusted"
+    - "Cut-off: IZiNCG, by draw time"
+
+- replaces: 9
+  title: Data assembly
+  layout: pipeline
+  items:
+  - icon: vials
+    heading: Clean and merge the surveys
+    caption: Four national micronutrient surveys; one uniform outcome definition per nutrient across countries.
+  - icon: satellite
+    heading: Link gridded layers
+    caption: Zonal means to districts; buffer means to survey clusters.
+  - icon: people-roof
+    heading: Aggregate household surveys
+    caption: DHS through a cluster-level spatial model; MICS and budget surveys from their public microdata.
+  - icon: calendar-check
+    heading: Align in time
+    caption: Every layer at the survey year or the nearest; climate as a 30-year normal plus the survey-year anomaly.
+  - icon: lock-open
+    heading: Open data only
+    caption: Headline models use open layers and public microdata; the DHS aggregates are a sensitivity arm.
+  - icon: sliders
+    heading: Rank-normalise and reduce
+    caption: Within country, so level offsets cannot act as signal; {n_dom} domains to their leading components, nothing selected on the outcome.
+
+- replaces: 11
+  title: Predictor domains
+  layout: grid
+  columns: 2
+  groups:
+  - icon: satellite
+    title: Environment from satellite
+    count_of: [Satellite embedding, Climate and weather, Ecosystem productivity/greenness, Water and coast proximity]
+    caption: AlphaEarth embedding; temperature, rainfall, drought index; NDVI and productivity; distance to water and coast
+  - icon: mound
+    title: Soil
+    count_of: [Soil characteristics]
+    caption: "SoilGrids and iSDA: pH, organic carbon, texture, nutrient availability"
+  - icon: tractor
+    title: Agriculture and livestock
+    count_of: ["Agricultural production, land use", Livestock density]
+    caption: MapSPAM crop mix and cropland; cattle, goat and poultry density
+  - icon: basket-shopping
+    title: Food, prices and diet
+    count_of: [Food prices and supply, Market prices (RTFP), Household diet and consumption (HCES), "Dietary inadequacy (MODELLED SURFACE, HCES)", Food fortification and supplementation]
+    caption: WFP and World Bank prices; budget-survey diets; fortification and supplementation coverage
+  - icon: virus
+    title: Infection and disease
+    count_of: [Infection and inflammation burden, Malaria incidence and treatment, Helminth burden and control, Infant and child morbidity/mortality, Child mortality, Adult and maternal mortality, Immunisation]
+    caption: Malaria, helminths, inflammation; child morbidity and mortality; immunisation coverage
+  - icon: child
+    title: Nutrition status
+    count_of: [Child anthropometry, Adult nutrition, Nutrition status (MODELLED SURFACE), Anaemia and haemoglobin, Infant and young child feeding]
+    caption: Stunting and wasting; anaemia surfaces; infant and young child feeding
+  - icon: house-chimney
+    title: Households and economy
+    count_of: [Household assets and characteristics, "Education, employment, SES", Water and sanitation, "Fertility, reproductive health", Healthcare access]
+    caption: Assets, schooling, employment; water and sanitation; fertility; access to care
+  - icon: city
+    title: Settlement, access and security
+    count_of: [Built environment, "Ruralness, population density, built environment", Conflict and insecurity]
+    caption: Night lights, population density, travel time, built-up area; conflict events
+
+- replaces: 13
+  title: Estimators
+  layout: two_panel
+  panels:
+  - icon: clock-rotate-left
+    title: "January: spatial ensemble learning"
+    items:
+    - icon: diagram-project
+      heading: SuperLearner library
+      caption: Weighted by cross-validated performance.
+    - icon: filter
+      heading: Prescreening
+      caption: From thousands of predictors to 10 to 100 per model.
+    - icon: chart-bar
+      heading: Importance
+      caption: Change in mean squared error.
+  - icon: check-double
+    title: "Current: the corrected protocol"
+    items:
+    - icon: scale-balanced
+      heading: Zero-tuning index
+      caption: Domain principal components weighted by their training-fold rank correlation with the outcome.
+    - icon: code-compare
+      heading: SuperLearner retained as a comparison
+      caption: "Same folds: index {sl_index} against {sl_rank} for the rank-loss ensemble and {sl_rf} for random forest."
+    - icon: lock
+      heading: Nothing chosen on held-out districts
+      caption: Honest folds by district, region and country.
+
+- replaces: 14
+  title: Estimands
+  layout: cards
+  items:
+  - icon: map-location-dot
+    heading: In-fill
+    lines:
+    - "Question: an unsurveyed district in a surveyed region"
+    - "Folds: 5-fold by district, 10 draws"
+    - "Baseline: jackknifed regional mean; spatial smoother"
+  - icon: draw-polygon
+    heading: Region extrapolation
+    lines:
+    - "Question: a whole unsurveyed region"
+    - "Folds: leave-one-region-out"
+    - "Baseline: spatial smoother"
+  - icon: earth-africa
+    heading: Country transport
+    lines:
+    - "Question: a country with no biomarker survey"
+    - "Folds: leave-one-country-out"
+    - "Baseline: country-block permutation null"
+
+- replaces: 43
+  title: Conclusions
+  layout: icon_rows
+  items:
+  - icon: map-location-dot
+    heading: "In-fill: the index ranks districts ({infill_index})"
+    caption: "Against {infill_jk} for the survey's own regional averages and {infill_sp} for a covariate-free smoother."
+  - icon: earth-africa
+    heading: "Transport: rankings carry ({tr_index}), levels do not"
+    caption: "{cs_d} from climate and soil alone; permutation null {null_d}."
+  - icon: satellite
+    heading: Across borders, lean on the environment
+    caption: Survey-derived inputs help inside a country and hold a new country back.
+  - icon: anchor
+    heading: A national anchor puts levels on the ranking
+    caption: "District error {ar_a1:.1f} points at 5% of a full sample, matched by a district survey at {ar_b_match:pc}."
+
+- replaces: 44
+  title: What the models can and cannot do yet
+  layout: checklist
+  items:
+  - status: "yes"
+    heading: Rank districts in a surveyed country?
+    caption: "Yes: {infill_index:.2f}, null {null_d:.2f}."
+  - status: partly
+    heading: Rank districts in a new country?
+    caption: "Yes, less well: {tr_index:.2f} against {null_d:.2f}."
+  - status: "yes"
+    heading: Which predictors carry the signal?
+    caption: Satellite, climate and soil.
+  - status: "no"
+    heading: Prevalence in a new country from the model alone?
+    caption: Not yet.
+  - status: "yes"
+    heading: Prevalence with one national anchor?
+    caption: "Yes: {ar_a1:.1f} points at a 5% sample."
+  - status: "no"
+    heading: Replace biomarker surveys?
+    caption: "No: the ceiling is the survey's."
+  - status: partly
+    heading: Guide where the next survey samples?
+    caption: In design, not piloted.
+
+- replaces: 45
+  title: Next steps
+  layout: two_panel
+  panels:
+  - icon: list-check
+    title: Planned
+    items:
+    - icon: flag-checkered
+      heading: Score the pre-registered predictions
+      caption: On the next countries added to the panel.
+    - icon: rotate
+      heading: Rerun the national track
+      caption: Under the corrected protocol.
+    - icon: location-crosshairs
+      heading: Model-assisted cluster allocation
+      caption: For survey design.
+  - icon: circle-question
+    title: Open questions
+    items:
+    - icon: gauge-high
+      heading: What rank correlation is sufficient to act on?
+    - icon: coins
+      heading: Which national number is the cheapest honest anchor?
+    - icon: ruler
+      heading: Without new biomarker surveys, what benchmarks the models?

@@ -1,0 +1,316 @@
+"""Build the illustrated concept slides of a deck from a YAML spec, on the deck's
+own reference template, as a standalone pptx the author pastes into the deck.
+
+    python scripts/concept_slides/build_concept_slides.py docs/slides/MN-proxy-Ghana-concept-slides-2026-09.yaml
+
+Reads, next to the spec: the deck qmd it names (for the reference document and
+the speaker notes of the slides it replaces) and `<deck>.quantities.json`
+(written by build_quantities.R) for every `{name}` placeholder. Writes
+`<spec>.pptx`, one preview PNG per slide under `concept_previews/`, and
+`<spec>-PLACEMENT.md`. Icons are read from docs/slides/img/icons/.
+
+Layouts: pipeline (cards in a row with arrows), cards (cards with a heading and
+lines), checklist (status tile, question, answer), icon_rows (icon, heading,
+caption; optional image on the right), two_panel (two headed columns of icon
+items), grid (groups of items in two columns).
+"""
+import copy
+import json
+import os
+import re
+import string
+import subprocess
+import sys
+
+import yaml
+from pptx import Presentation
+from pptx.dml.color import RGBColor
+from pptx.enum.shapes import MSO_SHAPE
+from pptx.enum.text import MSO_ANCHOR, PP_ALIGN
+from pptx.util import Emu, Inches, Pt
+
+BLUE = RGBColor(0x1F, 0x4E, 0x79)
+LIGHT = RGBColor(0x6B, 0xAE, 0xD6)
+CARD = RGBColor(0xEE, 0xF3, 0xF8)
+TEXT = RGBColor(0x33, 0x33, 0x33)
+MUTED = RGBColor(0x66, 0x66, 0x66)
+WHITE = RGBColor(0xFF, 0xFF, 0xFF)
+STATUS = {"yes": ("check_green", RGBColor(0xE6, 0xF2, 0xE8)), "partly": ("triangle-exclamation_amber", RGBColor(0xFC, 0xF3, 0xDC)),
+          "no": ("xmark_grey", RGBColor(0xEC, 0xEC, 0xEC))}
+# content area of the Ghana template: below the title, above the footer band
+X0, Y0, W, H = Inches(0.92), Inches(1.85), Inches(11.5), Inches(4.6)
+
+
+class QFormatter(string.Formatter):
+    """{x:.2f} as usual; {x:pc} percent; {x:sgn} signed; missing -> 'NA'."""
+    def get_value(self, key, args, kwargs):
+        return kwargs.get(key, None) if isinstance(key, str) else super().get_value(key, args, kwargs)
+
+    def format_field(self, value, spec):
+        if value is None:
+            return "NA"
+        if spec == "pc":
+            return f"{100 * value:.0f}%"
+        if spec == "sgn":
+            return f"{value:+.2f}"
+        if spec == "" and isinstance(value, float):
+            return f"{value:.2f}"
+        return super().format_field(value, spec)
+
+
+FMT = QFormatter()
+
+
+def fill_text(s, Q):
+    return FMT.vformat(str(s), (), Q) if s is not None else ""
+
+
+# ---- notes: the replaced slide's speaker notes, inline R resolved from Q ------------------
+def deck_notes(qmd_lines, title, Q):
+    heads = [i for i, l in enumerate(qmd_lines) if l.strip() == f"## {title}"]
+    if not heads:
+        return ""
+    i = heads[0] + 1
+    while i < len(qmd_lines) and not qmd_lines[i].startswith("## ") and not qmd_lines[i].startswith("# "):
+        if qmd_lines[i].strip() == "::: {.notes}":
+            j = i + 1
+            while qmd_lines[j].strip() != ":::":
+                j += 1
+            return resolve_inline_r(" ".join(l.strip() for l in qmd_lines[i + 1:j]), Q)
+        i += 1
+    return ""
+
+
+def resolve_inline_r(text, Q):
+    def q(name, idx=None):
+        v = Q.get(name)
+        if isinstance(v, dict) and idx:
+            v = v.get(idx)
+        return v
+
+    def rep(m):
+        expr = m.group(1).strip()
+        mm = re.match(r'^(f2|pc|sgn)\(Q\$(\w+)(?:\["(\w)"\])?(?:,\s*(\d))?\)$', expr)
+        if mm:
+            fn, name, idx, d = mm.groups(); v = q(name, idx)
+            if v is None:
+                return "NA"
+            d = int(d) if d else {"f2": 2, "pc": 0, "sgn": 2}[fn]
+            return {"f2": f"{v:.{d}f}", "pc": f"{100 * v:.{d}f}%", "sgn": f"{v:+.{d}f}"}[fn]
+        mm = re.match(r'^Q\$(\w+)(?:\["(\w)"\])?$', expr)
+        if mm:
+            v = q(*mm.groups())
+            return "NA" if v is None else (f"{v:.0f}" if isinstance(v, float) and v == int(v) else str(v))
+        return m.group(0)
+    return re.sub(r"`r ([^`]+)`", rep, text)
+
+
+# ---- drawing helpers -----------------------------------------------------------------------
+def rounded_box(slide, x, y, w, h, fill=CARD, radius=0.12):
+    sh = slide.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, x, y, w, h)
+    sh.adjustments[0] = min(radius * Inches(1) / min(w, h), 0.5)
+    sh.fill.solid(); sh.fill.fore_color.rgb = fill; sh.line.fill.background(); sh.shadow.inherit = False
+    sh.text_frame.text = ""
+    return sh
+
+
+def textbox(slide, x, y, w, h, paras, anchor=MSO_ANCHOR.TOP, align=PP_ALIGN.LEFT):
+    """paras: list of (text, size_pt, bold, colour)."""
+    tb = slide.shapes.add_textbox(x, y, w, h)
+    tf = tb.text_frame; tf.word_wrap = True; tf.vertical_anchor = anchor
+    tf.margin_left = tf.margin_right = Inches(0.05); tf.margin_top = tf.margin_bottom = Inches(0.03)
+    for k, (text, size, bold, colour) in enumerate(paras):
+        p = tf.paragraphs[0] if k == 0 else tf.add_paragraph()
+        p.alignment = align
+        if k:
+            p.space_before = Pt(3)
+        r = p.add_run(); r.text = text
+        r.font.size = Pt(size); r.font.bold = bold; r.font.color.rgb = colour; r.font.name = "Calibri"
+    return tb
+
+
+def icon(slide, name, x, y, size, icon_dir):
+    f = os.path.join(icon_dir, name + ".png")
+    if not os.path.exists(f):
+        sys.exit(f"missing icon {f}: run build_quantities.R first")
+    return slide.shapes.add_picture(f, x, y, height=size)
+
+
+def icon_file(item, colour="blue"):
+    nm = item.get("icon", "circle")
+    return nm.replace("@", "_") if "@" in nm else f"{nm}_{colour}"
+
+
+# ---- layouts -------------------------------------------------------------------------------
+def layout_pipeline(slide, spec, Q, icons):
+    items = spec["items"]; n = len(items)
+    ncol = 3 if n > 4 else n; nrow = -(-n // ncol)
+    gap = Inches(0.55); cw = (W - gap * (ncol - 1)) / ncol; ch = (H - Inches(0.3) * (nrow - 1)) / nrow
+    for k, it in enumerate(items):
+        r, c = divmod(k, ncol)
+        x = X0 + c * (cw + gap); y = Y0 + r * (ch + Inches(0.3))
+        rounded_box(slide, x, y, cw, ch)
+        isz = Inches(0.62)
+        icon(slide, icon_file(it), x + Inches(0.2), y + Inches(0.18), isz, icons)
+        textbox(slide, x + Inches(0.95), y + Inches(0.12), cw - Inches(1.05), Inches(0.75),
+                [(f"{k + 1}. {fill_text(it['heading'], Q)}", 17, True, BLUE)], anchor=MSO_ANCHOR.MIDDLE)
+        textbox(slide, x + Inches(0.2), y + Inches(0.92), cw - Inches(0.35), ch - Inches(1.0),
+                [(fill_text(it.get("caption", ""), Q), 13, False, TEXT)])
+        if c < ncol - 1 and k < n - 1:
+            ar = slide.shapes.add_shape(MSO_SHAPE.CHEVRON, x + cw + Inches(0.14), y + ch / 2 - Inches(0.16), Inches(0.28), Inches(0.32))
+            ar.fill.solid(); ar.fill.fore_color.rgb = LIGHT; ar.line.fill.background()
+
+
+def layout_cards(slide, spec, Q, icons):
+    items = spec["items"]; n = len(items)
+    hs = spec.get("heading_size", 20); ts = spec.get("text_size", 14); isz = Inches(spec.get("icon_size", 1.0))
+    gap = Inches(0.45 if n <= 3 else 0.25); cw = (W - gap * (n - 1)) / n; ch = H
+    pad = Inches(0.3 if n <= 3 else 0.15)
+    for k, it in enumerate(items):
+        x = X0 + k * (cw + gap); y = Y0
+        rounded_box(slide, x, y, cw, ch)
+        icon(slide, icon_file(it), x + (cw - isz) / 2, y + Inches(0.25), isz, icons)
+        hy = y + Inches(0.3) + isz + Inches(0.1)
+        textbox(slide, x + Inches(0.1), hy, cw - Inches(0.2), Inches(0.5), [(fill_text(it["heading"], Q), hs, True, BLUE)], align=PP_ALIGN.CENTER)
+        ty = hy + Inches(0.6)
+        tb = textbox(slide, x + pad, ty, cw - 2 * pad, ch - (ty - y) - Inches(0.1), [(fill_text(line, Q), ts, False, TEXT) for line in it.get("lines", [])])
+        for p in tb.text_frame.paragraphs:   # bold the "Label:" lead of each line
+            t = p.runs[0].text
+            if ":" in t:
+                lab, rest = t.split(":", 1)
+                p.runs[0].text = lab + ":"; p.runs[0].font.bold = True; p.runs[0].font.color.rgb = BLUE
+                r = p.add_run(); r.text = rest; r.font.size = Pt(ts); r.font.color.rgb = TEXT; r.font.name = "Calibri"
+            p.space_after = Pt(6 if n <= 3 else 4)
+
+
+def layout_checklist(slide, spec, Q, icons):
+    items = spec["items"]; n = len(items)
+    gap = Inches(0.08); rh = (H - gap * (n - 1)) / n
+    for k, it in enumerate(items):
+        y = Y0 + k * (rh + gap); name, tint = STATUS[str(it["status"]).lower()]
+        rounded_box(slide, X0, y, W, rh, fill=tint, radius=0.08)
+        isz = min(Inches(0.4), rh - Inches(0.16))
+        icon(slide, name, X0 + Inches(0.25), y + (rh - isz) / 2, isz, icons)
+        textbox(slide, X0 + Inches(0.85), y, Inches(5.6), rh, [(fill_text(it["heading"], Q), 16, True, BLUE)], anchor=MSO_ANCHOR.MIDDLE)
+        textbox(slide, X0 + Inches(6.5), y, W - Inches(6.6), rh, [(fill_text(it.get("caption", ""), Q), 15, False, TEXT)], anchor=MSO_ANCHOR.MIDDLE)
+
+
+def layout_icon_rows(slide, spec, Q, icons, deck_dir):
+    items = spec["items"]; n = len(items)
+    img = spec.get("image"); tw = W if not img else Inches(6.6)
+    gap = Inches(0.2); rh = (H - gap * (n - 1)) / n
+    for k, it in enumerate(items):
+        y = Y0 + k * (rh + gap); isz = min(Inches(0.9), rh - Inches(0.2))
+        icon(slide, icon_file(it), X0 + Inches(0.1), y + (rh - isz) / 2, isz, icons)
+        textbox(slide, X0 + Inches(1.25), y, tw - Inches(1.3), rh,
+                [(fill_text(it["heading"], Q), 20, True, BLUE), (fill_text(it.get("caption", ""), Q), 14, False, TEXT)], anchor=MSO_ANCHOR.MIDDLE)
+    if img:
+        f = os.path.join(deck_dir, img["file"]); iw = Inches(img.get("width", 4.2))
+        pic = slide.shapes.add_picture(f, X0 + W - iw, Y0 + Inches(0.1), width=iw)
+        if pic.height > H - Inches(0.2):
+            ratio = (H - Inches(0.2)) / pic.height
+            pic.width = int(pic.width * ratio); pic.height = int(H - Inches(0.2))
+
+
+def layout_two_panel(slide, spec, Q, icons):
+    panels = spec["panels"]; gap = Inches(0.5); pw = (W - gap) / 2
+    for j, pn in enumerate(panels):
+        x = X0 + j * (pw + gap); y = Y0
+        rounded_box(slide, x, y, pw, H)
+        hb = rounded_box(slide, x, y, pw, Inches(0.7), fill=BLUE, radius=0.12)
+        if "icon" in pn:
+            icon(slide, icon_file(pn, "white"), x + Inches(0.2), y + Inches(0.13), Inches(0.44), icons)
+        textbox(slide, x + Inches(0.75), y, pw - Inches(0.85), Inches(0.7), [(fill_text(pn["title"], Q), 18, True, WHITE)], anchor=MSO_ANCHOR.MIDDLE)
+        items = pn["items"]; n = len(items); rh = (H - Inches(0.9)) / n
+        for k, it in enumerate(items):
+            yy = y + Inches(0.8) + k * rh; isz = min(Inches(0.55), rh - Inches(0.15))
+            icon(slide, icon_file(it), x + Inches(0.25), yy + (rh - isz) / 2, isz, icons)
+            paras = [(fill_text(it["heading"], Q), 15, True, BLUE)]
+            if it.get("caption"):
+                paras.append((fill_text(it["caption"], Q), 12, False, TEXT))
+            textbox(slide, x + Inches(1.0), yy, pw - Inches(1.15), rh, paras, anchor=MSO_ANCHOR.MIDDLE)
+
+
+def layout_grid(slide, spec, Q, icons):
+    groups = spec["groups"]; ncol = spec.get("columns", 2); nrow = -(-len(groups) // ncol)
+    gx = Inches(0.35); gy = Inches(0.15); gw = (W - gx * (ncol - 1)) / ncol; gh = (H - gy * (nrow - 1)) / nrow
+    for k, g in enumerate(groups):
+        r, c = divmod(k, ncol); x = X0 + c * (gw + gx); y = Y0 + r * (gh + gy)
+        rounded_box(slide, x, y, gw, gh, radius=0.1)
+        isz = min(Inches(0.6), gh - Inches(0.2))
+        icon(slide, icon_file(g), x + Inches(0.15), y + (gh - isz) / 2, isz, icons)
+        head = fill_text(g["title"], Q)
+        if "count_of" in g:
+            head += f"  ({sum(Q.get('domain_counts', {}).get(d, 0) for d in g['count_of'])})"
+        textbox(slide, x + Inches(0.9), y, gw - Inches(1.0), gh,
+                [(head, 15, True, BLUE), (fill_text(g.get("caption", ""), Q), 11.5, False, TEXT)], anchor=MSO_ANCHOR.MIDDLE)
+
+
+LAYOUTS = {"pipeline": layout_pipeline, "cards": layout_cards, "checklist": layout_checklist, "two_panel": layout_two_panel, "grid": layout_grid}
+
+
+# ---- deck ---------------------------------------------------------------------------------
+def clear_slides(prs):
+    sldIdLst = prs.slides._sldIdLst
+    for sldId in list(sldIdLst):
+        prs.part.drop_rel(sldId.rId); sldIdLst.remove(sldId)
+
+
+def build(spec_path):
+    deck_dir = os.path.dirname(os.path.abspath(spec_path)); root = os.path.abspath(os.path.join(deck_dir, "..", ".."))
+    spec = yaml.safe_load(open(spec_path, encoding="utf-8"))
+    qmd = os.path.join(deck_dir, spec["deck"]); qmd_lines = open(qmd, encoding="utf-8").read().splitlines()
+    Q = json.load(open(re.sub(r"[.]qmd$", ".quantities.json", qmd), encoding="utf-8"))
+    ref = re.search(r'reference-doc:\s*"([^"]+)"', "\n".join(qmd_lines)).group(1)
+    icons = os.path.join(root, "docs", "slides", "img", "icons")
+    prs = Presentation(ref); clear_slides(prs)
+    layout = next(l for l in prs.slide_layouts if l.name == "Title Only")
+    rows = []
+    for k, s in enumerate(spec["slides"], 1):
+        slide = prs.slides.add_slide(layout)
+        slide.shapes.title.text = fill_text(s["title"], Q)
+        if s["layout"] == "icon_rows":
+            layout_icon_rows(slide, s, Q, icons, deck_dir)
+        else:
+            LAYOUTS[s["layout"]](slide, s, Q, icons)
+        notes = deck_notes(qmd_lines, s["title"], Q)
+        slide.notes_slide.notes_text_frame.text = f"Replaces deck slide {s['replaces']} ({s['title']}).\n\n{notes}".strip()
+        rows.append((k, s["replaces"], s["title"], s["layout"]))
+    out = re.sub(r"[.]ya?ml$", ".pptx", spec_path); prs.save(out); print("wrote", out)
+    write_placement(spec_path, rows, spec["deck"])
+    previews(out, os.path.join(deck_dir, "concept_previews"))
+
+
+def write_placement(spec_path, rows, deck):
+    md = re.sub(r"[.]ya?ml$", "-PLACEMENT.md", spec_path)
+    with open(md, "w", encoding="utf-8") as f:
+        f.write(f"# Placement of the concept slides in {deck.replace('.qmd', '.pptx')}\n\n")
+        f.write("Built by scripts/concept_slides/build.sh. Copy each slide from the concept deck over the\n"
+                "deck slide it replaces (Home > New Slide > Reuse Slides, or copy-paste with *Use destination\n"
+                "theme*); the speaker notes of the replaced slide are already on the new slide.\n\n")
+        f.write("| Concept slide | Replaces deck slide | Title | Layout |\n|---|---|---|---|\n")
+        for k, rep, title, lay in rows:
+            f.write(f"| {k} | {rep} | {title} | {lay} |\n")
+    print("wrote", md)
+
+
+def previews(pptx, out_dir):
+    os.makedirs(out_dir, exist_ok=True)
+    soffice = r"C:\Program Files\LibreOffice\program\soffice.exe"
+    if not os.path.exists(soffice):
+        print("no LibreOffice: previews skipped"); return
+    subprocess.run([soffice, "--headless", "--convert-to", "pdf", "--outdir", out_dir, pptx], check=True, capture_output=True)
+    pdf = os.path.join(out_dir, os.path.basename(pptx).replace(".pptx", ".pdf"))
+    import fitz
+    d = fitz.open(pdf)
+    for f in os.listdir(out_dir):
+        if f.endswith(".png"):
+            os.remove(os.path.join(out_dir, f))
+    for i, page in enumerate(d):
+        page.get_pixmap(dpi=96).save(os.path.join(out_dir, f"slide{i + 1:02d}.png"))
+    d.close(); os.remove(pdf)
+    print(f"{len(os.listdir(out_dir))} preview(s) in {out_dir}")
+
+
+if __name__ == "__main__":
+    build(sys.argv[1])
