@@ -78,10 +78,21 @@ IH <- list(
   ihme_incidence  = list(dir = "data/IHME/u5 diarrhea/GeoTIFF", pat = "DIARRHEA_2000_2017_INC_RT_MEAN_%d_", yrs = 2000:2017),
   ihme_deaths     = list(dir = "data/IHME/u5 diarrhea/GeoTIFF", pat = "DIARRHEA_2000_2017_MORT_RT_MEAN_%d_", yrs = 2000:2017),
   ihme_u5_diarrhoea_prev = list(dir = "data/IHME/u5 diarrhea/GeoTIFF", pat = "DIARRHEA_2000_2017_PREV_RT_MEAN_%d_", yrs = 2000:2017),   # was ihme_prevalence (IH-03: generic name)
+  # IH-04 (2026-09-15): the seven surfaces that stayed tabular were the ones whose GeoTIFFs sat unextracted in the
+  # zips (WASH sanitation / W_IMP_OTHER, ORS/ORT/RHF, education); name-joined they covered 44% of Ghana's GADM 4.1
+  # districts (the 2019 splits) and none of Gambia's for sanitation. Survey-year MEAN surfaces extracted from the
+  # archives; education is the women-15-49 series (the tabular column pooled sexes and age groups).
+  ihme_oralrehydrationsolution = list(dir = "data/IHME/oral rehydration/GeoTIFF", pat = "_ORS_PERCENT_MEAN_%d_", yrs = 2000:2017),
+  ihme_orsorrhf                = list(dir = "data/IHME/oral rehydration/GeoTIFF", pat = "_ORT_PERCENT_MEAN_%d_", yrs = 2000:2017),
+  ihme_recommendedhomefluids   = list(dir = "data/IHME/oral rehydration/GeoTIFF", pat = "_RHF_PERCENT_MEAN_%d_", yrs = 2000:2017),
+  ihme_meanyearsofattainment = list(file = "data/IHME/education/GeoTIFF/IHME_LMIC_EDU_2000_2017_MEAN_15_49_FEMALE_MEAN_Y2019M12D24.TIF", band_year0 = 1999, yrs = 2000:2017),
+  ihme_edu_0y_share          = list(file = "data/IHME/education/GeoTIFF/IHME_LMIC_EDU_2000_2017_ZEROPROP_15_49_FEMALE_MEAN_Y2019M12D24.TIF", band_year0 = 1999, yrs = 2000:2017),
+  ihme_edu_6_11y_share       = list(file = "data/IHME/education/GeoTIFF/IHME_LMIC_EDU_2000_2017_PRIMARYPROP_15_49_FEMALE_MEAN_Y2019M12D24.TIF", band_year0 = 1999, yrs = 2000:2017),
+  ihme_edu_12plus_share      = list(file = "data/IHME/education/GeoTIFF/IHME_LMIC_EDU_2000_2017_SECONDARYPROP_1549_FEMALE_MEAN_Y2019M12D24.TIF", band_year0 = 1999, yrs = 2000:2017),
   ihme_mcvcoverage = list(file = "data/IHME/mcv1/Data [GeoTIFF]/IHME_LMIC_MCV1_2000_2019_MEAN_Y2020M12D16.TIF", band_year0 = 1999, yrs = 2000:2019)
 )
 find_file <- function(spec, yr) {
-  if (!is.null(spec$file)) return(spec$file)
+  if (!is.null(spec$file)) return(if (file.exists(spec$file)) spec$file else NA_character_)
   f <- list.files(spec$dir, pattern = sprintf(spec$pat, yr), recursive = TRUE, full.names = TRUE, ignore.case = TRUE)
   f <- f[grepl("[.]tif$", f, ignore.case = TRUE) & !grepl("LOWER|UPPER", basename(f))]
   if (length(f)) f[1] else NA_character_ }

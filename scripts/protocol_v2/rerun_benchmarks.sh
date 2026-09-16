@@ -2,7 +2,7 @@
 # =============================================================================
 # scripts/protocol_v2/rerun_benchmarks.sh   [RR-11 launcher, 2026-09-15]
 #
-# The protocol-v2 re-run on the finalised 522-column set.
+# The protocol-v2 re-run on the finalised 570-column set (2026-09-15: soil dispersion and 20-50 cm columns restored, SX-01).
 #   0. refuse to start unless the shared metadata has exactly EXPECTED rows
 #      (rebuild trap 3: a stale set runs silently) and the join lint passes;
 #      copy the previous results to results/tables/protocol_v2_pre_RR11_<date>/
@@ -27,7 +27,7 @@ set -u
 cd "C:/Users/andre/OneDrive/Documents/mn-prediction"
 export R_USER="C:/Users/andre/OneDrive/Documents" HOME="C:/Users/andre/OneDrive/Documents"
 RS="C:/Program Files/R/R-4.4.2/bin/Rscript.exe"
-EXPECTED="${EXPECTED_PREDICTORS:-542}"
+EXPECTED="${EXPECTED_PREDICTORS:-570}"
 OUT=results/tables/protocol_v2
 mkdir -p logs
 step() { echo "[$(date +%H:%M:%S)] $*"; }

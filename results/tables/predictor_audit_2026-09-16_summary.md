@@ -1,4 +1,4 @@
-# Predictor set audit, 2026-09-15
+# Predictor set audit, 2026-09-16
 
 `predictors_admin2_shared.csv`: 554 Admin-2 rows x 570 predictors, 4 countries (Gambia, Ghana, Malawi, SierraLeone).
 

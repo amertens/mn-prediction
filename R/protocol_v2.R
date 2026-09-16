@@ -260,6 +260,13 @@ build_domain_pcs_v2 <- function(Xr, domain_of, sign_rows = NULL,
   cols <- colnames(Xr)
   domains <- sort(unique(stats::na.omit(domain_of[cols])))
   if (!length(domains)) return(matrix(numeric(0), nrow = nrow(Xr), ncol = 0))
+  # PC columns are named make.names(substr(domain, 1, 12))_PC<k>, and scripts 23 / 25 / 28 / 30 / 35 / 36 / 39 / 44 map
+  # them back to the domain by that prefix. Two labels sharing a prefix would be merged silently (found 2026-09-16:
+  # "Food prices (RTFP)" against "Food prices and supply"), so the collision is an error here.
+  pref <- make.names(substr(domains, 1, 12))
+  if (anyDuplicated(pref))
+    stop("domain labels collide on their first 12 characters: ",
+         paste(domains[pref %in% pref[duplicated(pref)]], collapse = " | "), call. = FALSE)
   if (is.null(sign_rows)) sign_rows <- seq_len(nrow(Xr))
   blocks <- list(); basis <- list()
   for (dm in domains) {

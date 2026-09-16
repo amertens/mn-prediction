@@ -27,6 +27,10 @@ cols <- setdiff(names(S), c("country", "Admin1", "Admin2"))
 COUNTRIES <- sort(unique(S$country))
 stopifnot(setequal(cols, M$column))
 cat(sprintf("[audit] %d Admin-2 rows, %d predictors, %d countries\n", nrow(S), length(cols), length(COUNTRIES)))
+# domain PC columns are keyed by make.names(substr(domain, 1, 12)) (R/protocol_v2.R); labels sharing that prefix merge silently
+.dm <- sort(unique(stats::na.omit(M$domain))); .pref <- make.names(substr(.dm, 1, 12))
+if (anyDuplicated(.pref)) { cat("[audit] FAIL: domain labels collide on their first 12 characters: ", paste(.dm[.pref %in% .pref[duplicated(.pref)]], collapse = " | "), "\n"); quit(status = 1) }
+cat(sprintf("[audit] %d domains, 12-character prefixes unique\n", length(.dm)))
 
 # per-column x country finite share and within-country sd
 fin <- sapply(COUNTRIES, function(cc) vapply(cols, function(v) mean(is.finite(S[[v]][S$country == cc])), 0))

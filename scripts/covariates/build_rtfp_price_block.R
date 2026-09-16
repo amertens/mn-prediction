@@ -117,7 +117,7 @@ desc <- c(rtfp_fpi_rel_national = "Mean log RTFP food price index over the 12 mo
           rtfp_staple_inflation_12m = "Log change in the staple price between the window and the previous 12 months.",
           rtfp_dist_market_km = "Great-circle distance (km) from the Admin-2 centroid to the nearest RTFP market.",
           rtfp_n_markets = "RTFP markets inside the Admin-2 polygon (audit column; not appended to the shared set).")
-md <- data.frame(column = cols, source = "World Bank Real-Time Food Prices (RTFP) market panel, vintage 2026-02-10", domain = "Food prices (RTFP)", subnational = TRUE,
+md <- data.frame(column = cols, source = "World Bank Real-Time Food Prices (RTFP) market panel, vintage 2026-02-10", domain = "Market prices (RTFP)", subnational = TRUE,
                  assumption = paste(unname(desc[cols]), "Admin-2 value = inverse-distance-weighted mean of the 3 nearest markets to the unit centroid (weight 1/max(km, 2)). Windows end in the survey's last fieldwork month (metadata/survey_years.csv): Malawi Mar 2015 - Feb 2016, The Gambia May 2017 - Apr 2018. Ghana and Sierra Leone are not in the RTFP panel (NA)."),
                  stringsAsFactors = FALSE)
 md$n_countries <- vapply(md$column, function(v) sum(tapply(OUT[[v]], OUT$country, function(z) any(is.finite(z))), na.rm = TRUE), 0L)

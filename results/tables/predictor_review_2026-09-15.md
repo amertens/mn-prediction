@@ -1,14 +1,14 @@
 # Predictor set review, 2026-09-15
 
-554 units x 542 predictors. Tiers: open 328, survey_dhs 150, survey_public 64.
+554 units x 570 predictors. Tiers: open 356, survey_dhs 150, survey_public 64.
 
 ## 1. Design matrix by arm (per-country prep: coverage >= 0.7 and sd > 0; transport = 4-country intersection)
 
 | tiers | declared (after policy) | Gambia | Ghana | Malawi | Sierra Leone | transport common | domains in common |
 |---|---:|---:|---:|---:|---:|---:|---:|
-| open | 283 | 266 | 259 | 269 | 263 | 240 | 18 |
-| open+survey_public | 347 | 328 | 310 | 331 | 312 | 286 | 20 |
-| open+survey_public+survey_dhs | 497 | 477 | 450 | 480 | 460 | 424 | 24 |
+| open | 311 | 298 | 299 | 297 | 291 | 280 | 18 |
+| open+survey_public | 375 | 360 | 350 | 359 | 340 | 326 | 20 |
+| open+survey_public+survey_dhs | 525 | 509 | 490 | 508 | 488 | 464 | 24 |
 
 Transport headline arm (open + survey_public): columns in the common matrix by domain
 
@@ -16,14 +16,14 @@ Transport headline arm (open + survey_public): columns in the common matrix by d
 |---|---:|
 | Satellite embedding | 64 |
 | Climate and weather | 56 |
-| Infection and inflammation burden | 22 |
+| Soil characteristics | 45 |
+| Infection and inflammation burden | 25 |
 | Immunisation | 18 |
-| Soil characteristics | 17 |
+| Water and sanitation | 15 |
 | Ecosystem productivity/greenness | 14 |
+| Education, employment, SES | 13 |
 | Agricultural production, land use | 12 |
 | Built environment | 10 |
-| Water and sanitation | 10 |
-| Education, employment, SES | 9 |
 | Child anthropometry | 8 |
 | Infant and young child feeding | 8 |
 | Livestock density | 8 |
@@ -40,10 +40,8 @@ Columns of the headline arm that do NOT reach the transport matrix (missing or c
 | source | absent in | columns |
 |---|---|---:|
 | HCES microdata (IHS4, IHS 2015/16, SLIHS 2018, GLSS7) | Ghana;SierraLeone | 12 |
-| IHME (modelled surfaces) | Ghana | 8 |
 | Tang et al. 2026 Nature Food (WFP / MIMI), Supplementary Table S1 | Gambia;Malawi;SierraLeone | 6 |
 | World Bank Real-Time Food Prices (RTFP) market panel, vintage 2026-02-10 | Ghana;SierraLeone | 6 |
-| IHME (modelled surfaces) | Gambia;Ghana | 4 |
 | WFP / HDX market prices | Malawi | 3 |
 | WHO ESPEN implementation-unit database 2014-2025 (portal export, no key) | Malawi | 3 |
 | HFID (FEWS NET / IPC / WFP mVAM) | Ghana;SierraLeone | 2 |
@@ -67,8 +65,8 @@ Columns of the headline arm that do NOT reach the transport matrix (missing or c
 
 - share-like columns outside [0, 1]: 71 (dhs_c_mean_birthweight, dhs_c_mean_hemoglobin, dhs_c_mean_waz, dhs_c_mean_whz, dhs_hh_wealth_mean, dhs_w_anc_visits, dhs_w_mean_bmi, grassland_frac, lcover_bare_frac_t0, lcover_crops_frac_t0, lcover_grass_frac_t0, lcover_shrub_frac_t0)
 - near-constant subnational columns (CV < 1%): 0 
-- |skew| > 5 (rank-normalised before any fit, so cosmetic): 14
-- columns with partial missingness inside a country (5-95% of units): 66 (dhs_c_diet_diversity_score, dhs_c_mean_birthweight, dhs_c_mean_haz, dhs_c_mean_hemoglobin, dhs_c_mean_waz, dhs_c_mean_whz, dhs_hh_mean_hhsize, dhs_hh_wealth_mean, dhs_w_anc_visits, dhs_w_birth_interval_short, dhs_w_edu_years_mean, dhs_w_mean_age_first_birth, dhs_w_mean_bmi, dhs_w_mean_parity, spam_parea_total)
+- |skew| > 5 (rank-normalised before any fit, so cosmetic): 17
+- columns with partial missingness inside a country (5-95% of units): 58 (dhs_c_diet_diversity_score, dhs_c_mean_birthweight, dhs_c_mean_haz, dhs_c_mean_hemoglobin, dhs_c_mean_waz, dhs_c_mean_whz, dhs_hh_mean_hhsize, dhs_hh_wealth_mean, dhs_w_anc_visits, dhs_w_birth_interval_short, dhs_w_edu_years_mean, dhs_w_mean_age_first_birth, dhs_w_mean_bmi, dhs_w_mean_parity, spam_parea_total)
 
 ## 3. Redundancy (pooled within-country rank-normalised |r| >= 0.98)
 
@@ -111,12 +109,12 @@ Columns of the headline arm that do NOT reach the transport matrix (missing or c
 | MICS microdata (UNICEF MICS6 2017/2018, MICS5 2013-14) | 30 |
 | GFDx (Global Fortification Data Exchange) programme fields | 23 |
 | WHO Health Inequality Data Repository (HEAT) - UNICEF MICS by subnational region | 19 |
-| IHME (modelled surfaces) | 17 |
 | Koppen-Geiger 1991-2020 / IFPRI-HarvestChoice AEZ16 | 9 |
 | FAOSTAT (national, broadcast) | 8 |
 | Tang et al. 2026 Nature Food (WFP / MIMI), Supplementary Table S1 | 6 |
 | WHO ESPEN implementation-unit database 2014-2025 (portal export, no key) | 6 |
 | HCES microdata (IHS4, IHS 2015/16, SLIHS 2018, GLSS7) | 5 |
+| IHME (modelled surfaces) | 5 |
 | WHO Global Anaemia Estimates (GHO, WHO/UNICEF joint estimates) | 5 |
 | DHS | 4 |
 | GFDx | 4 |

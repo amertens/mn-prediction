@@ -2982,3 +2982,158 @@ headline-figure scripts in sequence. 02 takes `V2_SHARD_SUFFIX`, 02b takes
 `predictor_tiers`. The outcome targets (`targets_v2.csv`, 2026-09-08) were
 checked against the rebuilt Gambia dataset: respondents' Admin keys and all
 599 `gw_` columns are identical, so 01 does not need to run.
+
+## CN-01 · Climate normals and the survey-year anomaly (scripts/covariates/build_climate_normals_block.R; 2026-09-15)
+
+Retiring the TRMM year series (`precip_y2010-2019`, superseded: up to 8
+years off the survey) left the climate domain with survey-year values only
+(`tclim_*_t0`). Twenty `clim_` columns rebuilt from the 1991-2020
+TerraClimate / 2003-2020 MODIS LST climatologies that script 54 had already
+extracted (area-weighted): mean annual rainfall, its inter-annual SD and CV,
+seasonality (monthly CV, wettest-three-months share), survey-year and
+fieldwork-window rainfall anomalies in SD units, tmax normal / range /
+anomaly, tmin, PET, deficit, AET, soil moisture, VPD, radiation, day and
+night LST, diurnal range. Alignment rules `clim_anomaly` (survey_year) and
+`clim_normals` (static); block registered in 62. Measured afterwards
+(SX-01 table): neutral for the climate + soil transport arm at Admin-2
+(0.341 with, 0.346 without) - kept on principle (normal + anomaly, like
+NDVI), not on score.
+
+## SX-01 · The soil "redundant" exclusion was wrong and was reverted (metadata/covariates/exclusions.csv; 2026-09-15)
+
+**Finding.** RR-11 on the 542 set moved the climate + soil index, the
+decks' lead result, from 0.369 to 0.341 at Admin-2 and 0.448 to 0.400 at
+Admin-1 (level). Toggling the pieces of those two domains one at a time
+(same harness as scripts 25 / 28, index arm, fixed sets;
+`results/tables/protocol_v2/cs_attribution_rr11.csv`, `_admin1.csv`):
+
+| climate + soil, level / prev        | Admin-2 (22 cells) | Admin-1 (22 cells) |
+|-------------------------------------|--------------------|--------------------|
+| RR-10 composition                   | 0.369 / 0.244      | 0.448 / 0.271      |
+| 542 set as run                      | 0.341 / 0.258      | 0.400 / 0.259      |
+| minus the clim block                | 0.346 / 0.250      | -                  |
+| plus the retired precip series      | 0.334 / 0.228      | -                  |
+| plus the 28 excluded soil columns   | 0.378 / 0.279      | 0.445 / 0.298      |
+
+The whole movement is the RV-01 exclusion of the 18 within-polygon
+dispersion bands (`soil_*_stdev_0_20 / 20_50`) and the 10 deeper-layer
+means (`soil_*_mean_20_50`), labelled redundant on a mechanistic argument.
+They are not redundant by the review's own metric: pooled rank |r| of a
+dispersion band with the same property's 0-20 cm mean is 0.03-0.69, and
+the 20-50 cm means reach 0.98 only for sulfur and zinc. Soil heterogeneity
+within a district carries transportable signal.
+**Action.** The two rules removed (the nitrogen and total-carbon-dispersion
+data-defect rules stay); full rebuild; soil domain back to its 45 columns;
+shared set **570 predictors** (tiers open 356 / survey_public 64 /
+survey_dhs 150; 45 national constants). The full index at Admin-1 does not
+recover with soil (0.253) and is a mean over 4-16-unit countries with an SE
+near 0.08 - not chased. Rule kept for the future: no column added and no
+domain regrouped because a LOCO score likes it; an unforced exclusion whose
+stated premise fails on its own metric is reverted.
+
+## IH-04 · Twelve IHME surfaces were still name-joined and 56% empty in Ghana (scripts/protocol_v2/48_ihme_raster_and_livestock.R; 2026-09-15)
+
+**Finding.** Listing the headline columns that fall out of the four-country
+transport matrix (per-country coverage < 0.7 or constant) showed 61, of
+which 13 IHME: the education shares and mean years, ORS / ORT / RHF, the
+four sanitation surfaces and `w_imp_other` covered 44% of Ghana's GADM 4.1
+districts (the tabular rollup predates the 2019 splits) and the sanitation
+surfaces none of The Gambia. Their GeoTIFFs were on disk but unextracted
+(the 15 GB WASH archive, the 17.6 GB education archive, the ORT zips).
+**Action.** Survey-year MEAN surfaces extracted (WASH 2013 / 2016 / 2017;
+ORS, ORT, RHF percent; education women 15-49: mean years, zero, primary =
+6-11 years, secondary = 12+), seven entries added to script 48 (the five
+WASH ones were already listed), raster-vs-tabular Spearman 0.63-0.96 over
+the matched districts, so script 08 now swaps 29 of the 35 IHME columns to
+zonal means; tabular remain for malaria (three), LF, oncho and male
+circumcision (no surface; empty for The Gambia). Coverage of the twelve is
+now 1.00 in Ghana, Malawi and Sierra Leone; in The Gambia the sanitation
+surfaces are NA over eight small units (Banjul, Kanifing, Kombo Saint Mary,
+Kiang West, Janjanbureh, Niamina Dankunku, Nianija, Upper Nuimi: 0.78
+coverage, still above the 0.7 floor). Columns lost from the transport
+matrix 61 -> 49; the remainder are data-availability gaps (HCES diet
+indicators for Ghana and Sierra Leone pending the RA items, MIMI Ghana-only,
+RTFP Gambia + Malawi, HFID and WFP price categories missing per country,
+MICS indicators absent from a round) or legitimately constant classes
+(AEZ / Koppen dummies, ESPEN endemicity-band midpoints in Malawi, zero
+minimum water distance).
+
+## RR-11 relaunch on the 570 set (2026-09-15 21:20)
+
+Launcher as committed (`ad10a98`) with EXPECTED 570: two shard sets, three
+02b arms (headline = no-DHS shards + transport open + survey_public;
+`_withdhs`; `_open`), downstream at the headline tiers. The 542-set pass
+(killed 20:59 during script 56) is kept in `logs/rr11_launcher_542set.log` /
+`rr11_downstream_542set.log` and its headline numbers in
+`rr11_before_after.csv` until overwritten: in-fill index 0.401 / 0.286,
+region 0.385 / 0.264, district transport 0.295 / 0.202 against a null 95th
+percentile of 0.084; with DHS 0.268 / 0.162; open only 0.307 / 0.241.
+
+## DP-01 · Domain labels colliding on their 12-character PC key (R/protocol_v2.R, scripts/covariates/build_rtfp_price_block.R; 2026-09-16)
+
+**Finding.** Domain PC columns are named `make.names(substr(domain, 1, 12))_PC<k>`
+and scripts 23 / 25 / 28 / 30 / 35 / 36 / 39 / 44 map them back to the domain
+by that prefix. The RTFP block's label "Food prices (RTFP)" shares the prefix
+with "Food prices and supply", so in every pass since the block was added
+(RR-11 first pass, 542 set, 570 set) script 23 dropped both food-price
+domains when ablating one and none when ablating the other, script 25 could
+not select them separately, and script 46 - which feeds the PCs to
+SuperLearner as a data frame - lost its ranger learner in every fold to
+duplicate column names (227 `predict.ranger` errors, SuperLearner falling
+back to mean + elastic net without a word). The benchmark arms, the
+climate + soil arms and every positional consumer were unaffected. Found
+because the overnight watch caught script 39 exiting (the downstream list
+ran the add-on harness without `ADDON_FILE`), and 39's own collision check
+refused the corrected call.
+**Action.** RTFP domain relabelled "Market prices (RTFP)" (block rebuilt;
+values unchanged); `build_domain_pcs_v2()` stops on a prefix collision;
+`audit_predictor_set.R` fails the rebuild on one; a policy test asserts it
+on the live metadata (18 / 18). `rerun_downstream.sh` runs 39 as the LSMS /
+FluNet test after 45 (`ADDON_FILE`, `ADDON_TAG=lsms_flunet`). The main run
+was stopped at 03:49 during the compromised 46 and a fix-up sequence
+(`logs/rr11_fixup.sh`, 03:52-05:34) re-ran 23, 25, 57, 06, 39, 46, 19-HAPC,
+the seven policy-deck scripts and the dashboard bundles; 46 re-ran with no
+ranger errors. Every other table stands from the 21:20 run.
+
+## RR-11 results · 570-column set, headline = no DHS, transport open + survey_public (2026-09-16)
+
+Main run 21:20-03:49 (26 scripts exit 0; the one failure, the bare 39, is
+above) plus the fix-up 03:52-05:34 (15 exit 0). Before = RR-10 backup
+(454 columns, DHS in every arm); after = headline unless stated.
+`rr11_before_after.csv`; scratchpad `rr11_downstream_compare.py`.
+
+| mean Spearman, level / prev              | RR-10           | RR-11 headline  | with DHS      | open only     |
+|------------------------------------------|-----------------|-----------------|---------------|---------------|
+| In-fill, index (24 cells)                | 0.399 / 0.285   | 0.399 / 0.283   | 0.400 / 0.285 | -             |
+| Region, index                            | 0.378 / 0.264   | 0.385 / 0.264   | 0.380 / 0.264 | -             |
+| District transport, index (22 cells)     | 0.263 / 0.185   | **0.308 / 0.230** (18 / 19 of 22) | 0.284 / 0.187 | 0.319 / 0.253 |
+| District transport, penalised            | 0.234 / 0.180   | 0.272 / 0.206   | 0.260 / 0.175 | 0.283 / 0.193 |
+| Admin-1 transport, index (16)            | 0.310 / 0.328   | 0.280 / 0.325   |               |               |
+| Admin-1 climate + soil (28)              | 0.448 / 0.271   | 0.445 / 0.298   |               |               |
+| Admin-2 fixed climate + soil (25)        | 0.369 / -       | 0.378 / -       |               |               |
+| Admin-2 nested selection vs full (25)    | 0.298 vs 0.263  | 0.330 vs 0.308  |               |               |
+
+Null calibration (33): observed 0.308 against a 95th-percentile null of
+0.081 at Admin-2 (p < 0.001), 0.280 against 0.177 at Admin-1 (p 0.002).
+Training-country curve (15, level): 0.202 / 0.263 / 0.307 for 1 / 2 / 3
+training countries (RR-10 0.177 / 0.240 / 0.278). Source ablation (43):
+the MICS microdata block is the source the transport index misses most
+(-0.017 when dropped); dropping the 45 soil columns from the FULL index
+gains +0.025 - dead weight in the everything-index, the core of the
+two-domain one (DA-01 stands). In-fill burden capture (12) 0.219 vs 0.225,
+risk-category accuracy (44) 0.596 / 0.891 exact / within one vs 0.597 /
+0.892, anchor-and-rank MAE (35) 10.3-10.5 pp vs 10.3 - all unchanged within
+noise. Iodine in-country (47): Gambia UIC < 100 in-fill 0.452 (0.372),
+median log UIC 0.544 (0.454). Individual-level SuperLearner (46, AUC): survey
+items 0.517, district proxies 0.505, both 0.531 (RR-10 0.519 / 0.509 /
+0.523). Malawi selenium / iodine (61, index in-fill): child plasma selenium
+0.451 level / 0.406 low, women 0.430 / 0.447, women iodine 0.349 / 0.236,
+regional-mean baseline 0.18-0.32. LSMS add-on (39): base 0.397, base + LSMS
+0.395 - still earns nothing. SuperLearner in-fill (19 / 20, median):
+index 0.410, rank-loss discrete 0.410, NNLS 0.393, random forest 0.350.
+**Reading.** The deployable no-DHS set now transports better than RR-10's
+DHS-laden set at the district rung by 0.045 / 0.045 and matches it in-country;
+the regional climate + soil figure is back (SX-01) and the regional full
+index sits 0.03 lower on a tier whose SE is ~0.08. Decks: "454" becomes
+"570"; the DHS-free headline replaces the with-DHS one; the LSMS slide is
+reframed now that HCES microdata exist for all four countries.

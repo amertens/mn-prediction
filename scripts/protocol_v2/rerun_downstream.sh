@@ -27,11 +27,14 @@ for f in 05_domain_representation 12_nce_targeting_metrics 13_admin1_nested_spat
          23_domain_ablation_loco 25_nested_domain_selection 28_climate_soil_admin1 33_transport_null_calibration 35_anchor_and_rank \
          43_source_ablation_loco 44_risk_category_accuracy 47_iodine_in_country 56_weight_sources 57_index_importance 61_malawi_selenium_iodine \
          06_build_variable_sheet 19_sl_with_domain_index 20_sl_rank_loss 30_training_curve_climate_soil 34_variance_components_ceiling \
-         36_urbanicity_conditioning 39_addon_feature_test 45_lsms_flunet_block 46_individual_level_models; do
+         36_urbanicity_conditioning 45_lsms_flunet_block 46_individual_level_models; do
   s="scripts/protocol_v2/${f}.R"; [ -f "$s" ] || { step "   $f: not found, skipped"; continue; }
   run "$f" "$s"
 done
 run 19_sl_with_domain_index_hapc scripts/protocol_v2/19_sl_with_domain_index.R SL_HAPC=1
+# 39 is the parameterised add-on harness (needs ADDON_FILE); the Ghana deck reads its LSMS / FluNet run (AD-lsms), which
+# scores the block script 45 has just rebuilt against the current base vocabulary. Run unparameterised it stops at once.
+run 39_addon_lsms_flunet scripts/protocol_v2/39_addon_feature_test.R ADDON_FILE=data/covariates/harmonized/predictors_admin2_lsms_flunet.csv ADDON_TAG=lsms_flunet "ADDON_DOMAIN=LSMS and FluNet"
 
 step "2. policy-deck figures and tables"
 for f in 01_figures_main 02_figure_ghana_map 03_figure_geostat 04_civ_climate_soil_prediction 05_civ_map 06_civ_rank_uncertainty 07_worst_fifth_probability; do

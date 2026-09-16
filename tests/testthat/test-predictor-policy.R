@@ -55,6 +55,14 @@ test_that("V2_PREDICTOR_TIERS selects tiers; an unknown tier is an error", {
   })
 })
 
+test_that("domain labels in the live metadata are unique on their first 12 characters (PC column keys)", {
+  p <- here::here("data", "covariates", "harmonized", "predictors_admin2_shared_metadata.csv")
+  skip_if_not(file.exists(p), "shared metadata absent")
+  M <- read.csv(p, stringsAsFactors = FALSE)
+  dm <- sort(unique(stats::na.omit(M$domain))); pref <- make.names(substr(dm, 1, 12))
+  expect_false(anyDuplicated(pref) > 0, info = paste(dm[pref %in% pref[duplicated(pref)]], collapse = " | "))
+})
+
 test_that("the live metadata is stamped and every column has a tier and an alignment rule", {
   p <- here::here("data", "covariates", "harmonized", "predictors_admin2_shared_metadata.csv")
   skip_if_not(file.exists(p), "shared metadata absent")
