@@ -14,11 +14,10 @@
 #                 purchase value / own production; non-food purchases at
 #                 7-day / 1-month / 3-month / 12-month recall; no aggregate
 #                 -> district (Admin-2, name-matched to GADM)
-#   Sierra Leone  SLIHS 2018                 consumption aggregate (food
-#                 purchases, own production, gifts, total); diary item codes
-#                 UNLABELLED in the release, so no food groups yet; clusters
-#                 geolocated through the MICS 2017 GPS file they share
-#                 -> district (Admin-2, point-in-polygon)
+#   Sierra Leone  SLIHS 2011 (HC-02)         diary purchases at five visits, 166
+#                 labelled items, own consumption per visit; non-food diary and
+#                 12-month purchases; no aggregate -> district (Admin-2, by code).
+#                 Two years before the 2013 survey; replaces SLIHS 2018 (five after)
 #   Ghana         GLSS7 2016/17              household expenditure aggregates
 #                 by COICOP class (food, non-purchased food, ...); region only
 #                 -> 10 old regions -> 16 (crosswalk) -> districts
@@ -45,13 +44,13 @@
 # Item -> HDDS group maps are written to metadata/hces_food_groups_<country>.csv
 # so the classification can be reviewed line by line.
 #
-# Nothing is filtered for coverage: Sierra Leone and Ghana have NA for the
-# recall-based indicators and that is recorded in the metadata.
+# Nothing is filtered for coverage: Ghana has NA for the recall-based
+# indicators and that is recorded in the metadata.
 #
 #   Rscript -e "source('scripts/covariates/build_hces_diet_block.R')"
 # -> data/covariates/harmonized/predictors_admin2_hces.csv (+ _metadata.csv)
 # -> data/covariates/harmonized/hces_household_<Country>.csv
-# -> metadata/hces_food_groups_{Malawi,Gambia}.csv
+# -> metadata/hces_food_groups_{Malawi,Gambia,SierraLeone}.csv
 # =============================================================================
 suppressPackageStartupMessages({library(dplyr); library(haven); library(sf)})
 setwd("C:/Users/andre/OneDrive/Documents/mn-prediction")
@@ -78,6 +77,13 @@ classify_item <- function(label, code = NA_integer_, block = NA_character_) {
   # condiments, stimulants and drink concentrates are HDDS "spices, condiments,
   # beverages" whatever plant they come from
   if (has("meat pie|fish pie|sausage roll")) return("cereals")
+  # SLIHS 2011 labels (HC-02): composite meals, bread listed with cassava bread, guinea corn, avocado as "butter pear"
+  if (has("^bread|guinea corn|\\btuo\\b")) return("cereals")
+  if (has("foofoo|acheke|starchy")) return("roots")
+  if (has("avocado")) return("fruit")
+  if (has("cashew nut|^other pulses$")) return("pulses_nuts")
+  if (has("guinea fowl|wild bird|wild game|\\bgame\\b|frog|\\bmeet\\b")) return("meat")
+  if (has("pumkin")) return("veg")
   if (has("kola|cola nut|locust bean|netetu|neteetu|dawadawa|tomato puree|tomato paste|tomato sauce|hot sauce|chilli|black pepper|dry pepper|powder pepper|pepper powder|garlic|squash \\(|sobo|concentrate")) return("misc")
   if (has("ice cream")) return("sugar")
   if (has("garden egg|aubergine|egg ?plant")) return("veg")
@@ -92,7 +98,7 @@ classify_item <- function(label, code = NA_integer_, block = NA_character_) {
   if (has("cassava|\\byam|potato|cocoyam|plantain|masimbi|tuber|\\broot|taro|fufu|attieke|gari|chips")) return("roots")
   if (has("mango|banana|citrus|orange|lemon|lime\\b|pineapple|ananas|papaya|paw ?-? ?paw|guava|avocado|apple|fruit|watermelon|melon|grape|baobab|malambe|masau|dates|coconut|tamarind|daharr|dakhar|plum|berry|pear\\b")) return("fruit")
   if (has("onion|cabbage|\\brape\\b|tanaposi|nkhwani|leafy|tomato|cucumber|pumpkin|okra|therere|mushroom|vegetable|pepper|carrot|sorrel|bitter|spinach|lettuce|jakatu|bissap|bisap|kren|salad|jute|moringa|amaranth|kale")) return("veg")
-  if (has("sugar|honey|jam\\b|jelly|sweets|candy|chocolate|chewing gum|mint stick")) return("sugar")
+  if (has("sugar|honey|jams?\\b|jelly|sweets|candy|chocolate|chewing gum|mint stick")) return("sugar")
   if (has("maize|rice|millet|sorghum|findi|fonio|wheat|flour|bread|bun|scone|pasta|spaghetti|macaroni|cereal|porridge|couscous|noodle|grain|biscuit|cake|doughnut|mandazi|samosa|popcorn|zikondamoyo|nkate|meal eaten|restaurant")) return("cereals")
   if (has("salt|spice|seasoning|maggi|cube|yeast|baking|sauce|vinegar|curry|mustard|tea|coffee|cocoa|milo|drink|juice|water|beer|wine|liquor|spirits|stout|kachasu|thobwa|maheu|chibuku|soda|soft|beverage|tobacco|cigarette|ice|mint")) return("misc")
   if (!is.na(block)) return(block)
@@ -100,7 +106,7 @@ classify_item <- function(label, code = NA_integer_, block = NA_character_) {
 }
 dgl_item  <- function(label) grepl("\\brape\\b|tanaposi|nkhwani|green leaf|leafy|leaves|spinach|sorrel|bitter leaf|cassava leaf|potato leaf|jute|moringa|bissap|bisap|kren|pumpkin leaf|amaranth|kale|chinese cabbage", tolower(label), perl = TRUE)
 # vitamin-A-rich fruit and vegetables (red palm oil is vitamin-A rich but is not a fruit or vegetable)
-vita_item <- function(label) grepl("orange sweet potato|pumpkin|mango|papaya|pawpaw|paw-paw|paw paw|paw - paw|carrot|apricot|butternut", tolower(label)) | dgl_item(label)
+vita_item <- function(label) grepl("orange sweet potato|pumpkin|pumkin|mango|papaya|pawpaw|paw-paw|paw paw|paw - paw|carrot|apricot|butternut", tolower(label)) | dgl_item(label)
 asf_groups <- c("meat", "fish", "eggs", "dairy")
 
 hh_from_items <- function(items, id, group, consumed, value_purch, own_qty, dgl, vita) {
@@ -213,34 +219,74 @@ H_gm <- left_join(H_gm, map_gm[, c("district", "Admin1", "Admin2")], by = "distr
 H_gm$country <- "Gambia"
 cat(sprintf("  %d households, weighted food (purchase) share %.2f, HDDS %.1f, any ASF %.2f\n", nrow(H_gm), wm(H_gm$food_share, H_gm$w), wm(H_gm$hdds, H_gm$w), wm(H_gm$any_asf, H_gm$w)))
 
-# ── SIERRA LEONE SLIHS 2018 ──────────────────────────────────────────────────
-cat("\n[Sierra Leone SLIHS 2018]\n")
-sl_dir <- file.path(RA, "LSMS/SLE_2018")
-ce <- haven::read_dta(file.path(sl_dir, "slihs2018_consexp.dta")) |> as.data.frame()
-cl <- haven::read_dta(file.path(sl_dir, "slihs2018_cluster.dta")) |> as.data.frame()
-gps <- sf::st_read(file.path(RA, "MICS GPS/SL2017/SierraLeoneMICS2017GPS.shp"), quiet = TRUE)
-gps_df <- data.frame(mics = num(gps$HH1), lon = num(gps$LONGITUDE), lat = num(gps$LATITUDE))
-cl$mics <- num(cl$`_mics_cluster_no`); cl <- left_join(cl, gps_df, by = "mics")
-poly_sl <- sf::st_transform(load_gadm_cached("SLE", level = 2), 4326)
-ok <- is.finite(cl$lon) & is.finite(cl$lat)
-pts <- sf::st_as_sf(cl[ok, c("_cluster", "lon", "lat")], coords = c("lon", "lat"), crs = 4326)
-ix <- vapply(sf::st_within(pts, poly_sl, sparse = TRUE), function(z) if (length(z)) z[1] else NA_integer_, integer(1))
-cl$Admin1 <- NA_character_; cl$Admin2 <- NA_character_
-cl$Admin1[ok] <- as.character(poly_sl$NAME_1)[ix]; cl$Admin2[ok] <- as.character(poly_sl$NAME_2)[ix]
-# clusters without a MICS point: the 2017-frame district name, with the post-split aliases
-alias <- c(karene = "Bombali", falaba = "Koinadugu", `western area rural` = "Western Rural", `western area urban` = "Western Urban")
-nd <- as.character(cl$`_new_district`); miss <- is.na(cl$Admin2)
-if (any(miss)) { nm <- tolower(nd[miss]); nm <- ifelse(nm %in% names(alias), alias[nm], nd[miss])
-  dm <- stringdist::stringdistmatrix(kk(nm), kk(unique(poly_sl$NAME_2)), method = "jw", p = 0.1); best <- apply(dm, 1, which.min)
-  cl$Admin2[miss] <- unique(poly_sl$NAME_2)[best]; cl$Admin1[miss] <- as.character(poly_sl$NAME_1)[match(cl$Admin2[miss], poly_sl$NAME_2)] }
-cat(sprintf("  %d clusters: %d geolocated through MICS 2017 GPS, %d by district name\n", nrow(cl), sum(ok), sum(miss)))
-food <- num(ce$foodexp) + num(ce$foodown) + num(ce$foodgift)
-H_sl <- data.frame(country = "SierraLeone", id = paste(ce$`_cluster`, ce$`_hhno`), cluster = num(ce$`_cluster`), w = num(ce$wta_hh),
-                   food_share = ifelse(num(ce$consexp) > 0, food / num(ce$consexp), NA_real_),
-                   own_prod_share = ifelse(food > 0, num(ce$foodown) / food, NA_real_),
-                   log_cons_pae = log(pmax(num(ce$welfare), 1)), stringsAsFactors = FALSE)
-H_sl <- left_join(H_sl, cl[, c("_cluster", "Admin1", "Admin2")] |> rename(cluster = `_cluster`) |> mutate(cluster = num(cluster)), by = "cluster")
-cat(sprintf("  %d households, weighted food share %.2f, own-production share %.2f\n", nrow(H_sl), wm(H_sl$food_share, H_sl$w), wm(H_sl$own_prod_share, H_sl$w)))
+# ── SIERRA LEONE SLIHS 2011 ──────────────────────────────────────────────────
+# HC-02 (2026-09-16): SLIHS 2011 replaces SLIHS 2018. It sits two years before
+# the 2013 micronutrient survey instead of five after, and its diary item codes
+# are labelled (166 purchase items, 106 own-consumption items), so Sierra Leone
+# gets the food-group indicators the 2018 release could not give. The diary
+# runs over five visits about five days apart (visits 2-6 record purchases
+# since the previous visit); own consumption is recorded per visit in the same
+# module. Definitions follow The Gambia: food share from purchases (diary food
+# over diary food + diary non-food + the 12-month non-food scaled to the diary
+# window), own production by ITEM (share of consumed items with any own-
+# produced quantity in the diary), consumption level from annualised purchases
+# per capita (no aggregate is released for 2011), centred nationally.
+cat("\n[Sierra Leone SLIHS 2011]\n")
+sl_dir <- file.path(RA, "LSMS/SLE_2011/SLE_2011_SLIHS_v01_M_Stata")
+fp <- haven::read_dta(file.path(sl_dir, "Section 13 Part A Food purchases.dta"),
+                      col_select = c("district", "sector", "slihseacode", "hid", "s13aitem", "s13aq2", "s13aq3", "s13aq4", "s13aq5", "s13aq6", "s13aq7")) |> as.data.frame()
+il <- lab(fp$s13aitem); items <- data.frame(code = as.integer(names(il)), item = unname(il), stringsAsFactors = FALSE)
+items$group <- mapply(function(l, c) classify_item(l, c, NA_character_), items$item, items$code)
+items$dgl <- dgl_item(items$item); items$vita <- vita_item(items$item)
+write.csv(items, "metadata/hces_food_groups_SierraLeone.csv", row.names = FALSE)
+cat(sprintf("  %d purchase items classified: %s\n", nrow(items), paste(names(table(items$group)), table(items$group), collapse = " ")))
+vis <- sapply(c("s13aq3", "s13aq4", "s13aq5", "s13aq6", "s13aq7"), function(v) { z <- num(fp[[v]]); z[!is.finite(z) | z < 0] <- 0; z })
+fp$value <- rowSums(vis); fp$code <- num(fp$s13aitem); fp$id <- as.character(fp$hid)
+fp$group <- items$group[match(fp$code, items$code)]; fp$dgl <- items$dgl[match(fp$code, items$code)]; fp$vita <- items$vita[match(fp$code, items$code)]
+# own consumption during the diary: any home-produced quantity at visits 2-6 (module 12H, same item codes)
+oc <- haven::read_dta(file.path(sl_dir, "Section 12 Part H Own food consumption.dta"),
+                      col_select = c("hid", "s12hitem", "s12hq5", "s12hq6", "s12hq7", "s12hq8", "s12hq9")) |> as.data.frame()
+oq <- sapply(c("s12hq5", "s12hq6", "s12hq7", "s12hq8", "s12hq9"), function(v) { z <- num(oc[[v]]); z[!is.finite(z) | z < 0] <- 0; z })
+own <- data.frame(id = as.character(oc$hid), code = num(oc$s12hitem), own_qty = rowSums(oq)) |> filter(own_qty > 0) |> distinct(id, code, .keep_all = TRUE)
+fp <- left_join(fp, own, by = c("id", "code")); fp$own_qty[is.na(fp$own_qty)] <- 0
+fp$consumed <- ifelse(num(fp$s13aq2) == 1 | fp$own_qty > 0, 1, 0)
+H_sl <- hh_from_items(fp, fp$id, fp$group, fp$consumed, fp$value, fp$own_qty, fp$dgl, fp$vita)
+# diary window per household from the visit dates (visits 2-6, about five days apart; the first interval is
+# the five days before visit 2); 25 days where the dates are missing or inconsistent
+dt <- haven::read_dta(file.path(sl_dir, "Section 13 Part A Food purchases-interview dates.dta")) |> as.data.frame()
+mk <- function(dd, mm, yy) as.Date(sprintf("%04d-%02d-%02d", 2000L + as.integer(num(yy)), as.integer(num(mm)), as.integer(num(dd))), optional = TRUE)
+d2 <- mk(dt$day2_dd, dt$day2_mm, dt$day2_yr); d6 <- mk(dt$day6_dd, dt$day6_mm, dt$day6_yr)
+span <- as.numeric(d6 - d2); span[!is.finite(span) | span < 10 | span > 60] <- 20
+diary <- data.frame(id = as.character(dt$hid), diary_days = span * 5 / 4, stringsAsFactors = FALSE) |> distinct(id, .keep_all = TRUE)
+# non-food: frequent purchases over the diary (module 13B1) and infrequent purchases over 12 months (13B2)
+b1 <- haven::read_dta(file.path(sl_dir, "Section 13 Part B-B1 NonFood freq purchases.dta"), col_select = c("hid", "s13b1q3", "s13b1q4", "s13b1q5", "s13b1q6", "s13b1q7")) |> as.data.frame()
+nf1 <- data.frame(id = as.character(b1$hid), v = rowSums(sapply(c("s13b1q3", "s13b1q4", "s13b1q5", "s13b1q6", "s13b1q7"), function(v) { z <- num(b1[[v]]); z[!is.finite(z) | z < 0] <- 0; z }))) |>
+  group_by(id) |> summarise(nonfood_diary = sum(v), .groups = "drop")
+b2 <- haven::read_dta(file.path(sl_dir, "Section 13 Part B-B2 NonFood infreq purchases.dta"), col_select = c("hid", "s13b2q4")) |> as.data.frame()
+nf2 <- data.frame(id = as.character(b2$hid), v = { z <- num(b2$s13b2q4); z[!is.finite(z) | z < 0] <- 0; z }) |> group_by(id) |> summarise(nonfood_12m = sum(v), .groups = "drop")
+# household size, EA weight, district
+ro <- haven::read_dta(file.path(sl_dir, "Section 1-5 Individual-level.dta"), col_select = c("hid")) |> as.data.frame()
+hhsize <- data.frame(id = as.character(ro$hid)) |> count(id, name = "hhsize")
+wts <- haven::read_dta(file.path(sl_dir, "Household Cluster Weights.dta")) |> as.data.frame()
+geo <- fp |> group_by(id) |> summarise(ea = first(as.character(slihseacode)), district_code = first(num(district)), urban = first(num(sector)), .groups = "drop")
+geo$w <- num(wts$weight)[match(geo$ea, as.character(wts$slihseacode))]
+dl <- lab(fp$district); geo$district <- unname(dl[as.character(geo$district_code)])
+H_sl <- geo |> left_join(H_sl, by = "id") |> left_join(diary, by = "id") |> left_join(nf1, by = "id") |> left_join(nf2, by = "id") |> left_join(hhsize, by = "id")
+H_sl$diary_days[is.na(H_sl$diary_days)] <- 25
+nf <- coalesce(H_sl$nonfood_diary, 0) + coalesce(H_sl$nonfood_12m, 0) * H_sl$diary_days / 365
+H_sl$food_share <- ifelse(is.finite(H_sl$food_purch_value) & (H_sl$food_purch_value + nf) > 0, H_sl$food_purch_value / (H_sl$food_purch_value + nf), NA_real_)
+H_sl$own_prod_share <- H_sl$own_prod_item_share
+ann <- (H_sl$food_purch_value + nf) * 365 / H_sl$diary_days
+H_sl$log_cons_pae <- ifelse(is.finite(ann) & ann > 0 & is.finite(H_sl$hhsize) & H_sl$hhsize > 0, log(ann / H_sl$hhsize), NA_real_)
+# 2011 district names -> GADM 4.1 (Western Area split into Rural and Urban in both)
+sl_alias <- c(tonkilili = "Tonkolili", westernother = "Western Rural", westernurban = "Western Urban")
+sp_sl <- spine[spine$country == "SierraLeone", ]
+H_sl$Admin2 <- ifelse(kk(H_sl$district) %in% names(sl_alias), unname(sl_alias[kk(H_sl$district)]), H_sl$district)
+H_sl$Admin2 <- sp_sl$Admin2[match(kk(H_sl$Admin2), kk(sp_sl$Admin2))]; H_sl$Admin1 <- sp_sl$Admin1[match(H_sl$Admin2, sp_sl$Admin2)]
+stopifnot(all(!is.na(H_sl$Admin2)))
+H_sl$country <- "SierraLeone"
+cat(sprintf("  %d households in %d districts (diary %.0f days median); weighted food (purchase) share %.2f, own-production (item) share %.2f, HDDS %.1f, any ASF %.2f\n",
+            nrow(H_sl), n_distinct(H_sl$Admin2), median(H_sl$diary_days), wm(H_sl$food_share, H_sl$w), wm(H_sl$own_prod_share, H_sl$w), wm(H_sl$hdds, H_sl$w), wm(H_sl$any_asf, H_sl$w)))
 
 # ── GHANA GLSS7 2016/17 ──────────────────────────────────────────────────────
 cat("\n[Ghana GLSS7 2016/17]\n")
@@ -299,15 +345,15 @@ write.csv(OUT, file.path(HDIR, "predictors_admin2_hces.csv"), row.names = FALSE)
 for (H in list(H_mw, H_gm, H_sl, H_gh)) write.csv(H, file.path(HDIR, sprintf("hces_household_%s.csv", H$country[1])), row.names = FALSE)
 
 # ── metadata ─────────────────────────────────────────────────────────────────
-basis <- "Malawi IHS4 2016-17 (7-day recall, TA by EA point-in-polygon, district mean where a TA has < 15 households); The Gambia IHS 2015/16 (7-day recall, district by name; food share is PURCHASE-based: 7-day food purchases x 52 over food + annualised non-food purchases, no consumption aggregate exists); Sierra Leone SLIHS 2018 (consumption aggregate; clusters geolocated with the MICS 2017 GPS they share; diary item codes unlabelled so no recall indicators); Ghana GLSS7 2016/17 (expenditure aggregates, 10 regions broadcast through the 16-to-10 crosswalk)."
-md <- data.frame(column = c(paste0("hces_", IND), "hces_n_hh"), source = "HCES microdata (IHS4, IHS 2015/16, SLIHS 2018, GLSS7)",
+basis <- "Malawi IHS4 2016-17 (7-day recall, TA by EA point-in-polygon, district mean where a TA has < 15 households); The Gambia IHS 2015/16 (7-day recall, district by name; food share is PURCHASE-based: 7-day food purchases x 52 over food + annualised non-food purchases, no consumption aggregate exists); Sierra Leone SLIHS 2011 (diary purchases over five visits, own consumption per visit, district by code; food share PURCHASE-based like The Gambia; consumption level from annualised purchases per capita); clusters geolocated with the MICS 2017 GPS they share; diary item codes unlabelled so no recall indicators); Ghana GLSS7 2016/17 (expenditure aggregates, 10 regions broadcast through the 16-to-10 crosswalk)."
+md <- data.frame(column = c(paste0("hces_", IND), "hces_n_hh"), source = "HCES microdata (IHS4, IHS 2015/16, SLIHS 2011, GLSS7)",
                  domain = "Household diet and consumption (HCES)", subnational = TRUE, stringsAsFactors = FALSE)
 md$assumption <- paste0(c(
   "Food (purchased + own production + gifts) share of total household consumption",
-  "Own-production share of food: by VALUE for Sierra Leone and Ghana, by ITEM (share of consumed items with any own-production quantity) for Malawi and The Gambia",
-  "log real consumption per adult equivalent (per capita for Malawi, the aggregate's basis), centred on the household-weighted national mean because the aggregates are in different currencies; NA for The Gambia (no aggregate)",
-  "Mean count of the 12 HDDS food groups consumed in the 7-day recall (Malawi, The Gambia only)",
-  "Share of households consuming any meat, fish, eggs or dairy in the recall (Malawi, The Gambia only)",
+  "Own-production share of food: by VALUE for Ghana, by ITEM (share of consumed items with any own-production quantity) for Malawi, The Gambia and Sierra Leone",
+  "log consumption per adult equivalent (per capita for Malawi, the aggregate's basis; per capita annualised PURCHASES for Sierra Leone, no aggregate), centred on the household-weighted national mean because the aggregates are in different currencies; NA for The Gambia (no aggregate)",
+  "Mean count of the 12 HDDS food groups consumed in the recall (7-day: Malawi, The Gambia; ~25-day diary: Sierra Leone)",
+  "Share of households consuming any meat, fish, eggs or dairy in the recall (Malawi, The Gambia, Sierra Leone)",
   "Share consuming any fish (recall countries)", "Share consuming any meat/poultry (recall countries)", "Share consuming any eggs (recall countries)",
   "Share consuming any milk/dairy (recall countries)", "Share consuming any pulses, nuts or seeds (recall countries)",
   "Share consuming any fruit (recall countries)", "Share consuming any vegetables (recall countries)",

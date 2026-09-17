@@ -68,7 +68,13 @@ PLAIN <- c(
   lcover_water_permanent_frac_t0 = "Permanent water cover", lcover_water_seasonal_frac_t0 = "Seasonal water cover",
   ihme_malaria_mortality_rate = "Modelled malaria mortality (IHME)", ihme_ebfprevalence = "Modelled exclusive breastfeeding (IHME)",
   clim_pr_ann_mean = "Mean annual rainfall, 30-year normal", clim_pr_sy_anom_z = "Survey-year rainfall anomaly", clim_pr_season_cv = "Rainfall seasonality",
-  clim_tmax_ann = "Mean daily maximum temperature, 30-year normal", clim_lst_diurnal = "Day-night land surface temperature range"
+  clim_tmax_ann = "Mean daily maximum temperature, 30-year normal", clim_lst_diurnal = "Day-night land surface temperature range",
+  ihme_overweightprevalence = "Modelled child overweight (IHME)", ihme_stuntingprevalence = "Modelled child stunting (IHME)", ihme_wastingprevalence = "Modelled child wasting (IHME)",
+  ihme_underweightprevalence = "Modelled child underweight (IHME)", ihme_simpother = "Modelled non-piped improved sanitation (IHME)", ihme_simp = "Modelled improved sanitation (IHME)",
+  mics_c_fg_vita_fv = "Children 6-23 months fed vitamin A-rich fruit and vegetables (MICS)", mics_w_iptp_sp = "Malaria prevention in pregnancy, IPTp (MICS)",
+  map_sy_pf_reproductive_number = "Malaria reproductive number", spam_share_cereals = "Cereal share of cropland", spam_share_roots = "Root-crop share of cropland",
+  glw_ruminant_share = "Ruminant share of livestock", glw_cattle_km2 = "Cattle density", glw_tlu_per_capita = "Livestock units per person",
+  lcover_crops_frac_t0 = "Cropland cover", lcover_grass_frac_t0 = "Grassland cover", wdist_coast_km_mean = "Distance to the coast", wdist_coast_km_min = "Distance to the coast (nearest)"
 )
 PLAIN <- PLAIN[!duplicated(names(PLAIN))]
 

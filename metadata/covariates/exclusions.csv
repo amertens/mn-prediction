@@ -21,3 +21,4 @@
 "^wsf$","Redundant (RV-01): World Settlement Footprint 2015 has r = 0.992 with lcover_urban_frac_t0, which is at the year nearest the survey.","results/tables/predictor_review_2026-09-15_pairs.csv","redundant"
 "^mics_heat_vhib_sy$","Redundant (RV-01): Hib is given as the pentavalent vaccine, r = 0.990 with mics_heat_vdpt_sy.","results/tables/predictor_review_2026-09-15_pairs.csv","redundant"
 "^rtfp_dist_market_km$","Redundant (RV-01): r = 0.984 with fprice_dist_nearest_market_km (the same WFP markets), which covers all four countries.","results/tables/predictor_review_2026-09-15_pairs.csv","redundant"
+"^flunet_","National track only (2026-09-16): the three FluNet indicators are national constants in the district set (dropped at fit time, never used); they now enter the VMNIS national prevalence model as country x year covariates (R/national_covariates.R, load_flunet_covariates).","R/national_covariates.R","national_track"

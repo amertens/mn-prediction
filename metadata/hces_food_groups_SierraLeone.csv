@@ -1,0 +1,167 @@
+"code","item","group","dgl","vita"
+1,"guinea corn","cereals",FALSE,FALSE
+2,"sorghum","cereals",FALSE,FALSE
+3,"millet","cereals",FALSE,FALSE
+4,"maize-white","cereals",FALSE,FALSE
+5,"maize-yellow","cereals",FALSE,FALSE
+6,"rice-local","cereals",FALSE,FALSE
+7,"rice-imported","cereals",FALSE,FALSE
+8,"other grains","cereals",FALSE,FALSE
+9,"bread(incl. rice bread, cassava, bread, etc)","cereals",FALSE,FALSE
+10,"buns","cereals",FALSE,FALSE
+11,"biscuits","cereals",FALSE,FALSE
+12,"pasta and products","cereals",FALSE,FALSE
+20,"maize flour","cereals",FALSE,FALSE
+21,"millet flour","cereals",FALSE,FALSE
+22,"wheat flour","cereals",FALSE,FALSE
+23,"other flour","cereals",FALSE,FALSE
+30,"cassava","roots",FALSE,FALSE
+31,"yam","roots",FALSE,FALSE
+32,"gari","roots",FALSE,FALSE
+33,"cocoyam","roots",FALSE,FALSE
+34,"chinese yam","roots",FALSE,FALSE
+35,"plantains/banana","roots",FALSE,FALSE
+36,"sweet potato","roots",FALSE,FALSE
+37,"potatoes","roots",FALSE,FALSE
+38,"other roots and tubers","roots",FALSE,FALSE
+39,"fufu/cassava dough","roots",FALSE,FALSE
+40,"other starchy products","roots",FALSE,FALSE
+50,"cow peas/brown/white","pulses_nuts",FALSE,FALSE
+51,"soya beans","pulses_nuts",FALSE,FALSE
+52,"akara (rice cake)","cereals",FALSE,FALSE
+53,"akara (bean cake)","pulses_nuts",FALSE,FALSE
+54,"groundnut cake","pulses_nuts",FALSE,FALSE
+55,"pounded bean (olele)","pulses_nuts",FALSE,FALSE
+60,"big beans","pulses_nuts",FALSE,FALSE
+61,"groundnuts-raw","pulses_nuts",FALSE,FALSE
+62,"groundnuts-roasted","pulses_nuts",FALSE,FALSE
+63,"groundnuts-boiled","pulses_nuts",FALSE,FALSE
+64,"palm nuts","oils",FALSE,FALSE
+65,"cashew nuts","pulses_nuts",FALSE,FALSE
+66,"coconuts","fruit",FALSE,FALSE
+67,"sesame","pulses_nuts",FALSE,FALSE
+68,"other pulses","pulses_nuts",FALSE,FALSE
+69,"other nuts/seeds","pulses_nuts",FALSE,FALSE
+70,"palm oil","oils",FALSE,FALSE
+71,"palm kernel oil","oils",FALSE,FALSE
+72,"coconut oil","oils",FALSE,FALSE
+73,"cow butter","oils",FALSE,FALSE
+74,"butter","oils",FALSE,FALSE
+75,"cheese","dairy",FALSE,FALSE
+76,"animal fats","oils",FALSE,FALSE
+77,"groundnut oil","oils",FALSE,FALSE
+78,"margarine","oils",FALSE,FALSE
+79,"other oils and fats","oils",FALSE,FALSE
+80,"banana","fruit",FALSE,FALSE
+81,"water melon","fruit",FALSE,FALSE
+82,"citrus orange","fruit",FALSE,FALSE
+83,"citrus tangerine","fruit",FALSE,FALSE
+84,"citrus grapefruit","fruit",FALSE,FALSE
+85,"citrus lemon (lime)","fruit",FALSE,FALSE
+86,"guava","fruit",FALSE,FALSE
+87,"mangoes","fruit",FALSE,TRUE
+88,"paw paw","fruit",FALSE,TRUE
+89,"avocado pear(butter pear)","fruit",FALSE,FALSE
+90,"pineapples","fruit",FALSE,FALSE
+91,"pineapple juice","fruit",FALSE,FALSE
+92,"orange juice","fruit",FALSE,FALSE
+93,"other fruit/juice","fruit",FALSE,FALSE
+94,"fruit canned","fruit",FALSE,FALSE
+95,"fruit juice canned","fruit",FALSE,FALSE
+96,"powdered juice","misc",FALSE,FALSE
+101,"tomatoes","veg",FALSE,FALSE
+102,"onions","veg",FALSE,FALSE
+103,"garden eggs/egg plant","veg",FALSE,FALSE
+104,"okra-fresh","veg",FALSE,FALSE
+105,"okra-dried","veg",FALSE,FALSE
+106,"pepper fresh","veg",FALSE,FALSE
+107,"pepper - dried","veg",FALSE,FALSE
+108,"gabbage-lettuce","veg",FALSE,FALSE
+109,"pumkin","veg",FALSE,TRUE
+110,"carrot/runner beans","pulses_nuts",FALSE,TRUE
+111,"cucumber","veg",FALSE,FALSE
+112,"cassava leaves","veg",TRUE,TRUE
+113,"potato leaves","veg",TRUE,TRUE
+114,"other leafy vegetables","veg",TRUE,TRUE
+115,"other vegetables","veg",FALSE,FALSE
+116,"tomato puree","misc",FALSE,FALSE
+117,"other caaned vegetables","veg",FALSE,FALSE
+120,"chicken","meat",FALSE,FALSE
+121,"duck","meat",FALSE,FALSE
+122,"guinea fowl","meat",FALSE,FALSE
+123,"wild birds","meat",FALSE,FALSE
+124,"other domestic poultry","meat",FALSE,FALSE
+125,"poultry eggs","eggs",FALSE,FALSE
+126,"local eggs/free range","eggs",FALSE,FALSE
+127,"other eggs(not chicken)","eggs",FALSE,FALSE
+130,"beef(cow)","meat",FALSE,FALSE
+131,"mutton(sheep)","meat",FALSE,FALSE
+132,"pork","meat",FALSE,FALSE
+133,"goat meat","meat",FALSE,FALSE
+134,"wild game meet","meat",FALSE,FALSE
+135,"other meet(excl. poultry)","meat",FALSE,FALSE
+136,"canned beef","meat",FALSE,FALSE
+140,"fish-fresh","fish",FALSE,FALSE
+141,"fish-frozen","fish",FALSE,FALSE
+142,"fish-smoked","fish",FALSE,FALSE
+143,"fish-dried","fish",FALSE,FALSE
+144,"fish-fried","fish",FALSE,FALSE
+145,"snails","fish",FALSE,FALSE
+146,"edible frog","meat",FALSE,FALSE
+147,"canned fish/shell fish","fish",FALSE,FALSE
+148,"shell fish(crab, lobster, etc)","fish",FALSE,FALSE
+150,"fresh milk","dairy",FALSE,FALSE
+151,"milk powder","dairy",FALSE,FALSE
+152,"baby milk powder","dairy",FALSE,FALSE
+153,"milk tinned(unsweetened)","dairy",FALSE,FALSE
+154,"milk tinned(sweetened)","dairy",FALSE,FALSE
+155,"soya milk","dairy",FALSE,FALSE
+156,"yoghurt","dairy",FALSE,FALSE
+159,"other milk products","dairy",FALSE,FALSE
+160,"coffee","misc",FALSE,FALSE
+161,"chocolate drinks(including milo)","sugar",FALSE,FALSE
+162,"tea","misc",FALSE,FALSE
+163,"atye(herbal teas)","misc",FALSE,FALSE
+164,"other beverage","misc",FALSE,FALSE
+170,"cooked rice and soup","cereals",FALSE,FALSE
+171,"foofoo and soup","roots",FALSE,FALSE
+172,"tuo and soup","cereals",FALSE,FALSE
+173,"acheke and soup","roots",FALSE,FALSE
+174,"gari and soup","roots",FALSE,FALSE
+175,"cassava and soup","roots",FALSE,FALSE
+176,"non-alcohol drinks","misc",FALSE,FALSE
+177,"alcoholic drinks","misc",FALSE,FALSE
+178,"other hotel/rests, meals","misc",FALSE,FALSE
+180,"sugar","sugar",FALSE,FALSE
+181,"jams","sugar",FALSE,FALSE
+182,"honey","sugar",FALSE,FALSE
+183,"black/white mint(dye mint)","misc",FALSE,FALSE
+184,"ice cream, ice lollipops","sugar",FALSE,FALSE
+185,"confectionery-not frozen","misc",FALSE,FALSE
+186,"other sweets and confectionary","sugar",FALSE,FALSE
+190,"garlic","misc",FALSE,FALSE
+191,"salt","misc",FALSE,FALSE
+192,"pepper","veg",FALSE,FALSE
+193,"condiments(spices, etc)","misc",FALSE,FALSE
+194,"other foods(not mentioned elsewhere)","misc",FALSE,FALSE
+200,"bottled water","misc",FALSE,FALSE
+201,"sachet water","misc",FALSE,FALSE
+202,"malt drinks","misc",FALSE,FALSE
+203,"soft drinks(cocoa cola, sprite, etc)","misc",FALSE,FALSE
+204,"energy drinks","misc",FALSE,FALSE
+209,"other non-alcoholic drinks","misc",FALSE,FALSE
+900,"palm/bamboo wine","misc",FALSE,FALSE
+901,"omoley","misc",FALSE,FALSE
+902,"beer(local)","misc",FALSE,FALSE
+903,"beer (imported)","misc",FALSE,FALSE
+904,"stout (local)","misc",FALSE,FALSE
+905,"stout (imported)","misc",FALSE,FALSE
+906,"whiskey and brandy","misc",FALSE,FALSE
+907,"omole and other spirits","misc",FALSE,FALSE
+908,"gin","misc",FALSE,FALSE
+909,"other wines(local and imported)","misc",FALSE,FALSE
+910,"other alcoholic","misc",FALSE,FALSE
+951,"cigarrete","misc",FALSE,FALSE
+952,"tobacco(processed)","misc",FALSE,FALSE
+953,"tobacco (unprocessed)","misc",FALSE,FALSE
+954,"other tobacco(excl. cigarette)","misc",FALSE,FALSE

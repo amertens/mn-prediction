@@ -7,10 +7,11 @@
 "MICS microdata (UNICEF MICS6 2017/2018, MICS5 2013-14)",30,7,"survey_public",27,30,0,3,0,0,29,4,0.97,0.97,0.93,0.97
 "GFDx (Global Fortification Data Exchange) programme fields",23,1,"open",21,0,23,1,0,0,0,0,1,1,0.96,0.91
 "WHO Health Inequality Data Repository (HEAT) - UNICEF MICS by subnational region",19,1,"survey_public",17,19,0,0,0,0,17,3,1,1,1,0.89
-"HCES microdata (IHS4, IHS 2015/16, SLIHS 2018, GLSS7)",15,1,"survey_public",2,15,0,12,0,0,15,5,0.93,0.2,1,0.2
+"HCES microdata (IHS4, IHS 2015/16, SLIHS 2011, GLSS7)",15,1,"survey_public",2,15,0,12,0,0,14,3,0.93,0.2,1,1
 "MapSPAM",12,1,"open",12,12,0,0,0,0,12,8,0.97,0.94,0.87,1
 "Koppen-Geiger 1991-2020 / IFPRI-HarvestChoice AEZ16",9,1,"open",9,9,0,0,0,0,0,NA,1,1,1,1
 "WFP / HDX market prices",9,1,"open",5,8,1,4,0,0,0,0,1,0.89,0.56,1
+"ACLED (Armed Conflict Location & Event Data Project) export",8,1,"open",7,8,0,1,0,0,0,0,0.92,0.92,0.89,0.96
 "FAOSTAT (national, broadcast)",8,1,"open",8,0,8,0,0,0,0,0,1,1,1,1
 "Gridded Livestock of the World 4 (2020, 5 arc-min, dasymetric; FAO catalog)",8,1,"open",8,8,0,0,0,0,8,3,0.99,1,1,1
 "Malaria Atlas Project (latest release, layer at each survey year)",8,1,"open",8,8,0,0,0,0,0,0,1,1,1,1
@@ -24,6 +25,5 @@
 "HFID (FEWS NET / IPC / WFP mVAM)",4,1,"open",0,4,0,4,0,0,0,0,0.75,0,0.99,0.5
 "Meta/Data for Good RWI; WorldPop; CIESIN GPW v4.11 (Earth Engine)",4,2,"open",4,4,0,0,0,0,3,6,0.99,1,0.99,1
 "Malaria Atlas",3,1,"open",3,3,0,0,0,0,3,6,1,1,1,1
-"WHO FluNet (VIW_FNT export)",3,1,"open",0,0,3,3,0,0,0,0,0,1,0,1
 "Global Data Lab Subnational HDI (SHDI)",2,1,"open",2,2,0,0,0,0,0,0,1,1,1,1
 "UNICEF VAS (World Bank WDI mirror SN.ITK.VITA.ZS)",1,1,"open",1,0,1,0,0,0,0,0,1,1,1,1

@@ -9,7 +9,9 @@
 # does not permit redistribution):
 #   1. https://acleddata.com -> Data Export Tool, logged in.
 #   2. Countries: Gambia, Ghana, Malawi, Sierra Leone (and any country you
-#      plan to add). Dates: 2007-01-01 to the latest. All event types.
+#      plan to add). Dates: from 36 months before the earliest survey you will
+#      score (2012-01-01 covers surveys from 2015; 2007 only if Tanzania 2010 is
+#      added) to the latest. All event types.
 #   3. Save the CSV(s) under data/ACLED/ (any file name, *.csv). Several files
 #      are read and stacked; duplicates on event_id_cnty are removed.
 #
@@ -53,11 +55,16 @@ num <- function(x) suppressWarnings(as.numeric(x))
 
 files <- list.files("data/ACLED", pattern = "[.]csv$", full.names = TRUE)
 if (!length(files)) stop("no ACLED export under data/ACLED/ - see the header of this script for the manual download step")
-A <- bind_rows(lapply(files, function(f) read.csv(f, stringsAsFactors = FALSE, check.names = FALSE)))
-if ("event_id_cnty" %in% names(A)) A <- A[!duplicated(A$event_id_cnty), ]
+# UTF-8-BOM: the Data Export Tool writes a byte-order mark on some files and not others; without it the first column
+# name differs between files, the stacked id column is NA for some countries and the dedupe below drops them (2026-09-16)
+A <- bind_rows(lapply(files, function(f) read.csv(f, stringsAsFactors = FALSE, check.names = FALSE, fileEncoding = "UTF-8-BOM")))
+if ("event_id_cnty" %in% names(A)) A <- A[is.na(A$event_id_cnty) | !duplicated(A$event_id_cnty), ]
 need <- c("event_date", "country", "latitude", "longitude", "event_type", "fatalities")
 stopifnot(all(need %in% names(A)))
-A$event_date <- as.Date(A$event_date, tryFormats = c("%Y-%m-%d", "%d %B %Y", "%d-%b-%y", "%m/%d/%Y"))
+# exports mix date formats between files ("2016-04-14" in one, "31 December 2017" in another); as.Date(tryFormats)
+# fixes one format from the first element, so parse each format in turn and fill the NAs
+.raw_date <- as.character(A$event_date); A$event_date <- as.Date(NA)[seq_along(.raw_date)]
+for (fmt in c("%Y-%m-%d", "%d %B %Y", "%d-%b-%y", "%m/%d/%Y")) { miss <- is.na(A$event_date); if (any(miss)) A$event_date[miss] <- as.Date(.raw_date[miss], format = fmt) }
 A$geo_precision <- if ("geo_precision" %in% names(A)) num(A$geo_precision) else 1
 A$civ <- if ("civilian_targeting" %in% names(A)) nzchar(as.character(A$civilian_targeting)) & !is.na(A$civilian_targeting) else NA
 cat(sprintf("[acled] %d events in %d file(s), %s to %s\n", nrow(A), length(files), min(A$event_date, na.rm = TRUE), max(A$event_date, na.rm = TRUE)))

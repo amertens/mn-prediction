@@ -19,7 +19,7 @@ execute:
 # predictor side only. Ten body slides, the rest in the appendix. Every figure is
 # drawn at render time from the shared metadata and the protocol-v2 result tables,
 # so the deck follows the pipeline; the speaker notes carry the detail.
-#   bash scripts/render_deck.sh docs/slides/MN-proxy-data-sources-2026-09.qmd --text 18,11
+#   bash scripts/render_deck.sh docs/slides/MN-proxy-data-sources-2026-09.qmd --text 18,10
 # (--text sets body and table font sizes; add --forum to render on the Micronutrient Forum template instead).
 suppressPackageStartupMessages({library(dplyr); library(tidyr); library(knitr); library(ggplot2)})
 root <- tryCatch(here::here(), error = function(e) normalizePath(file.path(getwd(), "..", "..")))
@@ -31,6 +31,7 @@ f2 <- function(x, d = 2) ifelse(is.finite(x), formatC(x, format = "f", digits = 
 pc <- function(x, d = 0) ifelse(is.finite(x), paste0(formatC(100 * x, format = "f", digits = d), "%"), "NA")
 get1 <- function(x) if (length(x) && is.finite(x[1])) x[1] else NA_real_
 BLUE <- "#1f4e79"; LIGHT <- "#6baed6"; GREY <- "grey65"
+source(file.path(root, "R", "predictor_plain_names.R"))   # PLAIN, clean_code()
 tier_lab <- c(open = "Open data", survey_public = "Public survey microdata", survey_dhs = "DHS (access agreement)")
 tier_col <- c(`Open data` = BLUE, `Public survey microdata` = LIGHT, `DHS (access agreement)` = GREY)
 
@@ -107,30 +108,42 @@ cell_ci <- function(d, val, by) d |> group_by(across(all_of(by))) |> summarise(n
 This talk is about the right-hand side of the model: where the `r Q$n` columns come from, how each one gets from its native form to a district value, how we line them up with four surveys taken in four different years, and which of them the model leans on. The analysis deck covers what the ranking achieves; this one covers what it is made of. The leakage rule is the second bullet: a district aggregate of the same survey instance we score is excluded (docs/findings, LK-02), and where a MICS or DHS was fielded inside the biomarker survey's own clusters those clusters are dropped from the aggregate (The Gambia 2018: 70 MICS clusters; Malawi 2015-16: 105 DHS clusters). The record behind the fourth bullet is the shared metadata file and results/tables/protocol_v2/variable_sheet.csv. One consequence of the first bullet: `r Q$n_const` of the `r Q$n` columns are national series with one value per country, and a value that is the same in every district cannot rank districts, so the models drop them when they are fitted.
 :::
 
+## What each source is (1 of 2): land, climate, agriculture
+
+```{r source-table-1}
+kb(df(Source = c("Earth Engine: TerraClimate", "Earth Engine: MODIS", "Earth Engine: land cover, lights, built-up", "Earth Engine: productivity", "AlphaEarth", "SoilGrids / iSDA", "Koppen / AEZ", "JRC Surface Water / LSIB", "MapSPAM", "Gridded Livestock of the World", "WorldPop / GHSL / GPW / RWI"),
+  `What it is` = c("Monthly climate (rain, temperature, evapotranspiration, soil moisture), 4 km; survey year and 1991-2020 normals", "Land-surface temperature (1 km), NDVI and EVI (250 m) at the survey year, plus climatology and anomaly", "Copernicus land-cover fractions, night lights, GHSL built-up surface, human modification", "MODIS NPP and GPP, WaPOR evapotranspiration, leaf area, grassland cover", "Google's 64-number satellite embedding of a year of imagery, 10 m, 2017", "Soil nutrients at two depths, pH, texture, organic carbon (iSDA 30 m, SoilGrids 250 m)", "Climate classes and agro-ecological zones: class shares and purity", "Distance to permanent and seasonal water and to the coast", "Crop area and production by crop, 10 km, 2010", "Cattle, sheep, goats, pigs and poultry per km2, 10 km, 2015", "Population, age-sex structure and density; Meta's relative wealth index")), digits = 0)
+```
+
+## What each source is (2 of 2): health, food, households
+
+```{r source-table-2}
+kb(df(Source = c("IHME modelled surfaces", "Malaria Atlas Project", "WHO ESPEN", "WHO anaemia; UNICEF VAS; WHO FluNet", "WFP market prices; World Bank RTFP", "FAOSTAT; HFID", "GFDx", "MIMI (Tang et al. 2026)", "DHS", "MICS microdata; MICS via WHO HEAT", "Household budget surveys (HCES)", "Global Data Lab"),
+  `What it is` = c("5 km modelled surfaces: child growth, anaemia, WASH, education, ORS, HIV, malaria, measles vaccination", "Parasite rate, incidence, mortality, net use and spraying, 5 km, at the survey year", "Helminth endemicity and mass-treatment coverage by implementation unit", "National series: anaemia prevalence, vitamin A supplementation, influenza counts", "Monthly market food prices, distance-weighted to districts over the survey year (RTFP: Gambia, Malawi)", "National food balance sheets; FEWS NET / IPC food-security phases and indicators", "Fortification standards and coverage by food vehicle, mostly national", "Modelled dietary micronutrient inadequacy from GLSS7, Ghana regions", "150 district indicators from the paired round, cluster spatial model", "30 indicators from the public microdata (WASH, wealth, education, child feeding, health); 19 regional indicators via WHO HEAT", "Food share, own production, consumption level, 7-day food groups (IHS, GLSS7, IHS4, SLIHS)", "Subnational human development index")), digits = 0)
+```
+
 ## The sources
 
 :::: {.columns}
 ::: {.column width="34%"}
-`r Q$n` columns from `r Q$n_src` sources are in the harmonised set. `r if (is.null(BX)) 45 else nrow(BX)` more were built and then removed by a written exclusion rule: defective layers, layers superseded by a better-aligned version of the same quantity, and near-duplicates.
+`r Q$n` columns from `r Q$n_src` sources, harmonised onto one district spine. `r if (!is.null(MD)) sum(MD$n_countries == 4) else 510` exist in all four countries and can serve a model for a new country; the other `r if (!is.null(MD)) sum(MD$n_countries < 4) else 60` exist in one to three and are used inside the countries that have them.
 :::
 ::: {.column width="66%"}
 ```{r sources, fig.width=6.2, fig.height=5.4, dpi=160}
 if (!is.null(MD)) {
-  d <- bind_rows(df(Source = source_label(MD$source), Status = "In the harmonised set"),
-                 if (!is.null(BX) && nrow(BX)) df(Source = source_label(BX$source), Status = "Built, then excluded by a rule")) |>
-    count(Source, Status, name = "n")
-  tot <- tapply(d$n, d$Source, sum); d$Source <- factor(d$Source, levels = names(sort(tot))); d$Status <- factor(d$Status, levels = c("In the harmonised set", "Built, then excluded by a rule"))
-  ggplot(d, aes(n, Source, fill = Status)) + geom_col(width = 0.72, position = position_stack(reverse = TRUE)) +
+  d <- df(Source = source_label(MD$source), Coverage = ifelse(MD$n_countries == 4, "In all four countries", "In one to three countries")) |> count(Source, Coverage, name = "n")
+  tot <- tapply(d$n, d$Source, sum); d$Source <- factor(d$Source, levels = names(sort(tot))); d$Coverage <- factor(d$Coverage, levels = c("In all four countries", "In one to three countries"))
+  ggplot(d, aes(n, Source, fill = Coverage)) + geom_col(width = 0.72, position = position_stack(reverse = TRUE)) +
     geom_text(data = df(Source = factor(names(tot), levels = levels(d$Source)), n = as.vector(tot)), aes(n, Source, label = n), inherit.aes = FALSE, hjust = -0.2, size = 3.4) +
-    scale_fill_manual(values = c(`In the harmonised set` = BLUE, `Built, then excluded by a rule` = "grey72")) + scale_x_continuous(expand = expansion(mult = c(0, 0.2))) +
-    labs(x = "Columns built (label = total)", y = NULL, fill = NULL) + theme_minimal(base_size = 12) + theme(panel.grid.major.y = element_blank(), legend.position = "bottom") + guides(fill = guide_legend(nrow = 2))
+    scale_fill_manual(values = c(`In all four countries` = BLUE, `In one to three countries` = LIGHT)) + scale_x_continuous(expand = expansion(mult = c(0, 0.2))) +
+    labs(x = "Columns in the harmonised set (label = total)", y = NULL, fill = NULL) + theme_minimal(base_size = 12) + theme(panel.grid.major.y = element_blank(), legend.position = "bottom") + guides(fill = guide_legend(nrow = 2))
 }
 ```
 :::
 ::::
 
 ::: {.notes}
-Read the bar chart from the top; the grey segment is what a source lost to the exclusion rules (the Earth Engine year series for rainfall, NDVI and population that lagged the surveys, the DHS STATcompiler twins of the recoded indicators). The Earth Engine block is climate (TerraClimate at the survey year and as 30-year normals), land cover, night lights, built-up surface, vegetation and evapotranspiration, night-time land surface temperature; the satellite embedding is Google's AlphaEarth, 64 numbers per district that summarise a year of imagery; soil is iSDA and SoilGrids, ten nutrient concentrations at two depths plus texture and pH; crops are MapSPAM's 2010 allocation; livestock is GLW4. The health and nutrition surfaces are IHME's modelled estimates (anaemia, child growth, WASH, education, ORS, HIV, malaria, vaccination) and the Malaria Atlas layers; ESPEN gives helminth endemicity. Prices come from WFP markets, the World Bank's RTFP panel and FAOSTAT balances; fortification from GFDx. The public microdata blocks are new since 15 September: 30 indicators from the MICS files for all four countries and 15 diet and consumption indicators from the household budget surveys (IHS 2015/16, GLSS7, IHS4, SLIHS 2018). The DHS block is 150 district aggregates from the round paired with each survey (Ghana 2014, Malawi 2015-16, Sierra Leone 2013, The Gambia 2019-20), estimated with a cluster-level spatial model so every district has a value. Everything here is listed with its source, year and definition in results/tables/protocol_v2/variable_sheet.csv and in the dashboard's catalogue.
+Read the bar chart from the top. One harmonised set feeds every model: the in-country models use whatever a country has, the cross-country models the columns all four share, so the light segment (household budget survey diet items for two countries, RTFP prices for two, MIMI for Ghana, MICS items missing from one round, a few IHME surfaces) works at home and not abroad. Behind the set sits a larger extraction: about 740 columns per country in the raw files (1,968 distinct names across the four, mostly the same quantity under country-specific names), harmonised to a common vocabulary; what did not harmonise was used only in the pre-protocol models. The Earth Engine block is climate (TerraClimate at the survey year and as 30-year normals), land cover, night lights, built-up surface, vegetation and evapotranspiration, night-time land surface temperature; the satellite embedding is Google's AlphaEarth, 64 numbers per district that summarise a year of imagery; soil is iSDA and SoilGrids, ten nutrient concentrations at two depths plus texture and pH; crops are MapSPAM's 2010 allocation; livestock is GLW4. The health and nutrition surfaces are IHME's modelled estimates (anaemia, child growth, WASH, education, ORS, HIV, malaria, vaccination) and the Malaria Atlas layers; ESPEN gives helminth endemicity. Prices come from WFP markets, the World Bank's RTFP panel and FAOSTAT balances; fortification from GFDx. The public microdata blocks are new since 15 September: 30 indicators from the MICS files for all four countries and 15 diet and consumption indicators from the household budget surveys (IHS 2015/16, GLSS7, IHS4, SLIHS 2018). The DHS block is 150 district aggregates from the round paired with each survey (Ghana 2014, Malawi 2015-16, Sierra Leone 2013, The Gambia 2019-20), estimated with a cluster-level spatial model so every district has a value. Everything here is listed with its source, year and definition in results/tables/protocol_v2/variable_sheet.csv and in the dashboard's catalogue.
 :::
 
 ## Three kinds of data, three ways to a district value
@@ -236,7 +249,7 @@ The five largest weights per outcome in the pooled four-country fit, biomarker l
 
 ## One country, one outcome: the weights behind the best ranking
 
-![](`r file.path(FIG, "fig12_vim_forest_Malawi_women_b12.png")`)
+![](`r file.path(FIG, "fig12_vim_forest_Malawi_women_b12_plain.png")`)
 
 ::: {.notes}
 Malawi, women's B12, biomarker level: the cell with the best in-fill ranking of the 24 (Spearman 0.70; The Gambia child vitamin A is next at 0.69). The index is linear in the rank-normalised columns, so every column has a standardised weight in a fit; the twenty largest are shown. Intervals: the index was refitted on 300 bootstrap resamples of Malawi's 87 surveyed districts, with the domain components re-oriented and the weights re-learned each time; the bar is the 5th to 95th percentile and the hollow marker the weight in the full fit. Every one of the twenty keeps its sign in at least 95 percent of refits. The level target is the negated log concentration, so a positive weight means worse status. Read the signs as district-level associations in Malawi: districts where more infants are fed meat or fish, more households ate fish last week and the wealth score is higher have better B12 status, and districts that are poorer, grassier, further from permanent water and with more pigs have worse. The diet items point the way a nutritional story would expect; the anaemia and malaria surfaces run the other way (more anaemia and malaria, better B12), which is the lakeshore and the south against the uplands, and a reminder that these are ecological associations, not effects. Script: scripts/policy_deck/09_vim_forest_example.R, which takes any country, outcome and target through environment variables. B12 is measured in three of the four surveys, so this cell does not enter the cross-country transport figures.
@@ -304,12 +317,25 @@ if (!is.null(MD)) {
 Tier: open means downloadable by anyone; public survey microdata means a registration with the survey programme; DHS means the DHS Program's access agreement. Year rule names are the rule identifiers in metadata/covariates/temporal_alignment.csv. The largest gap is the worst case over the four countries; static layers have none.
 :::
 
-## The twenty layers behind child iron
+## The twenty layers behind child iron, and how much each carries
 
-![](`r file.path(FIG, "fig8_twenty_layers.png")`)
+```{r twenty-iron, fig.width=11, fig.height=6.4, dpi=170}
+if (!is.null(IT)) {
+  d <- IT |> filter(outcome == "child_iron", target == "level", rank <= 20) |>
+    mutate(name = ifelse(is.na(PLAIN[column]), clean_code(column), unname(PLAIN[column])),
+           lab = sprintf("%.1f%%%s", 100 * share, ifelse(incountry_sign_agree == incountry_fits, "  *", "")), name = factor(name, levels = rev(name)))
+  doms <- sort(unique(d$domain)); pal <- c("#1f4e79", "#6baed6", "#8c510a", "#33a02c", "#b15928", "#6a3d9a", "#e08214", "#0F7B8A", "#cab2d6", "#fdbf6f", "#d7191c", "#9e9ac8", "#7fcdbb", "#fdae61")
+  ggplot(d, aes(beta_std, name, fill = domain)) + geom_col(width = 0.72) + geom_vline(xintercept = 0, colour = "grey40") +
+    geom_text(aes(label = lab, x = ifelse(beta_std > 0, beta_std + 0.1, beta_std - 0.1), hjust = ifelse(beta_std > 0, 0, 1)), size = 3.3, colour = "grey30") +
+    scale_fill_manual(values = stats::setNames(rep(pal, length.out = length(doms)), doms)) + scale_x_continuous(expand = expansion(mult = 0.18)) +
+    labs(x = "Standardised weight in the pooled index (left: district ranks better; right: worse)
+Label: share of the index carried; * = same direction in each country's own fit", y = NULL, fill = NULL) +
+    theme_minimal(base_size = 12) + theme(legend.position = "bottom", legend.text = element_text(size = 9), panel.grid.minor = element_blank(), axis.title.x = element_text(size = 9.5)) + guides(fill = guide_legend(ncol = 3, byrow = TRUE))
+}
+```
 
 ::: {.notes}
-index_importance_top.csv, child iron, biomarker level, the twenty largest weights in the pooled fit. All twenty keep the same direction in every leave-one-country-out fit; ten of the twenty also keep it in each country's own fit, the stricter test. None requires a blood sample. The twenty-layer equal-weight composite scores about the same as the full index for a new country, so a short auditable list loses nothing.
+index_importance_top.csv, child iron, biomarker level: the twenty largest standardised weights in the pooled four-country fit, drawn as bars so their sizes can be compared. The level target is the negated log ferritin, so a bar to the right means districts with more of the layer rank worse on child iron, to the left better. The label is the share of the index's variance the layer carries: the twenty together hold about a fifth of the index (`r if (!is.null(IT)) sprintf("%.0f%%", 100 * sum(IT$share[IT$outcome == "child_iron" & IT$target == "level" & IT$rank <= 20])) else "21%"`), the rest is spread over the other 350 columns, which is how a weighted sum of many weak signals is meant to behave. All twenty keep their direction in every leave-one-country-out fit; the starred ones (`r if (!is.null(IT)) sum(IT$incountry_sign_agree[IT$outcome == "child_iron" & IT$target == "level" & IT$rank <= 20] == IT$incountry_fits[IT$outcome == "child_iron" & IT$target == "level" & IT$rank <= 20]) else 10` of twenty) also keep it in each country's own separate fit, the stricter test. The story is the one on the earlier slides: cereal-heavy cropping, ruminant and cattle density, cropland, distance from the coast and a high dependency ratio rank a district worse; root crops, higher plant productivity, relatively expensive staples, modelled overweight and malaria intensity rank it better, the last for the geographic reason discussed. None of the twenty requires a blood sample, and the twenty-layer equal-weight composite scores about the same as the full index for a new country.
 :::
 
 ## Exclusions, with their reasons

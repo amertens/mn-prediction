@@ -3194,3 +3194,56 @@ reconstructed from the backup and block metadata), a qualitative slide on the
 predictors recurring in the leave-one-country-out top twenties
 (index_importance_columns.csv, scope loco), the forest-plot slide, and body
 text rendered at 18 pt / tables 11 pt through render_deck.sh --text.
+
+## HC-02 · Sierra Leone diet from SLIHS 2011 (scripts/covariates/build_hces_diet_block.R; 2026-09-16)
+
+SLIHS 2011 (World Bank Microdata Library `SLE_2011_SLIHS_v01_M`, filed under
+`data/RA_2026-09/extracted/LSMS/SLE_2011/`) replaces SLIHS 2018 for Sierra
+Leone: two years before the 2013 micronutrient survey instead of five after,
+and its diary item codes carry labels (166 purchase items, 106 own-consumption
+items), so the twelve recall-based indicators the 2018 release could not give
+are now built for Sierra Leone. Definitions follow The Gambia: consumption =
+purchased in the five-visit diary or own-produced quantity at any visit;
+food share = diary food purchases over diary food + diary non-food +
+12-month non-food scaled to the diary window (median 25 days from the visit
+dates); own production by ITEM; consumption level = annualised purchases per
+capita (no aggregate), centred. 6,729 households, 14 of 14 districts by code
+(Tonkilili -> Tonkolili, Western other / urban -> Western Rural / Urban).
+Weighted means: food share 0.76, own-production 0.25, HDDS 7.9, any
+animal-source food 0.98. The item classifier gained rules for the 2011
+labels (guinea corn, bread listed with cassava bread, "butter pear", the
+composite meals, game meat); Malawi and Gambia means unchanged. Alignment
+rule `hces_year`: SierraLeone = 2011. `metadata/hces_food_groups_SierraLeone.csv`
+lists the 166 classifications for review. Ghana's GLSS7 food module remains
+the one HCES gap (RA brief T1.6 item 2).
+
+## AB-02 · ACLED conflict block built (scripts/protocol_v2/60_build_acled_conflict.R; 2026-09-16)
+
+Event-level exports for the four countries (three-year windows around each
+survey; 539 events) filed under `data/ACLED/` (not redistributed). Two
+defects in the reader fixed: a byte-order mark on some files but not others
+made the stacked id column NA and the dedupe dropped whole countries; and
+the export mixes ISO dates with "31 December 2017", which `as.Date(tryFormats)`
+resolves from the first element only, so Ghana parsed to NA. Now per-format
+parsing with fill. Windows (36 months to fieldwork end): The Gambia 59
+events in 14 districts, Ghana 279 in 93, Malawi 108 in 27, Sierra Leone 35
+in 9; Malawi's window is short by its last two months (export ends
+2015-12). Eight `acled_` columns, domain "Conflict and insecurity", all
+subnational, alignment rule `acled_36m`. Most districts are zero, as the
+script header expected; the block is in place for the next countries.
+Shared set **578 predictors**, 29 domains; launcher EXPECTED 578. Tests
+18 / 8 / 33 pass. No models re-run yet on the 578 set.
+
+## FN-01 · FluNet moved to the national track (R/national_covariates.R; 2026-09-16)
+
+The three FluNet indicators (specimens per week, influenza-positive share,
+influenza A share) were national constants in the district set, dropped at
+fit time and never used. The VIW_FNT export is global (187 countries, 1995
+onward), so they now enter the VMNIS national prevalence model as country x
+year covariates: `load_flunet_covariates()` builds the panel and
+`load_wdi_covariates()` joins it to the WDI frame (source "wdi+flunet";
+`NAT_FLUNET=0` leaves it out), carried to the nearest year like the WDI
+series; 44% of country-years have a value, the rest go through the model's
+missingness machinery. The Gambia and Malawi report nothing to FluNet in
+2013-2018. The district columns leave the shared set under a new exclusion
+policy `national_track`. Shared set **575 predictors**; launcher EXPECTED 575.

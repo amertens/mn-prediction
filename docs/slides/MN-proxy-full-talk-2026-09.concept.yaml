@@ -309,6 +309,74 @@ slides:
     - "Folds: leave-one-country-out"
     - "Baseline: country-block permutation null"
 
+# ---- four candidate translations of the accuracy numbers for a policy audience (pick one or two) ----
+- title: "What a correlation of {infill_index:.2f} means on the ground"
+  layout: icon_rows
+  items:
+  - icon: right-left
+    heading: "Take any two districts: the model orders them correctly about {pairs_pct:pc} of the time"
+    caption: "A coin toss gets 50%. In a country the model has never seen, {pairs_pct_tr:pc}."
+  - icon: flag
+    heading: "In the fifth of districts it flags, deficiency runs at {top20_prev_index:.0f}% against {top20_prev_nat:.0f}% nationally"
+    caption: "A map that knew every district would find {top20_prev_oracle:.0f}% in its worst fifth."
+  - icon: people-group
+    heading: "That fifth holds {cap_index:pc} of the deficient people"
+    caption: "The survey's own regional averages capture {cap_jk:pc}; a perfect map {cap_oracle:pc}. Real, modest, and better than today's number."
+
+- title: How much of what a survey can see does the model recover?
+  layout: icon_rows
+  items:
+  - icon: wave-square
+    heading: "The survey itself is noisy at district level: a perfect predictor would score only {vc_honest:.2f}"
+    caption: One to three clusters per district; the survey's district estimate is an estimate too.
+  - icon: gauge-high
+    heading: "The model reaches {ceiling_share:pc} of that ceiling"
+    caption: "{infill_index_p:.2f} on the prevalence target against a ceiling of {vc_honest:.2f}. The gap is mostly the survey's noise, not the model's ignorance."
+  - icon: building-columns
+    heading: "And beats the number a ministry would use today"
+    caption: "The region's average, {infill_jk:.2f}; the model {infill_index:.2f}, better in {infill_beats_jk:.0f} of {infill_paired:.0f} country-outcome cells."
+
+- title: Right band, wrong band
+  layout: cards
+  items:
+  - icon: bullseye
+    heading: Exact WHO band
+    lines:
+    - "Model: {rc_ex:pc} of districts"
+    - "Regional averages: {rc_jk_ex:pc}"
+    - "Bands: under 2%, 2 to 10, 10 to 20, 20% or more (vitamin A); each district held out"
+  - icon: circle-half-stroke
+    heading: Within one band
+    lines:
+    - "Model: {rc_w1:pc} of districts"
+    - "Regional averages: {rc_jk_w1:pc}"
+    - "A district the survey calls severe is placed severe or moderate"
+  - icon: triangle-exclamation
+    heading: Two or more bands wrong
+    lines:
+    - "Model: {rc_far:pc} of districts"
+    - "Regional averages: {rc_jk_far:pc}"
+    - "The error a severity map cannot afford; in a new country the level comes from the national anchor"
+
+- title: Which decisions can the ranking carry?
+  layout: checklist
+  items:
+  - status: "yes"
+    heading: Which districts to visit, assess or enrol first
+    caption: "Needs an order, not a number: {pairs_pct:pc} of pairs right, better than the regional average."
+  - status: "yes"
+    heading: Where the next survey puts its clusters
+    caption: The ranking is the input to the anchor-and-rank design.
+  - status: "yes"
+    heading: Sequencing a programme roll-out across districts
+    caption: Same reason; the order is what the roll-out needs.
+  - status: partly
+    heading: A planning prevalence for a district
+    caption: "Only with a national anchor: {ar_a1:.1f} points median error at a 5% national sample."
+  - status: "no"
+    heading: A district prevalence with no survey at all, or whether a programme worked
+    caption: The model has no level of its own and is validated on one point in time, not on change.
+
 - title: What the transport models reach for
   layout: icon_rows
   items:

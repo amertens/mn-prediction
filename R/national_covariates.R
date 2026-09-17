@@ -119,6 +119,38 @@ WDI_VARS <- c(
 WDI_LOG_VARS <- c("gdp_pc", "pop_total", "health_exp_pc", "cereal_yield")
 
 # ---------------------------------------------------------------------------
+# WHO FluNet as a national covariate (2026-09-16, at the user's direction).
+#
+# The three FluNet indicators built for the district set (script 59) are
+# national constants there and are dropped at fit time, so they never reached a
+# model. The VMNIS export is global (187 countries, 1995 onward), which makes it
+# a country x year covariate for the national prevalence model instead:
+#   flunet_specimens_per_week   specimens processed per reporting week
+#                               (surveillance intensity; a health-system proxy)
+#   flunet_share_positive       influenza-positive share of specimens
+#   flunet_influenza_a_share    influenza A share of positives
+# Joined to the WDI covariate frame by iso3c x year and carried to the nearest
+# year like the WDI series. NAT_FLUNET=0 leaves them out.
+# ---------------------------------------------------------------------------
+FLUNET_PATH <- here::here("data", "FluNet", "VIW_FNT.csv")
+FLUNET_VARS <- c("flunet_specimens_per_week", "flunet_share_positive", "flunet_influenza_a_share")
+load_flunet_covariates <- function(path = FLUNET_PATH) {
+  if (!file.exists(path)) return(NULL)
+  F <- read.csv(path, stringsAsFactors = FALSE, skipNul = TRUE)   # the export carries embedded nuls in a comment field
+  num <- function(x) suppressWarnings(as.numeric(x))
+  F |>
+    filter(!is.na(COUNTRY_CODE), nzchar(COUNTRY_CODE), !is.na(ISO_YEAR)) |>
+    group_by(iso3c = as.character(COUNTRY_CODE), year = as.integer(ISO_YEAR)) |>
+    summarise(weeks = n_distinct(ISO_WEEK), sp = sum(num(SPEC_PROCESSED_NB), na.rm = TRUE),
+              pa = sum(num(INF_A), na.rm = TRUE), pall = sum(num(INF_ALL), na.rm = TRUE), .groups = "drop") |>
+    transmute(iso3c, year,
+              flunet_specimens_per_week = sp / pmax(weeks, 1L),
+              flunet_share_positive     = ifelse(sp > 0, pall / sp, NA_real_),
+              flunet_influenza_a_share  = ifelse(pall > 0, pa / pall, NA_real_)) |>
+    as.data.frame()
+}
+
+# ---------------------------------------------------------------------------
 # Nearest-value carry within a country, matrix-wise.
 #
 # The per-column vapply version in 31/33 is fine for 17 indicators and far too
@@ -173,11 +205,17 @@ load_wdi_covariates <- function(max_gap = 5L) {
     select(iso3c, year, all_of(names(WDI_VARS))) |>
     arrange(iso3c, year)
 
-  M <- fill_near_matrix(as.matrix(wdi[, names(WDI_VARS)]), wdi$iso3c, max_gap)
-  wdi[, names(WDI_VARS)] <- as.data.frame(M)
+  vars <- names(WDI_VARS); log_vars <- WDI_LOG_VARS
+  fl <- if (identical(Sys.getenv("NAT_FLUNET", "1"), "1")) load_flunet_covariates() else NULL
+  if (!is.null(fl)) {
+    wdi <- dplyr::left_join(wdi, fl, by = c("iso3c", "year"))
+    vars <- c(vars, FLUNET_VARS); log_vars <- c(log_vars, "flunet_specimens_per_week")
+  }
+  M <- fill_near_matrix(as.matrix(wdi[, vars]), wdi$iso3c, max_gap)
+  wdi[, vars] <- as.data.frame(M)
 
-  list(df = wdi, vars = names(WDI_VARS), log_vars = WDI_LOG_VARS,
-       source = "wdi")
+  list(df = wdi, vars = vars, log_vars = log_vars,
+       source = if (is.null(fl)) "wdi" else "wdi+flunet")
 }
 
 # ---------------------------------------------------------------------------

@@ -223,6 +223,15 @@ REC <- if (is.null(IC)) NULL else IC |> filter(scope == "loco", target == "level
 Q$loco_fits <- if (is.null(IC)) 22 else nrow(distinct(IC |> filter(scope == "loco", target == "level"), fit, outcome))
 rec1 <- function(col, what = "n_fits") if (is.null(REC) || !col %in% REC$column) NA else REC[[what]][REC$column == col]
 # quantities the concept slides (the YAML) read
+if (!is.null(NTS)) { nt <- NTS[NTS$estimand == "infill", ]; g1 <- function(a, col) get1(nt[[col]][nt$arm == a])
+  Q$top20_prev_index <- g1("domain_index", "mean_prev_top20"); Q$top20_prev_nat <- g1("domain_index", "mean_prev_national")
+  Q$top20_prev_oracle <- g1("oracle_ceiling", "mean_prev_top20"); Q$cap_oracle <- g1("oracle_ceiling", "mean_capture"); Q$lift_index <- g1("domain_index", "mean_lift") }
+Q$pairs_pct <- (1 + 2 / pi * asin(Q$infill_index)) / 2        # share of district pairs in the right order, from Spearman via Kendall's tau (bivariate-normal approximation)
+Q$pairs_pct_tr <- (1 + 2 / pi * asin(Q$tr_index)) / 2
+Q$ceiling_share <- Q$infill_index_p / Q$vc_honest              # prevalence target against the honest ceiling on the same target
+if (!is.null(RC)) { r <- RC |> filter(scheme == "who_vitA") |> group_by(arm) |> summarise(ex = mean(exact_admin2, na.rm = TRUE), w1 = mean(within1_admin2, na.rm = TRUE), .groups = "drop")
+  Q$rc_jk_ex <- get1(r$ex[r$arm == "region_mean_jk"]); Q$rc_jk_w1 <- get1(r$w1[r$arm == "region_mean_jk"]); Q$rc_sp_ex <- get1(r$ex[r$arm == "spatial"])
+  Q$rc_far <- 1 - Q$rc_w1; Q$rc_jk_far <- 1 - Q$rc_jk_w1 }
 Q$n_spine <- if (is.null(SP)) NA else nrow(SP)
 Q$rec_ruminant <- rec1("glw_ruminant_share"); Q$rec_staple <- rec1("fprice_staple_rel"); Q$rec_staple_outcomes <- rec1("fprice_staple_rel", "n_outcomes")
 
@@ -575,6 +584,30 @@ if (!is.null(NT)) {
 The dashed line is the share a random fifth of districts would capture. The margin over the survey's own regional averages is small per cell and concentrates where regions hold three to five districts. Under transport, burden captured is at chance: the transported product is an ordering and brings no targeting gain. Likely question: why the ceiling is only `r pc(Q$cap_oracle)`. Burden is spread across districts; even the true worst fifth holds under half of it.
 :::
 
+## What a correlation of `r f2(Q$infill_index)` means on the ground
+
+::: {.notes}
+DRAFT A of four candidate translations for a policy audience; keep one or two. The three readings are all computed from the same held-out predictions (in-fill, 5-fold by district, ten draws). Pairs: a Spearman correlation of `r f2(Q$infill_index)` corresponds to about `r pc(Q$pairs_pct)` of district pairs ordered the right way (Kendall's tau from the correlation under a bivariate-normal approximation), against 50% for a coin toss; across borders (`r f2(Q$tr_index)`) it is `r pc(Q$pairs_pct_tr)`. The flagged fifth: deficiency prevalence in the fifth of districts the model ranks worst averages `r f2(Q$top20_prev_index, 1)`% against `r f2(Q$top20_prev_nat, 1)`% nationally (nce_targeting_summary.csv, mean over the 24 cells); a map that knew the truth would find `r f2(Q$top20_prev_oracle, 1)`%. Burden: the model's worst fifth holds `r pc(Q$cap_index)` of the deficient people, the survey's own regional averages `r pc(Q$cap_jk)`, a perfect map `r pc(Q$cap_oracle)`. The honest message is that the ranking is real but modest: it is better than the regional average a ministry would use today, and a long way from a map that knows every district, which is what the reliability ceiling explains.
+:::
+
+## How much of what a survey can see does the model recover?
+
+::: {.notes}
+DRAFT B. The question a decision-maker actually asks is not "is 0.40 high" but "compared with what". Two comparisons. Against the ceiling: a district estimate from the survey itself is noisy (one to three clusters per district), so even a perfect predictor of the true prevalence would correlate only `r f2(Q$vc_honest)` with what the survey reports; on that scale the model's `r f2(Q$infill_index_p)` (prevalence target) is `r pc(Q$ceiling_share)` of the attainable. Against current practice: the number a ministry would use for an unsurveyed district today is its region's average; the model beats it (`r f2(Q$infill_index)` against `r f2(Q$infill_jk)`, better in `r Q$infill_beats_jk` of `r Q$infill_paired` cells). Say plainly that the remaining gap is mostly the survey's noise, not the model's ignorance, and that the way to raise the ceiling is more clusters per district, which is the survey-design slide.
+:::
+
+## Right band, wrong band
+
+::: {.notes}
+DRAFT C. Policy runs on severity bands, not correlations: WHO's vitamin A bands are under 2%, 2 to 10, 10 to 20, 20% or more. With each district held out, the model puts `r pc(Q$rc_ex)` of districts in the band the survey puts them in and `r pc(Q$rc_w1)` within one band (risk_category_accuracy.csv, mean over the vitamin A cells); the survey's own regional averages give `r pc(Q$rc_jk_ex)` exact and `r pc(Q$rc_jk_w1)` within one band. So the model is almost never two bands wrong: a district the survey calls severe is not called mild. The bands here use the country's own survey to set the level; in a new country the level comes from the national anchor (risk-class slide in the appendix has the transport rows). This is the slide to use if the audience is used to reading vitamin A or anaemia severity maps.
+:::
+
+## Which decisions can the ranking carry?
+
+::: {.notes}
+DRAFT D. The correlation does not tell a programme whether the model is fit for a decision; this slide says which decisions, and which not. Yes: choosing which districts to visit, assess or enrol first, and where the next survey should put its clusters, because those need an order and the order is `r pc(Q$pairs_pct)` right at the pair level and better than the regional average. Yes: sequencing a roll-out across districts, for the same reason. With a national anchor only: a planning prevalence per district (`r f2(Q$ar_a1, 1)` points median error at a 5% national sample), because the ranking has no level of its own. No: reporting a district prevalence with no survey at all, or judging whether a programme worked, because the model is cross-sectional and validated on levels at one point in time, not on change. The decision rule to offer: use it where being roughly right about the order is enough, and pair it with a survey wherever a number has to be defended.
+:::
+
 ## Malawi: survey and held-out prediction
 
 ```{r malawi-maps, fig.width=11, fig.height=5.6, dpi=130}
@@ -632,36 +665,38 @@ Malawi, women's B12, biomarker level: the cell with the best in-fill ranking of 
 
 ## A surrogate marker: anaemia, fish and B12
 
-```{r b12-surrogate, fig.width=10, fig.height=5.2, dpi=130}
+```{r b12-surrogate, fig.width=12, fig.height=5.2, dpi=130}
 ok <- FALSE
 try({
   suppressPackageStartupMessages(library(sf))
+  source(file.path(root, "R", "protocol_v2.R"))
   S  <- read.csv(file.path(root, "data", "covariates", "harmonized", "predictors_admin2_shared.csv"), check.names = FALSE)
+  PREDS <- intersect(MD$column, names(S)); domain_of <- stats::setNames(MD$domain, MD$column)
   B <- readRDS(file.path(root, "dashboard", "data", "admin2_boundaries.rds"))[["malawi"]]
-  t <- TG[TG$country == "Malawi" & TG$outcome == "women_b12", c("Admin1", "Admin2", "y_prev")]
-  s <- S[S$country == "Malawi", c("Admin1", "Admin2", "ihme_allanemia", "hces_any_fish")]
-  g <- dplyr::left_join(dplyr::left_join(B, t, by = c("Admin1", "Admin2")), s, by = c("Admin1", "Admin2"))
+  t <- TG[TG$country == "Malawi" & TG$outcome == "women_b12" & is.finite(TG$y_prev), c("Admin1", "Admin2", "y_prev")]
+  s <- S[S$country == "Malawi", c("Admin1", "Admin2", "ihme_allanemia", "hces_any_fish", PREDS)]
+  m <- dplyr::left_join(s, t, by = c("Admin1", "Admin2"))          # every district; y_prev NA where no survey clusters
+  # the deployment fit: the index on all surveyed districts, applied to every district (as on the dashboard)
+  tr <- which(is.finite(m$y_prev)); Xr <- prep_predictors_v2(as.matrix(m[, PREDS])); Y <- .v2_logit(m$y_prev)
+  D <- domain_representation_v2(Xr, domain_of, sign_rows = tr)
+  m$pred <- .v2_expit(ARMS_V2[["domain_index"]](tr, seq_len(nrow(m)), Y, NULL, D, list(Admin1 = m$Admin1, y_nat = Y)))
+  g <- dplyr::left_join(B, m[, c("Admin1", "Admin2", "y_prev", "pred", "ihme_allanemia", "hces_any_fish")], by = c("Admin1", "Admin2"))
   r1 <- cor(g$y_prev, g$ihme_allanemia, method = "spearman", use = "complete.obs"); r2 <- cor(g$y_prev, g$hces_any_fish, method = "spearman", use = "complete.obs")
-  pct <- function(x) 100 * (rank(x, na.last = "keep") - 1) / (sum(is.finite(x)) - 1)   # within-country percentile, so the three maps share one scale
-  labs3 <- c(y_prev = "Women's B12 deficiency
-survey 2015-16
- ", ihme_allanemia = sprintf("Modelled anaemia
-in women (IHME)
-rho with B12 def. = %.2f", r1), hces_any_fish = sprintf("Households eating
-fish last week (IHS4)
-rho with B12 def. = %.2f", r2))
-  long <- do.call(rbind, lapply(names(labs3), function(v) data.frame(g[, c("Admin1", "Admin2")], value = pct(g[[v]]), panel = labs3[[v]])))
-  long$panel <- factor(long$panel, levels = labs3)
-  print(ggplot(sf::st_as_sf(long)) + geom_sf(aes(fill = value), colour = "white", linewidth = 0.1) + facet_wrap(~ panel, ncol = 3) +
+  pct <- function(x) 100 * (rank(x, na.last = "keep") - 1) / (sum(is.finite(x)) - 1)   # within-country percentile, so the maps share one scale
+  labs4 <- c(y_prev = "Women's B12 deficiency\nsurvey 2015-16\n ", pred = "Model-predicted deficiency\nevery district, fitted on\nthe surveyed ones",
+             ihme_allanemia = sprintf("Modelled anaemia\nin women (IHME)\nrho with B12 def. = %.2f", r1), hces_any_fish = sprintf("Households eating\nfish last week (IHS4)\nrho with B12 def. = %.2f", r2))
+  long <- do.call(rbind, lapply(names(labs4), function(v) data.frame(g[, c("Admin1", "Admin2")], value = pct(g[[v]]), panel = labs4[[v]])))
+  long$panel <- factor(long$panel, levels = labs4)
+  print(ggplot(sf::st_as_sf(long)) + geom_sf(aes(fill = value), colour = "white", linewidth = 0.1) + facet_wrap(~ panel, ncol = 4) +
     scale_fill_viridis_c(na.value = "grey92", name = "Percentile among Malawi districts (100 = highest)", limits = c(0, 100)) +
-    theme_void(base_size = 12) + theme(legend.position = "bottom", legend.key.width = grid::unit(1.6, "cm"), strip.text = element_text(face = "bold", size = 10, lineheight = 1.05), strip.clip = "off", panel.spacing.x = grid::unit(1.2, "cm")))
+    theme_void(base_size = 12) + theme(legend.position = "bottom", legend.key.width = grid::unit(1.6, "cm"), strip.text = element_text(face = "bold", size = 10, lineheight = 1.05), strip.clip = "off", panel.spacing.x = grid::unit(1.0, "cm")))
   ok <- TRUE
 }, silent = TRUE)
 if (!ok) cat("Maps could not be rendered in this session.")
 ```
 
 ::: {.notes}
-The story behind the forest plot on the previous slide. In Malawi the modelled anaemia and malaria surfaces carry negative weights for B12: districts with MORE anaemia and malaria have BETTER B12 status. No nutritional mechanism says that. The maps say why: the lakeshore and the southern lowlands are where malaria transmission and anaemia are highest, and they are also where households eat fish, the main dietary B12 source in the country; the uplands have less malaria, less fish and worse B12. The anaemia surface is a surrogate marker for that geography, not a cause, and it is a good one precisely because it is modelled from the same environment. Three lessons for the audience: the index finds these markers on its own, they are ecological associations and must never be read as effects, and a surrogate that works in Malawi need not work in the next country, which is why the cross-border models lean on climate and soil rather than on health surfaces (ablation slide). Each map is the within-country percentile of its variable so the three share one scale; rho is the Spearman correlation with B12 deficiency across the surveyed Traditional Authorities (negative for anaemia and for fish: more of either, less deficiency).
+The story behind the forest plot on the previous slide. In Malawi the modelled anaemia and malaria surfaces carry negative weights for B12: districts with MORE anaemia and malaria have BETTER B12 status. No nutritional mechanism says that. The maps say why: the lakeshore and the southern lowlands are where malaria transmission and anaemia are highest, and they are also where households eat fish, the main dietary B12 source in the country; the uplands have less malaria, less fish and worse B12. The anaemia surface is a surrogate marker for that geography, not a cause, and it is a good one precisely because it is modelled from the same environment. Three lessons for the audience: the index finds these markers on its own, they are ecological associations and must never be read as effects, and a surrogate that works in Malawi need not work in the next country, which is why the cross-border models lean on climate and soil rather than on health surfaces (ablation slide). The second panel is the deployment fit (the index fitted on the 87 surveyed districts and applied to all 243, in-sample for the surveyed ones, as on the dashboard): it fills the grey districts and smooths the survey's single-cluster noise, and it visibly follows the anaemia and fish geography. Each map is the within-country percentile of its variable so the four share one scale; rho is the Spearman correlation with B12 deficiency across the surveyed Traditional Authorities (negative for anaemia and for fish: more of either, less deficiency).
 :::
 
 ## Domain ablation under transport

@@ -87,7 +87,17 @@ questionnaire and report. **Done when:** the two GPS requests are filed
 a `README_download.md` listing the files and the region/district variable
 (`HH7` / `HH7A`).
 
-### T1.3 ACLED export (conflict domain; the script is ready) - PARTIAL
+### T1.3 ACLED export (conflict domain; the script is ready) - DONE 2026-09-16 for the four countries
+
+Four event-level exports (three-year windows around each survey) arrived on
+16 September and are filed under `data/ACLED/`; the block is built (AB-02 in
+the sandbox log, 578-column set). Still wanted, at lower priority: the same
+export for the next countries (Nigeria, Burkina Faso, Mali, Niger, Ethiopia),
+one file per country, from 36 months before each country's survey to the
+survey's end (2012 onward covers surveys from 2015; the 2007 start in the
+original request was only for Tanzania 2010). The original request follows.
+
+#### Original request
 
 Only `ACLED data-Western_Africa-Ghana_2015_2017.csv` arrived (Ghana, three
 years). The script needs all four countries from 2007-01-01, so the export
@@ -112,7 +122,7 @@ map in `59_build_addback_sources.R` was corrected and the block rebuilt.
 
 ### T1.6 The pieces the HCES block still lacks
 
-1. **SLIHS 2018 diary item codes.** The released `slihs2018_x.dta` diary has
+1. **SLIHS 2018 diary item codes.** NO LONGER NEEDED (SLIHS 2011 replaced 2018 for the diet block on 16 September; keep only if a 2018 sensitivity block is wanted). The released `slihs2018_x.dta` diary has
    item codes without labels, so Sierra Leone has no food-group indicators.
    Get the item code list: the SLIHS 2018 questionnaire Book 4 (household
    consumption diary) or the codes annex from Statistics Sierra Leone / the
@@ -125,7 +135,7 @@ map in `59_build_addback_sources.R` was corrected and the block rebuilt.
    own-production quantities) from the GSS / World Bank entry and file it
    under `data/RA_2026-09/extracted/LSMS/GHA_2017/`. **Done when:** the file
    is there with its item code list.
-3. **SLIHS 2011.** The 2013 Sierra Leone MNS sits between SLIHS 2011 and
+3. **SLIHS 2011.** DONE 2026-09-16: the full Stata release arrived and is filed under `data/RA_2026-09/extracted/LSMS/SLE_2011/`; the diet block now uses it for Sierra Leone (HC-02), which also closes item 1 above. The 2013 Sierra Leone MNS sits between SLIHS 2011 and
    SLIHS 2018; 2011 is the closer round for diet. World Bank Microdata
    Library `SLE_2011_IHS` (public use after registration). Save under
    `data/RA_2026-09/extracted/LSMS/SLE_2011/`. **Done when:** the

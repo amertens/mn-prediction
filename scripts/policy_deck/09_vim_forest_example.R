@@ -88,6 +88,10 @@ g <- ggplot(d, aes(median, label, colour = domain)) +
   guides(colour = guide_legend(ncol = 3, byrow = TRUE))
 f <- file.path(FDIR, sprintf("fig12_vim_forest_%s_%s.png", CN, ON))
 ggsave(f, g, width = 12, height = 7.8, dpi = 200, bg = "white")
+# a plain version for slides: the reading goes in the speaker notes, not on the figure
+gp <- g + labs(x = "Weight in the district index (bootstrap median and 5th to 95th percentile)", caption = NULL) +
+  theme(axis.title.x = element_text(size = 11), legend.text = element_text(size = 10))
+ggsave(sub("[.]png$", "_plain.png", f), gp, width = 12, height = 7.4, dpi = 200, bg = "white")
 cat(sprintf("\n%s\n", f))
 print(as.data.frame(d |> transmute(rank, column, domain, median = round(median, 3), lo = round(lo, 3), hi = round(hi, 3), sign_agree = round(sign_agree, 2))), row.names = FALSE)
 cat("DONE\n")
