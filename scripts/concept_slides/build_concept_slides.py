@@ -2,6 +2,15 @@
 own reference template, as a standalone pptx the author pastes into the deck.
 
     python scripts/concept_slides/build_concept_slides.py docs/slides/MN-proxy-Ghana-concept-slides-2026-09.yaml
+    python scripts/concept_slides/build_concept_slides.py docs/slides/deck.concept.yaml --into docs/slides/deck.pptx
+
+Without --into, a standalone pptx of the slides is written next to the spec (with
+previews and a placement table). With --into, the slides are drawn IN PLACE on a
+deck pandoc has rendered: each spec entry is matched to the rendered slide with the
+same title (the qmd keeps that slide as a title plus speaker notes), the empty body
+placeholder is removed and the layout drawn; the title slide is matched by layout
+and gets the logos and acknowledgement of a `title` entry. Called by
+scripts/render_deck.sh when it is given `--concept <spec.yaml>`.
 
 Reads, next to the spec: the deck qmd it names (for the reference document and
 the speaker notes of the slides it replaces) and `<deck>.quantities.json`
@@ -146,16 +155,26 @@ def layout_pipeline(slide, spec, Q, icons):
     items = spec["items"]; n = len(items)
     ncol = 3 if n > 4 else n; nrow = -(-n // ncol)
     gap = Inches(0.55); cw = (W - gap * (ncol - 1)) / ncol; ch = (H - Inches(0.3) * (nrow - 1)) / nrow
+    if ncol >= 4 and nrow == 1:
+        ch = min(ch, Inches(3.6))
     for k, it in enumerate(items):
         r, c = divmod(k, ncol)
         x = X0 + c * (cw + gap); y = Y0 + r * (ch + Inches(0.3))
         rounded_box(slide, x, y, cw, ch)
-        isz = Inches(0.62)
-        icon(slide, icon_file(it), x + Inches(0.2), y + Inches(0.18), isz, icons)
-        textbox(slide, x + Inches(0.95), y + Inches(0.12), cw - Inches(1.05), Inches(0.75),
-                [(f"{k + 1}. {fill_text(it['heading'], Q)}", 17, True, BLUE)], anchor=MSO_ANCHOR.MIDDLE)
-        textbox(slide, x + Inches(0.2), y + Inches(0.92), cw - Inches(0.35), ch - Inches(1.0),
-                [(fill_text(it.get("caption", ""), Q), 13, False, TEXT)])
+        if ncol >= 4:   # narrow cards: icon on top, heading and caption below it
+            isz = Inches(0.6)
+            icon(slide, icon_file(it), x + (cw - isz) / 2, y + Inches(0.2), isz, icons)
+            textbox(slide, x + Inches(0.12), y + Inches(0.85), cw - Inches(0.24), Inches(0.8),
+                    [(f"{k + 1}. {fill_text(it['heading'], Q)}", 15, True, BLUE)], anchor=MSO_ANCHOR.MIDDLE, align=PP_ALIGN.CENTER)
+            textbox(slide, x + Inches(0.15), y + Inches(1.7), cw - Inches(0.3), ch - Inches(1.8),
+                    [(fill_text(it.get("caption", ""), Q), 12.5, False, TEXT)])
+        else:
+            isz = Inches(0.62)
+            icon(slide, icon_file(it), x + Inches(0.2), y + Inches(0.18), isz, icons)
+            textbox(slide, x + Inches(0.95), y + Inches(0.12), cw - Inches(1.05), Inches(0.75),
+                    [(f"{k + 1}. {fill_text(it['heading'], Q)}", 17, True, BLUE)], anchor=MSO_ANCHOR.MIDDLE)
+            textbox(slide, x + Inches(0.2), y + Inches(0.92), cw - Inches(0.35), ch - Inches(1.0),
+                    [(fill_text(it.get("caption", ""), Q), 13, False, TEXT)])
         if c < ncol - 1 and k < n - 1:
             ar = slide.shapes.add_shape(MSO_SHAPE.CHEVRON, x + cw + Inches(0.14), y + ch / 2 - Inches(0.16), Inches(0.28), Inches(0.32))
             ar.fill.solid(); ar.fill.fore_color.rgb = LIGHT; ar.line.fill.background()
@@ -197,15 +216,17 @@ def layout_checklist(slide, spec, Q, icons):
 
 def layout_icon_rows(slide, spec, Q, icons, deck_dir):
     items = spec["items"]; n = len(items)
-    img = spec.get("image"); tw = W if not img else Inches(6.6)
+    img = spec.get("image"); iw = Inches(img.get("width", 4.2)) if img else 0
+    tw = W if not img else W - iw - Inches(0.35)
     gap = Inches(0.2); rh = (H - gap * (n - 1)) / n
+    hs = spec.get("heading_size", 20 if n <= 4 else 17); ts = spec.get("text_size", 14 if n <= 4 else 12.5)
     for k, it in enumerate(items):
         y = Y0 + k * (rh + gap); isz = min(Inches(0.9), rh - Inches(0.2))
         icon(slide, icon_file(it), X0 + Inches(0.1), y + (rh - isz) / 2, isz, icons)
         textbox(slide, X0 + Inches(1.25), y, tw - Inches(1.3), rh,
-                [(fill_text(it["heading"], Q), 20, True, BLUE), (fill_text(it.get("caption", ""), Q), 14, False, TEXT)], anchor=MSO_ANCHOR.MIDDLE)
+                [(fill_text(it["heading"], Q), hs, True, BLUE), (fill_text(it.get("caption", ""), Q), ts, False, TEXT)], anchor=MSO_ANCHOR.MIDDLE)
     if img:
-        f = os.path.join(deck_dir, img["file"]); iw = Inches(img.get("width", 4.2))
+        f = os.path.join(deck_dir, img["file"])
         pic = slide.shapes.add_picture(f, X0 + W - iw, Y0 + Inches(0.1), width=iw)
         if pic.height > H - Inches(0.2):
             ratio = (H - Inches(0.2)) / pic.height
@@ -224,11 +245,14 @@ def layout_two_panel(slide, spec, Q, icons):
         items = pn["items"]; n = len(items); rh = (H - Inches(0.9)) / n
         for k, it in enumerate(items):
             yy = y + Inches(0.8) + k * rh; isz = min(Inches(0.55), rh - Inches(0.15))
-            icon(slide, icon_file(it), x + Inches(0.25), yy + (rh - isz) / 2, isz, icons)
-            paras = [(fill_text(it["heading"], Q), 15, True, BLUE)]
+            tx = x + Inches(0.25)
+            if "icon" in it:
+                icon(slide, icon_file(it), x + Inches(0.25), yy + (rh - isz) / 2, isz, icons); tx = x + Inches(1.0)
+            hs = spec.get("heading_size", 15); ts = spec.get("text_size", 12)
+            paras = [(fill_text(it["heading"], Q), hs, True, BLUE)]
             if it.get("caption"):
-                paras.append((fill_text(it["caption"], Q), 12, False, TEXT))
-            textbox(slide, x + Inches(1.0), yy, pw - Inches(1.15), rh, paras, anchor=MSO_ANCHOR.MIDDLE)
+                paras.append((fill_text(it["caption"], Q), ts, False, TEXT))
+            textbox(slide, tx, yy, pw - (tx - x) - Inches(0.15), rh, paras, anchor=MSO_ANCHOR.MIDDLE)
 
 
 def layout_grid(slide, spec, Q, icons):
@@ -246,6 +270,24 @@ def layout_grid(slide, spec, Q, icons):
                 [(head, 15, True, BLUE), (fill_text(g.get("caption", ""), Q), 11.5, False, TEXT)], anchor=MSO_ANCHOR.MIDDLE)
 
 
+def layout_title(slide, spec, Q, icons, deck_dir):
+    """Title slide: shorten the subtitle box, add a row of logos and an acknowledgement line."""
+    for sh in slide.placeholders:
+        if sh.placeholder_format.type == 4:   # SUBTITLE
+            sh.height = Inches(1.3)
+    logos = spec.get("logos", []); y = Inches(5.45); h = Inches(0.55)
+    widths = [Inches(l.get("width", 2.0)) for l in logos]; gap = Inches(0.9)
+    x = X0 + (W - sum(widths) - gap * (len(logos) - 1)) / 2
+    for l, w in zip(logos, widths):
+        pic = slide.shapes.add_picture(os.path.join(deck_dir, l["file"]), x, y, width=w)
+        if pic.height > h:
+            ratio = h / pic.height; pic.width = int(pic.width * ratio); pic.height = int(h)
+        pic.top = int(y + (h - pic.height) / 2)
+        x += w + gap
+    if spec.get("acknowledgement"):
+        textbox(slide, X0, Inches(6.1), W, Inches(0.4), [(fill_text(spec["acknowledgement"], Q), 12, False, MUTED)], align=PP_ALIGN.CENTER)
+
+
 LAYOUTS = {"pipeline": layout_pipeline, "cards": layout_cards, "checklist": layout_checklist, "two_panel": layout_two_panel, "grid": layout_grid}
 
 
@@ -254,6 +296,64 @@ def clear_slides(prs):
     sldIdLst = prs.slides._sldIdLst
     for sldId in list(sldIdLst):
         prs.part.drop_rel(sldId.rId); sldIdLst.remove(sldId)
+
+
+def draw(slide, s, Q, icons, deck_dir):
+    if s["layout"] == "icon_rows":
+        layout_icon_rows(slide, s, Q, icons, deck_dir)
+    elif s["layout"] == "title":
+        layout_title(slide, s, Q, icons, deck_dir)
+    else:
+        LAYOUTS[s["layout"]](slide, s, Q, icons)
+
+
+def build_in_place(spec_path, pptx):
+    """Draw the spec's slides on the rendered deck, matching each by title."""
+    deck_dir = os.path.dirname(os.path.abspath(spec_path)); root = os.path.abspath(os.path.join(deck_dir, "..", ".."))
+    spec = yaml.safe_load(open(spec_path, encoding="utf-8"))
+    qmd = os.path.join(deck_dir, spec["deck"])
+    Q = json.load(open(re.sub(r"[.]qmd$", ".quantities.json", qmd), encoding="utf-8"))
+    icons = os.path.join(root, "docs", "slides", "img", "icons")
+    prs = Presentation(pptx)
+    by_title = {}
+    for sl in prs.slides:
+        if sl.shapes.title is not None and sl.slide_layout.name != "Section Header":
+            by_title.setdefault(sl.shapes.title.text.strip(), sl)
+    n = 0; missing = []
+    for s in spec["slides"]:
+        if s["layout"] == "title":
+            slide = next((sl for sl in prs.slides if sl.slide_layout.name == "Title Slide"), None)
+        else:
+            slide = by_title.get(fill_text(s["title"], Q))
+        if slide is None:
+            missing.append(s["title"]); continue
+        if s["layout"] != "title":
+            for sh in list(slide.shapes):   # drop pandoc's empty body placeholder and anything else but the title
+                if sh.is_placeholder and sh.placeholder_format.type in (1, 3, 13, 15, 16):   # title, centre title, slide number, footer, date
+                    continue
+                sh._element.getparent().remove(sh._element)
+        draw(slide, s, Q, icons, deck_dir); n += 1
+    nf = fill_figures(prs) if spec.get("fill_figures") else 0
+    prs.save(pptx)
+    print(f"{pptx}: {n} concept slide(s) drawn in place, {nf} lone figure(s) enlarged" + (f"; NOT FOUND: {missing}" if missing else ""))
+    if missing:
+        sys.exit(1)
+
+
+def fill_figures(prs):
+    """Enlarge the picture on every slide that holds one picture and no body text to the
+    content area, keeping its aspect ratio (pandoc caps it at 4.75 in high)."""
+    n = 0
+    for sl in prs.slides:
+        pics = [sh for sh in sl.shapes if sh.shape_type == 13]
+        texts = [sh for sh in sl.shapes if sh.has_text_frame and sh.text_frame.text.strip()
+                 and not (sh.is_placeholder and sh.placeholder_format.type in (1, 3, 13, 15, 16))]
+        if len(pics) != 1 or texts or sl.slide_layout.name in ("Title Slide", "Section Header"):
+            continue
+        pic = pics[0]; r = min(W / pic.width, H / pic.height)
+        pic.width = int(pic.width * r); pic.height = int(pic.height * r)
+        pic.left = int(X0 + (W - pic.width) / 2); pic.top = int(Y0); n += 1
+    return n
 
 
 def build(spec_path):
@@ -269,10 +369,7 @@ def build(spec_path):
     for k, s in enumerate(spec["slides"], 1):
         slide = prs.slides.add_slide(layout)
         slide.shapes.title.text = fill_text(s["title"], Q)
-        if s["layout"] == "icon_rows":
-            layout_icon_rows(slide, s, Q, icons, deck_dir)
-        else:
-            LAYOUTS[s["layout"]](slide, s, Q, icons)
+        draw(slide, s, Q, icons, deck_dir)
         notes = deck_notes(qmd_lines, s["title"], Q)
         slide.notes_slide.notes_text_frame.text = f"Replaces deck slide {s['replaces']} ({s['title']}).\n\n{notes}".strip()
         rows.append((k, s["replaces"], s["title"], s["layout"]))
@@ -313,4 +410,7 @@ def previews(pptx, out_dir):
 
 
 if __name__ == "__main__":
-    build(sys.argv[1])
+    if "--into" in sys.argv:
+        build_in_place(sys.argv[1], sys.argv[sys.argv.index("--into") + 1])
+    else:
+        build(sys.argv[1])

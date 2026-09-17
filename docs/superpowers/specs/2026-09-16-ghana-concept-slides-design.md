@@ -75,3 +75,24 @@ look is adopted for good, a later step can fold the YAML + Python into
 
 Three slides first (Data assembly, Estimands, What the models can and cannot
 do), previews sent for a look before the remaining seven are written.
+
+## Addendum (2026-09-16, same day): the full 30-45 minute talk
+
+Built on the same machinery, now wired into the render:
+
+- `docs/slides/MN-proxy-full-talk-2026-09.qmd`: the data-sources deck and the
+  Ghana analysis deck combined (63 slides + section headers; appendix holds
+  what the speaker cuts). Setup chunk = Ghana chunk + data-sources additions,
+  one `Q` list. New slides: big-data/small-data framing, the four surveys,
+  how the zero-tuning index works, Malawi observed-vs-predicted maps, the
+  surrogate-marker maps (women's B12 vs the IHME anaemia surface vs fish
+  consumption, one percentile scale), survey augmentation (what is supported,
+  in design, not shown), the dashboard (live screenshot).
+- `docs/slides/MN-proxy-full-talk-2026-09.concept.yaml`: 19 concept slides
+  drawn IN PLACE by `render_deck.sh --concept` (builder `--into` mode: match
+  by title, skip section headers, keep title/footer placeholders, drop the
+  empty body); `fill_figures: true` enlarges lone figures to the content area.
+- Numbers: qmd prose, notes and YAML all read `Q`; one command refreshes all:
+  `bash scripts/render_deck.sh docs/slides/MN-proxy-full-talk-2026-09.qmd --text 18,10 --concept docs/slides/MN-proxy-full-talk-2026-09.concept.yaml`
+- `scripts/concept_slides/dashboard_screenshots.py` (playwright) refreshes
+  `docs/slides/img/dashboard_*.png`.

@@ -32,11 +32,19 @@ if (!is.null(MD)) {
   dc <- as.data.frame(table(MD$domain), stringsAsFactors = FALSE); Q$domain_counts <- setNames(as.list(dc$Freq), dc$Var1)
   src <- split(MD$source, MD$domain); Q$domain_sources <- lapply(src, function(s) sort(unique(sub(" [(].*$", "", s))))
 }
-if (!is.null(SY) && !is.null(TG)) {
+TCLU <- if (exists("TCLU", envir = env)) get("TCLU", envir = env) else NULL
+if (!is.null(SY) && !is.null(TG)) {   # one flat quantity per survey and field, for the survey cards: {districts_Ghana}, {outcomes_Malawi}, ...
   sy <- SY[SY$in_protocol %in% c(TRUE, "TRUE"), ]
   dist <- aggregate(Admin2 ~ country, unique(TG[, c("country", "Admin1", "Admin2")]), length)
-  Q$surveys <- lapply(seq_len(nrow(sy)), function(i) list(country = sy$country[i], survey = sy$survey[i], year = sy$survey_year[i],
-    districts = dist$Admin2[match(sy$country[i], dist$country)]))
+  oc <- lapply(split(TG$outcome, TG$country), function(o) { o <- unique(sub("^(child|women)_", "", o)); o <- sub("vitA", "vitamin A", o); paste(unique(o), collapse = ", ") })
+  clu <- if (is.null(TCLU)) NULL else aggregate(cluster ~ country, unique(TCLU[, c("country", "cluster")]), length)
+  for (i in seq_len(nrow(sy))) {
+    k <- sy$country[i]
+    Q[[paste0("survey_", k)]] <- sy$survey[i]; Q[[paste0("year_", k)]] <- sy$survey_year[i]
+    Q[[paste0("fieldwork_", k)]] <- paste(format(as.Date(sy$fieldwork_start[i]), "%b %Y"), "to", format(as.Date(sy$fieldwork_end[i]), "%b %Y"))
+    Q[[paste0("districts_", k)]] <- dist$Admin2[match(k, dist$country)]; Q[[paste0("outcomes_", k)]] <- oc[[k]]
+    Q[[paste0("clusters_", k)]] <- if (is.null(clu)) NA else clu$cluster[match(k, clu$country)]
+  }
 }
 out <- sub("[.]qmd$", ".quantities.json", qmd)
 write_json(Q, out, auto_unbox = TRUE, pretty = TRUE, digits = NA, na = "null", null = "null")
