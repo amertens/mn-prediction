@@ -270,6 +270,17 @@ if (!is.null(CG5)) { g4 <- CG5[grepl("4 countries", CG5$arm), ]; g5 <- CG5[!grep
   Q$civ5_guard4 <- get1(mean(g4$spearman, na.rm = TRUE)); Q$civ5_guard5 <- get1(mean(g5$spearman, na.rm = TRUE)); Q$civ5_guard5_pos <- sum(g5$spearman > 0, na.rm = TRUE); Q$civ5_cols4 <- get1(max(g4$n_common)); Q$civ5_cols5 <- get1(max(g5$n_common)) }
 if (!is.null(CMF)) Q$civ_new_cols <- sum(CMF$status == "ok")
 Q$load_d <- if (is.null(ND)) NA else get1(mean(ND$spearman[ND$arm == "fixed_loadbearing" & ND$target == "level"], na.rm = TRUE))
+# VZ-01: tables behind the visualisation slides (scripts/policy_deck/10_viz_tables.R)
+VZ <- file.path(root, "results", "tables", "policy_deck", "viz")
+OOF <- rd(VZ, "oof_child_iron.csv"); EXC <- rd(VZ, "exceedance_ghana_vitA.csv"); COV <- rd(VZ, "rank_interval_coverage.csv"); CTR <- rd(VZ, "contributions_top12.csv")
+if (!is.null(OOF)) { o <- OOF |> group_by(country) |> summarise(rho = cor(y_prev, pred, method = "spearman"), mae = 100 * mean(abs(y_prev - pred)), n = n(), single = mean(n_psu == 1), .groups = "drop")
+  for (cn in o$country) { Q[[paste0("oof_rho_", cn)]] <- o$rho[o$country == cn]; Q[[paste0("oof_mae_", cn)]] <- o$mae[o$country == cn] }
+  Q$single_share <- get1(mean(OOF$n_psu == 1)); Q$multi_n <- sum(OOF$n_psu > 1)
+  u <- OOF |> group_by(country) |> mutate(tercile = dplyr::ntile(urbanicity, 3)) |> group_by(country, tercile) |> summarise(rho = cor(y_prev, pred, method = "spearman"), .groups = "drop")
+  Q$urb_rural <- get1(mean(u$rho[u$tercile == 1])); Q$urb_urban <- get1(mean(u$rho[u$tercile == 3])); Q$urb_mid <- get1(mean(u$rho[u$tercile == 2])) }
+if (!is.null(EXC)) { Q$exc_refits <- get1(max(EXC$refits)); Q$exc_hi <- sum(EXC$p_ge20 >= 0.8); Q$exc_lo <- sum(EXC$p_ge20 <= 0.2); Q$exc_mid <- sum(EXC$p_ge20 > 0.2 & EXC$p_ge20 < 0.8); Q$exc_n <- nrow(EXC); Q$exc_unsurveyed <- sum(!EXC$surveyed) }
+if (!is.null(TC)) { tcm <- TC |> filter(arm == "domain_index", target == "level") |> group_by(n_train_countries) |> summarise(v = mean(spearman, na.rm = TRUE), .groups = "drop"); Q$tc_n1 <- get1(tcm$v[tcm$n_train_countries == 1]); Q$tc_n3 <- get1(tcm$v[tcm$n_train_countries == 3]) }
+if (!is.null(COV)) { Q$cov_mean <- get1(mean(COV$coverage_90)); Q$cov_min <- get1(min(COV$coverage_90)); Q$cov_max <- get1(max(COV$coverage_90)); Q$cov_cells <- nrow(COV); Q$cov_width <- get1(median(COV$width_share)) }
 # quantities the concept slides (the YAML) read
 if (!is.null(NTS)) { nt <- NTS[NTS$estimand == "infill", ]; g1 <- function(a, col) get1(nt[[col]][nt$arm == a])
   Q$top20_prev_index <- g1("domain_index", "mean_prev_top20"); Q$top20_prev_nat <- g1("domain_index", "mean_prev_national")
@@ -839,6 +850,203 @@ if (!ok) cat("Maps could not be rendered in this session; see the dashboard.")
 
 ::: {.notes}
 Malawi's 87 surveyed Traditional Authorities (grey: no survey clusters), the survey estimate beside the prediction made with each district held out (5-fold, ten draws). This is the protocol-v2 version of the January "what about subnational prevalence" maps: the same question, now scored under honest folds and with the index rather than the person-level ensemble. Women's B12 is the best in-fill cell of the `r Q$n_cells`; child iron is the outcome the Ghana map shows. The model orders districts; the survey's own estimate at a single-cluster district is itself noisy (reliability ceiling slide).
+:::
+
+# Seeing the results
+
+## How to read every map in this deck
+
+::: {.notes}
+A convention borrowed from the small-area-estimation literature (hatching for direct estimates whose coefficient of variation exceeds a third; grey for no data). Every district on every map in this deck belongs to one of three grades. A: surveyed with several clusters, so the survey's own district estimate is worth comparing with; `r Q$multi_n` districts. B: surveyed with one cluster, the majority (`r pc(Q$single_share)` of surveyed districts), where the survey's district number is itself an estimate with the noise the ceiling slide quantifies; hatched wherever a survey value is drawn. C: no survey clusters, where only the model speaks; grey on survey maps, filled on model maps. The grade says what the map can be compared against, not how good the model is.
+:::
+
+## Two survey maps, with the survey's own reliability on them
+
+```{r hatched-maps, fig.width=11, fig.height=5.4, dpi=140}
+ok <- FALSE
+try({
+  suppressPackageStartupMessages(library(sf))
+  BND <- readRDS(file.path(root, "dashboard", "data", "admin2_boundaries.rds"))
+  hatch <- function(g, flag, step = 0.08) {   # diagonal lines clipped to the flagged polygons
+    h <- g[flag, ]; if (!nrow(h)) return(NULL); bb <- sf::st_bbox(h); L <- list(); k <- 1
+    for (c0 in seq(bb$xmin - (bb$ymax - bb$ymin), bb$xmax, by = step)) { L[[k]] <- sf::st_linestring(rbind(c(c0, bb$ymin), c(c0 + (bb$ymax - bb$ymin), bb$ymax))); k <- k + 1 }
+    lines <- sf::st_sfc(L, crs = sf::st_crs(h)); suppressWarnings(sf::st_intersection(sf::st_geometry(sf::st_union(h)), lines)) }
+  one <- function(lc, cn, title) {
+    B <- sf::st_as_sf(BND[[lc]]); t <- TG[TG$country == cn & TG$outcome == "child_iron", c("Admin1", "Admin2", "y_prev", "n_psu")]
+    g <- dplyr::left_join(B, t, by = c("Admin1", "Admin2")); g$grade <- ifelse(is.na(g$y_prev), "C: no survey clusters", ifelse(g$n_psu > 1, "A: several clusters", "B: one cluster"))
+    hb <- hatch(g, g$grade == "B: one cluster")
+    p <- ggplot() + geom_sf(data = g, aes(fill = y_prev), colour = "white", linewidth = 0.15) + scale_fill_viridis_c(labels = scales::percent, na.value = "grey90", name = "Child iron deficiency\n(survey)")
+    if (!is.null(hb)) p <- p + geom_sf(data = hb, colour = "white", linewidth = 0.35)
+    p + labs(title = title, subtitle = sprintf("A %d districts (several clusters)   B %d hatched (one cluster)   C %d grey (no survey)", sum(g$grade == "A: several clusters"), sum(g$grade == "B: one cluster"), sum(g$grade == "C: no survey clusters"))) +
+      theme_void(base_size = 12) + theme(plot.title = element_text(face = "bold"), plot.subtitle = element_text(size = 9, colour = "grey30"), legend.position = "right") }
+  print(patchwork::wrap_plots(one("ghana", "Ghana", "Ghana, survey 2017"), one("malawi", "Malawi", "Malawi, survey 2015-16"), ncol = 2)); ok <- TRUE
+}, silent = TRUE)
+if (!ok) cat("Maps could not be rendered in this session.")
+```
+
+::: {.notes}
+The survey's own district map of child iron deficiency, with the reliability grades drawn on it. Hatched districts have one survey cluster: their value is a single cluster's respondents, and the split-half ceiling says how much of the district-to-district variation on this map is noise. Unhatched districts have several clusters. Grey districts have none. When the next slides compare the model with "the survey", this is the survey they compare with; the model's job is to be a better estimate of the true district value than a single hatched cluster is, which the reliability-ceiling slide shows it can be in the strong cells.
+:::
+
+## Does the model track the survey, district by district?
+
+```{r pred-obs, fig.width=11.5, fig.height=4.6, dpi=150}
+if (!is.null(OOF)) {
+  d <- OOF |> mutate(Country = clab[country], grade = ifelse(n_psu > 1, "several clusters", "one cluster"))
+  st <- d |> group_by(Country) |> summarise(lab = sprintf("Spearman %.2f\nMAE %.1f points\n%d districts", cor(y_prev, pred, method = "spearman"), 100 * mean(abs(y_prev - pred)), n()), .groups = "drop")
+  ggplot(d, aes(y_prev, pred)) + geom_abline(slope = 1, intercept = 0, linetype = 2, colour = "grey55") +
+    geom_errorbar(aes(ymin = pred_lo, ymax = pred_hi), width = 0, colour = "grey75") + geom_point(aes(shape = grade, size = n_raw), colour = "#1f4e79", alpha = 0.8) +
+    geom_text(data = st, aes(x = 0.02, y = Inf, label = lab), hjust = 0, vjust = 1.2, size = 3.3, colour = "grey20") +
+    scale_shape_manual(values = c(`several clusters` = 16, `one cluster` = 1), name = NULL) + scale_size_continuous(range = c(1.5, 5), name = "Respondents") +
+    scale_x_continuous(labels = scales::percent) + scale_y_continuous(labels = scales::percent) + facet_wrap(~ Country, scales = "free") +
+    labs(x = "Survey estimate of child iron deficiency", y = "Held-out prediction (bar: range over draws)") + theme_minimal(base_size = 13) + theme(legend.position = "bottom", panel.grid.minor = element_blank())
+}
+```
+
+::: {.notes}
+The plot every geostatistical paper carries and this deck lacked: each district's survey estimate against its prediction made with the district held out (5-fold by district, mean over ten draws; the bar is the range over the draws, which is fold-assignment variability, not sampling error). The dashed line is perfect agreement. Read three things. The cloud is tilted, not on the line: the model ranks (Spearman `r f2(Q$oof_rho_Ghana)` in Ghana, `r f2(Q$oof_rho_Gambia)` in The Gambia, `r f2(Q$oof_rho_Malawi)` in Malawi) but compresses the range, because it is rescaled to the training spread and shrinks extremes, which is the MAE of `r f2(Q$oof_mae_Ghana, 1)` to `r f2(Q$oof_mae_Malawi, 1)` points. Hollow points are single-cluster districts: much of the vertical scatter around them is the survey's noise, not the model's. The largest circles, the districts with the most respondents, sit closest to the line.
+:::
+
+## Actual against predicted at the regional level
+
+```{r admin1-pairs, fig.width=11.5, fig.height=5.2, dpi=140}
+ok <- FALSE
+try({
+  suppressPackageStartupMessages(library(sf))
+  BND <- readRDS(file.path(root, "dashboard", "data", "admin2_boundaries.rds")); LC <- c(Gambia = "gambia", Ghana = "ghana", Malawi = "malawi")
+  a1 <- OOF |> group_by(country, Admin1) |> summarise(Survey = weighted.mean(y_prev, n_raw), Predicted = weighted.mean(pred, n_raw), .groups = "drop")
+  maps <- list()
+  for (cn in names(LC)) { B <- sf::st_as_sf(BND[[LC[[cn]]]]) |> group_by(Admin1) |> summarise(geometry = sf::st_union(geometry), .groups = "drop")
+    g <- dplyr::left_join(B, a1[a1$country == cn, ], by = "Admin1") |> tidyr::pivot_longer(c(Survey, Predicted), names_to = "panel", values_to = "value") |> mutate(panel = factor(panel, levels = c("Survey", "Predicted")))
+    rho <- cor(a1$Survey[a1$country == cn], a1$Predicted[a1$country == cn], method = "spearman")
+    maps[[cn]] <- ggplot(sf::st_as_sf(g)) + geom_sf(aes(fill = value), colour = "white", linewidth = 0.3) + facet_wrap(~ panel) + scale_fill_viridis_c(labels = scales::percent, name = NULL) +
+      labs(title = sprintf("%s: %d regions, Spearman %.2f", clab[cn], nrow(B), rho)) + theme_void(base_size = 11) + theme(plot.title = element_text(face = "bold", size = 11), legend.position = "bottom", legend.key.width = grid::unit(1, "cm")) }
+  print(patchwork::wrap_plots(maps, ncol = 3)); ok <- TRUE
+}, silent = TRUE)
+if (!ok) cat("Maps could not be rendered in this session.")
+```
+
+::: {.notes}
+The same held-out district predictions, and the survey, both aggregated to the regions (respondent-weighted means), child iron. This is the resolution at which the surveys were designed to be read, and the comparison a ministry statistician will make first. The regional pattern is recovered in each country; the district slide before this one shows the finer level where the survey itself becomes noisy. The MIMI and IHME decks show exactly this pair of maps as their headline validation figure.
+:::
+
+## Ghana, child vitamin A: the chance a district is above 20%
+
+```{r exceedance-map, fig.width=11, fig.height=5.4, dpi=140}
+ok <- FALSE
+try({
+  suppressPackageStartupMessages(library(sf))
+  B <- sf::st_as_sf(readRDS(file.path(root, "dashboard", "data", "admin2_boundaries.rds"))[["ghana"]])
+  g <- dplyr::left_join(B, EXC, by = c("Admin1", "Admin2"))
+  p1 <- ggplot(g) + geom_sf(aes(fill = pred_med), colour = "white", linewidth = 0.15) + scale_fill_viridis_c(labels = scales::percent, name = "Predicted\nprevalence") + labs(title = "Predicted prevalence (median of the refits)") + theme_void(base_size = 12) + theme(plot.title = element_text(face = "bold"))
+  p2 <- ggplot(g) + geom_sf(aes(fill = p_ge20), colour = "white", linewidth = 0.15) + scale_fill_gradient2(low = "#fff7bc", mid = "#f0a050", high = "#7a0177", midpoint = 0.5, limits = c(0, 1), name = "P(prevalence >= 20%)") +
+    labs(title = "Probability of exceeding the WHO severe band (20%)") + theme_void(base_size = 12) + theme(plot.title = element_text(face = "bold"))
+  print(patchwork::wrap_plots(p1, p2, ncol = 2)); ok <- TRUE
+}, silent = TRUE)
+if (!ok) cat("Maps could not be rendered in this session.")
+```
+
+::: {.notes}
+The device IHME uses for every one of its maps, applied here: not "what is the prevalence" but "how likely is it to be above the line a programme acts on". Ghana, child vitamin A, the index fitted on the 75 surveyed districts and applied to all `r Q$exc_n` (in-sample for the surveyed ones), refitted on `r Q$exc_refits` stratified resamples of the training districts; the right map is the share of refits in which a district's predicted prevalence is at or above 20 percent, the WHO severe band. `r Q$exc_hi` districts are above the line in at least 80 percent of refits, `r Q$exc_lo` below it in at least 80 percent, and `r Q$exc_mid` are undecided; `r Q$exc_unsurveyed` of the `r Q$exc_n` have no survey clusters. The level here comes from Ghana's own survey, so this is the in-country version; for a new country the level would come from the national anchor and the map would read as a planning figure. The caveat is the same as for the Cote d'Ivoire intervals: the refits capture how much the map depends on which training districts were drawn, not the survey's own noise at each district.
+:::
+
+## Cote d'Ivoire: how bad and how sure, on one map
+
+```{r bivariate-civ, fig.width=10, fig.height=5.6, dpi=140}
+ok <- FALSE
+try({
+  suppressPackageStartupMessages(library(sf))
+  B <- sf::st_read(file.path(root, "data", "external_cache", "gee_geoms", "civ_admin2.gpkg"), quiet = TRUE)
+  g <- dplyr::left_join(B, CU, by = c("Admin1", "Admin2"))
+  g$sev <- cut(g$rank_med, breaks = c(0, 11, 22, 33), labels = c("worst third", "middle", "best third"))
+  g$cert <- cut(pmax(g$p_worst3rd, 1 - g$p_worst3rd), breaks = c(0, 0.6, 0.8, 1.001), labels = c("unsure", "fairly sure", "sure"), right = FALSE)
+  g$cert[is.na(g$cert)] <- "sure"
+  pal <- c("worst third.sure" = "#3b0f70", "worst third.fairly sure" = "#7b3294", "worst third.unsure" = "#c2a5cf",
+           "middle.sure" = "#4d7fa3", "middle.fairly sure" = "#8bb5cc", "middle.unsure" = "#d4e3ec",
+           "best third.sure" = "#1b7837", "best third.fairly sure" = "#7fbf7b", "best third.unsure" = "#d9f0d3")
+  g$key <- paste(g$sev, g$cert, sep = ".")
+  m <- ggplot(g) + geom_sf(aes(fill = key), colour = "white", linewidth = 0.3) + scale_fill_manual(values = pal, guide = "none") +
+    geom_sf_text(data = g[g$sev == "worst third" & g$cert == "sure", ], aes(label = Admin2), size = 3, colour = "white", fontface = "bold") +
+    labs(title = "Children's iron: which districts to reach first, and how firmly each is placed") + theme_void(base_size = 12) + theme(plot.title = element_text(face = "bold"))
+  leg <- expand.grid(sev = c("worst third", "middle", "best third"), cert = c("unsure", "fairly sure", "sure")); leg$key <- paste(leg$sev, leg$cert, sep = ".")
+  leg$n <- sapply(leg$key, function(k) sum(g$key == k))
+  l <- ggplot(leg, aes(cert, sev, fill = key)) + geom_tile(colour = "white", linewidth = 1) + geom_text(aes(label = n), size = 3.5, colour = "white") + scale_fill_manual(values = pal, guide = "none") +
+    scale_y_discrete(limits = c("best third", "middle", "worst third")) + labs(x = "How sure (P of that third over 400 refits)", y = "Ranking (median)") + coord_equal() + theme_minimal(base_size = 10) + theme(panel.grid = element_blank(), axis.text.x = element_text(angle = 30, hjust = 1))
+  print(patchwork::wrap_plots(m, l, widths = c(2.6, 1))); ok <- TRUE
+}, silent = TRUE)
+if (!ok) cat("Maps could not be rendered in this session.")
+```
+
+::: {.notes}
+The two Cote d'Ivoire maps folded into one, the bivariate device the geospatial-health literature recommends for policy audiences: colour hue is the ranking (purple worst third, blue middle, green best third; median over the 400 refits) and colour depth is how sure the refits are of that placement (deep = at least 80 percent of refits put it in that third; pale = under 60 percent). The legend counts districts in each cell. The reading is immediate: deep purple, act; pale purple or pale blue, survey first; deep green, lowest priority. The labelled districts are the deep-purple ones, the northern belt. As before, "sure" means stable under resampling of the training set, not verified against a Cote d'Ivoire survey.
+:::
+
+## What the rank intervals promise, and what they do not
+
+```{r coverage, fig.width=11, fig.height=4.8, dpi=150}
+if (!is.null(COV)) {
+  d <- COV |> mutate(Outcome = olab[outcome], Country = clab[heldout])
+  ggplot(d, aes(coverage_90, Outcome)) + geom_vline(xintercept = 0.9, linetype = 2, colour = "#d7191c") +
+    geom_point(aes(colour = Country, size = width_share), alpha = 0.9) + scale_x_continuous(labels = scales::percent, limits = c(0, 1)) +
+    scale_colour_manual(values = c(`The Gambia` = "#1f4e79", Ghana = "#e08214", Malawi = "#33a02c", `Sierra Leone` = "#6a3d9a"), name = "Held-out country") + scale_size_continuous(range = c(2, 7), labels = scales::percent, name = "Interval width\n(share of the list)") +
+    labs(x = "Share of districts whose survey rank falls inside the 90% resampling interval (leave-one-country-out, climate + soil); dashed red = the nominal 90%", y = NULL) + theme_minimal(base_size = 13) + theme(panel.grid.minor = element_blank(), axis.title.x = element_text(size = 10.5))
+}
+```
+
+::: {.notes}
+A calibration check the Cote d'Ivoire slides needed. The 90 percent rank intervals on those maps come from resampling the training districts. If they were honest intervals for the truth, the survey's own rank would fall inside them 90 percent of the time. Doing exactly that with each surveyed country held out (100 resamples of the other three, climate and soil, biomarker level), the survey rank falls inside the interval `r pc(Q$cov_mean)` of the time on average, `r pc(Q$cov_min)` to `r pc(Q$cov_max)` across the `r Q$cov_cells` country-outcome cells, with a median interval `r pc(Q$cov_width)` of the list wide. So the intervals are far too narrow to be read as "the truth is in here"; they answer a different question, how much the ranking would move if we had learned from different districts, and the gap to 90 percent is the model error the transport correlation already reports. Say this aloud on the Cote d'Ivoire slides: the pale districts are the ones the model itself is unsure about; the deep ones are stable, not verified. A properly calibrated interval would need conformal calibration against the held-out countries, which is a next step and the honest reason we call the product a ranking.
+:::
+
+## What moves each district, predictor by predictor
+
+```{r beeswarm, fig.width=11.5, fig.height=5.6, dpi=150}
+if (!is.null(CTR)) {
+  d <- CTR |> filter(outcome == "child_iron") |> mutate(name = ifelse(is.na(PLAIN[column]), clean_code(column), unname(PLAIN[column])))
+  ord <- d |> group_by(name, rank) |> summarise(.groups = "drop") |> arrange(desc(rank)); d$name <- factor(d$name, levels = ord$name)
+  d <- d |> group_by(column) |> mutate(xq = (rank(x) - 0.5) / n()) |> ungroup()
+  ggplot(d, aes(contribution, name, colour = xq)) + geom_vline(xintercept = 0, colour = "grey55") +
+    geom_jitter(height = 0.25, width = 0, size = 1.6, alpha = 0.75) + scale_colour_gradient(low = "#3b8ec2", high = "#d7191c", labels = c("low", "high"), breaks = c(0.05, 0.95), name = "Predictor value\n(within country)") +
+    labs(x = "Contribution to the district's child iron index (right = ranks worse); one point per surveyed district, pooled four-country fit", y = NULL) + theme_minimal(base_size = 12) + theme(panel.grid.minor = element_blank(), axis.title.x = element_text(size = 10.5), legend.position = "right")
+}
+```
+
+::: {.notes}
+The SHAP-style view the MIMI deck uses, which the index allows exactly rather than by approximation: the index is linear in the rank-normalised predictors, so each district's score is a sum of per-predictor contributions beta times x. One row per predictor (the twelve largest weights of the pooled child-iron fit), one point per surveyed district in the four countries, colour = where the district sits on that predictor. A row whose red points sit to the right says "districts high on this predictor rank worse"; a row that is wide says the predictor separates districts strongly. Unlike the bar charts earlier, this shows the spread: a predictor with a modest average weight can still move a handful of districts a long way. The same figure exists for every outcome from contributions_top12.csv.
+:::
+
+## Does the ranking work where the poor live?
+
+```{r urbanicity-strata, fig.width=11, fig.height=4.4, dpi=150}
+if (!is.null(OOF)) {
+  d <- OOF |> group_by(country) |> mutate(tercile = dplyr::ntile(urbanicity, 3)) |> group_by(country, tercile) |>
+    summarise(rho = cor(y_prev, pred, method = "spearman"), n = n(), prev = mean(y_prev), .groups = "drop") |>
+    mutate(Country = clab[country], Stratum = factor(c("Most rural third", "Middle third", "Most urban third")[tercile], levels = c("Most rural third", "Middle third", "Most urban third")))
+  ggplot(d, aes(Stratum, rho, fill = Country)) + geom_hline(yintercept = 0, colour = "grey55") + geom_col(position = position_dodge(0.7), width = 0.65) +
+    geom_text(aes(label = sprintf("%.2f\n(%d)", rho, n)), position = position_dodge(0.7), vjust = -0.2, size = 3) +
+    scale_fill_manual(values = c(`The Gambia` = "#1f4e79", Ghana = "#e08214", Malawi = "#33a02c"), name = NULL) + scale_y_continuous(limits = c(min(0, min(d$rho)) - 0.05, max(d$rho) + 0.15)) +
+    labs(x = "Districts split by an urbanicity composite (night lights, population density, built surface, urban cover), within country", y = "Held-out Spearman, child iron") + theme_minimal(base_size = 13) + theme(legend.position = "bottom", panel.grid.minor = element_blank(), axis.title.x = element_text(size = 10.5))
+}
+```
+
+::: {.notes}
+MIMI reports its accuracy by wealth quintile and by urban and rural households; this is the district-level equivalent. Districts are split into thirds on an urbanicity composite within each country and the held-out child-iron ranking is scored inside each third (numbers in brackets are districts). Across the three countries the ranking is `r f2(Q$urb_rural)` in the most rural third, `r f2(Q$urb_mid)` in the middle and `r f2(Q$urb_urban)` in the most urban third. Two cautions: a third of 30 districts is ten, so The Gambia's bars are noisy; and ranking within a stratum is a harder task than ranking the whole country, because the stratum removes the urban-rural gradient the index leans on. Read it country by country. Ghana holds up in every third (`r f2(Q$urb_rural)` is the three-country mean for the rural third, but Ghana alone is above 0.3 in all three). Malawi is the warning: the ranking is fine in the middle and urban thirds and collapses to below zero in the most rural third, which is where deficiency is highest, so in Malawi the index is partly separating the lakeshore towns from the uplands rather than ordering the rural districts among themselves. The Gambia's thirds hold ten districts each and say little. The honest reading is that the model's value is not uniform across the settlement gradient, and a programme working only in rural Malawi should not lean on it.
+:::
+
+## Each survey added improves every other map
+
+```{r curve-argument, fig.width=5.8, fig.height=4.4, dpi=160}
+if (!is.null(TC) && !is.null(TCS)) {
+  d <- bind_rows(TC |> filter(arm == "domain_index", target == "level") |> transmute(set = "Full vocabulary", n_train_countries, spearman),
+                 TCS |> filter(set == "climate_soil", target == "level") |> transmute(set = "Climate + soil", n_train_countries, spearman)) |>
+    group_by(set, n_train_countries) |> summarise(m = mean(spearman, na.rm = TRUE), lo = quantile(spearman, 0.25, na.rm = TRUE), hi = quantile(spearman, 0.75, na.rm = TRUE), .groups = "drop")
+  ggplot(d, aes(n_train_countries, m, colour = set)) + geom_errorbar(aes(ymin = lo, ymax = hi), width = 0.1) + geom_line(linewidth = 1) + geom_point(size = 3) +
+    scale_colour_manual(values = c(`Full vocabulary` = "#1f4e79", `Climate + soil` = "#e08214"), name = NULL) + scale_x_continuous(breaks = 1:3) +
+    labs(x = "Surveys the model learned from", y = "Ranking accuracy in a country it has never seen") + theme_minimal(base_size = 14) + theme(legend.position = "bottom")
+}
+```
+
+::: {.notes}
+The training-country curve from the transport section, re-captioned as the argument it makes: with one survey to learn from the transported ranking averages `r f2(Q$tc_n1)`, with three `r f2(Q$tc_n3)`, and the curve has not flattened. Every biomarker survey a country runs therefore improves the map of every other country in the panel, which is the case for pooling surveys into one protocol rather than analysing each alone, and for the fifth country being worth more than its own map. Bars are the interquartile range over the subsets of training countries. This is the framing the Lancet Global Health vaccination-mapping paper uses for its country panel.
 :::
 
 # What carries the signal

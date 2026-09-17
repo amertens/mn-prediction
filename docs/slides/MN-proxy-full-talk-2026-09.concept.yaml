@@ -340,6 +340,28 @@ slides:
     - "District prevalence error: {best4_wmae:.1f} points"
     - "National prevalence: {best4_prev:pc}"
 
+- title: How to read every map in this deck
+  layout: cards
+  items:
+  - icon: circle-check
+    heading: "Grade A: several clusters"
+    lines:
+    - "What: surveyed districts with more than one survey cluster ({multi_n:.0f} districts)"
+    - "On the map: solid fill"
+    - "Read: the survey's own district value is worth comparing with"
+  - icon: circle-half-stroke
+    heading: "Grade B: one cluster"
+    lines:
+    - "What: surveyed districts with a single cluster ({single_share:pc} of surveyed districts)"
+    - "On the map: hatched"
+    - "Read: the survey's district value is itself a noisy estimate; the ceiling slide says how noisy"
+  - icon: circle-question
+    heading: "Grade C: no survey"
+    lines:
+    - "What: districts the survey never reached, and every district of a country with no survey"
+    - "On the map: grey on survey maps, filled on model maps"
+    - "Read: only the model speaks; its intervals say how stable it is, not how right"
+
 # ---- four candidate translations of the accuracy numbers for a policy audience (pick one or two) ----
 - title: "What a correlation of {infill_index:.2f} means on the ground"
   layout: icon_rows
