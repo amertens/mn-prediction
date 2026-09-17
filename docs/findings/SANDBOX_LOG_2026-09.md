@@ -3247,3 +3247,36 @@ series; 44% of country-years have a value, the rest go through the model's
 missingness machinery. The Gambia and Malawi report nothing to FluNet in
 2013-2018. The district columns leave the shared set under a new exclusion
 policy `national_track`. Shared set **575 predictors**; launcher EXPECTED 575.
+
+## RR-12 results · 575-column set (2026-09-16 17:56 - 23:37)
+
+Set changes since RR-11 (570): SLIHS 2011 diet indicators for Sierra Leone
+(HC-02), the ACLED conflict block (AB-02), FluNet moved to the national
+track (FN-01). 37 scripts exit 0, no fix-up needed; the 570-set results are
+the baseline in `results/tables/protocol_v2_pre_RR11_20260916/`.
+
+| mean Spearman, level / prev              | 570 set         | 575 headline    | with DHS      | open only     |
+|------------------------------------------|-----------------|-----------------|---------------|---------------|
+| In-fill, index                           | 0.399 / 0.283   | 0.399 / 0.282   | 0.400 / 0.285 | -             |
+| Region, index                            | 0.385 / 0.264   | 0.386 / 0.263   | 0.381 / 0.266 | -             |
+| District transport, index                | 0.308 / 0.230   | 0.302 / 0.223   | 0.281 / 0.188 | 0.316 / 0.240 |
+| District transport, penalised            | 0.272 / 0.206   | 0.266 / 0.232   | 0.258 / 0.156 | 0.291 / 0.209 |
+| Admin-1 transport, index                 | 0.280 / 0.325   | 0.281 / 0.267   |               |               |
+| Admin-1 climate + soil                   | 0.445 / 0.298   | 0.445 / 0.298   |               |               |
+| Admin-2 fixed climate + soil             | 0.378           | 0.378           |               |               |
+| Admin-2 nested vs full                   | 0.330 vs 0.308  | 0.312 vs 0.302  |               |               |
+
+Everything else inside noise: null q95 0.079 at Admin-2 (p < 0.001), training
+curve 0.198 / 0.259 / 0.302, burden capture 0.219, risk bands 0.587 / 0.892
+(vitamin A 0.641 / 0.909), anchor MAE 10.3 / 9.8, Gambia iodine 0.453 /
+0.554, Malawi selenium 0.452 / 0.429, women's iodine 0.350, individual-level
+AUC with proxies 0.534, LSMS add-on 0.397 -> 0.395. Source ablation: ACLED
+(7 of 8 columns in the common matrix) -0.002, i.e. removing it changes
+nothing; the HCES block's three all-country columns -0.009; MICS microdata
+-0.013 (removal helps); soil +0.025, GEE +0.015 load-bearing as before.
+**Reading.** The two data additions were coverage, not accuracy: conflict is
+sparse in these four countries, and Sierra Leone's twelve new diet items
+enter only the in-country models until Ghana's GLSS7 module arrives. The
+Admin-1 full-index prevalence figure moved 0.325 -> 0.267 on a tier with SE
+~0.08; the climate + soil figures did not move at either tier. Headline
+numbers for the decks: 575 columns, transport index 0.30 / 0.22.

@@ -1,0 +1,7 @@
+"estimand","arm","cells","mean_capture","median_capture","mean_lift","cells_lift_gt1","mean_prev_top20","mean_prev_national"
+"infill","oracle_ceiling",24,0.475,0.427,2.375,21,41.3,22.9
+"infill","domain_index",24,0.219,0.225,1.097,11,32.2,24.3
+"infill","region_mean_jk",24,0.203,0.184,1.017,8,30.1,24.3
+"infill","spatial_plus_domain",24,0.199,0.199,0.995,9,30.1,24.3
+"infill","spatial",24,0.198,0.195,0.989,7,30,24.3
+"infill","null_train_mean",24,0.136,0.142,0.68,1,20.5,24.3
