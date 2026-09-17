@@ -53,7 +53,7 @@ base_map <- function(fill_var, cols, name, breaks, labels, title) {
           legend.text = element_text(size = 12))
 }
 
-pL <- base_map("pct", c("#0B4F5A", PROXY, "#8FC7CF", "#E7EFF0"),
+pL <- base_map("pct", c("#7f0000", "#d7301f", "#fc8d59", "#fdd49e", "#fff7ec"),   # warm headline palette (MIMI-style): dark red = worst
                NULL, c(6, 94), c("worst", "best"),
                "Which districts to reach first") +
   ggrepel::geom_text_repel(data = lab, aes(X, Y, label = Admin2), size = 4.4,

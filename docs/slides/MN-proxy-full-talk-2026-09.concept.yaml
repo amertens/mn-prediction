@@ -30,7 +30,7 @@ slides:
     heading: Engage national stakeholders throughout
     caption: Ghana as the worked example; the dashboard and country briefs as the shared product.
 
-- title: Motivation
+- title: "Surveys are rare; the proxies are everywhere"
   layout: icon_rows
   image: {file: img/old_s02_intro_photo_1.png, width: 4.3}
   items:
@@ -74,7 +74,7 @@ slides:
       heading: Honest folds and a reliability ceiling
       caption: Folds cut by district, region and country; the survey's own district noise sets the ceiling any model can reach.
 
-- title: The four surveys
+- title: "Four surveys, one protocol"
   layout: cards
   heading_size: 18
   text_size: 14
@@ -109,7 +109,7 @@ slides:
     - "Districts: {districts_SierraLeone:.0f}; clusters: {clusters_SierraLeone:.0f}"
     - "Outcomes: {outcomes_SierraLeone}"
 
-- title: Outcomes
+- title: "Five deficiencies, one definition each"
   layout: cards
   heading_size: 18
   text_size: 13
@@ -167,7 +167,7 @@ slides:
     heading: Recorded
     caption: Every column carries its source, the year used, how it was aggregated, and a definition.
 
-- title: Predictor domains
+- title: "{n_dom:.0f} domains, each entered as its leading components"
   layout: grid
   columns: 2
   groups:
@@ -204,7 +204,7 @@ slides:
     count_of: [Built environment, "Ruralness, population density, built environment", Conflict and insecurity]
     caption: Night lights, population density, travel time, built-up area; conflict events
 
-- title: Data assembly
+- title: "From four surveys and {n_src:.0f} sources to one district table"
   layout: pipeline
   items:
   - icon: vials
@@ -226,7 +226,7 @@ slides:
     heading: Rank-normalise and reduce
     caption: Within country, so level offsets cannot act as signal; {n_dom} domains to their leading components, nothing selected on the outcome.
 
-- title: Estimators
+- title: "The corrected protocol replaced the ensemble with a zero-tuning index"
   layout: two_panel
   panels:
   - icon: clock-rotate-left
@@ -254,7 +254,7 @@ slides:
       heading: Nothing chosen on held-out districts
       caption: Honest folds by district, region and country.
 
-- title: Ensemble machine learning
+- title: "The January estimator: an ensemble weighted by cross-validation"
   layout: icon_rows
   image: {file: img/ensemble_vfold.png, width: 2.4}
   items:
@@ -287,7 +287,7 @@ slides:
     heading: Sum and rescale
     caption: The weighted sum, rescaled to the training outcome's spread; the infinite-penalty limit of a ridge regression on the components.
 
-- title: Estimands
+- title: "Three questions, three honest baselines"
   layout: cards
   items:
   - icon: map-location-dot
@@ -511,6 +511,9 @@ slides:
   - status: partly
     heading: Guide where the next survey samples?
     caption: In design, not piloted.
+  - status: partly
+    heading: Say how sure each map is?
+    caption: "Stable, yes; verified, no: the intervals cover the truth {cov_mean:pc} of the time, not 90%."
 
 - title: Conclusions
   layout: icon_rows
@@ -527,6 +530,9 @@ slides:
   - icon: anchor
     heading: A national anchor puts levels on the ranking
     caption: "District error {ar_a1:.1f} points at 5% of a full sample, matched by a district survey at {ar_b_match:pc}."
+  - icon: shield-halved
+    heading: "Uncertainty is on every model map, and it is checked: the intervals mean stable, not verified"
+    caption: "Resampling intervals cover the survey's rank {cov_mean:pc} of the time against a nominal 90%; the gap is the transport error. A calibrated interval is the next methods step."
   - icon: layer-group
     heading: "Where the survey resolves districts, so does the model: The Gambia {gambia_min:.2f} to {gambia_max:.2f}"
     caption: "Several clusters per district; {gambia_strong:.0f} of {gambia_cells:.0f} outcomes above {strong_cut:.1f}. Ghana's and Malawi's single-cluster districts average {other_mean:.2f} ({other_strong:.0f} of {other_cells:.0f})."
