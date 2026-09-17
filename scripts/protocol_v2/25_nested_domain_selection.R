@@ -20,6 +20,13 @@
 #   nested      domains chosen by inner LOCO   <- the honest few-domain index
 #   fixed_cs    climate + soil                  } pre-specified from DA-01, so
 #   fixed_csa   climate + soil + agriculture    } optimistic; reported labelled
+#   DA-03 (2026-09-17): further FIXED sets that add the next load-bearing
+#   domains of the RR-12 ablation (domain_ablation_loco_summary.csv) to
+#   climate + soil: anaemia surfaces, the landscape gradient (agriculture,
+#   livestock, greenness), the top five, and every domain whose removal cost
+#   >= 0.005. All are chosen on the same LOCO folds they are scored on, so
+#   they answer "how much could adding domains buy" and nothing more; the
+#   honest few-domain arm remains `nested`.
 #
 #   Rscript scripts/protocol_v2/25_nested_domain_selection.R
 # -> results/tables/protocol_v2/nested_domain_selection.csv
@@ -58,6 +65,11 @@ prefix_of <- stats::setNames(domains, make.names(substr(domains, 1, 12)))
 col_domain <- function(cols) unname(prefix_of[sub("_PC[0-9]+$", "", cols)])
 CS  <- c("Climate and weather", "Soil characteristics")
 CSA <- c(CS, "Agricultural production, land use")
+ANA <- "Anaemia and haemoglobin"; AGR <- "Agricultural production, land use"; LIV <- "Livestock density"; GRN <- "Ecosystem productivity/greenness"; INF <- "Infection and inflammation burden"
+ABL <- tryCatch(read.csv(file.path(OUTDIR, "domain_ablation_loco_summary.csv"), stringsAsFactors = FALSE), error = function(e) NULL)
+LOAD <- if (is.null(ABL)) character(0) else ABL$domain[ABL$target == "level" & is.finite(ABL$delta_drop) & ABL$delta_drop >= 0.005]
+FIXED <- list(fixed_cs = CS, fixed_csa = CSA, fixed_cs_anaemia = c(CS, ANA), fixed_cs_landscape = c(CS, AGR, LIV, GRN),
+              fixed_cs_top5 = c(CS, ANA, AGR, INF), fixed_loadbearing = union(CS, LOAD))
 
 # transport score of a domain set: fit index on rows `tr`, predict rows `te`,
 # with D oriented from `tr`; returns Spearman on te (natural scale)
@@ -102,8 +114,8 @@ for (target in c("level", "prev")) for (on in unique(TG$outcome)) {
     }
     chosen_log[[length(chosen_log) + 1L]] <- data.frame(target = target, outcome = on, heldout = h,
       n_chosen = length(sel), chosen = paste(sel, collapse = " | "), inner_rho = round(best, 3), stringsAsFactors = FALSE)
-    for (a in c("full", "nested", "fixed_cs", "fixed_csa")) {
-      doms <- switch(a, full = avail, nested = sel, fixed_cs = intersect(CS, avail), fixed_csa = intersect(CSA, avail))
+    for (a in c("full", "nested", names(FIXED))) {
+      doms <- if (a == "full") avail else if (a == "nested") sel else intersect(FIXED[[a]], avail)
       rows[[length(rows) + 1L]] <- data.frame(target = target, outcome = on, heldout = h, arm = a,
         n_domains = length(doms), spearman = score_set(doms, trall, te, Y, Xm, ynat, wv, aux, target), stringsAsFactors = FALSE)
     }
