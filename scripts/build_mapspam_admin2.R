@@ -32,7 +32,7 @@ suppressMessages({
 })
 
 # ---- config ----------------------------------------------------------------
-ISO3 <- c(Gambia = "GMB", Ghana = "GHA", SierraLeone = "SLE",
+ISO3 <- c(Gambia = "GMB", Ghana = "GHA", SierraLeone = "SLE", CoteDIvoire = "CIV",
           Malawi = "MWI", Tanzania = "TZA")
 
 # Harvard Dataverse access API (download by numeric file id; verified 2026-07).

@@ -24,7 +24,12 @@
 # external bound on it is the held-out transport accuracy (0.37), not this.
 #
 #   Rscript scripts/policy_deck/06_civ_rank_uncertainty.R
-# -> results/tables/policy_deck/civ_rank_uncertainty.csv
+# -> results/tables/policy_deck/civ_rank_uncertainty.csv        (child iron, climate + soil: the figure's table)
+#    results/tables/policy_deck/civ_rank_uncertainty_all.csv    (every outcome x domain set run, CV-01)
+#
+# CV-01 (2026-09-17): CIV_OUTCOMES (comma list; default: all six ranked
+# outcomes), CIV_SET (cs | cs_top5, as script 04) and CIV_DB (as script 04).
+# The legacy single-outcome file is rewritten only by the child_iron x cs run.
 # =============================================================================
 suppressPackageStartupMessages({library(dplyr)})
 setwd("C:/Users/andre/OneDrive/Documents/mn-prediction")
@@ -34,17 +39,25 @@ set.seed(20260909L)
 P2   <- "results/tables/protocol_v2"
 OUTT <- "results/tables/policy_deck"; dir.create(OUTT, recursive = TRUE, showWarnings = FALSE)
 B    <- 400L
-ON   <- "child_iron"
+CIV_SET <- Sys.getenv("CIV_SET", "cs")
+DOMAIN_SETS <- list(cs = c("Climate and weather", "Soil characteristics"),
+                    cs_top5 = c("Climate and weather", "Soil characteristics", "Anaemia and haemoglobin", "Agricultural production, land use", "Infection and inflammation burden"))
+DOMS <- DOMAIN_SETS[[CIV_SET]]; if (is.null(DOMS)) stop("CIV_SET must be one of: ", paste(names(DOMAIN_SETS), collapse = ", "))
+OUTCOMES <- { s <- Sys.getenv("CIV_OUTCOMES", ""); if (nzchar(s)) trimws(strsplit(s, ",")[[1]]) else c("child_iron", "child_vitA", "women_iron", "women_vitA", "women_folate", "women_b12") }
+if (!nzchar(Sys.getenv("V2_PREDICTOR_TIERS"))) Sys.setenv(V2_PREDICTOR_TIERS = "open,survey_public")
 
 TG  <- read.csv(file.path(P2, "targets_v2.csv"), stringsAsFactors = FALSE)
 S   <- read.csv("data/covariates/harmonized/predictors_admin2_shared.csv", check.names = FALSE)
 MD  <- read.csv("data/covariates/harmonized/predictors_admin2_shared_metadata.csv")
-CIV <- readRDS("results/transportability/civ_canonical_admin2_full.rds")
+CIV_DB <- Sys.getenv("CIV_DB", if (file.exists("results/transportability/civ_canonical_admin2_full_v2.rds")) "results/transportability/civ_canonical_admin2_full_v2.rds" else "results/transportability/civ_canonical_admin2_full.rds")
+CIV <- readRDS(CIV_DB); cat("CIV database:", CIV_DB, ncol(CIV), "columns; set", CIV_SET, "\n")
 
-PREDS <- intersect(MD$column[MD$domain %in% c("Climate and weather", "Soil characteristics")],
-                   names(S))
+PREDS <- drop_near_outcome_v2(intersect(MD$column[MD$domain %in% DOMS], names(S)), MD)
 domain_of <- stats::setNames(MD$domain, MD$column)
 COUNTRIES <- c("Gambia", "Ghana", "Malawi", "SierraLeone")
+ALL <- list()
+for (ON in OUTCOMES) {
+cat(sprintf("\n===== %s, %s =====\n", ON, CIV_SET))
 
 build_cell <- function(cn) {
   t <- TG[TG$country == cn & TG$outcome == ON, ]
@@ -110,7 +123,8 @@ U <- data.frame(
 U$rank_width <- U$rank_hi - U$rank_lo
 U$width_pct  <- 100 * U$rank_width / nD
 U <- U[order(U$rank_med), ]
-write.csv(U, file.path(OUTT, "civ_rank_uncertainty.csv"), row.names = FALSE)
+if (ON == "child_iron" && CIV_SET == "cs") write.csv(U, file.path(OUTT, "civ_rank_uncertainty.csv"), row.names = FALSE)
+ALL[[ON]] <- cbind(outcome = ON, domain_set = CIV_SET, U)
 
 cat(sprintf("\n90%% rank interval width: median %.0f of %d districts (%.0f%% of the list)\n",
             stats::median(U$rank_width), nD, stats::median(U$width_pct)))
@@ -121,3 +135,10 @@ cat(sprintf("districts with P(worst third) >= 0.80: %d;  <= 0.20: %d\n",
 cat("\nten worst-ranked districts, with their 90% rank interval:\n")
 print(head(U[, c("Admin1", "Admin2", "rank_med", "rank_lo", "rank_hi", "p_worst3rd")], 10),
       row.names = FALSE, digits = 2)
+}   # outcome loop
+AF <- file.path(OUTT, "civ_rank_uncertainty_all.csv")
+A0 <- if (file.exists(AF)) read.csv(AF, stringsAsFactors = FALSE) else NULL
+A1 <- bind_rows(ALL)
+if (!is.null(A0)) A0 <- A0[!(paste(A0$outcome, A0$domain_set) %in% paste(A1$outcome, A1$domain_set)), ]
+write.csv(bind_rows(A0, A1), AF, row.names = FALSE)
+cat(sprintf("\nwritten %s: %d rows (%d outcome x set runs)\n", AF, nrow(bind_rows(A0, A1)), nrow(distinct(bind_rows(A0, A1), outcome, domain_set))))

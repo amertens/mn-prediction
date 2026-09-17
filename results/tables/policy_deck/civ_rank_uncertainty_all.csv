@@ -1,0 +1,397 @@
+"outcome","domain_set","Admin1","Admin2","rank_med","rank_lo","rank_hi","p_worst3rd","loco_range","rank_width","width_pct"
+"child_iron","cs","Savanes","Tchologo",1,1,2,1,5,1,3.03030303030303
+"child_iron","cs","Zanzan","Bounkani",2,1,3,1,1,2,6.06060606060606
+"child_iron","cs","Savanes","Bagoué",3,2,3,1,12,1,3.03030303030303
+"child_iron","cs","Savanes","Poro",4,4,4,1,9,0,0
+"child_iron","cs","Denguélé","Folon",6,5,9,0.995,14,4,12.1212121212121
+"child_iron","cs","Vallée du Bandama","Hambol",6,5,7,1,6,2,6.06060606060606
+"child_iron","cs","Woroba","Béré",7,6,8,1,4,2,6.06060606060606
+"child_iron","cs","Lacs","N'zi",8,6,11,0.9875,6,5,15.1515151515152
+"child_iron","cs","Lacs","Bélier",9,7,12,0.8725,9,5,15.1515151515152
+"child_iron","cs","Vallée du Bandama","Gbeke",10,8,12,0.89,4,4,12.1212121212121
+"child_iron","cs","Woroba","Worodougou",12,9,16,0.4725,9,7,21.2121212121212
+"child_iron","cs","Yamoussoukro","Yamoussoukro",13,10,16,0.3525,10,6,18.1818181818182
+"child_iron","cs","Denguélé","Kabadougou",14,8,17,0.2275,10,9,27.2727272727273
+"child_iron","cs","Zanzan","Gontougo",14,11,17,0.125,3,6,18.1818181818182
+"child_iron","cs","Lacs","Iffou",15,12,18,0.0425,8,6,18.1818181818182
+"child_iron","cs","Lacs","Moronou",15,12,17.05,0.0275,7,5.04999999999995,15.3030303030302
+"child_iron","cs","Sassandra-Marahoué","Marahoué",15,13,17,0.0025,12,4,12.1212121212121
+"child_iron","cs","Sassandra-Marahoué","Haut-Sassandra",19,18,20,0,4,2,6.06060606060606
+"child_iron","cs","Woroba","Bafing",19,16,22,0.005,6,6,18.1818181818182
+"child_iron","cs","Comoé","Indénié-Djuablin",20,19,24,0,5,5,15.1515151515152
+"child_iron","cs","Lagunes","Agnéby-Tiassa",21,18,23,0,2,5,15.1515151515152
+"child_iron","cs","Montagnes","Guémon",22,20,24.05,0,3,4.04999999999995,12.2727272727271
+"child_iron","cs","Gôh-Djiboua","Gôh",23,20,25,0,9,5,15.1515151515152
+"child_iron","cs","Abidjan","Abidjan",25,21,29,0,9,8,24.2424242424242
+"child_iron","cs","Lagunes","La Mé",25,22.95,27,0,4,4.05,12.2727272727273
+"child_iron","cs","Gôh-Djiboua","Lôh-Djiboua",27,24,29,0,2,5,15.1515151515152
+"child_iron","cs","Lagunes","Grands Ponts",27,24,30,0,6,6,18.1818181818182
+"child_iron","cs","Bas-Sassandra","Nawa",28,26,30,0,7,4,12.1212121212121
+"child_iron","cs","Montagnes","Tonkpi",28,24,32,0,3,8,24.2424242424242
+"child_iron","cs","Montagnes","Cavally",29,25,31,0,4,6,18.1818181818182
+"child_iron","cs","Bas-Sassandra","Gbôkle",31,30,32,0,2,2,6.06060606060606
+"child_iron","cs","Comoé","Sud Comoé",32,30,32,0,1,2,6.06060606060606
+"child_iron","cs","Bas-Sassandra","San-Pédro",33,33,33,0,3,0,0
+"child_vitA","cs","Savanes","Tchologo",1,1,2,1,3,1,3.03030303030303
+"child_vitA","cs","Savanes","Bagoué",2,1,3,1,1,2,6.06060606060606
+"child_vitA","cs","Zanzan","Bounkani",3,2,3,1,0,1,3.03030303030303
+"child_vitA","cs","Savanes","Poro",4,4,5,1,3,1,3.03030303030303
+"child_vitA","cs","Denguélé","Folon",5,4,7,0.9925,5,3,9.09090909090909
+"child_vitA","cs","Lacs","N'zi",6,4,8,1,6,4,12.1212121212121
+"child_vitA","cs","Vallée du Bandama","Hambol",7,6,9,0.9975,5,3,9.09090909090909
+"child_vitA","cs","Woroba","Béré",8,7,11,0.9725,5,4,12.1212121212121
+"child_vitA","cs","Lacs","Bélier",9,6,11,0.955,5,5,15.1515151515152
+"child_vitA","cs","Yamoussoukro","Yamoussoukro",11,8,15,0.6125,4,7,21.2121212121212
+"child_vitA","cs","Lacs","Moronou",12,9,16,0.3625,6,7,21.2121212121212
+"child_vitA","cs","Vallée du Bandama","Gbeke",12,10,14,0.3825,3,4,12.1212121212121
+"child_vitA","cs","Denguélé","Kabadougou",13,8,17,0.3225,9,9,27.2727272727273
+"child_vitA","cs","Lacs","Iffou",14,10,17,0.145,10,7,21.2121212121212
+"child_vitA","cs","Woroba","Worodougou",14,10,17,0.1825,5,7,21.2121212121212
+"child_vitA","cs","Zanzan","Gontougo",14,11,17,0.0725,4,6,18.1818181818182
+"child_vitA","cs","Sassandra-Marahoué","Marahoué",17,15,17,0,3,2,6.06060606060606
+"child_vitA","cs","Comoé","Indénié-Djuablin",19,18,22,0,3,4,12.1212121212121
+"child_vitA","cs","Lagunes","Agnéby-Tiassa",20,18,23,0,2,5,15.1515151515152
+"child_vitA","cs","Sassandra-Marahoué","Haut-Sassandra",20,18,22.05,0,2,4.04999999999995,12.2727272727271
+"child_vitA","cs","Woroba","Bafing",20,18,26.05,0.0025,8,8.04999999999995,24.3939393939393
+"child_vitA","cs","Gôh-Djiboua","Gôh",22,20,24,0,6,4,12.1212121212121
+"child_vitA","cs","Lagunes","La Mé",24,22,28,0,4,6,18.1818181818182
+"child_vitA","cs","Montagnes","Guémon",24,22,28,0,1,6,18.1818181818182
+"child_vitA","cs","Bas-Sassandra","Nawa",26,23,28,0,6,5,15.1515151515152
+"child_vitA","cs","Gôh-Djiboua","Lôh-Djiboua",27,23,29,0,6,6,18.1818181818182
+"child_vitA","cs","Lagunes","Grands Ponts",27,22,30,0,3,8,24.2424242424242
+"child_vitA","cs","Abidjan","Abidjan",28,21.95,31,0,6,9.05,27.4242424242424
+"child_vitA","cs","Montagnes","Cavally",28,24,30,0,2,6,18.1818181818182
+"child_vitA","cs","Bas-Sassandra","Gbôkle",31,29,32,0,2,3,9.09090909090909
+"child_vitA","cs","Comoé","Sud Comoé",31,29,32,0,3,3,9.09090909090909
+"child_vitA","cs","Montagnes","Tonkpi",31,27,32,0,2,5,15.1515151515152
+"child_vitA","cs","Bas-Sassandra","San-Pédro",33,33,33,0,0,0,0
+"women_iron","cs","Zanzan","Bounkani",1,1,3,1,1,2,6.06060606060606
+"women_iron","cs","Savanes","Tchologo",2,1,6,0.995,1,5,15.1515151515152
+"women_iron","cs","Savanes","Bagoué",3,2,6,0.995,2,4,12.1212121212121
+"women_iron","cs","Lacs","Bélier",5,1,8,1,3,7,21.2121212121212
+"women_iron","cs","Lacs","N'zi",5,2,7,1,1,5,15.1515151515152
+"women_iron","cs","Savanes","Poro",6,4,10,0.9625,3,6,18.1818181818182
+"women_iron","cs","Vallée du Bandama","Hambol",7,5,11,0.9575,3,6,18.1818181818182
+"women_iron","cs","Yamoussoukro","Yamoussoukro",8,4,11,0.9725,3,7,21.2121212121212
+"women_iron","cs","Woroba","Béré",9,7,13,0.845,3,6,18.1818181818182
+"women_iron","cs","Lacs","Moronou",11,7,14,0.62,3,7,21.2121212121212
+"women_iron","cs","Vallée du Bandama","Gbeke",11,8,13,0.805,3,5,15.1515151515152
+"women_iron","cs","Denguélé","Folon",12,6,19,0.485,5,13,39.3939393939394
+"women_iron","cs","Lacs","Iffou",13,10,17,0.1575,2,7,21.2121212121212
+"women_iron","cs","Sassandra-Marahoué","Marahoué",14,10,16,0.075,6,6,18.1818181818182
+"women_iron","cs","Zanzan","Gontougo",14,12,18,0.0425,1,6,18.1818181818182
+"women_iron","cs","Woroba","Worodougou",16,13,22,0,2,9,27.2727272727273
+"women_iron","cs","Lagunes","Agnéby-Tiassa",18,13,21,0.025,4,8,24.2424242424242
+"women_iron","cs","Comoé","Indénié-Djuablin",19,16,22,0.0025,5,6,18.1818181818182
+"women_iron","cs","Denguélé","Kabadougou",19,15,29,0.005,5,14,42.4242424242424
+"women_iron","cs","Sassandra-Marahoué","Haut-Sassandra",20,18,26,0,5,8,24.2424242424242
+"women_iron","cs","Gôh-Djiboua","Gôh",21,18,24,0.0025,6,6,18.1818181818182
+"women_iron","cs","Lagunes","Grands Ponts",22,14,27,0.0275,10,13,39.3939393939394
+"women_iron","cs","Abidjan","Abidjan",22.5,13,28,0.0225,14,15,45.4545454545455
+"women_iron","cs","Gôh-Djiboua","Lôh-Djiboua",24,20,27,0,3,7,21.2121212121212
+"women_iron","cs","Lagunes","La Mé",25,21,28,0,3,7,21.2121212121212
+"women_iron","cs","Montagnes","Guémon",25,22,29,0,7,7,21.2121212121212
+"women_iron","cs","Bas-Sassandra","Nawa",27,24,29,0,6,5,15.1515151515152
+"women_iron","cs","Woroba","Bafing",27,20,32,0,4,12,36.3636363636364
+"women_iron","cs","Bas-Sassandra","Gbôkle",29,26,31,0,1,5,15.1515151515152
+"women_iron","cs","Montagnes","Cavally",30,27,32,0,1,5,15.1515151515152
+"women_iron","cs","Comoé","Sud Comoé",31,25,32,0,6,7,21.2121212121212
+"women_iron","cs","Montagnes","Tonkpi",32,28,33,0,2,5,15.1515151515152
+"women_iron","cs","Bas-Sassandra","San-Pédro",33,27.95,33,0.0025,1,5.05,15.3030303030303
+"women_vitA","cs","Savanes","Tchologo",1,1,3,1,1,2,6.06060606060606
+"women_vitA","cs","Zanzan","Bounkani",2,1,3,1,2,2,6.06060606060606
+"women_vitA","cs","Savanes","Bagoué",3,1,3,1,1,2,6.06060606060606
+"women_vitA","cs","Savanes","Poro",4,4,6,1,1,2,6.06060606060606
+"women_vitA","cs","Denguélé","Folon",6,5,10,0.9625,4,5,15.1515151515152
+"women_vitA","cs","Lacs","N'zi",6,4,8,1,3,4,12.1212121212121
+"women_vitA","cs","Vallée du Bandama","Hambol",6,5,8,1,2,3,9.09090909090909
+"women_vitA","cs","Lacs","Bélier",8,5,9,0.9875,3,4,12.1212121212121
+"women_vitA","cs","Woroba","Béré",9,7,11,0.9825,3,4,12.1212121212121
+"women_vitA","cs","Yamoussoukro","Yamoussoukro",10,8,13,0.8,2,5,15.1515151515152
+"women_vitA","cs","Vallée du Bandama","Gbeke",11,10,13,0.66,4,3,9.09090909090909
+"women_vitA","cs","Lacs","Moronou",13,10,16,0.2425,4,6,18.1818181818182
+"women_vitA","cs","Zanzan","Gontougo",13,11,15,0.115,4,4,12.1212121212121
+"women_vitA","cs","Lacs","Iffou",14,11,16,0.0925,8,5,15.1515151515152
+"women_vitA","cs","Woroba","Worodougou",15,12,16,0.0375,4,4,12.1212121212121
+"women_vitA","cs","Denguélé","Kabadougou",16,10,18,0.1175,7,8,24.2424242424242
+"women_vitA","cs","Sassandra-Marahoué","Marahoué",17,14,17,0.0025,2,3,9.09090909090909
+"women_vitA","cs","Comoé","Indénié-Djuablin",19,18,21,0,1,3,9.09090909090909
+"women_vitA","cs","Lagunes","Agnéby-Tiassa",19,18,22,0,3,4,12.1212121212121
+"women_vitA","cs","Sassandra-Marahoué","Haut-Sassandra",20,19,23,0,2,4,12.1212121212121
+"women_vitA","cs","Woroba","Bafing",20,18,27,0,4,9,27.2727272727273
+"women_vitA","cs","Gôh-Djiboua","Gôh",22,20,24,0,5,4,12.1212121212121
+"women_vitA","cs","Lagunes","Grands Ponts",24,20,28,0,6,8,24.2424242424242
+"women_vitA","cs","Montagnes","Guémon",24,22,27,0,2,5,15.1515151515152
+"women_vitA","cs","Gôh-Djiboua","Lôh-Djiboua",25,23,27,0,3,4,12.1212121212121
+"women_vitA","cs","Lagunes","La Mé",25,23,27.05,0,3,4.04999999999995,12.2727272727271
+"women_vitA","cs","Abidjan","Abidjan",26,20,30,0,7,10,30.3030303030303
+"women_vitA","cs","Bas-Sassandra","Nawa",28,25,29,0,2,4,12.1212121212121
+"women_vitA","cs","Bas-Sassandra","Gbôkle",30,29,32,0,2,3,9.09090909090909
+"women_vitA","cs","Montagnes","Cavally",30,28,32,0,3,4,12.1212121212121
+"women_vitA","cs","Montagnes","Tonkpi",30.5,26,32,0,5,6,18.1818181818182
+"women_vitA","cs","Comoé","Sud Comoé",31,29,32,0,2,3,9.09090909090909
+"women_vitA","cs","Bas-Sassandra","San-Pédro",33,33,33,0,0,0,0
+"women_folate","cs","Zanzan","Bounkani",1,1,4,0.985,8,3,9.09090909090909
+"women_folate","cs","Savanes","Tchologo",2,1,8,0.9725,19,7,21.2121212121212
+"women_folate","cs","Savanes","Bagoué",4,3,15,0.9,16,12,36.3636363636364
+"women_folate","cs","Vallée du Bandama","Hambol",4,2,6.04999999999995,0.99,21,4.04999999999995,12.2727272727271
+"women_folate","cs","Woroba","Béré",6,3.95,9.04999999999995,0.9775,22,5.09999999999995,15.4545454545453
+"women_folate","cs","Savanes","Poro",7,4,17,0.84,23,13,39.3939393939394
+"women_folate","cs","Vallée du Bandama","Gbeke",7,2,10,0.9925,9,8,24.2424242424242
+"women_folate","cs","Woroba","Worodougou",9,5,15,0.8025,18,10,30.3030303030303
+"women_folate","cs","Lacs","Bélier",10,4,15,0.69,14,11,33.3333333333333
+"women_folate","cs","Lacs","N'zi",10,4,18,0.715,11,14,42.4242424242424
+"women_folate","cs","Zanzan","Gontougo",12,7.95,19.05,0.385,16,11.1,33.6363636363635
+"women_folate","cs","Denguélé","Folon",13,6,25,0.43,23,19,57.5757575757576
+"women_folate","cs","Lacs","Iffou",14,7,23,0.2575,6,16,48.4848484848485
+"women_folate","cs","Sassandra-Marahoué","Marahoué",14,9,17,0.165,1,8,24.2424242424242
+"women_folate","cs","Yamoussoukro","Yamoussoukro",14,9.95,19,0.155,12,9.05,27.4242424242424
+"women_folate","cs","Denguélé","Kabadougou",16,9,25,0.2,19,16,48.4848484848485
+"women_folate","cs","Abidjan","Abidjan",17,2,24.05,0.2925,23,22.05,66.8181818181817
+"women_folate","cs","Lacs","Moronou",17,11,23,0.0525,13,12,36.3636363636364
+"women_folate","cs","Sassandra-Marahoué","Haut-Sassandra",19,14,23,0.0175,5,9,27.2727272727273
+"women_folate","cs","Comoé","Indénié-Djuablin",20,16,24,0.0125,13,8,24.2424242424242
+"women_folate","cs","Woroba","Bafing",21,12,28,0.025,20,16,48.4848484848485
+"women_folate","cs","Lagunes","Grands Ponts",22,8,27,0.095,25,19,57.5757575757576
+"women_folate","cs","Montagnes","Guémon",22,17,26,0.005,4,9,27.2727272727273
+"women_folate","cs","Lagunes","Agnéby-Tiassa",23,17,26.05,0.005,13,9.04999999999995,27.4242424242423
+"women_folate","cs","Gôh-Djiboua","Gôh",24,20,27,0,11,7,21.2121212121212
+"women_folate","cs","Lagunes","La Mé",25,18,27,0.0075,8,9,27.2727272727273
+"women_folate","cs","Comoé","Sud Comoé",27,16.9,31,0.0275,27,14.1,42.7272727272727
+"women_folate","cs","Gôh-Djiboua","Lôh-Djiboua",28,25,30,0,18,5,15.1515151515152
+"women_folate","cs","Montagnes","Tonkpi",29,23,32,0,7,9,27.2727272727273
+"women_folate","cs","Bas-Sassandra","Nawa",30,28,31,0,15,3,9.09090909090909
+"women_folate","cs","Bas-Sassandra","Gbôkle",31,29,32,0,9,3,9.09090909090909
+"women_folate","cs","Montagnes","Cavally",32,32,33,0,1,1,3.03030303030303
+"women_folate","cs","Bas-Sassandra","San-Pédro",33,29,33,0.0025,16,4,12.1212121212121
+"women_b12","cs","Savanes","Tchologo",1,1,1,1,1,0,0
+"women_b12","cs","Denguélé","Folon",3,2,5,1,4,3,9.09090909090909
+"women_b12","cs","Savanes","Poro",3,2,4,1,1,2,6.06060606060606
+"women_b12","cs","Savanes","Bagoué",4,2,5,1,3,3,9.09090909090909
+"women_b12","cs","Zanzan","Bounkani",5,2,5,1,7,3,9.09090909090909
+"women_b12","cs","Vallée du Bandama","Hambol",6,5,6,1,2,1,3.03030303030303
+"women_b12","cs","Woroba","Béré",7,7,8,1,1,1,3.03030303030303
+"women_b12","cs","Denguélé","Kabadougou",8,7,10,0.9775,2,3,9.09090909090909
+"women_b12","cs","Woroba","Bafing",10,8.95,14,0.6275,8,5.05,15.3030303030303
+"women_b12","cs","Woroba","Worodougou",10,9,12,0.8725,4,3,9.09090909090909
+"women_b12","cs","Zanzan","Gontougo",10,8,11,0.9675,4,3,9.09090909090909
+"women_b12","cs","Vallée du Bandama","Gbeke",12,9,12.05,0.4375,2,3.04999999999995,9.24242424242411
+"women_b12","cs","Lacs","Iffou",13,11,14,0.0925,1,3,9.09090909090909
+"women_b12","cs","Lacs","N'zi",14,12,15,0.025,0,3,9.09090909090909
+"women_b12","cs","Sassandra-Marahoué","Marahoué",15,14,16,0,0,2,6.06060606060606
+"women_b12","cs","Lacs","Bélier",16,15,19,0,3,4,12.1212121212121
+"women_b12","cs","Lacs","Moronou",17,16,19,0,3,3,9.09090909090909
+"women_b12","cs","Sassandra-Marahoué","Haut-Sassandra",18,16,19,0,1,3,9.09090909090909
+"women_b12","cs","Yamoussoukro","Yamoussoukro",19,18,20,0,2,2,6.06060606060606
+"women_b12","cs","Comoé","Indénié-Djuablin",20,20,22,0,2,2,6.06060606060606
+"women_b12","cs","Montagnes","Tonkpi",21,17,24,0,6,7,21.2121212121212
+"women_b12","cs","Montagnes","Guémon",22,21,24,0,4,3,9.09090909090909
+"women_b12","cs","Lagunes","Agnéby-Tiassa",23,21,24,0,6,3,9.09090909090909
+"women_b12","cs","Gôh-Djiboua","Gôh",24,23,25,0,3,2,6.06060606060606
+"women_b12","cs","Lagunes","La Mé",25,23,26,0,1,3,9.09090909090909
+"women_b12","cs","Gôh-Djiboua","Lôh-Djiboua",26,26,27,0,0,1,3.03030303030303
+"women_b12","cs","Montagnes","Cavally",27,25,27,0,5,2,6.06060606060606
+"women_b12","cs","Bas-Sassandra","Nawa",28,27.95,29,0,2,1.05,3.18181818181817
+"women_b12","cs","Bas-Sassandra","Gbôkle",29,28,29,0,1,1,3.03030303030303
+"women_b12","cs","Lagunes","Grands Ponts",30,30,31,0,1,1,3.03030303030303
+"women_b12","cs","Comoé","Sud Comoé",31,30,32,0,1,2,6.06060606060606
+"women_b12","cs","Abidjan","Abidjan",32,31,33,0,3,2,6.06060606060606
+"women_b12","cs","Bas-Sassandra","San-Pédro",33,32,33,0,1,1,3.03030303030303
+"child_iron","cs_top5","Savanes","Bagoué",1,1,2,1,1,1,3.03030303030303
+"child_iron","cs_top5","Savanes","Tchologo",2,1,2,1,1,1,3.03030303030303
+"child_iron","cs_top5","Savanes","Poro",3,3,4,1,1,1,3.03030303030303
+"child_iron","cs_top5","Denguélé","Folon",4,3,5,1,3,2,6.06060606060606
+"child_iron","cs_top5","Zanzan","Bounkani",5,4,6,1,0,2,6.06060606060606
+"child_iron","cs_top5","Woroba","Béré",6,5.95,7,1,4,1.05,3.18181818181817
+"child_iron","cs_top5","Lacs","N'zi",7,6,10,1,4,4,12.1212121212121
+"child_iron","cs_top5","Denguélé","Kabadougou",9,7,14,0.8475,10,7,21.2121212121212
+"child_iron","cs_top5","Woroba","Worodougou",9,7,11,0.9625,9,4,12.1212121212121
+"child_iron","cs_top5","Vallée du Bandama","Hambol",10,8,13,0.8675,6,5,15.1515151515152
+"child_iron","cs_top5","Lacs","Bélier",12,9,16,0.34,9,7,21.2121212121212
+"child_iron","cs_top5","Sassandra-Marahoué","Marahoué",12,10,15,0.28,2,5,15.1515151515152
+"child_iron","cs_top5","Lacs","Iffou",13,10,18,0.25,6,8,24.2424242424242
+"child_iron","cs_top5","Lacs","Moronou",13,8,17,0.3275,1,9,27.2727272727273
+"child_iron","cs_top5","Vallée du Bandama","Gbeke",16,12,19,0.025,5,7,21.2121212121212
+"child_iron","cs_top5","Yamoussoukro","Yamoussoukro",16,13,19,0.0125,9,6,18.1818181818182
+"child_iron","cs_top5","Sassandra-Marahoué","Haut-Sassandra",17,13,20,0.005,3,7,21.2121212121212
+"child_iron","cs_top5","Woroba","Bafing",18,11,21,0.0725,6,10,30.3030303030303
+"child_iron","cs_top5","Zanzan","Gontougo",18,15,22,0.005,5,7,21.2121212121212
+"child_iron","cs_top5","Gôh-Djiboua","Gôh",19,15.95,20,0.005,4,4.05,12.2727272727273
+"child_iron","cs_top5","Montagnes","Guémon",21,20,23,0,2,3,9.09090909090909
+"child_iron","cs_top5","Lagunes","Agnéby-Tiassa",22,20,24,0,1,4,12.1212121212121
+"child_iron","cs_top5","Gôh-Djiboua","Lôh-Djiboua",23,21,25,0,1,4,12.1212121212121
+"child_iron","cs_top5","Bas-Sassandra","Nawa",25,23,27,0,2,4,12.1212121212121
+"child_iron","cs_top5","Comoé","Indénié-Djuablin",25,23,29,0,5,6,18.1818181818182
+"child_iron","cs_top5","Lagunes","Grands Ponts",25,21.95,29,0,2,7.05,21.3636363636364
+"child_iron","cs_top5","Bas-Sassandra","Gbôkle",28,26,30,0,2,4,12.1212121212121
+"child_iron","cs_top5","Montagnes","Cavally",28,25,31,0,3,6,18.1818181818182
+"child_iron","cs_top5","Montagnes","Tonkpi",29,25,32,0,3,7,21.2121212121212
+"child_iron","cs_top5","Abidjan","Abidjan",30,25,32,0,4,7,21.2121212121212
+"child_iron","cs_top5","Lagunes","La Mé",30,28,32,0,2,4,12.1212121212121
+"child_iron","cs_top5","Bas-Sassandra","San-Pédro",32,30,32,0,0,2,6.06060606060606
+"child_iron","cs_top5","Comoé","Sud Comoé",33,33,33,0,0,0,0
+"child_vitA","cs_top5","Savanes","Bagoué",1,1,2,1,0,1,3.03030303030303
+"child_vitA","cs_top5","Savanes","Tchologo",2,1,2,1,1,1,3.03030303030303
+"child_vitA","cs_top5","Savanes","Poro",3,3,4,1,3,1,3.03030303030303
+"child_vitA","cs_top5","Denguélé","Folon",4,3,6,1,3,3,9.09090909090909
+"child_vitA","cs_top5","Zanzan","Bounkani",5,3.95,6.04999999999995,0.9975,3,2.09999999999995,6.36363636363622
+"child_vitA","cs_top5","Lacs","N'zi",6,4,9,0.995,5,5,15.1515151515152
+"child_vitA","cs_top5","Woroba","Béré",7,5,9,0.9925,3,4,12.1212121212121
+"child_vitA","cs_top5","Lacs","Moronou",10,7,15,0.6975,2,8,24.2424242424242
+"child_vitA","cs_top5","Vallée du Bandama","Hambol",10,7,15,0.7025,5,8,24.2424242424242
+"child_vitA","cs_top5","Woroba","Worodougou",10,7,15,0.6875,8,8,24.2424242424242
+"child_vitA","cs_top5","Lacs","Bélier",11,8,15,0.5825,10,7,21.2121212121212
+"child_vitA","cs_top5","Lacs","Iffou",12,7,16,0.485,8,9,27.2727272727273
+"child_vitA","cs_top5","Sassandra-Marahoué","Marahoué",12,9,15,0.3825,3,6,18.1818181818182
+"child_vitA","cs_top5","Denguélé","Kabadougou",13,8,18,0.36,10,10,30.3030303030303
+"child_vitA","cs_top5","Vallée du Bandama","Gbeke",16,12,20,0.035,5,8,24.2424242424242
+"child_vitA","cs_top5","Yamoussoukro","Yamoussoukro",16,11,19,0.055,9,8,24.2424242424242
+"child_vitA","cs_top5","Sassandra-Marahoué","Haut-Sassandra",17,13,20,0.02,4,7,21.2121212121212
+"child_vitA","cs_top5","Zanzan","Gontougo",17,14,21,0.0075,4,7,21.2121212121212
+"child_vitA","cs_top5","Gôh-Djiboua","Gôh",18,15,20,0,4,5,15.1515151515152
+"child_vitA","cs_top5","Lagunes","Agnéby-Tiassa",21,19,25,0,1,6,18.1818181818182
+"child_vitA","cs_top5","Montagnes","Guémon",22,19.95,25,0,6,5.05,15.3030303030303
+"child_vitA","cs_top5","Woroba","Bafing",22,18,28,0,9,10,30.3030303030303
+"child_vitA","cs_top5","Bas-Sassandra","Nawa",23,20,25,0,2,5,15.1515151515152
+"child_vitA","cs_top5","Gôh-Djiboua","Lôh-Djiboua",23,19,25.05,0,4,6.04999999999995,18.3333333333332
+"child_vitA","cs_top5","Comoé","Indénié-Djuablin",24.5,20,28,0,6,8,24.2424242424242
+"child_vitA","cs_top5","Montagnes","Cavally",26,23,29,0,4,6,18.1818181818182
+"child_vitA","cs_top5","Bas-Sassandra","Gbôkle",27,25,29,0,2,4,12.1212121212121
+"child_vitA","cs_top5","Lagunes","Grands Ponts",27,22,30,0,2,8,24.2424242424242
+"child_vitA","cs_top5","Lagunes","La Mé",30,28,32,0,1,4,12.1212121212121
+"child_vitA","cs_top5","Abidjan","Abidjan",31,28,32,0,2,4,12.1212121212121
+"child_vitA","cs_top5","Bas-Sassandra","San-Pédro",31,28,32,0,1,4,12.1212121212121
+"child_vitA","cs_top5","Montagnes","Tonkpi",31,27,33,0,2,6,18.1818181818182
+"child_vitA","cs_top5","Comoé","Sud Comoé",33,32,33,0,0,1,3.03030303030303
+"women_iron","cs_top5","Savanes","Bagoué",1,1,2,1,0,1,3.03030303030303
+"women_iron","cs_top5","Savanes","Tchologo",2,1,5,0.9975,2,4,12.1212121212121
+"women_iron","cs_top5","Zanzan","Bounkani",4,2,6,1,3,4,12.1212121212121
+"women_iron","cs_top5","Denguélé","Folon",5,2.95,8,0.9975,6,5.05,15.3030303030303
+"women_iron","cs_top5","Savanes","Poro",5,3,8,0.9875,3,5,15.1515151515152
+"women_iron","cs_top5","Lacs","N'zi",6,2,8,1,4,6,18.1818181818182
+"women_iron","cs_top5","Woroba","Béré",7,6,11,0.9625,1,5,15.1515151515152
+"women_iron","cs_top5","Lacs","Bélier",8,4,11,0.9775,7,7,21.2121212121212
+"women_iron","cs_top5","Vallée du Bandama","Hambol",10,7,13,0.83,5,6,18.1818181818182
+"women_iron","cs_top5","Yamoussoukro","Yamoussoukro",10,6,14,0.765,5,8,24.2424242424242
+"women_iron","cs_top5","Woroba","Worodougou",11,8,15,0.695,6,7,21.2121212121212
+"women_iron","cs_top5","Sassandra-Marahoué","Marahoué",13,11,16,0.145,3,5,15.1515151515152
+"women_iron","cs_top5","Lacs","Moronou",13.5,9,17,0.2,3,8,24.2424242424242
+"women_iron","cs_top5","Lacs","Iffou",14,10,17,0.2125,1,7,21.2121212121212
+"women_iron","cs_top5","Denguélé","Kabadougou",15,10,21,0.135,7,11,33.3333333333333
+"women_iron","cs_top5","Vallée du Bandama","Gbeke",15,12,18,0.0325,7,6,18.1818181818182
+"women_iron","cs_top5","Gôh-Djiboua","Gôh",18,15,20,0.0025,6,5,15.1515151515152
+"women_iron","cs_top5","Zanzan","Gontougo",19,16,25,0.0025,4,9,27.2727272727273
+"women_iron","cs_top5","Sassandra-Marahoué","Haut-Sassandra",20,17,26.05,0,7,9.04999999999995,27.4242424242423
+"women_iron","cs_top5","Woroba","Bafing",20,16,28.05,0.005,5,12.05,36.5151515151514
+"women_iron","cs_top5","Lagunes","Agnéby-Tiassa",21,18,24,0,4,6,18.1818181818182
+"women_iron","cs_top5","Lagunes","Grands Ponts",21,12,26,0.035,10,14,42.4242424242424
+"women_iron","cs_top5","Gôh-Djiboua","Lôh-Djiboua",22,18,24,0,4,6,18.1818181818182
+"women_iron","cs_top5","Bas-Sassandra","Nawa",25,23,27,0,3,4,12.1212121212121
+"women_iron","cs_top5","Abidjan","Abidjan",26,16,31,0.0175,10,15,45.4545454545455
+"women_iron","cs_top5","Bas-Sassandra","Gbôkle",26,22,28,0,3,6,18.1818181818182
+"women_iron","cs_top5","Montagnes","Guémon",26,21,30,0,3,9,27.2727272727273
+"women_iron","cs_top5","Comoé","Indénié-Djuablin",27,23,30,0,9,7,21.2121212121212
+"women_iron","cs_top5","Bas-Sassandra","San-Pédro",30,24,32,0,2,8,24.2424242424242
+"women_iron","cs_top5","Lagunes","La Mé",30,28,32,0,3,4,12.1212121212121
+"women_iron","cs_top5","Montagnes","Cavally",30.5,28,32,0,3,4,12.1212121212121
+"women_iron","cs_top5","Montagnes","Tonkpi",32,28,33,0,1,5,15.1515151515152
+"women_iron","cs_top5","Comoé","Sud Comoé",33,31,33,0,0,2,6.06060606060606
+"women_vitA","cs_top5","Savanes","Bagoué",1,1,2,1,1,1,3.03030303030303
+"women_vitA","cs_top5","Savanes","Tchologo",2,1,2,1,1,1,3.03030303030303
+"women_vitA","cs_top5","Zanzan","Bounkani",3,3,5,1,2,2,6.06060606060606
+"women_vitA","cs_top5","Savanes","Poro",4,3,5,1,3,2,6.06060606060606
+"women_vitA","cs_top5","Denguélé","Folon",5,4,7.04999999999995,0.995,1,3.04999999999995,9.24242424242411
+"women_vitA","cs_top5","Lacs","N'zi",6,4,8,1,3,4,12.1212121212121
+"women_vitA","cs_top5","Woroba","Béré",7,5,8,1,2,3,9.09090909090909
+"women_vitA","cs_top5","Vallée du Bandama","Hambol",9,7,13,0.91,2,6,18.1818181818182
+"women_vitA","cs_top5","Woroba","Worodougou",9,8,14,0.8375,3,6,18.1818181818182
+"women_vitA","cs_top5","Lacs","Bélier",10,7,13,0.825,5,6,18.1818181818182
+"women_vitA","cs_top5","Lacs","Iffou",12,9,16,0.39,3,7,21.2121212121212
+"women_vitA","cs_top5","Lacs","Moronou",12,8,17,0.4,7,9,27.2727272727273
+"women_vitA","cs_top5","Sassandra-Marahoué","Marahoué",13,10,15,0.23,2,5,15.1515151515152
+"women_vitA","cs_top5","Denguélé","Kabadougou",14,10,18,0.2475,7,8,24.2424242424242
+"women_vitA","cs_top5","Yamoussoukro","Yamoussoukro",14,10,17,0.13,3,7,21.2121212121212
+"women_vitA","cs_top5","Vallée du Bandama","Gbeke",15,12,18,0.0275,6,6,18.1818181818182
+"women_vitA","cs_top5","Zanzan","Gontougo",17,14,20,0.005,3,6,18.1818181818182
+"women_vitA","cs_top5","Sassandra-Marahoué","Haut-Sassandra",18,15,21,0,4,6,18.1818181818182
+"women_vitA","cs_top5","Gôh-Djiboua","Gôh",19,16,20,0,3,4,12.1212121212121
+"women_vitA","cs_top5","Woroba","Bafing",20,17,26,0.0025,5,9,27.2727272727273
+"women_vitA","cs_top5","Gôh-Djiboua","Lôh-Djiboua",22,19,24,0,3,5,15.1515151515152
+"women_vitA","cs_top5","Lagunes","Agnéby-Tiassa",22,20,24,0,3,4,12.1212121212121
+"women_vitA","cs_top5","Montagnes","Guémon",22,21,26,0,2,5,15.1515151515152
+"women_vitA","cs_top5","Bas-Sassandra","Nawa",25,23,27,0,1,4,12.1212121212121
+"women_vitA","cs_top5","Comoé","Indénié-Djuablin",25,22,29,0,5,7,21.2121212121212
+"women_vitA","cs_top5","Lagunes","Grands Ponts",25,20,29,0,2,9,27.2727272727273
+"women_vitA","cs_top5","Bas-Sassandra","Gbôkle",27,25,29,0,2,4,12.1212121212121
+"women_vitA","cs_top5","Montagnes","Cavally",28,25,30,0,4,5,15.1515151515152
+"women_vitA","cs_top5","Abidjan","Abidjan",30,25.95,32,0,1,6.05,18.3333333333333
+"women_vitA","cs_top5","Lagunes","La Mé",30,28,31,0,1,3,9.09090909090909
+"women_vitA","cs_top5","Montagnes","Tonkpi",30,26,32,0,5,6,18.1818181818182
+"women_vitA","cs_top5","Bas-Sassandra","San-Pédro",32,30,33,0,0,3,9.09090909090909
+"women_vitA","cs_top5","Comoé","Sud Comoé",33,32,33,0,0,1,3.03030303030303
+"women_folate","cs_top5","Savanes","Bagoué",2,1,7,0.985,16,6,18.1818181818182
+"women_folate","cs_top5","Savanes","Tchologo",2,1,11,0.955,27,10,30.3030303030303
+"women_folate","cs_top5","Vallée du Bandama","Hambol",4,1,8,1,5,7,21.2121212121212
+"women_folate","cs_top5","Woroba","Béré",4,1,8,0.9975,15,7,21.2121212121212
+"women_folate","cs_top5","Denguélé","Folon",6,2,10,0.9825,14,8,24.2424242424242
+"women_folate","cs_top5","Savanes","Poro",6,3,11,0.9575,23,8,24.2424242424242
+"women_folate","cs_top5","Woroba","Worodougou",6,1,9,1,5,8,24.2424242424242
+"women_folate","cs_top5","Vallée du Bandama","Gbeke",8,2,10,0.985,3,8,24.2424242424242
+"women_folate","cs_top5","Zanzan","Bounkani",9,4,15,0.8575,7,11,33.3333333333333
+"women_folate","cs_top5","Denguélé","Kabadougou",10,6,14,0.8375,13,8,24.2424242424242
+"women_folate","cs_top5","Lacs","Bélier",11,6,13,0.79,11,7,21.2121212121212
+"women_folate","cs_top5","Sassandra-Marahoué","Haut-Sassandra",13,10,19,0.1375,14,9,27.2727272727273
+"women_folate","cs_top5","Yamoussoukro","Yamoussoukro",13,11,17,0.0975,11,6,18.1818181818182
+"women_folate","cs_top5","Sassandra-Marahoué","Marahoué",15,13,21,0.0075,12,8,24.2424242424242
+"women_folate","cs_top5","Woroba","Bafing",15,11,24,0.135,19,13,39.3939393939394
+"women_folate","cs_top5","Lacs","N'zi",16,12,26,0.02,6,14,42.4242424242424
+"women_folate","cs_top5","Lagunes","Grands Ponts",17,7,25,0.115,24,18,54.5454545454545
+"women_folate","cs_top5","Montagnes","Guémon",19,15,24,0.0025,6,9,27.2727272727273
+"women_folate","cs_top5","Zanzan","Gontougo",19,14,29,0,16,15,45.4545454545455
+"women_folate","cs_top5","Lagunes","Agnéby-Tiassa",20,15,25,0.01,11,10,30.3030303030303
+"women_folate","cs_top5","Abidjan","Abidjan",21,6.95,29,0.1,31,22.05,66.8181818181818
+"women_folate","cs_top5","Lacs","Iffou",21,16,30,0,9,14,42.4242424242424
+"women_folate","cs_top5","Gôh-Djiboua","Gôh",22,18,26,0,1,8,24.2424242424242
+"women_folate","cs_top5","Bas-Sassandra","Nawa",24,19,26.05,0,16,7.04999999999995,21.3636363636362
+"women_folate","cs_top5","Lacs","Moronou",24,19,30,0,6,11,33.3333333333333
+"women_folate","cs_top5","Lagunes","La Mé",26,19,30,0.005,15,11,33.3333333333333
+"women_folate","cs_top5","Montagnes","Tonkpi",27,20,32,0,8,12,36.3636363636364
+"women_folate","cs_top5","Bas-Sassandra","Gbôkle",28,23,30,0,17,7,21.2121212121212
+"women_folate","cs_top5","Bas-Sassandra","San-Pédro",28,16,32,0.015,27,16,48.4848484848485
+"women_folate","cs_top5","Gôh-Djiboua","Lôh-Djiboua",30,26,32,0,7,6,18.1818181818182
+"women_folate","cs_top5","Comoé","Indénié-Djuablin",31,25,33,0,4,8,24.2424242424242
+"women_folate","cs_top5","Comoé","Sud Comoé",32,24,33,0.0075,27,9,27.2727272727273
+"women_folate","cs_top5","Montagnes","Cavally",33,30,33,0,2,3,9.09090909090909
+"women_b12","cs_top5","Savanes","Tchologo",1,1,1,1,0,0,0
+"women_b12","cs_top5","Savanes","Poro",2,2,3,1,1,1,3.03030303030303
+"women_b12","cs_top5","Savanes","Bagoué",3,2,3,1,2,1,3.03030303030303
+"women_b12","cs_top5","Denguélé","Folon",5,4,7,0.995,1,3,9.09090909090909
+"women_b12","cs_top5","Woroba","Béré",5,4,6,1,3,2,6.06060606060606
+"women_b12","cs_top5","Zanzan","Bounkani",5,4,8,0.9975,1,4,12.1212121212121
+"women_b12","cs_top5","Vallée du Bandama","Hambol",7,6,10,0.9925,2,4,12.1212121212121
+"women_b12","cs_top5","Denguélé","Kabadougou",9,7,14,0.7425,1,7,21.2121212121212
+"women_b12","cs_top5","Zanzan","Gontougo",9,7,13,0.8075,12,6,18.1818181818182
+"women_b12","cs_top5","Sassandra-Marahoué","Haut-Sassandra",10,6,15,0.69,5,9,27.2727272727273
+"women_b12","cs_top5","Woroba","Worodougou",10,8,13,0.78,11,5,15.1515151515152
+"women_b12","cs_top5","Lacs","Iffou",13,8,15,0.32,7,7,21.2121212121212
+"women_b12","cs_top5","Sassandra-Marahoué","Marahoué",13,10,15,0.1875,2,5,15.1515151515152
+"women_b12","cs_top5","Vallée du Bandama","Gbeke",13,10,16,0.19,4,6,18.1818181818182
+"women_b12","cs_top5","Woroba","Bafing",14,10,18,0.2375,2,8,24.2424242424242
+"women_b12","cs_top5","Lacs","N'zi",16,11,18,0.0525,3,7,21.2121212121212
+"women_b12","cs_top5","Lacs","Moronou",17,15,19,0.0075,2,4,12.1212121212121
+"women_b12","cs_top5","Lacs","Bélier",18,17,22,0,7,5,15.1515151515152
+"women_b12","cs_top5","Montagnes","Guémon",19,16,20,0,7,4,12.1212121212121
+"women_b12","cs_top5","Gôh-Djiboua","Gôh",21,19,23,0,3,4,12.1212121212121
+"women_b12","cs_top5","Comoé","Indénié-Djuablin",22,19,24,0,9,5,15.1515151515152
+"women_b12","cs_top5","Montagnes","Tonkpi",22,17,25,0,1,8,24.2424242424242
+"women_b12","cs_top5","Lagunes","Agnéby-Tiassa",23,21,25,0,4,4,12.1212121212121
+"women_b12","cs_top5","Yamoussoukro","Yamoussoukro",23,20,26,0,6,6,18.1818181818182
+"women_b12","cs_top5","Gôh-Djiboua","Lôh-Djiboua",25,23,27,0,9,4,12.1212121212121
+"women_b12","cs_top5","Bas-Sassandra","Nawa",26,25,28,0,6,3,9.09090909090909
+"women_b12","cs_top5","Montagnes","Cavally",26,23,28,0,6,5,15.1515151515152
+"women_b12","cs_top5","Lagunes","La Mé",28,27,29,0,3,2,6.06060606060606
+"women_b12","cs_top5","Bas-Sassandra","Gbôkle",29,28,29,0,1,1,3.03030303030303
+"women_b12","cs_top5","Bas-Sassandra","San-Pédro",30,30,32,0,2,2,6.06060606060606
+"women_b12","cs_top5","Lagunes","Grands Ponts",31,30,32,0,1,2,6.06060606060606
+"women_b12","cs_top5","Comoé","Sud Comoé",32,31,32,0,2,1,3.03030303030303
+"women_b12","cs_top5","Abidjan","Abidjan",33,33,33,0,0,0,0

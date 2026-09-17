@@ -22,6 +22,15 @@
 #          run earlier: extract_gee_admin2 -> cov_harmonize_country -> fill)
 # Outputs: results/tables/policy_deck/civ_climate_soil_ranking.csv
 #          results/tables/policy_deck/civ_transport_guards.csv
+#
+# CV-01 (2026-09-17): the domain set and the CIV database are parameters.
+#   CIV_SET=cs       climate + soil (default; legacy output names above)
+#   CIV_SET=cs_top5  + anaemia surfaces, agriculture, infection (DA-03 candidate)
+#                    -> civ_<set>_ranking.csv, civ_transport_guards_<set>.csv
+#   CIV_DB=<rds>     default: civ_canonical_admin2_full_v2.rds (script 03b: 209
+#                    columns) when it exists, else the original 132-column file
+# Predictors follow the fit-time policy at the headline tiers (open,survey_public),
+# so the guard is the same set as the published transport figure.
 # =============================================================================
 suppressPackageStartupMessages({library(dplyr); library(sf)})
 setwd("C:/Users/andre/OneDrive/Documents/mn-prediction")
@@ -34,13 +43,19 @@ OUTT <- "results/tables/policy_deck"; dir.create(OUTT, recursive = TRUE, showWar
 TG  <- read.csv(file.path(P2, "targets_v2.csv"), stringsAsFactors = FALSE)
 S   <- read.csv("data/covariates/harmonized/predictors_admin2_shared.csv", check.names = FALSE)
 MD  <- read.csv("data/covariates/harmonized/predictors_admin2_shared_metadata.csv")
-CIV <- readRDS("results/transportability/civ_canonical_admin2_full.rds")
-
-CS_DOMAINS <- c("Climate and weather", "Soil characteristics")
-PREDS <- intersect(MD$column[MD$domain %in% CS_DOMAINS], names(S))
+CIV_DB <- Sys.getenv("CIV_DB", if (file.exists("results/transportability/civ_canonical_admin2_full_v2.rds")) "results/transportability/civ_canonical_admin2_full_v2.rds" else "results/transportability/civ_canonical_admin2_full.rds")
+CIV <- readRDS(CIV_DB); cat("CIV database:", CIV_DB, ncol(CIV), "columns\n")
+CIV_SET <- Sys.getenv("CIV_SET", "cs")
+DOMAIN_SETS <- list(cs = c("Climate and weather", "Soil characteristics"),
+                    cs_top5 = c("Climate and weather", "Soil characteristics", "Anaemia and haemoglobin", "Agricultural production, land use", "Infection and inflammation burden"))
+CS_DOMAINS <- DOMAIN_SETS[[CIV_SET]]; if (is.null(CS_DOMAINS)) stop("CIV_SET must be one of: ", paste(names(DOMAIN_SETS), collapse = ", "))
+TAG <- if (CIV_SET == "cs") "" else paste0("_", CIV_SET)
+if (!nzchar(Sys.getenv("V2_PREDICTOR_TIERS"))) Sys.setenv(V2_PREDICTOR_TIERS = "open,survey_public")
+PREDS <- drop_near_outcome_v2(intersect(MD$column[MD$domain %in% CS_DOMAINS], names(S)), MD)
+cat(sprintf("domain set %s: %s\n", CIV_SET, paste(CS_DOMAINS, collapse = " | ")))
 domain_of <- stats::setNames(MD$domain, MD$column)
 COUNTRIES <- c("Gambia", "Ghana", "Malawi", "SierraLeone")
-cat(sprintf("climate + soil vocabulary: %d columns; CIV holds %d\n",
+cat(sprintf("vocabulary: %d columns; CIV holds %d\n",
             length(PREDS), length(intersect(PREDS, names(CIV)))))
 
 # ── cells ────────────────────────────────────────────────────────────────────
@@ -133,7 +148,7 @@ for (on in OUTCOMES) {
   }
 }
 G <- bind_rows(bind_rows(g1), bind_rows(g2))
-write.csv(G, file.path(OUTT, "civ_transport_guards.csv"), row.names = FALSE)
+write.csv(G, file.path(OUTT, paste0("civ_transport_guards", TAG, ".csv")), row.names = FALSE)
 
 summ <- G |> group_by(arm) |>
   summarise(cells = n(), mean_spearman = mean(spearman, na.rm = TRUE),
@@ -148,7 +163,7 @@ CP <- bind_rows(civ_pred)
 CP <- CP |> group_by(outcome) |>
   mutate(rank = rank(-index, ties.method = "average"),
          pct  = 100 * (rank - 0.5) / n()) |> ungroup()
-write.csv(CP, file.path(OUTT, "civ_climate_soil_ranking.csv"), row.names = FALSE)
+write.csv(CP, file.path(OUTT, if (CIV_SET == "cs") "civ_climate_soil_ranking.csv" else paste0("civ", TAG, "_ranking.csv")), row.names = FALSE)
 cat(sprintf("\nCIV rankings written for %d outcomes x %d districts\n",
             dplyr::n_distinct(CP$outcome), dplyr::n_distinct(CP$Admin2)))
 
