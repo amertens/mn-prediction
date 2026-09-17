@@ -251,6 +251,15 @@ if (!is.null(CELL)) {   # the strong cells: index in-fill Spearman on the level 
   om <- ix$spearman_m[ix$country != "Gambia"]; Q$other_mean <- get1(mean(om, na.rm = TRUE)); Q$other_strong <- sum(om >= STRONG_CUT, na.rm = TRUE); Q$other_cells <- sum(is.finite(om))
   Q$gambia_clusters_per_district <- if (is.finite(Q$clusters_Gambia %||% NA) && is.finite(Q$districts_Gambia %||% NA)) Q$clusters_Gambia / Q$districts_Gambia else NA
 }
+# Cote d'Ivoire (policy-deck scripts 04-06): ranking on the climate-and-soil index, rank uncertainty over 400 training resamples (child iron)
+CU <- rd(root, "results", "tables", "policy_deck", "civ_rank_uncertainty.csv"); CG <- rd(root, "results", "tables", "policy_deck", "civ_transport_guards.csv"); CR <- rd(root, "results", "tables", "policy_deck", "civ_climate_soil_ranking.csv")
+if (!is.null(CU)) { Q$civ_n <- nrow(CU); Q$civ_med_width <- get1(median(CU$rank_width, na.rm = TRUE)); Q$civ_hi <- sum(CU$p_worst3rd >= 0.8, na.rm = TRUE); Q$civ_lo <- sum(CU$p_worst3rd <= 0.2, na.rm = TRUE)
+  Q$civ_worst5_firm <- sum(CU$rank_med <= 5 & CU$rank_hi <= ceiling(nrow(CU) / 3), na.rm = TRUE) }
+if (!is.null(CG)) { g4 <- CG[grepl("4 countries", CG$arm), ]; g5 <- CG[!grepl("4 countries", CG$arm), ]
+  Q$civ_guard4 <- get1(mean(g4$spearman, na.rm = TRUE)); Q$civ_guard4_pos <- sum(g4$spearman > 0, na.rm = TRUE); Q$civ_guard4_n <- sum(is.finite(g4$spearman))
+  Q$civ_guard5 <- get1(mean(g5$spearman, na.rm = TRUE)); Q$civ_guard5_pos <- sum(g5$spearman > 0, na.rm = TRUE); Q$civ_cols4 <- get1(max(g4$n_common)); Q$civ_cols5 <- get1(max(g5$n_common)) }
+if (!is.null(CR)) Q$civ_outcomes <- length(unique(CR$outcome))
+Q$load_d <- if (is.null(ND)) NA else get1(mean(ND$spearman[ND$arm == "fixed_loadbearing" & ND$target == "level"], na.rm = TRUE))
 # quantities the concept slides (the YAML) read
 if (!is.null(NTS)) { nt <- NTS[NTS$estimand == "infill", ]; g1 <- function(a, col) get1(nt[[col]][nt$arm == a])
   Q$top20_prev_index <- g1("domain_index", "mean_prev_top20"); Q$top20_prev_nat <- g1("domain_index", "mean_prev_national")
@@ -569,7 +578,38 @@ if (!is.null(BC) && !is.null(A1) && !is.null(ND) && !is.null(CS1)) {
 ::::
 
 ::: {.notes}
-Absolute levels do not transport: raw ferritin differs several-fold between surveys, so the transported product is a ranking. Prevalence: `r f2(Q$tr_index_p)` at district level (`r Q$tr_index_pos_p` of `r Q$tr_cells` positive) and `r f2(Q$tr_a1_p)` at regional level for the full index; `r f2(Q$cs_d_p)` at district level for climate and soil. The climate-and-soil pair was chosen on these four countries, so it enters the next country as a pre-registered prediction; honest nested selection of domains inside the training fold gives a median difference of `r sgn(Q$nested_vs_full)` from the full index (better in `r Q$nested_better` of `r Q$tr_cells`). DA-03 (17 September, RR-12 set): adding the next load-bearing domains of the ablation to climate and soil (anaemia surfaces, agriculture, infection: five domains) reaches `r f2(Q$cs5_d)` at district level (better than climate-and-soil in `r Q$cs5_better` of `r Q$tr_cells`, median `r sgn(Q$cs5_delta)`, all 22 cells positive; `r f2(Q$cs5_d_p)` on prevalence), with the gain in the weak cells (women's iron and folate in Ghana and Sierra Leone) and none in the strong ones. It is chosen on the same 22 cells, so it goes into the pre-registration as a second candidate beside climate-and-soil, not in its place; the honest nested selection still sits at `r f2(Q$nested_d)`. Since 9 September the DHS-derived predictors are cluster-level spatial estimates at every district (DS-01), which changed nothing in-country and cost the full index 0.01 across borders. Likely question: what a correlation of `r f2(Q$tr_index)` means for a programme. The targeting slide answers in burden captured.
+Absolute levels do not transport: raw ferritin differs several-fold between surveys, so the transported product is a ranking. Prevalence: `r f2(Q$tr_index_p)` at district level (`r Q$tr_index_pos_p` of `r Q$tr_cells` positive) and `r f2(Q$tr_a1_p)` at regional level for the full index; `r f2(Q$cs_d_p)` at district level for climate and soil. The climate-and-soil pair was chosen on these four countries, so it enters the next country as a pre-registered prediction; honest nested selection of domains inside the training fold gives a median difference of `r sgn(Q$nested_vs_full)` from the full index (better in `r Q$nested_better` of `r Q$tr_cells`). DA-03 (17 September, RR-12 set): adding the next load-bearing domains of the ablation to climate and soil (anaemia surfaces, agriculture, infection: five domains) reaches `r f2(Q$cs5_d)` at district level (better than climate-and-soil in `r Q$cs5_better` of `r Q$tr_cells`, median `r sgn(Q$cs5_delta)`, all 22 cells positive; `r f2(Q$cs5_d_p)` on prevalence), with the gain in the weak cells (women's iron and folate in Ghana and Sierra Leone) and none in the strong ones. It is chosen on the same 22 cells, so it goes into the pre-registration as a second candidate beside climate-and-soil, not in its place; the honest nested selection still sits at `r f2(Q$nested_d)` (next slide). Since 9 September the DHS-derived predictors are cluster-level spatial estimates at every district (DS-01), which changed nothing in-country and cost the full index 0.01 across borders. Likely question: what a correlation of `r f2(Q$tr_index)` means for a programme. The targeting slide answers in burden captured.
+:::
+
+## Adding domains to climate and soil
+
+:::: {.columns}
+::: {.column width="34%"}
+Leave-one-country-out, `r Q$tr_cells` cells, mean with a 95% interval across cells. Climate and soil alone: `r f2(Q$cs_d)`. Adding the next load-bearing domains of the ablation (anaemia surfaces, agriculture, infection) reaches `r f2(Q$cs5_d)` (better in `r Q$cs5_better` of `r Q$tr_cells`, median `r sgn(Q$cs5_delta)`). Chosen on these same cells, so a candidate for the next country, not a replacement. Honest nested selection: `r f2(Q$nested_d)`.
+:::
+::: {.column width="66%"}
+```{r cs-domains, fig.width=5.8, fig.height=4.6, dpi=160}
+if (!is.null(ND)) {
+  lab <- c(fixed_cs = "Climate + soil (pre-registered)", fixed_cs_anaemia = "+ anaemia surfaces", fixed_csa = "+ agriculture", fixed_cs_landscape = "+ agriculture, livestock, greenness",
+           fixed_cs_top5 = "+ anaemia, agriculture, infection", fixed_loadbearing = "All load-bearing domains", nested = "Chosen inside the training fold (honest)", full = "Full index, all domains")
+  d <- ND |> filter(arm %in% names(lab)) |> cell_ci("spearman", c("target", "arm")) |>
+    mutate(Model = factor(lab[arm], levels = rev(lab)), Target = tlab[target])
+  forest(d, "Model", facet = "Target", null = Q$null_d, base = 13, xlab = "Spearman in the held-out country (mean, 95% interval)")
+}
+```
+:::
+::::
+
+::: {.notes}
+Dashed line: the 95th percentile of the permutation null. DA-03 (17 September, RR-12 set): script 25 scores fixed domain sets on the same leave-one-country-out folds as the transport slide, with the domain components oriented on the training countries only. The five-domain set (climate, soil, anaemia and haemoglobin, agriculture and land use, infection and inflammation) is the top of the ablation ranking on these cells: `r f2(Q$cs5_d)` at district level against `r f2(Q$cs_d)` for climate and soil, positive in all `r Q$tr_cells` cells, `r f2(Q$cs5_d_p)` against `r f2(Q$cs_d_p)` on prevalence. The gain is in the weak cells (women's iron and folate in Ghana and Sierra Leone) and absent in the strong ones. Because the set was chosen from the ablation on these same 22 cells, it has the same status as climate-and-soil had when it was found: a description of these four countries, to be scored as a second pre-registered candidate on the fifth. The honest arm, domains chosen by an inner leave-one-country-out inside the three training countries, stays at `r f2(Q$nested_d)`: with two inner folds the greedy choice overfits, which is why the pre-registration route is the one that can settle this. Likely question: why not use all load-bearing domains. All eight load-bearing domains score `r f2(Q$load_d)`; nothing beyond five adds.
+:::
+
+## Cote d'Ivoire: a ranking for a country with no survey
+
+![](../../results/figures/policy_deck/fig10_civ_ranking.png){width="100%"}
+
+::: {.notes}
+Cote d'Ivoire has the climate and soil layers and no biomarker survey, so it is the case the project exists for. The climate-and-soil index was fitted on the four surveyed countries and applied to its `r Q$civ_n` districts for `r Q$civ_outcomes` outcomes (child and women's iron and vitamin A, women's folate and B12); it has never seen a Cote d'Ivoire biomarker. Left: child iron; the worst-ranked districts are the northern savanna belt (Tchologo, Bounkani, Bagoue, Poro, Hambol), the drier, poorer, more pastoral half of the country. Right: how firmly each district is placed. The training set was resampled 400 times, stratified by country, the components re-oriented and the index refitted each time, and the district re-ranked; the map shows the width of the 90 percent range of ranks, median `r f2(Q$civ_med_width, 0)` places out of `r Q$civ_n`. `r Q$civ_hi` of `r Q$civ_n` districts have at least an 80 percent chance of being in the worst third and `r Q$civ_lo` at most 20 percent. What this uncertainty covers: how much the ranking depends on which training districts we learned from. What it does not cover: whether the model transports to Cote d'Ivoire at all, because there is no ground truth there; the external bound on that is the held-out transport accuracy of `r f2(Q$cs_d)`. Two guards ran first: the same code with each surveyed country held out reproduces the transport figure (`r f2(Q$civ_guard4)` over `r Q$civ_guard4_n` cells, `r Q$civ_guard4_pos` positive), and adding Cote d'Ivoire to the column intersection costs `r Q$civ_cols4 - Q$civ_cols5` of the `r Q$civ_cols4` climate-and-soil columns (the 30-year climate normals were never extracted for it) without degrading transport (`r f2(Q$civ_guard5)`, `r Q$civ_guard5_pos` positive). Not yet done: the five-domain candidate from the previous slide cannot be applied here, because the Cote d'Ivoire database holds only the climate, soil and greenness layers; the anaemia surfaces, crop and malaria layers are open rasters and extracting them is the next step. The only external check so far is the WFP/MIMI Nature Food 2026 vitamin A map, which ranks the same northern belt worst. Tables: civ_climate_soil_ranking.csv, civ_rank_uncertainty.csv, civ_transport_guards.csv.
 :::
 
 ## Geostatistical comparator
