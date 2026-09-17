@@ -314,8 +314,8 @@ slides:
   layout: icon_rows
   items:
   - icon: right-left
-    heading: "Take any two districts: the model orders them correctly about {pairs_pct:pc} of the time"
-    caption: "A coin toss gets 50%. In a country the model has never seen, {pairs_pct_tr:pc}."
+    heading: "Take any two districts: the model orders them the way the survey does {pairs_pct:pc} of the time"
+    caption: "Counted over every pair of districts. A coin toss gets 50%, the survey's own regional averages {pairs_jk:pc}; in a country the model has never seen, {pairs_pct_tr:pc}."
   - icon: flag
     heading: "In the fifth of districts it flags, deficiency runs at {top20_prev_index:.0f}% against {top20_prev_nat:.0f}% nationally"
     caption: "A map that knew every district would find {top20_prev_oracle:.0f}% in its worst fifth."
@@ -363,7 +363,7 @@ slides:
   items:
   - status: "yes"
     heading: Which districts to visit, assess or enrol first
-    caption: "Needs an order, not a number: {pairs_pct:pc} of pairs right, better than the regional average."
+    caption: "Needs an order, not a number: {pairs_pct:pc} of district pairs ordered as the survey does, against {pairs_jk:pc} for the regional average."
   - status: "yes"
     heading: Where the next survey puts its clusters
     caption: The ranking is the input to the anchor-and-rank design.

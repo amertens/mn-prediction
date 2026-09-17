@@ -26,6 +26,16 @@
 #   prev_national   population-weighted national prevalence
 #   ratio_prev      prev_top20 / prev_national - "how much worse are the
 #                   districts we send you to than the country as a whole"
+#   concordance     share of district PAIRS the prediction orders the same way
+#                   as the survey (Kendall-type, ties excluded; 0.5 = coin toss).
+#                   PC-01 (2026-09-16): the exact count behind "the model orders
+#                   any two districts correctly x% of the time" in the decks,
+#                   replacing the Spearman-to-tau approximation.
+#
+# ESTIMANDS: in-fill (5-fold by district, NCE_REPS draws) for every arm, and
+# country transport (leave-one-country-out, domain_index only, pooled as in
+# 02_run_benchmarks_v2.R) so the transport row carries the same pair count.
+# Tiers: V2_PREDICTOR_TIERS, defaulting to open,survey_public, the headline set.
 #
 # ARMS: the model, and the two things a programme would otherwise do -
 #   null_train_mean  apply one national number to every district (the status quo
@@ -41,6 +51,7 @@
 # =============================================================================
 suppressPackageStartupMessages({library(dplyr)})
 setwd("C:/Users/andre/OneDrive/Documents/mn-prediction")
+if (!nzchar(Sys.getenv("V2_PREDICTOR_TIERS"))) Sys.setenv(V2_PREDICTOR_TIERS = "open,survey_public")   # the headline set (PC-01)
 source("R/protocol_v2.R")
 
 OUTDIR <- "results/tables/protocol_v2"
@@ -105,12 +116,25 @@ capture <- function(y, pop, score) {
   c(cap, cap / TOPFRAC, prev_sel, prev_nat)
 }
 
+#' share of district pairs ordered the same way by prediction and survey (ties in either excluded)
+concordance <- function(y, score) {
+  ok <- is.finite(y) & is.finite(score); y <- y[ok]; score <- score[ok]
+  if (length(y) < 5) return(NA_real_)
+  ij <- utils::combn(length(y), 2)
+  dy <- sign(y[ij[1, ]] - y[ij[2, ]]); ds <- sign(score[ij[1, ]] - score[ij[2, ]])
+  use <- dy != 0 & ds != 0
+  if (!any(use)) return(NA_real_)
+  mean(dy[use] == ds[use])
+}
+
 rows <- list()
 cells <- TG |> distinct(country, outcome) |> filter(country %in% COUNTRIES)
+built <- list()
 for (i in seq_len(nrow(cells))) {
   cn <- cells$country[i]; on <- cells$outcome[i]
   cl <- tryCatch(build(cn, on), error = function(e) NULL)
   if (is.null(cl)) next
+  built[[paste(cn, on)]] <- cl
   ymod <- .v2_logit(cl$y)
 
   # ---- A. in-fill, replicated ----
@@ -131,7 +155,7 @@ for (i in seq_len(nrow(cells))) {
       rows[[paste(cn, on, "infill", a, r)]] <- data.frame(
         country = cn, outcome = on, estimand = "infill", arm = a, rep = r,
         n_areas = cl$n, capture_top20 = cp[1], lift = cp[2],
-        prev_top20 = cp[3], prev_national = cp[4])
+        prev_top20 = cp[3], prev_national = cp[4], concordance = concordance(cl$y, pred))
     }
   }
   # oracle ceiling and the random floor, once
@@ -139,15 +163,48 @@ for (i in seq_len(nrow(cells))) {
   rows[[paste(cn, on, "oracle")]] <- data.frame(
     country = cn, outcome = on, estimand = "infill", arm = "oracle_ceiling",
     rep = 1L, n_areas = cl$n, capture_top20 = co[1], lift = co[2],
-    prev_top20 = co[3], prev_national = co[4])
+    prev_top20 = co[3], prev_national = co[4], concordance = 1)
   cat("done", cn, on, "\n")
+}
+
+# ---- B. country transport, domain_index (PC-01) ----
+# Pooled exactly as estimand C of 02_run_benchmarks_v2.R: within-country domain
+# representations restricted to their common columns, outcomes standardised
+# within country, folds = country; scored within each held-out country, where
+# capture and concordance are pure ranking claims.
+for (on in unique(cells$outcome)) {
+  cl <- built[paste(COUNTRIES, on)]; cl <- cl[!vapply(cl, is.null, NA)]
+  if (length(cl) < 3) next
+  names(cl) <- vapply(cl, function(z) z$country, "")
+  common <- Reduce(intersect, lapply(cl, function(z) colnames(z$D)))
+  if (length(common) < 5) next
+  Y <- unlist(lapply(cl, function(z) as.numeric(scale(.v2_logit(z$y)))))
+  Dm <- do.call(rbind, lapply(cl, function(z) z$D[, common, drop = FALSE]))
+  ctry <- rep(names(cl), vapply(cl, function(z) z$n, 0L))
+  yobs <- unlist(lapply(cl, function(z) z$y)); pop <- unlist(lapply(cl, function(z) z$pop))
+  aux <- list(Admin1 = paste(ctry, unlist(lapply(cl, function(z) z$Admin1))), y_nat = Y)
+  folds <- as.integer(factor(ctry)); pred <- rep(NA_real_, length(Y))
+  for (f in unique(folds)) {
+    te <- which(folds == f); tr <- which(folds != f)
+    if (length(tr) < 20) next
+    p <- tryCatch(ARMS_V2[["domain_index"]](tr, te, Y, Dm, Dm, aux), error = function(e) rep(NA_real_, length(te)))
+    if (length(p) == length(te)) pred[te] <- p
+  }
+  for (cn in names(cl)) {
+    k <- which(ctry == cn); cp <- capture(yobs[k], pop[k], pred[k])
+    rows[[paste(cn, on, "country")]] <- data.frame(
+      country = cn, outcome = on, estimand = "country", arm = "domain_index", rep = 1L,
+      n_areas = length(k), capture_top20 = cp[1], lift = cp[2],
+      prev_top20 = cp[3], prev_national = cp[4], concordance = concordance(yobs[k], pred[k]))
+  }
+  cat("loco done", on, "\n")
 }
 
 R <- bind_rows(rows)
 write.csv(R, file.path(OUTDIR, "nce_targeting_metrics.csv"), row.names = FALSE)
 
 CELL <- R |> group_by(country, outcome, estimand, arm) |>
-  summarise(across(c(capture_top20, lift, prev_top20, prev_national),
+  summarise(across(c(capture_top20, lift, prev_top20, prev_national, concordance),
                    ~ mean(.x, na.rm = TRUE)), n_areas = max(n_areas),
             .groups = "drop")
 SUMM <- CELL |> group_by(estimand, arm) |>
@@ -158,6 +215,8 @@ SUMM <- CELL |> group_by(estimand, arm) |>
             cells_lift_gt1 = sum(lift > 1, na.rm = TRUE),
             mean_prev_top20 = round(100 * mean(prev_top20, na.rm = TRUE), 1),
             mean_prev_national = round(100 * mean(prev_national, na.rm = TRUE), 1),
+            mean_concordance = round(mean(concordance, na.rm = TRUE), 3),
+            median_concordance = round(median(concordance, na.rm = TRUE), 3),
             .groups = "drop") |> arrange(estimand, desc(mean_capture))
 write.csv(SUMM, file.path(OUTDIR, "nce_targeting_summary.csv"), row.names = FALSE)
 
