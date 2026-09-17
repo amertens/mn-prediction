@@ -505,6 +505,9 @@ slides:
   - icon: anchor
     heading: A national anchor puts levels on the ranking
     caption: "District error {ar_a1:.1f} points at 5% of a full sample, matched by a district survey at {ar_b_match:pc}."
+  - icon: layer-group
+    heading: "Where the survey resolves districts, so does the model: The Gambia {gambia_min:.2f} to {gambia_max:.2f}"
+    caption: "Several clusters per district; {gambia_strong:.0f} of {gambia_cells:.0f} outcomes above {strong_cut:.1f}. Ghana's and Malawi's single-cluster districts average {other_mean:.2f} ({other_strong:.0f} of {other_cells:.0f})."
 
 - title: Next steps
   layout: two_panel
