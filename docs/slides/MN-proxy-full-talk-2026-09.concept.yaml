@@ -309,6 +309,37 @@ slides:
     - "Folds: leave-one-country-out"
     - "Baseline: country-block permutation null"
 
+- title: The strong cells
+  layout: cards
+  heading_size: 17
+  text_size: 13
+  icon_size: 0.75
+  items:
+  - icon: ranking-star
+    heading: "{best1_label}"
+    lines:
+    - "Ranking, held out: {best1_rho:.2f} (prevalence target {best1_rho_prev:.2f})"
+    - "District prevalence error: {best1_wmae:.1f} points"
+    - "National prevalence: {best1_prev:pc}"
+  - icon: ranking-star
+    heading: "{best2_label}"
+    lines:
+    - "Ranking, held out: {best2_rho:.2f} (prevalence target {best2_rho_prev:.2f})"
+    - "District prevalence error: {best2_wmae:.1f} points"
+    - "National prevalence: {best2_prev:pc}"
+  - icon: ranking-star
+    heading: "{best3_label}"
+    lines:
+    - "Ranking, held out: {best3_rho:.2f} (prevalence target {best3_rho_prev:.2f})"
+    - "District prevalence error: {best3_wmae:.1f} points"
+    - "National prevalence: {best3_prev:pc}"
+  - icon: ranking-star
+    heading: "{best4_label}"
+    lines:
+    - "Ranking, held out: {best4_rho:.2f} (prevalence target {best4_rho_prev:.2f})"
+    - "District prevalence error: {best4_wmae:.1f} points"
+    - "National prevalence: {best4_prev:pc}"
+
 # ---- four candidate translations of the accuracy numbers for a policy audience (pick one or two) ----
 - title: "What a correlation of {infill_index:.2f} means on the ground"
   layout: icon_rows
