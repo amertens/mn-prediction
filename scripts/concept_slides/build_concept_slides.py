@@ -257,7 +257,8 @@ def layout_two_panel(slide, spec, Q, icons):
 
 def layout_grid(slide, spec, Q, icons):
     groups = spec["groups"]; ncol = spec.get("columns", 2); nrow = -(-len(groups) // ncol)
-    gx = Inches(0.35); gy = Inches(0.15); gw = (W - gx * (ncol - 1)) / ncol; gh = (H - gy * (nrow - 1)) / nrow
+    HH = H - Inches(0.55) if spec.get("footnote") else H
+    gx = Inches(0.35); gy = Inches(0.15); gw = (W - gx * (ncol - 1)) / ncol; gh = (HH - gy * (nrow - 1)) / nrow
     for k, g in enumerate(groups):
         r, c = divmod(k, ncol); x = X0 + c * (gw + gx); y = Y0 + r * (gh + gy)
         rounded_box(slide, x, y, gw, gh, radius=0.1)
@@ -268,6 +269,8 @@ def layout_grid(slide, spec, Q, icons):
             head += f"  ({sum(Q.get('domain_counts', {}).get(d, 0) for d in g['count_of'])})"
         textbox(slide, x + Inches(0.9), y, gw - Inches(1.0), gh,
                 [(head, 15, True, BLUE), (fill_text(g.get("caption", ""), Q), 11.5, False, TEXT)], anchor=MSO_ANCHOR.MIDDLE)
+    if spec.get("footnote"):   # small text under the grid (the content area is shortened to make room)
+        textbox(slide, X0, Y0 + HH + Inches(0.05), W, Inches(0.5), [(fill_text(spec["footnote"], Q), 8, False, MUTED)])
 
 
 def layout_title(slide, spec, Q, icons, deck_dir):
@@ -275,6 +278,10 @@ def layout_title(slide, spec, Q, icons, deck_dir):
     for sh in slide.placeholders:
         if sh.placeholder_format.type == 4:   # SUBTITLE
             sh.height = Inches(1.3)
+        if sh.placeholder_format.type in (1, 3) and sh.has_text_frame and len(sh.text_frame.text) > 70:   # a long title: fit it
+            for para in sh.text_frame.paragraphs:
+                for run in para.runs:
+                    run.font.size = Pt(spec.get("title_size", 30))
     logos = spec.get("logos", []); y = Inches(5.45); h = Inches(0.55)
     widths = [Inches(l.get("width", 2.0)) for l in logos]; gap = Inches(0.9)
     x = X0 + (W - sum(widths) - gap * (len(logos) - 1)) / 2

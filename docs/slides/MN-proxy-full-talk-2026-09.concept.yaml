@@ -25,7 +25,7 @@ slides:
     caption: From a wide range of proxy indicators, validated against the prevalence measured by biomarker assessment in national surveys.
   - icon: ranking-star
     heading: Identify the subnational regions at greatest risk
-    caption: A ranking a programme can act on, and a level once anchored to a national number.
+    caption: A ranking a program can act on, and a level once anchored to a national number.
   - icon: handshake
     heading: Engage national stakeholders throughout
     caption: Ghana as the worked example; the dashboard and country briefs as the shared product.
@@ -36,7 +36,7 @@ slides:
   items:
   - icon: vial
     heading: Biomarker surveys are rare and costly
-    caption: About one national survey per country and decade; programmes need district estimates between them.
+    caption: About one national survey per country and decade; programs need district estimates between them.
   - icon: layer-group
     heading: "{n_pred} district-level proxies"
     caption: Open gridded layers and public survey microdata, linked to four national biomarker surveys.
@@ -44,7 +44,7 @@ slides:
     heading: Predict deficiency by district
     caption: Iron, vitamin A, folate, B12 and zinc, in surveyed and unsurveyed districts.
 
-- title: Big data and small data, at once
+- title: "Both a big-data opportunity and a small-data problem"
   layout: two_panel
   heading_size: 16
   text_size: 12.5
@@ -52,64 +52,23 @@ slides:
   - icon: database
     title: "Big data: the predictors"
     items:
-    - icon: satellite
-      heading: "{n_pred} columns from {n_src} sources"
-      caption: "Rasters at 30 m to 10 km summarised over {n_spine} districts; a 64-dimension satellite embedding; four household surveys aggregated from microdata."
-    - icon: layer-group
-      heading: "Reduced to {n_dom} domains"
+    - heading: "{n_pred} columns from {n_src} sources"
+      caption: "Rasters at 30 m to 10 km summarized over {n_spine} districts; a 64-dimension satellite embedding; four household surveys aggregated from microdata."
+    - heading: "Reduced to {n_dom} domains"
       caption: Leading principal components per domain, learned on training districts only; nothing chosen on the outcome.
-    - icon: lock-open
-      heading: All of it public
+    - heading: All of it public
       caption: The headline set has no DHS in it; a country without a recent DHS can rebuild it.
   - icon: vial
     title: "Small data: the outcome"
     items:
-    - icon: calendar
-      heading: One biomarker survey per country per decade
+    - heading: One biomarker survey per country per decade
       caption: "Four surveys, {n_cells} country-outcome cells, {n_districts} surveyed districts in all."
-    - icon: map
-      heading: 14 to 87 districts per country
+    - heading: 14 to 87 districts per country
       caption: The effective sample size of every model; a tuned estimator shrinks to the constant, so the index tunes nothing.
-    - icon: shield-halved
-      heading: Honest folds and a reliability ceiling
+    - heading: Honest folds and a reliability ceiling
       caption: Folds cut by district, region and country; the survey's own district noise sets the ceiling any model can reach.
 
-- title: "Four surveys, one protocol"
-  layout: cards
-  heading_size: 18
-  text_size: 14
-  icon_size: 0.8
-  items:
-  - icon: clipboard-list
-    heading: The Gambia
-    lines:
-    - "Survey: {survey_Gambia}"
-    - "Fieldwork: {fieldwork_Gambia}"
-    - "Districts: {districts_Gambia:.0f}; clusters: {clusters_Gambia:.0f}"
-    - "Outcomes: {outcomes_Gambia}"
-  - icon: clipboard-list
-    heading: Ghana
-    lines:
-    - "Survey: {survey_Ghana}"
-    - "Fieldwork: {fieldwork_Ghana}"
-    - "Districts: {districts_Ghana:.0f}; clusters: {clusters_Ghana:.0f}"
-    - "Outcomes: {outcomes_Ghana}"
-  - icon: clipboard-list
-    heading: Malawi
-    lines:
-    - "Survey: {survey_Malawi}"
-    - "Fieldwork: {fieldwork_Malawi}"
-    - "Districts: {districts_Malawi:.0f}; clusters: {clusters_Malawi:.0f}"
-    - "Outcomes: {outcomes_Malawi}"
-  - icon: clipboard-list
-    heading: Sierra Leone
-    lines:
-    - "Survey: {survey_SierraLeone}"
-    - "Fieldwork: {fieldwork_SierraLeone}"
-    - "Districts: {districts_SierraLeone:.0f}; clusters: {clusters_SierraLeone:.0f}"
-    - "Outcomes: {outcomes_SierraLeone}"
-
-- title: "Five deficiencies, one definition each"
+- title: "Which deficiencies do we predict?"
   layout: cards
   heading_size: 18
   text_size: 13
@@ -118,58 +77,100 @@ slides:
   - icon: droplet
     heading: Iron
     lines:
-    - "Who: children 6-59 mo; non-pregnant women 15-49 y"
+    - "Who: children under five; non-pregnant women"
     - "Where: all four countries"
-    - "Biomarker: ferritin, inflammation-adjusted (survey flag; not IDA)"
-    - "Cut-off: < 12 / < 15 ug/L"
+    - "Biomarker: ferritin, adjusted for inflammation"
+    - "Cut-off: ferritin below 12 (children) or 15 (women) ug/L"
   - icon: carrot
     heading: Vitamin A
     lines:
-    - "Who: children 6-59 mo; non-pregnant women 15-49 y"
+    - "Who: children under five; non-pregnant women"
     - "Where: all four countries"
-    - "Biomarker: retinol-binding protein, one BRINDA adjustment for all"
-    - "Cut-off: < 0.70 umol/L RBP"
+    - "Biomarker: retinol-binding protein, adjusted for inflammation"
+    - "Cut-off: RBP below 0.70 umol/L"
   - icon: leaf
     heading: Folate
     lines:
-    - "Who: non-pregnant women 15-49 y"
+    - "Who: non-pregnant women"
     - "Where: Ghana, Sierra Leone, Malawi"
-    - "Biomarker: serum folate (immunoassay GH, SL; microbiologic MW)"
-    - "Cut-off: < 10 nmol/L"
-  - icon: egg
+    - "Biomarker: serum folate"
+    - "Cut-off: below 10 nmol/L"
+  - icon: drumstick-bite
     heading: B12
     lines:
-    - "Who: non-pregnant women 15-49 y"
+    - "Who: non-pregnant women"
     - "Where: Ghana, Sierra Leone, Malawi"
     - "Biomarker: serum B12"
-    - "Cut-off: < 148-150 pmol/L"
+    - "Cut-off: below 150 pmol/L"
   - icon: wheat-awn
     heading: Zinc
     lines:
-    - "Who: children 6-59 mo; non-pregnant women"
+    - "Who: children under five; non-pregnant women"
     - "Where: Malawi only"
-    - "Biomarker: serum zinc, IZiNCG flag, unadjusted"
-    - "Cut-off: IZiNCG, by draw time"
+    - "Biomarker: serum zinc"
+    - "Cut-off: IZiNCG thresholds"
 
-- title: What a proxy has to be
+- title: What do the land, climate and agriculture layers look like?
+  layout: icon_rows
+  heading_size: 16
+  text_size: 12
+  image: {file: img/ghana_sources_land.png, width: 4.0}
+  items:
+  - icon: cloud-sun-rain
+    heading: Climate
+    caption: Monthly rainfall and temperature at the survey year and as 30-year normals; drought and evaporation (TerraClimate, MODIS).
+  - icon: mound
+    heading: Soil
+    caption: pH, organic carbon, texture and nutrients such as zinc and iron, at two depths (SoilGrids, iSDA).
+  - icon: tractor
+    heading: Crops and livestock
+    caption: What is grown and how much, cattle, goats, sheep, pigs and poultry per square kilometer (MapSPAM, Gridded Livestock).
+  - icon: satellite
+    heading: Land cover and satellite embedding
+    caption: Cropland, grassland, built-up area, night lights, plant productivity, and a 64-number summary of a year of satellite images (AlphaEarth).
+  - icon: water
+    heading: Water and terrain
+    caption: Distance to permanent water and the coast; elevation and slope.
+
+- title: What do the health, food and household layers look like?
+  layout: icon_rows
+  heading_size: 16
+  text_size: 12
+  image: {file: img/ghana_sources_health.png, width: 4.0}
+  items:
+  - icon: virus
+    heading: Modeled health surfaces
+    caption: "Malaria, anemia, child growth, diarrhea, sanitation and vaccination, mapped at 5 km by IHME and the Malaria Atlas; helminths from WHO."
+  - icon: basket-shopping
+    heading: Food prices and supply
+    caption: Local staple prices against the national level (WFP, World Bank), food security phases, fortification standards.
+  - icon: people-roof
+    heading: Public household surveys
+    caption: "MICS and the national budget surveys, aggregated to districts: wealth, schooling, water, infant feeding, what households ate last week."
+  - icon: users
+    heading: People and access
+    caption: Population and density, travel time to health care and markets, a relative wealth index from satellite and phone data.
+  - icon: lock
+    heading: What is kept out
+    caption: The DHS aggregates exist for all four countries and are used only as a check; the headline models use open and public data alone.
+
+- title: How are the layers matched to districts in space and time?
   layout: icon_rows
   items:
-  - icon: globe
-    heading: Available everywhere
-    caption: For every district of every country, surveyed or not, from a source anyone can reach.
-  - icon: scissors
-    heading: Independent of the outcome
-    caption: Nothing from the biomarker survey we score against enters the predictors.
+  - icon: map
+    heading: "Space: one list of {n_spine:.0f} districts"
+    caption: Every layer is joined to it by a district code, never by a district's name, so a renamed or split district cannot silently drop out.
   - icon: calendar-check
-    heading: Placed in time
-    caption: At the survey year, or as close as the source allows, with the gap recorded.
+    heading: "Time: every layer at the survey year, or the nearest"
+    caption: Climate enters as a 30-year normal plus the survey year's anomaly; household surveys as the round nearest the biomarker survey.
   - icon: file-lines
-    heading: Recorded
-    caption: Every column carries its source, the year used, how it was aggregated, and a definition.
+    heading: The gap is recorded for every column
+    caption: "{n_exact:.0f} columns sit exactly on the survey year in every country, {n_static:.0f} are static layers; where a source is years off, the gap travels with the column."
 
-- title: "{n_dom:.0f} domains, each entered as its leading components"
+- title: "{n_dom:.0f} conceptual domains of proxy variables"
   layout: grid
   columns: 2
+  footnote: "Grouped into eight for the slide; number of predictors in brackets. The {n_dom:.0f} domains: satellite embedding; climate and weather; soil; ecosystem productivity; water and coast proximity; agricultural production and land use; livestock density; food prices and supply; market prices; household diet (HCES); dietary inadequacy; fortification and supplementation; infection and inflammation; malaria; helminths; infant and child morbidity and mortality; child mortality; adult and maternal mortality; immunization; child anthropometry; adult nutrition; nutrition status surfaces; anemia and hemoglobin; infant and young child feeding; household assets; education, employment and SES; water and sanitation; fertility and reproductive health; healthcare access; built environment; ruralness and population density; conflict."
   groups:
   - icon: satellite
     title: Environment from satellite
@@ -194,7 +195,7 @@ slides:
   - icon: child
     title: Nutrition status
     count_of: [Child anthropometry, Adult nutrition, Nutrition status (MODELLED SURFACE), Anaemia and haemoglobin, Infant and young child feeding]
-    caption: Stunting and wasting; anaemia surfaces; infant and young child feeding
+    caption: Stunting and wasting; anemia surfaces; infant and young child feeding
   - icon: house-chimney
     title: Households and economy
     count_of: [Household assets and characteristics, "Education, employment, SES", Water and sanitation, "Fertility, reproductive health", Healthcare access]
@@ -204,57 +205,59 @@ slides:
     count_of: [Built environment, "Ruralness, population density, built environment", Conflict and insecurity]
     caption: Night lights, population density, travel time, built-up area; conflict events
 
-- title: "From four surveys and {n_src:.0f} sources to one district table"
+- title: "How is the district table built?"
   layout: pipeline
   items:
   - icon: vials
     heading: Clean and merge the surveys
-    caption: Four national micronutrient surveys; one uniform outcome definition per nutrient across countries.
+    caption: Four surveys, one definition per nutrient.
   - icon: satellite
     heading: Link gridded layers
-    caption: Zonal means to districts; buffer means to survey clusters.
+    caption: Each layer averaged over each district.
   - icon: people-roof
     heading: Aggregate household surveys
-    caption: DHS through a cluster-level spatial model; MICS and budget surveys from their public microdata.
+    caption: MICS and budget-survey microdata averaged to districts.
   - icon: calendar-check
     heading: Align in time
-    caption: Every layer at the survey year or the nearest; climate as a 30-year normal plus the survey-year anomaly.
+    caption: Every layer at the survey year or the nearest year available.
   - icon: lock-open
     heading: Open data only
-    caption: Headline models use open layers and public microdata; the DHS aggregates are a sensitivity arm.
+    caption: Headline models use open layers and public microdata.
   - icon: sliders
-    heading: Rank-normalise and reduce
-    caption: Within country, so level offsets cannot act as signal; {n_dom} domains to their leading components, nothing selected on the outcome.
+    heading: Rank-normalize and reduce
+    caption: Rank within country; each of the {n_dom} domains to its leading components. Nothing chosen on the outcome.
 
-- title: "The corrected protocol replaced the ensemble with a zero-tuning index"
+- title: "Which algorithms did we compare?"
   layout: two_panel
   panels:
-  - icon: clock-rotate-left
-    title: "January: spatial ensemble learning"
+  - icon: book-open
+    title: The candidate library
     items:
-    - icon: diagram-project
-      heading: SuperLearner library
-      caption: Weighted by cross-validated performance.
-    - icon: filter
-      heading: Prescreening
-      caption: From thousands of predictors to 10 to 100 per model.
-    - icon: chart-bar
-      heading: Importance
-      caption: Change in mean squared error.
-  - icon: check-double
-    title: "Current: the corrected protocol"
-    items:
+    - icon: minus
+      heading: Simple mean and penalized regressions
+      caption: The floor, and the elastic net on domain components or on all columns.
+    - icon: tree
+      heading: Random forest, gradient boosting, additive trees
+      caption: Flexible learners that can find interactions.
+    - icon: map-location-dot
+      heading: Spatial smoother and geostatistical model
+      caption: Neighbors only, or a spatial field plus covariates (the DHS Program's method).
     - icon: scale-balanced
-      heading: Zero-tuning index
-      caption: Domain principal components weighted by their training-fold rank correlation with the outcome.
-    - icon: code-compare
-      heading: SuperLearner retained as a comparison
-      caption: "Same folds: index {sl_index} against {sl_rank} for the rank-loss ensemble and {sl_rf} for random forest."
-    - icon: lock
-      heading: Nothing chosen on held-out districts
-      caption: Honest folds by district, region and country.
-
-- title: "The January estimator: an ensemble weighted by cross-validation"
+      heading: Principal-component index
+      caption: Domain components weighted by their training-fold rank correlation; nothing tuned.
+  - icon: check-double
+    title: How they were compared, and who won
+    items:
+    - icon: shuffle
+      heading: Same honest folds for every algorithm
+      caption: Cut by district, region and country; no district split between training and test.
+    - icon: trophy
+      heading: "The index wins: {sl_index:.2f} against {sl_rank:.2f} for the ensemble"
+      caption: "Random forest {sl_rf:.2f}; the smoother ties inside a country and cannot cross a border."
+    - icon: circle-info
+      heading: Why the simplest wins
+      caption: With 14 to 87 districts, every algorithm that tunes a parameter shrinks toward the constant; the index has none.
+- title: "How do we choose among algorithms?"
   layout: icon_rows
   image: {file: img/ensemble_vfold.png, width: 2.4}
   items:
@@ -269,13 +272,13 @@ slides:
     caption: Internal data splits by district, so that no district is in both training and validation; guards against overfitting.
   - icon: book-open
     heading: The library
-    caption: "Simple mean, penalised regressions, random forest, gradient boosting, PCA-HAL, Bayesian additive trees, Bayesian geostatistical models."
+    caption: "Simple mean, penalized regressions, random forest, gradient boosting, additive trees, geostatistical models, and the principal-component index that wins."
 
-- title: How the zero-tuning index works
+- title: "How does the best-performing model work?"
   layout: pipeline
   items:
   - icon: arrow-down-wide-short
-    heading: Rank-normalise within country
+    heading: Rank-normalize within country
     caption: Every predictor becomes a within-country rank, so a level offset between surveys cannot act as signal.
   - icon: layer-group
     heading: Domain components
@@ -287,29 +290,29 @@ slides:
     heading: Sum and rescale
     caption: The weighted sum, rescaled to the training outcome's spread; the infinite-penalty limit of a ridge regression on the components.
 
-- title: "Three questions, three honest baselines"
+- title: "Three levels of prediction"
   layout: cards
   items:
   - icon: map-location-dot
-    heading: In-fill
+    heading: District in-fill
     lines:
-    - "Question: an unsurveyed district in a surveyed region"
+    - "Question: a district the survey missed, in a country it visited"
     - "Folds: 5-fold by district, 10 draws"
-    - "Baseline: jackknifed regional mean; spatial smoother"
+    - "Compared with: the region's average (without that district); a spatial smoother"
   - icon: draw-polygon
     heading: Region extrapolation
     lines:
     - "Question: a whole unsurveyed region"
     - "Folds: leave-one-region-out"
-    - "Baseline: spatial smoother"
+    - "Compared with: a spatial smoother"
   - icon: earth-africa
-    heading: Country transport
+    heading: Cross-country transport
     lines:
     - "Question: a country with no biomarker survey"
     - "Folds: leave-one-country-out"
-    - "Baseline: country-block permutation null"
+    - "Compared with: chance (permutation with countries kept whole)"
 
-- title: The strong cells
+- title: "The strongest outcome-country combinations"
   layout: cards
   heading_size: 17
   text_size: 13
@@ -319,7 +322,7 @@ slides:
     heading: "{best1_label}"
     lines:
     - "Ranking, held out: {best1_rho:.2f} (prevalence target {best1_rho_prev:.2f})"
-    - "District prevalence error: {best1_wmae:.1f} points"
+    - "District prevalence error: {best1_wmae:.1f} points (the region's average does as well)"
     - "National prevalence: {best1_prev:pc}"
   - icon: ranking-star
     heading: "{best2_label}"
@@ -340,7 +343,7 @@ slides:
     - "District prevalence error: {best4_wmae:.1f} points"
     - "National prevalence: {best4_prev:pc}"
 
-- title: How to read every map in this deck
+- title: "How should every map in this deck be read?"
   layout: cards
   items:
   - icon: circle-check
@@ -359,16 +362,16 @@ slides:
     heading: "Grade C: no survey"
     lines:
     - "What: districts the survey never reached, and every district of a country with no survey"
-    - "On the map: grey on survey maps, filled on model maps"
+    - "On the map: gray on survey maps, filled on model maps"
     - "Read: only the model speaks; its intervals say how stable it is, not how right"
 
 # ---- four candidate translations of the accuracy numbers for a policy audience (pick one or two) ----
-- title: "What a correlation of {infill_index:.2f} means on the ground"
+- title: "What does a rank correlation of {infill_index:.2f} mean on the ground?"
   layout: icon_rows
   items:
   - icon: right-left
-    heading: "Take any two districts: the model orders them the way the survey does {pairs_pct:pc} of the time"
-    caption: "Counted over every pair of districts. A coin toss gets 50%, the survey's own regional averages {pairs_jk:pc}; in a country the model has never seen, {pairs_pct_tr:pc}."
+    heading: "Take any two districts: the best model orders them the way the survey does {pairs_pct:pc} of the time"
+    caption: "Counted over every pair of districts. A random ordering gets 50% on average, the survey's own regional averages {pairs_jk:pc}; in a country the model has never seen, {pairs_pct_tr:pc}."
   - icon: flag
     heading: "In the fifth of districts it flags, deficiency runs at {top20_prev_index:.0f}% against {top20_prev_nat:.0f}% nationally"
     caption: "A map that knew every district would find {top20_prev_oracle:.0f}% in its worst fifth."
@@ -376,20 +379,20 @@ slides:
     heading: "That fifth holds {cap_index:pc} of the deficient people"
     caption: "The survey's own regional averages capture {cap_jk:pc}; a perfect map {cap_oracle:pc}. Real, modest, and better than today's number."
 
-- title: How much of what a survey can see does the model recover?
+- title: "How much of what a survey can see does the model recover?"
   layout: icon_rows
   items:
   - icon: wave-square
     heading: "The survey itself is noisy at district level: a perfect predictor would score only {vc_honest:.2f}"
-    caption: One to three clusters per district; the survey's district estimate is an estimate too.
+    caption: "Known from a variance model of respondents within clusters within districts: it says how much of the district-to-district variation is real."
   - icon: gauge-high
     heading: "The model reaches {ceiling_share:pc} of that ceiling"
     caption: "{infill_index_p:.2f} on the prevalence target against a ceiling of {vc_honest:.2f}. The gap is mostly the survey's noise, not the model's ignorance."
   - icon: building-columns
-    heading: "And beats the number a ministry would use today"
-    caption: "The region's average, {infill_jk:.2f}; the model {infill_index:.2f}, better in {infill_beats_jk:.0f} of {infill_paired:.0f} country-outcome cells."
+    heading: "And beats the best prediction you can make from survey data alone"
+    caption: "The region's average, computed without the district itself: {infill_jk:.2f}; the model {infill_index:.2f}, better in {infill_beats_jk:.0f} of {infill_paired:.0f} outcome-country combinations."
 
-- title: Right band, wrong band
+- title: "Does the model put districts in the right severity band?"
   layout: cards
   items:
   - icon: bullseye
@@ -411,7 +414,7 @@ slides:
     - "Regional averages: {rc_jk_far:pc}"
     - "The error a severity map cannot afford; in a new country the level comes from the national anchor"
 
-- title: Which decisions can the ranking carry?
+- title: "Which decisions are our models good enough for?"
   layout: checklist
   items:
   - status: "yes"
@@ -421,24 +424,24 @@ slides:
     heading: Where the next survey puts its clusters
     caption: The ranking is the input to the anchor-and-rank design.
   - status: "yes"
-    heading: Sequencing a programme roll-out across districts
+    heading: Sequencing a program roll-out across districts
     caption: Same reason; the order is what the roll-out needs.
   - status: partly
     heading: A planning prevalence for a district
     caption: "Only with a national anchor: {ar_a1:.1f} points median error at a 5% national sample."
   - status: "no"
-    heading: A district prevalence with no survey at all, or whether a programme worked
+    heading: A district prevalence with no survey at all, or whether a program worked
     caption: The model has no level of its own and is validated on one point in time, not on change.
 
-- title: What the transport models reach for
+- title: What drives the transport models?
   layout: icon_rows
   items:
   - icon: mountain-sun
     heading: The landscape gradient
     caption: "Grassland and cropland cover, the share of ruminants in the herd (top twenty in {rec_ruminant:.0f} of {loco_fits:.0f} held-out fits), cattle and sheep density, cereal-heavy cropping, low plant productivity: dry, grassy, pastoral, unproductive districts rank worse on every outcome."
   - icon: child-reaching
-    heading: The modelled child-growth and anaemia surfaces
-    caption: Wasting, underweight and anaemia point to worse status; overweight points the other way and behaves as a wealth proxy.
+    heading: The modeled child-growth and anemia surfaces
+    caption: Wasting, underweight and anemia point to worse status; overweight points the other way and behaves as a wealth proxy.
   - icon: basket-shopping
     heading: The food economy
     caption: "The local staple price relative to the national level appears in {rec_staple:.0f} fits across {rec_staple_outcomes:.0f} outcomes."
@@ -448,25 +451,6 @@ slides:
   - icon: mosquito
     heading: Malaria intensity, with an unexpected sign
     caption: High-malaria zones are the wetter, more productive ones. Single household-survey items rarely recur.
-
-- title: Can the model direct and shrink surveys?
-  layout: checklist
-  items:
-  - status: "yes"
-    heading: A ranking now, from public data alone
-    caption: "Transported Spearman {tr_index} at district level ({cs_d} from climate and soil); a ranking, not a prevalence."
-  - status: "yes"
-    heading: A national anchor puts a level on it
-    caption: "A 5% national sample plus the ranking: median district error {ar_a1:.1f} points."
-  - status: "yes"
-    heading: A district survey matches that only at {ar_b_match:pc} of the full sample
-    caption: On level error; a district survey of any size still captures more burden in its worst fifth.
-  - status: partly
-    heading: Direct where the clusters go
-    caption: "Model-assisted allocation: oversample the districts the ranking puts at the top and bottom. Designed, not piloted."
-  - status: "no"
-    heading: Replace the biomarker survey
-    caption: The ceiling is the survey's own; the offer is a survey designed with the ranking, not instead of it.
 
 - title: The dashboard
   layout: icon_rows
@@ -482,7 +466,7 @@ slides:
     caption: A priority score for every district, how sure the model is, a planning prevalence; click a district for what drives it.
   - icon: magnifying-glass-chart
     heading: What drives it? Can we trust it?
-    caption: "Leading predictors, what travels across borders, the catalogue of {n_pred} predictors; the three tests and the ceiling."
+    caption: "Leading predictors, what travels across borders, the catalog of {n_pred} predictors; the three tests and the ceiling."
   - icon: clipboard-check
     heading: Plan a survey
     caption: The anchor-and-rank design; a printable brief per country.
@@ -513,51 +497,25 @@ slides:
     caption: In design, not piloted.
   - status: partly
     heading: Say how sure each map is?
-    caption: "Stable, yes; verified, no: the intervals cover the truth {cov_mean:pc} of the time, not 90%."
+    caption: "Stable, yes; verified, no: coverage {cov_mean:pc}, not 90%; a calibrated 90% interval is \u00b1{cal90:pc} of the list. A worst-third call is right {hit3:pc} of the time (chance {hit3_base:pc})."
 
-- title: Conclusions
+- title: What have we learned, and what comes next?
   layout: icon_rows
+  heading_size: 16
+  text_size: 12
   items:
   - icon: map-location-dot
-    heading: "In-fill: the index ranks districts ({infill_index})"
-    caption: "Against {infill_jk} for the survey's own regional averages and {infill_sp} for a covariate-free smoother."
+    heading: "Public data can rank a country's districts by deficiency"
+    caption: "Inside a surveyed country better than the survey's own regional averages ({infill_index:.2f} vs {infill_jk:.2f}); six district pairs in ten in the survey's order."
   - icon: earth-africa
-    heading: "Transport: rankings carry ({tr_index}), levels do not"
-    caption: "{cs_d} from climate and soil alone; permutation null {null_d}."
-  - icon: satellite
-    heading: Across borders, lean on the environment
-    caption: Survey-derived inputs help inside a country and hold a new country back; health surfaces are surrogate markers, not mechanisms.
-  - icon: anchor
-    heading: A national anchor puts levels on the ranking
-    caption: "District error {ar_a1:.1f} points at 5% of a full sample, matched by a district survey at {ar_b_match:pc}."
-  - icon: shield-halved
-    heading: "Uncertainty is on every model map, and it is checked: the intervals mean stable, not verified"
-    caption: "Resampling intervals cover the survey's rank {cov_mean:pc} of the time against a nominal 90%; the gap is the transport error. A calibrated interval is the next methods step."
+    heading: "And in a country with no survey, where nothing else can"
+    caption: "Rankings carry across borders ({cs_d:.2f} from climate and soil); Cote d'Ivoire has its map. Levels need one national number."
   - icon: layer-group
-    heading: "Where the survey resolves districts, so does the model: The Gambia {gambia_min:.2f} to {gambia_max:.2f}"
-    caption: "Several clusters per district; {gambia_strong:.0f} of {gambia_cells:.0f} outcomes above {strong_cut:.1f}. Ghana's and Malawi's single-cluster districts average {other_mean:.2f} ({other_strong:.0f} of {other_cells:.0f})."
-
-- title: Next steps
-  layout: two_panel
-  panels:
-  - icon: list-check
-    title: Planned
-    items:
-    - icon: flag-checkered
-      heading: Score the pre-registered predictions
-      caption: On the next countries added to the panel; each survey added improves every other country's map.
-    - icon: location-crosshairs
-      heading: Pilot the survey design
-      caption: Sample nationally, rank with the model, compare with a district survey in one country.
-    - icon: rotate
-      heading: Rerun the national track; finish the product
-      caption: Shareable dashboard views, the geostatistical prevalence where a survey exists, plain-language predictor descriptions.
-  - icon: circle-question
-    title: Open questions
-    items:
-    - icon: gauge-high
-      heading: What rank correlation is sufficient to act on?
-    - icon: coins
-      heading: Which national number is the cheapest honest anchor?
-    - icon: ruler
-      heading: Without new biomarker surveys, what benchmarks the models?
+    heading: "Where the survey can see districts, the model is close to the best any model could be"
+    caption: "Six outcome-country combinations at 0.64; The Gambia, with several clusters per district, {gambia_min:.2f} to {gambia_max:.2f}."
+  - icon: shield-halved
+    heading: "The uncertainty on every map is honest about what it is"
+    caption: "Stable under resampling, not verified: a worst-third call is right {hit3:pc} of the time, chance {hit3_base:pc}."
+  - icon: flag-checkered
+    heading: "Next: the fifth survey scores two pre-registered indices; the survey design gets piloted"
+    caption: "Every survey added improves every other country's map ({tc_n1:.2f} with one training survey, {tc_n3:.2f} with three)."

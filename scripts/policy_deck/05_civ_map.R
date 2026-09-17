@@ -64,19 +64,11 @@ pL <- base_map("pct", c("#7f0000", "#d7301f", "#fc8d59", "#fdd49e", "#fff7ec"), 
 
 wmax <- round(max(g$rank_width, na.rm = TRUE))
 pR <- base_map("rank_width", c("#F2F2F2", "#BFC6CC", "#7C8B95", "#3D4A54"),
-               NULL, c(1, wmax), c("pinned down", paste0("could move ", wmax, " places")),
+               NULL, c(1, wmax), c("exact", paste0("could move ", wmax, " places")),
                "How firmly each district is placed")
 
-p <- patchwork::wrap_plots(pL, pR, widths = c(1, 1)) +
-  patchwork::plot_annotation(
-    subtitle = "C\u00f4te d'Ivoire has no biomarker survey. The index is trained on the other four countries and has never seen it.",
-    caption = paste0(
-      "Children's iron, from climate and soil layers only. Right: width of the 90% rank range over 400 refits
-",
-      "on resampled training districts, median 5 places out of 33. The five worst-ranked districts stay in the worst third every time."),
-    theme = theme(plot.subtitle = element_text(size = 17, colour = "grey20", margin = margin(b = 12)),
-                  plot.caption  = element_text(size = 11.5, colour = "grey45", hjust = 0),
-                  plot.margin   = margin(12, 18, 8, 12)))
+# CV-02 (2026-09-17): the figure carries no subtitle or caption; that text sits on the slide as editable text
+p <- patchwork::wrap_plots(pL, pR, widths = c(1, 1)) + patchwork::plot_annotation(theme = theme(plot.margin = margin(8, 12, 4, 12)))
 
-ggsave(file.path(OUT, "fig10_civ_ranking.png"), p, width = 12.2, height = 6.4, dpi = 200, bg = "white")
+ggsave(file.path(OUT, "fig10_civ_ranking.png"), p, width = 11, height = 5.6, dpi = 200, bg = "white")
 cat("wrote fig10_civ_ranking.png\n")
