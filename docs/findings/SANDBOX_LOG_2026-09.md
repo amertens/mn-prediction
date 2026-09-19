@@ -3280,3 +3280,391 @@ enter only the in-country models until Ghana's GLSS7 module arrives. The
 Admin-1 full-index prevalence figure moved 0.325 -> 0.267 on a tier with SE
 ~0.08; the climate + soil figures did not move at either tier. Headline
 numbers for the decks: 575 columns, transport index 0.30 / 0.22.
+
+## HP-02 · hapc on the raw predictors, not the domain PCs (scripts/protocol_v2/50, 51; 2026-09-17)
+
+**Q.** HP-01 fed the principal-component Highly Adaptive Ridge / Lasso the
+protocol's domain PCs, so hapc's own reduction (the eigendecomposition of the
+HAL kernel) never competed with the domain PCA. Does PCHAR / PCHAL on the
+~470 rank-normalised columns match or beat the domain PCA + index?
+**Design.** HP-01 exactly, on the 575-column set: Ghana child iron in-fill
+(75 districts, three of the protocol's ten 5-fold draws, hapc's own inner
+5-fold lambda search inside each training fold) and leave-one-country-out
+child iron and child vitamin A (206 districts, four countries), both targets,
+degree 1. Two designs from script 50: `pcs` (99 in-fill / 138 LOCO domain
+PCs) and `raw` (491 / 467 rank-normalised columns). Reference: the
+zero-tuning index on the same cells (benchmarks_v2_cells.csv, RR-12) and a
+plain ridge on the same design. `hapc_smoke/hapc_design_comparison.csv`;
+HP-01's file left as the record of that run.
+
+| Cell / estimand (mean Spearman) | PCHAR pcs | PCHAR raw | PCHAL pcs | PCHAL raw | ridge pcs | ridge raw | index |
+|---|---|---|---|---|---|---|---|
+| Ghana child iron, in-fill, level | 0.525 | **0.549** | 0.459 | 0.519 | 0.528 | 0.558 | 0.529 |
+| Ghana child iron, in-fill, prev | 0.507 | **0.528** | 0.453 | 0.511 | 0.481 | 0.509 | 0.502 |
+| Child iron, transport, level | 0.165 | 0.236 | 0.248 | **0.296** | 0.279 | 0.176 | 0.283 |
+| Child iron, transport, prev | 0.202 | 0.229 | 0.229 | **0.325** | 0.286 | 0.198 | 0.306 |
+| Child vitamin A, transport, level | 0.307 | 0.292 | 0.207 | 0.255 | 0.276 | 0.271 | **0.321** |
+| Child vitamin A, transport, prev | -0.200 | -0.056 | 0.244 | 0.256 | 0.270 | 0.220 | **0.286** |
+
+**Result.** The raw design beats the PC design for hapc in 11 of 12
+comparisons (the exception is PCHAR on vitamin A level, 0.31 vs 0.29), by
++0.02 to +0.10. On the raw columns hapc is level with the index: in-fill
+PCHAR 0.55 / 0.53 against 0.53 / 0.50; transport PCHAL 0.30 / 0.33 against
+0.28 / 0.31 on child iron and 0.26 / 0.26 against 0.32 / 0.29 on vitamin A.
+The plain ridge shows the opposite pattern across borders (raw 0.18-0.27
+against pcs 0.27-0.29): a linear model needs the domain PCA to transport,
+the kernel does not. PCHAR remains the weakest transport arm on vitamin A
+prevalence (negative on both designs). 0.2-0.5 s per fit on 491 columns.
+**Reading.** HP-01's conclusion that hapc "trails the index across borders"
+was a property of the design it was given, not of the kernel: on the raw
+columns PCHAL transports as well as the index on iron and is within 0.03-0.07
+on vitamin A. The domain PCA is what a linear learner needs; the HAL kernel
+does its own reduction and is not helped by a second one. hapc is therefore
+scored on the raw columns inside the SuperLearner (SL-06) and the
+`SL.hapc` wrappers keep their default of whatever X they are handed. Six
+cells, one country in-fill: a sandbox reading, not a headline.
+
+## SL-06 · Every candidate inside one cross-validated SuperLearner (R/area_superlearner.R, R/protocol_v2_sl.R, script 56; 2026-09-17)
+
+**Q.** Scored on the same cells, folds, weights and Admin-1-blocked inner
+folds, how do the project's candidate estimators compare — PCA-HAL, the
+domain PCs (index, ridge, elastic net, OLS on PC1s), penalised regression
+and forests on the raw columns, and the geostatistical arms — and does a
+SuperLearner over all of them beat the zero-tuning index?
+**Design.** `fit_area_superlearner()` gained `domain_of=` (the column ->
+domain map the domain-PC learners need) and `screens=` (coordinates reach the
+spatial learners only). Library: mean; lasso / enet / ridge / ranger / xgb on
+the raw rank-normalised columns; domain_index, domain_pc_ridge,
+domain_pc_enet, domain_pc1_ols (each rebuilds the per-domain PCs from its own
+training rows); hapc / hapc_lasso on the raw columns (HP-02); spatial_gam and
+spatial_plus_domain (in-country only); mbg (INLA, `V2_SL_MBG=1`, dropped for
+cost after one aborted run). `R/protocol_v2_sl.R` registers one memoised SL
+fit per (cell, fold) as arms in `ARMS_V2`: `sl_disc` (lowest CV squared
+error), `sl_nnls`, `sl_rank_disc`, `sl_rank_nnls` (script 20's rank loss,
+derived from the same Z), and `sl_lrn_<learner>` — every member refit on the
+full training fold, which is the honest per-candidate comparison. Run through
+script 56 (`V2_ARMS=sl_...`), paired against the production index.
+**The targets-DAG production SL is not this.** `fit_predict_sl_prescreened`
+(`sl_prescreened_main.csv`, SL-04) runs on the legacy `gee_*` vocabulary — 87
+common columns after hygiene, none of which is in
+`predictors_admin2_shared_metadata.csv` — so it has no domain map and cannot
+host a domain-PC learner. It is unchanged.
+
+**Sandbox (Ghana child iron, both targets, in-fill 2 draws, LORO, LOCO;
+`weight_sources_*_sl_sandbox.csv`, `sl_selection_sl_sandbox.csv`).** Mean
+Spearman, level / prev; transport is the mean over the four held-out
+countries for child iron:
+
+| arm | in-fill | region | transport |
+|---|---|---|---|
+| domain_index | 0.497 / 0.501 | 0.509 / 0.466 | 0.332 / 0.369 |
+| sl_disc (MSE) | 0.492 / 0.489 | 0.467 / 0.446 | 0.300 / 0.293 |
+| sl_nnls | 0.478 / 0.461 | 0.457 / 0.414 | 0.276 / 0.331 |
+| sl_rank_disc | 0.498 / 0.460 | 0.512 / 0.417 | 0.291 / 0.297 |
+| sl_lrn_ridge (raw) | **0.587 / 0.534** | 0.529 / 0.473 | 0.298 / 0.320 |
+| sl_lrn_ranger | 0.577 / 0.510 | 0.534 / 0.413 | 0.385 / 0.313 |
+| sl_lrn_lasso | 0.550 / 0.491 | 0.412 / 0.402 | 0.397 / 0.188 |
+| sl_lrn_hapc (PCHAR) | 0.562 / 0.517 | 0.416 / 0.337 | 0.236 / 0.229 |
+| sl_lrn_hapc_lasso (PCHAL) | 0.526 / 0.474 | 0.491 / 0.445 | 0.296 / 0.325 |
+| sl_lrn_domain_pc_ridge | 0.551 / 0.512 | 0.531 / 0.488 | 0.200 / 0.305 |
+| sl_lrn_domain_pc_enet | 0.490 / 0.505 | 0.461 / 0.309 | 0.217 / 0.327 |
+| sl_lrn_domain_pc1_ols | 0.421 / 0.385 | 0.294 / 0.369 | 0.145 / 0.103 |
+| sl_lrn_spatial_gam | 0.459 / 0.476 | 0.533 / 0.493 | — |
+| sl_lrn_spatial_plus_domain | 0.460 / 0.472 | 0.524 / 0.493 | — |
+
+Selection over 60 fits: the MSE-discrete rule picked ridge 16 times, ranger
+7, domain_pc_ridge 8, domain_index 7, lasso 6; NNLS weight on the index 0.33
+in-fill / 0.37 region / 0.38 transport, on the constant 0.10-0.16. The
+`sl_lrn_domain_index` column equals the standalone index to the third
+decimal in-fill and transport (the identity check) and differs by 0.015 under
+region only because the learner re-learns the PC rotations inside each fold.
+**Reading (one cell — the strongest in-country cell — not a headline).** In
+Ghana child iron, with 75 districts, several tuned learners beat the index
+in-fill by 0.03-0.09 (ridge on the raw columns, ranger, PCHAR, domain-PC
+ridge), yet every ensemble rule lands at or just below the index (-0.00 to
+-0.04): the meta-learner spends its 5-fold CV on 60 rows choosing among 14
+candidates and pays for it, the SL-01 mechanism with a bigger library. Across
+borders nothing in the library beats the index on prevalence and only the
+raw lasso / ranger do on the level (with 4 cells, noise). The full pass over
+all 24 cells, three estimands and both targets is running as five shards
+(`weight_sources_raw_sl_{gambia,ghana,malawi,sierraleone,country}.csv`,
+merged with `V2_MERGE=1 V2_MERGE_PATTERN='^weight_sources_raw_sl_.*[.]csv$'
+V2_OUT_TAG=_sl`); the cell-level verdict is written when it lands.
+
+**Full pass (2026-09-17 09:11-19:06; 18 in-country cells x 2 targets, in-fill 3
+draws + LORO; 22 transport cells; 1,304 SuperLearner fits; Sierra Leone NA by
+the 12-row rule as always).** `weight_sources_{raw,cells,summary,paired}_sl.csv`,
+`sl_selection_sl.csv`. Mean Spearman, level / prev; in brackets the paired
+difference from the index and the cells where the arm is better:
+
+| arm | in-fill (18) | region (18) | transport (22) |
+|---|---|---|---|
+| domain_index | 0.393 / 0.278 | 0.381 / 0.266 | 0.281 / 0.188 |
+| sl_disc (MSE) | 0.358 / 0.215 (-0.04, 7; -0.06, 3) | 0.342 / 0.111 (-0.04, 6; -0.16, 4) | 0.259 / 0.172 (-0.04, 5; -0.01, 6) |
+| sl_nnls | 0.385 / 0.234 (-0.01, 8; -0.04, 6) | 0.363 / 0.148 (-0.02, 8; -0.12, 3) | 0.275 / 0.201 (-0.01, 9; +0.01, 7) |
+| sl_rank_disc | 0.378 / 0.235 (-0.02, 7; -0.04, 4) | 0.387 / 0.236 (+0.01, 9; -0.03, 4) | 0.270 / 0.163 (-0.01, 5; -0.01, 4) |
+| sl_rank_nnls | 0.383 / 0.232 | 0.302 / 0.174 | 0.283 / 0.140 (+0.00, 12; -0.05, 11) |
+| ridge, raw columns | 0.367 / 0.220 (-0.03, 7; -0.06, 4) | 0.334 / 0.136 | 0.288 / 0.180 (+0.01, 10; +0.00, 8) |
+| lasso, raw | 0.286 / 0.139 | 0.213 / 0.025 | 0.310 / 0.102 (+0.03, 11; -0.08, 9) |
+| enet, raw | 0.313 / 0.167 | 0.235 / 0.030 | 0.294 / 0.127 |
+| ranger | 0.376 / 0.248 (-0.02, 9; -0.03, 7) | 0.390 / 0.225 (+0.01, 11; -0.04, 4) | 0.254 / 0.111 |
+| xgb | 0.363 / 0.215 | 0.399 / 0.208 (+0.02, 9; -0.06, 6) | 0.200 / 0.085 |
+| PCHAR (hapc, raw) | 0.349 / 0.235 | 0.364 / 0.208 | 0.226 / 0.083 |
+| PCHAL (hapc_lasso, raw) | 0.364 / 0.253 (-0.03, 6; -0.03, 4) | 0.346 / 0.197 | 0.284 / 0.172 (+0.00, 11; -0.02, 6) |
+| domain-PC ridge | 0.336 / 0.199 | 0.282 / 0.079 | 0.248 / 0.133 |
+| domain-PC enet | 0.288 / 0.157 | 0.200 / 0.000 | 0.205 / 0.165 |
+| domain-PC1 OLS | 0.218 / 0.098 | 0.124 / 0.057 | 0.156 / 0.076 |
+| spatial GAM | 0.388 / 0.264 (-0.01, 6; -0.01, 7) | 0.377 / 0.229 (-0.00, 9; -0.04, 5) | - |
+| spatial + domain enet | 0.394 / 0.268 (+0.00, 6; -0.01, 7) | 0.381 / 0.232 (+0.00, 9; -0.03, 6) | - |
+
+Selection (share of 1,304 fits). MSE-discrete: in-fill ranger 16%, mean 14%,
+xgb 11%, spatial_gam 10%, hapc_lasso 9%, index 5%; region mean 17%, ranger
+18%; transport domain_pc_enet 23%, hapc_lasso 16%, ridge 14%, index 9%.
+Rank-discrete: index 20% in-fill / 16% region / 30% transport, the most
+chosen learner under every estimand, then spatial_gam (17-19% in-country),
+xgb (15%), hapc 14% under transport. NNLS weight on the constant 0.19-0.20
+in-country; on the index 0.13 / 0.08 / 0.13; the two hapc learners together
+0.12 in-country and 0.23 under transport.
+
+**Verdict.** With fourteen candidates fitted honestly on the same folds, the
+zero-tuning index is still the arm nothing beats. In-fill and region nothing
+is above it on either target beyond +0.02 (xgb region level, 9 of 18 cells);
+on prevalence every learner and every ensemble trails by 0.03-0.26. Across
+borders three arms tie it on the level target — the raw lasso (+0.03, 11 of
+22, but -0.08 on prevalence), the raw ridge and PCHAL (+0.00 to +0.01) — and
+none on prevalence except the squared-error NNLS ensemble (+0.014, 7 of 21).
+The four ensemble rules land -0.01 to -0.06 in-fill and -0.03 to -0.16 under
+region on prevalence: the meta-learner's inner CV on 30-70 rows is spent
+choosing among fourteen candidates, the SL-01 mechanism, and the rank loss
+narrows but does not close the gap (sl_rank_disc -0.02 / -0.03). Of the new
+candidates, PCHAL on the raw columns is the best tuned covariate learner
+in-fill (0.36 / 0.25, within 0.03 of the index) and ties it on transport
+level (HP-02 confirmed at scale); the domain-PC ridge and elastic net are
+worse than the index on the same axes (the index's fixed weights beat any
+CV-chosen lambda at this n, WS-01 again); OLS on the domain PC1s is the worst
+covariate learner everywhere. The geostatistical GAM ties the index
+in-country (the "geography does most of the work" reading of PROTOCOL_V2),
+and the ensembles use it 9-11% of the time. The Ghana child-iron sandbox
+figure (tuned learners +0.05-0.09) was that cell, not the pattern. Nothing
+here changes the deployment index; the SuperLearner comparison strengthens
+the parsimony claim rather than replacing it: the same conclusion as SL-01
+to SL-05 with a library four times the size. Sierra Leone stays NA; MBG was
+not in the library (cost).
+
+## IS-01 · The index's levels: rho x sd shrinkage, and what pooled scoring does to it (R/protocol_v2.R; RR-13, 2026-09-18)
+
+**Q.** The index maps its score to the outcome scale as mean(y_tr) + sd(y_tr)
+* z, i.e. with the outcome's full spread although the score explains only
+rho^2 of its variance. Its in-fill prevalence MAE was 14.6 pp against 12.3
+for the training mean. Does the regression slope rho * sd(y_tr) (the AR-01
+anchor formula, with the training mean as the anchor) fix the levels, and
+what does it do to the ranking?
+**Design.** rho estimated four ways on Gambia / Ghana / Malawi, in-fill, 3
+draws (`index_shrinkage_variants.csv`): nested 5-fold out-of-fold inside the
+training rows (1 and 5 systematic splits), in-sample, and one rho per cell
+averaged over the outer folds. Then the nested version as the arm
+`domain_index_cal` in every in-country estimand of the full benchmark
+(RR-13: shards, no-DHS shards, three 02b merges; 43 min; `domain_index`
+itself unchanged, rho = 1).
+
+| in-fill, 3 draws | Spearman level / prev | MAE level / prev |
+|---|---|---|
+| rho = 1 (the index) | 0.392 / 0.273 | 0.216 / 14.5 |
+| nested, 1 split | 0.333 / 0.197 | 0.187 / 11.5 |
+| nested, 5 splits | 0.333 / 0.196 | 0.187 / 11.5 |
+| in-sample | 0.372 / 0.252 | 0.189 / 11.7 |
+| one rho per cell | 0.352 / 0.214 | 0.185 / 11.4 |
+
+Fold-to-fold SD of the nested rho 0.056 (mean 0.35). RR-13, 18 cells:
+
+| in-fill | Spearman | MAE level / prev | bias prev |
+|---|---|---|---|
+| domain_index | 0.399 / 0.282 | 0.214 / 14.6 | +0.3 |
+| domain_index_cal | 0.348 / 0.206 | **0.186 / 11.5** | -2.6 |
+| null (training mean) | - | 0.217 / 12.3 | 0.0 |
+| spatial | 0.390 / 0.257 | 0.185 / 11.5 | -2.0 |
+
+Paired: cal beats the unshrunk index on MAE in 18 / 17 of 18 cells (level /
+prev), the null in 16 / 12, and ties the spatial GAM (+0.001, 11 of 18;
+-0.05 pp, 12 of 18). Region: 0.191 / 11.9 against spatial 0.191 / 12.0.
+**Result.** The shrinkage does what the regression slope says it should:
+the index's levels go from no better than the constant to the geostatistical
+arm's error, on both targets and both in-country estimands, with the nested
+rho slightly better than the in-sample one (which under-shrinks, as
+expected of a 100-column marginal score). The Spearman drop (0.39 -> 0.34)
+is NOT a change of ranking - within any one fit the map is monotone - it is
+the scorer: `score_v2` pools five folds' out-of-fold predictions and ranks
+them together, each fold's map has its own training mean, and a spread
+shrunk to 0.35 of the outcome's lets those between-fold offsets into the
+pooled order. A single rho shared by all folds loses 0.04 of pooled Spearman
+just the same. Every other arm has always paid this (their levels are
+fold-specific); rho = 1 had insulated the index from it. **Changes.**
+`domain_index` keeps rho = 1 and is the ranking product; `domain_index_cal`
+is the level product, in `arms_for_estimand_v2()` for in-fill and region
+(transport blanks MAE). Read Spearman / top-k from the former and MAE / bias
+/ calibration from the latter; the deployment fit (one rho) has one ranking.
+The -2.6 pp prevalence bias is the logit-scale mean back-transformed (the
+spatial arm shows the same -1.9; the null is defined on the natural scale) -
+anchoring the calibrated map to the natural-scale training mean is the
+follow-up if levels are to be quoted. Not yet done: the dashboard builder
+(05) maps the deployment index to prevalence with the rho = 1 rescale and
+should switch to the calibrated map; downstream (rerun_downstream.sh) not
+run.
+
+**IS-01 addendum (RR-13b, 2026-09-19): natural-scale anchor and the dashboard.**
+`domain_index_cal` now shifts its logit predictions so that the mean
+back-transformed training prediction equals the training rows' mean
+prevalence (`aux$target == "prev"`, `aux$y_nat`; scripts 02 and 56 pass
+both). RR-13b (full rerun, 27 min): in-fill prevalence MAE 11.2 pp (wMAE
+10.3, bias -0.06) against spatial 11.5 (-2.0) and the null 12.3; region 11.6
+(-0.3) against 12.0 / 12.6; level unchanged at 0.186 / 0.191. Spearman of
+`domain_index` unchanged (0.399 / 0.282). The dashboard builder
+(`dashboard/data-raw/05_build_protocol_v2_bundles.R`) now fits the
+calibrated arm for the deployment ranking: `score_logit`, `prev_model`, the
+back-projected `fits$beta` (rho enters the scale, the natural-scale shift the
+intercept; the decomposition still sums to the score) and the national anchor
+all sit on the calibrated map; `rank_worst` and `priority` are identical to
+before; `national$rho_train` and `fits$rho_train` record the shrinkage. Smoke
+test and server test pass. **What changed on the maps:** in cells whose
+nested rho is ~0 the planning prevalence is now flat at the national figure
+- Malawi child / women zinc and women's vitamin A, Sierra Leone child iron,
+women's B12 / vitamin A / vitamin A (rho 0.00-0.01; SD of the planning
+prevalence 0.0-0.1 pp) - and nearly flat for Malawi child vitamin A, Ghana
+women's vitamin A, Malawi iron (rho 0.04-0.16). That is the honest reading
+(the index has no out-of-sample level skill there; the ranking is still
+shown), but it is a visible change from the rho = 1 maps, which gave those
+cells the survey's full spread. Cells with rho 0.35-0.72 (Gambia, Ghana
+child iron / vitamin A / folate / B12, Malawi folate / B12) keep 5-17 pp of
+between-district spread. Suggested follow-up: show rho (or a "level skill"
+band) on the district and map tabs so a flat map reads as "no level
+information" rather than as an estimate of uniformity; and rerun
+`rerun_downstream.sh` so the decks' evidence tables pick up the cal arm.
+*2026-09-19:* the level-skill band is in the app — `level_skill()` /
+`level_skill_badge()` / `level_skill_text()` in `dashboard/R/fct_helpers.R`
+(none < 0.10, weak < 0.30, moderate < 0.50, good), a badge and one-line
+reading in the map explorer's headline, a note on the caption of the three
+percentage layers, a "Level skill" column and hover in the district profile,
+and two glossary entries in `global.R`. `test_server.R` checks the badge and
+the caption; smoke test and server test pass.
+
+## P8 · PCHAL pre-registered as a transport candidate (R/protocol_v2_hapc.R; 2026-09-19)
+
+`hapc_lasso` (PCHAL, raw columns) and `hapc_ridge` (PCHAR) as standalone
+arms in `ARMS_V2`, scored on the 22 transport cells through script 56
+(`weight_sources_*_hapc.csv`): hapc_lasso 0.284 / 0.172 (18 / 15 of 22
+positive; paired against the index +0.003 on the level, 11 of 22; -0.016 on
+prevalence, 6 of 22), hapc_ridge 0.226 / 0.083 — identical to the SL-06
+`sl_lrn_*` figures, as they should be. Written into
+PREREGISTRATION_NEW_COUNTRIES_2026-09.md as P8 (within 0.03 of the index on
+the level, trails by 0.00-0.05 on prevalence; co-headline only after two
+consecutive new countries at +0.05, dropped after one at -0.05).
+
+## XO-01 · Borrowing a biomarker the survey did not measure from the ones it did (scripts/protocol_v2/63_cross_outcome_borrowing.R; 2026-09-19)
+
+**Q.** A country measured iron but not folate. Can the outcome-to-outcome
+relationship learned in countries that measured both, applied through the
+country's own iron, rank its districts for folate? More generally: which of
+a survey's other biomarkers carry information about the missing one?
+**What the surveys say first** (`targets_v2.csv`, district `y_level`,
+Spearman within country): same nutrient across populations is stable (child
+vs women iron 0.74 / 0.38 / 0.31 / 0.44 in Gambia / Ghana / Malawi / SL,
+pooled 0.41; vitamin A 0.79 / 0.48 / 0.30 / 0.19, pooled 0.43); cross-nutrient
+is weak and sign-unstable (iron vs folate 0.08-0.28; folate vs B12 +0.34 in
+Ghana, -0.53 in Malawi). The transported index already gives near enough one
+map per country (CIV rankings agree across outcomes at 0.92, CV-01).
+**Design.** Leave-one-country-out transport (estimand C), the held-out
+country's OTHER biomarkers visible as predictors, its target hidden. Block =
+the other outcomes' district `y_level`, rank-normalised within country, each
+its own one-column domain (so the index gives it its own Fisher-z weight),
+built in memory and never written to the shared set (same-survey by
+construction). Block per cell = outcomes measured in every country of the
+cell, minus the target; 6 outcomes x {level, prev} x held-out country, 22
+cells per arm. Arms: `base` (covariates only), `same_nutrient` (+ the other
+population of the same nutrient), `other_xpop` (+ other nutrients, other
+population), `other_samepop` (+ other nutrients, same population: same blood
+sample, so an upper bound), `all_other`, and `block_only_*` (biomarkers
+alone). Three covariate bases (`V2_DOMAIN_SET` = cs / cs_top5 / all), two
+models (index, domain enet). GUARD 1: `base` on cs reproduces
+`civ_transport_guards.csv` on all 22 cells (max |diff| 0). Pre-registered
+in `docs/superpowers/specs/2026-09-19-cross-outcome-borrowing-design.md`:
+cross-nutrient within +-0.05; same-nutrient cross-population +0.05 to +0.10;
+folate / B12 nothing.
+
+**Result, level target, zero-tuning index, mean Spearman over cells**
+(`cross_outcome_summary_<set>.csv`):
+
+| iron / vitA cells (16) | cs | cs_top5 | all |
+|---|---|---|---|
+| base | 0.403 | 0.428 | 0.302 |
+| + same nutrient, other population | 0.440 (+0.036, 14 of 16 up) | 0.465 (+0.037, 14) | 0.328 (+0.026, 14) |
+| the other population's biomarker ALONE | 0.454 (+0.051, 13) | 0.454 (+0.026, 11) | 0.454 (+0.152, 15) |
+| + other nutrients, other population | 0.408 (+0.005) | 0.421 (-0.008) | 0.301 (-0.001) |
+| + other nutrients, same population | 0.404 (0.000) | 0.425 (-0.003) | 0.299 (-0.003) |
+| + all other biomarkers | 0.435 (+0.031) | 0.462 (+0.034) | 0.330 (+0.028) |
+
+| folate / B12 cells (6) | cs | cs_top5 | all |
+|---|---|---|---|
+| base | 0.309 | 0.377 | 0.302 |
+| + other nutrients, other population | +0.022 (4 of 6) | +0.005 (2) | +0.004 (2) |
+| + other nutrients, same population | -0.061 (1) | -0.046 (2) | -0.023 (1) |
+| + all other biomarkers | -0.084 (0) | -0.058 (1) | -0.029 (0) |
+| the other biomarkers ALONE | -0.515 | -0.515 | -0.515 |
+
+Prevalence target, same pattern (cs, index: same-nutrient +0.041, 13 of 16;
+biomarker alone +0.057; cross-nutrient +0.004 / -0.001; folate / B12 every
+arm negative). Domain enet, cs, level: same-nutrient +0.067 (12 of 16),
+block alone 0.453 against a 0.314 base, cross-nutrient +0.015 / -0.019,
+folate / B12 all_other -0.120.
+
+**Reading.**
+1. **Cross-nutrient borrowing is null**, as pre-registered: every
+   other-nutrient arm sits within +-0.01 of base on the iron / vitamin A
+   cells, on all three bases, both models, both targets. A country's iron
+   map says nothing about its folate map beyond what the covariates already
+   say. Folate and B12 gain nothing from any arm and lose 0.03-0.08 when the
+   whole block is forced in (the borrowed biomarkers alone rank folate / B12
+   at -0.5: the training countries' sign for those relationships is the
+   wrong sign in the held-out one - the +0.34 / -0.53 flip above, applied).
+2. **Same nutrient, other population is real and transports**: +0.026 to
+   +0.037 in the combined index, 14 of 16 cells up on every base; and the
+   other population's biomarker on its own (0.454) beats the deployed
+   climate + soil index (0.403) and cs_top5 (0.428). By held-out country
+   (cs, index; base -> + same nutrient -> biomarker alone): Gambia 0.695 ->
+   0.746 -> 0.769, Ghana 0.403 -> 0.430 -> 0.432, Malawi 0.216 -> 0.266 ->
+   0.301, Sierra Leone 0.300 -> 0.316 -> 0.314. Not Gambia-driven: the gain
+   is largest in Malawi, the weakest transport country.
+3. **The combined index under-uses it.** The same-nutrient biomarker's
+   Fisher-z is on a par with the two lead covariate axes (child iron, Malawi
+   held out: 5.6 against 6.0 for climate PC1 and -5.8 for soil PC1; every
+   other axis below 2.3; `cross_outcome_weights_cs.csv` for the biomarker
+   rows) yet it carries only 5-8 % of the index's absolute contribution
+   against 36 % and 28 % for those two, because the index sums
+   un-standardised axes (z x axis sd) and a rank-normal column has sd 1.0
+   where climate PC1 has 4.5 and soil PC1 3.7. That is why `same_nutrient`
+   (0.440) trails the biomarker alone (0.454). Combining the two properly (standardised axes, or the
+   biomarker as a second stage on the index) is a change to the deployed
+   estimator and is NOT done here; it is the follow-up if this is pursued.
+4. **Noise bound.** The same-nutrient arm is cross-population (different
+   people, shared clusters and households), not same-blood-sample. CE-01's
+   cluster share of the child / women iron ceiling is ~0 in Ghana (0.003 /
+   -0.05) and Malawi (-0.06 / -0.03) and large only in Gambia (0.10 / 0.59)
+   and SL; the Ghana and Malawi gains are therefore not a cluster artefact.
+   The same-population arms (same blood sample) are the inflated ones and
+   they show nothing, which bounds the person-level inflation at zero for
+   cross-nutrient pairs.
+5. Prediction 2 (+0.05 to +0.10) was met by the biomarker alone on cs
+   (+0.051) and missed by the combined index (+0.036), for the reason in 3.
+
+**Deployment claim this licenses.** When a survey measured a nutrient in
+one population only (retinol in children, say - the common DHS case), rank
+the other population by that measurement: on these 16 cells it is at least
+as good as the covariate index (0.454 vs 0.403) and costs nothing. When a
+nutrient was not measured at all, the other nutrients do not help and the
+covariate index remains the only tool. Candidate P9 for
+PREREGISTRATION_NEW_COUNTRIES_2026-09.md: "same-nutrient other-population
+biomarker, alone, +0.05 over the index on the level" - not added; the
+user's call.
+
+Outputs: `results/tables/protocol_v2/cross_outcome_{loco,summary,weights}_{cs,cs_top5,all}.csv`,
+`results/figures/protocol_v2/fig_cross_outcome_delta_{cs,cs_top5,all}.png`.
+Runtime ~1 min per base.

@@ -1,6 +1,6 @@
 # XO-01 — Cross-outcome borrowing under transport (design)
 
-Date: 2026-09-19. Sandbox ID XO-01. Status: approved, implementing.
+Date: 2026-09-19. Sandbox ID XO-01. Status: run 2026-09-19; results in docs/findings/SANDBOX_LOG_2026-09.md, entry XO-01.
 
 ## Question
 
