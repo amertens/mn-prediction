@@ -1,0 +1,7 @@
+"estimand","target","arm","cells","scored","mean_spearman","median_spearman","cells_positive","mean_wmae"
+"country","level","domain_index",22,22,0.281044773647006,0.267329102333112,17,NA
+"country","level","hapc_lasso",22,22,0.283805819017344,0.354787370582699,18,NA
+"country","level","hapc_ridge",22,22,0.226067984222805,0.316294414512719,15,NA
+"country","prev","domain_index",22,22,0.188090391728472,0.175239014652033,16,NA
+"country","prev","hapc_lasso",22,22,0.172319236769926,0.179223514530494,15,NA
+"country","prev","hapc_ridge",22,22,0.0825715702511837,0.0268305754264811,11,NA

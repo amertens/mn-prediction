@@ -439,3 +439,20 @@ Items that qualify or extend this document's claims:
   meta-learner losses (SL-01…04); rank-aligned losses fix the SuperLearner
   relative to MSE but only recover the index's performance.
 
+
+## Addendum 2026-09-17 — every candidate inside one SuperLearner
+
+`fit_area_superlearner()` (R/area_superlearner.R) now carries the
+protocol-v2 representation as library members — `domain_index`,
+`domain_pc_ridge`, `domain_pc_enet`, `domain_pc1_ols` (each rebuilds the
+per-domain PCs from the training rows it is handed; needs `domain_of=`),
+the geostatistical arms `spatial_gam`, `spatial_plus_domain`, `mbg`
+(coordinates reach them through the `screens=` argument), and the hapc
+wrappers `hapc`, `hapc_lasso` (R/sl_hapc.R). `R/protocol_v2_sl.R`
+registers the SuperLearner as an arm family in `ARMS_V2` (`sl_disc`,
+`sl_nnls`, `sl_rank_disc`, `sl_rank_nnls`, and `sl_lrn_<learner>` for every
+member on its own), scored on the protocol's cells, folds and targets through
+`scripts/protocol_v2/56_weight_sources.R` with `V2_ARMS=`. The production
+SL in the targets DAG (`fit_predict_sl_prescreened`, `sl_prescreened_main.csv`)
+runs on the legacy `gee_*` vocabulary, which has no domain map, and is
+unchanged. Results: SANDBOX_LOG_2026-09.md, HP-02 and SL-06.

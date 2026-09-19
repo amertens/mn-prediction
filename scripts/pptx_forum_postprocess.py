@@ -79,14 +79,17 @@ def add_label(slide):
     return 1
 
 
-def main(paths):
+def main(paths, label=True):
     for path in paths:
         prs = Presentation(path)
         n_pic = sum(enlarge_pictures(s) for s in prs.slides)
-        n_lab = sum(add_label(s) for s in prs.slides)
+        n_lab = sum(add_label(s) for s in prs.slides) if label else 0
         prs.save(path)
         print("%s: enlarged %d figure(s), labelled %d slide(s)" % (path, n_pic, n_lab))
 
 
 if __name__ == "__main__":
-    main(sys.argv[1:])
+    # --no-label: enlarge the figures but do not stamp the unpublished-data
+    # footer (some decks carry it in the template, or the author does not want it)
+    args = [a for a in sys.argv[1:] if a != "--no-label"]
+    main(args, label="--no-label" not in sys.argv[1:])

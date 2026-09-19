@@ -25,6 +25,9 @@
 suppressPackageStartupMessages({library(dplyr); library(tidyr)})
 setwd("C:/Users/andre/OneDrive/Documents/mn-prediction")
 source("R/protocol_v2.R"); source("R/protocol_v2_weights.R"); source("R/protocol_v2_importance.R")
+source("R/area_superlearner.R"); source("R/sl_hapc.R"); source("R/protocol_v2_sl.R")   # SL-06: the SuperLearner arm family
+source("R/protocol_v2_hapc.R")   # P8: PCHAL / PCHAR as standalone arms on the raw columns
+if (identical(Sys.getenv("V2_SL_MBG", "0"), "1")) source("R/protocol_v2_mbg.R")
 
 OUTDIR <- "results/tables/protocol_v2"
 REPS   <- as.integer(Sys.getenv("V2_REPS", "5"))
@@ -67,11 +70,14 @@ build_cell <- function(cn, on, target, with_D = TRUE) {
        y_mod = if (target == "prev") .v2_logit(y_nat) else y_nat,
        X = Xr, D = if (with_D) domain_representation_v2(Xr, domain_of) else NULL,
        w = m[[wcol]], Admin1 = m$Admin1, lon = m$lon, lat = m$lat,
-       aux = list(lon = m$lon, lat = m$lat, Admin1 = m$Admin1, rep_block = m$Admin1, y_nat = y_nat))
+       aux = list(lon = m$lon, lat = m$lat, Admin1 = m$Admin1, rep_block = m$Admin1, y_nat = y_nat,
+                  # SL-06: the SuperLearner arms need weights, the domain map and the cell labels
+                  w = m[[wcol]], domain_of = domain_of[colnames(Xr)], country = cn, outcome = on, target = target))
 }
 
 score_draw <- function(cell, estimand, folds, rep_id) {
-  out <- list(); ws_memo_clear()
+  out <- list(); ws_memo_clear(); if (exists("sl_memo_clear")) sl_memo_clear()
+  cell$aux$estimand <- estimand; cell$aux$rep <- rep_id
   for (a in ARMS) {
     fn <- ARMS_V2[[a]]; pred_mod <- rep(NA_real_, cell$n)
     for (f in unique(folds)) {
@@ -90,6 +96,17 @@ score_draw <- function(cell, estimand, folds, rep_id) {
 
 rows <- list()
 if (MERGE_ONLY) ESTS <- character(0)
+# SL-06: the in-country checkpoint is rewritten after EVERY cell-target (a shard died
+# silently after ten of them on 2026-09-17 and lost all ten), and V2_RESUME=1 reloads
+# it and skips the cell-targets it already holds
+CKPT <- file.path(OUTDIR, paste0("weight_sources_raw", OUT_TAG, "_incountry_checkpoint.csv"))
+done_keys <- character(0)
+if (Sys.getenv("V2_RESUME", "0") == "1" && file.exists(CKPT)) {
+  ck <- read.csv(CKPT, stringsAsFactors = FALSE)
+  for (k in unique(paste(ck$country, ck$outcome, ck$target))) rows[[paste("ckpt", k)]] <- ck[paste(ck$country, ck$outcome, ck$target) == k, ]
+  done_keys <- unique(paste(ck$country, ck$outcome, ck$target))
+  cat("resuming:", length(done_keys), "cell-targets already in", basename(CKPT), "\n")
+}
 cells_index <- TG |> distinct(country, outcome) |> filter(country %in% COUNTRIES)
 if (length(CELLS_ONLY) && nzchar(CELLS_ONLY[1])) cells_index <- cells_index |> filter(paste(country, outcome, sep = ":") %in% CELLS_ONLY)
 LOCO_OUTCOMES <- if (length(CELLS_ONLY) && nzchar(CELLS_ONLY[1])) unique(sub("^.*:", "", CELLS_ONLY)) else unique(TG$outcome)
@@ -97,6 +114,7 @@ if (any(c("infill", "region") %in% ESTS)) {
   for (i in seq_len(nrow(cells_index))) {
     cn <- cells_index$country[i]; on <- cells_index$outcome[i]
     for (target in c("prev", "level")) {
+      if (paste(cn, on, target) %in% done_keys) next
       cell <- tryCatch(build_cell(cn, on, target), error = function(e) NULL)
       if (is.null(cell)) next
       if ("infill" %in% ESTS) for (r in seq_len(REPS)) {
@@ -108,13 +126,16 @@ if (any(c("infill", "region") %in% ESTS)) {
         rows[[paste(cn, on, target, "region", 1)]] <- score_draw(cell, "region", folds, 1L)
       }
       cat("done", cn, on, target, format(Sys.time(), "%H:%M:%S"), "\n"); flush.console()
+      if (length(rows)) write.csv(bind_rows(rows), CKPT, row.names = FALSE)
+      if (exists("sl_domain_selection_table") && nrow(sl_domain_selection_table()))
+        write.csv(sl_domain_selection_table(), file.path(OUTDIR, paste0("sl_selection", OUT_TAG, ".csv")), row.names = FALSE)
     }
   }
 }
 
 # checkpoint: the in-country draws are written before the cross-country step so a
 # failure there cannot lose them (the 2026-09-09 WS-01 run did exactly that)
-if (length(rows)) write.csv(bind_rows(rows), file.path(OUTDIR, paste0("weight_sources_raw", OUT_TAG, "_incountry_checkpoint.csv")), row.names = FALSE)
+if (length(rows)) write.csv(bind_rows(rows), CKPT, row.names = FALSE)
 # ── estimand C ────────────────────────────────────────────────────────────────
 if ("country" %in% ESTS) {
   for (target in c("prev", "level")) for (on in LOCO_OUTCOMES) {
@@ -128,10 +149,12 @@ if ("country" %in% ESTS) {
     ctry <- rep(names(cl), vapply(cl, function(z) z$n, 0L))
     ynat <- unlist(lapply(cl, function(z) z$y_nat)); wv <- unlist(lapply(cl, function(z) z$w))
     aux  <- list(lon = unlist(lapply(cl, function(z) z$lon)), lat = unlist(lapply(cl, function(z) z$lat)),
-                 Admin1 = paste(ctry, unlist(lapply(cl, function(z) z$Admin1))), rep_block = ctry, y_nat = Y)
+                 Admin1 = paste(ctry, unlist(lapply(cl, function(z) z$Admin1))), rep_block = ctry, y_nat = Y,
+                 w = wv, domain_of = domain_of[common], estimand = "country", rep = 1L, outcome = on, target = target)
     folds <- as.integer(factor(ctry))
     for (a in ARMS) {
       fn <- ARMS_V2[[a]]; pred <- rep(NA_real_, length(Y)); ws_memo_clear()
+      if (a == ARMS[1] && exists("sl_memo_clear")) sl_memo_clear()   # one SL fit per fold serves every sl_* arm
       for (f in unique(folds)) {
         te <- which(folds == f); tr <- which(folds != f)
         if (length(tr) < 20) next
@@ -152,13 +175,18 @@ if ("country" %in% ESTS) {
 }
 
 if (!MERGE_ONLY) { RAW <- bind_rows(rows); write.csv(RAW, file.path(OUTDIR, paste0("weight_sources_raw", OUT_TAG, ".csv")), row.names = FALSE) }
+if (!MERGE_ONLY && exists("sl_domain_selection_table") && nrow(sl_domain_selection_table()))
+  write.csv(sl_domain_selection_table(), file.path(OUTDIR, paste0("sl_selection", OUT_TAG, ".csv")), row.names = FALSE)
 if (MERGE_ONLY) {
-  fs <- list.files(OUTDIR, pattern = "^weight_sources_raw.*[.]csv$", full.names = TRUE); fs <- fs[!grepl("smoke|checkpoint", fs)]
+  # V2_MERGE_PATTERN restricts the merge to one family of shards (SL-06: "^weight_sources_raw_sl_.*[.]csv$")
+  # and then keeps OUT_TAG, so the WS-01 tables are not overwritten by a partial merge
+  fs <- list.files(OUTDIR, pattern = Sys.getenv("V2_MERGE_PATTERN", "^weight_sources_raw.*[.]csv$"), full.names = TRUE); fs <- fs[!grepl("smoke|checkpoint", fs)]
   cat("merging", length(fs), "raw files:", paste(basename(fs), collapse = " "), "
 ")
   RAW <- bind_rows(lapply(fs, read.csv, stringsAsFactors = FALSE)) |>
     distinct(country, outcome, target, estimand, arm, rep, .keep_all = TRUE)   # domain_index is in every pass on identical folds
-  ARMS <- c(intersect(ARMS, unique(RAW$arm)), setdiff(unique(RAW$arm), ARMS)); OUT_TAG <- ""   # only arms that were actually run, canonical order first
+  ARMS <- c(intersect(ARMS, unique(RAW$arm)), setdiff(unique(RAW$arm), ARMS))   # only arms that were actually run, canonical order first
+  if (!nzchar(Sys.getenv("V2_MERGE_PATTERN", ""))) OUT_TAG <- ""
 }
 CELLS <- RAW |> group_by(country, outcome, target, estimand, arm) |>
   summarise(reps = n(), n_areas = max(n_areas), spearman = median(spearman, na.rm = TRUE), wmae = median(wmae, na.rm = TRUE),

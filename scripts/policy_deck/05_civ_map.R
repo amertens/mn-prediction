@@ -65,7 +65,7 @@ pL <- base_map("pct", c("#7f0000", "#d7301f", "#fc8d59", "#fdd49e", "#fff7ec"), 
 wmax <- round(max(g$rank_width, na.rm = TRUE))
 pR <- base_map("rank_width", c("#F2F2F2", "#BFC6CC", "#7C8B95", "#3D4A54"),
                NULL, c(1, wmax), c("exact", paste0("could move ", wmax, " places")),
-               "How firmly each district is placed")
+               "Ranking uncertainty")
 
 # CV-02 (2026-09-17): the figure carries no subtitle or caption; that text sits on the slide as editable text
 p <- patchwork::wrap_plots(pL, pR, widths = c(1, 1)) + patchwork::plot_annotation(theme = theme(plot.margin = margin(8, 12, 4, 12)))

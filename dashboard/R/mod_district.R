@@ -52,6 +52,8 @@ mod_district_server <- function(id) {
       d <- idx_districts[idx_districts$country_key == input$country & idx_districts$Admin1 == k[1] & idx_districts$Admin2 == k[2], ]
       d <- d[order(match(d$outcome, names(meta$outcome_labels))), ]
       d$label <- outcome_short[d$outcome]
+      d$rho_train <- idx_national$rho_train[match(paste(d$country_key, d$outcome), paste(idx_national$country_key, idx_national$outcome))]
+      d$level_skill <- level_skill(d$rho_train)$band
       d
     })
 
@@ -74,8 +76,8 @@ mod_district_server <- function(id) {
       plot_ly(d) |>
         add_segments(x = 0, xend = 100, y = ~label, yend = ~label, line = list(color = "#e6e6e6", width = 6), showlegend = FALSE, hoverinfo = "none") |>
         add_markers(x = ~priority, y = ~label, marker = list(color = PROXY_COL, size = 13),
-                    text = ~sprintf("%s<br>priority %.0f, rank %d of %d<br>planning prevalence %s%s", label, priority, rank_worst, n_districts,
-                                    fmt_pct(prev_anchored), ifelse(is.finite(p_worst_fifth), sprintf("<br>chance of worst fifth %s", fmt_pct(p_worst_fifth, 0)), "")),
+                    text = ~sprintf("%s<br>priority %.0f, rank %d of %d<br>planning prevalence %s (level skill %s)%s", label, priority, rank_worst, n_districts,
+                                    fmt_pct(prev_anchored), level_skill, ifelse(is.finite(p_worst_fifth), sprintf("<br>chance of worst fifth %s", fmt_pct(p_worst_fifth, 0)), "")),
                     hoverinfo = "text", showlegend = FALSE) |>
         layout(xaxis = list(title = "Priority score (100 = ranked worst in the country; dotted line = worst fifth)", range = c(-2, 102)),
                yaxis = list(title = ""), margin = list(l = 10, r = 10, t = 10, b = 50),
@@ -88,6 +90,7 @@ mod_district_server <- function(id) {
       t <- data.frame(Outcome = d$label, Rank = sprintf("%d of %d", d$rank_worst, d$n_districts),
                       `Chance of worst fifth` = ifelse(is.finite(d$p_worst_fifth), fmt_pct(d$p_worst_fifth, 0), "—"),
                       `Planning prevalence` = fmt_pct(d$prev_anchored),
+                      `Level skill` = sprintf("%s (%s)", d$level_skill, fmt_num(d$rho_train, 2)),
                       `Survey estimate` = ifelse(is.finite(d$survey_prev), sprintf("%s (%s to %s)", fmt_pct(d$survey_prev), fmt_pct(d$survey_lo, 0), fmt_pct(d$survey_hi, 0)), "not surveyed"),
                       `WHO class` = d$who_class, check.names = FALSE)
       reactable(t, compact = TRUE, striped = TRUE, defaultPageSize = 8, rownames = FALSE)

@@ -3668,3 +3668,53 @@ user's call.
 Outputs: `results/tables/protocol_v2/cross_outcome_{loco,summary,weights}_{cs,cs_top5,all}.csv`,
 `results/figures/protocol_v2/fig_cross_outcome_delta_{cs,cs_top5,all}.png`.
 Runtime ~1 min per base.
+
+## HP-03 · HAL with the domain structure built in, and PCHAL with coordinates (R/protocol_v2_hapc.R; 2026-09-19)
+
+**Q.** (1) Does a Highly Adaptive Lasso that knows the domains — an explicit
+zero-order HAL basis on the domain PCs (I(x >= knot) at the training deciles,
+~9 knots x ~100 axes) with a GROUP lasso over domains (gglasso, lambda.min,
+5-fold CV) — beat PCHAL on the raw columns? The same basis with a plain lasso
+isolates the grouping. (2) Does PCHAL gain from lon / lat, which no covariate
+arm had? `hapc_lasso_xy` adds the two coordinates to the raw columns;
+`hapc_xy_only` is PCHAL on the coordinates alone (a kernel smoother, the
+GAM's analogue). All arms on the protocol's cells and folds through script
+56 (`weight_sources_*_hp03_{incountry,country}.csv`): 18 in-country cells,
+in-fill 3 draws + LORO; 22 transport cells. Mean Spearman level / prev, then
+the paired difference from the index (cells better / paired):
+
+| arm | in-fill | region | transport |
+|---|---|---|---|
+| domain_index | 0.393 / 0.278 | 0.381 / 0.266 | 0.281 / 0.188 |
+| hapc_lasso (PCHAL, raw) | 0.364 / 0.253 (-0.03 / -0.03) | 0.346 / 0.197 (-0.04 / -0.07) | 0.284 / 0.172 (+0.00, 11 / -0.02, 6) |
+| hapc_lasso_xy (+ lon, lat) | 0.366 / 0.254 (-0.03 / -0.02) | 0.354 / 0.200 (-0.03 / -0.07) | 0.283 / 0.180 (+0.00, 10 / -0.01, 7) |
+| hapc_xy_only (lon, lat alone) | 0.362 / 0.231 (-0.03 / -0.05) | 0.322 / 0.163 (-0.06 / -0.10) | 0.189 / 0.021 (-0.11 / -0.16) |
+| hal_group (domain PCs, group lasso) | 0.233 / 0.147 (-0.16, 1 / -0.13, 2) | 0.190 / 0.039 (-0.19 / -0.23) | 0.232 / 0.129 (-0.05, 7 / -0.05, 10) |
+| hal_lasso (domain PCs, plain lasso) | 0.271 / 0.114 (-0.12 / -0.16) | 0.198 / 0.029 (-0.18 / -0.24) | 0.193 / 0.092 (-0.09 / -0.06) |
+| spatial GAM | 0.388 / 0.264 (-0.01 / -0.01) | 0.377 / 0.229 (-0.00 / -0.04) | - |
+| spatial + domain enet | 0.391 / 0.266 (-0.00 / -0.01) | 0.384 / 0.229 (+0.00, 10 / -0.04) | - |
+
+**Result.** (1) Building the domains into a HAL makes it WORSE, not better:
+the explicit-basis HAL on the domain PCs trails PCHAL-on-raw by 0.11-0.16
+in-fill, 0.15-0.16 under region and 0.05-0.09 across borders, and trails the
+index everywhere (better in 1-4 of 18 cells in-country). The group penalty
+does help relative to a plain lasso on the same basis in-country on
+prevalence (0.147 vs 0.114; region 0.039 vs 0.029) and across borders
+(0.232 vs 0.193 on the level), so grouping is the right regulariser for that
+basis — but the basis itself is the problem: ~900 step functions fitted to
+30-70 rows by a CV-tuned penalty is exactly the small-n over-flexibility the
+protocol keeps finding (raw_enet, SL-01, WS-01), and it loses the smoothness
+that the kernel eigendecomposition in hapc imposes for free. The Ghana
+child-iron smoke figure (hal_group 0.539, above the index) was, again, that
+one cell. (2) Coordinates change PCHAL by nothing that matters: +0.002 to
++0.008 in-country, +0.008 on transport prevalence (where they extrapolate and
+should not be used anyway); the kernel already carries the spatially smooth
+part of the signal through the covariates. PCHAL on coordinates alone is a
+credible in-country smoother (0.362 / 0.231, 0.03-0.05 below the GAM) and,
+as expected, nothing across borders (0.189 / 0.021). **Reading.** The P8
+candidate stays as registered: PCHAL on the raw columns, no domain
+structure, no coordinates. The hybrid the P8 discussion suggested ("HAL on
+the domain PCs with a per-domain group penalty") is answered in the
+negative at this n; if it is revisited it should be as a kernel with a
+per-domain kernel sum (a multiple-kernel hapc), not as an explicit basis.
+Both arms stay in `ARMS_V2` for the record; neither is a candidate.

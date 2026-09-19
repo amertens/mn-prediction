@@ -1,0 +1,150 @@
+# Illustrated slides of MNF15-talk-2026-09.qmd, drawn IN PLACE on the rendered deck by
+#   bash scripts/render_deck.sh docs/slides/MNF15-talk-2026-09.qmd --forum --no-label --text 18,15 \
+#        --concept docs/slides/MNF15-talk-2026-09.concept.yaml
+# Each entry is matched to the rendered slide with the same title; the qmd keeps that
+# slide as a title plus speaker notes. Five slides only (18 Sep 2026, "targeted where it
+# makes sense"): the title slide's logos, the predictor groups, the methods, the
+# decisions checklist and the conclusions. Every figure slide stays a figure.
+# Icons are Font Awesome 6 names, rendered by scripts/concept_slides/build_quantities.R.
+deck: MNF15-talk-2026-09.qmd
+fill_figures: false   # the Forum post-process already enlarges lone figures
+slides:
+
+- title: title slide
+  layout: title
+  title_size: 30
+  logos:
+  - {file: img/logo_ucberkeley.png, width: 2.4}
+  - {file: img/logo_ucdavis.png, width: 2.4}
+  - {file: img/logo_mnforum.png, width: 2.0}
+  acknowledgement: We are grateful for the funding support of the Gates Foundation.
+  notes: "SONJA, about 20 seconds (51 words). Good morning. I am Sonja Hess, from UC Davis, and this is joint work with Andrew Mertens at Berkeley and the survey teams you will see named in a moment. We are going to show you what public data can and cannot tell you about micronutrient deficiency at the district level."
+
+- title: Where the predictors come from
+  layout: grid
+  columns: 2
+  footnote: "575 district-level predictors from 28 public sources, linked to 554 districts in four countries. Number of predictors in brackets; every layer is public."
+  groups:
+  - icon: satellite
+    title: Climate, satellite imagery, greenness
+    count_of: [Satellite embedding, Climate and weather, Ecosystem productivity/greenness, Water and coast proximity]
+    caption: "TerraClimate rainfall and temperature; MODIS greenness; AlphaEarth satellite embedding; distance to water and coast"
+  - icon: mound
+    title: Soil chemistry
+    count_of: [Soil characteristics]
+    caption: "SoilGrids and iSDA: pH, organic carbon, texture, nutrient availability"
+  - icon: tractor
+    title: Crops and livestock
+    count_of: ["Agricultural production, land use", Livestock density]
+    caption: "MapSPAM crop mix and cropland; cattle, goat and poultry density (Gridded Livestock of the World)"
+  - icon: basket-shopping
+    title: Food prices, diet, fortification
+    count_of: [Food prices and supply, Market prices (RTFP), Household diet and consumption (HCES), "Dietary inadequacy (MODELLED SURFACE, HCES)", Food fortification and supplementation]
+    caption: "WFP and World Bank prices; household budget surveys; GFDx fortification coverage"
+  - icon: virus
+    title: Infectious disease and immunisation
+    count_of: [Infection and inflammation burden, Malaria incidence and treatment, Helminth burden and control, Infant and child morbidity/mortality, Child mortality, Adult and maternal mortality, Immunisation]
+    caption: "Malaria Atlas; WHO ESPEN helminths; IHME child morbidity and mortality; immunisation coverage"
+  - icon: child
+    title: Nutrition status and infant feeding
+    count_of: [Child anthropometry, Adult nutrition, Nutrition status (MODELLED SURFACE), Anaemia and haemoglobin, Infant and young child feeding]
+    caption: "Stunting and wasting; anaemia (modelled); infant and young child feeding (IHME, MICS, DHS)"
+  - icon: house-chimney
+    title: Households, schooling, water, health access
+    count_of: [Household assets and characteristics, "Education, employment, SES", Water and sanitation, "Fertility, reproductive health", Healthcare access]
+    caption: "Assets, schooling, employment; water and sanitation; fertility; access to care (MICS, DHS)"
+  - icon: city
+    title: Settlement, population, conflict
+    count_of: [Built environment, "Ruralness, population density, built environment", Conflict and insecurity]
+    caption: "Night lights, population density, built-up area (WorldPop, GHSL); ACLED conflict events"
+
+- title: How the model is built and how it is tested
+  layout: two_panel
+  heading_size: 15
+  text_size: 12
+  panels:
+  - icon: sliders
+    title: How the model is built
+    items:
+    - icon: arrow-down-wide-short
+      heading: Every layer becomes a within-country rank
+      caption: A level difference between surveys cannot act as signal.
+    - icon: layer-group
+      heading: Each family of layers is reduced to a few summary scores
+      caption: Learned from the predictors only, never from the outcome.
+    - icon: scale-balanced
+      heading: Each score is weighted by how well it tracked deficiency
+      caption: In the training districts, where blood was drawn.
+    - icon: lock
+      heading: The weighted sum, rescaled to the training districts' spread
+      caption: Nothing is tuned.
+  - icon: clipboard-check
+    title: How it is tested
+    items:
+    - icon: location-crosshairs
+      heading: One district in five is hidden
+      caption: Compared against the region's average, computed without that district.
+    - icon: draw-polygon
+      heading: A whole region is hidden
+      caption: Compared against a map of the neighbouring districts.
+    - icon: earth-africa
+      heading: A whole country is hidden
+      caption: Compared against chance, with countries kept whole.
+
+- title: What type of decisions can this model support?
+  layout: checklist
+  heading_size: 15
+  text_size: 13
+  heading_width: 4.6
+  footnote: "Binduri, Upper East. Geographic interpolation from its region ranks it 12th worst for children's iron. Our model, which never saw it, ranks it 1st. The survey measured it 6th worst of 75."
+  footnote_size: 12.5
+  items:
+  - status: "yes"
+    heading: Which districts to reach first
+    caption: "Today: the region's average.  With the model: a ranked list of every district."
+  - status: "yes"
+    heading: Where the next survey should sample
+    caption: "Today: an equal spread.  With the model: model-informed sampling."
+  - status: "yes"
+    heading: The order of a programme roll-out
+    caption: "Today: region by region.  With the model: a ranked list."
+  - status: "yes"
+    heading: District prevalence in a surveyed country
+    caption: "Today: the region's average.  With the model: the ranking plus the survey."
+  - status: partly
+    heading: District prevalence with no survey
+    caption: "Today: a national number, if any.  With the model: the ranking plus one national sample."
+  - status: partly
+    heading: Targeting a district intervention
+    caption: "Today: population and the national rate.  With the model: model-targeted districts, likely better than untargeted."
+
+- title: Conclusions and next steps
+  layout: two_panel
+  heading_size: 15
+  text_size: 12
+  banner: Modelling extends a survey's reach. It does not replace the survey.
+  panels:
+  - icon: magnifying-glass-chart
+    title: What we found
+    items:
+    - icon: satellite
+      heading: Public data carry real information about deficiency
+      caption: Most of it in environmental and climate layers, measured everywhere, every year.
+    - icon: ranking-star
+      heading: The model ranks districts better than regional averages
+      caption: In surveyed countries and in a country never surveyed.
+    - icon: layer-group
+      heading: Every survey added improves every other country's map
+      caption: The limit today is surveys, not predictors.
+  - icon: flag-checkered
+    title: Next steps
+    items:
+    - icon: map-location-dot
+      heading: Make surveys count for more
+      caption: Which districts to sample, where to place clusters, how to fill the gaps.
+    - icon: vials
+      heading: Add surveys to the pool
+      caption: And test the model on a fifth country before anyone acts on it.
+    - icon: handshake
+      heading: Compare with the MIMI and GBD models
+      caption: Framework by framework.

@@ -466,23 +466,97 @@ arm_raw_enet_v2 <- function(tr, te, y, X, D, aux) {
 #' Weight each domain by its training-fold Fisher-z Spearman association with
 #' the outcome, then take the weighted sum. No hyperparameters, nothing to
 #' overfit, and the arm that transported at Spearman 0.309 across countries.
-#' Predictions are on an arbitrary scale, so they are recentred and rescaled to
-#' the training outcome's mean and SD; this makes correlation meaningful and
-#' error metrics interpretable without giving the arm any test information.
-arm_domain_index_v2 <- function(tr, te, y, X, D, aux) {
-  ytr <- y[tr]
-  z <- apply(D[tr, , drop = FALSE], 2, function(x) {
+#'
+#' The score is on an arbitrary scale. It is standardised on the training rows
+#' and mapped to the outcome scale as mean(y_tr) + rho * sd(y_tr) * z. For the
+#' RANKING product (`domain_index`) rho = 1: the map is a fixed affine rescale
+#' that keeps correlation meaningful without any test information. For the
+#' LEVEL product (`domain_index_cal`, IS-01, 2026-09-18) rho is the score's
+#' out-of-sample correlation with the outcome, estimated honestly by nested
+#' 5-fold predictions inside the training rows: a score that explains rho^2 of
+#' the outcome's variance must be given rho times its spread, otherwise the
+#' levels are over-dispersed by 1/rho (in-fill prevalence MAE 14.5 pp against
+#' 12.4 for the training mean; calibrated 11.5, RR-12 cells). The two arms have
+#' IDENTICAL rankings inside any one fit; they are kept apart because the
+#' protocol pools out-of-fold predictions across folds before ranking them,
+#' and a shrunk spread lets fold-to-fold differences in the training mean into
+#' the pooled order (Spearman 0.39 -> 0.34 on the same rankings,
+#' index_shrinkage_variants.csv). Read Spearman / top-k from `domain_index`
+#' and MAE / bias from `domain_index_cal`. V2_INDEX_SHRINK overrides the
+#' default of `domain_index` ("none" | "nested" | "insample"); in-sample rho
+#' under-shrinks (MAE 0.189 / 11.7 vs nested 0.187 / 11.5) and is kept only
+#' for comparison. rho is floored at 0.001 so a negative estimate collapses
+#' the levels to the mean without destroying the ranking.
+.index_weights_v2 <- function(Dtr, ytr) {
+  n <- length(ytr)
+  z <- apply(Dtr, 2, function(x) {
     if (stats::sd(x) == 0) return(0)
     r <- suppressWarnings(stats::cor(x, ytr, method = "spearman"))
     if (!is.finite(r)) return(0)
     r <- max(min(r, 0.999), -0.999)
-    0.5 * log((1 + r) / (1 - r)) * sqrt(max(length(tr) - 3, 1))
+    0.5 * log((1 + r) / (1 - r)) * sqrt(max(n - 3, 1))
   })
   z[!is.finite(z)] <- 0
+  z
+}
+.index_rho_v2 <- function(tr, y, D, how = c("nested", "insample", "none"), k = 5L) {
+  how <- match.arg(how)
+  if (how == "none") return(1)
+  ytr <- y[tr]
+  if (how == "insample") {
+    s <- as.numeric(D[tr, , drop = FALSE] %*% .index_weights_v2(D[tr, , drop = FALSE], ytr))
+    r <- suppressWarnings(stats::cor(s, ytr))
+  } else {
+    # deterministic inner folds (systematic 1..k over the training rows): no
+    # call to the RNG, so the caller's random stream is untouched
+    f <- rep_len(seq_len(min(k, length(tr))), length(tr))
+    oof <- rep(NA_real_, length(tr))
+    for (j in unique(f)) {
+      itr <- tr[f != j]; ite <- tr[f == j]
+      if (length(itr) < 5) next
+      w <- .index_weights_v2(D[itr, , drop = FALSE], y[itr])
+      s_itr <- as.numeric(D[itr, , drop = FALSE] %*% w)
+      s_ite <- as.numeric(D[ite, , drop = FALSE] %*% w)
+      if (stats::sd(s_itr) == 0) { oof[f == j] <- mean(y[itr]); next }
+      oof[f == j] <- ((s_ite - mean(s_itr)) / stats::sd(s_itr)) * stats::sd(y[itr]) + mean(y[itr])
+    }
+    r <- suppressWarnings(stats::cor(oof, ytr, use = "complete.obs"))
+  }
+  if (!is.finite(r)) r <- 0
+  max(min(r, 1), 0.001)
+}
+arm_domain_index_v2 <- function(tr, te, y, X, D, aux) {
+  ytr <- y[tr]
+  z <- .index_weights_v2(D[tr, , drop = FALSE], ytr)
   idx_tr <- as.numeric(D[tr, , drop = FALSE] %*% z)
   idx_te <- as.numeric(D[te, , drop = FALSE] %*% z)
   if (stats::sd(idx_tr) == 0) return(rep(mean(ytr), length(te)))
-  ((idx_te - mean(idx_tr)) / stats::sd(idx_tr)) * stats::sd(ytr) + mean(ytr)
+  rho <- .index_rho_v2(tr, y, D, how = Sys.getenv("V2_INDEX_SHRINK", "none"))
+  ((idx_te - mean(idx_tr)) / stats::sd(idx_tr)) * rho * stats::sd(ytr) + mean(ytr)
+}
+#' The calibrated-level index: the same ranking, spread shrunk by the nested
+#' out-of-sample correlation (IS-01). The arm to read levels, MAE and bias from.
+#'
+#' On the prevalence target the shrinkage happens on the logit scale, and the
+#' back-transformed logit mean sits below the arithmetic mean (-2.6 pp in
+#' RR-13; the spatial arm shows the same). When `aux$target == "prev"` and
+#' `aux$y_nat` is present the logit predictions are therefore shifted by the
+#' constant that makes the mean back-transformed TRAINING prediction equal
+#' the training rows' mean prevalence (the null arm's own definition), which
+#' is exactly the dashboard's national anchor applied to the training mean.
+#' A shift is a monotone map, so the ranking is untouched.
+arm_domain_index_cal_v2 <- function(tr, te, y, X, D, aux) {
+  old <- Sys.getenv("V2_INDEX_SHRINK", unset = NA)
+  Sys.setenv(V2_INDEX_SHRINK = "nested"); on.exit(if (is.na(old)) Sys.unsetenv("V2_INDEX_SHRINK") else Sys.setenv(V2_INDEX_SHRINK = old))
+  p_te <- arm_domain_index_v2(tr, te, y, X, D, aux)
+  if (identical(aux$target, "prev") && !is.null(aux$y_nat) && all(is.finite(aux$y_nat[tr]))) {
+    p_tr <- arm_domain_index_v2(tr, tr, y, X, D, aux)
+    target_mean <- mean(aux$y_nat[tr])
+    f <- function(c) mean(.v2_expit(p_tr + c)) - target_mean
+    shift <- tryCatch(stats::uniroot(f, c(-8, 8))$root, error = function(e) 0)
+    p_te <- p_te + shift
+  }
+  p_te
 }
 
 arm_spatial_plus_domain_v2 <- function(tr, te, y, X, D, aux) {
@@ -497,6 +571,7 @@ ARMS_V2 <- list(
   region_mean_jk      = arm_region_mean_jk_v2,
   spatial             = arm_spatial_v2,
   domain_index        = arm_domain_index_v2,
+  domain_index_cal    = arm_domain_index_cal_v2,
   domain_enet         = arm_domain_enet_v2,
   raw_enet            = arm_raw_enet_v2,
   spatial_plus_domain = arm_spatial_plus_domain_v2
@@ -510,6 +585,8 @@ ARMS_V2 <- list(
 arms_for_estimand_v2 <- function(estimand) {
   base <- c("null_train_mean", "spatial", "domain_index", "domain_enet",
             "raw_enet", "spatial_plus_domain")
+  # the calibrated-level index only where levels are scored (transport blanks MAE)
+  if (estimand != "country") base <- c(base, "domain_index_cal")
   if (estimand == "infill") c(base, "region_mean_jk") else base
 }
 

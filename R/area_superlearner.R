@@ -70,9 +70,124 @@ SL.asl_xgb <- function(Y, X, newX, family, obsWeights, id, ...)
 # bound here next to the wrappers it accompanies.
 All <- SuperLearner::All
 SL.mean <- SuperLearner::SL.mean          # the one built-in passed by name
+
+# ── Domain-PC learners (SL-06, 2026-09-17) ───────────────────────────────────
+# The protocol-v2 representation as SuperLearner candidates: each learner
+# rebuilds the per-domain principal components (build_domain_pcs_v2, rotations
+# from ITS training rows only) from the raw columns it is handed, then fits
+#   SL.asl_domain_index     the zero-tuning domain index (arm_domain_index_v2)
+#   SL.asl_domain_pc_ridge  weighted ridge on the domain PCs (glmnet, alpha 0)
+#   SL.asl_domain_pc_enet   weighted elastic net on the domain PCs (alpha 0.5)
+# They need a column -> domain map, which SuperLearner cannot pass through its
+# wrapper signature, so fit_area_superlearner(domain_of = ...) parks it in
+# .asl_domain_env for the duration of the call. X must already be the
+# rank-normalised matrix (prep_predictors_v2), as in every protocol-v2 caller;
+# columns without a domain (lon, lat, ...) are dropped by build_domain_pcs_v2.
+# Predictions are made through newX at fit time (fit_area_superlearner always
+# passes newX = rbind(X, newX)); predict() on the fit object is not supported.
+.asl_domain_env <- new.env(parent = emptyenv())
+.asl_domain_pcs <- function(X, newX) {
+  dom <- .asl_domain_env$domain_of
+  if (is.null(dom)) stop("domain-PC learner called without a domain map: pass domain_of= to fit_area_superlearner()")
+  Xall <- rbind(as.matrix(X), as.matrix(newX)); storage.mode(Xall) <- "double"
+  Xall[!is.finite(Xall)] <- 0
+  D <- domain_representation_v2(Xall, dom[colnames(Xall)], sign_rows = seq_len(nrow(X)))
+  if (!ncol(D)) stop("domain-PC learner: no column of X has a domain")
+  list(tr = D[seq_len(nrow(X)), , drop = FALSE], te = D[nrow(X) + seq_len(nrow(newX)), , drop = FALSE])
+}
+.asl_domain_fit <- function(pred, what) {
+  fit <- list(what = what); class(fit) <- "SL.asl_domain"
+  list(pred = as.numeric(pred), fit = fit)
+}
+predict.SL.asl_domain <- function(object, newdata, ...)
+  stop("SL.asl_domain_", object$what, " predicts via newX at fit time")
+SL.asl_domain_index <- function(Y, X, newX, family, obsWeights, id, ...) {
+  if (!isTRUE(.asl_domain_env$warned_weights) && !is.null(obsWeights) && length(unique(obsWeights)) > 1) {
+    cat("    [SL.asl_domain_index] observation weights are ignored (the index has none)\n")
+    .asl_domain_env$warned_weights <- TRUE
+  }
+  D <- .asl_domain_pcs(X, newX); ntr <- nrow(D$tr); nte <- nrow(D$te)
+  p <- arm_domain_index_v2(seq_len(ntr), ntr + seq_len(nte), c(Y, rep(NA_real_, nte)),
+                           NULL, rbind(D$tr, D$te), NULL)
+  .asl_domain_fit(p, "index")
+}
+.asl_domain_glmnet <- function(Y, X, newX, family, obsWeights, id, alpha, what) {
+  D <- .asl_domain_pcs(X, newX)
+  if (ncol(D$tr) < 2) return(SuperLearner::SL.mean(Y, X, newX, family, obsWeights, id))
+  g <- SuperLearner::SL.glmnet(Y, as.data.frame(D$tr), as.data.frame(D$te), family, obsWeights, id,
+                               alpha = alpha, nfolds = .asl_nf(length(Y)))
+  .asl_domain_fit(g$pred, what)
+}
+SL.asl_domain_pc_ridge <- function(Y, X, newX, family, obsWeights, id, ...)
+  .asl_domain_glmnet(Y, X, newX, family, obsWeights, id, alpha = 0,   what = "pc_ridge")
+SL.asl_domain_pc_enet  <- function(Y, X, newX, family, obsWeights, id, ...)
+  .asl_domain_glmnet(Y, X, newX, family, obsWeights, id, alpha = 0.5, what = "pc_enet")
+# Ordinary least squares on the first component of every domain: the
+# "traditional regression" candidate, ~24 columns, no penalty. Rank-deficient
+# fits (inner folds of the smallest cells) drop aliased columns, as lm() does.
+SL.asl_domain_pc1_ols <- function(Y, X, newX, family, obsWeights, id, ...) {
+  D <- .asl_domain_pcs(X, newX)
+  pc1 <- grep("_PC1$", colnames(D$tr), value = TRUE)
+  if (length(pc1) < 2) return(SuperLearner::SL.mean(Y, X, newX, family, obsWeights, id))
+  dtr <- data.frame(Y = Y, D$tr[, pc1, drop = FALSE]); dte <- as.data.frame(D$te[, pc1, drop = FALSE])
+  fit <- stats::lm(Y ~ ., data = dtr, weights = obsWeights)
+  p <- suppressWarnings(as.numeric(stats::predict(fit, dte)))
+  p[!is.finite(p)] <- mean(Y)
+  .asl_domain_fit(p, "pc1_ols")
+}
+.ASL_DOMAIN_LEARNERS <- c("domain_index", "domain_pc_ridge", "domain_pc_enet", "domain_pc1_ols")
+
+# ── Geostatistical learners (SL-06) ──────────────────────────────────────────
+# The protocol's spatial arms as candidates. They read `lon` and `lat` columns
+# of X; pair them with screen.asl_coords / All through the `screens` argument
+# so the covariate-only learners never see coordinates. Not meaningful under
+# transport (no observed outcome inside the held-out country): the caller
+# leaves them out of the library there, as arms_for_estimand_v2() does.
+screen.asl_coords    <- function(Y, X, family, obsWeights, id, ...) colnames(X) %in% c("lon", "lat")
+screen.asl_no_coords <- function(Y, X, family, obsWeights, id, ...) !(colnames(X) %in% c("lon", "lat"))
+.asl_coords_of <- function(X, newX) {
+  if (!all(c("lon", "lat") %in% colnames(X))) stop("spatial learner needs lon and lat columns in X")
+  list(lon = c(X$lon, newX$lon), lat = c(X$lat, newX$lat))
+}
+SL.asl_spatial_gam <- function(Y, X, newX, family, obsWeights, id, ...) {
+  aux <- .asl_coords_of(X, newX); ntr <- nrow(X)
+  p <- .v2_spatial_fit(seq_len(ntr), c(Y, rep(NA_real_, nrow(newX))), aux)(ntr + seq_len(nrow(newX)))
+  .asl_domain_fit(p, "spatial_gam")
+}
+SL.asl_spatial_plus_domain <- function(Y, X, newX, family, obsWeights, id, ...) {
+  aux <- .asl_coords_of(X, newX); ntr <- nrow(X); nte <- nrow(newX)
+  keep <- !(colnames(X) %in% c("lon", "lat"))
+  D <- .asl_domain_pcs(X[, keep, drop = FALSE], newX[, keep, drop = FALSE])
+  sp <- .v2_spatial_fit(seq_len(ntr), c(Y, rep(NA_real_, nte)), aux)
+  add <- .v2_enet(D$tr, Y - sp(seq_len(ntr)), D$te)
+  .asl_domain_fit(sp(ntr + seq_len(nte)) + add, "spatial_plus_domain")
+}
+# SPDE Gaussian field + domain PC1s as fixed effects (R/protocol_v2_mbg.R,
+# MB-01), at the rows' own coordinates. INLA: seconds per fit, so opt in.
+SL.asl_mbg <- function(Y, X, newX, family, obsWeights, id, ...) {
+  if (!exists(".mbg_arm") || !.mbg_ok()) stop("SL.asl_mbg needs INLA, fmesher and R/protocol_v2_mbg.R")
+  aux <- .asl_coords_of(X, newX); ntr <- nrow(X); nte <- nrow(newX)
+  keep <- !(colnames(X) %in% c("lon", "lat"))
+  D <- .asl_domain_pcs(X[, keep, drop = FALSE], newX[, keep, drop = FALSE])
+  p <- .mbg_arm(seq_len(ntr), ntr + seq_len(nte), c(Y, rep(NA_real_, nte)), NULL, rbind(D$tr, D$te), aux)
+  .asl_domain_fit(p, "mbg")
+}
+.ASL_SPATIAL_LEARNERS <- c("spatial_gam", "spatial_plus_domain", "mbg")
+
 .ASL_LIBRARY <- c(mean = "SL.mean", lasso = "SL.asl_lasso", enet = "SL.asl_enet",
                   ridge = "SL.asl_ridge", ranger = "SL.asl_ranger",
-                  xgb = "SL.asl_xgb")
+                  xgb = "SL.asl_xgb",
+                  domain_index = "SL.asl_domain_index",
+                  domain_pc_ridge = "SL.asl_domain_pc_ridge",
+                  domain_pc_enet = "SL.asl_domain_pc_enet",
+                  domain_pc1_ols = "SL.asl_domain_pc1_ols",
+                  spatial_gam = "SL.asl_spatial_gam",
+                  spatial_plus_domain = "SL.asl_spatial_plus_domain",
+                  mbg = "SL.asl_mbg",
+                  hapc = "SL.hapc", hapc_lasso = "SL.hapc_lasso")   # R/sl_hapc.R
+# the six learners the production SL has always used; the domain-PC learners
+# are opt-in because they need a domain map
+.ASL_LIBRARY_DEFAULT <- c("mean", "lasso", "enet", "ridge", "ranger", "xgb")
 
 # ── Rank-aligned meta-learner ────────────────────────────────────────────────
 # method.NNLS minimises cross-validated SQUARED ERROR. At 14-87 noisy districts
@@ -227,12 +342,35 @@ make_method_asl_burden <- function(burden, frac = 0.20) list(
 #' @param pop per-row population for the training rows (e.g. children under 5);
 #'   used by meta = "wrank" (as weights) and "burden" (prevalence x pop). If
 #'   missing, those metas fall back to "rank" and say so.
+#' @param screens optional named character vector, library entry -> screener
+#'   function name (e.g. c(lasso = "screen.asl_no_coords", spatial_gam =
+#'   "screen.asl_coords")); entries not named get "All". Lets coordinate
+#'   columns reach only the spatial learners.
+#' @param domain_of named character vector, column of X -> domain, required by
+#'   the domain-PC learners (domain_index, domain_pc_ridge, domain_pc_enet).
+#'   NULL drops those learners from `library` with a note, so callers on a
+#'   vocabulary without a domain map (the legacy gee_ set) are unaffected.
+#' @return list(pred_train, pred_new, cvRisk, coef, pick, V_used, meta, Z, Y,
+#'   library_pred_train, library_pred_new, note) or NULL. The library_pred_*
+#'   matrices hold every learner's prediction so other meta-learners can be
+#'   derived from one fit (.asl_rank_coef(Z, Y) %*% library_pred_new).
 fit_area_superlearner <- function(Y, X, newX, weights = NULL, block = NULL,
-                                  library = names(.ASL_LIBRARY), V = 5L,
+                                  library = .ASL_LIBRARY_DEFAULT, V = 5L,
                                   discrete = TRUE, family = stats::gaussian(),
                                   meta = c("mse", "rank", "wrank", "burden"),
-                                  pop = NULL) {
+                                  pop = NULL, domain_of = NULL, screens = NULL) {
   meta <- match.arg(meta)
+  if (is.null(domain_of)) {
+    dropped <- intersect(library, c(.ASL_DOMAIN_LEARNERS, "spatial_plus_domain", "mbg"))
+    if (length(dropped)) {
+      cat("    [area_superlearner] no domain_of map: dropping", paste(dropped, collapse = ", "), "\n")
+      library <- setdiff(library, dropped)
+    }
+  } else {
+    old_map <- .asl_domain_env$domain_of
+    .asl_domain_env$domain_of <- domain_of
+    on.exit(.asl_domain_env$domain_of <- old_map, add = TRUE)
+  }
   if (meta %in% c("wrank", "burden") && (is.null(pop) || length(pop) != length(Y))) {
     cat("    [area_superlearner] meta =", meta, "needs pop aligned to Y; using meta = rank
 ")
@@ -250,6 +388,10 @@ fit_area_superlearner <- function(Y, X, newX, weights = NULL, block = NULL,
   if (n < 6 || ncol(X) < 1) return(.why(sprintf("n=%d, p=%d", n, ncol(X))))
   lib <- ifelse(library %in% names(.ASL_LIBRARY), .ASL_LIBRARY[library], library)
   lib <- unname(lib)
+  if (!is.null(screens)) {
+    sc <- ifelse(library %in% names(screens), screens[library], "All")
+    lib <- lapply(seq_along(lib), function(i) c(lib[i], unname(sc[i])))
+  }
   w <- if (is.null(weights)) rep(1, n) else pmax(as.numeric(weights), 1)
   w[!is.finite(w)] <- 1
 
@@ -270,10 +412,14 @@ fit_area_superlearner <- function(Y, X, newX, weights = NULL, block = NULL,
     error = function(e) .why(paste("SuperLearner error:", conditionMessage(e))))
   if (is.null(fit)) return(NULL)
 
+  # library columns are named by the entries the caller passed (short names
+  # from .ASL_LIBRARY, or wrapper names), in library order
   lp <- fit$library.predict
-  colnames(lp) <- sub("_All$", "", colnames(lp))
-  risk <- fit$cvRisk; names(risk) <- sub("_All$", "", names(risk))
-  coef <- fit$coef;   names(coef) <- sub("_All$", "", names(coef))
+  lib_names <- if (ncol(lp) == length(library)) library else sub("_All$", "", colnames(lp))
+  colnames(lp) <- lib_names
+  risk <- fit$cvRisk; names(risk) <- lib_names
+  coef <- fit$coef;   names(coef) <- lib_names
+  Z <- fit$Z; if (!is.null(Z) && ncol(Z) == length(lib_names)) colnames(Z) <- lib_names
   ok <- is.finite(risk)
   if (!any(ok)) return(.why("no learner produced a finite CV risk"))
   pick <- names(risk)[ok][which.min(risk[ok])]
@@ -282,7 +428,9 @@ fit_area_superlearner <- function(Y, X, newX, weights = NULL, block = NULL,
   list(pred_train = p_all[seq_len(n)],
        pred_new   = p_all[n + seq_len(nrow(newX))],
        cvRisk = risk, coef = coef, pick = pick, V_used = V_used,
-       meta = meta, Z = fit$Z, Y = Y,
+       meta = meta, Z = Z, Y = Y,
+       library_pred_train = lp[seq_len(n), , drop = FALSE],
+       library_pred_new   = lp[n + seq_len(nrow(newX)), , drop = FALSE],
        note = sprintf("%s; weights=%s; meta=%s; pick=%s", note_folds,
                       if (is.null(weights)) "equal" else "supplied", meta, pick))
 }

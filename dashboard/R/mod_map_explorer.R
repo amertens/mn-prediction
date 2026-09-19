@@ -83,6 +83,8 @@ mod_map_explorer_server <- function(id) {
         p("National prevalence, from the survey: ", tags$span(style = "font-size:1.2em; color:#C8641E;", strong(fmt_pct(nat$national_prev)))),
         p(sprintf("%d of %d districts were surveyed. The model ranks all %d.", nat$n_surveyed, nat$n_districts, nat$n_districts),
           style = "font-size:0.9em; color:#555;"),
+        p(level_skill_badge(nat$rho_train), style = "margin-bottom:2px;"),
+        p(level_skill_text(nat$rho_train), style = "font-size:0.82em; color:#555;"),
         p(strong(sprintf("Worst fifth (%d districts): ", k)),
           paste(head(worst$Admin2, 8), collapse = ", "), if (k > 8) sprintf(" and %d more", k - 8) else "",
           style = "font-size:0.9em;"),
@@ -186,7 +188,11 @@ mod_map_explorer_server <- function(id) {
 
     output$caption <- renderText({
       nat <- idx_national[idx_national$country_key == input$country & idx_national$outcome == input$outcome, ]
-      sprintf("%s, survey year %s, %s. %s. Grey areas have no prediction.",
+      skill <- if (nrow(nat) && input$layer %in% c("prev_anchored", "who_class", "people_affected"))
+        sprintf(" Level skill %s (rho = %s): %s", level_skill(nat$rho_train)$band, fmt_num(g1(nat$rho_train), 2),
+                if (level_skill(nat$rho_train)$band %in% c("none", "weak")) "read the ranking layer, not this one." else "the spread is rho times the survey's.")
+      else ""
+      sprintf("%s, survey year %s, %s. %s. Grey areas have no prediction.%s",
               meta$countries[[input$country]], meta$survey_years[[input$country]],
               if (input$admin_level == "admin1") "regions (population-weighted from districts)" else "districts",
               switch(input$layer,
@@ -195,7 +201,8 @@ mod_map_explorer_server <- function(id) {
                      prev_anchored = sprintf("Colour: planning prevalence, the ranking anchored to the national survey figure of %s", fmt_pct(g1(nat$national_prev))),
                      survey_prev = "Colour: the survey's own district estimate; blank where the survey had no clusters",
                      who_class = "Colour: WHO severity class of the planning prevalence",
-                     people_affected = "Colour: planning prevalence times the population of the group, log scale", ""))
+                     people_affected = "Colour: planning prevalence times the population of the group, log scale", ""),
+              skill)
     })
 
     output$download <- downloadHandler(

@@ -10,6 +10,7 @@
 #
 # --forum: the deck uses the Micronutrient Forum template; also enlarge the
 # figures to the slide and add the unpublished-data label
+# --no-label: with --forum, skip the unpublished-data footer
 # (scripts/pptx_forum_postprocess.py).
 # --text BODY[,TABLE]: stamp explicit font sizes on body text and tables
 # (scripts/pptx_set_text_size.py); the Ghana template's master style is 28 pt,
@@ -20,10 +21,11 @@
 set -euo pipefail
 QMD="$1"; shift
 PPTX="${QMD%.qmd}.pptx"
-FORUM=0; TEXT=""; CONCEPT=""
+FORUM=0; TEXT=""; CONCEPT=""; NOLABEL=0
 while [ $# -gt 0 ]; do
   case "$1" in
     --forum) FORUM=1 ;;
+    --no-label) NOLABEL=1 ;;
     --text) TEXT="$2"; shift ;;
     --concept) CONCEPT="$2"; shift ;;
     *) echo "unknown option: $1" >&2; exit 1 ;;
@@ -34,7 +36,11 @@ export PATH="/c/Program Files/RStudio/resources/app/bin/quarto/bin:$PATH"
 quarto render "$QMD" --to pptx
 python scripts/fix_pptx_dangling_rels.py "$PPTX"
 if [ "$FORUM" = 1 ]; then
-  python scripts/pptx_forum_postprocess.py "$PPTX"
+  if [ "$NOLABEL" = 1 ]; then
+    python scripts/pptx_forum_postprocess.py "$PPTX" --no-label
+  else
+    python scripts/pptx_forum_postprocess.py "$PPTX"
+  fi
 fi
 if [ -n "$TEXT" ]; then
   python scripts/pptx_set_text_size.py "$PPTX" --body "${TEXT%%,*}" --table "${TEXT#*,}"

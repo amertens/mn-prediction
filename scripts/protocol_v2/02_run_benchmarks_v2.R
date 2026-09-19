@@ -95,7 +95,7 @@ build_cell <- function(cn, on, target) {
   list(country = cn, outcome = on, target = target,
        y_nat = y_nat, y_mod = y_mod, X = Xr, D = D,
        aux = list(lon = m$lon, lat = m$lat, Admin1 = m$Admin1,
-                  y_nat = y_nat),
+                  y_nat = y_nat, target = target),   # target: the calibrated index anchors prevalence on the natural scale (IS-01)
        w = m[[ncol_eff]], Admin1 = m$Admin1, n = nrow(m))
 }
 

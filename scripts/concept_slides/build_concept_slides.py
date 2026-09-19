@@ -21,7 +21,8 @@ the speaker notes of the slides it replaces) and `<deck>.quantities.json`
 Layouts: pipeline (cards in a row with arrows), cards (cards with a heading and
 lines), checklist (status tile, question, answer), icon_rows (icon, heading,
 caption; optional image on the right), two_panel (two headed columns of icon
-items), grid (groups of items in two columns).
+items; optional `banner` statement beneath), grid (groups of items in two columns).
+checklist takes heading_size, text_size, heading_width and an optional footnote.
 """
 import copy
 import json
@@ -204,14 +205,26 @@ def layout_cards(slide, spec, Q, icons):
 
 def layout_checklist(slide, spec, Q, icons):
     items = spec["items"]; n = len(items)
-    gap = Inches(0.08); rh = (H - gap * (n - 1)) / n
+    hs = spec.get("heading_size", 16); ts = spec.get("text_size", 15)
+    hw = Inches(spec.get("heading_width", 5.6))
+    fn = spec.get("footnote"); fh = Inches(0.6) if fn else 0
+    HH = H - fh
+    gap = Inches(0.08); rh = (HH - gap * (n - 1)) / n
     for k, it in enumerate(items):
         y = Y0 + k * (rh + gap); name, tint = STATUS[str(it["status"]).lower()]
         rounded_box(slide, X0, y, W, rh, fill=tint, radius=0.08)
         isz = min(Inches(0.4), rh - Inches(0.16))
         icon(slide, name, X0 + Inches(0.25), y + (rh - isz) / 2, isz, icons)
-        textbox(slide, X0 + Inches(0.85), y, Inches(5.6), rh, [(fill_text(it["heading"], Q), 16, True, BLUE)], anchor=MSO_ANCHOR.MIDDLE)
-        textbox(slide, X0 + Inches(6.5), y, W - Inches(6.6), rh, [(fill_text(it.get("caption", ""), Q), 15, False, TEXT)], anchor=MSO_ANCHOR.MIDDLE)
+        textbox(slide, X0 + Inches(0.85), y, hw, rh, [(fill_text(it["heading"], Q), hs, True, BLUE)], anchor=MSO_ANCHOR.MIDDLE)
+        cx = X0 + Inches(0.9) + hw
+        textbox(slide, cx, y, X0 + W - cx - Inches(0.1), rh, [(fill_text(it.get("caption", ""), Q), ts, False, TEXT)], anchor=MSO_ANCHOR.MIDDLE)
+    if fn:   # one line under the rows, e.g. a worked example; "Lead." before the first space-period is bolded
+        tb = textbox(slide, X0, Y0 + HH + Inches(0.08), W, fh - Inches(0.08), [(fill_text(fn, Q), spec.get("footnote_size", 12.5), False, TEXT)])
+        p = tb.text_frame.paragraphs[0]; t = p.runs[0].text
+        if ". " in t and t.index(". ") < 40:
+            lead, rest = t.split(". ", 1)
+            p.runs[0].text = lead + "."; p.runs[0].font.bold = True; p.runs[0].font.color.rgb = BLUE
+            r = p.add_run(); r.text = " " + rest; r.font.size = Pt(spec.get("footnote_size", 12.5)); r.font.color.rgb = TEXT; r.font.name = "Calibri"
 
 
 def layout_icon_rows(slide, spec, Q, icons, deck_dir):
@@ -235,14 +248,16 @@ def layout_icon_rows(slide, spec, Q, icons, deck_dir):
 
 def layout_two_panel(slide, spec, Q, icons):
     panels = spec["panels"]; gap = Inches(0.5); pw = (W - gap) / 2
+    banner = spec.get("banner"); bh = Inches(spec.get("banner_height", 0.72)) if banner else 0
+    PH = H - bh - (Inches(0.22) if banner else 0)   # panel height; the banner sits below both panels
     for j, pn in enumerate(panels):
         x = X0 + j * (pw + gap); y = Y0
-        rounded_box(slide, x, y, pw, H)
+        rounded_box(slide, x, y, pw, PH)
         hb = rounded_box(slide, x, y, pw, Inches(0.7), fill=BLUE, radius=0.12)
         if "icon" in pn:
             icon(slide, icon_file(pn, "white"), x + Inches(0.2), y + Inches(0.13), Inches(0.44), icons)
         textbox(slide, x + Inches(0.75), y, pw - Inches(0.85), Inches(0.7), [(fill_text(pn["title"], Q), 18, True, WHITE)], anchor=MSO_ANCHOR.MIDDLE)
-        items = pn["items"]; n = len(items); rh = (H - Inches(0.9)) / n
+        items = pn["items"]; n = len(items); rh = (PH - Inches(0.9)) / n
         for k, it in enumerate(items):
             yy = y + Inches(0.8) + k * rh; isz = min(Inches(0.55), rh - Inches(0.15))
             tx = x + Inches(0.25)
@@ -253,6 +268,11 @@ def layout_two_panel(slide, spec, Q, icons):
             if it.get("caption"):
                 paras.append((fill_text(it["caption"], Q), ts, False, TEXT))
             textbox(slide, tx, yy, pw - (tx - x) - Inches(0.15), rh, paras, anchor=MSO_ANCHOR.MIDDLE)
+    if banner:
+        by = Y0 + H - bh
+        rounded_box(slide, X0, by, W, bh, fill=BLUE, radius=0.12)
+        textbox(slide, X0 + Inches(0.3), by, W - Inches(0.6), bh, [(fill_text(banner, Q), spec.get("banner_size", 20), True, WHITE)],
+                anchor=MSO_ANCHOR.MIDDLE, align=PP_ALIGN.CENTER)
 
 
 def layout_grid(slide, spec, Q, icons):
@@ -293,6 +313,8 @@ def layout_title(slide, spec, Q, icons, deck_dir):
         x += w + gap
     if spec.get("acknowledgement"):
         textbox(slide, X0, Inches(6.1), W, Inches(0.4), [(fill_text(spec["acknowledgement"], Q), 12, False, MUTED)], align=PP_ALIGN.CENTER)
+    if spec.get("notes"):   # pandoc cannot attach notes to the title slide; the spec can
+        slide.notes_slide.notes_text_frame.text = fill_text(spec["notes"], Q)
 
 
 LAYOUTS = {"pipeline": layout_pipeline, "cards": layout_cards, "checklist": layout_checklist, "two_panel": layout_two_panel, "grid": layout_grid}

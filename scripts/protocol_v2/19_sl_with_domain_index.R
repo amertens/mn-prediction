@@ -45,7 +45,7 @@
 # =============================================================================
 suppressPackageStartupMessages({library(dplyr); library(SuperLearner)})
 setwd("C:/Users/andre/OneDrive/Documents/mn-prediction")
-source("R/protocol_v2.R")
+source("R/protocol_v2.R"); source("R/area_superlearner.R")   # SL-06: the domain-PC learners are shared wrappers now
 
 OUTDIR <- "results/tables/protocol_v2"
 REPS   <- as.integer(Sys.getenv("SL_REPS", "5"))
@@ -87,27 +87,22 @@ build <- function(cn, on) {
 }
 
 # ── SuperLearner wrappers ────────────────────────────────────────────────────
-# DOMAIN_OF_DF is set per cell: the wrapper must know each column's domain, and
-# SuperLearner passes X as a data.frame whose names must be syntactic.
-DOMAIN_OF_DF <- NULL
-SL.domain_index <- function(Y, X, newX, family, obsWeights, ...) {
-  Xall <- rbind(as.matrix(X), as.matrix(newX)); ntr <- nrow(X)
-  D <- domain_representation_v2(Xall, DOMAIN_OF_DF, sign_rows = seq_len(ntr))
-  p <- arm_domain_index_v2(seq_len(ntr), ntr + seq_len(nrow(newX)),
-                           c(Y, rep(NA_real_, nrow(newX))), Xall, D, NULL)
-  fit <- list(); class(fit) <- "SL.domain_index"
-  list(pred = p, fit = fit)
-}
-predict.SL.domain_index <- function(object, newdata, ...)
-  stop("SL.domain_index predicts via newX at fit time")
+# The domain-PC learners (SL.asl_domain_index, SL.asl_domain_pc_ridge,
+# SL.asl_domain_pc_enet; R/area_superlearner.R, SL-06) read the column ->
+# domain map from .asl_domain_env, set per cell below; SuperLearner passes X as
+# a data.frame whose names must be syntactic. The original script-local
+# SL.domain_index was the same computation.
 SL.enet <- function(...) SL.glmnet(..., alpha = 0.5, nfolds = 3, useMin = TRUE)
 SL.rf   <- function(...) SL.ranger(..., num.trees = 250, min.node.size = 5)
-LIB_SL <- c("SL.mean", "SL.enet", "SL.rf", "SL.domain_index")
+# arm name -> wrapper
+LIB_MAP <- c(mean = "SL.mean", enet = "SL.enet", rf = "SL.rf", domain_index = "SL.asl_domain_index",
+             domain_pc_ridge = "SL.asl_domain_pc_ridge", domain_pc_enet = "SL.asl_domain_pc_enet")
 # SL_HAPC=1 adds the hapc principal-component Highly Adaptive Ridge (R/sl_hapc.R; HP-01) to the
 # library and tags the outputs "_hapc"; the mlr3 arm is skipped in that mode (it cannot take it).
 HAPC <- Sys.getenv("SL_HAPC", "0") == "1"; TAG <- if (HAPC) "_hapc" else ""
-if (HAPC) { source("R/sl_hapc.R"); LIB_SL <- c(LIB_SL, "SL.hapc"); HAS_MLR3 <- FALSE }
-ARM_NAMES <- c("domain_index", "enet", "rf", "mean", if (HAPC) "hapc")
+if (HAPC) { source("R/sl_hapc.R"); LIB_MAP <- c(LIB_MAP, hapc = "SL.hapc"); HAS_MLR3 <- FALSE }
+LIB_SL <- unname(LIB_MAP)
+ARM_NAMES <- names(LIB_MAP)
 
 # mlr3superlearner: the same three native learners. domain_index cannot be
 # added (whitelist), and there is no weights argument.
@@ -125,7 +120,7 @@ for (i in seq_len(nrow(cells))) {
   ymod <- .v2_logit(cl$y)
   Xdf <- as.data.frame(cl$X)
   orig <- colnames(cl$X); names(Xdf) <- make.names(orig, unique = TRUE)
-  DOMAIN_OF_DF <<- stats::setNames(domain_of[orig], names(Xdf))
+  .asl_domain_env$domain_of <- stats::setNames(unname(domain_of[orig]), names(Xdf))
 
   # one-time demonstration that mlr3superlearner rejects a custom learner
   if (HAS_MLR3 && is.na(mlr3_custom_msg)) {
@@ -141,10 +136,8 @@ for (i in seq_len(nrow(cells))) {
   for (r in seq_len(REPS)) {
     folds <- make_folds_v2("kfold_district", cl$n, k = 5, rep_id = r)
     pred <- list(sl_discrete = rep(NA_real_, cl$n), sl_nnls = rep(NA_real_, cl$n),
-                 mlr3_discrete = rep(NA_real_, cl$n),
-                 domain_index = rep(NA_real_, cl$n), enet = rep(NA_real_, cl$n),
-                 rf = rep(NA_real_, cl$n), mean = rep(NA_real_, cl$n))
-    if (HAPC) pred$hapc <- rep(NA_real_, cl$n)
+                 mlr3_discrete = rep(NA_real_, cl$n))
+    for (nm in ARM_NAMES) pred[[nm]] <- rep(NA_real_, cl$n)
     t_sl <- 0; t_m3 <- 0
     for (f in unique(folds)) {
       te <- which(folds == f); tr <- which(folds != f)
@@ -167,15 +160,12 @@ for (i in seq_len(nrow(cells))) {
         pred$sl_discrete[te] <- lp[, pick]
         pred$sl_nnls[te]     <- as.numeric(fit$SL.predict)
         for (nm in ARM_NAMES)
-          pred[[nm]][te] <- lp[, paste0("SL.", nm)]
+          pred[[nm]][te] <- lp[, LIB_MAP[[nm]]]
         co <- fit$coef; names(co) <- sub("_All$", "", names(co))
-        picks[[length(picks) + 1L]] <- data.frame(
-          country = cn, outcome = on, rep = r, fold = f, package = "SuperLearner",
-          discrete_pick = sub("^SL\\.", "", pick),
-          w_domain_index = unname(co["SL.domain_index"]), w_enet = unname(co["SL.enet"]),
-          w_rf = unname(co["SL.rf"]), w_mean = unname(co["SL.mean"]),
-          w_hapc = if (HAPC) unname(co["SL.hapc"]) else NA_real_,
-          stringsAsFactors = FALSE)
+        pk <- data.frame(country = cn, outcome = on, rep = r, fold = f, package = "SuperLearner",
+                         discrete_pick = names(LIB_MAP)[match(pick, LIB_MAP)], stringsAsFactors = FALSE)
+        for (nm in ARM_NAMES) pk[[paste0("w_", nm)]] <- unname(co[LIB_MAP[[nm]]])
+        picks[[length(picks) + 1L]] <- pk
       }
 
       # --- mlr3superlearner: native library only, no weights -----------------
@@ -194,7 +184,6 @@ for (i in seq_len(nrow(cells))) {
           picks[[length(picks) + 1L]] <- data.frame(
             country = cn, outcome = on, rep = r, fold = f, package = "mlr3superlearner",
             discrete_pick = tryCatch(m3$learners[[1]]$id, error = function(e) NA_character_),
-            w_domain_index = NA_real_, w_enet = NA_real_, w_rf = NA_real_, w_mean = NA_real_, w_hapc = NA_real_,
             stringsAsFactors = FALSE)
         }
       }
@@ -224,8 +213,7 @@ for (pk in unique(PK$package)) {
 }
 if (any(PK$package == "SuperLearner")) {
   cat("\n===== NNLS ensemble weights, SuperLearner (mean over fits) =====\n")
-  print(round(colMeans(PK[PK$package == "SuperLearner",
-                          c("w_domain_index","w_enet","w_rf","w_mean", if (HAPC) "w_hapc")], na.rm = TRUE), 3))
+  print(round(colMeans(PK[PK$package == "SuperLearner", paste0("w_", ARM_NAMES)], na.rm = TRUE), 3))
 }
 
 cat("\n===== OUT-OF-FOLD SPEARMAN, prevalence (cell medians over reps) =====\n")
@@ -245,6 +233,8 @@ cat("\n===== HEAD-TO-HEAD =====\n")
 cat(hh("sl_discrete", "domain_index"), "\n")
 cat(hh("sl_nnls", "domain_index"), "\n")
 cat(hh("domain_index", "enet"), "\n")
+cat(hh("domain_pc_ridge", "domain_index"), "\n")
+cat(hh("domain_pc_enet", "domain_index"), "\n")
 if (HAPC) { cat(hh("hapc", "domain_index"), "\n"); cat(hh("hapc", "enet"), "\n") }
 if (HAS_MLR3) cat(hh("sl_discrete", "mlr3_discrete"), "\n")
 

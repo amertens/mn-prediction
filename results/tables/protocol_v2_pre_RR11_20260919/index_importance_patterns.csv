@@ -1,0 +1,63 @@
+"target","column","domain","outcomes_in_top20","outcomes","signs","mean_rank","min_loco_agree"
+"level","fprice_staple_rel","Food prices and supply",5,"child_vitA, women_vitA, child_iron, women_folate, women_b12","-----",10.2,2
+"level","ihme_overweightprevalence","Child anthropometry",4,"child_vitA, child_iron, women_iron, women_folate","----",6,3
+"level","map_sy_pf_mortality_rate","Infection and inflammation burden",4,"child_vitA, women_vitA, child_iron, women_iron","----",8,4
+"level","npp_gpp_t0","Ecosystem productivity/greenness",4,"child_vitA, women_vitA, child_iron, women_b12","----",14.2,3
+"level","npp_npp_t0","Ecosystem productivity/greenness",4,"child_vitA, child_iron, women_iron, women_folate","----",14.8,3
+"level","mics_w_iptp_sp","Infection and inflammation burden",3,"child_vitA, women_vitA, women_iron","+++",3,4
+"level","glw_ruminant_share","Livestock density",3,"child_vitA, child_iron, women_iron","+++",6.3,4
+"level","ihme_underweightprevalence","Child anthropometry",3,"child_vitA, women_vitA, women_b12","+++",7,3
+"level","lcover_grass_frac_t0","Built environment",3,"child_vitA, women_vitA, women_b12","+++",7.3,3
+"level","lcover_crops_frac_t0","Built environment",3,"child_vitA, child_iron, women_b12","+++",7.7,3
+"level","glw_tlu_per_capita","Livestock density",3,"child_vitA, women_vitA, women_b12","+++",8.3,3
+"level","ihme_allanemia","Anaemia and haemoglobin",3,"women_vitA, women_iron, women_folate","+++",8.7,3
+"level","ihme_moderateanemia","Anaemia and haemoglobin",3,"women_vitA, women_iron, women_folate","+++",10.3,3
+"level","ihme_mildanemia","Anaemia and haemoglobin",3,"women_vitA, women_iron, women_folate","+++",13.3,3
+"level","ihme_severeanemia","Anaemia and haemoglobin",3,"women_vitA, women_iron, women_folate","+++",14.7,3
+"level","ihme_simpother","Water and sanitation",3,"child_vitA, child_iron, women_iron","---",17.7,4
+"level","ihme_wastingprevalence","Child anthropometry",2,"child_vitA, women_vitA","++",1.5,4
+"level","mics_c_fg_flesh","Infant and young child feeding",2,"women_folate, women_b12","+-",2,2
+"level","mics_wealth_score_mean","Household assets and characteristics",2,"women_vitA, women_b12","--",7,3
+"level","mics_wealth_poorest40","Household assets and characteristics",2,"women_vitA, women_b12","++",8.5,3
+"level","soil_phosphorus_stdev_0_20","Soil characteristics",2,"child_iron, women_iron","++",8.5,4
+"level","glw_sheep_km2","Livestock density",2,"women_vitA, women_iron","++",9,4
+"level","wpop_dependency_ratio","Household assets and characteristics",2,"child_vitA, child_iron","++",11.5,4
+"level","map_sy_pf_parasite_rate","Infection and inflammation burden",2,"child_iron, women_iron","--",12.5,4
+"level","mics_c_fg_legumes","Infant and young child feeding",2,"women_vitA, child_iron","++",13.5,4
+"level","ihme_stuntingprevalence","Child anthropometry",2,"women_vitA, women_b12","++",14.5,3
+"level","wdist_coast_km_mean","Water and coast proximity",2,"child_iron, women_b12","++",15.5,3
+"level","rwi_sd","Education, employment, SES",2,"child_iron, women_b12","--",16.5,3
+"level","mics_c_wasted","Child anthropometry",2,"child_vitA, women_iron","++",19,4
+"level","mics_c_fg_eggs","Infant and young child feeding",2,"women_vitA, women_folate","--",20,3
+"prev","ihme_overweightprevalence","Child anthropometry",4,"child_vitA, women_vitA, child_iron, women_iron","----",1.5,4
+"prev","wdist_coast_km_mean","Water and coast proximity",4,"child_vitA, women_vitA, child_iron, women_b12","++++",10.2,3
+"prev","npp_npp_t0","Ecosystem productivity/greenness",4,"women_vitA, child_iron, women_iron, women_folate","----",12,3
+"prev","wdist_coast_km_min","Water and coast proximity",4,"child_vitA, women_vitA, child_iron, women_b12","++++",14,3
+"prev","npp_gpp_t0","Ecosystem productivity/greenness",4,"child_vitA, women_vitA, child_iron, women_iron","----",15,3
+"prev","map_sy_pf_mortality_rate","Infection and inflammation burden",3,"women_vitA, child_iron, women_iron","---",8.7,4
+"prev","map_sy_pf_reproductive_number","Infection and inflammation burden",3,"women_vitA, child_iron, women_iron","---",8.7,4
+"prev","espen_sth_cov_mean","Infection and inflammation burden",3,"women_vitA, women_folate, women_b12","-+-",10,2
+"prev","mics_w_iptp_sp","Infection and inflammation burden",3,"child_vitA, women_vitA, women_iron","+++",10.3,4
+"prev","glw_tlu_per_capita","Livestock density",2,"child_vitA, women_b12","++",2,3
+"prev","glw_ruminant_share","Livestock density",2,"child_iron, women_iron","++",3,4
+"prev","ihme_recommendedhomefluids","Infection and inflammation burden",2,"child_vitA, women_vitA","--",3,4
+"prev","elevation","Built environment",2,"women_folate, women_b12","-+",3.5,3
+"prev","spam_share_cereals","Agricultural production, land use",2,"child_iron, women_iron","++",5.5,4
+"prev","wpop_share_under5","Household assets and characteristics",2,"child_vitA, child_iron","++",8,4
+"prev","fprice_staple_rel","Food prices and supply",2,"child_vitA, child_iron","--",8.5,3
+"prev","glw_pigs_km2","Livestock density",2,"women_iron, women_b12","-+",8.5,3
+"prev","hces_own_prod_share","Household diet and consumption (HCES)",2,"child_vitA, child_iron","++",8.5,3
+"prev","spam_share_oilcrops","Agricultural production, land use",2,"women_vitA, women_folate","+-",10.5,3
+"prev","map_sy_pf_parasite_rate","Infection and inflammation burden",2,"child_iron, women_iron","--",11,4
+"prev","ndvi_modis_amp_t0","Ecosystem productivity/greenness",2,"child_vitA, women_b12","++",11,3
+"prev","lcover_crops_frac_t0","Built environment",2,"child_iron, women_b12","++",12,3
+"prev","mics_c_fg_legumes","Infant and young child feeding",2,"child_vitA, child_iron","++",12,4
+"prev","soil_phosphorus_stdev_0_20","Soil characteristics",2,"child_iron, women_iron","++",12,4
+"prev","mics_wealth_poorest40","Household assets and characteristics",2,"child_vitA, women_b12","++",13,3
+"prev","tclim_pdsi_t0","Climate and weather",2,"women_vitA, women_folate","+-",13,3
+"prev","ihme_allanemia","Anaemia and haemoglobin",2,"women_iron, women_folate","++",14,3
+"prev","wpop_dependency_ratio","Household assets and characteristics",2,"child_vitA, child_iron","++",14,4
+"prev","ihme_moderateanemia","Anaemia and haemoglobin",2,"women_iron, women_folate","++",15.5,3
+"prev","glw_sheep_km2","Livestock density",2,"women_vitA, women_iron","++",16.5,4
+"prev","ihme_mildanemia","Anaemia and haemoglobin",2,"women_iron, women_folate","++",17,3
+"prev","soilgrids_sand","Soil characteristics",2,"women_iron, women_b12","-+",19.5,2

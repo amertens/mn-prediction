@@ -7,7 +7,8 @@
 #           docs/slides/MN-proxy-Ghana-concept-slides-2026-09.yaml
 #
 # Writes <deck>.quantities.json next to the qmd and PNGs to docs/slides/img/icons/
-# (skipped when present). The setup chunk is evaluated as the deck would: with
+# (skipped when present). A deck whose setup chunk defines no Q still gets the
+# domain counts (from the predictor metadata) and its icons. The setup chunk is evaluated as the deck would: with
 # the working directory at docs/slides/ and `root` resolved by here::here().
 suppressPackageStartupMessages({library(jsonlite); library(fontawesome); library(yaml)})
 args <- commandArgs(trailingOnly = TRUE)
@@ -22,12 +23,15 @@ code <- lines[(open[1] + 1):(close - 1)]
 env <- new.env(); assign("root", root, envir = env)
 owd <- setwd(dirname(qmd)); on.exit(setwd(owd), add = TRUE)
 suppressPackageStartupMessages(eval(parse(text = code), envir = env))
-Q <- get("Q", envir = env)
+# a deck without a Q list (the MNF15 talk) still gets the domain counts and the icons
+Q <- if (exists("Q", envir = env)) get("Q", envir = env) else list()
 # vectors named d/b/n (paired comparisons) become objects; data frames become row lists
 Q <- lapply(Q, function(x) if (is.data.frame(x)) x else if (!is.null(names(x))) as.list(x) else x)
 
 # ---- 2. extra quantities the concept slides use ---------------------------------------
-MD <- get("MD", envir = env); SY <- get("SY", envir = env); TG <- get("TG", envir = env)
+gt <- function(nm) if (exists(nm, envir = env)) get(nm, envir = env) else NULL
+MD <- gt("MD"); SY <- gt("SY"); TG <- gt("TG")
+if (is.null(MD)) MD <- read.csv(file.path(root, "data", "covariates", "harmonized", "predictors_admin2_shared_metadata.csv"), stringsAsFactors = FALSE)
 if (!is.null(MD)) {
   dc <- as.data.frame(table(MD$domain), stringsAsFactors = FALSE); Q$domain_counts <- setNames(as.list(dc$Freq), dc$Var1)
   src <- split(MD$source, MD$domain); Q$domain_sources <- lapply(src, function(s) sort(unique(sub(" [(].*$", "", s))))

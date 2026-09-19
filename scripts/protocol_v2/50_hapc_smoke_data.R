@@ -13,8 +13,14 @@
 # Y is the modelling target (biomarker level, or logit prevalence) and y_nat
 # the natural-scale target for scoring, plus the effective n weights.
 #
+# HP-02 (2026-09-17): every file is also written as `*_raw.csv`, carrying the
+# rank-normalised predictor matrix itself (all columns prep_predictors_v2()
+# keeps in-fill; the common columns under LOCO) instead of the domain PCs, so
+# hapc's own kernel-PC reduction can be scored against the domain PCA on the
+# same rows, folds and targets.
+#
 #   Rscript scripts/protocol_v2/50_hapc_smoke_data.R
-# -> results/tables/protocol_v2/hapc_smoke/*.csv
+# -> results/tables/protocol_v2/hapc_smoke/*.csv, *_raw.csv
 # =============================================================================
 suppressPackageStartupMessages({library(dplyr)})
 setwd("C:/Users/andre/OneDrive/Documents/mn-prediction")
@@ -40,7 +46,8 @@ for (target in c("level", "prev")) {
   out <- data.frame(country = z$country, Admin1 = z$Admin1, Admin2 = z$Admin2, y_mod = z$y_mod, y_nat = z$y_nat, w = z$w, folds, check.names = FALSE)
   names(out)[7:16] <- paste0("fold_rep", 1:10)
   write.csv(cbind(out, as.data.frame(D)), file.path(OUT, sprintf("infill_ghana_child_iron_%s.csv", target)), row.names = FALSE)
-  cat(sprintf("in-fill Ghana child_iron %s: %d districts, %d domain PCs\n", target, z$n, ncol(D)))
+  write.csv(cbind(out, as.data.frame(z$X)), file.path(OUT, sprintf("infill_ghana_child_iron_%s_raw.csv", target)), row.names = FALSE)
+  cat(sprintf("in-fill Ghana child_iron %s: %d districts, %d domain PCs, %d raw columns\n", target, z$n, ncol(D), ncol(z$X)))
 }
 # (b) LOCO, pooled: child iron and child vitamin A, level target
 for (on in c("child_iron", "child_vitA")) for (target in c("level", "prev")) {
@@ -52,6 +59,7 @@ for (on in c("child_iron", "child_vitA")) for (target in c("level", "prev")) {
   out <- data.frame(country = ctry, Admin1 = unlist(lapply(cl, `[[`, "Admin1")), Admin2 = unlist(lapply(cl, `[[`, "Admin2")),
                     y_mod = unlist(lapply(cl, function(z) as.numeric(scale(z$y_mod)))), y_nat = unlist(lapply(cl, `[[`, "y_nat")), w = unlist(lapply(cl, `[[`, "w")), check.names = FALSE)
   write.csv(cbind(out, as.data.frame(D)), file.path(OUT, sprintf("loco_%s_%s.csv", on, target)), row.names = FALSE)
+  write.csv(cbind(out, as.data.frame(Xm)), file.path(OUT, sprintf("loco_%s_%s_raw.csv", on, target)), row.names = FALSE)
   cat(sprintf("LOCO %s %s: %d districts in %d countries, %d common columns, %d domain PCs\n", on, target, nrow(out), length(cl), length(common), ncol(D)))
 }
 cat("DONE\n")

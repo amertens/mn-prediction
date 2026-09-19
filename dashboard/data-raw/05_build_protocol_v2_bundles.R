@@ -2,7 +2,8 @@
 # dashboard/data-raw/05_build_protocol_v2_bundles.R
 #
 # The dashboard's data, rebuilt from the corrected protocol (protocol v2,
-# RR-10 tables of 2026-09-10). Until this script existed every bundle in
+# RR-13 tables of 2026-09-18; the deployment ranking's levels use the
+# calibrated map of IS-01). Until this script existed every bundle in
 # dashboard/data/ came from the pre-audit pipeline (the person-level
 # SuperLearner, the area-level recipe, the old leaderboard), so the app
 # contradicted the decks and the manuscript. Everything the app now shows is
@@ -114,19 +115,32 @@ for (ctry in unique(TG$country)) {
     tr <- match(key_t, key_all); keep <- is.finite(tr); tr <- tr[keep]; t <- t[keep, ]
     if (length(tr) < 8) { cat(sprintf("   skip %s / %s: %d surveyed districts\n", ctry, oc, length(tr))); next }
     Y <- rep(NA_real_, nrow(all_s)); Y[tr] <- .v2_logit(t$y_prev)
+    y_nat <- rep(NA_real_, nrow(all_s)); y_nat[tr] <- t$y_prev
     D <- domain_representation_v2(Xr_all, domain_of, sign_rows = tr)
-    pred <- ARMS_V2[["domain_index"]](tr, seq_len(nrow(all_s)), Y, NULL, D,
-                                      list(Admin1 = all_s$Admin1, y_nat = Y))
+    # IS-01 (2026-09-18): the CALIBRATED map. The ranking is the index's; the
+    # logit score is mean + rho * sd * z with rho the nested out-of-sample
+    # correlation (the rho = 1 map gave the levels the survey's full spread and
+    # a prevalence MAE worse than the national mean), then shifted so the mean
+    # back-transformed prediction over the surveyed districts equals their mean
+    # prevalence. The national anchor below then re-centres it on the survey's
+    # national figure. Both are monotone: rank_worst and priority are unchanged.
+    aux <- list(Admin1 = all_s$Admin1, y_nat = y_nat, target = "prev")
+    pred <- ARMS_V2[["domain_index_cal"]](tr, seq_len(nrow(all_s)), Y, NULL, D, aux)
+    rho <- .index_rho_v2(tr, Y, D, how = "nested")
     # exact back-projection of the fitted weights onto the columns, on the
-    # logit scale the prediction is reported on
+    # logit scale the prediction is reported on (rho enters the scale, and the
+    # natural-scale shift enters the intercept, so the decomposition still sums
+    # to score_logit - training mean)
     w <- .ws_z_pooled(tr, Y, D)
     beta <- index_backproject_v2(w, attr(D, "basis"), colnames(Xr_all))
     idx_tr <- as.numeric(D[tr, , drop = FALSE] %*% w)
-    scale <- if (stats::sd(idx_tr) > 0) stats::sd(Y[tr]) / stats::sd(idx_tr) else 0
+    scale <- if (stats::sd(idx_tr) > 0) rho * stats::sd(Y[tr]) / stats::sd(idx_tr) else 0
     mu <- colMeans(Xr_all[tr, , drop = FALSE])
+    nat_shift <- mean(pred[tr]) - mean(Y[tr])
     fits[[paste(KEY[[ctry]], oc)]] <- list(country_key = KEY[[ctry]], outcome = oc,
                                             beta = beta * scale, mu = mu,
-                                            intercept = mean(Y[tr]) - sum(beta * scale * mu),
+                                            intercept = mean(Y[tr]) + nat_shift - sum(beta * scale * mu),
+                                            rho_train = rho, nat_shift = nat_shift,
                                             n_train = length(tr))
     n <- nrow(all_s)
     rk <- rank(-pred, ties.method = "average")
@@ -165,16 +179,16 @@ for (ctry in unique(TG$country)) {
     districts[[length(districts) + 1]] <- d
     national[[length(national) + 1]] <- data.frame(
       country = LABEL[[ctry]], country_key = KEY[[ctry]], outcome = oc, national_prev = p_nat,
-      n_surveyed = length(tr), n_districts = n, anchor_shift = shift, stringsAsFactors = FALSE)
-    cat(sprintf("   %-12s %-13s surveyed %3d of %3d, national %.3f, anchor shift %+.2f\n",
-                LABEL[[ctry]], oc, length(tr), n, p_nat, shift))
+      n_surveyed = length(tr), n_districts = n, anchor_shift = shift, rho_train = rho, stringsAsFactors = FALSE)
+    cat(sprintf("   %-12s %-13s surveyed %3d of %3d, national %.3f, rho %.2f, anchor shift %+.2f\n",
+                LABEL[[ctry]], oc, length(tr), n, p_nat, rho, shift))
   }
 }
 districts <- bind_rows(districts); national <- bind_rows(national)
 dup <- duplicated(paste(districts$country, districts$outcome, districts$Admin1, districts$Admin2))
 if (any(dup)) stop(sprintf("admin2_index: %d duplicated country/outcome/Admin1/Admin2 keys", sum(dup)))
 saveRDS(list(districts = districts, national = national, fits = fits, xr = XR,
-             build_time = BUILD_TIME, protocol = "v2, RR-10 set (2026-09-10)"),
+             build_time = BUILD_TIME, protocol = "v2, RR-13 set (2026-09-18), calibrated index (IS-01)"),
         file.path(OUT, "admin2_index.rds"))
 cat(sprintf("   wrote admin2_index.rds: %d district rows, %d cells\n", nrow(districts), length(fits)))
 
@@ -326,6 +340,6 @@ cat(sprintf("   wrote predictor_catalogue.rds: %d variables (%d with a plain nam
 
 # ── E. build stamp ──────────────────────────────────────────────────────────
 meta$build_timestamp <- BUILD_TIME
-meta$protocol <- "Protocol v2, RR-10 result set (2026-09-10)"
+meta$protocol <- "Protocol v2, RR-13 result set (2026-09-18), calibrated index (IS-01)"
 saveRDS(meta, file.path(OUT, "metadata.rds"))
 cat("done\n")

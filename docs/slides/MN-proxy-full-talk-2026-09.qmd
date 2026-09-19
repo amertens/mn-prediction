@@ -588,15 +588,28 @@ DETAIL: Sierra Leone has no in-fill row: with 14 districts a 5-fold split leaves
 ```{r cells-prev, fig.width=11, fig.height=5.4, dpi=150}
 if (!is.null(CELL)) {
   ord <- CELL |> filter(estimand == "infill", arm == "domain_index", target == "level") |> arrange(spearman_m)
-  d <- CELL |> filter(target == "prev", estimand == "infill", arm %in% c("domain_index", "region_mean_jk"), is.finite(wmae_m)) |>
-    mutate(what = case_when(arm == "domain_index" ~ "Best model (the index)", arm == "region_mean_jk" ~ "Survey's regional average", TRUE ~ "One national number"))
+  # The arm plotted here is the CALIBRATED index. The deployed ranking
+  # (domain_index) is rescaled to the training outcome's spread, so it is
+  # over-dispersed by 1/rho and its district prevalence error (14.25 pp mean)
+  # is WORSE than writing one national number on every district (11.49) in 13
+  # of 18 cells. Shrunk to its out-of-sample correlation it reaches 10.74 and
+  # beats both comparators. Ranking claims use domain_index; every LEVEL claim
+  # must use domain_index_cal. The national-number arm is drawn now rather than
+  # named-and-filtered, because it is the status quo this slide is measured
+  # against. (Corrected 2026-09-18.)
+  d <- CELL |> filter(target == "prev", estimand == "infill",
+                      arm %in% c("domain_index_cal", "region_mean_jk", "null_train_mean"),
+                      is.finite(wmae_m)) |>
+    mutate(what = case_when(arm == "domain_index_cal" ~ "Model, calibrated for level",
+                            arm == "region_mean_jk"   ~ "Survey's regional average",
+                            TRUE                       ~ "One national number"))
   d <- d |> mutate(cell = factor(cell, levels = ord$cell))
-  lv <- c("Best model (the index)", "Survey's regional average")
+  lv <- c("Model, calibrated for level", "Survey's regional average", "One national number")
   ggplot(d, aes(wmae_m, cell)) +
     geom_errorbarh(data = d |> filter(what == lv[1], is.finite(wmae_se)), aes(xmin = wmae_m - 1.96 * wmae_se, xmax = wmae_m + 1.96 * wmae_se), height = 0, colour = "grey60") +
     geom_point(aes(shape = what, colour = what, fill = what), size = 2.7) +
-    scale_shape_manual(values = c(21, 4) |> stats::setNames(lv), name = NULL) + scale_colour_manual(values = c("#1f4e79", "grey40") |> stats::setNames(lv), name = NULL) +
-    scale_fill_manual(values = c("#1f4e79", NA) |> stats::setNames(lv), name = NULL) +
+    scale_shape_manual(values = c(21, 4, 3) |> stats::setNames(lv), name = NULL) + scale_colour_manual(values = c("#1f4e79", "grey40", "#b45309") |> stats::setNames(lv), name = NULL) +
+    scale_fill_manual(values = c("#1f4e79", NA, NA) |> stats::setNames(lv), name = NULL) +
     scale_y_discrete(limits = ord$cell) + labs(x = "Mean absolute error of the held-out district prevalence, percentage points (population-weighted)", y = NULL) +
     theme_minimal(base_size = 14) + theme(legend.position = "bottom", panel.grid.minor = element_blank(),
       axis.text.y = element_text(colour = ifelse(levels(d$cell) %in% ord$cell[ord$spearman_m >= STRONG_CUT], "#1f4e79", "grey35"), face = ifelse(levels(d$cell) %in% ord$cell[ord$spearman_m >= STRONG_CUT], "bold", "plain")))
@@ -604,9 +617,9 @@ if (!is.null(CELL)) {
 ```
 
 ::: {.notes}
-SAY: Same combinations, now the level: how many percentage points each district's predicted prevalence is from the survey's. The model is no better than the regional average here, and only a little better than one national number, because it is built to order districts, not to measure them.
+SAY: Same combinations, now the level: how many percentage points each district's predicted prevalence is from the survey's. Read this slide as the limit of what any of us has today. At district level nobody has a level: the survey's own regional breakdown is no better than writing one national number on every district. The model, once it is shrunk for this job, is slightly better than both — and that is all. It is built to order districts, not to measure them.
 
-DETAIL: Same combinations, same order, prevalence scale: the population-weighted mean absolute error of each district's held-out prevalence, in percentage points. Three references: the survey's own regional average, one national number for every district (the status quo where no sub-national estimate exists), and the best other arm chosen after the fact. Read the error against the outcome: an error of 10 points on an outcome at 40% is a different thing from 3 points on one at 4%, which is why the rare-outcome combinations look accurate here and useless on the ranking slide. The index is rescaled to the training districts' spread, so it is not built to minimize this error; the geostatistical comparator slide shows what a model that estimates a level and shrinks toward it does to absolute error. Where a level has to be defended, this slide plus the national anchor is the argument, not the ranking correlation.
+DETAIL: Same combinations, same order, prevalence scale: the population-weighted mean absolute error of each district's held-out prevalence, in percentage points, for three arms — the calibrated index, the survey's own jackknifed regional average, and one national number for every district (the status quo where no sub-national estimate exists). Means over the 18 scored cells: calibrated index 10.74, regional average 11.77, national number 11.49, spatial smoother 10.93. The arm this slide used to plot, the DEPLOYED ranking (domain_index), scores 14.25 and is worse than the national number in 13 of 18 cells: it is rescaled to the training districts' spread, so its predictions carry the full between-district variance while correlating about 0.28 with the truth, and refusing to shrink inflates absolute error. Shrinking it costs ranking (level 0.40 to 0.35, prevalence 0.28 to 0.21), so the two arms are two products: domain_index for the order, domain_index_cal for any level, MAE or bias. Both are in benchmarks_v2_cells.csv; no rerun is needed. Read the error against the outcome: 10 points on an outcome at 40% is a different thing from 3 points on one at 4%, which is why the rare-outcome combinations look accurate here and useless on the ranking slide. The geostatistical comparator slide shows what a model built to estimate a level does to absolute error (9.2 against 10.7). Where a level has to be defended, this slide plus the national anchor is the argument, not the ranking correlation.
 :::
 
 ## How far off is the predicted mean concentration, outcome by outcome?
@@ -1353,9 +1366,9 @@ The checklist agreed at the 10 September check-in, one row per question. Sources
 ## What have we learned, and what comes next?
 
 ::: {.notes}
-SAY: Public data can rank a country's districts by micronutrient deficiency: inside a surveyed country better than the survey's own regional averages, and in a country with no survey at all, where nothing else can. Where the survey resolves districts, the model is close to the best any model could be. A single national number puts a level on the ranking. The uncertainty on the maps is honest about what it is. Next: the fifth survey scores the two pre-registered indices, the survey design gets piloted, and every survey added improves every other country's map.
+SAY: Public data can rank a country's districts by micronutrient deficiency: inside a surveyed country better than the survey's own regional averages, and in a country with no survey at all, where nothing else can. Where the survey resolves districts, the model is close to the best any model could be. A single national number puts a level on the ranking. The uncertainty on the maps is honest about what it is. And the last row is the one I want to leave you with: what limits this method today is not the satellite data, which is saturated — eleven blocks added this year each moved it by less than 0.01 — it is the number of biomarker surveys it can learn from. One training survey gets a new country to 0.20, three get it to 0.30, and the curve has not flattened. So our ask is that countries with a micronutrient survey, recent or planned or sitting in a drawer, put it in the pool: it improves every other country's map, and yours gets a ranking for the districts your survey never reached.
 
-DETAIL: The rows are the numbers from the optimiztic reading (TWO_READINGS_2026-09g.md). Not on the slide, said if asked: the honest product is a ranking, levels remain planning figures, and the per-outcome maps in an unsurveyed country are mostly one map of environmental deprivation.
+DETAIL: The rows are the numbers from the optimiztic reading (TWO_READINGS_2026-09g.md). Not on the slide, said if asked: the honest product is a ranking, levels remain planning figures, and the per-outcome maps in an unsurveyed country are mostly one map of environmental deprivation. On the pooling row, three qualifiers to have ready. (1) The gain is uneven: as held-out countries The Gambia goes 0.40 to 0.60 and Ghana 0.30 to 0.39 as surveys are added, while Malawi (0.16) and Sierra Leone (0.06) stay flat, so "every survey improves every map" is a statement about the average. (2) Which country is added matters, and we can say how: trained on Ghana alone the model reaches The Gambia at 0.61, while trained on The Gambia alone it reaches Ghana at 0.30 — Ghana's 260 districts span the widest environmental gradient in the panel (NDVI SD 0.16 against 0.04 to 0.09 elsewhere), and a training country that contains the whole gradient teaches the whole gradient. So the request is not simply "more countries" but countries that extend the range, which is checkable from public rasters before any blood is drawn. (3) The saturation claim behind "it is the surveys, not the predictors": eleven candidate predictor blocks were scored under one harness and none moved in-fill or transport by more than 0.01 at the median, while the open, permission-free tier transports better than the full set (0.316 vs 0.302 vs 0.281 with DHS added).
 :::
 
 # Appendix

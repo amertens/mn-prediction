@@ -516,6 +516,9 @@ slides:
   - icon: shield-halved
     heading: "The uncertainty on every map is honest about what it is"
     caption: "Stable under resampling, not verified: a worst-third call is right {hit3:pc} of the time, chance {hit3_base:pc}."
+  - icon: arrow-trend-up
+    heading: "Every survey added improves every other country's map, and the curve has not flattened"
+    caption: "{tc_n1:.2f} with one training survey, {tc_n3:.2f} with three, about +0.05 per country added. The limit on this method today is the number of biomarker surveys it can learn from, not the predictors."
   - icon: flag-checkered
-    heading: "Next: the fifth survey scores two pre-registered indices; the survey design gets piloted"
-    caption: "Every survey added improves every other country's map ({tc_n1:.2f} with one training survey, {tc_n3:.2f} with three)."
+    heading: "So the ask is more surveys in the pool, and the fifth one is already a test"
+    caption: "Two indices were written down before any new country's data was seen. We are asking countries with a recent, planned or shelved micronutrient survey to join the panel."

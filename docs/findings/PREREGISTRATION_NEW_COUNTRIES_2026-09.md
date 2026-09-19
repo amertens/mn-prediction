@@ -9,7 +9,8 @@ prediction names the script that will score it, the metric, and the threshold
 that counts as confirmation.
 
 Source experiments: `docs/findings/SANDBOX_LOG_2026-09.md` (entries DA-01,
-DA-02, DA-03, TC-01/02, G4-02, CF-01, CE-01) and `PROTOCOL_V2.md`.
+DA-02, DA-03, TC-01/02, G4-02, CF-01, CE-01; P8: HP-02, SL-06) and
+`PROTOCOL_V2.md`.
 
 ## Protocol that applies to every prediction
 
@@ -28,7 +29,9 @@ DA-02, DA-03, TC-01/02, G4-02, CF-01, CE-01) and `PROTOCOL_V2.md`.
   reported per outcome; a cell is "positive" if Spearman > 0.
 - Scripts: `scripts/protocol_v2/02b_merge_and_loco.R`,
   `15_training_country_curve.R`, `16_admin1_transport.R`,
-  `25_nested_domain_selection.R`, `30_training_curve_climate_soil.R`.
+  `25_nested_domain_selection.R`, `30_training_curve_climate_soil.R`;
+  P8: `56_weight_sources.R` with `V2_ARMS=hapc_lasso,domain_index
+  V2_ESTIMANDS=country`.
 
 ## Predictions
 
@@ -105,6 +108,35 @@ is made about which outcome shows it most: on the current four the iron
 outcomes collapse in Gambia and Sierra Leone but not in Ghana or Malawi, and
 child vitamin A shows no reliable geography on multi-cluster units in three
 countries. *Basis:* CE-01 — pooled within 0.546 vs cluster 0.456.
+
+**P8 — Principal-component Highly Adaptive Lasso (PCHAL) transports as well
+as the full index on the level target; the index stays ahead on prevalence.**
+*Added 2026-09-19 (HP-02, SL-06).* PCHAL — the `hapc` package's norm-1
+kernel learner (Wang, Schuler, van der Laan, Garcia Meixide), degree 1,
+lambda by its own inner 5-fold CV — fitted on the RAW rank-normalised
+columns (not the domain PCs: HP-02), no survey weights, as the arm
+`hapc_lasso` (R/protocol_v2_hapc.R). Prediction, district rung,
+leave-one-country-out with the new country held out: on the level target
+PCHAL's Spearman is within 0.03 of, or above, the full domain index, and
+positive; on prevalence it trails the index by 0.00–0.05. It is a candidate
+*beside* the index, not a replacement: it becomes a co-headline only if it
+beats the index by more than 0.05 on the level in two consecutive new
+countries, and is dropped as a candidate if it trails by more than 0.05 on
+the level in the first. No prediction is made at the regional tier (not yet
+measured) or for PCHAR (norm 2: 0.226 / 0.083 on the current four, well
+behind). *Basis:* the 22 current cells, same folds as the index: 0.284 vs
+0.281 on the level (18 of 22 positive; better than the index in 11 of 22,
+paired +0.003), 0.172 vs 0.188 on prevalence (15 of 22; −0.016); inside the
+14-learner SuperLearner (SL-06) it was the best tuned covariate learner
+in-fill (0.36 / 0.25 against the index's 0.39 / 0.28). Why it is worth
+carrying: it is the one candidate that is nonparametric (interactions,
+thresholds) and needs no hand-built domain structure, so it is the model
+that can improve as the pooled district count grows; the index is linear and
+marginal and will plateau. *Scoring:* `V2_ARMS=hapc_lasso,domain_index
+V2_ESTIMANDS=country Rscript -e "source('scripts/protocol_v2/56_weight_sources.R')"`
+(paired table `weight_sources_paired*.csv`), with the new country in
+`targets_v2.csv`; the primary criterion is the paired difference on the
+level target in the new country's cells.
 
 ## What would falsify the project's central claim
 

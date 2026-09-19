@@ -15,6 +15,33 @@ methods_note <- function(...) {
 }
 empty_state <- function(msg) div(class = "alert alert-secondary", style = "font-size:0.9em;", msg)
 
+# ── Level skill band (IS-01) ─────────────────────────────────────────────────
+# The planning prevalence is the ranking mapped onto the outcome scale with a
+# spread of rho x the survey's between-district spread, rho being the index's
+# nested out-of-sample correlation in that country x outcome (idx_national$
+# rho_train). Where rho is ~0 the map is flat at the national figure: the
+# model has no level information there and only the ranking should be read.
+# Bands are for reading, not thresholds of the analysis.
+level_skill <- function(rho) {
+  band <- ifelse(!is.finite(rho), "unknown",
+          ifelse(rho < 0.10, "none", ifelse(rho < 0.30, "weak", ifelse(rho < 0.50, "moderate", "good"))))
+  col <- c(none = "#b2182b", weak = "#e08214", moderate = "#4393c3", good = "#1a9850", unknown = "#999999")[band]
+  list(band = band, colour = unname(col), rho = rho)
+}
+level_skill_badge <- function(rho) {
+  ls <- level_skill(rho)
+  htmltools::tags$span(style = sprintf("display:inline-block; padding:1px 7px; border-radius:9px; color:white; background:%s; font-size:0.85em;", ls$colour),
+                       sprintf("level skill: %s (ρ = %s)", ls$band, fmt_num(rho, 2)))
+}
+level_skill_text <- function(rho) {
+  switch(level_skill(rho)$band,
+    none = "The model has no out-of-sample level skill for this outcome here: every district's planning prevalence sits at the national figure. Read the ranking, not the percentages.",
+    weak = "Weak level skill: the planning prevalence varies little between districts and its spread is mostly the national figure. Read the ranking first.",
+    moderate = "Moderate level skill: the planning prevalence carries about a third to a half of the true between-district spread.",
+    good = "Good level skill: the planning prevalence carries half or more of the true between-district spread.",
+    "Level skill not available for this cell.")
+}
+
 # GADM ships inland water as Admin-2 polygons (Lake Malawi, eight features).
 # The prediction table drops them; the boundaries must too, or the map paints
 # grey lakes and counts them as "no data" districts.
