@@ -165,6 +165,17 @@ stability_note <- function() {
                 if (is.finite(Q$stab_cov)) fmt_pct(Q$stab_cov, 0) else "40%"))
 }
 
+#' The companion line for the CALIBRATED prevalence quantities (CP-01):
+#' unlike the stability ranges, these are checked to cover.
+calibrated_note <- function() {
+  sprintf(paste("The calibrated band and threshold chances come from out-of-fold conformal residuals on the surveyed",
+                "districts (CP-01): checked by leave-one-out, the 90%% band covers the survey's own measured district",
+                "value %s of the time (the resampling bands they replace covered %s). Coverage is against the survey's",
+                "value, so it includes the survey's own noise; unsurveyed districts inherit their cell's width."),
+          if (is.finite(Q$cal_cov)) fmt_pct(Q$cal_cov, 0) else "about 90%",
+          if (is.finite(Q$stabprev_cov)) fmt_pct(Q$stabprev_cov, 0) else "far less")
+}
+
 #' Mean over cells with a 95% interval across cells.
 cell_ci <- function(d, val, by) {
   d |> group_by(across(all_of(by))) |>

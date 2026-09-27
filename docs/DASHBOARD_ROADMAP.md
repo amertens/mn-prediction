@@ -69,6 +69,25 @@ Rebuild order: 64 → 05 → 06 → 07 → smoke_test → test_server → deploy
   country update repopulates outcome choices on the next client round-trip and
   would otherwise overwrite the deep-linked outcome and k).
 
+**CP-01 (2026-09-27, third deploy): the prevalence bands are now calibrated.**
+`scripts/protocol_v2/66_conformal_prevalence_bands.R` (design first in
+docs/findings/CP-01_...md): split conformal on out-of-fold residuals of the
+deployed quantity (calibrated index + national anchor, 5-fold x 10 draws),
+target of coverage = the survey's own measured district value. All 27 cells
+LOO-cover at 0.90-0.93; the stability bands they replace covered a mean of
+8% (0-23%) and are retired from the prevalence displays (they remain the
+right object for rank firmness). Median honest half-width 26 pp — much of it
+the survey's own single-cluster noise. Exceedance is now a conformal
+predictive distribution: Ghana child vitA ">=80% above the moderate line"
+drops 204 -> 67 districts of 260, the honest middle grows to 193. Builder 05
+attaches `prev_cal_lo/hi`, `p_modplus_cal`, `p_severe_cal`, `conformal_n`;
+the map layer, district click-through and district profiles use them with
+`calibrated_note()`; bundle `conformal_prev` carries the per-cell checks.
+This clears the LQAS calculator's main blocker (the residual sets in
+`conformal_prev_residuals.csv` are its calibrated prior); remaining blockers
+are per-district design effects and missing WHO conventions for
+selenium/iodine.
+
 **LQAS-style per-district sample-size calculator — design sketch (not built).**
 Deliverable: per district, "n samples classify it against the WHO band with
 95% assurance, with vs without the model prior", using the UE-01 anchored-

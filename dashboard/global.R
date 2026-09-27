@@ -197,6 +197,12 @@ local({
     pr <- SEp[SEp$analysis == "protocol" & SEp$arm == "domain_index", ]
     Q$se_mean <<- if (nrow(pr)) mean(pr$spearman, na.rm = TRUE) else NA
   }
+  CPc <- .tbl("conformal_prev")
+  if (!is.null(CPc)) {
+    Q$cal_cov      <<- mean(CPc$loo_coverage_90, na.rm = TRUE)
+    Q$cal_half_med <<- stats::median(CPc$half_width_pp, na.rm = TRUE)
+    Q$stabprev_cov <<- mean(CPc$stability_band_coverage, na.rm = TRUE)
+  }
 })
 Q$n_predictors <- if (!is.null(CAT)) nrow(CAT$variables) else 570
 Q$n_domains    <- if (!is.null(CAT)) nrow(CAT$domains) else 28

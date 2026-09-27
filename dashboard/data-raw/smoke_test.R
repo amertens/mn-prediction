@@ -32,6 +32,11 @@ note(!is.null(EV$planner_summary) && nrow(EV$planner_summary) > 8, "survey-plann
 note(!is.null(EV$importance_all) && nrow(EV$importance_all) > 20000, "searchable importance table present")
 note("child_selenium" %in% idx_districts$outcome, "Malawi selenium ranked")
 note(all(is.finite(c(Q$xv_level, Q$xv_off, Q$strong_mean, Q$stab_cov, Q$plan_spread))), "new headline numbers computed")
+note("prev_cal_lo" %in% names(idx_districts) && sum(is.finite(idx_districts$prev_cal_lo)) > 3000,
+     "calibrated prevalence bands on the districts (CP-01)")
+note(is.finite(Q$cal_cov) && Q$cal_cov > 0.8 && Q$cal_cov < 1,
+     sprintf("conformal LOO coverage computed (%.2f)", Q$cal_cov))
+note(all(idx_districts$prev_cal_hi >= idx_districts$prev_cal_lo, na.rm = TRUE), "calibrated bands well-ordered")
 
 cat("\nMap helpers\n")
 n_ok <- 0L

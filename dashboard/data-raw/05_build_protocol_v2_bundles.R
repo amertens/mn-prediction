@@ -87,6 +87,7 @@ MD  <- rd(HD, "predictors_admin2_shared_metadata.csv")
 WF  <- rd(PDK, "worst_fifth_probability.csv")
 NE  <- rd("results/tables/national_estimates_all.csv")
 POP <- readRDS(file.path(OUT, "admin2_population.rds"))
+CFR <- rd(P2, "conformal_prev_residuals.csv")   # CP-01 out-of-fold residuals (script 66)
 PREDS_ALL <- intersect(MD$column, names(S))
 stopifnot(length(PREDS_ALL) == nrow(MD))
 # The deployment fit uses the HEADLINE tier set (TP-01: open + public survey
@@ -186,6 +187,23 @@ for (ctry in unique(TG$country)) {
     d$prev_anchored <- if (is.finite(shift)) .v2_expit(pred + shift) else NA_real_
     d$who_class <- who_class_of(d$prev_anchored, oc)
     d$people_affected <- d$prev_anchored * d$population
+    # CP-01: calibrated 90% band and WHO-threshold chances from the cell's
+    # out-of-fold conformal residuals; the coverage target is the survey's own
+    # measured district value, and unsurveyed districts inherit the cell width.
+    ei <- if (!is.null(CFR)) CFR$e[CFR$country == ctry & CFR$outcome == oc] else numeric(0)
+    if (length(ei) >= 12) {
+      halfc <- sort(abs(ei))[min(length(ei), ceiling(0.9 * (length(ei) + 1)))]
+      d$prev_cal_lo <- pmax(0, d$prev_anchored - halfc)
+      d$prev_cal_hi <- pmin(1, d$prev_anchored + halfc)
+      thc <- meta$who_thresholds[[oc]]
+      cps <- function(thv) vapply(d$prev_anchored, function(p) if (is.finite(p)) (sum(p + ei >= thv) + 0.5) / (length(ei) + 1) else NA_real_, 0)
+      d$p_modplus_cal <- if (!is.null(thc)) cps(thc[["mild"]]) else NA_real_
+      d$p_severe_cal  <- if (!is.null(thc)) cps(thc[["moderate"]]) else NA_real_
+      d$conformal_n <- length(ei)
+    } else {
+      d$prev_cal_lo <- d$prev_cal_hi <- d$p_modplus_cal <- d$p_severe_cal <- NA_real_
+      d$conformal_n <- NA_integer_
+    }
     districts[[length(districts) + 1]] <- d
     national[[length(national) + 1]] <- data.frame(
       country = LABEL[[ctry]], country_key = KEY[[ctry]], outcome = oc, national_prev = p_nat,
@@ -273,6 +291,8 @@ ev <- list(
   # SP-01: model-guided district selection, validated retrospectively (script 64)
   planner_validation = relabel(rd(P2, "survey_planner_validation.csv")),
   planner_summary = rd(P2, "survey_planner_validation_summary.csv"),
+  # CP-01: conformal prevalence bands, per-cell widths and coverage checks (script 66)
+  conformal_prev = rd(P2, "conformal_prev_cells.csv"),
   # every back-projected weight, every scope, for the searchable importance explorer
   importance_all = { ic <- rd(P2, "index_importance_columns.csv")
     if (!is.null(ic)) ic[, intersect(c("scope", "country", "outcome", "target", "n_train", "column", "beta", "beta_std",

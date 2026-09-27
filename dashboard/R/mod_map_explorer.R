@@ -22,7 +22,7 @@ mod_map_explorer_ui <- function(id) {
                                       "How sure: chance of being in the worst fifth (surveyed districts)" = "p_worst_fifth",
                                       "How firmly ranked: places the rank moves across refits" = "rank_width"),
                     "Percentages" = c("Planning prevalence (ranking anchored to the national survey)" = "prev_anchored",
-                                      "Chance the district is at or above the WHO 'moderate' line" = "p_moderate_plus",
+                                      "Chance at or above the WHO 'moderate' line (calibrated)" = "p_modplus_cal",
                                       "Survey estimate (surveyed districts only)" = "survey_prev",
                                       "WHO severity class (planning prevalence)" = "who_class",
                                       "People affected (planning prevalence x population)" = "people_affected")),
@@ -117,9 +117,9 @@ mod_map_explorer_server <- function(id) {
         nz <- vals[is.finite(vals)]
         if (length(nz)) { pal <- colorNumeric(c("#252525", "#bdbdbd", "#f7f7f7"), domain = range(nz), na.color = "#d9d9d9"); fill <- pal(vals) }
         legend_title <- "Places the rank moves (dark = firm)"
-      } else if (layer == "p_moderate_plus") {
+      } else if (layer == "p_modplus_cal") {
         pal <- colorNumeric(c("#f7fbff", "#fdae61", "#d7191c"), domain = c(0, 1), na.color = "#d9d9d9"); fill <- pal(vals)
-        legend_title <- "Chance at or above 'moderate'"; lab_fmt <- labelFormat(transform = function(x) round(100 * x), suffix = "%")
+        legend_title <- "Chance at or above 'moderate' (calibrated)"; lab_fmt <- labelFormat(transform = function(x) round(100 * x), suffix = "%")
       } else if (layer == "people_affected") {
         nz <- vals[is.finite(vals) & vals > 0]
         if (length(nz)) { pal <- colorNumeric("YlOrRd", domain = log10(range(pmax(nz, 1))), na.color = "#d9d9d9")
@@ -156,7 +156,7 @@ mod_map_explorer_server <- function(id) {
           "<span style='display:inline-block;width:16px;border-top:2px solid #9aa0a6;vertical-align:middle;'></span> no survey clusters</div>")))
       if (layer == "who_class") m <- m |> addLegend(colors = unname(who_colors), labels = names(who_colors), opacity = 0.78, title = legend_title, position = "bottomright")
       else if (!is.null(pal)) {
-        lv <- if (layer == "people_affected") log10(pmax(vals[is.finite(vals) & vals > 0], 1)) else if (layer == "priority") c(0, 100) else if (layer %in% c("p_worst_fifth", "p_moderate_plus")) c(0, 1) else vals[is.finite(vals)]
+        lv <- if (layer == "people_affected") log10(pmax(vals[is.finite(vals) & vals > 0], 1)) else if (layer == "priority") c(0, 100) else if (layer %in% c("p_worst_fifth", "p_modplus_cal")) c(0, 1) else vals[is.finite(vals)]
         m <- m |> addLegend(pal = pal, values = lv, opacity = 0.78, title = legend_title, position = "bottomright", labFormat = lab_fmt)
       }
       m
@@ -184,10 +184,12 @@ mod_map_explorer_server <- function(id) {
                                               if (!is.null(UE$meta)) UE$meta$draws_cell else "200"),
                                       tags$small(" (stability, not a confidence interval)")),
         p(strong("Planning prevalence: "), fmt_pct(row$prev_anchored),
-          if (is.finite(row$prev_lo)) tags$small(sprintf(" (stays between %s and %s across refits)", fmt_pct(row$prev_lo), fmt_pct(row$prev_hi)))
+          if (is.finite(row$prev_cal_lo)) tags$small(sprintf(" (90%% calibrated range %s to %s: where a survey visit's own estimate would land)",
+                                                             fmt_pct(row$prev_cal_lo), fmt_pct(row$prev_cal_hi)))
           else tags$small(" (ranking anchored to the national survey)")),
-        if (is.finite(row$p_moderate_plus)) p(strong("Chance at or above the WHO 'moderate' line: "), fmt_pct(row$p_moderate_plus, 0),
-                                              if (is.finite(row$p_severe) && row$p_severe > 0.005) tags$small(sprintf(" (severe: %s)", fmt_pct(row$p_severe, 0)))),
+        if (is.finite(row$p_modplus_cal)) p(strong("Chance at or above the WHO 'moderate' line: "), fmt_pct(row$p_modplus_cal, 0),
+                                            tags$small(sprintf(" (calibrated%s)",
+                                                               if (is.finite(row$p_severe_cal) && row$p_severe_cal > 0.005) sprintf("; severe %s", fmt_pct(row$p_severe_cal, 0)) else ""))),
         if (isTRUE(row$surveyed) || (area_col() == "Admin1" && isTRUE(row$n_surveyed > 0)))
           p(strong("Survey estimate: "), fmt_pct(row$survey_prev),
             if (area_col() == "Admin2" && is.finite(row$survey_lo)) sprintf(" (95%% range %s to %s; %s respondents in %s clusters)",
@@ -226,8 +228,8 @@ mod_map_explorer_server <- function(id) {
                      rank_width = paste("Colour: how many places the district's rank moves across refits on resampled training data;",
                                         "dark districts are firmly placed.", stability_note()),
                      prev_anchored = sprintf("Colour: planning prevalence, the ranking anchored to the national survey figure of %s", fmt_pct(g1(nat$national_prev))),
-                     p_moderate_plus = paste("Colour: share of refits in which the district's planning prevalence sits at or above the WHO",
-                                             "'moderate public-health problem' line.", stability_note()),
+                     p_modplus_cal = paste("Colour: calibrated chance that the district sits at or above the WHO 'moderate public-health",
+                                           "problem' line.", calibrated_note()),
                      survey_prev = "Colour: the survey's own district estimate; blank where the survey had no clusters",
                      who_class = "Colour: WHO severity class of the planning prevalence",
                      people_affected = "Colour: planning prevalence times the population of the group, log scale", ""),

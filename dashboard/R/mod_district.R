@@ -22,8 +22,8 @@ mod_district_ui <- function(id) {
            card_body(plotlyOutput(ns("profile"), height = "320px"),
                      reactableOutput(ns("table")),
                      methods_note("Priority score 100 means ranked worst in the country. The chance of being in the worst fifth",
-                                  " exists for surveyed districts only (out-of-fold, calibration checked). The rank-across-refits",
-                                  " range and the planning-prevalence band exist for every district. ", stability_note(),
+                                  " exists for surveyed districts only (out-of-fold, calibration checked). ", calibrated_note(),
+                                  " The rank-across-refits range is different: ", stability_note(),
                                   ". The survey estimate carries a 95 percent range from its own effective sample size."))),
       card(card_header("What drives the score for the chosen outcome"),
            card_body(plotlyOutput(ns("drivers"), height = "380px"),
@@ -55,11 +55,11 @@ mod_district_server <- function(id) {
       d$label <- outcome_short[d$outcome]
       d$rho_train <- idx_national$rho_train[match(paste(d$country_key, d$outcome), paste(idx_national$country_key, idx_national$outcome))]
       d$level_skill <- level_skill(d$rho_train)$band
-      d$rank_lo <- d$rank_hi <- d$prev_lo <- d$prev_hi <- d$p_moderate_plus <- NA_real_
+      d$rank_lo <- d$rank_hi <- NA_real_
       if (length(UE) && !is.null(UE$cells)) {
         u <- UE$cells[UE$cells$country_key == input$country & UE$cells$Admin1 == k[1] & UE$cells$Admin2 == k[2], ]
         j <- match(d$outcome, u$outcome)
-        for (cc in c("rank_lo", "rank_hi", "prev_lo", "prev_hi", "p_moderate_plus")) d[[cc]] <- u[[cc]][j]
+        for (cc in c("rank_lo", "rank_hi")) d[[cc]] <- u[[cc]][j]
       }
       d
     })
@@ -97,8 +97,8 @@ mod_district_server <- function(id) {
       t <- data.frame(Outcome = d$label, Rank = sprintf("%d of %d", d$rank_worst, d$n_districts),
                       `Rank across refits` = ifelse(is.finite(d$rank_lo), sprintf("%d to %d", round(d$rank_lo), round(d$rank_hi)), "—"),
                       `Chance of worst fifth` = ifelse(is.finite(d$p_worst_fifth), fmt_pct(d$p_worst_fifth, 0), "—"),
-                      `Planning prevalence` = ifelse(is.finite(d$prev_lo), sprintf("%s (%s to %s)", fmt_pct(d$prev_anchored), fmt_pct(d$prev_lo), fmt_pct(d$prev_hi)), fmt_pct(d$prev_anchored)),
-                      `At or above WHO moderate` = ifelse(is.finite(d$p_moderate_plus), fmt_pct(d$p_moderate_plus, 0), "—"),
+                      `Planning prevalence (90% calibrated)` = ifelse(is.finite(d$prev_cal_lo), sprintf("%s (%s to %s)", fmt_pct(d$prev_anchored), fmt_pct(d$prev_cal_lo), fmt_pct(d$prev_cal_hi)), fmt_pct(d$prev_anchored)),
+                      `At or above WHO moderate` = ifelse(is.finite(d$p_modplus_cal), fmt_pct(d$p_modplus_cal, 0), "—"),
                       `Level skill` = sprintf("%s (%s)", d$level_skill, fmt_num(d$rho_train, 2)),
                       `Survey estimate` = ifelse(is.finite(d$survey_prev), sprintf("%s (%s to %s)", fmt_pct(d$survey_prev), fmt_pct(d$survey_lo, 0), fmt_pct(d$survey_hi, 0)), "not surveyed"),
                       `WHO class` = d$who_class, check.names = FALSE)
