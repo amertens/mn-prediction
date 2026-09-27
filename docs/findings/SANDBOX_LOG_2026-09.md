@@ -3718,3 +3718,88 @@ the domain PCs with a per-domain group penalty") is answered in the
 negative at this n; if it is revisited it should be as a kernel with a
 per-domain kernel sum (a multiple-kernel hapc), not as an explicit basis.
 Both arms stay in `ARMS_V2` for the record; neither is a candidate.
+
+---
+
+## XV-01 (22 Sep). External validation: the index ranks four countries it has never seen
+
+**Question.** Every transport number so far is leave-one-country-out *inside*
+the panel. Does the ranking carry to a country outside it, against labels this
+project did not make?
+
+**Design.** WHO VMNIS deposits 6,803 sub-national rows that the project's
+national-only pull discards. Four countries clear the bar (units, populated
+prevalence, our populations, Africa so iSDAsoil exists): Zambia 2023 (9
+provinces), Ethiopia ENMS 2015 (11 regions), Sudan 2018 (15 states), Nigeria
+NFCMS 2021 (6 zones) — 27 cells, 257 unit-level labels. Train on the four panel
+countries at admin-1 (53 units), test country held out entirely; protocol as
+`16_admin1_transport.R`. Climate and soil re-extracted for BOTH sides by one
+extractor so the two are commensurate by construction; parity checked against
+the existing export (`pr_ann_mean` reproduces `clim_pr_ann_mean` exactly; iSDA
+zinc within 3%). Scripts `scripts/external_validation/01`–`04`.
+
+**Result.** Level: mean Spearman **0.402**, **12/12 positive**, country-block
+null 95th 0.200, p = 0.0005. Prevalence: **0.332**, 17/21, null 0.181, p =
+0.0005. Both *above* the panel's own internal LOCO at the same tier (0.281 /
+0.267). Domain elastic net well behind on the level (0.194, p = 0.046). Iron,
+B12 and folate carry it (Zambia women's B12 0.800, Ethiopia women's folate
+0.873); vitamin A does not — three of the four negative cells are vitamin A,
+matching P7's basis and DC-H2's floor warning.
+
+**Two nulls.** The independent null (one permutation per cell) is too
+generous because a country's outcomes share units and are correlated; the
+country-block null (one relabelling per country per replicate) is duly fatter
+(0.200 vs 0.150 on the level). The index clears both.
+
+**What it changes.** The central falsification condition in
+`PREREGISTRATION_NEW_COUNTRIES_2026-09.md` did not trigger: transport is not a
+property of West/Southern Africa. It is **not** the pre-registered P1 scoring
+(that needs a new country's own microdata at the district rung with a measured
+design effect); this is admin-1 on published aggregates, unweighted. P2 is
+untested — only the climate + soil arm exists for these countries. Nigeria's 6
+units cannot clear their own null and must not be quoted alone. Full write-up:
+[XV-01_EXTERNAL_VALIDATION_2026-09-22.md](XV-01_EXTERNAL_VALIDATION_2026-09-22.md).
+
+## XV-02 (22 Sep). Off-continent: Pakistan and India, and the soil block turns out not to need Africa
+
+**Question.** iSDAsoil is Africa-only, so the pre-registered soil half cannot be
+built outside Africa. Does the ranking transport to South Asia with global
+SoilGrids substituted — and what does the substitution cost?
+
+**Design.** Pakistan NNS 2018 (8 provinces) and India CNNS 2016-18 (29 states;
+CNNS sampled no women, so child outcomes only). Neither deposits biomarker
+means, so **prevalence only**. The substitute is global SoilGrids v2.0 (10
+properties x 4 depths). Because SoilGrids carries **no plant-available
+micronutrients** (Zn, Fe, Ca, Mg, P, K, S) — mechanistically the interesting
+half of iSDA — a weak result abroad would be unreadable, so **both** soil
+blocks were run on the four African countries to price the substitution on the
+same cells first.
+
+**Result 1, the substitution is free.** Paired over the same 33 African cells:
+iSDA 0.358, SoilGrids **0.374**, SoilGrids better in 17 of 33. Pooled on the
+index: level 0.433 vs 0.402, prevalence 0.340 vs 0.332. **The soil
+micronutrient layers contribute nothing the generic physical and chemical
+properties do not already carry.** Uncomfortable for a soil-to-diet mechanism,
+consistent with the rural-subsistence reading in
+`transport_domains_climate_soil`, and it lifts the Africa-only constraint from
+the deployable recipe.
+
+**Result 2, transport works off-continent.** Pooled 8 cells, mean Spearman
+**0.394**, 7/8 positive, country-block null 95th 0.225, **p = 0.0005** — not
+below the African prevalence arm (0.340). India 0.431 (2 cells), Pakistan 0.381
+(6 cells, p = 0.0065). India's two cells (child vitamin A 0.497 over 27 states,
+child iron 0.366 over 28) are the **only cells in either workstream that clear
+their own individual permutation null**, because 27-29 units is the only place
+the design has per-cell power.
+
+**A reversal worth noticing.** Vitamin A failed in Africa (3 of 4 negative
+cells) and is the strongest outcome off-continent (India 0.497, Pakistan
+0.619). Recorded without explanation; it cuts against reading the African
+vitamin A failure as a property of vitamin A.
+
+**Limits.** Prevalence only, 8 cells, 2 countries; Pakistan's 8 units are at the
+floor and no Pakistani cell clears its own null; India contributes 2 cells so
+its sign test is uninformative; the soil comparison is on African cells only,
+because there is no iSDA abroad to check against. Still not the pre-registered
+P1 scoring. Full write-up:
+[XV-01_EXTERNAL_VALIDATION_2026-09-22.md](XV-01_EXTERNAL_VALIDATION_2026-09-22.md).
