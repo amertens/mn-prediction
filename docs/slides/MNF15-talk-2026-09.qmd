@@ -378,6 +378,8 @@ The shading on every ranking map comes from refitting the model on resampled tra
 We checked. Holding out each surveyed country in turn, the survey's own rank falls inside our nominal 90 per cent rank interval only 38 per cent of the time, 16 to 70 per cent across combinations. An honestly calibrated 90 per cent interval for a single district's rank would be about 55 per cent of the list either side, against 68 per cent for a random ordering.
 
 So we do not report an interval on a rank. We report the probability of a class, which is calibrated and checkable: a district we place in the worst third of a country we have never surveyed is in the survey's worst third 52 per cent of the time, against 33 by chance; a district in our worst five, 62 per cent of the time.
+
+The percentages are a different story, and since 27 September it is a good one. Every planning prevalence on the dashboard now carries a conformally calibrated 90 per cent band, built from out-of-fold residuals in the surveyed districts and checked by leave-one-out: it covers the survey's own measured district value 91 per cent of the time, where the old resampling bands covered 8. The honest bands are wide — a median of 26 points either side, and much of that is the survey's own single-cluster noise rather than the model — and the chance a district sits at or above a WHO action line is now a calibrated probability from the same residuals. So the full answer is: ranks get stability plus checked class probabilities; percentages get intervals that mean what they say.
 :::
 
 ## Numbers we withdrew
@@ -441,9 +443,9 @@ The honest caveat, and the reason 0.30 is the number quoted in the main body: bo
 ![](../../results/figures/full_talk_extracts/ft_ghana_four_panel.png){width="9.4in"}
 
 ::: {.notes}
-Women's iron in Ghana. What the survey measured; what the model predicts with each district held out; the model applied to every district including the unsurveyed ones; and how much each district's prediction moves when the training districts are resampled.
+Women's iron in Ghana. What the survey measured; what the model predicts with each district held out; the model applied to every district, level-calibrated and anchored; and the calibrated chance that each district sits at or above the WHO moderate line.
 
-The fourth panel measures stability under resampling, not distance from the truth.
+The fourth panel is a checked probability (CP-01, 27 September): it comes from out-of-fold conformal residuals whose 90 per cent band covers the survey's own district value 91 per cent of the time under leave-one-out. The honest band is about 20 points either side here, much of it the survey's own single-cluster noise.
 :::
 
 ## Malawi, the same four views
@@ -451,7 +453,7 @@ The fourth panel measures stability under resampling, not distance from the trut
 ![](../../results/figures/full_talk_extracts/ft_malawi_four_panel.png){width="9.4in"}
 
 ::: {.notes}
-Women's iron in Malawi. Note that Malawi's units are Traditional Authorities inside 27 districts, which is one reason its accuracy is lower: many proxy layers resolve to the district, not below it.
+Women's iron in Malawi. Note that Malawi's units are Traditional Authorities inside 27 districts, which is one reason its accuracy is lower: many proxy layers resolve to the district, not below it. The fourth panel is the calibrated chance of sitting at or above the WHO moderate line, as on the Ghana slide; this cell's honest band is about 32 points either side.
 :::
 
 ## How reliable is the survey's own district map?
@@ -483,9 +485,9 @@ The same held-out district predictions and the survey, both aggregated to region
 ![](../../results/figures/full_talk_extracts/ft_exceedance.png){width="9.2in"}
 
 ::: {.notes}
-Not "what is the prevalence" but "how likely is it to be above the line a programme acts on". Ghana, child vitamin A, refitted on 200 resamples of the training districts: 63 districts are above the line in at least 80 per cent of refits, 186 below it in at least 80 per cent, and 11 are undecided.
+Not "what is the prevalence" but "how likely is it to be above the line a programme acts on". Ghana, child vitamin A, and since 27 September the probability is calibrated (CP-01): a conformal predictive distribution over out-of-fold residuals whose 90 per cent band covers the survey's own district value 91 per cent of the time. 53 districts are above the 20 per cent line with at least 80 per cent probability, none is confidently below it, and 207 are honestly undecided - the resampling version of this map claimed 186 districts were confidently below, and resampling bands cover the survey's value only 8 per cent of the time, which is why it was replaced. The honest band here is about 29 points either side, much of it the survey's own single-cluster noise.
 
-The level here comes from Ghana's own survey. For a country with no survey the level would come from the national anchor and the map would read as a planning figure.
+The level comes from Ghana's own survey. For a country with no survey the level would come from the national anchor and the map would read as a planning figure.
 :::
 
 ## What the rank intervals promise, and what they do not
@@ -496,6 +498,8 @@ The level here comes from Ghana's own survey. For a country with no survey the l
 The calibration check behind the "stability, not truth" caveat. Holding each surveyed country out, the survey's rank falls inside the nominal 90 per cent interval 38 per cent of the time, 16 to 70 per cent across combinations. An honestly calibrated 90 per cent interval would be 55 per cent of the list either side, against 68 for a random ordering.
 
 Which is why the useful statement is a class probability, not an interval: worst-third calls land 52 per cent of the time against 33 by chance.
+
+That is the RANK side. The percentage side was fixed on 27 September: planning prevalences now carry conformally calibrated 90 per cent bands (covering the survey's own value 91 per cent of the time under leave-one-out, against 8 for the old resampling bands; median half-width 26 points, much of it survey noise), and the WHO-threshold chances are calibrated probabilities from the same residuals.
 :::
 
 ## What moves each district, predictor by predictor

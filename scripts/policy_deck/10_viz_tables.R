@@ -91,6 +91,60 @@ if ("B" %in% BLOCKS) for (pair in list(c("Ghana", "child_vitA"), c("Ghana", "wom
   cat(sprintf("  %d districts, %d refits; P(>=20%%) >= 0.8 in %d districts, <= 0.2 in %d\n", nrow(E), ncol(P), sum(E$p_ge20 >= 0.8), sum(E$p_ge20 <= 0.2)))
 }
 
+# ── B2. the CALIBRATED deployment tables (CP-01, 2026-09-27) ─────────────────
+# The deck's exceedance and four-panel slides switched from block B's stability
+# quantities to the calibrated ones: the deployed map (calibrated index +
+# population anchor, exactly builder 05's fit) with the conformal 90% band and
+# the conformal-predictive-distribution threshold chances from script 66's
+# out-of-fold residuals. One committed csv per slide cell.
+if ("B2" %in% BLOCKS) {
+  source("R/admin2_key_hygiene.R")
+  CFR  <- read.csv(file.path(P2, "conformal_prev_residuals.csv"), stringsAsFactors = FALSE)
+  NE   <- read.csv("results/tables/national_estimates_all.csv", stringsAsFactors = FALSE)
+  POP  <- readRDS("dashboard/data/admin2_population.rds")
+  metaD <- readRDS("dashboard/data/metadata.rds")
+  LBL2 <- c(Gambia = "Gambia", Ghana = "Ghana", Malawi = "Malawi", SierraLeone = "Sierra Leone")
+  for (pair in list(c("Ghana", "child_vitA", "exceedance_ghana_vitA_cal.csv"),
+                    c("Ghana", "women_iron", "deploy_ghana_women_iron_cal.csv"),
+                    c("Malawi", "women_iron", "deploy_malawi_women_iron_cal.csv"))) {
+    CN <- pair[1]; ON <- pair[2]; cat("B2. calibrated deployment", CN, ON, "\n")
+    all_s <- S[S$country == CN & !is_water_admin2(S$Admin2), ]
+    t <- TG[TG$country == CN & TG$outcome == ON & is.finite(TG$y_prev) & is.finite(TG$n_eff), ]
+    key_all <- paste(all_s$Admin1, all_s$Admin2, sep = "|")
+    tr <- match(paste(t$Admin1, t$Admin2, sep = "|"), key_all); keep <- is.finite(tr); tr <- tr[keep]; t <- t[keep, ]
+    Xr <- prep_predictors_v2(as.matrix(all_s[, PREDS]))
+    Y <- rep(NA_real_, nrow(all_s)); Y[tr] <- .v2_logit(t$y_prev)
+    y_nat <- rep(NA_real_, nrow(all_s)); y_nat[tr] <- t$y_prev
+    D <- domain_representation_v2(Xr, domain_of, sign_rows = tr)
+    pred <- ARMS_V2[["domain_index_cal"]](tr, seq_len(nrow(all_s)), Y, NULL, D,
+                                          list(Admin1 = all_s$Admin1, y_nat = y_nat, target = "prev"))
+    pop <- POP[POP$country == LBL2[[CN]], ]
+    popn <- (if (startsWith(ON, "child_")) pop$pop_child else pop$pop_women)[match(key_all, paste(pop$Admin1, pop$Admin2, sep = "|"))]
+    p_nat <- NE$obs_prev[NE$country == LBL2[[CN]] & NE$outcome == ON][1]
+    if (!is.finite(p_nat)) p_nat <- stats::weighted.mean(t$y_prev, t$n_raw)
+    ok <- is.finite(popn) & popn > 0
+    f <- function(c) sum(popn[ok] * .v2_expit(pred[ok] + c)) / sum(popn[ok]) - p_nat
+    shift <- tryCatch(stats::uniroot(f, c(-12, 12))$root, error = function(e) 0)
+    pa <- .v2_expit(pred + shift)
+    e <- CFR$e[CFR$country == CN & CFR$outcome == ON]
+    half <- sort(abs(e))[min(length(e), ceiling(0.9 * (length(e) + 1)))]
+    th <- metaD$who_thresholds[[ON]]
+    cps <- function(thv) vapply(pa, function(p) (sum(p + e >= thv) + 0.5) / (length(e) + 1), 0)
+    E <- data.frame(country = CN, outcome = ON, Admin1 = all_s$Admin1, Admin2 = all_s$Admin2,
+                    surveyed = seq_len(nrow(all_s)) %in% tr, y_prev = y_nat,
+                    prev_anchored = pa,
+                    prev_cal_lo = pmax(0, pa - half), prev_cal_hi = pmin(1, pa + half),
+                    p_modplus_cal = if (!is.null(th)) cps(th[["mild"]]) else NA_real_,
+                    p_sev_cal = if (!is.null(th)) cps(th[["moderate"]]) else NA_real_,
+                    th_modplus = if (!is.null(th)) th[["mild"]] else NA_real_,
+                    th_sev = if (!is.null(th)) th[["moderate"]] else NA_real_,
+                    half_width = half, n_resid = length(e), stringsAsFactors = FALSE)
+    write.csv(E, file.path(OUT, pair[3]), row.names = FALSE)
+    cat(sprintf("  %d districts | half-width %.1f pp | P(>=%.0f%%)>=0.8 in %d, <=0.2 in %d\n",
+                nrow(E), 100 * half, 100 * E$th_sev[1], sum(E$p_sev_cal >= 0.8), sum(E$p_sev_cal <= 0.2)))
+  }
+}
+
 # ── C. coverage of the bootstrap rank interval under leave-one-country-out ───
 if ("C" %in% BLOCKS) {
   cat("C. rank-interval coverage under LOCO (climate + soil, level)\n"); NB <- 100L

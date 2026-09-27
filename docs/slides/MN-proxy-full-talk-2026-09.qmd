@@ -272,12 +272,15 @@ Q$load_d <- if (is.null(ND)) NA else get1(mean(ND$spearman[ND$arm == "fixed_load
 # VZ-01: tables behind the visualisation slides (scripts/policy_deck/10_viz_tables.R)
 VZ <- file.path(root, "results", "tables", "policy_deck", "viz")
 OOF <- rd(VZ, "oof_child_iron.csv"); EXC <- rd(VZ, "exceedance_ghana_vitA.csv"); COV <- rd(VZ, "rank_interval_coverage.csv"); CTR <- rd(VZ, "contributions_top12.csv")
+EXCC <- rd(VZ, "exceedance_ghana_vitA_cal.csv")   # CP-01 calibrated deployment (script 10 block B2)
+CPC  <- rd(P2, "conformal_prev_cells.csv")        # CP-01 per-cell widths and coverage checks
 if (!is.null(OOF)) { o <- OOF |> group_by(country) |> summarise(rho = cor(y_prev, pred, method = "spearman"), mae = 100 * mean(abs(y_prev - pred)), n = n(), single = mean(n_psu == 1), .groups = "drop")
   for (cn in o$country) { Q[[paste0("oof_rho_", cn)]] <- o$rho[o$country == cn]; Q[[paste0("oof_mae_", cn)]] <- o$mae[o$country == cn] }
   Q$single_share <- get1(mean(OOF$n_psu == 1)); Q$multi_n <- sum(OOF$n_psu > 1)
   u <- OOF |> group_by(country) |> mutate(tercile = dplyr::ntile(urbanicity, 3)) |> group_by(country, tercile) |> summarise(rho = cor(y_prev, pred, method = "spearman"), .groups = "drop")
   Q$urb_rural <- get1(mean(u$rho[u$tercile == 1])); Q$urb_urban <- get1(mean(u$rho[u$tercile == 3])); Q$urb_mid <- get1(mean(u$rho[u$tercile == 2])) }
-if (!is.null(EXC)) { Q$exc_refits <- get1(max(EXC$refits)); Q$exc_hi <- sum(EXC$p_ge20 >= 0.8); Q$exc_lo <- sum(EXC$p_ge20 <= 0.2); Q$exc_mid <- sum(EXC$p_ge20 > 0.2 & EXC$p_ge20 < 0.8); Q$exc_n <- nrow(EXC); Q$exc_unsurveyed <- sum(!EXC$surveyed) }
+if (!is.null(EXCC)) { Q$exc_hi <- sum(EXCC$p_sev_cal >= 0.8); Q$exc_lo <- sum(EXCC$p_sev_cal <= 0.2); Q$exc_mid <- sum(EXCC$p_sev_cal > 0.2 & EXCC$p_sev_cal < 0.8); Q$exc_n <- nrow(EXCC); Q$exc_unsurveyed <- sum(!EXCC$surveyed); Q$exc_half <- get1(100 * EXCC$half_width); Q$exc_ncal <- get1(EXCC$n_resid) }
+if (!is.null(CPC)) { Q$cal_cov <- mean(CPC$loo_coverage_90, na.rm = TRUE); Q$cal_stab <- mean(CPC$stability_band_coverage, na.rm = TRUE); Q$cal_half_med <- median(CPC$half_width_pp, na.rm = TRUE) }
 if (!is.null(TC)) { tcm <- TC |> filter(arm == "domain_index", target == "level") |> group_by(n_train_countries) |> summarise(v = mean(spearman, na.rm = TRUE), .groups = "drop"); Q$tc_n1 <- get1(tcm$v[tcm$n_train_countries == 1]); Q$tc_n3 <- get1(tcm$v[tcm$n_train_countries == 3]) }
 DRK <- rd(VZ, "rank_interval_districts.csv")
 if (!is.null(DRK)) { Q$cal90 <- get1(quantile(DRK$score, 0.9)); Q$cal50 <- get1(median(DRK$score)); Q$boot_half <- get1(median((DRK$rank_hi - DRK$rank_lo) / 2 / DRK$n_districts))
@@ -318,12 +321,12 @@ try({
   t <- TG[TG$country == "Ghana" & TG$outcome == "child_vitA" & is.finite(TG$y_prev), c("Admin1", "Admin2", "y_prev", "n_raw")]
   nat <- weighted.mean(t$y_prev, t$n_raw); reg <- t |> group_by(Admin1) |> summarise(v = weighted.mean(y_prev, n_raw), .groups = "drop")
   g <- dplyr::left_join(B, reg, by = "Admin1"); g$national <- nat
-  m <- if (!is.null(EXC)) dplyr::left_join(B, EXC[, c("Admin1", "Admin2", "pred_med")], by = c("Admin1", "Admin2")) else NULL
+  m <- if (!is.null(EXCC)) dplyr::left_join(B, dplyr::rename(EXCC[, c("Admin1", "Admin2", "prev_anchored")], pred_med = prev_anchored), by = c("Admin1", "Admin2")) else NULL
   sc <- scale_fill_gradientn(colours = c("#fff7ec", "#fdd49e", "#fc8d59", "#d7301f", "#7f0000"), limits = c(0, 0.6), oob = scales::oob_squish, labels = scales::percent, na.value = "grey90", name = NULL)
   th <- theme_void(base_size = 13) + theme(plot.title = element_text(face = "bold", size = 13, hjust = 0.5), plot.subtitle = element_text(size = 10, hjust = 0.5, colour = "grey30"), legend.position = "none")
   p1 <- ggplot(g) + geom_sf(aes(fill = national), colour = "white", linewidth = 0.1) + sc + labs(title = "Between surveys: one national number", subtitle = sprintf("child vitamin A deficiency %.0f%% everywhere", 100 * nat)) + th
   p2 <- ggplot(g) + geom_sf(aes(fill = v), colour = "white", linewidth = 0.1) + sc + labs(title = "From the survey: regional (Admin-1) estimates", subtitle = sprintf("%d regions, one value each", nrow(reg))) + th
-  p3 <- ggplot(m) + geom_sf(aes(fill = pred_med), colour = "white", linewidth = 0.1) + sc + labs(title = "From the model: every district", subtitle = sprintf("%d districts, %d never surveyed", nrow(m), sum(!EXC$surveyed))) + th + theme(legend.position = "right")
+  p3 <- ggplot(m) + geom_sf(aes(fill = pred_med), colour = "white", linewidth = 0.1) + sc + labs(title = "From the model: every district", subtitle = sprintf("%d districts, %d never surveyed", nrow(m), sum(!EXCC$surveyed))) + th + theme(legend.position = "right")
   arrow <- ggplot() + annotate("segment", x = 0, xend = 1, y = 0.5, yend = 0.5, arrow = grid::arrow(length = grid::unit(0.3, "cm"), type = "closed"), colour = "#1f4e79", linewidth = 1.4) + xlim(-0.2, 1.2) + theme_void()
   print(patchwork::wrap_plots(p1, arrow, p2, arrow, p3, ncol = 5, widths = c(1, 0.18, 1, 0.18, 1.25))); ok <- TRUE
 }, silent = TRUE)
@@ -333,7 +336,7 @@ if (!ok) cat("Maps could not be rendered in this session.")
 ::: {.notes}
 SAY: This is the whole talk in one picture, using child vitamin A deficiency in Ghana. Between surveys a program has one national number. The survey itself gives an estimate per region, which is what it was designed to do. The model gives a value for every district, including the 185 the survey never reached. The rest of the talk is about how far that right-hand map can be trusted.
 
-DETAIL: Left: the national prevalence from the 2017 survey applied everywhere. Middle: respondent-weighted averages over the 16 regions on the 2019 boundaries (the survey was designed for the 10 old regions). Right: the index fitted on the 75 surveyed districts and applied to all 260 (median over 200 resampled refits, the exceedance slide's table). The national surveys do give Admin-1 estimates; what they cannot give is every Admin-2, which is the model's job. Warm palette on a shared 0-60% scale.
+DETAIL: Left: the national prevalence from the 2017 survey applied everywhere. Middle: respondent-weighted averages over the 16 regions on the 2019 boundaries (the survey was designed for the 10 old regions). Right: the index fitted on the 75 surveyed districts and applied to all 260 — the deployed map, level-calibrated and anchored to the national figure (the exceedance slide's table, CP-01). The national surveys do give Admin-1 estimates; what they cannot give is every Admin-2, which is the model's job. Warm palette on a shared 0-60% scale.
 :::
 
 ## Surveys are rare; the proxies are everywhere
@@ -717,25 +720,24 @@ ok <- FALSE
 try({
   suppressPackageStartupMessages(library(sf))
   B <- sf::st_as_sf(readRDS(file.path(root, "dashboard", "data", "admin2_boundaries.rds"))[["ghana"]])
-  oof <- rd(VZ, "oof_women_iron.csv"); dep <- rd(VZ, "deploy_ghana_women_iron.csv"); oof <- oof[oof$country == "Ghana", ]
-  g <- dplyr::left_join(B, oof[, c("Admin1", "Admin2", "y_prev", "pred", "n_psu")], by = c("Admin1", "Admin2")) |> dplyr::left_join(dep[, c("Admin1", "Admin2", "pred_fit", "pred_lo", "pred_hi")], by = c("Admin1", "Admin2"))
-  g$width <- g$pred_hi - g$pred_lo
-  sc <- scale_fill_viridis_c(labels = scales::percent, limits = c(0, max(c(g$y_prev, g$pred_fit), na.rm = TRUE)), na.value = "grey90", name = NULL)
+  oof <- rd(VZ, "oof_women_iron.csv"); dep <- rd(VZ, "deploy_ghana_women_iron_cal.csv"); oof <- oof[oof$country == "Ghana", ]
+  g <- dplyr::left_join(B, oof[, c("Admin1", "Admin2", "y_prev", "pred", "n_psu")], by = c("Admin1", "Admin2")) |> dplyr::left_join(dep[, c("Admin1", "Admin2", "prev_anchored", "p_modplus_cal", "th_modplus")], by = c("Admin1", "Admin2"))
+  sc <- scale_fill_viridis_c(labels = scales::percent, limits = c(0, max(c(g$y_prev, g$prev_anchored), na.rm = TRUE)), na.value = "grey90", name = NULL)
   th <- theme_void(base_size = 12) + theme(plot.title = element_text(face = "bold", size = 11.5, hjust = 0.5), legend.position = "bottom", legend.key.width = grid::unit(0.9, "cm"))
   rho <- cor(g$y_prev, g$pred, method = "spearman", use = "complete.obs")
   p1 <- ggplot(g) + geom_sf(aes(fill = y_prev), colour = "white", linewidth = 0.1) + sc + labs(title = "Survey 2017\n(surveyed districts)") + th
   p2 <- ggplot(g) + geom_sf(aes(fill = pred), colour = "white", linewidth = 0.1) + sc + labs(title = sprintf("Held-out prediction\n(rank correlation %.2f)", rho)) + th
-  p3 <- ggplot(g) + geom_sf(aes(fill = pred_fit), colour = "white", linewidth = 0.1) + sc + labs(title = "Extrapolated to every district\n(fitted on the surveyed ones)") + th
-  p4 <- ggplot(g) + geom_sf(aes(fill = width), colour = "white", linewidth = 0.1) + scale_fill_distiller(palette = "Greys", direction = 1, labels = scales::percent, na.value = "grey90", name = NULL) + labs(title = "Uncertainty: width of the\n90% band over 200 refits") + th
+  p3 <- ggplot(g) + geom_sf(aes(fill = prev_anchored), colour = "white", linewidth = 0.1) + sc + labs(title = "Extrapolated to every district\n(deployed, anchored)") + th
+  p4 <- ggplot(g) + geom_sf(aes(fill = p_modplus_cal), colour = "white", linewidth = 0.1) + scale_fill_gradient2(low = "#fff7bc", mid = "#f0a050", high = "#7a0177", midpoint = 0.5, limits = c(0, 1), labels = scales::percent, na.value = "grey90", name = NULL) + labs(title = sprintf("Calibrated chance at or above\nthe WHO moderate line (%.0f%%)", 100 * dep$th_modplus[1])) + th
   print(patchwork::wrap_plots(p1, p2, p3, p4, ncol = 4)); ok <- TRUE
 }, silent = TRUE)
 if (!ok) cat("Maps could not be rendered in this session.")
 ```
 
 ::: {.notes}
-SAY: Ghana, women's iron deficiency, one outcome across the four questions a map has to answer. Left, what the survey measured, district by district. Second, what the model predicts for each of those districts when it is held out. Third, the model applied to every district including the ones never surveyed. Right, how much each district's prediction moves when the training districts are resampled.
+SAY: Ghana, women's iron deficiency, one outcome across the four questions a map has to answer. Left, what the survey measured, district by district. Second, what the model predicts for each of those districts when it is held out. Third, the model applied to every district including the ones never surveyed. Right, the calibrated chance that each district sits at or above the WHO moderate line - a probability that has been checked, not a shading of the model's mood.
 
-DETAIL: Panel 2 is the in-fill out-of-fold prediction (5-fold by district, ten draws, prevalence target). Panel 3 is the deployment fit: the index on all surveyed districts, applied to all, in-sample for the surveyed ones. Panel 4: 200 stratified resamples of the surveyed districts, the index refitted and applied each time; the width is the 90% band of predicted prevalence. Gray in panels 1 and 2: no survey clusters. The band measures stability under resampling, not distance from the truth (calibration slide). Tables: viz/oof_women_iron.csv, viz/deploy_ghana_women_iron.csv.
+DETAIL: Panel 2 is the in-fill out-of-fold prediction (5-fold by district, ten draws, prevalence target). Panel 3 is the deployment fit as the dashboard shows it: the index on all surveyed districts, level-calibrated, anchored to the national figure, in-sample for the surveyed ones. Panel 4 (CP-01, 27 September): the conformal-predictive-distribution chance of sitting at or above the 20 percent line, from out-of-fold residuals whose 90 percent band covers the survey's own value 91 percent of the time under leave-one-out; the cell's half-width is about 20 points, much of it the survey's own single-cluster noise. Gray in panels 1 and 2: no survey clusters. Tables: viz/oof_women_iron.csv, viz/deploy_ghana_women_iron_cal.csv.
 :::
 ## A whole unsurveyed region: the ranking holds at `r f2(Q$region_index)`
 
@@ -933,25 +935,24 @@ ok <- FALSE
 try({
   suppressPackageStartupMessages(library(sf))
   B <- sf::st_as_sf(readRDS(file.path(root, "dashboard", "data", "admin2_boundaries.rds"))[["malawi"]])
-  oof <- rd(VZ, "oof_women_iron.csv"); dep <- rd(VZ, "deploy_malawi_women_iron.csv"); oof <- oof[oof$country == "Malawi", ]
-  g <- dplyr::left_join(B, oof[, c("Admin1", "Admin2", "y_prev", "pred", "n_psu")], by = c("Admin1", "Admin2")) |> dplyr::left_join(dep[, c("Admin1", "Admin2", "pred_fit", "pred_lo", "pred_hi")], by = c("Admin1", "Admin2"))
-  g$width <- g$pred_hi - g$pred_lo
-  sc <- scale_fill_viridis_c(labels = scales::percent, limits = c(0, max(c(g$y_prev, g$pred_fit), na.rm = TRUE)), na.value = "grey90", name = NULL)
+  oof <- rd(VZ, "oof_women_iron.csv"); dep <- rd(VZ, "deploy_malawi_women_iron_cal.csv"); oof <- oof[oof$country == "Malawi", ]
+  g <- dplyr::left_join(B, oof[, c("Admin1", "Admin2", "y_prev", "pred", "n_psu")], by = c("Admin1", "Admin2")) |> dplyr::left_join(dep[, c("Admin1", "Admin2", "prev_anchored", "p_modplus_cal", "th_modplus")], by = c("Admin1", "Admin2"))
+  sc <- scale_fill_viridis_c(labels = scales::percent, limits = c(0, max(c(g$y_prev, g$prev_anchored), na.rm = TRUE)), na.value = "grey90", name = NULL)
   th <- theme_void(base_size = 12) + theme(plot.title = element_text(face = "bold", size = 11.5, hjust = 0.5), legend.position = "bottom", legend.key.width = grid::unit(0.9, "cm"))
   rho <- cor(g$y_prev, g$pred, method = "spearman", use = "complete.obs")
   p1 <- ggplot(g) + geom_sf(aes(fill = y_prev), colour = "white", linewidth = 0.1) + sc + labs(title = "Survey 2015-16\n(surveyed districts)") + th
   p2 <- ggplot(g) + geom_sf(aes(fill = pred), colour = "white", linewidth = 0.1) + sc + labs(title = sprintf("Held-out prediction\n(rank correlation %.2f)", rho)) + th
-  p3 <- ggplot(g) + geom_sf(aes(fill = pred_fit), colour = "white", linewidth = 0.1) + sc + labs(title = "Extrapolated to every district\n(fitted on the surveyed ones)") + th
-  p4 <- ggplot(g) + geom_sf(aes(fill = width), colour = "white", linewidth = 0.1) + scale_fill_distiller(palette = "Greys", direction = 1, labels = scales::percent, na.value = "grey90", name = NULL) + labs(title = "Uncertainty: width of the\n90% band over 200 refits") + th
+  p3 <- ggplot(g) + geom_sf(aes(fill = prev_anchored), colour = "white", linewidth = 0.1) + sc + labs(title = "Extrapolated to every district\n(deployed, anchored)") + th
+  p4 <- ggplot(g) + geom_sf(aes(fill = p_modplus_cal), colour = "white", linewidth = 0.1) + scale_fill_gradient2(low = "#fff7bc", mid = "#f0a050", high = "#7a0177", midpoint = 0.5, limits = c(0, 1), labels = scales::percent, na.value = "grey90", name = NULL) + labs(title = sprintf("Calibrated chance at or above\nthe WHO moderate line (%.0f%%)", 100 * dep$th_modplus[1])) + th
   print(patchwork::wrap_plots(p1, p2, p3, p4, ncol = 4)); ok <- TRUE
 }, silent = TRUE)
 if (!ok) cat("Maps could not be rendered in this session.")
 ```
 
 ::: {.notes}
-SAY: Malawi, women's iron deficiency, one outcome across the four questions a map has to answer. Left, what the survey measured, district by district. Second, what the model predicts for each of those districts when it is held out. Third, the model applied to every district including the ones never surveyed. Right, how much each district's prediction moves when the training districts are resampled.
+SAY: Malawi, women's iron deficiency, one outcome across the four questions a map has to answer. Left, what the survey measured, district by district. Second, what the model predicts for each of those districts when it is held out. Third, the model applied to every district including the ones never surveyed. Right, the calibrated chance that each district sits at or above the WHO moderate line - a probability that has been checked, not a shading of the model's mood.
 
-DETAIL: Panel 2 is the in-fill out-of-fold prediction (5-fold by district, ten draws, prevalence target). Panel 3 is the deployment fit: the index on all surveyed districts, applied to all, in-sample for the surveyed ones. Panel 4: 200 stratified resamples of the surveyed districts, the index refitted and applied each time; the width is the 90% band of predicted prevalence. Gray in panels 1 and 2: no survey clusters. The band measures stability under resampling, not distance from the truth (calibration slide). Tables: viz/oof_women_iron.csv, viz/deploy_malawi_women_iron.csv.
+DETAIL: Panel 2 is the in-fill out-of-fold prediction (5-fold by district, ten draws, prevalence target). Panel 3 is the deployment fit as the dashboard shows it: the index on all surveyed districts, level-calibrated, anchored to the national figure, in-sample for the surveyed ones. Panel 4 (CP-01, 27 September): the conformal-predictive-distribution chance of sitting at or above the 20 percent line, from out-of-fold residuals whose 90 percent band covers the survey's own value 91 percent of the time under leave-one-out; this cell's half-width is about 32 points, much of it the survey's own single-cluster noise. Gray in panels 1 and 2: no survey clusters. Tables: viz/oof_women_iron.csv, viz/deploy_malawi_women_iron_cal.csv.
 :::
 # Seeing the results
 
@@ -1041,17 +1042,17 @@ ok <- FALSE
 try({
   suppressPackageStartupMessages(library(sf))
   B <- sf::st_as_sf(readRDS(file.path(root, "dashboard", "data", "admin2_boundaries.rds"))[["ghana"]])
-  g <- dplyr::left_join(B, EXC, by = c("Admin1", "Admin2"))
-  p1 <- ggplot(g) + geom_sf(aes(fill = pred_med), colour = "white", linewidth = 0.15) + scale_fill_viridis_c(labels = scales::percent, name = "Predicted\nprevalence") + labs(title = "Predicted prevalence (median of the refits)") + theme_void(base_size = 12) + theme(plot.title = element_text(face = "bold"))
-  p2 <- ggplot(g) + geom_sf(aes(fill = p_ge20), colour = "white", linewidth = 0.15) + scale_fill_gradient2(low = "#fff7bc", mid = "#f0a050", high = "#7a0177", midpoint = 0.5, limits = c(0, 1), name = "P(prevalence >= 20%)") +
-    labs(title = "Probability of exceeding the WHO severe band (20%)") + theme_void(base_size = 12) + theme(plot.title = element_text(face = "bold"))
+  g <- dplyr::left_join(B, EXCC, by = c("Admin1", "Admin2"))
+  p1 <- ggplot(g) + geom_sf(aes(fill = prev_anchored), colour = "white", linewidth = 0.15) + scale_fill_viridis_c(labels = scales::percent, name = "Planning\nprevalence") + labs(title = "Planning prevalence (anchored)") + theme_void(base_size = 12) + theme(plot.title = element_text(face = "bold", hjust = 0.5))
+  p2 <- ggplot(g) + geom_sf(aes(fill = p_sev_cal), colour = "white", linewidth = 0.15) + scale_fill_gradient2(low = "#fff7bc", mid = "#f0a050", high = "#7a0177", midpoint = 0.5, limits = c(0, 1), name = "P(prevalence >= 20%)") +
+    labs(title = "Chance of exceeding 20% (calibrated)") + theme_void(base_size = 12) + theme(plot.title = element_text(face = "bold", hjust = 0.5))
   print(patchwork::wrap_plots(p1, p2, ncol = 2)); ok <- TRUE
 }, silent = TRUE)
 if (!ok) cat("Maps could not be rendered in this session.")
 ```
 
 ::: {.notes}
-The device IHME uses for every one of its maps, applied here: not "what is the prevalence" but "how likely is it to be above the line a program acts on". Ghana, child vitamin A, the index fitted on the 75 surveyed districts and applied to all `r Q$exc_n` (in-sample for the surveyed ones), refitted on `r Q$exc_refits` stratified resamples of the training districts; the right map is the share of refits in which a district's predicted prevalence is at or above 20 percent, the WHO severe band. `r Q$exc_hi` districts are above the line in at least 80 percent of refits, `r Q$exc_lo` below it in at least 80 percent, and `r Q$exc_mid` are undecided; `r Q$exc_unsurveyed` of the `r Q$exc_n` have no survey clusters. The level here comes from Ghana's own survey, so this is the in-country version; for a new country the level would come from the national anchor and the map would read as a planning figure. The caveat is the same as for the Cote d'Ivoire intervals: the refits capture how much the map depends on which training districts were drawn, not the survey's own noise at each district.
+The device IHME uses for every one of its maps, applied here: not "what is the prevalence" but "how likely is it to be above the line a program acts on". Ghana, child vitamin A, the deployed map (the index fitted on the 75 surveyed districts, level-calibrated, anchored to the national figure, applied to all `r Q$exc_n`). Since 27 September the right map is CALIBRATED (CP-01): the chance comes from a conformal predictive distribution over `r Q$exc_ncal` out-of-fold residuals, and the underlying 90 percent band (about `r f2(Q$exc_half, 0)` points either side here) covers the survey's own measured district value `r pc(Q$cal_cov)` of the time under leave-one-out, checked across all `r nrow(CPC)` country-outcome combinations. `r Q$exc_hi` districts are above the 20 percent line with at least 80 percent probability, `r Q$exc_lo` below it, and `r Q$exc_mid` are honestly undecided; `r Q$exc_unsurveyed` of the `r Q$exc_n` have no survey clusters and inherit the cell's width. Before calibration the resampling version of this map called `r if (!is.null(EXC)) sum(EXC$p_ge20 >= 0.8) else "far more"` districts "80 percent sure" — resampling bands cover the survey's value only `r pc(Q$cal_stab)` of the time, which is why they were replaced. The coverage target includes the survey's own single-cluster noise, so much of the band width is the survey's, not the model's. For a new country the anchor would come from a small national sample and the map would read as a planning figure.
 :::
 
 ## How bad, and how sure, on one map?
@@ -1104,6 +1105,8 @@ if (!is.null(COV) && !is.null(DRK)) {
 
 ::: {.notes}
 A calibration check the Cote d'Ivoire slides needed. The 90 percent rank intervals on those maps come from resampling the training districts. If they were honest intervals for the truth, the survey's own rank would fall inside them 90 percent of the time. Doing exactly that with each surveyed country held out (100 resamples of the other three, climate and soil, biomarker level), the survey rank falls inside the interval `r pc(Q$cov_mean)` of the time on average, `r pc(Q$cov_min)` to `r pc(Q$cov_max)` across the `r Q$cov_cells` country-outcome outcome-country combinations, with a median interval `r pc(Q$cov_width)` of the list wide. So the intervals are far too narrow to be read as "the truth is in here"; they answer a different question, how much the ranking would move if we had learned from different districts, and the gap to 90 percent is the model error the transport correlation already reports. Right panel: the calibrated width. Taking the 90th percentile of the distance between the held-out survey rank and the point prediction over all `r Q$cal_n` held-out districts (conformal calibration), a 90 percent interval for a single district's rank has to be `r pc(Q$cal90)` of the list either side, against `r pc(Q$boot_half)` for the interval as drawn and about 68 percent for a random ordering; the median miss is `r pc(Q$cal50)` of the list (random: 29 percent). In words: at a transport correlation of 0.3 to 0.4, an honest 90 percent interval on where one district sits is nearly the whole list, and it is `r pc(Q$cal90_gambia)` in The Gambia and `r pc(Q$cal90_malawi)` in Malawi. The useful statement is therefore not an interval but a probability of a class: a district the model puts in the worst third is in the survey's worst third `r pc(Q$hit3)` of the time (chance `r pc(Q$hit3_base)`), and one it puts in its top five `r pc(Q$hit5)` of the time. That is what the Cote d'Ivoire maps should be read as: deep color means the model will not change its mind, and a worst-third call is right about half the time rather than a third. Say it aloud: stable, not verified, and honest about the odds.
+
+Since 27 September the PREVALENCE side is fixed rather than caveated (CP-01): every planning-prevalence figure carries a split-conformal 90 percent band from out-of-fold residuals, checked by leave-one-out to cover the survey's own measured district value `r pc(Q$cal_cov)` of the time across all `r nrow(CPC)` country-outcome combinations (the resampling bands it replaced covered `r pc(Q$cal_stab)`), with a median half-width of `r f2(Q$cal_half_med, 0)` points — much of it the survey's own single-cluster noise. The WHO-threshold chances on the exceedance slide and the dashboard are conformal predictive distributions from the same residuals. Ranks remain class-probability territory as argued above; levels now come with an interval that means what it says.
 :::
 
 ## What moves each district, predictor by predictor?
