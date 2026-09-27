@@ -19,9 +19,10 @@ mod_targeting_ui <- function(id) {
              plotlyOutput(ns("burden_cells"), height = "280px"))),
       methods_note(sprintf(paste("Direct effort at the fifth of districts the model ranks worst and you reach %s of the country's deficient",
                                  "people; the survey's own regional averages reach %s, no information %s, and perfect knowledge %s. So the",
-                                 "model closes about a fifth of the gap between guessing and knowing. Burden is spread across districts,",
-                                 "which is why even the true worst fifth holds under half of it. Under country transport the burden",
-                                 "margin disappears: the transported product is an ordering, and should not be restated as a targeting gain."),
+                                 "model closes about a fifth of the gap between guessing and knowing - the honest verdict is 'likely",
+                                 "better than untargeted', not 'finds the deficient'. Burden is spread across districts,",
+                                 "which is why even the true worst fifth holds under half of it. With a country held out of training the",
+                                 "burden margin disappears: the transported product is an ordering, and should not be restated as a targeting gain."),
                            fmt_pct(Q$cap_index, 0), fmt_pct(Q$cap_jk, 0), fmt_pct(Q$cap_null, 0), fmt_pct(Q$cap_oracle, 0)))
     ),
     nav_panel(

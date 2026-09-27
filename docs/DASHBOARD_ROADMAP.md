@@ -1,5 +1,90 @@
 # Dashboard roadmap — big-ticket items
 
+## Policymaker revamp (2026-09-27)
+
+Before showing the app to policymakers. Plan and effort marks:
+`docs/superpowers/specs/2026-09-27-policymaker-dashboard-revamp-design.md`.
+
+- **Headline-tier fit (consistency fix).** Builder 05's deployment ranking had
+  silently been fitting on all 575 columns including the 105 DHS-tier ones,
+  while every quoted accuracy and the app's own text said DHS is held out. The
+  fit now uses `drop_near_outcome_v2` under `open,survey_public` (383 columns);
+  the catalogue's full-column rank matrix is kept for the small maps.
+- **External validation (XV-01/02)** as a "Tested in six more countries" panel
+  and Start-here row; bundles `xv_cells/xv_summary/xv_pooled`.
+- **Stability ensembles (UE-01,** `data-raw/06_build_uncertainty_ensembles.R`):
+  per-cell bootstrap of the deployment fit (CV-01/VZ-01 design, 200 draws) →
+  rank ranges, planning-prevalence bands, and WHO-threshold exceedance for
+  EVERY district (surveyed or not) and for the Malawi selenium/iodine cells;
+  pooled-fit weight and domain-share ranges (150 draws) for the importance tab.
+  Always labelled stability, never coverage: `stability_note()` quotes the
+  38% LOCO coverage (VZ-01) wherever these appear.
+- **Plan a survey** rebuilt as three tabs: an interactive district-visit
+  prioritiser (objectives = confirm worst / shrink uncertainty / cover the
+  never-surveyed, borrowed from adaptive geostatistical design; citations in
+  Methods), the AR-01 size story with respondents/clusters translation and a
+  national-anchor precision line, and **SP-01**
+  (`scripts/protocol_v2/64_survey_planner_validation.R`, pre-registered in
+  `docs/findings/SP-01_SURVEY_PLANNER_DESIGN_2026-09-27.md`): model-stratified
+  district selection beats random consistently but modestly, PPS is worse than
+  random, and the amendment measures what k-district selection does to the
+  NATIONAL estimate (bias under informative selection, precision loss) — the
+  survey's primary product stays a probability sample's job.
+- **Importance explorer**: searchable table over every scope × outcome ×
+  target (bundle `importance_all`), with resampling ranges on pooled weights
+  and domain shares.
+- **What more data buys** panel: headroom-vs-achieved per cell, learning
+  curve, XV, XO-01 same-nutrient borrowing, selenium as the new-outcome story,
+  pre-registered candidates.
+- **Malawi selenium + iodine** ranked via the targets adapter
+  (`data-raw/00_read_targets.R`); labels + caveats added; no WHO bands.
+- Map explorer: rank-stability and WHO-exceedance layers, fade-unstable
+  toggle, stability lines in the click-through; district profiles carry rank
+  ranges and prevalence bands; CIV uses CV-01 stability for all six outcomes
+  plus the corroboration card (2007 B12, WFP/MIMI, candidate agreement).
+- Nav: catalogue + nutrient-signal merged under "The data behind it";
+  banner headline is the talks' thesis line; terminology per the 18 Sep
+  decisions (geographic interpolation, infectious disease, anaemia (modelled)).
+- One-page country briefs (`data-raw/07_build_country_briefs.R` →
+  `dashboard/briefs/`, download button on the map tab); deploy list extended
+  (uncertainty_ensembles.rds, briefs/).
+
+Rebuild order: 64 → 05 → 06 → 07 → smoke_test → test_server → deploy.
+
+**Same-day follow-up (2026-09-27, second deploy):**
+
+- **Boundary simplification done** (`data-raw/08_simplify_boundaries.R`,
+  mapshaper keep=0.10/0.20, topology-preserving, keys and validity asserted;
+  originals kept as `*_full.rds`): admin2 10.9→1.1 MB, admin1 3.7→0.8 MB.
+  rmapshaper needed Rcpp ≥1.1.0, which was installed to a scratch `R_LIBS`
+  because another project's running Rscripts held the shared Rcpp DLL.
+- **Every predictor now has a plain-language name**
+  (`scripts/protocol_v2/65_generate_plain_names.R` → `R/predictor_plain_names_generated.R`,
+  462 systematic per-family translations; curated map still wins; catalogue
+  shows `name_source` = curated/generated and the review sheet for the RA is
+  `results/tables/protocol_v2/plain_names_generated.csv`).
+- **URL state done** (app.R): the address bar tracks tab + map country/outcome/
+  layer/level, district profile, CIV outcome, planner country/outcome/preset/k;
+  a pasted link restores them (applied three times ~1.4 s apart, because a
+  country update repopulates outcome choices on the next client round-trip and
+  would otherwise overwrite the deep-linked outcome and k).
+
+**LQAS-style per-district sample-size calculator — design sketch (not built).**
+Deliverable: per district, "n samples classify it against the WHO band with
+95% assurance, with vs without the model prior", using the UE-01 anchored-
+prevalence draws as the prior in a Bayesian-assurance LQAS (n, d) rule with
+deff-inflated effective n. Blocked, in order, on: (1) the prior is a STABILITY
+distribution (38% LOCO coverage) — it must be conformally recalibrated (the
+machinery is block C of scripts/policy_deck/10_viz_tables.R) and its coverage
+re-verified per cell before any "95%" is printed; (2) district-level design
+effects are not estimable where districts hold one PSU, and LQAS operating
+characteristics are sensitive to exactly that; (3) threshold classification is
+a LEVEL claim and the survey's own regional average currently beats the model
+on WHO-band accuracy (66% vs 64%); (4) several outcomes have no per-district
+WHO classification convention at all. Path: recalibrate intervals → verify
+coverage → simulate the (n, d) rules retrospectively on the four surveys
+(pre-registered, SP-01 style) → ship behind a "design study" label. ~2–3 days.
+
 ## Rebuild on the corrected protocol (2026-09-13)
 
 Ahead of the Micronutrient Forum stakeholder lunch the dashboard was rebuilt

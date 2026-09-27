@@ -13,8 +13,8 @@ mod_civ_ui <- function(id) {
       selectInput(ns("outcome"), "Outcome", choices = NULL),
       radioButtons(ns("layer"), "What to show",
                    choices = c("Priority score" = "priority",
-                               "How firmly placed (children's iron)" = "rank_width",
-                               "Chance of the worst third (children's iron)" = "p_worst3rd"),
+                               "How firmly placed: places the rank moves" = "rank_width",
+                               "Chance of the worst third" = "p_worst3rd"),
                    selected = "priority"),
       hr(),
       uiOutput(ns("summary")),
@@ -34,11 +34,12 @@ mod_civ_ui <- function(id) {
                                   " refitting the index 400 times on resampled training districts."))),
       card(card_header("The list"),
            card_body(reactableOutput(ns("table")),
-                     methods_note("Rank 1 is the district the model puts worst. For children's iron, the range is where",
-                                  " the rank fell in 90 percent of 400 refits; a narrow range means the position does",
-                                  " not depend much on which training districts the model learned from. It does not test",
-                                  " whether the model transports to Cote d'Ivoire at all; the surveyed-country accuracy is",
-                                  " the external bound on that."),
+                     methods_note("Rank 1 is the district the model puts worst. The range is where the rank fell in 90",
+                                  " percent of 400 refits on resampled training districts; a narrow range means the position",
+                                  " does not depend much on which training districts the model learned from. It is stability,",
+                                  " not proof of transport: nothing inside Cote d'Ivoire can test the map, and the external",
+                                  " bounds are the held-out-country accuracy and the six-country WHO-deposit check on",
+                                  " Can we trust it."),
                      uiOutput(ns("guards"))))
     )
   )
@@ -59,8 +60,16 @@ mod_civ_server <- function(id) {
       i <- match(.key(b$Admin1, b$Admin2), .key(r$Admin1, r$Admin2))
       b$priority <- r$priority[i]; b$rank_worst <- r$rank_worst[i]; b$index <- r$index[i]
       b$rank_width <- NA_real_; b$p_worst3rd <- NA_real_; b$rank_lo <- NA_real_; b$rank_hi <- NA_real_
-      if (!is.null(CIV$uncertainty) && input$outcome == "child_iron") {
-        u <- CIV$uncertainty; j <- match(.key(b$Admin1, b$Admin2), .key(u$Admin1, u$Admin2))
+      # CV-01: stability for every outcome (climate + soil candidate); the
+      # legacy child-iron file remains the fallback for older bundles.
+      u <- NULL
+      if (!is.null(CIV$uncertainty_all)) {
+        u <- CIV$uncertainty_all[CIV$uncertainty_all$outcome == input$outcome & CIV$uncertainty_all$domain_set == "cs", ]
+        if (!nrow(u)) u <- NULL
+      }
+      if (is.null(u) && !is.null(CIV$uncertainty) && input$outcome == "child_iron") u <- CIV$uncertainty
+      if (!is.null(u)) {
+        j <- match(.key(b$Admin1, b$Admin2), .key(u$Admin1, u$Admin2))
         b$rank_width <- u$rank_width[j]; b$p_worst3rd <- u$p_worst3rd[j]; b$rank_lo <- u$rank_lo[j]; b$rank_hi <- u$rank_hi[j]
       }
       b
@@ -72,11 +81,20 @@ mod_civ_server <- function(id) {
       tagList(
         h5(outcome_short[[input$outcome]], style = "margin-top:0;"),
         p(strong("Ranked worst: "), paste(worst$Admin2, collapse = ", ")),
-        if (input$outcome == "child_iron" && any(is.finite(d$p_worst3rd)))
-          p(sprintf("%d of %d districts have at least an 80 percent chance of being in the worst third; %d have at most 20 percent. The median rank moves %s places across refits.",
+        if (any(is.finite(d$p_worst3rd)))
+          p(sprintf("%d of %d districts have at least an 80 percent chance of being in the worst third; %d have at most 20 percent. The median rank moves %s places across 400 refits.",
                     sum(d$p_worst3rd >= 0.8, na.rm = TRUE), nrow(d), sum(d$p_worst3rd <= 0.2, na.rm = TRUE),
                     fmt_num(stats::median(d$rank_width, na.rm = TRUE), 0)), style = "font-size:0.9em;")
-        else p("Firmness was computed for children's iron; choose it to see the range of ranks.", style = "font-size:0.85em; color:#777;")
+        else p("Firmness has not been computed for this outcome.", style = "font-size:0.85em; color:#777;"),
+        tags$details(style = "font-size:0.84em; margin-top:8px;",
+          tags$summary(strong("Two independent checks agree with this map")),
+          tags$ul(style = "padding-left:1.1em; margin-top:4px;",
+            tags$li("A 2007 WHO-deposited survey measured women's B12 across nine Cote d'Ivoire eco-regions:",
+                    " its zonal ranking agrees with the transported one at 0.95 (one outcome, nine zones - encouraging, not proof)."),
+            tags$li("The one published external map (WFP / MIMI vitamin A inadequacy, Nature Food 2026) puts the same",
+                    " northern savanna belt worst."),
+            tags$li("The two pre-registered candidate indices agree with each other at 0.88 to 0.97, with most of the",
+                    " worst fifth in common - a consistency check, not an accuracy one.")))
       )
     })
 

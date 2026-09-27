@@ -44,6 +44,7 @@ meta        <- readRDS(file.path(DATA_DIR, "metadata.rds"))
 CIV <- .rds("civ_index.rds")                 # Cote d'Ivoire from climate and soil
 EV  <- .rds("protocol_evidence.rds") %||% list()   # the tables behind the trust tabs
 CAT <- .rds("predictor_catalogue.rds")       # every predictor, described
+UE  <- .rds("uncertainty_ensembles.rds") %||% list()   # stability ensembles (UE-01): rank ranges, WHO exceedance, weight ranges
 
 data_build_time <- format(IDX$build_time, "%Y-%m-%d %H:%M")
 PROTOCOL_LABEL  <- IDX$protocol %||% "protocol v2"
@@ -63,11 +64,22 @@ outcomes_for <- function(ck) {
 outcome_short <- c(child_vitA = "Vitamin A, children", women_vitA = "Vitamin A, women",
                    child_iron = "Iron, children", women_iron = "Iron, women",
                    women_folate = "Folate, women", women_b12 = "B12, women",
-                   child_zinc = "Zinc, children", women_zinc = "Zinc, women")
+                   child_zinc = "Zinc, children", women_zinc = "Zinc, women",
+                   child_selenium = "Selenium, children", women_selenium = "Selenium, women",
+                   women_iodine = "Iodine, women")
+# Comparator names follow the talk's terminology (18 Sep): the survey's own
+# regional average is what "geographic interpolation" delivers.
 arm_label <- c(domain_index = "Proxy index (this dashboard)", spatial_plus_domain = "Neighbour smoother + proxies",
                spatial = "Neighbour smoother alone", domain_enet = "Penalised regression, domain components",
-               raw_enet = "Penalised regression, all columns", region_mean_jk = "Survey's own regional average",
+               raw_enet = "Penalised regression, all columns", region_mean_jk = "Geographic interpolation (survey's regional average)",
                null_train_mean = "No information (training mean)")
+# Domain names as displayed (18 Sep terminology; the data-side names are fixed
+# by the DP-01 prefix rule, so the mapping is display-only)
+domain_display <- c("Infection and inflammation burden" = "Infectious disease burden",
+                    "Anaemia and haemoglobin" = "Anaemia (modelled)",
+                    "Dietary inadequacy (MODELLED SURFACE" = "Dietary inadequacy (modelled)",
+                    "Nutrition status (MODELLED SURFACE)" = "Nutrition status (modelled)")
+dom_disp <- function(x) { y <- unname(domain_display[x]); ifelse(is.na(y), x, y) }
 
 # ── Headline numbers, read from the evidence tables ───────────────────────
 # The same quantities the decks and the manuscript quote, computed here so no
@@ -135,6 +147,57 @@ local({
   IL <- .tbl("individual_level")
   Q$il_auc <<- if (is.null(IL)) NA else g1(mean(IL$auc, na.rm = TRUE))
 })
+# 2026-09-27: quantities for the external-validation, roadmap and planning panels
+local({
+  XP <- .tbl("xv_pooled")
+  if (!is.null(XP)) {
+    XP$set <- trimws(XP$set)
+    gx <- function(s, col) g1(XP[[col]][XP$set == s])
+    Q$xv_level       <<- gx("Africa / iSDA / level", "mean_rho")
+    Q$xv_level_cells <<- gx("Africa / iSDA / level", "cells")
+    Q$xv_level_pos   <<- gx("Africa / iSDA / level", "positive")
+    Q$xv_level_null  <<- gx("Africa / iSDA / level", "block_null_p95")
+    Q$xv_prev        <<- gx("Africa / iSDA / prev", "mean_rho")
+    Q$xv_sg_level    <<- gx("Africa / SoilGrids / level", "mean_rho")
+    Q$xv_off         <<- gx("Off-continent / SoilGrids / prev", "mean_rho")
+    Q$xv_off_pos     <<- gx("Off-continent / SoilGrids / prev", "positive")
+    Q$xv_off_cells   <<- gx("Off-continent / SoilGrids / prev", "cells")
+    Q$xv_off_null    <<- gx("Off-continent / SoilGrids / prev", "block_null_p95")
+  }
+  XC <- .tbl("xv_cells")
+  Q$xv_countries <<- if (!is.null(XC)) length(unique(XC$country)) else NA
+  BC <- .tbl("benchmarks_cells")
+  if (!is.null(BC)) {
+    s <- BC$spearman[BC$estimand == "infill" & BC$target == "level" & BC$arm == "domain_index"]
+    s <- s[is.finite(s)]
+    Q$strong_n <<- sum(s >= 0.5); Q$strong_mean <<- mean(s[s >= 0.5]); Q$infill_cells <<- length(s)
+  }
+  HR <- .tbl("headroom")
+  if (!is.null(HR)) { h <- HR[is.finite(HR$r_max_emp), ]; Q$rmax_med <<- stats::median(h$r_max_emp) }
+  XO <- .tbl("cross_outcome")
+  if (!is.null(XO)) {
+    xo <- XO[XO$domain_set == "cs" & XO$target == "level" & XO$model == "domain_index" & XO$outcome_class == "iron / vitA", ]
+    Q$xo_base <<- g1(xo$base_mean[xo$arm == "block_only_same_nutrient"])
+    Q$xo_same <<- g1(xo$arm_mean[xo$arm == "block_only_same_nutrient"])
+    Q$xo_added <<- g1(xo$mean_delta[xo$arm == "same_nutrient"])
+  }
+  RC2 <- .tbl("rank_coverage")
+  Q$stab_cov <<- if (!is.null(RC2)) mean(RC2$coverage_90, na.rm = TRUE) else NA
+  PS <- .tbl("planner_summary")
+  if (!is.null(PS)) {
+    p5 <- PS[PS$fraction == 0.5, ]
+    Q$plan_random <<- g1(p5$spearman[p5$arm == "random"])
+    Q$plan_spread <<- g1(p5$spearman[p5$arm == "spread_model"])
+    Q$plan_delta  <<- g1(p5$mean_delta[p5$arm == "spread_model"])
+    Q$plan_better <<- g1(p5$cells_better[p5$arm == "spread_model"])
+    Q$plan_cells  <<- g1(p5$cells[p5$arm == "spread_model"])
+  }
+  SEp <- .tbl("selenium_protocol")
+  if (!is.null(SEp)) {
+    pr <- SEp[SEp$analysis == "protocol" & SEp$arm == "domain_index", ]
+    Q$se_mean <<- if (nrow(pr)) mean(pr$spearman, na.rm = TRUE) else NA
+  }
+})
 Q$n_predictors <- if (!is.null(CAT)) nrow(CAT$variables) else 570
 Q$n_domains    <- if (!is.null(CAT)) nrow(CAT$domains) else 28
 Q$n_in_model   <- if (!is.null(CAT) && "in_model" %in% names(CAT$variables)) sum(CAT$variables$in_model, na.rm = TRUE) else NA
@@ -163,7 +226,18 @@ biomarker_caveats <- list(
   child_zinc   = paste("Zinc is measured in Malawi only, so nothing about it can be checked across borders. The",
                        "district differences are largely the time of the blood draw, not geography."),
   women_zinc   = paste("Zinc is measured in Malawi only, so nothing about it can be checked across borders. The",
-                       "district differences are largely the time of the blood draw, not geography.")
+                       "district differences are largely the time of the blood draw, not geography."),
+  child_selenium = paste("Selenium is measured in Malawi only (2015-16 MNS), so this ranking has no cross-border check.",
+                         "It is also the strongest in-country signal on this dashboard: soil selenium follows geology,",
+                         "and the model recovers the gradient with each district hidden in turn. No WHO severity bands",
+                         "exist for selenium, so no severity class is shown."),
+  women_selenium = paste("Selenium is measured in Malawi only (2015-16 MNS), so this ranking has no cross-border check.",
+                         "It is also the strongest in-country signal on this dashboard: soil selenium follows geology,",
+                         "and the model recovers the gradient with each district hidden in turn. No WHO severity bands",
+                         "exist for selenium, so no severity class is shown."),
+  women_iodine = paste("Iodine insufficiency (urinary iodine below 100 microgram per litre) is measured in Malawi only,",
+                       "so this ranking has no cross-border check, and salt iodisation can move it faster than any",
+                       "geography. Read it as in-country, single-survey evidence.")
 )
 GENERAL_CAVEAT <- paste(
   "The four surveys were run between 2013 and 2018 by different teams, so levels are not comparable",
@@ -172,9 +246,10 @@ GENERAL_CAVEAT <- paste(
   "survey are rougher than inside a surveyed country; How well it works has the numbers.")
 
 # ── Site banner ────────────────────────────────────────────────────────────
-SITE_SCOPE_HEADLINE <- "Working estimates from public data, scored against four biomarker surveys."
-SITE_SCOPE_BODY <- paste("The model ranks districts; it does not measure prevalence. Use the ranking, and read",
-                         "any percentage as a planning figure anchored to the national survey.")
+# The headline is the talks' thesis line (18 Sep terminology decisions).
+SITE_SCOPE_HEADLINE <- "Modelling extends a survey's reach. It does not replace the survey."
+SITE_SCOPE_BODY <- paste("Working district estimates from public data, scored against four biomarker surveys:",
+                         "the model ranks districts, and any percentage is a planning figure anchored to the national survey.")
 SITE_SCOPE_POINTER <- "How well it works shows what the ranking reaches and where it stops."
 site_banner <- div(
   class = "alert alert-info",
@@ -208,7 +283,9 @@ about_content <- div(
     tags$li(sprintf("In a country never used in training: %s with everything, %s from climate and soil alone, positive in %s of %s country-outcome pairs.",
                     f2(Q$tr), f2(Q$cs), Q$tr_pos, Q$tr_n)),
     tags$li(sprintf("A perfect predictor could reach about %s given the survey's own noise; the model is about two-thirds of the way.",
-                    f2(Q$ceiling_level)))
+                    f2(Q$ceiling_level))),
+    tags$li(sprintf("Checked against WHO-deposited surveys in six countries never used in training (two continents): %s in Africa, %s in South Asia.",
+                    f2(Q$xv_level), f2(Q$xv_off)))
   ),
   h6("Citation"),
   p(em("Mertens et al. (in preparation). What geospatial covariates can and cannot do for sub-national",

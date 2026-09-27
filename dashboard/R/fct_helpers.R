@@ -51,7 +51,11 @@ is_water <- function(x) grepl(WATER_PATTERN, x, ignore.case = TRUE)
 .key <- function(a1, a2) paste(trimws(as.character(a1)), trimws(as.character(a2)), sep = "|")
 
 #' The joined district sf for one country and outcome: boundaries plus the
-#' deployment ranking, the survey's estimate where one exists, and population.
+#' deployment ranking, the survey's estimate where one exists, population, and
+#' the stability ensemble (UE-01): rank range, planning-prevalence band, and
+#' WHO-threshold exceedance for every district.
+UE_COLS <- c("rank_med", "rank_lo", "rank_hi", "rank_width", "width_share", "p_worst_fifth_boot",
+             "prev_med", "prev_lo", "prev_hi", "p_moderate_plus", "p_severe", "th_moderate_plus", "th_severe")
 get_country_admin2 <- function(ck, oc) {
   bnd <- admin2_bnds[[ck]]
   if (is.null(bnd)) return(NULL)
@@ -63,6 +67,14 @@ get_country_admin2 <- function(ck, oc) {
   keep <- setdiff(names(d), c("Admin1", "Admin2", "country", "country_key", "outcome"))
   for (k in keep) bnd[[k]] <- d[[k]][i]
   bnd$country_key <- ck; bnd$outcome <- oc
+  for (k in UE_COLS) bnd[[k]] <- NA_real_
+  if (length(UE) && !is.null(UE$cells)) {
+    u <- UE$cells[UE$cells$country_key == ck & UE$cells$outcome == oc, , drop = FALSE]
+    if (nrow(u)) {
+      j <- match(.key(bnd$Admin1, bnd$Admin2), .key(u$Admin1, u$Admin2))
+      for (k in intersect(UE_COLS, names(u))) bnd[[k]] <- u[[k]][j]
+    }
+  }
   bnd$who_class[is.na(bnd$who_class)] <- "No data"
   bnd$worst_fifth <- is.finite(bnd$rank_worst) & bnd$rank_worst <= ceiling(bnd$n_districts / 5)
   bnd
@@ -141,6 +153,16 @@ decompose_district <- function(ck, oc, admin1, admin2) {
   out <- out[order(-abs(out$contribution)), ]
   attr(out, "total") <- sum(contrib, na.rm = TRUE)
   out
+}
+
+#' The recurring honesty line for stability ranges (VZ-01). Used verbatim
+#' wherever a resampling range or exceedance chance is shown, so the app never
+#' oversells its uncertainty as calibrated coverage.
+stability_note <- function() {
+  paste("Ranges and chances from refitting on resampled training data measure STABILITY - how much the answer moves",
+        "under a different training draw - not calibrated coverage: checked against held-out countries, a 90% rank",
+        sprintf("range covers the survey's own rank about %s of the time",
+                if (is.finite(Q$stab_cov)) fmt_pct(Q$stab_cov, 0) else "40%"))
 }
 
 #' Mean over cells with a 95% interval across cells.

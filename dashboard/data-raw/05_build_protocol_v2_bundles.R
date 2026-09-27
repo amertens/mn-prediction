@@ -42,6 +42,7 @@ source("R/protocol_v2.R")
 source("R/protocol_v2_weights.R")
 source("R/protocol_v2_importance.R")
 source("R/admin2_key_hygiene.R")
+source("dashboard/data-raw/00_read_targets.R")
 
 P2  <- "results/tables/protocol_v2"
 PDK <- "results/tables/policy_deck"
@@ -80,24 +81,32 @@ who_class_of <- function(prev, oc) {
 
 # ── A. The deployment ranking ───────────────────────────────────────────────
 cat("A. deployment ranking\n")
-TG  <- rd(P2, "targets_v2.csv")
+TG  <- read_targets_with_extras(P2)          # targets_v2 + the Malawi selenium / iodine cells (script 61)
 S   <- rd(HD, "predictors_admin2_shared.csv")
 MD  <- rd(HD, "predictors_admin2_shared_metadata.csv")
 WF  <- rd(PDK, "worst_fifth_probability.csv")
 NE  <- rd("results/tables/national_estimates_all.csv")
 POP <- readRDS(file.path(OUT, "admin2_population.rds"))
-PREDS <- intersect(MD$column, names(S))
+PREDS_ALL <- intersect(MD$column, names(S))
+stopifnot(length(PREDS_ALL) == nrow(MD))
+# The deployment fit uses the HEADLINE tier set (TP-01: open + public survey
+# microdata; no DHS, no national constants, policy exclusions applied) — the
+# same set every accuracy the app quotes was scored on. Until 2026-09-27 this
+# fit silently used every column on disk, DHS included, while the app's text
+# said otherwise.
+Sys.setenv(V2_PREDICTOR_TIERS = "open,survey_public")
+PREDS <- drop_near_outcome_v2(PREDS_ALL, MD)
 domain_of <- stats::setNames(MD$domain, MD$column)
-stopifnot(length(PREDS) == nrow(MD))
 S <- S[!is_water_admin2(S$Admin2), ]        # GADM ships Lake Malawi as districts
-cat(sprintf("   %d predictors, %d districts after dropping water polygons\n", length(PREDS), nrow(S)))
+cat(sprintf("   %d of %d predictors (headline tiers), %d districts after dropping water polygons\n",
+            length(PREDS), length(PREDS_ALL), nrow(S)))
 
-# The rank-normal design matrix per country (what the model sees), kept for the
-# catalogue's small maps and for the district decomposition.
+# The rank-normal matrix per country: ALL columns for the catalogue's small
+# maps (any variable can be browsed), the headline subset for the fit.
 XR <- list(); MU <- list()
 for (ctry in unique(S$country)) {
   all_s <- S[S$country == ctry, ]
-  Xr <- prep_predictors_v2(as.matrix(all_s[, PREDS]))
+  Xr <- prep_predictors_v2(as.matrix(all_s[, PREDS_ALL]))
   rownames(Xr) <- paste(all_s$Admin1, all_s$Admin2, sep = "|")
   XR[[KEY[[ctry]]]] <- Xr
 }
@@ -106,6 +115,7 @@ districts <- list(); fits <- list(); national <- list()
 for (ctry in unique(TG$country)) {
   all_s <- S[S$country == ctry, ]
   Xr_all <- XR[[KEY[[ctry]]]]
+  Xf_all <- Xr_all[, intersect(PREDS, colnames(Xr_all)), drop = FALSE]   # the headline-tier fit matrix
   key_all <- paste(all_s$Admin1, all_s$Admin2, sep = "|")
   pop <- POP[POP$country == LABEL[[ctry]], ]
   pop_key <- paste(pop$Admin1, pop$Admin2, sep = "|")
@@ -116,7 +126,7 @@ for (ctry in unique(TG$country)) {
     if (length(tr) < 8) { cat(sprintf("   skip %s / %s: %d surveyed districts\n", ctry, oc, length(tr))); next }
     Y <- rep(NA_real_, nrow(all_s)); Y[tr] <- .v2_logit(t$y_prev)
     y_nat <- rep(NA_real_, nrow(all_s)); y_nat[tr] <- t$y_prev
-    D <- domain_representation_v2(Xr_all, domain_of, sign_rows = tr)
+    D <- domain_representation_v2(Xf_all, domain_of, sign_rows = tr)
     # IS-01 (2026-09-18): the CALIBRATED map. The ranking is the index's; the
     # logit score is mean + rho * sd * z with rho the nested out-of-sample
     # correlation (the rho = 1 map gave the levels the survey's full spread and
@@ -132,10 +142,10 @@ for (ctry in unique(TG$country)) {
     # natural-scale shift enters the intercept, so the decomposition still sums
     # to score_logit - training mean)
     w <- .ws_z_pooled(tr, Y, D)
-    beta <- index_backproject_v2(w, attr(D, "basis"), colnames(Xr_all))
+    beta <- index_backproject_v2(w, attr(D, "basis"), colnames(Xf_all))
     idx_tr <- as.numeric(D[tr, , drop = FALSE] %*% w)
     scale <- if (stats::sd(idx_tr) > 0) rho * stats::sd(Y[tr]) / stats::sd(idx_tr) else 0
-    mu <- colMeans(Xr_all[tr, , drop = FALSE])
+    mu <- colMeans(Xf_all[tr, , drop = FALSE])
     nat_shift <- mean(pred[tr]) - mean(Y[tr])
     fits[[paste(KEY[[ctry]], oc)]] <- list(country_key = KEY[[ctry]], outcome = oc,
                                             beta = beta * scale, mu = mu,
@@ -188,7 +198,7 @@ districts <- bind_rows(districts); national <- bind_rows(national)
 dup <- duplicated(paste(districts$country, districts$outcome, districts$Admin1, districts$Admin2))
 if (any(dup)) stop(sprintf("admin2_index: %d duplicated country/outcome/Admin1/Admin2 keys", sum(dup)))
 saveRDS(list(districts = districts, national = national, fits = fits, xr = XR,
-             build_time = BUILD_TIME, protocol = "v2, RR-13 set (2026-09-18), calibrated index (IS-01)"),
+             build_time = BUILD_TIME, protocol = "v2, RR-13 set, calibrated index (IS-01), headline tiers"),
         file.path(OUT, "admin2_index.rds"))
 cat(sprintf("   wrote admin2_index.rds: %d district rows, %d cells\n", nrow(districts), length(fits)))
 
@@ -201,10 +211,17 @@ if (!is.null(civ)) {
   n <- length(unique(paste(civ$Admin1, civ$Admin2)))
   civ$priority <- 100 - civ$pct
   civ$rank_worst <- civ$rank
-  saveRDS(list(ranking = civ, uncertainty = civ_u, guards = rd(PDK, "civ_transport_guards.csv"),
+  # CV-01: rank stability for every outcome (and both pre-registered candidate
+  # sets); the legacy single-outcome file is kept for compatibility.
+  civ_u_all <- rd(PDK, "civ_rank_uncertainty_all.csv")
+  saveRDS(list(ranking = civ, uncertainty = civ_u, uncertainty_all = civ_u_all,
+               candidates = rd(PDK, "civ_candidates_summary.csv"),
+               candidates_agreement = rd(PDK, "civ_candidates_agreement.csv"),
+               guards = rd(PDK, "civ_transport_guards.csv"),
                boundaries = oos_old$boundaries, n_districts = n, build_time = BUILD_TIME),
           file.path(OUT, "civ_index.rds"))
-  cat(sprintf("   wrote civ_index.rds: %d districts, %d outcomes\n", n, length(unique(civ$outcome))))
+  cat(sprintf("   wrote civ_index.rds: %d districts, %d outcomes, stability for %s outcome sets\n",
+              n, length(unique(civ$outcome)), if (is.null(civ_u_all)) "1" else length(unique(paste(civ_u_all$outcome, civ_u_all$domain_set)))))
 }
 
 # ── C. The evidence behind the trust tabs ───────────────────────────────────
@@ -233,6 +250,34 @@ ev <- list(
   weight_sources     = rd(P2, "weight_sources_summary.csv"),
   geostat_cells      = relabel(rd(CLU, "mbg_comparison_cells.csv")),
   individual_level   = relabel(rd(P2, "individual_level_models.csv")),
+  # 2026-09-27 additions for the policymaker revamp:
+  # external validation on WHO VMNIS sub-national deposits (XV-01/02; countries
+  # outside the panel, so no relabel)
+  xv_cells   = rd("results/tables/external_validation", "xv_transport.csv"),
+  xv_summary = rd("results/tables/external_validation", "xv_transport_summary.csv"),
+  xv_pooled  = rd("results/tables/external_validation", "xv_transport_pooled.csv"),
+  # honesty check on the resampling rank intervals (VZ-01): 90% bands cover the
+  # held-out survey rank ~38% of the time; quoted wherever a stability range shows
+  rank_coverage = rd(PDK, "viz", "rank_interval_coverage.csv"),
+  # what the survey itself can measure per cell, with its uncertainty (the headroom screen)
+  headroom = relabel(rd(P2, "headroom_by_cell.csv")),
+  # XO-01: cross-outcome borrowing under transport (the "any related biomarker helps" line)
+  cross_outcome = rd(P2, "cross_outcome_summary_cs.csv"),
+  # MW-SE/MW-IO: the Malawi selenium / iodine protocol arms (in-country only)
+  selenium_protocol = rd(P2, "malawi_selenium_iodine_in_country.csv"),
+  # what augmenting or shrinking a small survey with the model does NOT buy (kept for honesty)
+  model_augmented = rd(P2, "model_augmented_survey_summary.csv"),
+  survey_size_symmetric = rd(P2, "survey_size_symmetric_summary.csv"),
+  # survey sizes and design effects, for translating design fractions into respondents
+  survey_design_meta = relabel(rd(P2, "deff_v2.csv")),
+  # SP-01: model-guided district selection, validated retrospectively (script 64)
+  planner_validation = relabel(rd(P2, "survey_planner_validation.csv")),
+  planner_summary = rd(P2, "survey_planner_validation_summary.csv"),
+  # every back-projected weight, every scope, for the searchable importance explorer
+  importance_all = { ic <- rd(P2, "index_importance_columns.csv")
+    if (!is.null(ic)) ic[, intersect(c("scope", "country", "outcome", "target", "n_train", "column", "beta", "beta_std",
+                                       "share", "rank", "fold_sign_agree", "loco_sign_agree", "loco_fits",
+                                       "incountry_sign_agree", "incountry_fits", "domain"), names(ic))] else NULL },
   build_time = BUILD_TIME
 )
 missing <- names(ev)[vapply(ev, is.null, logical(1))]
@@ -291,7 +336,17 @@ if (!is.null(VS)) {
 }
 if ("mechanism" %in% names(vars)) vars$mechanism[!nzchar(trimws(vars$mechanism %||% ""))] <- NA_character_
 source("R/predictor_plain_names.R")
-vars$plain_name <- unname(PLAIN[vars$column])
+# PN-01 (2026-09-27): systematic translations for every column the curated map
+# does not cover (script 65); curated names always win, and the catalogue says
+# which kind each name is.
+PLAIN_ALL <- PLAIN
+if (file.exists("R/predictor_plain_names_generated.R")) {
+  source("R/predictor_plain_names_generated.R")
+  PLAIN_ALL <- c(PLAIN_GENERATED[setdiff(names(PLAIN_GENERATED), names(PLAIN))], PLAIN)
+}
+vars$plain_name <- unname(PLAIN_ALL[vars$column])
+vars$name_source <- ifelse(vars$column %in% names(PLAIN), "curated",
+                           ifelse(!is.na(vars$plain_name), "generated", "code"))
 vars$label <- ifelse(is.na(vars$plain_name), clean_code(vars$column), vars$plain_name)
 vars$climate_soil <- vars$domain %in% c("Climate and weather", "Soil characteristics")
 # membership of the twenty-predictor composite, per outcome (pooled fit, biomarker level)
@@ -338,8 +393,16 @@ saveRDS(list(variables = vars, weights = weights, signal = signal, domains = dom
 cat(sprintf("   wrote predictor_catalogue.rds: %d variables (%d with a plain name, %d with a mechanism template), %d domains, %d sources\n",
             nrow(vars), sum(!is.na(vars$plain_name)), sum(!is.na(vars$mechanism)), nrow(domains), nrow(sources)))
 
-# ── E. build stamp ──────────────────────────────────────────────────────────
+# ── E. build stamp and outcome labels ───────────────────────────────────────
+# The Malawi selenium and iodine outcomes (MW-SE/MW-IO, script 61) join the
+# label maps; they carry no WHO severity bands, so who_class stays "No data".
+add_lab <- c(child_selenium = "Selenium deficiency (children)",
+             women_selenium = "Selenium deficiency (women)",
+             women_iodine   = "Iodine insufficiency (women)")
+add_short <- c(child_selenium = "Selenium (child)", women_selenium = "Selenium (women)", women_iodine = "Iodine (women)")
+meta$outcome_labels <- c(meta$outcome_labels[setdiff(names(meta$outcome_labels), names(add_lab))], add_lab)
+meta$outcome_short  <- c(meta$outcome_short[setdiff(names(meta$outcome_short), names(add_short))], add_short)
 meta$build_timestamp <- BUILD_TIME
-meta$protocol <- "Protocol v2, RR-13 result set (2026-09-18), calibrated index (IS-01)"
+meta$protocol <- "Protocol v2, RR-13 result set (2026-09-18), calibrated index (IS-01), headline tiers (2026-09-27)"
 saveRDS(meta, file.path(OUT, "metadata.rds"))
 cat("done\n")

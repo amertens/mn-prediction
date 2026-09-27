@@ -19,16 +19,21 @@ mod_map_explorer_ui <- function(id) {
       selectInput(ns("layer"), "What to show",
                   choices = list(
                     "The ranking" = c("Priority score (model)" = "priority",
-                                      "How sure: chance of being in the worst fifth" = "p_worst_fifth"),
+                                      "How sure: chance of being in the worst fifth (surveyed districts)" = "p_worst_fifth",
+                                      "How firmly ranked: places the rank moves across refits" = "rank_width"),
                     "Percentages" = c("Planning prevalence (ranking anchored to the national survey)" = "prev_anchored",
+                                      "Chance the district is at or above the WHO 'moderate' line" = "p_moderate_plus",
                                       "Survey estimate (surveyed districts only)" = "survey_prev",
                                       "WHO severity class (planning prevalence)" = "who_class",
                                       "People affected (planning prevalence x population)" = "people_affected")),
                   selected = "priority"),
+      checkboxInput(ns("fade_unstable"), "Fade districts the model cannot place firmly", value = FALSE),
       hr(),
       uiOutput(ns("headline")),
       hr(),
-      uiOutput(ns("district_detail"))
+      uiOutput(ns("district_detail")),
+      hr(),
+      downloadButton(ns("brief"), "One-page country brief", class = "btn-sm btn-outline-secondary")
     ),
     card(
       full_screen = TRUE,
@@ -96,7 +101,9 @@ mod_map_explorer_server <- function(id) {
 
     output$map <- renderLeaflet({
       df <- map_data(); req(df, nrow(df) > 0)
-      layer <- input$layer; vals <- df[[layer]]
+      layer <- input$layer
+      if (!layer %in% names(df) || !any(is.finite(suppressWarnings(as.numeric(df[[layer]])))) && layer != "who_class") layer <- "priority"
+      vals <- df[[layer]]
       legend_title <- "Priority score"; pal <- NULL; fill <- rep("#d9d9d9", nrow(df)); lab_fmt <- labelFormat()
       if (layer == "who_class") {
         pal <- colorFactor(unname(who_colors), levels = names(who_colors), na.color = "#cccccc")
@@ -106,6 +113,13 @@ mod_map_explorer_server <- function(id) {
       } else if (layer == "p_worst_fifth") {
         pal <- colorNumeric(c("#f7fbff", "#9ecae1", "#08519c"), domain = c(0, 1), na.color = "#d9d9d9"); fill <- pal(vals)
         legend_title <- "Chance of worst fifth"; lab_fmt <- labelFormat(transform = function(x) round(100 * x), suffix = "%")
+      } else if (layer == "rank_width") {
+        nz <- vals[is.finite(vals)]
+        if (length(nz)) { pal <- colorNumeric(c("#252525", "#bdbdbd", "#f7f7f7"), domain = range(nz), na.color = "#d9d9d9"); fill <- pal(vals) }
+        legend_title <- "Places the rank moves (dark = firm)"
+      } else if (layer == "p_moderate_plus") {
+        pal <- colorNumeric(c("#f7fbff", "#fdae61", "#d7191c"), domain = c(0, 1), na.color = "#d9d9d9"); fill <- pal(vals)
+        legend_title <- "Chance at or above 'moderate'"; lab_fmt <- labelFormat(transform = function(x) round(100 * x), suffix = "%")
       } else if (layer == "people_affected") {
         nz <- vals[is.finite(vals) & vals > 0]
         if (length(nz)) { pal <- colorNumeric("YlOrRd", domain = log10(range(pmax(nz, 1))), na.color = "#d9d9d9")
@@ -121,14 +135,17 @@ mod_map_explorer_server <- function(id) {
       if (input$admin_level == "admin1") surveyed <- df$n_surveyed > 0 & !is.na(df$n_surveyed)
       name <- df[[area_col()]]
       sub <- if (area_col() == "Admin2") ifelse(is.na(df$Admin1), "", df$Admin1) else rep("", nrow(df))
-      labels <- sprintf(paste0("<strong>%s</strong><br/>%s<br/>Priority score: %s (rank %s of %s)<br/>Planning prevalence: %s<br/>",
+      rng <- if ("rank_lo" %in% names(df)) ifelse(is.finite(df$rank_lo), sprintf("<br/>Rank across refits: %s to %s", round(df$rank_lo), round(df$rank_hi)), "") else ""
+      labels <- sprintf(paste0("<strong>%s</strong><br/>%s<br/>Priority score: %s (rank %s of %s)%s<br/>Planning prevalence: %s<br/>",
                                "Survey estimate: %s<br/>Chance of worst fifth: %s<br/>Population: %s"),
                         name, sub, fmt_num(df$priority, 0), ifelse(is.finite(df$rank_worst), df$rank_worst, "—"),
-                        if (area_col() == "Admin2") df$n_districts else nrow(df),
+                        if (area_col() == "Admin2") df$n_districts else nrow(df), rng,
                         fmt_pct(df$prev_anchored), ifelse(is.finite(df$survey_prev), fmt_pct(df$survey_prev), "not surveyed"),
                         ifelse(is.finite(df$p_worst_fifth), fmt_pct(df$p_worst_fifth, 0), "—"), fmt_count(df$population)) |> lapply(HTML)
+      op <- if (isTRUE(input$fade_unstable) && "width_share" %in% names(df))
+        0.82 * (1 - 0.65 * pmin(ifelse(is.finite(df$width_share), df$width_share, 0.5), 1)) else 0.78
       m <- leaflet(df) |> addProviderTiles(providers$Esri.WorldGrayCanvas) |>
-        addPolygons(fillColor = fill, fillOpacity = 0.78, color = ifelse(surveyed, "#1a1a1a", "#9aa0a6"),
+        addPolygons(fillColor = fill, fillOpacity = op, color = ifelse(surveyed, "#1a1a1a", "#9aa0a6"),
                     weight = ifelse(surveyed, 1.6, 0.5), opacity = 1,
                     highlightOptions = highlightOptions(weight = 3, color = "#333", bringToFront = TRUE),
                     label = labels, labelOptions = labelOptions(textsize = "13px", direction = "auto"),
@@ -139,7 +156,7 @@ mod_map_explorer_server <- function(id) {
           "<span style='display:inline-block;width:16px;border-top:2px solid #9aa0a6;vertical-align:middle;'></span> no survey clusters</div>")))
       if (layer == "who_class") m <- m |> addLegend(colors = unname(who_colors), labels = names(who_colors), opacity = 0.78, title = legend_title, position = "bottomright")
       else if (!is.null(pal)) {
-        lv <- if (layer == "people_affected") log10(pmax(vals[is.finite(vals) & vals > 0], 1)) else if (layer == "priority") c(0, 100) else if (layer == "p_worst_fifth") c(0, 1) else vals[is.finite(vals)]
+        lv <- if (layer == "people_affected") log10(pmax(vals[is.finite(vals) & vals > 0], 1)) else if (layer == "priority") c(0, 100) else if (layer %in% c("p_worst_fifth", "p_moderate_plus")) c(0, 1) else vals[is.finite(vals)]
         m <- m |> addLegend(pal = pal, values = lv, opacity = 0.78, title = legend_title, position = "bottomright", labFormat = lab_fmt)
       }
       m
@@ -162,7 +179,15 @@ mod_map_explorer_server <- function(id) {
           if (is.finite(row$rank_worst)) sprintf(" (ranked %d of %d, 1 = worst)", row$rank_worst, if (area_col() == "Admin2") row$n_districts else nrow(df)) else ""),
         if (is.finite(row$p_worst_fifth)) p(strong("Chance of being in the worst fifth: "), fmt_pct(row$p_worst_fifth, 0),
                                              tags$small(" (40 refits, district hidden each time)")),
-        p(strong("Planning prevalence: "), fmt_pct(row$prev_anchored), tags$small(" (ranking anchored to the national survey)")),
+        if (is.finite(row$rank_lo)) p(strong("How firmly ranked: "),
+                                      sprintf("rank stays between %d and %d across %s refits", round(row$rank_lo), round(row$rank_hi),
+                                              if (!is.null(UE$meta)) UE$meta$draws_cell else "200"),
+                                      tags$small(" (stability, not a confidence interval)")),
+        p(strong("Planning prevalence: "), fmt_pct(row$prev_anchored),
+          if (is.finite(row$prev_lo)) tags$small(sprintf(" (stays between %s and %s across refits)", fmt_pct(row$prev_lo), fmt_pct(row$prev_hi)))
+          else tags$small(" (ranking anchored to the national survey)")),
+        if (is.finite(row$p_moderate_plus)) p(strong("Chance at or above the WHO 'moderate' line: "), fmt_pct(row$p_moderate_plus, 0),
+                                              if (is.finite(row$p_severe) && row$p_severe > 0.005) tags$small(sprintf(" (severe: %s)", fmt_pct(row$p_severe, 0)))),
         if (isTRUE(row$surveyed) || (area_col() == "Admin1" && isTRUE(row$n_surveyed > 0)))
           p(strong("Survey estimate: "), fmt_pct(row$survey_prev),
             if (area_col() == "Admin2" && is.finite(row$survey_lo)) sprintf(" (95%% range %s to %s; %s respondents in %s clusters)",
@@ -198,7 +223,11 @@ mod_map_explorer_server <- function(id) {
               switch(input$layer,
                      priority = "Colour: the model's priority score, 100 = ranked worst in the country",
                      p_worst_fifth = "Colour: share of 40 refits in which the district fell in the worst fifth; surveyed districts only",
+                     rank_width = paste("Colour: how many places the district's rank moves across refits on resampled training data;",
+                                        "dark districts are firmly placed.", stability_note()),
                      prev_anchored = sprintf("Colour: planning prevalence, the ranking anchored to the national survey figure of %s", fmt_pct(g1(nat$national_prev))),
+                     p_moderate_plus = paste("Colour: share of refits in which the district's planning prevalence sits at or above the WHO",
+                                             "'moderate public-health problem' line.", stability_note()),
                      survey_prev = "Colour: the survey's own district estimate; blank where the survey had no clusters",
                      who_class = "Colour: WHO severity class of the planning prevalence",
                      people_affected = "Colour: planning prevalence times the population of the group, log scale", ""),
@@ -208,5 +237,13 @@ mod_map_explorer_server <- function(id) {
     output$download <- downloadHandler(
       filename = function() sprintf("ranking_%s_%s_%s_%s.csv", input$country, input$outcome, input$admin_level, Sys.Date()),
       content = function(file) { df <- map_data(); write.csv(sf::st_drop_geometry(df), file, row.names = FALSE) })
+
+    output$brief <- downloadHandler(
+      filename = function() sprintf("brief_%s_%s.html", input$country, Sys.Date()),
+      content = function(file) {
+        src <- file.path("briefs", sprintf("brief_%s.html", input$country))
+        validate(need(file.exists(src), "Brief not built: run dashboard/data-raw/07_build_country_briefs.R"))
+        file.copy(src, file, overwrite = TRUE)
+      })
   })
 }

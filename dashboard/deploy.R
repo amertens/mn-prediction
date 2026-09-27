@@ -51,7 +51,8 @@ data_dir <- file.path(dashboard_dir, "data")
 required_files <- c(
   "admin2_index.rds", "civ_index.rds", "protocol_evidence.rds", "predictor_catalogue.rds",
   "nutrient_signal.rds", "admin2_population.rds", "admin2_boundaries.rds",
-  "admin1_boundaries.rds", "metadata.rds", "oos_cote_divoire.rds"
+  "admin1_boundaries.rds", "metadata.rds", "oos_cote_divoire.rds",
+  "uncertainty_ensembles.rds"
 )
 
 missing <- setdiff(required_files, list.files(data_dir))
@@ -92,6 +93,11 @@ if (dir.exists(file.path(dashboard_dir, "www"))) {
   deploy_files <- c(deploy_files,
                     file.path("www",
                               list.files(file.path(dashboard_dir, "www"))))
+}
+if (dir.exists(file.path(dashboard_dir, "briefs"))) {
+  deploy_files <- c(deploy_files,
+                    file.path("briefs",
+                              list.files(file.path(dashboard_dir, "briefs"), pattern = "[.]html$")))
 }
 
 # Verify each file actually exists relative to the dashboard directory

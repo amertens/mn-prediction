@@ -36,6 +36,18 @@ mod_start_here_ui <- function(id) {
     ),
 
     uiOutput(ns("hero")),
+    uiOutput(ns("hero2")),
+
+    card(
+      card_header("Only have five minutes?"),
+      card_body(
+        div(style = "display:flex; gap:10px; flex-wrap:wrap;",
+          actionButton(ns("go5_map"), "1. See your country's map", icon = shiny::icon("map"), class = "btn-sm btn-primary"),
+          actionButton(ns("go5_trust"), "2. See how well it works, and where it stops", icon = shiny::icon("gauge"), class = "btn-sm btn-outline-primary"),
+          actionButton(ns("go5_plan"), "3. See what it means for the next survey", icon = shiny::icon("route"), class = "btn-sm btn-outline-primary")),
+        p(style = "font-size:0.85em; color:#666; margin:8px 0 0;",
+          "Those three stops carry the whole story: where deficiency likely is, how much to trust it, and how to spend",
+          " the next survey. Everything else on this site is the supporting evidence."))),
 
     card(
       card_header("How to use the map"),
@@ -88,6 +100,24 @@ mod_start_here_server <- function(id, go_to = NULL) {
               sprintf("%s if a programme used the survey's regional averages instead, %s if it knew the truth", fmt_pct(Q$cap_jk, 0), fmt_pct(Q$cap_oracle, 0))))
     })
 
+    output$hero2 <- renderUI({
+      box <- function(num, lab, sub) div(class = "col-md-4",
+        div(class = "card h-100", style = "border-left:5px solid #C8641E;",
+            div(class = "card-body", style = "padding:14px 18px;",
+                div(style = "font-size:2.0em; font-weight:700; color:#C8641E; line-height:1.1;", num),
+                p(style = "margin:6px 0 0; font-size:1.0em;", lab),
+                p(style = "margin:4px 0 0; color:#666; font-size:0.85em;", sub))))
+      div(class = "row g-3", style = "margin-bottom:1em;",
+          box(sprintf("%s countries", if (is.finite(Q$xv_countries)) Q$xv_countries else 6),
+              "outside the training set, on two continents, where the ranking has now been checked",
+              sprintf("against WHO-deposited surveys: %s in Africa, %s in South Asia - higher than the internal held-out test, not lower", f2(Q$xv_level), f2(Q$xv_off))),
+          box(f2(Q$strong_mean), sprintf("ranking accuracy in the %s of %s tests where the survey resolves districts well", Q$strong_n, Q$infill_cells),
+              "there the model reads 85 to 90 percent of what the survey can measure - the ceiling is the survey's noise, not the method"),
+          box(if (is.finite(Q$plan_spread) && is.finite(Q$infill)) fmt_pct(Q$plan_spread / Q$infill, 0) else "—",
+              "of the full survey's district-ranking accuracy is kept when only half the districts are visited, chosen well",
+              "the national prevalence still needs a probability sample; Plan a survey has the design and its limits"))
+    })
+
     output$example <- renderUI({
       ck <- "ghana"; oc <- "child_vitA"
       d <- idx_districts[idx_districts$country_key == ck & idx_districts$outcome == oc, ]
@@ -129,22 +159,30 @@ mod_start_here_server <- function(id, go_to = NULL) {
               sprintf("Matches the survey's ranking at %s (1 = perfect); the survey's own regional averages reach %s.", fmt_num(Q$infill), fmt_num(Q$infill_jk))),
           row("Rank districts in a country with no survey?", "Yes, more roughly",
               sprintf("%s with every layer, %s from climate and soil alone; positive in %s of %s country and outcome tests.", fmt_num(Q$tr), fmt_num(Q$cs), Q$tr_pos, Q$tr_n)),
+          row("Does that survive countries we never touched?", "Yes",
+              sprintf("Checked against WHO-deposited surveys in %s countries on two continents: %s in Africa, %s in South Asia, all above chance.",
+                      if (is.finite(Q$xv_countries)) Q$xv_countries else 6, fmt_num(Q$xv_level), fmt_num(Q$xv_off))),
           row("Say which public data carry the signal?", "Yes",
               sprintf("Satellite imagery, climate and soil make up %s to %s of the model and are what works across borders.", fmt_pct(Q$env_lo, 0), fmt_pct(Q$env_hi, 0))),
           row("Give a prevalence figure for a new country from the model alone?", "Not yet",
               "The model says which districts are worse, not how bad. A percentage needs a national survey figure to anchor it."),
           row("Give a prevalence figure with one small national blood sample added?", "Yes",
               sprintf("A sample 5 percent the size of a full survey puts district figures within about %s percentage points.", fmt_num(Q$ar_a1, 1))),
-          row("Replace biomarker surveys?", "No",
-              sprintf("The survey's own noise sets a ceiling the model cannot pass; it is at that ceiling in %s of %s cases.", Q$vc_at, Q$vc_n)),
-          row("Tell the next survey where to sample?", "Yes, in design",
-              "The anchor-and-rank design is a result on these four surveys, not yet a pilot.")
+          row("Replace biomarker surveys, or the national prevalence they measure?", "No",
+              "The survey's own noise sets a ceiling the model cannot pass, and the national figure still needs a probability sample; the model spends a survey better, it does not substitute for one."),
+          row("Tell the next survey where to sample, and how small it can be?", "Yes, in design",
+              "Model-guided district choice and the anchor-and-rank design are measured results on these four surveys (Plan a survey), not yet a field pilot."),
+          row("What would make all of it better?", "More and better surveys",
+              "Each survey added improves every other country's map, and more clusters per district raise the ceiling itself; What more data buys has the evidence.")
         ))
     })
 
     if (!is.null(go_to)) {
       observeEvent(input$go_map, go_to("Map explorer", "ghana", "child_vitA"))
       observeEvent(input$go_targeting, go_to("What the ranking buys", NULL, "child_vitA"))
+      observeEvent(input$go5_map, go_to("Map explorer"))
+      observeEvent(input$go5_trust, go_to("How well it works"))
+      observeEvent(input$go5_plan, go_to("Plan a survey"))
     }
   })
 }

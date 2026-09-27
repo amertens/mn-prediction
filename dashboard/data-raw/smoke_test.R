@@ -23,6 +23,15 @@ note(!is.null(CIV) && nrow(CIV$ranking) > 0, "Cote d'Ivoire bundle present")
 note(length(EV) > 5, sprintf("protocol evidence: %d tables", length(EV) - 1))
 note(!is.null(CAT) && nrow(CAT$variables) > 400, sprintf("catalogue: %d predictors", if (is.null(CAT)) 0 else nrow(CAT$variables)))
 note(all(is.finite(c(Q$infill, Q$tr, Q$cs, Q$null_d, Q$cap_index, Q$ar_a1, Q$ceiling_prev))), "headline numbers computed")
+note(length(UE) > 0 && !is.null(UE$cells) && nrow(UE$cells) > 3000,
+     sprintf("stability ensembles: %d district rows", if (length(UE) && !is.null(UE$cells)) nrow(UE$cells) else 0))
+note(!is.null(UE$pooled_weights) && nrow(UE$pooled_weights) > 1000, "pooled weight ranges present")
+note(!is.null(EV$xv_pooled) && nrow(EV$xv_pooled) >= 5, "external validation tables present")
+note(!is.null(EV$headroom) && !is.null(EV$rank_coverage), "headroom and rank-coverage tables present")
+note(!is.null(EV$planner_summary) && nrow(EV$planner_summary) > 8, "survey-planner validation present")
+note(!is.null(EV$importance_all) && nrow(EV$importance_all) > 20000, "searchable importance table present")
+note("child_selenium" %in% idx_districts$outcome, "Malawi selenium ranked")
+note(all(is.finite(c(Q$xv_level, Q$xv_off, Q$strong_mean, Q$stab_cov, Q$plan_spread))), "new headline numbers computed")
 
 cat("\nMap helpers\n")
 n_ok <- 0L

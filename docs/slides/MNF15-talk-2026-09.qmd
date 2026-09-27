@@ -232,6 +232,18 @@ Backup, if asked: A question to hand the room if there is time: how accurate doe
 
 # Appendix
 
+## The live dashboard
+
+![](../../results/figures/mnf15/figS_dashboard_start.png){width="9.4in"}
+
+::: {.notes}
+Backup, if asked about the tool. The dashboard (amertens.shinyapps.io/micronutrient-burden) carries everything in this talk, rebuilt 27 September 2026. One estimator — the zero-tuning index on the 383 open and public-microdata layers, the same fit the decks quote — with four views per district: priority ranking, planning prevalence anchored to the national survey, WHO severity class, and people affected.
+
+Contents, tab by tab: Start here (the six numbers on this slide, a five-minute path, and a can-it / can't-it checklist); Map explorer and District profiles for the four countries plus Cote d'Ivoire, with the survey's own estimate wherever clusters exist; What drives the estimate, including a searchable table of every back-projected weight in every fit with its range across refits; Can we trust it — the three held-out tests, the measurability ceiling, the six-country WHO-deposit external check (0.40 in Africa, 0.39 in South Asia), what the ranking buys, and what more data buys; and Plan a survey — an interactive district-visit prioritiser in the adaptive-geostatistical-design tradition, the anchor-and-rank size story, and the pre-registered SP-01 check that model-guided district choice preserves the map and, with design weights, the national estimate.
+
+Uncertainty is on every number: out-of-fold worst-fifth probabilities (calibration shown on-site), rank and prevalence ranges from 200 resampling refits labelled as stability — never as coverage, the 38% LOCO coverage is quoted wherever they appear — and WHO-threshold exceedance chances. One-page country briefs download from the map tab.
+:::
+
 ## Most districts rest on a single survey cluster
 
 ![](../../results/figures/mnf15/figJ_ceiling_staircase.png){width="8.6in"}

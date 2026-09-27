@@ -16,7 +16,7 @@ mod_catalogue_ui <- function(id) {
       radioButtons(ns("by"), "Browse by", choices = c("Conceptual domain" = "domain", "Data source" = "source"), inline = TRUE),
       selectizeInput(ns("pick"), "Show", choices = NULL, multiple = TRUE, options = list(placeholder = "all")),
       selectInput(ns("outcome"), "Weight shown for", choices = NULL),
-      checkboxInput(ns("only_defined"), "Only predictors with a plain-language name", FALSE),
+      checkboxInput(ns("only_defined"), "Only predictors with a curated name", FALSE),
       checkboxInput(ns("only_composite"), "Only members of a twenty-layer composite", FALSE),
       checkboxInput(ns("only_travel"), "Only climate and soil (the layers that travel)", FALSE),
       hr(),
@@ -31,8 +31,9 @@ mod_catalogue_ui <- function(id) {
                                   " four-country fit for the chosen outcome; positive means more deficiency. Replicated counts",
                                   " the outcomes for which the predictor's district association carries the same sign in every",
                                   " country that measured them. Mechanism is the annotation sheet's template for the predictor's",
-                                  " group, not a per-variable definition; predictors without a plain-language name show a",
-                                  " cleaned code. Click a row for detail and a map."))),
+                                  " group, not a per-variable definition. Names are curated where someone has checked them and",
+                                  " otherwise systematic translations of the column code (marked in the detail panel);",
+                                  " the raw code is always shown alongside. Click a row for detail and a map."))),
       card(card_header("Selected predictor"), card_body(uiOutput(ns("detail"))))
     )
   )
@@ -58,7 +59,7 @@ mod_catalogue_server <- function(id) {
       req(V)
       d <- V
       if (length(input$pick)) d <- d[(if (input$by == "domain") d$domain else d$source_label) %in% input$pick, ]
-      if (isTRUE(input$only_defined)) d <- d[!is.na(d$plain_name), ]
+      if (isTRUE(input$only_defined)) d <- d[(if ("name_source" %in% names(d)) d$name_source == "curated" else !is.na(d$plain_name)), ]
       if (isTRUE(input$only_composite)) d <- d[!is.na(d$composite_outcomes), ]
       if (isTRUE(input$only_travel)) d <- d[d$climate_soil, ]
       if (!is.null(CAT$weights) && nzchar(input$outcome %||% "")) {
@@ -74,8 +75,9 @@ mod_catalogue_server <- function(id) {
 
     output$selection_summary <- renderUI({
       d <- filtered(); req(nrow(d) > 0)
-      lines <- list(p(sprintf("%d predictors from %d sources across %d domains; %d have a plain-language name, the rest show a cleaned code.",
-                              nrow(d), length(unique(d$source_label)), length(unique(d$domain)), sum(!is.na(d$plain_name))), style = "font-size:0.9em;"))
+      n_cur <- if ("name_source" %in% names(d)) sum(d$name_source == "curated") else sum(!is.na(d$plain_name))
+      lines <- list(p(sprintf("%d predictors from %d sources across %d domains. Every one has a plain-language name: %d curated, %d systematic translations of the column code awaiting review.",
+                              nrow(d), length(unique(d$source_label)), length(unique(d$domain)), n_cur, nrow(d) - n_cur), style = "font-size:0.9em;"))
       if (input$by == "domain" && length(input$pick) && !is.null(CAT$domains)) {
         dm <- CAT$domains[CAT$domains$domain %in% input$pick, ]
         if (nrow(dm) && "share_mean" %in% names(dm))
@@ -128,7 +130,10 @@ mod_catalogue_server <- function(id) {
       v <- V[V$column == col, ][1, ]
       tagList(
         h5(v$label, tags$small(style = "color:#888; font-family:monospace; margin-left:8px;", col), style = "margin-top:0;"),
-        if (is.na(v$plain_name)) p(em("No plain-language name yet; the code is shown cleaned. The mechanism below is the annotation sheet's template for this predictor's group.")),
+        if (identical(v$name_source, "generated"))
+          p(em("This name is a systematic translation of the column code, awaiting review against the source documentation;",
+               " the code above is definitive."), style = "font-size:0.85em; color:#8a6d3b;"),
+        if (identical(v$name_source, "code")) p(em("No plain-language name yet; the code is shown cleaned.")),
         if (!is.na(v$mechanism)) p(strong("Mechanism (group template): "), v$mechanism),
         tags$dl(class = "row", style = "font-size:0.9em;",
                 tags$dt(class = "col-sm-3", "Domain"), tags$dd(class = "col-sm-9", v$domain),
