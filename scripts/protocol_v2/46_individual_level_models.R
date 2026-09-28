@@ -37,6 +37,13 @@ CELLS <- Sys.getenv("IL_CELLS", "main")
 # IL_COUNTRY (comma list) shards the run by country; each shard writes its own
 # file (individual_level_models_<tag>.csv) and scratchpad/merge_il.R joins them.
 SHARD <- Sys.getenv("IL_COUNTRY", ""); MAXCOL <- as.integer(Sys.getenv("IL_MAXCOL", "80"))
+# IL_DROP (comma list) removes named survey columns before the coverage cap, and
+# IL_OUTS (comma list) restricts the outcomes; either one sends the output to a
+# separate file so the published table is untouched. IL-02 (2026-09-27) used
+# IL_COUNTRY=Malawi IL_OUTS=child_iron,women_iron IL_DROP=m228,m432 to measure
+# the haemoglobin columns (m228 child Hb, m432 women's Hb) in Malawi's survey set.
+DROP <- Filter(nzchar, strsplit(Sys.getenv("IL_DROP", ""), ",")[[1]])
+OUTS_ONLY <- Filter(nzchar, strsplit(Sys.getenv("IL_OUTS", ""), ",")[[1]])
 cfg <- get_country_configs()
 S  <- read.csv("data/covariates/harmonized/predictors_admin2_shared.csv", check.names = FALSE)
 MD <- read.csv("data/covariates/harmonized/predictors_admin2_shared_metadata.csv")
@@ -52,6 +59,7 @@ group_folds <- function(groups, k, rep_id) { set.seed(20260951L + rep_id); g <- 
 rows <- list()
 for (cn in (if (nzchar(SHARD)) trimws(strsplit(SHARD, ",")[[1]]) else names(cfg))) { cc <- cfg[[cn]]; lc <- tolower(cn)
   outs <- names(cc$outcomes); if (CELLS == "main") outs <- intersect(outs, c("child_vitA", "women_vitA", "child_iron", "women_iron", "women_folate", "women_b12"))
+  if (length(OUTS_ONLY)) outs <- intersect(outs, OUTS_ONLY)
   # district proxies: domain PCs on the country's surveyed districts
   Sx <- S[S$country == cn, ]; Xr <- prep_predictors_v2(as.matrix(Sx[, PREDS, drop = FALSE])); Dm <- domain_representation_v2(Xr, domain_of)
   colnames(Dm) <- paste0("px_", colnames(Dm)); key_s <- paste(Sx$Admin1, Sx$Admin2)
@@ -78,6 +86,7 @@ for (cn in (if (nzchar(SHARD)) trimws(strsplit(SHARD, ",")[[1]]) else names(cfg)
     gw <- names(d)[grepl("^gw_", names(d)) & !grepl(LEAK2, names(d)) & !names(d) %in% outcome_vars]
     }
     gw <- gw[vapply(gw, function(k) { v <- .v2_num(d[[k]]); mean(is.finite(v)) >= 0.7 && stats::sd(v, na.rm = TRUE) > 0 && length(unique(v[is.finite(v)])) >= 2 }, TRUE)]
+    gw <- setdiff(gw, DROP)
     # cap the survey set at IL_MAXCOL columns by coverage (outcome-independent), for runtime
     cov <- vapply(gw, function(k) mean(is.finite(.v2_num(d[[k]]))), 0); gw <- gw[order(-cov)][seq_len(min(MAXCOL, length(gw)))]
     if (length(gw) < 2) { cat(sprintf("  %-12s %-12s skip: %d usable survey columns\n", cn, on, length(gw))); next }
@@ -96,7 +105,11 @@ for (cn in (if (nzchar(SHARD)) trimws(strsplit(SHARD, ",")[[1]]) else names(cfg)
       rows[[length(rows) + 1L]] <- cbind(data.frame(country = cn, outcome = on, set = sname, n = length(y), n_districts = dplyr::n_distinct(dist), prevalence = mean(y), n_pred = ncol(X), picks = paste(names(table(picks)), table(picks), collapse = ";"), stringsAsFactors = FALSE), m)
       cat(sprintf("   %-13s AUC %.3f | Brier skill %+.3f | PR gain %.2fx | picks %s\n", sname, m$auc, m$brier_skill, m$pr_gain, paste(names(table(picks)), table(picks), collapse = ";"))) }
   } }
-R <- bind_rows(rows); if (!nrow(R)) stop("no cells produced"); write.csv(R, file.path(OUTDIR, paste0("individual_level_models", if (nzchar(SHARD)) paste0("_", gsub("[^A-Za-z]", "", SHARD)) else "", ".csv")), row.names = FALSE)
+R <- bind_rows(rows); if (!nrow(R)) stop("no cells produced")
+TAG <- paste0(if (nzchar(SHARD)) paste0("_", gsub("[^A-Za-z]", "", SHARD)) else "",
+              if (length(OUTS_ONLY)) paste0("_", paste(OUTS_ONLY, collapse = "-")) else "",
+              if (length(DROP)) paste0("_drop-", paste(DROP, collapse = "-")) else "")
+write.csv(R, file.path(OUTDIR, paste0("individual_level_models", TAG, ".csv")), row.names = FALSE)
 cat("\n===== IL-01: individual-level models, 5-fold by district, survey-weighted SuperLearner =====\n")
 print(as.data.frame(R |> group_by(set) |> summarise(cells = dplyr::n(), auc = round(mean(auc, na.rm = TRUE), 3), brier_skill = round(mean(brier_skill, na.rm = TRUE), 3), pr_gain = round(mean(pr_gain, na.rm = TRUE), 2), pr_norm = round(mean(pr_norm, na.rm = TRUE), 3), .groups = "drop")), row.names = FALSE)
 W <- R |> select(country, outcome, set, brier_skill) |> tidyr::pivot_wider(names_from = set, values_from = brier_skill)
