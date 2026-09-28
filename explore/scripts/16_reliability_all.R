@@ -51,9 +51,13 @@ sb <- function(r) if (!is.finite(r) || r <= -1) NA_real_ else 2 * r / (1 + r)
 #' @param unit vector defining the units that are split (respondent id, or
 #'   cluster id for the cluster split). Whole units move together.
 split_half <- function(y, district, unit, nsplit = NSPLIT, min_units = 2L,
-                       min_districts = 8L, method = "spearman") {
-  d <- data.frame(y = y, district = as.character(district), unit = as.character(unit))
-  d <- d[is.finite(d$y) & !is.na(d$district) & !is.na(d$unit), ]
+                       min_districts = 8L, method = "spearman", wt = NULL) {
+  d <- data.frame(y = y, district = as.character(district), unit = as.character(unit),
+                  wt = if (is.null(wt)) 1 else wt)
+  d$wt[!is.finite(d$wt) | d$wt <= 0] <- NA
+  d$wt[is.na(d$wt)] <- stats::median(d$wt, na.rm = TRUE)
+  if (!all(is.finite(d$wt))) d$wt <- 1
+  d <- d[is.finite(d$y) & !is.na(d$district) & !is.na(d$unit) & is.finite(d$wt), ]
   if (!nrow(d)) return(c(r = NA_real_, districts = NA_real_))
   # keep districts that have enough distinct units to be split at all
   nu <- tapply(d$unit, d$district, function(z) length(unique(z)))
@@ -70,8 +74,9 @@ split_half <- function(y, district, unit, nsplit = NSPLIT, min_units = 2L,
                        FUN = function(i) sample(rep(c(1L, 2L), length.out = length(i))))
     hof <- stats::setNames(half, ud$key)
     h <- hof[key]
-    a1 <- tapply(d$y[h == 1L], d$district[h == 1L], mean)
-    a2 <- tapply(d$y[h == 2L], d$district[h == 2L], mean)
+    wm <- function(k) tapply(seq_len(sum(k)), d$district[k], function(i)
+      stats::weighted.mean(d$y[k][i], d$wt[k][i]))
+    a1 <- wm(h == 1L); a2 <- wm(h == 2L)
     k <- intersect(names(a1), names(a2))
     if (length(k) < min_districts) next
     out[b] <- suppressWarnings(stats::cor(a1[k], a2[k], method = method))
@@ -106,12 +111,15 @@ for (cn in names(CFG)) {
     ok <- is.finite(y) & !is.na(d[[a2]]) & !is.na(d[[psu]])
     if (sum(ok) < 100) {
       message("  -- ", cc$country, " ", on, ": only ", sum(ok), " usable rows"); next }
+    wcol <- cc$weight_col
+    wv <- if (!is.null(wcol) && wcol %in% names(d)) num(d[[wcol]])[ok] else rep(1, sum(ok))
     y <- y[ok]; dis <- as.character(d[[a2]][ok]); cl <- as.character(d[[psu]][ok])
 
     ncl <- tapply(cl, dis, function(z) length(unique(z)))
     nre <- tapply(y, dis, length)
     resp <- split_half(y, dis, seq_along(y), min_units = 4L)
     clus <- split_half(y, dis, cl, min_units = 2L)
+    respw <- split_half(y, dis, seq_along(y), min_units = 4L, wt = wv)
 
     # THE SAME CELL ON THE PREVALENCE SCALE. WS1a (R/reliability_empirical.R)
     # computes reliability of district PREVALENCE from the binary outcome with
@@ -144,6 +152,8 @@ for (cn in names(CFG)) {
       r_half_cluster = unname(clus["r"]),
       r_full_cluster = sb(unname(clus["r"])),
       districts_cluster = unname(clus["districts"]),
+      r_half_weighted = unname(respw["r"]),
+      r_full_weighted = sb(unname(respw["r"])),
       r_half_prev = unname(resp_b["r"]),
       r_full_prev = sb(unname(resp_b["r"])),
       prev_mean = mean(bin, na.rm = TRUE),
@@ -234,4 +244,33 @@ if (nrow(mm) > 4) {
   cat(sprintf("mean accuracy gap (level minus prevalence) = %+.3f
 ",
       mean(mm$acc_gap, na.rm = TRUE)))
+}
+
+cat("
+== ROBUSTNESS: unweighted vs SURVEY-WEIGHTED district means ==
+")
+cat("   (the pipeline's targets are survey-weighted; the table above is not)
+
+")
+Rw <- R[is.finite(R$r_full_weighted), c("country","outcome","r_full_respondent","r_full_weighted")]
+Rw$diff <- round(Rw$r_full_weighted - Rw$r_full_respondent, 3)
+print(Rw[order(-abs(Rw$diff)), ], row.names = FALSE, digits = 3)
+cat(sprintf("
+mean |difference| %.4f ; spearman between the two orderings %.3f over %d cells
+",
+    mean(abs(Rw$diff), na.rm = TRUE),
+    suppressWarnings(cor(Rw$r_full_respondent, Rw$r_full_weighted, method = "spearman")),
+    nrow(Rw)))
+BM2 <- read.csv(file.path(EXP_ROOT, "results/tables/protocol_v2/benchmarks_v2_cells.csv"),
+                stringsAsFactors = FALSE)
+b2 <- BM2[BM2$estimand == "infill" & BM2$target == "level" & BM2$arm == "domain_index",
+          c("country","outcome","spearman")]
+names(b2)[3] <- "acc"
+m2 <- merge(Rw, b2, by = c("country","outcome"))
+if (nrow(m2) > 4) {
+  c1 <- suppressWarnings(cor.test(m2$r_full_respondent, m2$acc, method = "spearman"))
+  c2 <- suppressWarnings(cor.test(m2$r_full_weighted,   m2$acc, method = "spearman"))
+  cat(sprintf("reliability-predicts-accuracy: unweighted %.3f (p=%.4f) | weighted %.3f (p=%.4f), n=%d
+",
+      c1$estimate, c1$p.value, c2$estimate, c2$p.value, nrow(m2)))
 }

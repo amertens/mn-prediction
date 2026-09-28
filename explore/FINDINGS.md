@@ -1344,3 +1344,63 @@ Checked all three call sites — `R/area_level_comparison.R:387`,
 prevalence-scale throughout (`Y <- train_df$svy_prev`, `mae_pp`/`rmse_pp` in
 percentage points, `ind$def`). **The scales match; there is no defect.**
 Recorded because I raised it.
+
+---
+
+## RL-01 robustness — the reliabilities survive survey weighting
+
+RL-01's split-half reliabilities are unweighted; the pipeline's targets are
+survey-weighted. Recomputed with weighted district means (same 300 splits):
+
+- mean |difference| **0.040**
+- Spearman between the two orderings **0.988** over 27 cells
+- the headline is **unchanged**: reliability predicts index in-fill accuracy at
+  **0.521, p = 0.028** under both weightings, to three decimals
+
+Only Sierra Leone moves materially (child_vitA 0.121 → −0.306; women_iron
+−0.001 → −0.208), and both were already the weakest cells in the table.
+Weighting makes the weak cells look worse, not better. The nutrient ordering —
+selenium, folate, B12 high; iron and vitamin A low — is unaffected.
+
+## CV-01 — the standard CV bands, applied to the published district estimates
+
+The preprint gates estimates by coefficient of variation on the conventional
+survey-statistics bands: **< 16.6%** publish unrestricted, **16.6–33.3%**
+publish with caution, **> 33.3%** unreliable. This project reports interval
+width and coverage but has no such gate. Applied to the **direct** survey
+district prevalences using the measured effective n already in `targets_v2`:
+
+| | share of 1,350 district × outcome estimates |
+|---|---|
+| unrestricted (CV < 16.6%) | **5%** |
+| caution (16.6–33.3%) | 9% |
+| **unreliable (CV > 33.3%)** | **86%** |
+
+Median CV by country: Ghana **100%**, Malawi **96%**, Sierra Leone **77%**,
+Gambia **38%**. Nine cells have **100%** of their districts in the unreliable
+band, including all three vitamin A cells outside Gambia.
+
+**Read this correctly, in two ways.**
+
+*First, it is about the DIRECT estimates, not the model.* These are the survey's
+own district figures. The modelled estimates should be better — that is what
+small-area estimation is for. So the honest reading is not "the project's
+outputs are unreliable" but **a quantification of why the modelling is
+necessary at all**: 86% of the raw district figures are too imprecise to publish
+by a standard external criterion.
+
+*Second, CV is scale-dependent and structurally penalises rare outcomes.*
+CV = SE/p, so a low-prevalence outcome is penalised however precisely it is
+measured. The cells that pass are simply the high-prevalence ones — Sierra Leone
+folate (79% prevalent, 93% of districts unrestricted), Malawi zinc (~55–60%),
+Gambia iron. This is the *same* structural fact RL-01 found from the other
+direction: rare deficiencies lose most from dichotomisation, and they are also
+the ones whose prevalence CV is worst. One cause, two symptoms — a binary at a
+rare threshold carries little information.
+
+**Verdict.** *Candidate, presentational.* The CV bands are a cheap, externally
+recognised gate the dashboard could apply to any district figure it shows raw,
+and they make the case for modelling concrete. They should **not** be applied to
+the modelled estimates without recomputing the CV from the model's own posterior
+or conformal interval, and they should always be reported next to prevalence,
+because a "good" CV here mostly means "common deficiency".
