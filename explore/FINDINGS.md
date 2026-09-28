@@ -837,3 +837,26 @@ not replicating at admin-1 on prevalence.
 existing script that tested the same question. The probe was cheap and the
 error was caught, but the order should be reversed: search `docs/findings/` and
 `scripts/protocol_v2/` for the question before running a probe, not after.
+
+---
+
+## Prior-art check on the other probes (2026-09-28)
+
+Prompted by the LT-01 failure, each probe's question was searched against
+`docs/findings/`, `docs/` and `scripts/`. Results:
+
+| probe | closest prior art | status |
+|---|---|---|
+| **MT-01** multi-trait BLUP | **XO-01** (`63_cross_outcome_borrowing.R`) | **distinct.** XO-01 borrows a held-out *country's* other biomarkers as predictors under transport; MT-01 fits a country's outcomes jointly for a held-out *district* that has no biomarker measured at all. Different estimand (C vs A) and different mechanism (observed covariate vs shared spatial component). MT-01's trait correlations reproduce XO-01's — same-nutrient-across-population strong, cross-nutrient weak and sign-unstable — so it builds on XO-01 rather than repeating it. |
+| EB-01 screen | `scripts/covariates/16_bivariate_fdr.R` | **partly prior art.** Script 16 runs one bivariate test per predictor × country × outcome with BH FDR — per cell. EB-01 pools *across* the 24 cells with a moderated random-effects statistic, which is the new part; the FDR-screen idea is not. |
+| KB-01 kernel/REML shrinkage | Fay-Herriot / EBLUP in the main pipeline; `WSB_ESTIMATOR_TOURNAMENT` | **partly prior art.** Area-level random-effects shrinkage with REML-estimated variance is already the pipeline's primary SAE estimator; KB-01's novelty was the kernel form over covariates, and its result was in any case reduced to corroboration. |
+| AE-01 AlphaEarth | script 42, `addon_alphaearth_*` | prior art for the *domain* arm (±0.012 on the record); the kernel representation was new and failed. |
+| RV-01 RUV | `WS3_measurement_harmonization`, `AS-01` assay lineage | question previously approached through assay/adjustment harmonisation, not through subspace removal. New, and closed structurally. |
+| MX-01 crop mechanism | `WSF_NUTRITION_PROXIMAL`, `build_mapspam_admin2.R` (5 group shares) | new at the 42-crop / composition-table level; the 5-group version is prior art and was already weak. |
+| TM-01 phase, TM-01b lags | `FW-01`, `FP-02`, `41_climate_timematched.R`, `CN-01` | fieldwork windows and time-matched climate are prior art (+0.02); phase and the 0–35 month lag stack were new. |
+| NP-01 estimators | `SL-06`, `HP-01/02/03`, `WSB_ESTIMATOR_TOURNAMENT` | the tournament covered SuperLearner/HAL/enet; PLS, PCR, supervised PCA, MCP and stability selection were new. |
+| **LT-01 level transport** | **LV-02** (`78_flat_national_comparator.R`) | **superseded** — see the reconciliation above. |
+
+**Standing rule for this folder, from LT-01.** Search `docs/findings/` and
+`scripts/protocol_v2/` for the question *before* running a probe. One grep would
+have caught LT-01 before it was written up.
