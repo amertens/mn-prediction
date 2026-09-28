@@ -164,3 +164,110 @@ Engine extraction (`10_gee_cluster_monthly.py`).
 lag hypothesis. The phase result is mild evidence against a large temporal
 signal at this resolution, which should temper expectations for the lag test
 rather than cancel it.
+
+## AE-01 (2026-09-28) — AlphaEarth as a kernel: the hypothesis was wrong
+
+**Question.** The 64 `aef_*` dimensions are a learned embedding whose inner
+product encodes similarity. Scored as "a domain" the record puts them at
+±0.012, i.e. nothing — but the domain representation collapses them through
+their leading principal components, which for a learned embedding ought to be
+the one representation that destroys the information. Does the embedding carry
+signal when used as a **kernel** instead?
+
+**Design.** `explore/scripts/02_alphaearth_kernel.R`. BLUP on the linear and
+cosine kernels over the 64 dimensions, against `aef_index` — the current
+representation, the index run on the embedding's own domain axes — plus
+climate+soil alone and embedding-plus-climate+soil, on identical folds.
+
+**Result. No.** On medians the kernel looked better (in-fill level 0.405 vs the
+PC representation's 0.378), but the **paired** comparison, which is the right
+one because both arms see the same cells and the same folds, reverses it:
+
+| comparison | wins | mean difference |
+|---|---|---|
+| kernel vs PC, in-fill level | **4 of 18** | — |
+| kernel vs PC, transport level | 12 of 22 | +0.016 |
+| kernel vs PC, transport prevalence | 9 of 22 | −0.023 |
+| adding the embedding to climate+soil, transport level | **4 of 22** | −0.020 |
+| adding the embedding to climate+soil, transport prevalence | 5 of 22 | −0.009 |
+
+The representation is not what was holding AlphaEarth back. And adding the
+embedding to climate+soil actively *hurts* transport, in 18 of 22 cells.
+
+**A methodological note worth carrying.** The median across cells and the
+paired per-cell comparison disagreed in direction here. With 18–22 cells of
+very unequal difficulty, the median is the wrong summary for "does A beat B" —
+every arm comparison in this folder should be read paired.
+
+**One thing that survives.** `cs_linear` — a single BLUP kernel on climate and
+soil — reached **0.469** on in-fill level, above the spatial smoother (0.457)
+and well above the domain index (0.394), and transports at 0.360. The kernel
+machinery is worth keeping; the embedding is not what it should be fed.
+
+**Verdict.** *dead end* for the embedding, by a well-powered paired test rather
+than a weak one. The record's ±0.012 was right and for the right reason.
+
+---
+
+## MX-01 (2026-09-28) — a literature-grounded, nutrient-specific feature set does not beat 383 generic columns, and shows no nutrient specificity
+
+**Question.** The predictor set is nutrient-agnostic: the same columns are
+offered to zinc, B12, folate, iron and vitamin A. The literature is not. Do
+~10 mechanistic features built from the crop basket beat 383 generic ones?
+
+**Design.** `explore/scripts/06a` + `06` + `07`. The raw 42-crop MapSPAM
+production grid (the pipeline currently sees only 5 collapsed group shares)
+crossed with a documented food-composition table
+(`explore/data/food_composition.csv`) to derive, per district: the
+**phytate:zinc molar ratio** of the production basket (the Wessells & Brown
+mechanism behind national zinc-deficiency estimates), **provitamin-A carotenoid
+density** and **oil-palm share** (crude red palm oil is the dominant West
+African plant source), phytate load on non-haem iron, folate density, and
+composition axes the 5-group version cannot express. 193 of 206 target
+districts join; the 13 misses are urban wards and Malawi Boma towns with no
+cropland, where a production basket is undefined.
+
+The features pass an agronomy sanity check: carotenoid density peaks on Ghana's
+oil-palm belt (Wassa East, Mpohor, Birim North, Akyemansa), phytate:zinc on
+Gambia's groundnut-and-millet Foni districts, cassava share in Ghana's Central
+region. They are measuring what they claim to measure.
+
+**The control that makes this readable.** Every cell was scored twice: with the
+features matched to its own nutrient, and with a **mismatched** set (the zinc
+cell gets the vitamin A features, and so on). A generic agro-ecology proxy
+would do equally well either way.
+
+**Result. A clean negative, on both counts.** In-fill, level target, median
+Spearman over cells:
+
+| arm | median |
+|---|---|
+| spatial | 0.457 |
+| index + mechanistic | 0.394 |
+| domain index | 0.392 |
+| all 16 mechanistic | 0.140 |
+| **mechanistic, mismatched nutrient** | **0.075** |
+| **mechanistic, matched nutrient** | **0.058** |
+
+The matched set beats the mismatched set in **6 of 18 cells** — below chance.
+There is no nutrient specificity. And adding the features to the index moves it
+from 0.392 to 0.394, i.e. nothing.
+
+The single exception is Ghana women_folate (matched 0.264 vs mismatched 0.147,
++0.117), where the mechanism is pulse share. One cell out of eighteen is what
+this design produces by luck.
+
+**Limitations that do not rescue it.** Production is not consumption; MapSPAM is
+2010 against surveys from 2013–18; the composition table is indicative rather
+than a country-specific food-composition table; and ~10 columns is low
+capacity. But none of these explain the *specificity* failure: the wrong
+nutrient's mechanism does as well as the right one, which is what the mismatch
+control exists to detect.
+
+**Verdict.** *dead end.* Worth recording as a strong negative rather than a
+weak one, because the feature set was built carefully, validated against
+agronomy, and tested with a specificity control. It is evidence that the
+district-level signal is not dietary composition — consistent with the
+project's own finding that the replicated covariate associations run opposite
+to individual-level nutrition for legumes and cattle, a rural-subsistence axis
+rather than a diet axis.
