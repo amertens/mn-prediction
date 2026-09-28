@@ -332,3 +332,68 @@ honesty and a constraint on the ceiling. This was not pre-registered.
 measures several biomarkers, fit them jointly with a shared latent factor
 rather than one cell at a time — and expect the gain in the weak cells, which
 are the ones currently reported as failures.
+
+## EB-01 (2026-09-28) — cross-cell moderation does not improve the index, but the screen it produces is worth keeping
+
+**Question.** The index sets its weights from one cell's 14–87 districts, and
+`fe_effective_n` names exactly that as the root cause of unstable prediction.
+There are 24 cells sharing one predictor vocabulary — the many-features ×
+many-contrasts layout empirical-Bayes moderation was built for. Does shrinking
+each cell's weights toward the cross-cell consensus help?
+
+**Design.** `explore/scripts/04_moderated_meta_index.R`. The index's own
+statistic `z = fisher-z(spearman) × sqrt(n−3)` has unit variance by
+construction, so the hierarchy is textbook: `z_cj ~ N(θ_cj, 1)`,
+`θ_cj ~ N(μ_j, τ²_j)`, posterior mean `μ_j + τ²/(τ²+1)·(z_cj − μ_j)`, with
+μ and τ² estimated from the *other* cells only. Cells of the same country share
+districts, so companion rows are always filtered to exclude the held-out
+district keys — otherwise the weights would read the held-out district's own
+survey through another biomarker. Under LOCO the whole held-out country is
+dropped from the companions.
+
+**Result 1 — the estimator is null.** Paired against the index:
+
+| estimand | mean gain | wins | sign p |
+|---|---|---|---|
+| in-fill level | −0.017 | 6/18 | 0.24 |
+| in-fill prevalence | −0.009 | 8/18 | 0.82 |
+| transport level | +0.009 | 11/22 | 1.00 |
+| transport prevalence | +0.003 | 12/22 | 0.83 |
+
+Moderation neither helps nor hurts. The index's per-cell weights are evidently
+not the binding constraint.
+
+**Result 2 (the keeper) — a cross-cell replicated predictor screen.** 173 of
+329 predictors clear FDR < 0.05 pooled over 24 cells. The domain composition
+**independently corroborates the climate+soil transport finding by a completely
+different route** — a meta-analysis of marginal associations rather than
+leave-one-country-out ablation:
+
+| domain | predictors at FDR < 0.05 |
+|---|---|
+| Climate and weather | 37 |
+| Satellite embedding | 35 |
+| Soil characteristics | 28 |
+| Ecosystem productivity/greenness | 11 |
+| everything else (15 domains) | 62 |
+
+The single strongest predictor in the study is **`glw_ruminant_share`**
+(pooled z = 6.27, FDR 1.2e-07, sign consistency 0.92). Positive z means *more*
+deficiency, so more ruminants goes with worse status — the counter-intuitive
+direction the project already documented as a rural-subsistence axis rather
+than a diet axis. `glw_cattle_km2` is also in the top 22 (z = 4.64). Otherwise
+the head of the list is temperature range and variability, vapour-pressure
+deficit, soil magnesium, organic carbon, pH and nitrogen.
+
+**The two results together make a methodological point worth carrying.** The
+satellite embedding contributes **35 predictors at FDR < 0.05 with sign
+consistency 0.79–0.88** — among the most replicated associations in the whole
+set — and AE-01 showed it adds **nothing** predictively and actively hurts when
+added to climate+soil. Replicated marginal association and incremental
+predictive value are different things, and at p = 329 with heavy collinearity
+they come apart sharply. Any prioritisation built from a signal scan (the RA
+annotation work, for instance) should be read with that in mind.
+
+**Verdict.** *dead end* for the moderated estimator. *candidate* for the screen
+as a prioritisation tool, with the caveat above. `explore/out/04_moderated_axis_stats.csv`
+carries the full ranked list with pooled z, τ², FDR and sign consistency.
