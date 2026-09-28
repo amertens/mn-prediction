@@ -760,19 +760,80 @@ calibrated arm wins **11** (sign p = 0.057), the best gains are +0.185 and
 nested ρ is **0.456**, three to fifteen times every other outcome (0.031–0.150).
 That is the same ordering RV-01 gave, arrived at independently.
 
-**Verdict.** *My suggestion, as stated, is refuted*: do not transport a raw
-level, for B12 or anything else. *Candidate, refined*: within the project's
-existing anchor-and-rank design, **shrink the transported ranking's spread by a
-nested out-of-sample ρ before adding it to the anchor**. The calibration is
-self-limiting — where the ranking is uninformative it degrades exactly to the
-national constant, so it cannot do much harm (worst case −0.050 sd).
-
-**Worth checking against the existing record.** The memory note
-`analyses_2026_09_28_review_followups` records that ranking adds nothing to
-anchored levels. This probe finds a small gain — and the difference may be
-precisely the spread calibration, which would make it a refinement rather than
-a contradiction. Flagged rather than asserted: I have not read that script.
+**Verdict (superseded — see the reconciliation below).**
 
 **Limits.** The anchor is an oracle here; in deployment it comes from a small
 survey with its own error, which will eat some of a gain this size. B12 and
 folate have three countries, so training is on two. Not pre-registered.
+
+### LT-01 reconciliation against script 78 (LV-02) — the "refinement" was already the production design, and the result reproduces LV-02's null
+
+Checked at the user's request against `scripts/protocol_v2/78_flat_national_comparator.R`
+and `docs/findings/LV-02_NZ-01_LEVELS_2026-09-28.md`.
+
+**1. The spread calibration is not new. It is already in the design.** LV-02's
+A1 arm is
+
+```
+A1_u = expit(logit(anchor) + rho_train * sd_train * z_u)
+```
+
+with `rho_train` the mean nested leave-one-training-country-out Spearman,
+floored at 0 — the same quantity LT-01 computes and the same place it is
+applied. So LT-01's "refined candidate" is a description of what the project
+already does, not a change to it. What LT-01 adds is the *diagnostic* for why
+that shrinkage is necessary: without it, an anchored ranking is over-dispersed
+and MAE punishes over-dispersion hard enough that a real ranking
+(Spearman 0.47) scores worse than a flat constant (0.854 vs 0.798). That
+explains a design choice; it does not improve it.
+
+**2. My headline number is LV-02's number.** Counted the way LV-02 counts —
+ties are a "no", because the question is whether to add the ranking at all —
+LT-01 gives **11 of 22 outcome × country units better, 3 worse, 8 tied**.
+LV-02 internal, climate+soil: **11 of 22 cells**. The same split. I reported
+11 of 14 by dropping the ties; LV-02's accounting is the right one for the
+deployment question, and under it my probe *reproduces its null* rather than
+refining it. Dropping ties answers a different and narrower question ("when the
+method does act, does it help?") and should not have been presented as the
+headline.
+
+**3. LV-02 is the better test and it was pre-registered.** Its reading was
+fixed before any result ("A1 beats A0 on average AND in a majority of cells"),
+mine was not. Its anchor is a realistic draw from a survey fraction
+f = 0.05/0.25/1.00, carrying its own sampling error; **mine was an oracle**,
+the exact held-out mean. And it reproduces all 14,080 published A1 draws to
+5e-14, which mine has no equivalent of.
+
+**4. One genuine tension, which is a scope difference rather than a
+contradiction.** LT-01 finds B12's nested ρ = **0.456**, the highest of any
+outcome; LV-02 reports that its 8 external ties "are the B12 and folate cells:
+their nested training rho is negative or zero". These are different
+measurements — LT-01 is Admin-2, the **level** target, the four study countries;
+LV-02's external arm is admin-1, **prevalence**, WHO VMNIS deposits with two
+training countries. So "B12 carries an unusually transportable ranking" holds
+in the internal Admin-2 level setting and **does not replicate** at admin-1 on
+prevalence in the external deposits. Recorded as rung- and target-specific, not
+as a general property of B12.
+
+**What survives from LT-01.** Result 1, the offset share of squared transport
+error by outcome (B12 0.159 → folate 0.665), independently reproducing RV-01's
+between-country variance shares — new and unaffected. Result 2, that an
+*unanchored* transported level is unusable for every outcome including B12
+(MAE 1.117 × the held-out sd, negative skill against the training-country mean)
+— stands, and agrees with LV-02's "almost all of the level accuracy comes from
+the national figure". Result 3, the over-dispersion diagnostic — stands as an
+explanation.
+
+**Verdict (corrected).** *Not a candidate.* LT-01 reproduces LV-02's
+pre-registered null on the same 11-of-22 split, using a weaker design with an
+oracle anchor, and its proposed "fix" is the production design's existing
+behaviour. LV-02's reading stands unchanged: at the shrinkage the training
+countries justify, the transported ranking neither helps nor hurts district
+levels on average, and its value is in the ordering, not the level. The one
+piece worth keeping is the B12 ρ = 0.456 at the Admin-2 level rung, flagged as
+not replicating at admin-1 on prevalence.
+
+**Process note for this folder.** LT-01 was written up before checking an
+existing script that tested the same question. The probe was cheap and the
+error was caught, but the order should be reversed: search `docs/findings/` and
+`scripts/protocol_v2/` for the question before running a probe, not after.
