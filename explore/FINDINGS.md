@@ -1263,3 +1263,84 @@ replace the `1e-8` floor with either a modelled variance or the paper's phantom-
 cluster augmentation and re-run the FH arm. (1) is the principled version of the
 same fix. (3) is presentational but cheap and would improve the dashboard's
 honesty about which cells to show.
+
+---
+
+## VF-01 (2026-09-28) — the Fay-Herriot variance assumption is self-correcting, so the preprint's fix does not bite
+
+**The concern, and it was mine.** The Bayesian SAE preprint models the sampling
+variance and augments single-cluster areas; this project's FH
+(`R/benchmark_models.R:229–270`) instead fixes the design effect at **1.5** and
+**floors** single-cluster areas at `1e-8`. Both assumptions are measurably wrong
+on this data — the district design effect already in `targets_v2` as
+`deff_binary` has **median 2.57** (IQR 1.56–3.46, max 6.1), and **85% of Malawi,
+83% of Ghana and 57% of Gambia district-rows are single-cluster**. I predicted
+that understating the sampling variance would make FH trust noisy districts too
+much when fitting β, and that fixing it would move numbers.
+
+**Design.** FH implemented directly so that *only* the variance rule differs
+between arms: production (`deff` 1.5, floored), each district's own measured
+design effect, the preprint's joint variance–mean smoothing
+(`log v = γ₀ + γ₁log(p(1−p)) + γ₂log(n)` fitted on training districts), and the
+preprint's phantom-cluster idea (a single-cluster district borrows the pooled
+within-Admin1 variance of the multi-cluster districts rather than being
+floored). In-fill CV on the prevalence target, 18 cells.
+
+**Result — all four are identical.** Median Spearman **0.227** for every arm;
+median MAE 10.64–10.65 points. Paired against the production rule:
+
+| arm | mean gain | cells | sign p |
+|---|---|---|---|
+| measured design effect | −0.0003 | 8/18 | 0.82 |
+| joint variance–mean smoothing | −0.0001 | 8/18 | 0.82 |
+| phantom clusters | −0.0003 | 8/18 | 0.82 |
+
+**Why — and this is the finding.** Not because the sampling variances are small:
+γ = A/(A+D) runs from 0.00 to 0.78, so shrinkage is substantial. It is because
+**A and D are estimated jointly from the same data**. The moment estimator is
+A = Σw(r²−D)/Σw, so raising D lowers A by a compensating amount and the *total*
+A+D — which is what the weights 1/(A+D) depend on — barely moves. Mean γ under
+the production rule against the measured one, per cell: 0.579/0.574,
+0.674/0.701, 0.469/0.496, 0.443/0.434. The variance-component split is weakly
+identified; the total is not. **Misspecifying the design effect is absorbed by
+the between-area variance, and prediction is untouched.**
+
+**What that means for the production code.** The `deff = 1.5` constant and the
+`1e-8` floor are **harmless for prediction accuracy**, which is what the
+benchmark measures — so this is not a defect to fix, and my recommendation to
+fix it was wrong. The split does still matter for anything that *reports* γ as
+"how much this district's own survey is trusted", because with D understated by
+about 1.7× the reported γ is correspondingly too high. That affects published
+EBLUP estimates for surveyed districts, not cross-validated accuracy.
+
+**Two things worth noticing in passing.**
+
+*FH is not competitive on ranking but is better on level.* Against the domain
+index it is −0.066 mean Spearman, better in only **3 of 18** cells — but its MAE
+is **10.64 points against the index's 13.07**. That is the project's
+level-versus-ranking split showing up inside a single estimator.
+
+*In about a quarter of cells FH estimates A = 0 exactly* — Gambia child_iron,
+Malawi child_iron, Sierra Leone child_vitA, child_iron, women_vitA and
+women_b12. A = 0 means γ = 0: FH concludes the observed district differences are
+**entirely sampling noise** and collapses to the synthetic estimate. That is an
+independent, model-based version of the same verdict RL-01 reaches by split-half
+reliability, and the two agree on the weakest cell in the study (Sierra Leone
+child vitamin A: reliability 0.117, A = 0).
+
+**Verdict.** *Dead end*, and specifically a **withdrawal of my own
+recommendation**. The preprint's variance machinery is well motivated in its own
+setting — where it is used to report uncertainty for surveyed areas — but it
+cannot improve out-of-sample prediction here, for a structural reason that
+applies to any Fay-Herriot fitted this way.
+
+### Also closed: the `r_share` scale concern
+
+I raised twice the possibility that `r_share = pearson_r / r_max` divides a
+level-target correlation by a prevalence-scale ceiling, since
+`admin2_reliability()` builds the ceiling from `svy_prev` and `n_svy` only.
+Checked all three call sites — `R/area_level_comparison.R:387`,
+`R/cluster_mbg.R:293`, `R/corrected/p12_distributional.R:296`. All three are
+prevalence-scale throughout (`Y <- train_df$svy_prev`, `mae_pp`/`rmse_pp` in
+percentage points, `ind$def`). **The scales match; there is no defect.**
+Recorded because I raised it.
