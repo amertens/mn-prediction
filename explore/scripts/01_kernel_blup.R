@@ -10,7 +10,8 @@
 # ARMS
 #   blup_all        one linear kernel on every predictor
 #   blup_cs         one kernel on climate + soil (the pre-registered domains)
-#   blup_domains    one kernel PER DOMAIN, multi-kernel REML
+#   blup_5k         five broad blocks (climate, soil, embedding, agriculture,
+#                   space) as separate kernels, multi-kernel REML
 #   blup_spatial    spatial kernel alone (geography with no covariates)
 #   blup_cs_spatial climate+soil and space as separate kernels
 #   + the record's comparators on identical folds
@@ -55,8 +56,19 @@ ARMS <- c(
       if (length(cc) >= 5) k$cs <- k_linear(X[, cc, drop = FALSE])
       k
     }),
-    blup_domains = make_blup_arm(function(X, D, aux)
-      k_by_domain(X, DOM, min_cols = 3L))
+    # Five broad, mechanistically distinct blocks rather than all 21 domain
+    # kernels. Two reasons, one scientific and one practical: 21 domain kernels
+    # are far too collinear for the split between them to be attributable, and
+    # the 21-kernel arm cost ~170s per cell against ~1s for the rest while
+    # never being a contender (0.29-0.37 in the first pass).
+    blup_5k = make_blup_arm(function(X, D, aux) {
+      k <- list(clim  = k_linear(X[, cols_in(X, CLIM), drop = FALSE]),
+                soil  = k_linear(X[, cols_in(X, SOIL), drop = FALSE]),
+                emb   = k_linear(X[, cols_in(X, EMB),  drop = FALSE]),
+                agri  = k_linear(X[, cols_in(X, AGRI), drop = FALSE]),
+                space = k_spatial(aux$lon, aux$lat))
+      k[!vapply(k, is.null, TRUE)]
+    })
   ))
 
 # ── estimands A and B ───────────────────────────────────────────────────────
@@ -97,7 +109,7 @@ for (i in seq_len(nrow(ix))) {
 # ── estimand C ──────────────────────────────────────────────────────────────
 loco <- list()
 LOCO_ARMS <- ARMS[c("null_train_mean", "domain_index", "blup_all", "blup_cs",
-                    "blup_spatial", "blup_cs_spatial", "blup_domains")]
+                    "blup_spatial", "blup_cs_spatial", "blup_5k")]
 for (tgt in c("prev", "level")) {
   for (on in unique(ix$outcome)) {
     cl <- exp_all_cells(E, tgt, outcomes = on)
