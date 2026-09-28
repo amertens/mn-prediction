@@ -561,3 +561,139 @@ The corollary is the useful part: **two unrelated estimators, plus EB-01's
 cross-cell meta-analysis of marginal associations, now independently converge
 on climate + soil.** That is stronger evidence for the pre-registered recipe
 than any one of them alone.
+
+## NP-01 (2026-09-28) — no untried n≪p estimator beats the index, and XO-01's defect turns out to be costless
+
+**Question.** The project has tried elastic net, the zero-tuning index,
+HAL/PCHAL and a SuperLearner. The standard chemometrics and genomics answers to
+n ≪ p are untried here. Do any of them help?
+
+**Design.** `explore/scripts/08_np_estimators.R`: partial least squares
+(2 components, no tuning), principal components regression (its unsupervised
+twin, to separate "low rank helps" from "supervision helps"), supervised PCA
+(Bair–Tibshirani, screened on training rows only), MCP, stability selection
+over 25 subsamples, CV-tuned ridge on all predictors, and `index_std` — the
+domain index with each axis standardised before summing, which is the fix for
+the defect XO-01 identified (the index sums *un-standardised* axes, so any axis
+with small spread is silently under-weighted).
+
+**Result 1 — nothing beats the index, and the selection methods are
+significantly worse.** Block-level, both targets pooled:
+
+| arm | in-fill gain | blocks | transport gain | blocks |
+|---|---|---|---|---|
+| index_std | −0.003 | 4/6 | −0.012 | 3/8 |
+| ridge_cv | −0.066 | 1/6 | **+0.027** | 6/8 (p = 0.29) |
+| spca | −0.033 | **0/6** | −0.023 | 3/8 |
+| pls2 | −0.080 | 1/6 | −0.037 | 2/8 |
+| pcr2 | −0.078 | **0/6** | −0.040 | 1/8 |
+| stabsel | −0.133 | **0/6** | −0.115 | 3/8 |
+| mcp | −0.213 | **0/6** | −0.103 | 1/8 |
+
+MCP, stability selection, PCR and supervised PCA are harmful in-country with
+every block agreeing (p = 0.031 each). **Four more estimator families confirm
+"capacity is a liability at n = 14–87"**, and specifically that *selection*
+loses: the two arms that pick a subset (MCP, stability selection) are the two
+worst. Plain CV-ridge on all 383 predictors is the best of the new arms for
+transport (+0.027, 6 of 8 blocks) but does not reach significance.
+
+**Result 2 — XO-01's defect is real but costs nothing.** Standardising the
+index's axes before summing changes the result by **−0.003 in-fill (4 of 6
+blocks) and −0.012 on transport (3 of 8)**. The under-weighting XO-01
+identified is genuine arithmetic, but the axes evidently do not differ enough
+in spread for it to matter. That closes an open item: the index does not need
+fixing on this account.
+
+**Verdict.** *dead end* for all seven arms. Useful as a negative because it is
+broad — the standard n ≪ p toolkit, applied honestly, does not beat a
+zero-tuning index at this sample size.
+
+---
+
+# Synthesis (2026-09-28)
+
+Nine probes, all scored on the project's own folds and metrics, with the gate
+confirming the harness reproduces `benchmarks_v2_cells.csv` (LOCO exact).
+Full table: `explore/out/leads.csv`.
+
+## The one new lead
+
+**MT-01, multi-trait BLUP.** When a survey measures several biomarkers, fit
+them jointly through a shared latent factor instead of one cell at a time:
++0.038 over single-trait on identical kernels and folds, **6 of 6 country ×
+target blocks positive** (p = 0.031). It carries the signature that
+distinguishes a real effect from a lucky one — the gain is concentrated exactly
+where single-trait fitting is weakest (weak tercile +0.086, strong +0.018;
+Spearman(baseline, gain) = −0.388, p = 0.020), and the large gains are rescues
+of cells currently reported as failures (Malawi women_iron prevalence
+−0.137 → +0.042; Ghana women_vitA prevalence −0.037 → +0.133).
+
+Not pre-registered, four countries, Sierra Leone absent. Pre-register before
+quoting.
+
+## The corroboration, which is worth as much
+
+**Three unrelated routes now converge on climate + soil**, where before there
+was one:
+
+1. the existing leave-one-country-out domain ablation (0.368 on the record);
+2. **KB-01**, a REML-shrunk kernel BLUP — an estimator sharing no machinery
+   with the index — which reaches the same place and is *indistinguishable*
+   from the climate+soil index head to head (−0.0003 over 44 transport cells,
+   3/8 blocks, p = 0.73);
+3. **EB-01**, a cross-cell empirical-Bayes meta-analysis of marginal
+   associations, in which climate (37), satellite embedding (35), soil (28) and
+   greenness (11) supply 111 of the 173 predictors clearing FDR < 0.05.
+
+The pre-registered recipe is better supported than it was, and now specifically
+supported as a claim about the *predictors* rather than about the
+elastic-net-and-index machinery that first produced it.
+
+## What was closed
+
+| direction | why it is closed |
+|---|---|
+| predictor-side batch correction (RUV/SVA) | a *mathematical identity*: rank-normalising within country forces every linear combination to mean ≈ 0 in every country, so there is nothing to project out (verified: country unpredictable from PC1–4, F = 0.0, η² = 0.000) |
+| AlphaEarth as a kernel | not a representation problem; the kernel loses to the PC version (0/6 blocks) and adding the embedding to climate+soil hurts (4/22 cells) |
+| nutrient-specific crop-basket mechanism | features validated against agronomy, then the *wrong* nutrient's features did as well as the right one's (6/18) — no specificity |
+| seasonal phase at the cluster | +0.011, 12 of 24 cells — chance |
+| previous growing season (lags 9–15) | +0.004; and the lag profile is **flat**, peaking at lag 31, with weather three years before the draw as associated as the last harvest — a spatial association, not a temporal one |
+| the standard n ≪ p toolkit | PLS, PCR, supervised PCA, MCP, stability selection, CV-ridge: none beats the index; the two *selection* methods are the two worst |
+| XO-01's un-standardised-axis defect | real arithmetic, costless in practice (−0.003, 4/6 blocks) |
+
+## What the closures say together
+
+Every attempt to extract more from the *predictor side* failed — finer temporal
+resolution, finer representation, mechanistic specificity, batch correction,
+better estimators. The one thing that worked borrowed strength across
+**outcomes**, not predictors. Combined with the nested test (covariates add
+nothing on top of a spatial smoother even with identical machinery: 9/18) and
+with the flat lag profile, the picture is consistent: at Admin-2 the
+predictable signal is a smooth agro-ecological surface, it is close to
+saturated by climate + soil, and the remaining headroom is in how the
+*outcomes* are pooled and how much survey noise sits under them — not in more
+or better covariates.
+
+## Two methodological cautions that generalise
+
+1. **Read paired, not median.** Twice — AE-01 and KB-01 — the median across
+   cells and the paired per-cell comparison disagreed in *direction*. With
+   18–22 cells of very unequal difficulty the median is not a comparison.
+2. **The country is the unit, not the cell.** Cells of one country share
+   districts and predictors. The first synthesis reported *zero* candidates
+   because it sign-tested over cells; both real positives are unambiguous over
+   country blocks. Blocks must pool the two targets — with four countries,
+   binom.test(4, 4) = 0.125 can never clear 0.05.
+
+## If this is taken further
+
+- Pre-register MT-01 for the next country, and score it on the weak cells
+  specifically, since that is where the mechanism says the gain lives.
+- RV-01's by-product is untested and cheap: the between-country share of level
+  variance is 0.80 for child iron but **0.14 for women B12**, so the rank-only
+  restriction on transport may be over-general. Transporting a *level* for B12
+  and vitamin A is a concrete, falsifiable next probe.
+- `explore/out/04_moderated_axis_stats.csv` ranks all 329 predictors by
+  cross-cell replicated association — usable for annotation prioritisation,
+  but read with EB-01's caveat: the satellite embedding supplies 35 of the most
+  replicated associations in the set and adds nothing predictively.
