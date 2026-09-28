@@ -83,16 +83,20 @@ arm_spca <- function(topk = 20L) function(tr, te, y, X, D, aux) {
   as.numeric(cbind(1, zte) %*% cf)
 }
 
+# cv.ncvreg on 383 columns is by far the most expensive arm here (it was on
+# pace for ~6 hours over the full grid). nlambda is cut to 25 and the inner CV
+# to 3 folds: this is a screen for whether a non-convex penalty is even in the
+# running, not a tuned production fit.
 arm_mcp <- function(tr, te, y, X, D, aux) {
   if (!has("ncvreg")) return(rep(mean(y[tr]), length(te)))
   fit <- try(ncvreg::cv.ncvreg(X[tr, , drop = FALSE], y[tr], penalty = "MCP",
-                               nfolds = 5), silent = TRUE)
+                               nfolds = 3, nlambda = 25), silent = TRUE)
   if (inherits(fit, "try-error")) return(rep(mean(y[tr]), length(te)))
   as.numeric(stats::predict(fit, X = X[te, , drop = FALSE], lambda = fit$lambda.min))
 }
 
 #' Stability selection: keep what is chosen often across subsamples
-arm_stabsel <- function(B = 50L, thresh = 0.6, alpha = 0.5) function(tr, te, y, X, D, aux) {
+arm_stabsel <- function(B = 25L, thresh = 0.6, alpha = 0.5) function(tr, te, y, X, D, aux) {
   n <- length(tr)
   cnt <- rep(0L, ncol(X)); names(cnt) <- colnames(X)
   for (b in seq_len(B)) {

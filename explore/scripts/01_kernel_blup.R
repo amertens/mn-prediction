@@ -33,6 +33,8 @@ DOM <- E$domain_of
 
 CLIM <- "Climate and weather"
 SOIL <- "Soil characteristics"
+EMB  <- "Satellite embedding"
+AGRI <- "Agricultural production, land use"
 
 cols_in <- function(X, doms) colnames(X)[which(DOM[colnames(X)] %in% doms)]
 
@@ -69,8 +71,17 @@ for (i in seq_len(nrow(ix))) {
     rows[[paste(i, tgt, "A")]] <- exp_infill(cell, ARMS, reps = REPS)
     rows[[paste(i, tgt, "B")]] <- exp_region(cell, ARMS)
 
-    # variance components on the whole cell (reporting, not prediction)
-    Kd <- k_by_domain(cell$X, DOM, min_cols = 3L)
+    # Variance components (reporting, not prediction). A REDUCED, deliberately
+    # small kernel set: with all 21 domain kernels the components are still
+    # estimable but the kernels are highly collinear, so the split between them
+    # is not uniquely attributable and moves between near-equivalent solutions.
+    # Five broad, mechanistically distinct blocks is the most that can be read.
+    Kd <- list(clim  = k_linear(cell$X[, cols_in(cell$X, CLIM), drop = FALSE]),
+               soil  = k_linear(cell$X[, cols_in(cell$X, SOIL), drop = FALSE]),
+               emb   = k_linear(cell$X[, cols_in(cell$X, EMB),  drop = FALSE]),
+               agri  = k_linear(cell$X[, cols_in(cell$X, AGRI), drop = FALSE]),
+               space = k_spatial(cell$aux$lon, cell$aux$lat))
+    Kd <- Kd[!vapply(Kd, is.null, TRUE)]
     if (length(Kd)) {
       v <- tryCatch(blup_varcomp(cell$y_mod, Kd, seq_len(cell$n)),
                     error = function(e) NULL)

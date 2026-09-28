@@ -164,6 +164,69 @@ reml_em <- function(y, Klist, w = NULL, tol = 1e-7, maxit = 300, floor_v = 1e-8)
        converged = conv, iters = it)
 }
 
+#' REML by direct optimisation of the profile likelihood (the estimator of record here)
+#'
+#' WHY THIS EXISTS. EM-REML (reml_em below) cannot leave the parameter space,
+#' which is why it was written first - but it converges glacially. Measured on
+#' Ghana child_vitA (n = 75): 2 kernels needed 1,914 iterations to converge, and
+#' 4, 8 and 21 kernels had NOT converged after 5,000. An unconverged EM fit
+#' still predicts (it is just a suboptimal amount of shrinkage) but it does not
+#' support the claim that the shrinkage was ESTIMATED, and its variance
+#' components sit near their equal-valued starting point, which is easy to
+#' mistake for "every domain contributes about the same".
+#'
+#' So the scale is profiled out analytically and the remaining nk variance
+#' RATIOS are optimised directly:
+#'     V = s2e (sum_k delta_k K_k + I) = s2e H
+#'     -2 logL_REML = (n-1) log(s2e_hat) + log|H| + log|X'H^-1 X| + const
+#'     s2e_hat = y' P_H y / (n-1)
+#' L-BFGS-B over log(delta) on a bounded box. nk is small (2-6 by design), so
+#' this converges in tens of evaluations rather than thousands of EM sweeps.
+reml_optim <- function(y, Klist, lower = -12, upper = 8, maxit = 200) {
+  n <- length(y)
+  nk <- length(Klist)
+  X1 <- matrix(1, n, 1)
+  I <- diag(1, n)
+
+  nll <- function(ld) {
+    H <- I
+    for (k in seq_len(nk)) H <- H + exp(ld[k]) * Klist[[k]]
+    ch <- tryCatch(chol(H), error = function(e) NULL)
+    if (is.null(ch)) return(1e10)
+    logdetH <- 2 * sum(log(diag(ch)))
+    Hi <- chol2inv(ch)
+    XtHi <- crossprod(X1, Hi)
+    A <- as.numeric(XtHi %*% X1)
+    if (!is.finite(A) || A <= 0) return(1e10)
+    P <- Hi - crossprod(XtHi, XtHi / A)
+    s2e <- as.numeric(crossprod(y, P %*% y)) / (n - 1)
+    if (!is.finite(s2e) || s2e <= 0) return(1e10)
+    0.5 * ((n - 1) * log(s2e) + logdetH + log(A))
+  }
+
+  start <- rep(log(1 / max(nk, 1)), nk)
+  op <- tryCatch(stats::optim(start, nll, method = "L-BFGS-B",
+                              lower = rep(lower, nk), upper = rep(upper, nk),
+                              control = list(maxit = maxit)),
+                 error = function(e) NULL)
+  if (is.null(op)) return(reml_em(y, Klist))
+  delta <- exp(op$par)
+
+  H <- I
+  for (k in seq_len(nk)) H <- H + delta[k] * Klist[[k]]
+  Hi <- tryCatch(chol2inv(chol(H)), error = function(e) solve(H + diag(1e-6, n)))
+  XtHi <- crossprod(X1, Hi)
+  A <- as.numeric(XtHi %*% X1)
+  P <- Hi - crossprod(XtHi, XtHi / A)
+  s2e <- as.numeric(crossprod(y, P %*% y)) / (n - 1)
+  mu <- as.numeric((XtHi %*% y) / A)
+  s2 <- delta * s2e
+  names(s2) <- names(Klist)
+  tot <- sum(s2) + s2e
+  list(s2 = s2, s2e = s2e, h2 = s2 / tot, mu = mu, Vi = Hi / s2e,
+       converged = isTRUE(op$convergence == 0), iters = op$counts[["function"]])
+}
+
 #' Exact REML for ONE kernel, by eigendecomposition (the EMMA/GEMMA trick)
 #'
 #' With a single kernel and i.i.d. residuals, V = s2e (delta K + I), so one
@@ -210,17 +273,21 @@ reml_1k <- function(y, K, lower = -10, upper = 10) {
 #'
 #' pred_te = mu + sum_k s2_k K_k[te, tr] V_tr^-1 (y_tr - mu)
 #'
-#' Dispatches to the exact single-kernel solver when there is one kernel and no
-#' weights, and to EM-REML otherwise.
+#' Dispatches to the exact single-kernel eigendecomposition when there is one
+#' kernel, to direct REML optimisation for several, and to EM only when
+#' precision weights are asked for (the weighted case has no profiled form
+#' here). EM is NOT the default: it does not converge at these kernel counts.
 #'
 #' @param Kfull list of kernels on ALL rows (kernels are built from predictors
 #'   only, so this uses no held-out outcome information)
 reml_blup <- function(y, Kfull, tr, te, w = NULL) {
   Ktr <- lapply(Kfull, function(K) K[tr, tr, drop = FALSE])
-  fit <- if (length(Kfull) == 1L && is.null(w))
+  fit <- if (!is.null(w))
+    reml_em(y[tr], Ktr, w = w[tr])
+  else if (length(Kfull) == 1L)
     reml_1k(y[tr], Ktr[[1]])
   else
-    reml_em(y[tr], Ktr, w = if (is.null(w)) NULL else w[tr])
+    reml_optim(y[tr], Ktr)
   resid <- y[tr] - fit$mu
   a <- fit$Vi %*% resid
   pred <- rep(fit$mu, length(te))
@@ -254,7 +321,8 @@ make_blup_arm <- function(kfun, use_weights = FALSE) {
 #' the predictions they produced.
 blup_varcomp <- function(y, Kfull, rows, w = NULL) {
   Ktr <- lapply(Kfull, function(K) K[rows, rows, drop = FALSE])
-  fit <- reml_em(y[rows], Ktr, w = if (is.null(w)) NULL else w[rows])
+  fit <- if (is.null(w)) reml_optim(y[rows], Ktr)
+         else reml_em(y[rows], Ktr, w = w[rows])
   data.frame(kernel = c(names(fit$s2), "residual"),
              variance = c(as.numeric(fit$s2), fit$s2e),
              share = c(as.numeric(fit$h2), fit$s2e / (sum(fit$s2) + fit$s2e)),
