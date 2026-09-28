@@ -697,3 +697,82 @@ or better covariates.
   cross-cell replicated association — usable for annotation prioritisation,
   but read with EB-01's caveat: the satellite embedding supplies 35 of the most
   replicated associations in the set and adds nothing predictively.
+
+---
+
+## LT-01 (2026-09-28) — transporting a LEVEL: my own suggestion was wrong as stated, and the fix is spread calibration
+
+**Question.** RV-01 found the cross-survey level offset is not a global problem
+— between-country share of level variance is 0.80 for child iron but 0.14 for
+women B12 — and I suggested on that basis that transporting a *level* rather
+than a ranking might be feasible for B12. This probe tests it.
+
+**Design.** `explore/scripts/12_level_transport.R`. Leave-one-country-out on
+the **raw, un-standardised** level (the within-country standardisation is
+exactly what the rank-only protocol does, and is what is being tested).
+Predictors still rank-normalised within country. Two arms are **oracles used as
+measuring devices, not methods**: `null_true_mean` predicts every district at
+the held-out country's true mean (a perfect anchor, no ranking), and the
+anchored arms shift the prediction to that mean. MAE is reported relative to
+the held-out country's own sd, so it is comparable across biomarkers.
+
+**Result 1 — RV-01's ordering is confirmed, precisely.** Share of squared
+transport error that is pure country offset: women_b12 0.159, women_vitA 0.274,
+child_vitA 0.339, women_iron 0.419, child_iron 0.511, women_folate 0.665. That
+reproduces RV-01's between-country variance shares (0.14 / 0.35 / 0.28 / 0.71 /
+0.80 / 0.58) from a completely separate computation.
+
+**Result 2 — but the suggestion was wrong. An unanchored transported level is
+unusable for every outcome, B12 included.** `index_cs` MAE is **1.117× the
+held-out country's own sd** for B12 (child vitA 1.120, women vitA 1.173, iron
+1.93–2.34). Its skill against simply predicting the training countries' mean is
+**negative** for every outcome (−0.043 for B12). A prediction whose average
+error exceeds one standard deviation is not a usable level.
+
+**Result 3 — the binding constraint was not the offset, it was spread.** With a
+perfect anchor the ranking is good (Spearman 0.47 for B12, 0.44 vitamin A) yet
+`index_cs_anchored` still scores 0.854 MAE/sd — *worse* than the 0.798 a
+constant at the true mean achieves for a normal outcome (√(2/π); the
+`null_true_mean` arm lands at 0.762–0.828, confirming the metric behaves).
+The index is scaled to the training countries' sd, i.e. as if its ranking were
+perfect. A prediction correlating ρ with truth should carry spread ρ × sd.
+
+**Result 4 — shrinking the spread by a nested ρ fixes it, for every outcome.**
+ρ estimated by leave-one-*training*-country-out, so the held-out country never
+informs it. MAE/sd, anchor + calibrated spread vs the flat anchor:
+
+| outcome | flat anchor | anchor + calibrated ranking | nested ρ |
+|---|---|---|---|
+| **women_b12** | 0.762 | **0.707** | **0.456** |
+| child_vitA | 0.791 | 0.726 | 0.126 |
+| women_vitA | 0.798 | 0.747 | 0.150 |
+| women_iron | 0.772 | 0.761 | 0.058 |
+| child_iron | 0.805 | 0.793 | 0.031 |
+| women_folate | 0.828 | 0.828 | 0.050 |
+
+Better in all six. Across the 22 outcome × held-out-country units the mean
+reduction is +0.033 MAE/sd; **8 units are exact ties** because ρ shrank to ~0
+and the arm correctly collapses to the constant. Of the 14 non-tied units the
+calibrated arm wins **11** (sign p = 0.057), the best gains are +0.185 and
++0.184, and the worst loss is −0.050.
+
+**B12 is genuinely the exception, and now there is a number for why.** Its
+nested ρ is **0.456**, three to fifteen times every other outcome (0.031–0.150).
+That is the same ordering RV-01 gave, arrived at independently.
+
+**Verdict.** *My suggestion, as stated, is refuted*: do not transport a raw
+level, for B12 or anything else. *Candidate, refined*: within the project's
+existing anchor-and-rank design, **shrink the transported ranking's spread by a
+nested out-of-sample ρ before adding it to the anchor**. The calibration is
+self-limiting — where the ranking is uninformative it degrades exactly to the
+national constant, so it cannot do much harm (worst case −0.050 sd).
+
+**Worth checking against the existing record.** The memory note
+`analyses_2026_09_28_review_followups` records that ranking adds nothing to
+anchored levels. This probe finds a small gain — and the difference may be
+precisely the spread calibration, which would make it a refinement rather than
+a contradiction. Flagged rather than asserted: I have not read that script.
+
+**Limits.** The anchor is an oracle here; in deployment it comes from a small
+survey with its own error, which will eat some of a gain this size. B12 and
+folate have three countries, so training is on two. Not pre-registered.
