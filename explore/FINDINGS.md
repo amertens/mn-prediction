@@ -397,3 +397,70 @@ annotation work, for instance) should be read with that in mind.
 **Verdict.** *dead end* for the moderated estimator. *candidate* for the screen
 as a prioritisation tool, with the caveat above. `explore/out/04_moderated_axis_stats.csv`
 carries the full ranked list with pooled z, τ², FDR and sign consistency.
+
+## TM-01 phase 2 (2026-09-28) — the previous-growing-season hypothesis is rejected, and the lag profile says why
+
+**Question.** The mechanistically strongest temporal idea: micronutrient stores
+integrate months of intake, so the quality of the **previous growing season**
+(lags 9–15 months before the blood draw) should predict status better than the
+long-run climatology of the pixel and better than the 3-month window the
+cluster table already carries. Phase 1 could not test this — the monthly
+rasters on disk cover only parts of 2014–15 against surveys from 2013–18 — so
+the Earth Engine extraction was run for it.
+
+**The extraction.** `explore/scripts/10_gee_cluster_monthly.py`: 36 monthly
+values for CHIRPS rainfall, MODIS NDVI and land-surface temperature, and FLDAS
+soil moisture and evaporation, at all 323 cluster buffers (2 km urban / 5 km
+rural, the cluster track's own convention), aligned so lag 0 is each cluster's
+own fieldwork month. One `reduceRegions` per layer over a 120-band monthly
+image rather than one call per month — five Earth Engine calls, 56,470 rows.
+Values verified against expectation: CHIRPS 110 mm/month with 11% dry-season
+zeros, LST 304.7 K, NDVI 0.45, soil moisture 0.28 m³/m³, evaporation
+2.6e-05 kg m⁻² s⁻¹ over 10,326 distinct values.
+
+Each value is an **anomaly** against that cluster's own mean for the same
+calendar month, because raw monthly values are dominated by the season the
+survey happened to run in, which is near-constant within a country.
+
+**Result 1 — no representation of the lag stack beats climatology.** Paired,
+district scoring, 24 cells:
+
+| arm | columns | mean gain | wins | sign p |
+|---|---|---|---|---|
+| all 36 lags per layer | 180 | +0.037 | 14/24 | 0.54 |
+| 8 interpretable windows | 40 | +0.021 | 15/24 | 0.31 |
+| 5-df penalised distributed lag | 25 | +0.010 | 13/24 | 0.84 |
+| **lags 9–15 only** | 5 | **+0.004** | 15/24 | 0.31 |
+
+The narrow hypothesis, stated as sharply as it can be, adds **+0.004**. Alone
+it scores 0.081 against climatology's 0.347.
+
+**Result 2 — the lag profile is flat, which is the real finding.** Mean
+|marginal correlation| by lag over all cells and layers:
+
+- lags 9–15 (previous growing season): **0.160**
+- every other lag: **0.151** (difference +0.009, p = 0.075)
+- lags 24–35, two to three years before the draw: **0.158**
+- profile range across all 36 lags: 0.117 to 0.186, sd 0.018
+- **argmax is at lag 31**, not in 9–15
+- no decay with lag (Spearman(lag, |r|) = 0.183, p = 0.29)
+
+A real temporal mechanism predicts a peak at 9–15 and decay away from it. What
+is there instead is a flat profile in which weather from *three years before
+the blood draw* is as associated with status as weather from the last growing
+season. That is the signature of a **spatial** association showing through
+every lag — persistent differences between places — not a temporal one. It is
+the same conclusion the domain work reached from the other direction: the
+signal is agro-ecological regime, not recent conditions.
+
+**Limitation.** The anomaly baseline is each cluster's own mean over only three
+years, so it removes the cluster's level but leaves the regional anomaly field,
+which is spatially correlated. A longer baseline (the extraction fetches 120
+months and currently writes 36) would sharpen the anomalies but cannot change
+a profile that peaks at lag 31.
+
+**Verdict.** *dead end*, and a well-powered one: the hypothesis had a specific
+prediction about *where* in the lag profile the association should sit, and the
+data contradicts it rather than merely failing to confirm it. Taken with phase
+1, the whole fine-temporal direction is closed at this resolution — which is
+worth knowing, because it was expensive to reach and would otherwise stay open.
