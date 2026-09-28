@@ -117,3 +117,50 @@ end, because the reason is a mathematical identity that rules out the whole
 family. *candidate* for outcome-side level transport restricted to B12 and
 vitamin A. Caveat: three countries for B12 and folate, and these shares are
 computed on the same four surveys that would be used to fit any correction.
+
+## TM-01 phase 1 (2026-09-28) — seasonal phase is a coin flip; the lag hypothesis is untested
+
+**Question.** Fieldwork windows are only 2–3 months per country, so calendar
+spread is not the temporal axis available. What varies across clusters is
+*seasonal phase*: two clusters visited in the same week sit at different points
+in their own agricultural year because their rainy seasons peak in different
+months. Since ferritin and retinol integrate months of intake, phase should
+matter.
+
+**Design.** `explore/scripts/09_temporal_phase1.R`, at the survey cluster
+(323 clusters with GPS), folds cut by district so a cluster's own district
+never trains on it. Phase was constructed — it does not exist in the cluster
+table — as the circular months from each dynamic layer's peak month to the
+cluster's fieldwork month, plus its sin/cos encoding (21 columns from 7 layers).
+Arms are ridge on climatology, + the fieldwork-window block, + phase, and phase
+alone. Scored at cluster level and aggregated to districts, 24 cells.
+
+**Result. Phase adds nothing on average.** Mean gain over the fieldwork block
+is **+0.011, improving 12 of 24 cells** — a coin flip. Phase alone scores 0.024
+at cluster level and −0.003 at district level: it carries no signal by itself.
+The fieldwork-window block does add (+0.026, 16 of 24), replicating FW-01's
++0.02 on independent folds.
+
+**One pattern worth recording, with a confound attached.** The cells where
+phase helps most are Malawi women_zinc (+0.095; phase alone scores **0.233**
+there, against climatology's −0.128), Sierra Leone women_vitA (+0.075), Gambia
+child_vitA (+0.059), Sierra Leone women_folate (+0.058) and Malawi child_zinc
+(+0.048). Malawi zinc leading this list is suspicious rather than promising:
+ZN-02 established a *collection artefact* in Malawi serum zinc (afternoon draw
+−3.5%, date +0.7%/day), and phase is a deterministic function of the fieldwork
+month. So the strongest "seasonal" effect in the table is the cell where a
+date artefact is most plausible. Any follow-up must separate season from
+collection date before reading this as biology.
+
+**What this does and does not rule out.** It tests *phase*, one of the three
+temporal ideas. It does not test the mechanistically stronger one — a **lag
+stack** over the 0–24 months before the draw, so the *previous growing season*
+is represented rather than the 3-month window the cluster table already
+carries. That needs monthly rasters spanning 2013–2018; the on-disk rasters
+cover only parts of 2014–15, so it is only reachable through the staged Earth
+Engine extraction (`10_gee_cluster_monthly.py`).
+
+**Verdict.** *dead end* for seasonal phase as a predictor. *needs data* for the
+lag hypothesis. The phase result is mild evidence against a large temporal
+signal at this resolution, which should temper expectations for the lag test
+rather than cancel it.
