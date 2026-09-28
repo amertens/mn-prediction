@@ -464,3 +464,80 @@ prediction about *where* in the lag profile the association should sit, and the
 data contradicts it rather than merely failing to confirm it. Taken with phase
 1, the whole fine-temporal direction is closed at this resolution — which is
 worth knowing, because it was expensive to reach and would otherwise stay open.
+
+## KB-01 (2026-09-28) — kernel BLUP helps where the index is weakest: transport, not in-fill
+
+**Question.** n = 14–87 with p = 383 is the regime quantitative genetics lives
+in, and the field's answer is not variable selection but a relationship matrix
+plus REML-estimated shrinkage — one *estimated* hyperparameter rather than a
+tuned one, which is how "capacity is a liability" gets solved instead of
+avoided. Does it beat the zero-tuning index?
+
+**Design.** `explore/scripts/01_kernel_blup.R` with
+`explore/R/methods_kernel.R`. Kernels: all predictors, climate+soil, five
+broad blocks, a Matérn-style spatial kernel on centroids, and combinations.
+Shrinkage by REML — the exact single-kernel eigendecomposition solver, or
+direct optimisation of the profiled likelihood for several kernels. All 144
+multi-kernel fits converged.
+
+**Result 1 — transport: a consistent win.** Mean Spearman over 22 held-out
+cells, level target: `blup_cs_spatial` **0.386** (21/22 positive),
+`blup_cs` 0.360, `blup_all` 0.345, `blup_5k` 0.334, against the domain index's
+0.298 and the spatial kernel alone at 0.199 (geography does not transport, as
+expected).
+
+Paired per cell the gain is +0.088 but only 14 of 22 cells (p = 0.29). Cells
+within a held-out country share districts and predictors, so the country is the
+honest unit — and at that level it is unambiguous:
+
+| held-out country | gain, level | gain, prevalence |
+|---|---|---|
+| Gambia | +0.079 | +0.059 |
+| Ghana | +0.041 | +0.009 |
+| Malawi | +0.078 | +0.019 |
+| Sierra Leone | +0.151 | +0.174 |
+| **all 4 positive, both targets** | **+0.087** | **+0.065** |
+
+Eight of eight country × target blocks positive, sign p = 0.008. All four
+kernel arms beat the index in the mean on both targets — seven of seven
+arm × target comparisons in the same direction.
+
+**Result 2 — in-country: the kernel LOSES.** Paired against the index on
+in-fill level, `blup_cs` is **−0.060, winning 5 of 18 cells**; `blup_all`
+−0.037 (6/18); `blup_cs_spatial` −0.042 (6/18). The medians say the opposite
+(`blup_cs` 0.469 vs the index's 0.394) — this is the AE-01 lesson again, and it
+is now the second time in this folder that the median and the paired test have
+disagreed in **direction**. Read the paired column.
+
+**Result 3 — the nested test confirms the standing conclusion rather than
+challenging it.** Comparing a covariate BLUP to the GAM smoother confounds
+"covariates help" with "the kernel is a better smoother". The clean contrast is
+identical machinery with covariates added as a second kernel:
+
+| contrast | mean gain | wins | sign p |
+|---|---|---|---|
+| blup_cs_spatial vs blup_spatial | +0.015 | 9/18 | 1.00 |
+| blup_5k vs blup_spatial | +0.026 | 9/18 | 1.00 |
+| blup_cs vs blup_spatial | −0.003 | 8/18 | 0.81 |
+
+Exactly chance. **Within a surveyed country, covariates add nothing on top of a
+spatial smoother even when the smoother and the covariate model are the same
+estimator** — standing conclusion 2 survives a test built specifically to
+break it.
+
+**Result 4 — the variance decomposition does not support a domain ranking.**
+All 144 fits converged, but with collinear kernels REML returns a *sparse*
+solution: one block takes the variance and the rest go to zero, and which one
+varies by cell — space dominates 10 of 24 cells, climate 6, embedding 4, soil 2,
+agriculture 2, with residual a median 0.52. Reported as instability, not as an
+attribution: the median share of every covariate block is 0.000 and that means
+"usually not selected", not "contributes nothing".
+
+**Verdict.** *candidate*, scoped narrowly: **for transport to an unsurveyed
+country, replace the index with a REML-shrunk kernel on climate + soil + space**
+(+0.087 level, +0.065 prevalence, 4/4 countries, 8/8 blocks). *Dead end* for
+in-country use, where it is worse than the index and adds nothing over
+geography. The scoping matters — this is the opposite of where one would expect
+extra machinery to pay off, and it is consistent with transport being the
+estimand where the index's per-cell weight estimation is least reliable.
+Chosen post hoc on these four countries; pre-register before quoting.
