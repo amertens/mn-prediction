@@ -533,11 +533,31 @@ agriculture 2, with residual a median 0.52. Reported as instability, not as an
 attribution: the median share of every covariate block is 0.000 and that means
 "usually not selected", not "contributes nothing".
 
-**Verdict.** *candidate*, scoped narrowly: **for transport to an unsurveyed
-country, replace the index with a REML-shrunk kernel on climate + soil + space**
-(+0.087 level, +0.065 prevalence, 4/4 countries, 8/8 blocks). *Dead end* for
-in-country use, where it is worse than the index and adds nothing over
-geography. The scoping matters — this is the opposite of where one would expect
-extra machinery to pay off, and it is consistent with transport being the
-estimand where the index's per-cell weight estimation is least reliable.
-Chosen post hoc on these four countries; pre-register before quoting.
+**Result 5 (added after the synthesis) — the transport win is NOT the kernel.**
+The comparison above is against the *full* domain index. The project already
+has a better transport arm on the record: the climate+soil index (`index_cs`,
+0.368 on the record, reproduced here at 0.374). Head to head on the same 44
+transport cells:
+
+| | mean Spearman | vs index_cs | cells | blocks |
+|---|---|---|---|---|
+| index_cs (the pre-registered candidate) | 0.324 | — | — | — |
+| blup_cs_spatial | 0.324 | **−0.0003** | 23/44 | 3/8 (p = 0.73) |
+| blup_cs | 0.315 | −0.0096 | 21/44 | 2/8 (p = 0.29) |
+
+**Statistically indistinguishable.** The entire apparent gain was "restrict to
+climate and soil instead of using all domains" — which is the project's own
+existing pre-registered candidate. The kernel machinery and the REML-estimated
+shrinkage add nothing on top of it.
+
+**Verdict (corrected).** *Not an independent candidate.* KB-01 re-derives the
+known climate+soil transport result by a completely different estimator —
+worth having as independent corroboration that the finding is about the
+*predictors*, not about the elastic-net-and-index machinery that produced it —
+but it is not a new method to adopt. *Dead end* for in-country use, where it is
+worse than the index and adds nothing over geography.
+
+The corollary is the useful part: **two unrelated estimators, plus EB-01's
+cross-cell meta-analysis of marginal associations, now independently converge
+on climate + soil.** That is stronger evidence for the pre-registered recipe
+than any one of them alone.
