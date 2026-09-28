@@ -271,3 +271,64 @@ district-level signal is not dietary composition — consistent with the
 project's own finding that the replicated covariate associations run opposite
 to individual-level nutrition for legumes and cattle, a rural-subsistence axis
 rather than a diet axis.
+
+## MT-01 (2026-09-28) — multi-trait BLUP: the first real positive
+
+**Question.** XO-01 found cross-nutrient borrowing null under transport but the
+same nutrient in the other population beating the index. That is low-rank
+structure across the 24 cells, and the project fits every cell on its own.
+Quantitative genetics fits correlated traits jointly and gains most exactly
+where single-trait estimation is noisiest — which at n = 14–87 is everywhere.
+
+**Design.** `explore/scripts/05_multitrait.R`. A held-out district has no
+biomarker measured at all, so the model cannot condition on its other
+nutrients; the gain has to come from estimating the *shared spatial component*
+on more data. On training districts only, the first eigenvector of the trait
+correlation matrix gives loadings, and their weighted mean is a general
+deficiency factor `g`. `mt_blup` = BLUP of `g` on the climate+soil and spatial
+kernels, scaled by the trait's loading, plus a trait-specific BLUP of the
+residual. `st_blup` is the same kernels, single trait — the controlled
+contrast. Held-out districts are held out for every trait simultaneously, and
+the loadings and `g` are computed on training rows only.
+
+**Result. Multi-trait wins, and for the predicted reason.**
+
+| | mean gain | wins | Wilcoxon p |
+|---|---|---|---|
+| level | +0.022 | 13/18 | 0.027 |
+| prevalence | +0.056 | 13/18 | 0.005 |
+| pooled | **+0.039** | 26/36 | 0.0004 |
+
+Cells within a country share districts and the same general factor, so those 36
+comparisons are not independent. At the **country × target block** level, which
+is the honest unit: **6 of 6 blocks positive**, sign p = 0.031, mean of block
+means +0.038, and every country agrees (Gambia +0.034, Ghana +0.037, Malawi
++0.043).
+
+**The shrinkage signature is present**, which matters more than the p-value.
+Theory says borrowing should help most where the single-trait fit is weakest,
+and it does: Spearman(single-trait score, gain) = **−0.388, p = 0.020**; by
+tercile of single-trait performance the mean gain is **+0.086 (weak)**, +0.013
+(mid), +0.018 (strong). The largest gains are all rescues of cells that were
+worse than useless alone — Malawi women_iron prevalence −0.137 → +0.042, Ghana
+women_vitA prevalence −0.037 → +0.133, Malawi child_zinc prevalence −0.180 →
+−0.020. Where the single-trait fit was already strong (the B12 cells) it
+changes nothing, −0.004 to −0.006.
+
+**Trait correlations, which are the mechanism.** Within country the outcomes
+are strongly correlated, including *across* nutrients: Gambia women_vitA ~
+child_vitA 0.837, women_iron ~ child_vitA 0.781, women_iron ~ child_iron 0.772;
+Malawi women_zinc ~ child_zinc 0.552; Ghana women_b12 ~ child_iron 0.382. This
+is not in tension with XO-01's null — that was cross-nutrient borrowing under
+*transport*, where the country offset intervenes. Within a country, the
+nutrients share district-level structure and it is usable.
+
+**Limits.** Four countries, and Sierra Leone is absent because its 14 districts
+cannot be folded for in-fill. The kernels were fixed to climate+soil plus
+space, chosen from the record rather than tuned here, which is a virtue for
+honesty and a constraint on the ceiling. This was not pre-registered.
+
+**Verdict.** *candidate*, and the strongest so far. Concretely: when a survey
+measures several biomarkers, fit them jointly with a shared latent factor
+rather than one cell at a time — and expect the gain in the weak cells, which
+are the ones currently reported as failures.
