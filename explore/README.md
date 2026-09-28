@@ -53,6 +53,30 @@ probe:
    the opposite thing in two countries and transport is destroyed. (First
    version of the harness got this wrong; it cost up to 0.76 Spearman.)
 
+## Probe status (all complete, 2026-09-28)
+
+| probe | question | verdict |
+|---|---|---|
+| GATE | does the harness reproduce the record? | clean (LOCO exact) |
+| **MT-01** | **multi-trait BLUP across a survey's biomarkers** | **candidate** (+0.038, 6/6 blocks) |
+| KB-01 | kernel BLUP / REML shrinkage at n<<p | corroborates climate+soil; not an independent candidate |
+| EB-01 | cross-cell empirical-Bayes moderation | estimator null; the FDR screen is a keeper |
+| RV-01 | RUV/SVA for the cross-survey level offset | dead end (mathematical identity) |
+| AE-01 | AlphaEarth as a kernel, not as PCs | dead end |
+| MX-01 | nutrient-specific crop-basket mechanism | dead end (no specificity) |
+| TM-01 | seasonal phase at the cluster | dead end (12/24 = chance) |
+| TM-01b | previous growing season, 0-24 month lags (GEE) | dead end (flat lag profile, peaks at lag 31) |
+| NP-01 | PLS, PCR, supervised PCA, MCP, stability selection, ridge | dead end (selection methods worst) |
+
+Read `FINDINGS.md` for the entries and the closing synthesis, and
+`out/leads.csv` for every arm against its comparator.
+
+**Two rules this folder learned the hard way**, both in the synthesis:
+read comparisons **paired**, not by median (they disagreed in *direction*
+twice); and block by **country x target**, not by cell (cells of one country
+share districts, and the first synthesis reported zero candidates because of
+it).
+
 ## Running a probe
 
 ```bash
