@@ -1010,3 +1010,111 @@ design does not have.
 MA-01: vitamin A 0.35–0.45 against B12 and zinc at about 0.70 is a
 measurement-side explanation for which cells work, and it is cheap to extend to
 the remaining biomarkers and countries.
+
+---
+
+## RL-01 (2026-09-28) — district reliability for every cell, and what dichotomising costs
+
+**Extension of MA-01's by-product** to all 27 country × outcome cells the
+pipeline defines, using the project's own config, loader and population masks so
+the populations match the targets exactly. Respondents are split at random
+within district (300 splits), district means correlated, Spearman-Brown
+corrected to full sample.
+
+### Reliability by nutrient (continuous level, Spearman)
+
+| nutrient | reliability | cells |
+|---|---|---|
+| selenium | **0.939** | 2 |
+| folate | 0.720 | 3 |
+| B12 | 0.704 | 3 |
+| iodine | 0.682 | 1 |
+| zinc | 0.681 | 2 |
+| iron | 0.532 | 8 |
+| **vitamin A** | **0.518** | 8 |
+
+**The project's two headline nutrients are its two least reliably measured**, and
+they are the only two carried by all four countries. By country: Gambia 0.724,
+Malawi 0.655, Ghana 0.594, Sierra Leone 0.489.
+
+### Reliability predicts model accuracy
+
+Against the record's in-fill level accuracy for the domain index:
+**Spearman = 0.521, p = 0.028 over 18 cells.** Roughly half the cross-cell
+variation in how well the model does is explained by how reliably the biomarker
+measures districts at all — before any covariate is involved. Malawi women_b12
+(reliability 0.843, accuracy 0.694) and Gambia women_vitA (0.805, 0.697) sit at
+the top; Malawi women_vitA (0.301, 0.302) and child_vitA (0.377, 0.230) at the
+bottom.
+
+**Zinc is the exception that confirms the reading**: reliably measured (0.72
+women, 0.64 children) and unpredictable (index −0.007 and −0.105). That
+independently reproduces ZN-01 — "a reliable target the proxies do not touch" —
+from a different direction.
+
+### Prior art, and the discrepancy that turned into the finding
+
+Applying this folder's standing rule: **WS1a already computes empirical
+split-half reliability** (`R/reliability_empirical.R`,
+`results/tables/reliability_empirical.csv`, 200 splits, Spearman-Brown, two
+schemes). My numbers correlate with it at only 0.22, with a mean absolute
+difference of 0.281, and WS1a reports **0.000** for Malawi and Sierra Leone B12
+where I get 0.84 and 0.80.
+
+That is not an error in either. **WS1a computes the reliability of district
+PREVALENCE from the binary outcome with Pearson; the table above is the
+continuous LEVEL with Spearman.** Different quantities. Recomputing both in one
+framework prices the difference:
+
+**Dichotomising costs +0.203 reliability on average, and the continuous level is
+more reliable in 25 of 27 cells.** The cost is concentrated where the cutoff is
+extreme — exactly as theory predicts, since a binary at a rare threshold has
+little variance and large sampling noise:
+
+| cell | prevalence | level reliability | prevalence reliability | cost |
+|---|---|---|---|---|
+| Sierra Leone women_b12 | 0.005 | 0.797 | −0.350 | **1.147** |
+| Sierra Leone women_vitA | 0.023 | 0.607 | −0.027 | 0.634 |
+| Malawi women_vitA | 0.019 | 0.282 | −0.127 | 0.409 |
+| Ghana women_vitA | 0.013 | 0.634 | 0.234 | 0.401 |
+| Malawi women_b12 | 0.107 | 0.840 | 0.493 | 0.347 |
+| … | | | | |
+| Malawi child_selenium | 0.855 | 0.935 | 0.917 | 0.017 |
+| Sierra Leone child_vitA | 0.183 | 0.122 | 0.198 | −0.076 |
+| Sierra Leone women_iron | — | −0.006 | 0.484 | −0.490 |
+
+**And the reliability gap tracks the accuracy gap**: Spearman(cost of
+dichotomising, level-minus-prevalence accuracy) = **0.507, p = 0.034** over 18
+cells, with a mean accuracy gap of +0.098.
+
+**That explains a pattern the project has carried on the record without a
+mechanism.** The level target beats prevalence everywhere — in-fill 0.394 vs
+0.298, transport 0.287 vs 0.192 — and this says why: dichotomising at a clinical
+cutoff destroys district signal, most severely for rare deficiencies, and the
+cells where it destroys most are the cells where the level target wins by most.
+It is a measurement explanation for a modelling observation.
+
+### Caveats
+
+- **The cluster-split column is not per-cell interpretable.** Only **13
+  districts** per country have two or more clusters (Gambia 57%, Ghana 83%,
+  Malawi 85% single-cluster), so that estimate rests on 13 units and swings
+  wildly (−0.65 to +0.82). In aggregate it suggests the respondent split is
+  optimistic by about +0.23, consistent with CE-01, but no single cell's value
+  should be read. Sierra Leone is the only country whose design supports it
+  (0% single-cluster) and there it is low: 0.174 mean.
+- Two Sierra Leone binaries are coded 1/2 rather than 0/1, so their `prev_mean`
+  is not a prevalence. The split-half correlation is invariant to that linear
+  recoding, so their reliability is unaffected.
+- Reliability here is unweighted; the pipeline's targets are survey-weighted.
+
+### Verdict
+
+*Candidate, and cheap to act on.* Two concrete uses. **(1)** Judge a cell's model
+accuracy against its own reliability rather than against 1.0 — Malawi women_vitA
+at reliability 0.30 cannot be predicted at 0.6 by anything, and reporting it as
+a failure of the covariates misattributes the cause. **(2)** Prefer the
+continuous level target wherever a decision permits it, and treat prevalence at
+a rare cutoff as the expensive choice it is: Sierra Leone women B12 at 0.5%
+prevalence has no usable district signal on the binary and good signal on the
+level.
