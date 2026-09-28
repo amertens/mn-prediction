@@ -860,3 +860,153 @@ Prompted by the LT-01 failure, each probe's question was searched against
 **Standing rule for this folder, from LT-01.** Search `docs/findings/` and
 `scripts/protocol_v2/` for the question *before* running a probe. One grep would
 have caught LT-01 before it was written up.
+
+---
+
+# Seasonality and collection timing (2026-09-28) — probes CG-01, MA-01, PT-01, SO-01
+
+## The exploration that gated all four
+
+Individual collection timing exists for two countries: Malawi
+(`date_interview`, `time_blood_draw`, `fast` in `clean_malawi_mn_data.RDS`) and
+Gambia (`gw_cIntDate`, `gw_wIntDate`, and **`gw_cVASDate`** — the vitamin A
+supplementation date). Ghana is month-resolution only; Sierra Leone's dates are
+reconstructed from date of birth plus age.
+
+Three structural facts, and they decide most of what follows:
+
+1. **A survey team visits a cluster in about one day** — median within-cluster
+   date spread **1 day**, maximum 6.
+2. **Date is therefore almost the same variable as place**:
+   R²(date ~ cluster) = **0.999** Malawi, **0.989** Gambia;
+   R²(date ~ district) = **0.908** Malawi.
+3. **The raw date slopes are small but not zero**: Malawi log RBP
+   −0.0009/day (t = −2.3), AGP +0.0013/day (t = 2.0) — −6% and +9% across the
+   70-day window.
+
+So collection date cannot serve as an individual predictor net of geography,
+and cannot be adjusted out of district estimates, because it is collinear with
+them. Fasting is unusable (65 of 3,099 fasted). Gambia's days-since-VAS is
+mechanistically right — VAS within 60 days raises log RBP by 0.038, about 3.9%
+— but n = 276 gives t = 1.0.
+
+## CG-01 — the fieldwork calendar is NOT a smooth spatial surface, and the standing conclusion survives
+
+**The hypothesis (mine, and it was wrong).** Fieldwork teams move through space
+contiguously, so the survey calendar should itself be a smooth spatial surface.
+If so, the project's spatial smoother might be fitting the *survey schedule*
+rather than geography — which would reinterpret standing conclusion 2.
+
+**Result — refuted on its own premise.** The calendar is not spatially smooth.
+R²(fieldwork date ~ thin-plate spline in lon/lat), per country:
+
+| country | R² |
+|---|---|
+| Sierra Leone | 0.572 |
+| Ghana | **−0.010** |
+| Malawi | **−0.023** |
+| Gambia | **−0.054** |
+
+Negative adjusted R² means the spline fits worse than a constant. In three of
+four countries a spatial smoother **cannot** represent the fieldwork calendar at
+all: teams are evidently assigned in a way that scrambles date across geography
+rather than sweeping through it. The premise fails, so the threat does not
+arise.
+
+Consistent with that, the calendar explains very little district outcome
+variance — R²(outcome ~ date) = 0.011 Ghana, 0.025 Malawi, 0.030 Gambia (0.112
+Sierra Leone, on 14 districts) — and residualising the outcome on fieldwork date
+inside the training fold moves the spatial smoother by **+0.005** (level) and
+**−0.008** (prevalence). Date alone predicts *negatively* (−0.108 level, −0.146
+prevalence).
+
+**This is a reassuring negative.** The district targets the whole project
+predicts are not a survey calendar in disguise, and they cannot be, because the
+calendar has no spatial structure to be confused with geography.
+
+**A third median-versus-paired reversal, noted in passing.** On these folds the
+index beats the spatial smoother in **13 of 18** cells paired, while the record's
+median ordering has spatial ahead (0.457 vs 0.394). That is the same reversal
+AE-01 and KB-01 found. It does not disturb standing conclusion 2, which rests on
+the *nested* test (covariates on top of the smoother), and KB-01 confirmed that
+at 9/18 — chance. The two arms are about equally good and neither adds to the
+other.
+
+## MA-01 — removing collection artefacts does not improve district reliability
+
+Split-half reliability of district means (200 random within-district splits),
+raw against artefact-adjusted (artefacts removed *within cluster*, so the
+adjustment cannot absorb between-district signal):
+
+| country | marker | n | artefacts | raw | adjusted | gain |
+|---|---|---|---|---|---|---|
+| Malawi | rbp | 2,886 | time of draw + fasting | 0.350 | 0.349 | −0.001 |
+| Malawi | vitb12 | 810 | time of draw + fasting | 0.696 | 0.694 | −0.001 |
+| Malawi | zn_gdl | 2,885 | time of draw + fasting | 0.703 | 0.700 | −0.004 |
+| Gambia | gw_cRBP | 1,020 | days since VAS | 0.453 | 0.457 | +0.004 |
+
+Mean gain **−0.0006**, 1 of 4 markers improved. The artefacts are real at the
+individual level and irrelevant at the district level, which is what the
+exploration predicted (adjusting Malawi district means for time of draw left the
+ranking at Spearman 0.999).
+
+**The by-product is more useful than the result.** Those raw split-half numbers
+are a *measurement* explanation for a pattern the project has been trying to
+explain with covariates: **vitamin A has far lower district reliability
+(RBP 0.350 Malawi, 0.453 Gambia) than B12 (0.696) or zinc (0.703)**. Vitamin A
+cells are the weak ones and B12 the strongest cell on the record — and this says
+that ordering is set at the blood draw, before any model sees the data. A
+predictor cannot recover district signal the biomarker does not reliably carry.
+
+## PT-01 — collection timing does not help individual prediction, except zinc
+
+Individual ridge on the deficiency indicator, cluster-blocked 5-fold CV, timing
+block against no covariates:
+
+| country | marker | no covariates | + timing | Brier skill |
+|---|---|---|---|---|
+| Malawi | rbp | 0.457 | 0.453 | −0.003 |
+| Malawi | vitb12 | 0.439 | 0.440 | −0.005 |
+| **Malawi** | **zn_gdl** | 0.453 | **0.552** | **+0.008** |
+| Gambia | gw_cRBP | 0.448 | 0.441 | −0.004 |
+
+Only zinc moves, AUC 0.453 to **0.552**, and it is the one biomarker ZN-02
+already identified as carrying a collection artefact (afternoon draw −3.5%,
++0.7%/day). So this reproduces ZN-02 at the individual level through a different
+route. It is a measurement artefact, not nutrition signal, and MA-01 shows it
+does not propagate to district estimates.
+
+*Reading note:* the no-covariate arm predicts each fold's own training
+prevalence rather than one constant, so its AUC is near 0.45 rather than exactly
+0.50. Compare the arms to each other, not to 0.5.
+
+## SO-01 — the cross-country level offset against season: suggestive, one country, not a test
+
+Seasonal position of each survey, from the Earth Engine monthly NDVI stack:
+
+| country | fieldwork month | months since NDVI peak | NDVI at fieldwork (share of annual range) | mean offset |
+|---|---|---|---|---|
+| Sierra Leone | Nov | 1 | 0.88 | −0.159 |
+| Gambia | Mar | 6 | **0.05** | **+0.448** |
+| Ghana | May | 7 | 0.67 | −0.038 |
+| Malawi | Jan | 10 | 0.54 | −0.102 |
+
+Spearman(months since peak, offset) = +0.20 over four countries — nothing. But
+the *greenness* ordering is suggestive: the one country surveyed at its seasonal
+trough (Gambia, at 5% of its annual NDVI range) carries by far the largest
+deficiency offset, and the correlation of NDVI-at-fieldwork with the offset is
+about −0.6.
+
+**That is one country doing all the work**, and Gambia differs from the others
+in many ways besides season. Recorded as consistent with a seasonal contribution
+to the offset, and as nothing more. Four countries cannot test this; it needs
+either a country surveyed twice in different seasons, or multi-round surveys the
+design does not have.
+
+## Verdicts
+
+*Dead end* for CG-01 (premise refuted — and reassuringly so), MA-01 and PT-01.
+*Needs data* for SO-01. **Keep** the district split-half reliabilities from
+MA-01: vitamin A 0.35–0.45 against B12 and zinc at about 0.70 is a
+measurement-side explanation for which cells work, and it is cheap to extend to
+the remaining biomarkers and countries.
