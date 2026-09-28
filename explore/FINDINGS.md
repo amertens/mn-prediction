@@ -1404,3 +1404,109 @@ and they make the case for modelling concrete. They should **not** be applied to
 the modelled estimates without recomputing the CV from the model's own posterior
 or conformal interval, and they should always be reported next to prevalence,
 because a "good" CV here mostly means "common deficiency".
+
+---
+
+## SL-07 (2026-09-28) — a SuperLearner of many *simple* models: tested, and it loses
+
+**The question.** The project has tested a SuperLearner over its protocol *arms*
+(SL-06) and over tuned learners (SL-01/02/03), and the zero-tuning index beat
+all of them. The other library design was untested: very many very *simple*
+candidates — one variable each, pairs, single principal components. That is a
+different bias/variance trade from a handful of flexible learners.
+
+**Prediction, recorded before running.** A non-negative convex combination of
+univariate least-squares fits is algebraically close to a shrunken ridge on the
+same variables, and WS-01 already found the index *is* a max-shrinkage ridge
+that nothing beats in-country. So this should land near the index rather than
+above it.
+
+**Design.** `explore/scripts/20_simple_library_sl.R`. A proper SuperLearner —
+inner 5-fold CV over the training rows for honest candidate predictions, NNLS
+meta-weights, candidates refitted on the full training fold. Libraries: every
+domain axis alone (~66 learners); plus all pairs among the top-10 screened;
+plus single principal components; plus an intercept-only candidate. A rank
+meta-learner variant weights candidates by inner-CV Spearman instead of NNLS.
+
+**Result — worse than the index, significantly.** Blocks are country × target:
+
+| estimand | arm | mean gain | cells | blocks | block p |
+|---|---|---|---|---|---|
+| in-fill | sl_uni | −0.104 | 4/36 | **0/6** | 0.031 |
+| in-fill | sl_uni_pair | −0.086 | 5/36 | **0/6** | 0.031 |
+| in-fill | sl_pc | −0.086 | 6/36 | **0/6** | 0.031 |
+| in-fill | sl_rank | −0.060 | 5/36 | **0/6** | 0.031 |
+| transport | sl_uni | −0.072 | 18/44 | 1/8 | 0.070 |
+| transport | sl_pc | −0.059 | 19/44 | 1/8 | 0.070 |
+| **transport** | **sl_rank** | **+0.009** | 18/44 | 4/8 | 1.000 |
+
+Every block agrees the simple-library SuperLearner is worse in-country. On
+transport it ties at best, and only with the rank meta-learner.
+
+**And it reproduces SL-02 by a different route.** SL-02 found that a
+rank-aligned meta-learner "recovers the index's performance but does not exceed
+it". Here, on a completely different library — hundreds of simple OLS fits
+rather than the protocol arms — the same thing happens: `sl_rank` is the best
+variant, lands at +0.009 on transport and −0.060 in-country, and does not beat
+the index. Two unrelated libraries, same destination.
+
+**Why, and the theory says so in advance.** The SuperLearner oracle inequality
+(van der Laan & Dudoit 2003; van der Vaart, Dudoit & van der Laan 2006) bounds
+the CV-selector's risk by the oracle's plus a term of order **(1 + log K)/n**,
+with the library permitted to grow polynomially in n. That is an *asymptotic*
+licence. At n = 14–87 the penalty is not negligible: with K ≈ 120 and n = 30,
+log(120)/30 ≈ 0.16 before the leading constant. The promise that "adding
+candidates is nearly free" is precisely the promise that fails at this sample
+size — and it fails in the measured direction and roughly the measured
+magnitude.
+
+**Does PC-HAL supersede this? No — they are different objects.** HAL is a single
+penalised regression over a large indicator basis with an L1 constraint on total
+variation, fitted jointly, with a rate guarantee (n^(−1/3) under càdlàg and
+bounded variation). A SuperLearner of simple models is a cross-validated convex
+combination of separately fitted models, with an oracle-inequality guarantee.
+Neither contains the other. Empirically they arrive at the same place: HP-01,
+HP-02 and HP-03 found hapc/PCHAL ties the index, and SL-07 finds the simple
+library ties it at best. Same destination, different routes — which is itself
+the informative part.
+
+**Verdict.** *Dead end*, well powered (0 of 6 blocks in-country). The estimator
+space is now mapped thoroughly enough to stop: index, elastic net, SuperLearner
+over arms, SuperLearner over simple models, HAL, PCHAL, kernel BLUP/REML, PLS,
+PCR, supervised PCA, MCP, stability selection, CV-ridge, BYM2, Fay-Herriot and
+model-based geostatistics all land at or below a zero-tuning index. **The
+binding constraint is not the estimator.**
+
+### What the literature review turned up that IS untried
+
+Three things, in descending order of value.
+
+**1. Data-adaptive target parameters (van der Laan, Hubbard, Pfeiffer).** This
+addresses the project's *actual* binding constraint rather than its estimator.
+Every finding in this folder and much of the main record is post hoc on the same
+four countries, which is why nothing can be quoted without a pre-registration
+caveat. The method partitions the sample into a parameter-generating split and
+an estimation split: the target parameter is *defined as* whatever the selection
+algorithm picks on the first, and inference is done on the second, averaged over
+V splits. That makes "the best domain subset chosen by looking at the data" a
+legitimate estimand with valid inference, instead of a caveat. With four
+countries it is thin, but it is the right framework for exactly the problem the
+project keeps hitting.
+
+**2. Moderated variance for semiparametric estimators (Hejazi, Boileau, van der
+Laan & Hubbard 2023).** Generalises limma's empirical-Bayes moderation from
+t-statistics to the *variance estimators* of asymptotically linear
+semiparametric estimators, aimed explicitly at "modest sample sizes" in
+high-dimensional biology. EB-01 in this folder did an ad hoc version of exactly
+this (moderating per-predictor statistics across 24 cells) and found the
+estimator null but the screen useful; this is the rigorous form, and it would
+give the screen valid inference rather than a nominal FDR.
+
+**3. Random-projection ensembles (Cannings & Samworth 2017, JRSS-B).** The
+closest formal match to the "ensemble of simple models" intuition: apply a base
+learner to many random low-dimensional projections, keep the best within
+disjoint groups, aggregate with a data-driven vote threshold. Its error bound
+does not depend on the ambient dimension under a low-dimensional structure
+assumption, and there is an R package (`RPEnsemble`). Given SL-07 and KB-01 both
+land at the index, the prior on this helping is low — but it is the one member
+of the family with a dimension-free guarantee, and it is cheap.
