@@ -1118,3 +1118,148 @@ continuous level target wherever a decision permits it, and treat prevalence at
 a rare cutoff as the expensive choice it is: Sierra Leone women B12 at 0.5%
 prevalence has no usable district signal on the binary and good signal on the
 level.
+
+---
+
+## GN-01 (2026-09-28) — measured grain and soil chemistry (GeoNutrition Malawi): the mechanism is real, the increment is zero
+
+**Why this source.** MX-01 built nutrient-specific features by multiplying crop
+*production* by a generic food-composition table — assuming maize everywhere has
+the same zinc — and failed with no nutrient specificity. I diagnosed that as the
+composition proxy being wrong. GeoNutrition tests the diagnosis directly: it
+*measures* the mineral concentration of grain grown at 1,812 georeferenced
+Malawi sites plus the soil chemistry beneath. It also fills a gap this session
+verified — the 575-column store contains **no environmental selenium at all**
+(iSDA carries Al, Ca, CEC, Fe, Mg, P, K, S, C, Zn; no Se) and no environmental
+iodine, only two fortification-*programme* fields.
+
+**Source.** Gashu et al. 2022, *Scientific Data*; figshare
+`10.6084/m9.figshare.15911973`, **CC BY 4.0**. Malawi national sampling
+April–June 2018, 1,900 sites of which **820 were drawn from the 2015/16 Malawi
+DHS frame** — the same frame as this project's biomarker survey.
+
+**Build.** 1,809 of 1,812 sites joined to GADM Admin-2; **86 of Malawi's 87
+target districts** covered; 28 variables carried (9 grain, 19 soil) as district
+medians of log concentration. Malawi selenium and iodine district targets were
+built here because they are configured in `R/config.R` but not yet in
+`targets_v2.csv`. Caveat: grain is the 2018 harvest against a Dec 2015 – Feb
+2016 biomarker survey, so grain concentration is a proxy for the district's
+typical grain, not for what was eaten.
+
+**Result — a clean null.** Adding the block to the index, Malawi in-fill, level:
+mean gain **−0.005, better in 5 of 11 cells, sign p = 1.00**. The cells where
+mechanism predicts the most are the ones that get *worse*:
+
+| outcome | index | index + GeoNutrition | GeoNutrition alone | gain |
+|---|---|---|---|---|
+| women_iodine | 0.348 | 0.385 | 0.368 | **+0.037** |
+| women_folate | 0.416 | 0.426 | 0.290 | +0.010 |
+| child_iron | 0.362 | 0.368 | 0.165 | +0.006 |
+| **child_selenium** | **0.469** | **0.452** | 0.276 | **−0.018** |
+| women_zinc | −0.021 | −0.040 | −0.192 | −0.019 |
+| **women_selenium** | **0.430** | **0.389** | 0.130 | **−0.042** |
+
+**The largest gain is women_iodine — the one nutrient GeoNutrition does not
+measure at all** (no iodine in either the grain or the soil panel). That is the
+signature of noise, and it is the same pattern MX-01's mismatch control showed.
+
+**But the mechanism is real, and that is the interesting part.** Marginal
+district-level associations with selenium status (y_level is *negated* log serum
+Se, so negative = more selenium goes with better status — the correct direction):
+
+| variable | child_selenium | women_selenium |
+|---|---|---|
+| **grain Se** | **−0.351** (n=81) | **−0.362** |
+| soil Se, total | −0.112 | −0.085 |
+| soil Se, adsorbed | −0.127 | −0.106 |
+| soil Se, organic | −0.029 | −0.040 |
+| soil Se, soluble | −0.035 | −0.031 |
+| grain S | −0.233 | −0.195 |
+| soil pH | −0.218 | −0.134 |
+
+So the soil→grain→serum chain the GeoNutrition project is built on **is visible
+in this project's own district data** — but it is the **grain** step that carries
+it (|r| ≈ 0.35), not the soil step (|r| 0.03–0.13).
+
+**Why the increment is nevertheless zero.** The index alone already reaches
+**0.469** on child selenium — better than grain Se's marginal |r| of 0.35. The
+remotely sensed store evidently already captures as much of the soil-to-grain
+selenium gradient as measured grain chemistry supplies, presumably through the
+climate, terrain and soil variables that drive both. Ground-truth grain
+chemistry is redundant with it rather than additional to it.
+
+*(An in-sample R² of 0.69 for the store predicting soil Se is not evidence of
+this — n = 84 against 383 columns will fit anything — and is excluded from the
+reading.)*
+
+**What it corrects.** My MX-01 diagnosis was wrong. The composition proxy was
+not the problem: supplying measured, spatially varying composition changes
+nothing, on the outcome where the mechanism is most direct *and* where
+measurement is most reliable (RL-01: Malawi selenium district reliability 0.94,
+the highest in the study). A measurement-noise explanation is therefore
+excluded. The district-level signal is not dietary mineral supply.
+
+**What it changes for the data-source shortlist.** A global *soil* selenium map
+(Jones et al. 2017) is now a much weaker prospect than it looked: soil Se is the
+weak link here (|r| 0.09–0.13) and grain Se the strong one, and grain-composition
+surveys do not exist outside Malawi and Ethiopia.
+
+**Verdict.** *Dead end* as a predictor block, on a well-powered test. **Keep the
+data** — it is CC BY 4.0, already built to Admin-2 in
+`explore/out/17_geonutrition_admin2.csv`, and the grain-Se association is a
+publishable external corroboration of the soil-to-serum chain in this project's
+own units, independent of the GeoNutrition team's own analysis.
+
+---
+
+## Methods from the Bayesian SAE preprint that this project has NOT applied
+
+Read: *Mapping Subnational Vulnerability to Inadequate Micronutrient Intake
+using a Bayesian Small Area Estimation Framework* (arXiv 2604.14971). Rwanda
+(validation), Senegal, Nigeria; ADM2; outcome is household inadequate apparent
+intake from HCES, not biomarkers.
+
+Most of its machinery the project already has: BYM2 with PC priors (SL→BYM2 and
+the surveyPrev cluster model, DS-01), beta-binomial cluster models, design-based
+direct estimates with Taylor linearisation, population-weighted aggregation to
+ADM1, posterior credible intervals (CP-01). **Three things it does that this
+project does not:**
+
+**1. Joint variance–mean smoothing — the strongest candidate.** The paper models
+the sampling variance rather than plugging it in:
+
+```
+log(V_ℓ) = γ₀ + γ₁ log(p_ℓ(1−p_ℓ)) + γ₂ log(n_ℓ) + τ_ℓ,   τ_ℓ ~ N(0, σ²_τ)
+```
+
+This project's Fay-Herriot (`R/benchmark_models.R:229–270`) instead treats
+sampling variances as **known**, as `p(1−p)/n` with the **design effect fixed at
+1.5** — and the project's own evidence says that constant is wrong in both
+directions (WS1: the reconciling value has median 0.969; protocol v2: deff is
+~2.4). Modelling the variance removes the constant entirely and lets the data
+set it per area. Directly relevant to NZ-01's finding that about half of
+prevalence error is survey noise.
+
+**2. Phantom clusters for single-cluster areas.** The paper augments ADM2 areas
+with one cluster using synthetic ADM1-level observations so a variance can be
+estimated at all. This project's FH does the opposite: `sv <- pmax(sv, 1e-8)`
+**floors** degenerate one-cluster areas, which gives them a near-zero sampling
+variance and therefore near-maximal weight on their own noisy direct estimate.
+Given that **85% of Malawi and 83% of Ghana districts are single-cluster**, this
+is the project's single most exposed design assumption, and the paper offers a
+principled alternative to a floor.
+
+**3. Mean Interval Score (Winkler) and CV reliability thresholds.** The paper
+scores intervals with a proper scoring rule that combines width and calibration,
+and flags estimates by coefficient of variation (<16.6% unrestricted,
+16.6–33.3% caution, >33.3% unreliable). CP-01 currently reports coverage and
+width separately, so a narrow-but-miscalibrated arm and a wide-but-honest one
+are not directly comparable. MIS makes them comparable in one number, and the
+CV bands are a ready-made, externally recognised way to grey out cells the
+dashboard should not present.
+
+**Recommended order.** (2) is the highest value and the cheapest to test —
+replace the `1e-8` floor with either a modelled variance or the paper's phantom-
+cluster augmentation and re-run the FH arm. (1) is the principled version of the
+same fix. (3) is presentational but cheap and would improve the dashboard's
+honesty about which cells to show.
