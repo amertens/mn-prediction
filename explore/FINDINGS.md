@@ -1510,3 +1510,135 @@ does not depend on the ambient dimension under a low-dimensional structure
 assumption, and there is an R package (`RPEnsemble`). Given SL-07 and KB-01 both
 land at the index, the prior on this helping is low — but it is the one member
 of the family with a dimension-free guarantee, and it is cheap.
+
+---
+
+# The binding constraint (2026-09-28)
+
+## What it is not
+
+Sixteen estimator families now land at or below a zero-tuning index: index,
+elastic net, SuperLearner over protocol arms (SL-06), SuperLearner over hundreds
+of simple models (SL-07), HAL, PCHAL (HP-01/02/03), kernel BLUP with REML
+shrinkage (KB-01), PLS, PCR, supervised PCA, MCP, stability selection, CV-ridge
+(NP-01), BYM2, Fay-Herriot (VF-01) and model-based geostatistics (MB-01). It is
+also not predictor representation (AE-01), not temporal resolution (TM-01a/b),
+not dietary mechanism (MX-01, and GN-01 with *measured* grain chemistry), not a
+predictor-side batch effect (RV-01, a mathematical no-op), not the Fay-Herriot
+variance assumption (VF-01, self-correcting), not the index's weight estimation
+(EB-01), and not the un-standardised-axis defect (NP-01, costless).
+
+## The gap, quantified
+
+With `r_max = sqrt(split-half reliability)` as the most any predictor could
+reach, over the 18 scorable in-fill cells (level target):
+
+- median attainable **r_max = 0.79**
+- median achieved (domain index) **0.39**
+- median **r_share = 0.54**, median headroom **0.353**
+- 2 of 18 cells are above 80% of attainable; **8 of 18 are below 50%**
+
+So **measurement error is not the whole story.** Measurement explains *which*
+cells do well — RL-01 found reliability predicts accuracy at ρ = 0.52,
+p = 0.028 — but it does not explain why nearly all of them fall about half
+short of what their own measurement permits. Roughly half the attainable signal
+is being left on the table, and nothing tested this session recovers any of it.
+
+## What the constraint is
+
+**The number of independent (area, outcome) observations available to learn a
+mapping from ~300 collinear predictors — not the number of people surveyed, and
+not the choice of learner.**
+
+Four independent lines of evidence point at it, and they are the only things in
+the project's record with a consistent direction:
+
+1. **The only monotone dose–response in the whole project is countries.** Each
+   added training country buys about +0.05 of transported rank accuracy,
+   monotone across all four specifications tested, 1→2→3 countries (TC-02).
+2. **The only intervention that worked this session adds observations per area.**
+   MT-01 (multi-trait BLUP, borrowing across a survey's biomarkers) gains +0.038,
+   6 of 6 country × target blocks, and the gain concentrates exactly where
+   single-cell estimation is weakest (weak tercile +0.086 against strong +0.018,
+   ρ = −0.388, p = 0.020) — the shrinkage signature of an n-limited problem.
+3. **Pooling that does *not* add observations fails.** EB-01 pooled the
+   *parameters* across all 24 cells by empirical-Bayes moderation and was null
+   (6/18, 8/18 in-country). So it is not pooling per se; it is pooling that
+   supplies new observations.
+4. **The theory says the penalty bites at this n, and it does.** The SuperLearner
+   oracle inequality carries a term of order (1 + log K)/n; at n = 30 with
+   K ≈ 120 that is ≈ 0.16 before the leading constant, and SL-07 measured a loss
+   of the predicted sign and rough magnitude.
+
+## How to loosen it, in order of evidential support
+
+**1. More areas, by adding countries.** The strongest evidence in the project
+(+0.05 per country, monotone), and XV-01/02 already showed the recipe transports
+to six countries never used in training, including off-continent, with global
+SoilGrids substituting for Africa-only iSDA at no cost. WHO VMNIS carries
+sub-national deposits that served as a held-out label set. This is a
+data-acquisition task, not a modelling one, and it is the only lever with a
+demonstrated dose–response.
+
+**2. More outcomes per area, modelled jointly.** MT-01, pre-registered before
+the next country. Expect the gain in the weak cells specifically, which is where
+the mechanism says it lives and where the project currently reports failures.
+
+**3. Treat the aggregation rung as a lever, because the project has already
+measured the trade.** Transport is 0.50 at the first sub-national tier, 0.31 at
+Admin-2 (19/22 cells), and 0.24 at the cluster (CL-01). Coarser units are fewer
+but individually more reliable, and transport improves monotonically as they get
+coarser. Finer is not better: the cluster track has 1.6× more units and lost.
+This states an explicit tension rather than a fix — policy needs Admin-2, the
+statistics prefer Admin-1 — and it means an Admin-1 model benchmarked down to
+Admin-2 deserves a fair test as a *deployment* option, not just as a diagnostic.
+
+**4. Free reliability, from a reporting choice.** RL-01: dichotomising at a
+clinical cutoff costs **0.203** of district reliability (level more reliable in
+25 of 27 cells), the cost is worst for rare deficiencies (Sierra Leone women's
+B12 at 0.5% prevalence loses 1.147), and the reliability gap **tracks** the
+accuracy gap (ρ = 0.507, p = 0.034). Preferring the continuous level wherever a
+decision permits it buys accuracy for nothing.
+
+**5. Stop modelling the cells whose own data says there is nothing there.**
+VF-01 found Fay-Herriot estimates the between-district variance as exactly zero
+in about a quarter of cells, agreeing with RL-01's split-half on the weakest.
+CV-01 found 86% of direct district estimates exceed a 33.3% coefficient of
+variation. Reporting a model failure in a cell with no measurable district
+signal misattributes the cause.
+
+**6. Make post-hoc selection legitimate, rather than loosening the constraint.**
+Every result in this folder is chosen on the same four countries, which is why
+none can be quoted without a caveat. Data-adaptive target parameters (van der
+Laan, Hubbard & Pfeiffer) define the estimand *as* whatever the selection
+algorithm picks on a parameter-generating split and do inference on a held-out
+split. Thin at four countries, but it converts a standing caveat into a defined
+parameter.
+
+## The single most concentrated opportunity: zinc
+
+Malawi zinc is the largest block of unexplained headroom in the study, by more
+than double:
+
+| cell | reliability | r_max | achieved | headroom |
+|---|---|---|---|---|
+| Malawi child_zinc | 0.642 | 0.801 | **−0.105** | **0.906** |
+| Malawi women_zinc | 0.717 | 0.847 | **−0.007** | **0.853** |
+
+It is **well measured** (reliability 0.64–0.72, above iron and vitamin A) and
+**completely unpredicted** (r_share ≈ 0). Measurement noise is therefore
+excluded as the explanation. That is a precise quantification of ZN-01 — "a
+reliable target the proxies do not touch" — and it makes zinc the highest-value
+single target in the project: a reliably measured outcome with ~0.9 of
+attainable correlation unexplained. GN-01 already ruled out measured grain zinc
+and isotopically exchangeable soil zinc as the answer.
+
+## One caution about a tempting number
+
+`r_share` falls with the number of districts (Gambia 30 districts 0.71, Ghana 75
+0.57, Malawi 87 0.36; ρ = −0.561, p = 0.015 over 18 cells). **Do not read that
+as "more areas is worse".** District count is *perfectly confounded* with
+country here — three countries, three counts — and the cell-level test treats
+nested cells as independent. It is a country effect (consistent with the
+project's own "Ghana teaches, Gambia learnable") and the design cannot separate
+the two.
