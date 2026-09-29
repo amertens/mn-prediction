@@ -1930,3 +1930,66 @@ district resolution. Both are cheap and both are prerequisites for any fair test
 Only then is the full intake computation worth the effort, and it should be
 scored with MX-01's matched-versus-mismatched nutrient control, which is what
 made that probe readable.
+
+---
+
+## HC-04 (2026-09-29) — the Ghana GLSS7 block: my diagnosis was wrong, and the real gap is a 3.2 GB module
+
+**Correction first.** I reported that "Ghana's GLSS7 produces zero columns". That
+is **false**. Ghana has **3 of the 15** own-derived HCES columns, on all 260
+districts:
+
+| column | Gambia | Ghana | Malawi | Sierra Leone |
+|---|---|---|---|---|
+| `hces_food_share` | 37 | **260** | 243 | 14 |
+| `hces_own_prod_share` | 37 | **260** | 243 | 14 |
+| `hces_log_cons_pae_rel` | **0** | **260** | 243 | 14 |
+| the other 12 (`hdds`, `any_asf` … `asf_purchase_share`) | 37 | **0** | 243 | 14 |
+
+So the builder runs for Ghana and is not broken. It is also **documented**: the
+script's own header says "Ghana has NA for the recall-based" indicators, and the
+basis string records Ghana as "expenditure aggregates, 10 regions broadcast".
+A second gap the earlier check missed: **Gambia has no `log_cons_pae_rel`**, for
+the recorded reason that no consumption aggregate exists in its survey.
+
+**Why the 12 are missing, precisely.** `build_hces_diet_block.R:293` reads
+`data/LSMS/g7aggregates_hhlevel.dta`, the household expenditure *aggregate*.
+That file has no item detail, so no food-group indicator can be built from it.
+
+**What would be needed.** GLSS7's expenditure module, present in
+`data/RA_2026-09/LSMS.zip` but not extracted:
+
+| file | size | content |
+|---|---|---|
+| `g7sec9a.dta` | 955 MB | less frequently purchased items, 12-month recall — inspected, **not the food diary** |
+| **`g7sec9b.dta`** | **3.2 GB** | frequently purchased items — **this is the food consumption module** |
+| `g7sec9c.dta` | 0.45 MB | the 8-item FIES food-insecurity scale — extracted, *not* food groups |
+| `01_GHA_EXPFOOD.dta` | 2 MB | extracted and inspected: own-production value by six broad groups, but purchased food only as a **total**, so `any_asf` would be wrong for any household that buys its meat |
+
+**So this is not a code fix.** It is a streaming data-engineering job on a 3.2 GB
+Stata file — chunked read, several hundred item codes mapped to the project's
+food groups, aggregate to household, then to district through the existing
+16-to-10 region crosswalk. Disk is currently at **98% (28 GB free)**, so it is
+feasible but tight, and the file cannot simply be loaded.
+
+**Recommendation: do not do this yet.** The prior is poor and now measured three
+ways. The HCES block as it stands adds **−0.0005** to the index (8 of 18 cells,
+1 of 3 countries, HC-03). Dietary composition has failed from two other
+directions — MX-01 (crop production × food composition) and GN-01 (measured
+grain chemistry, where even soil selenium fractionation and isotopically
+exchangeable zinc added nothing on the outcome with the highest reliability in
+the study). Ghana's block would in any case be **admin-1 broadcast** — 10 GLSS7
+regions spread over 260 districts — so it can carry at most ten distinct values
+and cannot rank districts within a region.
+
+That last point is decisive and is worth stating on its own: **even a perfect
+Ghana food-group block would be constant within each of ten regions**, while the
+estimand is a district ranking. The same is already true of the `mimi_*` columns
+(8–10 distinct values over 260 districts).
+
+**If it is done anyway**, the order should be: extract `g7sec9b.dta` to a scratch
+location, stream it with `pandas.read_stata(chunksize=...)`, map item codes with
+the same food-group definitions the other three countries use (so the column is
+pooled-comparable), and score it with MX-01's matched-versus-mismatched nutrient
+control. Three small GLSS7 files are now extracted to `data/LSMS/GHA_2017/` for
+whoever picks it up.
