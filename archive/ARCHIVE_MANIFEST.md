@@ -4,6 +4,27 @@ Files retired from the active tree during the 2026-06-25 repo cleanup. Nothing
 here was deleted — everything was **moved** (reversible) and the directory
 structure is mirrored, so any file can be restored to its original path.
 
+## 2026-09-27 — dashboard full-text version archived
+
+The plain-language full-text version of the dashboard (Version A of the
+27 September text review: 10,139 words on its pages) was replaced by the
+concise version (2,481 words on the pages plus a Technical notes page) and
+deployed. The full version is kept in `archive/dashboard/full_text_2026-09-27/`:
+`app.R`, `global.R`, `R/*.R` (15 files, including `mod_methods.R`, which the
+concise version replaces with `R/mod_technical.R`) and `data-raw/test_server.R`
+(the text checks written for that version).
+
+**Reason:** the full text was too long for first-time readers. The concise
+version keeps every chart, map and control, uses the same data and numbers,
+and moves the explanations to Technical notes. Review documents for both
+versions are in `dashboard/report/out/`.
+
+**To restore:** copy the archived `app.R`, `global.R`, `R/` and
+`data-raw/test_server.R` back over `dashboard/` and delete
+`dashboard/R/mod_technical.R`. The data bundles are shared, so nothing needs
+rebuilding. The text that was live before the review is in git history
+(commit `7e2f245`).
+
 ## 2026-08-30 — superseded status, review and exploratory notes
 
 28 Markdown files moved from `docs/` (and `CLEANUP_REPORT.md` from the root)

@@ -97,6 +97,32 @@ and biases the national number, which is why the dashboard presents
 model-guided targeting as a top-up to a probability design, never as the
 sampling frame.
 
+## Results (recorded 27 September, after the amendment run)
+
+Mean over cells, level target (`survey_planner_validation_summary.csv`):
+
+| Share visited | Random | Population (PPS) | Spread across model | Model extremes |
+|---:|---:|---:|---:|---:|
+| 0.20 | 0.283 | 0.276 | 0.287 | 0.306 |
+| 0.35 | 0.324 | 0.310 | 0.329 | 0.337 |
+| 0.50 | 0.357 | 0.312 | 0.362 | 0.343 |
+| 0.75 | 0.456 | 0.394 | 0.497 | 0.289 |
+
+- Primary reading met on its letter, not in substance: spread beats random
+  in 16/22 cells at 0.35 and 14/22 at 0.5, but the mean gain is +0.005,
+  a tie under the project's 0.03 rule. At 0.75 the gain is +0.04 (11/16).
+- PPS (population-first) is worse than random at every share.
+- Extremes help only at small shares and collapse at 0.75 (range restriction).
+- **Transport crossover (not pre-stated):** the transported climate + soil
+  score alone ranks the held-out districts at 0.343. A model fitted on the
+  visited districts only beats it from about half the districts upward
+  (0.357 at 0.5); at 0.20 and 0.35 it is worse (0.283, 0.324). With few
+  surveyed districts, the other countries' model is the better ranking;
+  combining the two is the obvious next arm.
+- National estimate (amendment): random 0.33 pp mean |bias|, ±3.96 pp
+  (95% half-width) at half the districts; spread with Hajek weights 0.30 pp,
+  ±3.44; extremes 1.37 pp; PPS 0.75 pp, ±1.83.
+
 ## What this is not
 
 Not a cluster-level design (selection is at the district grain the pipeline

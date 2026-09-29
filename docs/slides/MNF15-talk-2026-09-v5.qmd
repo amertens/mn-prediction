@@ -1,0 +1,391 @@
+---
+title: "Predicting Micronutrient Deficiency Prevalence in Sub-Saharan Africa Using Proxy Indicators: A Multi-country Machine Learning Framework"
+author: "Andrew N. Mertens (University of California, Berkeley) and Sonja Y. Hess (University of California, Davis)"
+date: "2026-10-01"
+format:
+  pptx:
+    reference-doc: "C:/Users/andre/Dropbox/MN prediction/MNF2026-reference.pptx"
+    slide-level: 2
+execute:
+  echo: false
+  warning: false
+  message: false
+  cache: false
+---
+
+```{r setup}
+# MNF 2026 joint talk, VERSION 5 (28 September 2026). v1 to v4 are untouched.
+# v5 = Andrew's edits, deletions and comments in docs/slides/MNF15-talk-2026-09-v4-ANM.pptx
+# (his working copy; read, never written), on the results rebuilt with the 15 September
+# survey-report fixes (RR-14, scripts/protocol_v2/rerun_survey_fixes_2026-09-27.sh):
+#   - the order and deletions of v4-ANM; slides he marked "appendix" moved there, in order
+#   - no "full talk" tags; slides copied from v4-ANM keep his hand edits (script 38)
+#   - figures redrawn to his comments in results/figures/mnf15_v5/ (scripts 26 FIG_VER=v5,
+#     29 / 31 / 34 with FIG_OUT=results/figures/mnf15_v5, 37): surveys "n of N", the test
+#     schematic plain, national prevalence for every outcome with a national panel,
+#     prevalence error with an X for the national estimate, Ghana held out without text,
+#     per-nutrient pairs in one panel with prevalence in brackets, no Cote d'Ivoire in the
+#     check map, no text baked under the appendix charts
+#   - numbers in the main slides are post-fix; appendix figures from the full talk, fig1,
+#     fig9 and the full-talk extracts are from the 8 September build
+# Render: python scripts/policy_deck/36_build_v5_source.py; bash scripts/render_deck.sh
+#   docs/slides/MNF15-talk-2026-09-v5.qmd --forum --no-label --text 18,12
+#   --concept docs/slides/MNF15-talk-2026-09-v5.concept.yaml; python scripts/policy_deck/38_merge_v5_slides.py
+suppressPackageStartupMessages({library(dplyr); library(knitr)})
+```
+
+## Introduction and study objectives
+
+::: {.notes}
+SONJA, about 50 seconds (116 words).
+
+Information on how common vitamin and mineral deficiencies are is limited. The map shows how limited, for sub-Saharan Africa: 17 of 47 countries have no national survey of micronutrient biomarkers on record, and only 10 have one from 2015 or later; for zinc, five. And where a survey exists, it gives national and regional numbers, while supplementation, the reach of fortified foods and the next survey are planned district by district. So we brought together nutritionists, epidemiologists and data scientists to ask which approaches and data could help, and built conceptual frameworks to guide the analysis. Our objective: to see whether machine learning can help fill the gap, using aggregated proxy variables.
+
+Backup, if asked: map and bars from the WHO VMNIS Micronutrients Database (export of 25 February 2025), nationally representative surveys measuring ferritin, retinol or RBP, zinc, folate or vitamin B12 (scripts/policy_deck/33_mnf15_v4_vmnis_coverage.R); surveys not yet deposited are not shown, and all four of our surveys are in it. Worldwide, in low- and middle-income countries over 1988 to 2018: vitamin A data in 77 countries, iron 53, folate 24, zinc 21, B12 7; about 21 surveys in 2015 to 2019, 15 per cent of these countries (Brown, Moore, Hess et al., Am J Clin Nutr 2021, CC BY 4.0). The global estimate of 56 per cent of young children and 69 per cent of women with at least one deficiency rests on 24 surveys in 22 countries (Stevens et al., Lancet Glob Health 2022). Fortification is set nationally (Nyumuah et al., Food Nutr Bull 2012); coverage of fortified foods is lower among poor and rural households (Aaron et al., J Nutr 2017). Wording flag for Sonja: the third bullet still says "targeted machine learning", which statisticians may hear as TMLE.
+:::
+
+## Talk outline
+
+::: {.notes}
+SONJA, about 25 seconds (60 words).
+
+Here is what we will tell you. First, aggregate public data carry real information about micronutrient deficiency; the top predictors are climate, soil and land cover. Second, a simple model does best, because there are few places to learn from. Third, it ranks districts no survey reached. Fourth, it works for some nutrients more than others. And fifth, it extends surveys; it does not replace them.
+:::
+
+## Conceptual framework of iron deficiency
+
+::: {.notes}
+SONJA, about 20 seconds (42 words).
+
+We did not start from satellites. We started from what causes deficiency. This is our conceptual framework for iron, adapted from our 2023 paper: intrinsic risk, the fundamental drivers, underlying and intermediate risk factors, and the direct causes of iron deficiency.
+
+Backup, if asked: Hess et al., Ann N Y Acad Sci 2023, adapted.
+:::
+
+## Which of these causes can public data measure?
+
+::: {.notes}
+SONJA, about 65 seconds (135 words).
+
+So we went back to the framework, box by box, and asked: is there a public, district-level measure? Dark green: yes, and the data describe the place itself: climate, ecology, built-up land. Light green: yes, as a district average standing in for individuals: poverty, schooling, water and sanitation, infection. Amber: only a national figure, a modelled surface, or part of the box: politics and inequity, chronic disease, inflammation, blood loss. Grey: nothing public: cultural norms, genetic risk, nutrition knowledge.
+
+One caution. Everything here is a district average. Even the direct causes are measured indirectly, as ecological data, never for the person whose blood was drawn. So these layers mark where deficiency is likely; they cannot explain any one person's status. Andrew.
+
+Backup, if asked: Inherited red blood cell disorders: the only layers are the Malaria Atlas 2012 modelled allele-frequency surfaces (sickle haemoglobin, haemoglobin C, G6PD deficiency), so amber, not green; population gene frequencies, not anyone's genotype, filed with infection because they largely follow historical malaria, and about 1 per cent of the four-country model's weight. Genetic risk beyond these (for example variants affecting iron absorption): nothing public, so grey. Fundamental drivers: climate, ecology and geography are measured everywhere; politics is conflict events only (ACLED), economy district wealth averages, and inequity one layer, the spread of relative wealth within the district, so that half is amber. Chronic disease: nothing beyond HIV. Health and nutrition knowledge: the only layers are schooling and literacy, already counted under education, so grey. Family planning, obstetric history, pregnancy and women's BMI come from DHS: public, so coloured, though the headline model leaves DHS out. Food insecurity: IPC phase, food consumption score and coping index each cover two or three of the countries, none of them Ghana, which has household food spending and market prices. Blood loss: hookworm and schistosomiasis prevalence from WHO ESPEN, nothing on menstrual or obstetric loss. Inflammation: infection burden only, no CRP or AGP. Calls still marked draft for Sonja: built environment, family planning, obesity, health and nutrition knowledge, other micronutrient deficiencies (scripts/policy_deck/30_mnf15_v4_framework_drawn.py).
+:::
+
+## Which surveys did we use to train the models?
+
+![](../../results/figures/mnf15_v5/v4_surveys.png){width="9.6in"}
+
+::: {.notes}
+SONJA, about 25 seconds (58 words).
+
+The models learn from four national micronutrient surveys: The Gambia 2018, Ghana 2017, Sierra Leone 2013 and Malawi 2015 to 16. Together, 206 districts where blood was drawn: 30 of The Gambia's 37 districts, 75 of Ghana's 260, all 14 of Sierra Leone's, and 87 of Malawi's 243 areas. These data exist because these teams collected them. Thank you.
+
+Backup, if asked: outcome definitions, adjustments and cut-offs are in the appendix. Sierra Leone's child file holds only anaemic children (532 of 654 assayed). Malawi's areas are Traditional Authorities. Ghana's survey reached 90 clusters in its 75 districts. Survey partners for Ghana's 2017 survey: University of Ghana, GroundWork, University of Wisconsin-Madison, KEMRI-Wellcome Trust, with UNICEF and Global Affairs Canada.
+:::
+
+## How do we get honest estimates of model performance?
+
+![](../../results/figures/mnf15_v5/v4_cv_schematic.png){width="9.6in"}
+
+::: {.notes}
+ANDREW, about 40 seconds (90 words).
+
+Thank you, Sonja. Every number I show comes from data the model never saw. On the left, cross-validation: we split the surveyed districts into five parts, fit on four, predict the fifth, and rotate until every district has been predicted without its own data; then we repeat with ten random splits. Next, the same with a whole region held out. And a whole country: Ghana predicted from the other three countries. Every score is on the orange districts, the held-out test data.
+
+Backup, if asked: folds are cut at the district or above, never through a district's respondents; component weights and every other choice are learned inside the training folds. District folds are random, not grouped in space; the region hold-out is the spatially grouped test. The middle map is the benchmark's first fold draw (make_folds_v2, rep 1).
+:::
+
+## Why not a more complex machine-learning model?
+
+::: {.notes}
+ANDREW, about 45 seconds (100 words).
+
+The obvious question for the machine-learning people here: why such a simple model? This is a big-data project in predictors, 575 layers, but a small-data project in places: 14 to 87 districts per country, each measured in about one community. We compared 14 methods on the same held-out districts, including random forests, boosting and a SuperLearner ensemble that combines twelve. None did more than slightly better on average across nutrients, and none was better everywhere. So we use the simplest one, a weighted sum of principal components, with nothing tuned.
+
+Backup, if asked: average status, SL-06 run (8 September targets; the survey fixes moved the index by less than 0.005). One district in five hidden: index 0.39, SuperLearner 0.38, random forest 0.38, boosting 0.37, elastic net 0.32, lasso 0.29. A region hidden: 0.38, 0.36, 0.39, 0.40, 0.23, 0.21. A country hidden: 0.28, 0.27, 0.25, 0.20, 0.29, 0.31. Per outcome the winner changes; folate is the index's worst case. On the share deficient the index leads inside a country (0.27 against at most 0.24) and with a region hidden (0.27 against at most 0.23); across borders the ensemble is marginally ahead (0.20 against 0.19). A sample-size finding, not a claim about machine learning in general.
+:::
+
+## But can proxy models recover national-level prevalence estimates?
+
+![](../../results/figures/mnf15_v5/v5_national_all.png){width="9.6in"}
+
+::: {.notes}
+ANDREW, about 45 seconds (105 words).
+
+A question from our January meeting: can proxy models give a national prevalence? Inside a surveyed country the survey already gives it. Without the country's survey, not reliably. On the left, every outcome we can test, each of our countries predicted from national indicators with its own survey left out: close for some, but 28 points too high for Sierra Leone's children's vitamin A, 38 too low for its women's folate, 34 too low for Malawi's zinc. On the right, WHO's national survey data from 21 to 69 countries: the model beats the average of the other countries only for children's vitamin A and folate. Levels do not travel between surveys; district order does.
+
+Backup, if asked: national track: WHO VMNIS national survey panel with World Bank indicators; a SuperLearner over mean, ridge, lasso, elastic net and random forest, folds grouped by country (national_vmnis_loco_sl.csv, _pred.csv, national_levels_sl.csv; scripts/covariates/19b; figure script 37). Left panel: vitamin A at each survey's year against the survey's own national figure; folate, B12 and zinc against the country's own VMNIS row. Median miss 7 points, largest 38. Iron has no national panel. The January version compared national predictions made inside each country, which match by construction. Why levels do not travel: assays, cut-offs, inflammation adjustment and RBP-to-retinol calibration differ between surveys (ferritin levels differ several-fold).
+:::
+
+## Can it rank Ghana's districts without Ghana's survey?
+
+![](../../results/figures/mnf15_v5/v2_ghana_heldout.png){width="9.4in"}
+
+::: {.notes}
+ANDREW, about 50 seconds (112 words).
+
+Now the test that matters for most of this region: we removed Ghana's survey entirely. The model learned only from The Gambia, Sierra Leone and Malawi. On the left, the survey's ranking of districts for children's iron; next to it, the model's, with no Ghanaian data at all. It puts 69 of every 100 pairs of Ghana's districts in the survey's order. This is one of our better cases. On the right, each country held out in turn, all nutrients: 70 for The Gambia, 62 for Ghana, 57 for Malawi, 56 for Sierra Leone. A shortlist, not a measurement.
+
+Backup, if asked: correlation 0.54 held out against 0.53 in-country for this outcome, within each other's intervals. Why about as good as the model that saw Ghana's survey: it learned from 131 districts in three countries instead of about 60 in Ghana; over all six of Ghana's outcomes it does a little worse, 62 pairs in 100 against 65. The survey's own regional averages, which need the survey, put 61 in 100 in order. Ghana held out does better than Ghana in-country for children's iron, children's vitamin A and B12, worse for women's vitamin A, iron and folate.
+:::
+
+## How well does it rank districts, nutrient by nutrient?
+
+![](../../results/figures/mnf15_v5/v4_percell_pairs_combined.png){width="9.6in"}
+
+::: {.notes}
+ANDREW, about 50 seconds (110 words).
+
+Here is every nutrient and country, with a 95 per cent interval, and the national prevalence in brackets. Circles: inside a surveyed country. Triangles: the whole country held out. B12 is the most mappable: about 70 of every 100 pairs right, at home and across borders, probably because it follows animal-source foods. Vitamin A works well in The Gambia, less in Ghana and Malawi, and was the weakest in the external check. Iron works in most places, not all: across borders, Malawi's children are no better than a coin. Folate works inside a country but not across borders, most likely because the surveys measured it differently.
+
+Backup, if asked: measurable combinations only; Sierra Leone is not shown (14 districts leave too few to train on inside the country). In-country intervals clear 50 per cent in 12 of 14; held out in 10 of 16 (all measurable). Averages over the 14 shown: 66 per cent inside a country, 63 held out, regional average 61. Orange diamonds: the survey's regional average, computed without the district, which is what a survey that missed the district would know. Ghana's women's vitamin A dropped out after the fixes (prevalence now 1.6 per cent, under the 2 per cent screen); Malawi's children's vitamin A came in (8.7 per cent). Folate: immunoassay in Ghana and Sierra Leone, microbiologic assay in Malawi.
+:::
+
+## What variables drive model predictions
+
+![](../../results/figures/mnf15_v5/v4_domains_child_iron.png){width="9.4in"}
+
+::: {.notes}
+ANDREW, about 50 seconds (113 words).
+
+What does it rely on? Children's iron again. On the left, the top ten families of layers in three models: Ghana's alone, Malawi's alone, and the four-country model we use for a new country. All three lean on climate, satellite land cover and soil, measured everywhere, every year, which is why the model can travel. Beyond those, each country adds its own: in Malawi, water and sanitation and infant feeding. On the right, the four-country model's top ten layers. The farming system stands out: cereal-dominant cropping, ruminants and cattle mark more iron deficiency; root crops mark less. These are markers of where deficiency is, not causes.
+
+Backup, if asked: Weight shares from index_importance_domains.csv (level target); layers from index_importance_columns.csv, pooled fit, ranked by standardised weight, and every one keeps its sign in all four leave-one-country-out fits. Malaria marks LESS iron deficiency here, most likely because inflammation raises ferritin even after adjustment: a feature of the biomarker, not protection. Child overweight marking less deficiency is a marker of richer, more urban districts. The Malawi B12 lakeshore example is in the appendix.
+:::
+
+## What can we learn about the consistently most important predictor domains?
+
+::: {.notes}
+ANDREW, about 50 seconds (112 words).
+
+Across every model we fitted, the same picture. Climate, satellite land cover and soil are in the top five domains of all 22 cross-country models and of every single-country model; with vegetation greenness they carry about half of the weight, for every nutrient. On its own, climate or soil ranks a country held out about as well as all the layers together. Then a few markers recur, always in the same direction: grassland, ruminants and cereal cropping mark more deficiency; plant productivity, market access and child overweight mark less. And each nutrient adds its own: meat and fish in children's diets for B12, anaemia for iron and folate, child wasting for vitamin A. Markers of where, not causes.
+
+Backup, if asked: post-fix importance and ablation tables (index_importance_domains.csv, index_importance_columns.csv, domain_ablation_loco_summary.csv). Pooled weight shares, mean over six outcomes: climate 18 per cent, satellite embedding 16, soil 13, greenness 6; climate + soil + satellite + greenness 45 to 59 per cent by outcome. Country held out: climate alone 0.33, soil alone 0.33, all layers 0.30; removing climate or soil costs 0.03, anaemia 0.02, crops and livestock about 0.01 each. Layers in the top 20 of four outcomes, same sign every time: malaria mortality, child overweight, relative staple price, plant productivity (less deficiency), grassland cover (more). Malaria marks LESS deficiency for iron and vitamin A, most likely because inflammation raises ferritin and lowers RBP differently from deficiency: a feature of the biomarkers. Schooling, water and sanitation, household diets and infant feeding help inside a country but make cross-border ranking slightly worse. Fertility and reproductive health are in no top list.
+:::
+
+## What about countries with no survey?
+
+![](../../results/figures/mnf15_v5/v2_civ_checked.png){width="9.4in"}
+
+::: {.notes}
+ANDREW, about 55 seconds (120 words).
+
+Most countries in this region have no recent biomarker survey. Côte d'Ivoire is one. Trained on our four countries, the climate-and-soil version of the model ranks its 33 districts for children's iron; the northern savanna comes out worst. Can you trust a map like this? WHO's micronutrients database holds regional results from national surveys in Zambia, Ethiopia, Sudan, Nigeria, Pakistan and India. None were used to build the model. In Africa its ranking of their regions pointed the right way in all 12 tests of average status and 18 of 21 tests of prevalence; in South Asia, 7 of 8. And Côte d'Ivoire's own 2007 survey ranks its nine zones for B12 almost exactly as the model does.
+
+Backup, if asked: XV-01/02, rerun on the fixed targets: climate-and-soil index at admin-1; Africa average status 0.40 (country-block null 0.20), prevalence 0.34; off the continent 0.38. Iron points the right way in all 14 iron tests across the six countries (weakest Ethiopia, 0.01). Regions, not districts; not the pre-registered test, which needs a new country's own microdata at district level. Côte d'Ivoire 2007 B12: Spearman 0.95 over nine zones. The Côte d'Ivoire map is from the 8 September build until the downstream run finishes.
+:::
+
+## Which deficiencies can it map?
+
+![](../../results/figures/mnf15_v5/v2_nutrients.png){width="9.4in"}
+
+::: {.notes}
+ANDREW, about 40 seconds (88 words).
+
+Putting it together. B12 and iron can be mapped from public data: inside a country, across borders, and in the external check. Vitamin A ranks well inside our countries but was the weakest externally, so not yet. Folate works only within a country. Zinc, measured only in Malawi, cannot be mapped: the model is no better than chance, because the survey itself shows no real difference between districts. How common a deficiency is does not decide this: folate and zinc are the commonest in our data, and the hardest.
+
+Backup, if asked: external by nutrient, African deposits, post-fix: B12 0.66 (4 of 4 tests), iron 0.44 (11 of 11), folate 0.28 (3 of 4), vitamin A 0.24 (12 of 14; both clear misses are vitamin A). Vitamin A is the strongest outcome in India and Pakistan. The table's numbers are correlations (0 = chance); measurable combinations only.
+:::
+
+## What does this mean for policy? The vitamin B12 model
+
+::: {.notes}
+ANDREW, about 45 seconds (98 words).
+
+What does this mean for a programme? Take our best model, women's B12. It puts 70 to 75 of every 100 district pairs in the survey's order, and 65 to 71 with the country's own survey removed. The fifth of districts it ranks worst hold 39 to 46 per cent of deficient women: about twice a random choice. Its district prevalences are typically within about 6 points of the survey's. And in WHO survey data from Zambia, Ethiopia and Nigeria it pointed the right way in all four checks, as it did for Côte d'Ivoire's 2007 survey zones.
+
+Backup, if asked: pairs (v3_percell_pairs.csv, post-fix): Ghana 70 in-country, 71 held out; Malawi 75 and 65; Sierra Leone 71 held out, 14 districts. Worst fifth (nce_targeting_metrics.csv, post-fix): Ghana 46 per cent (regional averages 45, perfect 65), Malawi 39 (regional 27, perfect 65). Prevalence error, each district hidden (conformal_prev_cells.csv, 8 September build until rerun): Ghana 6.6 points, Malawi 5.5; 90 per cent bands 21 and 27 points either side. External B12, post-fix: 4 of 4 in Africa (mean 0.66); Pakistan's B12 is a miss.
+:::
+
+## Conclusions
+
+::: {.notes}
+ANDREW, about 55 seconds (121 words).
+
+So what can this model show? Where there is no survey: a first ranking of districts from free public data, checked against surveys it never saw; a shortlist of where to look first; and more reliably for B12 and iron than for the other nutrients. Alongside a new survey: it fills in the districts the survey did not reach, and orders them better than regional averages; with even a small national sample it gives a rough district prevalence, usually within about ten points; and it helps choose where to sample. It does not replace a survey, judge whether a programme worked, or say why a district is deficient. Everything is in a public dashboard; the QR code is on the screen.
+
+Backup, if asked: Prevalence bands: split conformal, 90 per cent, leave-one-out coverage 0.90 to 0.93; median half-width 26 points, iron 30 to 37 (CP-01); median absolute error about 10 points. Anchor: a 5 per cent national sample (24 to 71 respondents) gives a median district error of 9.3 points. The model maps deficiency, not fortified-food coverage.
+:::
+
+## What have we learned, and what comes next?
+
+::: {.notes}
+ANDREW, about 50 seconds (112 words). The updated version of the full talk's closing slide; keep this or "Conclusions", or merge the two.
+
+What have we learned? Public data can rank a country's districts by deficiency: inside a surveyed country, about two pairs in three in the survey's order, better than the survey's own regional averages. In a country with no survey it still ranks, less well, and it held up against surveys it never saw; a level needs one measured national number. Where the survey can see districts, we are close to the best any model could do. And the uncertainty we show has been checked. What comes next: more surveys in the pool, because each one so far has helped, and a fifth survey that is a real test.
+
+Backup, if asked: pairs 66 against 61 per cent inside a country (14 measurable combinations), 62 held out (22), post-fix; B12 73 against a ceiling of about 78; calibrated bands hold the survey's own value 90 to 93 per cent of the time (CP-01), while rank ranges hold it 38 per cent and are stability only. Pooling curve 0.20, 0.26, 0.30 on average, the gain so far in The Gambia and Ghana. Two candidate models were written down on 3 September 2026. Changes from the full-talk version: "every survey improves every other country's map" and "the curve has not flattened" were overclaims (review, 27 Sep); "0.38 from climate and soil" is the model chosen on the same 22 cells.
+:::
+
+## Next steps
+
+::: {.notes}
+ANDREW, about 30 seconds (70 words).
+
+Three asks. If your country has a micronutrient survey, recent, planned or in a drawer, share it with the pool: on average, each survey we added improved the ranking for the countries held out. If you are planning one, let's design it together. And tell us how accurate a district ranking must be before you would use it. Modelling extends a survey's reach. It does not replace the survey.
+
+Backup, if asked: Pooling curve: 0.20 with one training survey, 0.26 with two, 0.30 with three; the gain so far is in The Gambia and Ghana, not yet Malawi or Sierra Leone. Two candidate models were written down on 3 September 2026, so a fifth survey is a real test. Optional line for Sonja: next, with MIMI and GBD, we compare predictors framework by framework.
+:::
+
+# Appendix
+
+## How does the model work, and how was it tested?
+
+::: {.notes}
+ANDREW, about 55 seconds (126 words).
+
+Thank you, Sonja. Here is the whole study in four steps. One: four national biomarker surveys, 206 districts where blood was drawn. Two: the 575 public layers, for every district. Three: machine learning. We compared fourteen methods, from random forests and boosting to a SuperLearner ensemble that combines them, and a very simple one won; we call it the Domain-PC index. Four: a ranking of every district, and with a survey's national figure a prevalence, including districts no survey reached and countries with no survey at all.
+
+Every number I show comes from hiding data and predicting it: a district, a region, a whole country. And we score it simply: out of every pair of districts, how often do we put the worse one first? A coin toss gets half.
+
+Backup, if asked: 14 alternatives on identical folds, 1,304 fits (SL-06). The in-country fit uses the 383 open or public-survey layers; the cross-border fit uses the layers common to all four countries. Pairs metric: share of district pairs ordered as the survey orders them; correlations are in the notes where they help.
+:::
+
+## How well does it rank districts inside a surveyed country?
+
+![](../../results/figures/mnf15_v5/v2_ghana_infill.png){width="9.4in"}
+
+::: {.notes}
+Ghana, children's iron, each district's own blood results hidden in turn. Left: what the survey measured in the 75 districts it reached; middle: the model's held-out prediction; right: the model for all 260 districts. Central Gonja: 13th worst in the survey, 51st by its regional average, 21st by the model. Prestea-Huni Valley: 73rd in the survey, 39th by its regional average, 69th by the model. Overall 68 of 100 pairs in the survey's order against 61 for the regional average (correlations 0.53 and 0.36).
+
+Honest caveats: on the share deficient rather than average status, the model ties the regional average here (0.50 each), and a map of neighbouring districts built from the survey does as well as the model (69 of 100 pairs); inside a surveyed country, geography does much of the work. The model is wrong in places: its median district is 13 places from the survey's rank, the regional average's 18; the largest miss is Atiwa East (24th in the survey, 65th in the model). The regional average is the district's own region averaged over the other surveyed districts there (the district itself left out).
+:::
+
+## What happens when a whole region is held out?
+
+![](../../results/figures/mnf15_v5/v4_region_heldout.png){width="9.6in"}
+
+::: {.notes}
+ANDREW, about 40 seconds (71 words).
+
+In between the two: a whole region the survey never reached, which is the hardest case for a map built from neighbouring districts, because it has to extrapolate. On average status, the index holds up and is level with that neighbour map. On the share deficient it is the best method. The SuperLearner ensemble is no better, and penalised regression on all the layers falls away. All six nutrient outcomes, averaged.
+
+Backup, if asked: SL-06 run, every arm on the same folds, 18 nutrient-country combinations (17 on the share deficient, where one lacks the all-layer elastic net). The benchmark table gives the index 0.39 on average status in this estimand; this run 0.38. Ghana and Malawi are where this estimand is well determined; The Gambia and Sierra Leone give one number per region.
+:::
+
+## Accuracy by nutrient, against the best possible
+
+![](../../results/figures/mnf15_v5/v4_accuracy_by_nutrient.png){width="9.4in"}
+
+::: {.notes}
+ANDREW, about 35 seconds (70 words).
+
+How close is this to the best possible? The survey's own district figures are noisy: most rest on one community of about a dozen people. So even a perfect model could agree with them only up to the grey bars, about 71 to 78 pairs in 100. Inside a country we reach 63 to 75. There is room left, but much of the remaining gap is the survey, not the model.
+
+Backup, if asked: How the ceiling is known: how much two communities in the same district disagree tells us how noisy one community's result is (variance components, variance_components_ceiling.csv, average status, the cluster-adjusted ceiling_vc column). As correlations: B12 0.77, folate 0.75, vitamin A 0.68, iron 0.61, against the model's 0.63, 0.40, 0.56 and 0.43. Converted to pairs with 1/2 + arcsin(r)/pi, which assumes normal errors. Zinc (Malawi women) is the exception and is plotted below the others: ceiling 67 pairs in 100, model 50. Its district signal is small: 37 per cent of its split-half ceiling (0.81) is community-level rather than district-level variation, leaving 0.51 (cluster_share_of_ceiling); for Malawi children's zinc, nested variance components put the district share at 0.000 and the cluster share at 0.172, the largest cluster share in the study (explore/out/22_zinc_variance_components.csv). Why average status rather than the share deficient: dichotomising at the clinical cut-off makes the survey's own district figures less reliable. District split-half reliability (explore/out/16_reliability_all.csv; the continuous level, r_full_respondent, Spearman, against the binary prevalence, r_full_prev, Pearson) falls by 0.20 on average when the value is dichotomised, and the continuous level is the more reliable in 25 of 27 combinations. The cost is worst for rare deficiencies: Sierra Leone women's B12, at 0.5 per cent prevalence, loses 1.15. More communities per district would raise the ceiling, at the price of fewer districts (appendix, planning slide).
+:::
+
+## How do proxy models compare with the survey's own information?
+
+![](../../results/figures/mnf15_v5/v4_skill_by_outcome.png){width="9.6in"}
+
+::: {.notes}
+ANDREW, about 40 seconds (90 words).
+
+An updated version of a January slide, now for district prevalence. How much closer to the survey's own district figures do we get than by giving every district the national average? Public data alone improve on it by about 11 per cent on average: as much as a map of neighbouring districts built from the survey (9 per cent), and more than the survey's regional averages, at 3 per cent. The regional averages lose to the national figure for iron. For B12, the survey's own neighbours and regions do better still.
+
+Backup, if asked: 1 minus the district prevalence error (mean absolute error) of each method over that of the national average without the district, each district hidden in turn (benchmarks_v2_cells.csv, prevalence target, calibrated index). Means over the 14 measurable in-country combinations (post-fix measurability screen of 28 September, which swapped Malawi children's vitamin A for Malawi women's zinc): public data 10.8 per cent, neighbour map 9.3, regional averages 2.9. The same statistic on average status (mean absolute error of the log-scale level): public data 14.5 per cent, neighbour map 14.3, regional averages 6.7. The slide stays on prevalence because percentage points are what the audience uses, although the share deficient is the less reliable target (split-half reliability 0.20 lower on average; accuracy-by-nutrient slide). The January slide scored person-level models with individual survey predictors; with district proxies alone a person-level model is a coin toss (appendix).
+:::
+
+## Is it just geography? Comparison with DHS-style geostatistics
+
+![](../../results/figures/mnf15_v3/fig9_geostatistical.png){width="9.0in"}
+
+::: {.notes}
+Inside a surveyed country, geography does much of the work: a map of neighbouring districts ties the index. The DHS Program's model-based geostatistics (a spatial field plus covariates, fitted at the survey clusters) ranks worse on the same folds (0.27 against 0.38) but estimates levels better (9.2 against 10.7 points of error), because it shrinks uncertain districts toward a level. It needs measured clusters inside the country, so it has no answer for a country with no survey. The Côte d'Ivoire vitamin A ranking correlates 0.73 with latitude, yet its agreement with the independent WFP and MIMI map survives adjusting for latitude (0.495 to 0.479).
+:::
+
+## How can it help plan the next survey?
+
+::: {.notes}
+Moved to the appendix in v4. How close can any model get: the survey's own district numbers are noisy, because most rest on one community of about a dozen children, so even a perfect model could agree with them only up to the grey bars (average status, as correlations: B12 0.77, folate 0.75, vitamin A 0.68, iron 0.61; the model 0.63, 0.40, 0.56, 0.43; zinc, Malawi women only, 0.51 against -0.01). More communities per district would raise that limit, though at a fixed budget that means fewer districts. Sierra Leone has the most clusters per district (4.3) and the weakest results: 14 districts of half a million people is the wrong unit. Anchor: 5 per cent national sample (24 to 71 respondents), median district error 9.6 points post-fix, no better than the national figure alone (LV-02). SP-01: model-guided district choice is about equal to random; both beat population-weighted choice.
+:::
+
+## How does it compare with other methods, including machine learning?
+
+![](../../results/figures/mnf15_v3/fig1_model_comparison.png){width="9.2in"}
+
+::: {.notes}
+Every method on the same held-out folds, agreement on average status (Spearman). Inside a surveyed country: the Domain-PC index 0.40, neighbour smoother with proxies 0.39, neighbour smoother alone 0.39, the full SuperLearner 0.38, a twenty-layer composite 0.36, penalised regression 0.33, the regional average 0.31. A region held out: 0.39, 0.38, 0.38, 0.36, 0.34, 0.26. A country with no survey: index 0.30, SuperLearner 0.27, twenty layers 0.23, penalised regression 0.28; the smoothers and the regional average need a survey. The SuperLearner row comes from the SL-06 run with the same design, in which the index scored 0.39, 0.38 and 0.28. The estimator and the domain sets were chosen while looking at these four countries, which is why the fifth survey is pre-registered.
+:::
+
+## Which data sources contribute most to model prediction performance?
+
+![](../../results/figures/mnf15_v5/v4_sources.png){width="9.6in"}
+
+::: {.notes}
+Updated from the January slide (which scored drops in error for women's B12 and iron in Ghana). Now each country is predicted from the other three, averaged over 22 nutrient-country combinations: left, the ranking with one source alone; right, how much it drops when that source is removed. Soil maps alone (0.33) beat all sources together (0.30); climate and greenness from Earth Engine, crop mix, IHME health surfaces, livestock and the Malaria Atlas each cost accuracy when removed. MICS survey microdata and household budget surveys make cross-border prediction slightly worse (source_ablation_loco_summary.csv). DHS microdata are not in the cross-border set.
+:::
+
+## What can we learn about unused predictor domains?
+
+::: {.notes}
+Updated from the January slide. Evidence: leave-one-domain-out under country hold-out (domain_ablation_loco_summary.csv, average status, all layers 0.302). Removing fortification and supplementation changes nothing (0.000); food prices -0.001; conflict -0.002; child anthropometry +0.001; immunisation +0.003. Removing schooling and employment IMPROVES the held-out ranking by 0.013, water and sanitation by 0.010, household budget surveys by 0.009, infant feeding by 0.006: they help inside a country (schooling for vitamin A) but do not travel. Likely reasons: overlap with climate, soil and infection; national-only figures with no district contrast; different survey years, questions and designs between countries.
+:::
+
+## Which outcomes and cut-offs does the analysis use?
+
+| Outcome | Population | Countries | Biomarker and adjustment | Cut-off |
+|:---|:---|:---|:---|:---|
+| Iron deficiency | Children 6-59 months; non-pregnant women 15-49 | All four | Ferritin, adjusted for inflammation (BRINDA or Thurnham factors, following each survey) | Under 12 µg/L (children), 15 µg/L (women) |
+| Vitamin A deficiency (low RBP) | Children 6-59 months; non-pregnant women 15-49 | All four | Retinol-binding protein, BRINDA-adjusted | RBP under 0.70 µmol/L |
+| Folate deficiency | Non-pregnant women 15-49 | Ghana, Sierra Leone, Malawi | Serum folate: immunoassay (Ghana, Sierra Leone), microbiologic assay (Malawi) | Under 10 nmol/L |
+| B12 deficiency | Non-pregnant women 15-49 | Ghana, Sierra Leone, Malawi | Serum B12 (Ghana: a subsample) | Under 150 pmol/L (Malawi 148) |
+| Zinc deficiency | Children 6-59 months; non-pregnant women 15-49 | Malawi | Serum zinc, by time of blood draw | Children 65 (morning) or 57 (afternoon) µg/dL; women 66 or 59 |
+| Selenium, iodine | Children and women; women | Malawi, within-country only | Plasma selenium; urinary iodine | 84.6 µg/L; 100 µg/L |
+
+::: {.notes}
+Verified against R/config.R, R/data_prep.R and docs/survey_report_reconciliation.md on 27 September. Corrections to the January slide: iron is not BRINDA everywhere (Ghana and Sierra Leone use Thurnham factors); women's vitamin A is BRINDA-adjusted like children's; folate and B12 are also measured in Malawi; iodine is configured for Malawi women (The Gambia and Sierra Leone were a separate within-country test); log scale is the modelling target, not an adjustment. Sierra Leone's child file holds only anaemic children (532 of 654 assayed). The main-body results in this deck use the targets rebuilt on 27 September with these corrections (vitamin A on the RBP < 0.70 rule, non-pregnant women and children 6-59 months only, Sierra Leone women's iron on Thurnham, Malawi repeated Traditional Authority names, Malawi zinc on the survey's own flag); appendix figures copied from the full talk are from the 8 September build.
+:::
+
+## Does targeting reach more deficient people?
+
+![](../../results/figures/mnf15_v5/v4_targeting.png){width="9.0in"}
+
+::: {.notes}
+Not one country or outcome: the average over the 16 mappable nutrient-country combinations in all four countries, the 8 that fail the screen left out. A programme reaching the fifth of districts the model ranks worst reaches 25.1 per cent of the deficient people; the survey's regional averages 21.0; a random fifth 20 by definition; a perfect map 40.3 (post-fix). Over all 24 combinations, as in earlier versions: 21.9, 20.3 and 47.5. In Ghana children's iron, simply taking the most populous fifth of districts reaches 46 per cent: to reach the most people, rank by predicted rate times population.
+:::
+
+## Accuracy pooled over all nutrients, in district pairs
+
+![](../../results/figures/mnf15/figE_odds_ruler.png){width="9.2in"}
+
+::: {.notes}
+Pooled over 18 combinations, each district hidden. The regional average here is each district's own region averaged over the other surveyed districts in that region (the district itself left out): what a programme would know for a district the survey missed. A national mean excluding the district's own region is not a fair alternative: it reverses the order (26 per cent of pairs right, correlation -0.62), because districts in high-deficiency regions are assigned the healthier rest of the country. The fair "no information" comparator is a coin toss (50 per cent), which a single national figure also gives.
+:::
+
+## Every combination of training countries
+
+![](../../results/figures/full_talk_extracts/ft_training_curve.png){width="9.2in"}
+
+::: {.notes}
+Every subset of training countries scored on each held-out country: about +0.05 per country added, not flattened at three; the gain is in The Gambia and Ghana.
+:::
+
+## The 2007 Côte d'Ivoire survey and the B12 prediction
+
+![](../../results/figures/mnf15_v5/v4_civ_b12.png){width="9.4in"}
+
+::: {.notes}
+Left: women's B12 deficiency in the nine zones of the 2007 national survey against the model's predicted prevalence, averaged over the districts in each zone (dashed line: perfect agreement). The ranking is transported from the four surveyed countries with no Ivorian biomarker; the level is anchored to the survey's national 18.1 per cent, the design the talk recommends (a small national sample plus the ranking): predicted = expit(logit(0.181) + 0.32 x 1.48 x z), z the standardised climate-and-soil B12 index, 0.32 how well that ranking held up for B12 when each training country was held out, 1.48 the between-district spread (logit) in the training surveys. The order matches almost exactly (0.95 over nine zones); the spread is compressed, 9 to 31 per cent predicted against 0 to 49 measured, mean error 9.0 points, as expected from a shrunken ranking. Middle: the district map. Right: how firmly each district is placed over 400 refits (stability, not a confidence interval). Caveats: 2007, zones are not administrative units (centroid crosswalk), nine points, a steep north-south gradient. Table: results/tables/policy_deck/v4_civ_b12_anchored.csv.
+:::
+
+## Does the model track the survey, district by district?
+
+![](../../results/figures/full_talk_extracts/ft_pred_vs_observed.png){width="9.2in"}
+
+::: {.notes}
+The cloud is tilted but not on the line: the model ranks, and compresses the range. Hollow points are single-cluster districts; much of the vertical scatter is the survey's noise.
+:::
+
+## The live dashboard
+
+![](../../results/figures/mnf15/figS_dashboard_start.png){width="9.4in"}
+
+::: {.notes}
+amertens.shinyapps.io/micronutrient-burden: every district of the four countries and Côte d'Ivoire, planning prevalence with calibrated bands, WHO severity class, people affected, the external check, a survey planner and country briefs. Its "new country" tile (0.38) is the climate-and-soil model; the talk's 0.30 is the full index.
+:::
+

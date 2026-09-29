@@ -1,0 +1,400 @@
+# Illustrated slides of MNF15-talk-2026-09-v4.qmd (version 4, 27 September 2026), drawn IN PLACE by
+#   bash scripts/render_deck.sh docs/slides/MNF15-talk-2026-09-v4.qmd --forum --no-label --text 18,12 \
+#        --concept docs/slides/MNF15-talk-2026-09-v4.concept.yaml
+# Titles must match the qmd's slide titles exactly. Options and overlays: see the top of
+# scripts/concept_slides/build_concept_slides.py.
+deck: MNF15-talk-2026-09-v4.qmd
+fill_figures: false
+slides:
+
+- title: title slide
+  layout: title
+  title_size: 30
+  logos:
+  - {file: img/logo_ucberkeley.png, width: 2.4}
+  - {file: img/logo_ucdavis.png, width: 2.4}
+  - {file: img/logo_mnforum.png, width: 2.0}
+  acknowledgement: We are grateful for the funding support of the Gates Foundation.
+  notes: "SONJA, about 15 seconds (29 words). Good morning. I'm Sonja Hess from UC Davis. This is joint work with Andrew Mertens at Berkeley, and with the four national survey teams whose data made it possible."
+
+# ---- Sonja's introduction text, with the Ghana gap map (Andrew's reorder)
+- title: Introduction and study objectives
+  layout: freeform
+  texts:
+  - x: 0.55
+    y: 1.65
+    w: 5.4
+    h: 5.3
+    space_before: 9
+    paras:
+    - {text: "• Information on the prevalence of vitamin and mineral deficiencies (VMD) is limited", size: 17}
+    - {text: "• In an inter-institutional, multi-disciplinary workshop we brainstormed potential approaches, and relevant data domains and data sources", size: 17}
+    - {text: "• Developed conceptual frameworks to guide targeted machine learning", size: 17}
+    - {text: "Objectives", size: 18, bold: true, color: "0F7B8A"}
+    - {text: "• To explore whether machine learning can help fill the data gap in VMD prevalence using aggregated proxy variables", size: 17}
+  - x: 6.1
+    y: 5.78
+    w: 6.95
+    h: 0.7
+    paras:
+    - {text: "Source: WHO Vitamin and Mineral Nutrition Information System (VMNIS), Micronutrients Database, February 2025. Nationally representative surveys measuring ferritin, retinol or RBP, zinc, folate or vitamin B12; surveys not yet deposited are not shown.", size: 10, color: "808080"}
+  images:
+  - {file: ../../results/figures/mnf15_v4/v4_vmnis_coverage.png, x: 6.1, y: 1.5, w: 6.95}
+
+- title: What we will tell you
+  layout: icon_rows
+  heading_size: 19
+  text_size: 15
+  items:
+  - icon: satellite
+    heading: Free public data carry real signal about deficiency
+    caption: "Climate, soil and land cover, measured everywhere, every year"
+  - icon: scale-balanced
+    heading: A simple model does best
+    caption: "There are few places to learn from, so the simplest model wins"
+  - icon: map-location-dot
+    heading: It ranks districts no survey reached
+    caption: "Tested on districts, regions and countries it never saw"
+  - icon: vials
+    heading: Some nutrients more than others
+    caption: "B12 and iron map best; zinc cannot be mapped"
+  - icon: handshake
+    heading: It extends surveys; it does not replace them
+    caption: "Where to look first, and how to plan the next survey"
+
+# ---- Sonja's own framework slide (her image and footnotes)
+- title: Conceptual framework of iron deficiency
+  layout: freeform
+  title_box: [0.4, 0.45, 3.25, 1.5]
+  title_size: 24
+  images:
+  - {file: img/old_s06_framework_1.png, x: 3.75, y: 0.3, w: 9.3}
+  texts:
+  - x: 0.25
+    y: 4.15
+    w: 3.4
+    h: 3.1
+    space_before: 6
+    paras:
+    - {text: "¹ High nutrient requirement due to growth and pregnancy, and increased susceptibility to infections during childhood and pregnancy", size: 11}
+    - {text: "² Early onset of childbearing, high parity and short birth spacing", size: 11}
+    - {text: "³ Inherited red blood cell disorders include sickle cell disorders, thalassemias, and other haemoglobinopathies", size: 11}
+    - {text: "Source: adapted from Hess et al., Ann N Y Acad Sci 2023", size: 11, color: "666666"}
+
+- title: Which of these causes can public data measure?
+  layout: freeform
+  title_box: [0.45, 0.4, 3.7, 2.0]
+  title_size: 28
+  images:
+  - {file: ../../results/figures/mnf15_v4/v4_framework_coverage.png, x: 4.3, y: 0.35, w: 8.9}
+  texts:
+  - {x: 0.5, y: 2.5, w: 3.75, h: 0.45, paras: [{text: "Is there a widespread public measure?", size: 15, bold: true, color: "1A1A1A"}]}
+  - {x: 0.95, y: 2.98, w: 3.3, h: 0.66, paras: [{text: "Available, intrinsically ecological: describes the place (climate, land, built-up area)", size: 13.5}]}
+  - {x: 0.95, y: 3.68, w: 3.3, h: 0.85, paras: [{text: "Available as a district average standing in for individuals (poverty, schooling, infection)", size: 13.5}]}
+  - {x: 0.95, y: 4.56, w: 3.3, h: 0.62, paras: [{text: "Partly: national or modelled only, or part of the box", size: 13.5}]}
+  - {x: 0.95, y: 5.2, w: 3.3, h: 0.36, paras: [{text: "Not publicly available", size: 13.5}]}
+  - {x: 0.95, y: 5.58, w: 3.3, h: 0.36, paras: [{text: "The outcome the surveys measured", size: 13.5}]}
+  - {x: 0.5, y: 6.05, w: 3.75, h: 0.75, paras: [{text: "All are district averages: ecological, indirect data, never the individual whose blood was drawn.", size: 12.5, color: "555555"}]}
+  - {x: 0.5, y: 6.85, w: 3.8, h: 0.4, paras: [{text: "Framework adapted from Hess et al., Ann N Y Acad Sci 2023", size: 10, color: "808080"}]}
+  boxes:
+  - {x: 0.55, y: 3.07, w: 0.26, h: 0.26, color: "2E7D32", fill: "2E7D32", width_pt: 1}
+  - {x: 0.55, y: 3.77, w: 0.26, h: 0.26, color: "8FBF86", fill: "B9E0B0", width_pt: 1}
+  - {x: 0.55, y: 4.65, w: 0.26, h: 0.26, color: "D9B24F", fill: "F6D27A", width_pt: 1}
+  - {x: 0.55, y: 5.25, w: 0.26, h: 0.26, color: "9E9E9E", fill: "E3E3E3", width_pt: 1}
+  - {x: 0.55, y: 5.63, w: 0.26, h: 0.26, color: "0F7B8A", fill: "0F7B8A", width_pt: 1}
+
+- title: How does the model work, and how was it tested?
+  layout: pipeline
+  banner: "Tested by hiding one district in five, then a whole region, then a whole country. Scored by how often it puts the worse of two districts first: a coin toss gets half"
+  banner_size: 15
+  banner_height: 0.85
+  heading_size: 16
+  caption_size: 14
+  items:
+  - icon: vials
+    heading: Four national biomarker surveys
+    caption: "The Gambia 2018, Ghana 2017, Sierra Leone 2013, Malawi 2015-16: 206 districts where blood was drawn"
+  - icon: satellite
+    heading: 575 proxy variables
+    caption: "Climate, soil, crops and livestock, disease, food prices, household surveys: every district, 28 sources, none bought"
+  - icon: layer-group
+    heading: Ensemble machine learning
+    caption: "Fourteen methods, including a SuperLearner ensemble, compared on hidden districts. The simplest, a Domain-PC index, did best"
+  - icon: ranking-star
+    heading: National and subnational rankings and prevalence
+    caption: "Every district, including those no survey reached, and countries with no survey at all"
+
+- title: How the model is built and tested, step by step
+  layout: two_panel
+  heading_size: 15
+  text_size: 12
+  panels:
+  - icon: sliders
+    title: How the model is built
+    items:
+    - icon: arrow-down-wide-short
+      heading: Every layer becomes a within-country rank
+      caption: A level difference between surveys cannot act as signal.
+    - icon: layer-group
+      heading: Each family of layers is reduced to principal components
+      caption: Learned from the predictors only, never from the outcome.
+    - icon: scale-balanced
+      heading: Each component is weighted by how well it tracked deficiency
+      caption: In the training districts, where blood was drawn.
+    - icon: lock
+      heading: The weighted sum, rescaled to the training districts' spread
+      caption: Nothing is tuned.
+  - icon: clipboard-check
+    title: How it is tested
+    items:
+    - icon: location-crosshairs
+      heading: One district in five is hidden
+      caption: Compared against the region's average, computed without that district.
+    - icon: draw-polygon
+      heading: A whole region is hidden
+      caption: Compared against a map of the neighbouring districts.
+    - icon: earth-africa
+      heading: A whole country is hidden
+      caption: Compared against chance, with countries kept whole.
+
+- title: Why not a more complex machine-learning model?
+  layout: freeform
+  texts:
+  - x: 0.6
+    y: 1.8
+    w: 12.1
+    h: 1.45
+    space_before: 4
+    paras:
+    - {text: "Cross-validation: every score comes from districts the model never saw, the same hidden districts for every method.", size: 16}
+    - {text: "Big data in predictors (575 layers), small data in places (14 to 87 districts per country, each measured in about one community).", size: 16}
+    - {text: "With so few places, methods that tune themselves chase noise: the untuned Domain-PC index matched or beat them all, including an ensemble of twelve.", size: 16, bold: true, color: "0F7B8A"}
+  images:
+  - {file: ../../results/figures/mnf15_v4/v4_ml_comparison.png, x: 1.0, y: 3.3, w: 11.3}
+
+- title: What can we learn about the consistently most important predictor domains?
+  layout: two_panel
+  heading_size: 15
+  text_size: 12.5
+  panels:
+  - icon: earth-africa
+    title: Measured everywhere, important for every nutrient
+    items:
+    - icon: cloud-sun-rain
+      heading: Climate
+      caption: "On its own it ranks a country held out better than all layers together. Seasons, growing conditions, disease ecology."
+    - icon: mound
+      heading: Soil
+      caption: "Nearly as good alone. Soil minerals reach crops, animals and people, and soil marks farming systems."
+    - icon: satellite
+      heading: Satellite land cover and greenness
+      caption: "A year of imagery summarised: what grows where, and how densely people live."
+  - icon: magnifying-glass-chart
+    title: Markers for particular nutrients
+    items:
+    - icon: wheat-awn
+      heading: Farming system (iron)
+      caption: "Cereal cropping, ruminants and cattle mark more iron deficiency; root crops less."
+    - icon: mosquito
+      heading: Infection, malaria and worms
+      caption: "Removing it costs accuracy; inflammation also shifts ferritin and vitamin A markers."
+    - icon: drumstick-bite
+      heading: Young children eating meat or fish (B12)
+      caption: "Marks better B12 status, as animal-source foods would."
+    - icon: droplet
+      heading: Anaemia (iron, folate)
+      caption: "Modelled anaemia surfaces; removing them costs accuracy across borders."
+
+- title: What does this mean for policy? The vitamin B12 model
+  layout: cards
+  heading_size: 24
+  text_size: 14
+  icon_size: 0.75
+  items:
+  - icon: ranking-star
+    heading: 70 to 75 of 100
+    lines:
+    - "District pairs in the survey's order (Ghana, Malawi)"
+    - "65 to 71 with the country's own survey removed"
+  - icon: bullseye
+    heading: About 2x
+    lines:
+    - "The fifth of districts it ranks worst hold 40 to 46% of deficient women; a random fifth holds 20%"
+  - icon: ruler
+    heading: About 6 points
+    lines:
+    - "Typical error in district prevalence, each district hidden"
+    - "90% ranges about 21 to 27 points either side"
+  - icon: earth-africa
+    heading: 4 of 4
+    lines:
+    - "WHO survey checks in Zambia, Ethiopia and Nigeria pointed the right way"
+    - "Cote d'Ivoire's nine 2007 zones in almost the same order"
+
+- title: Conclusions
+  layout: two_panel
+  area_width: 9.7
+  heading_size: 15
+  text_size: 12.5
+  banner: It does not replace a survey, judge whether a programme worked, or say why a district is deficient.
+  banner_size: 16
+  panels:
+  - icon: earth-africa
+    title: Where there is no survey
+    items:
+    - icon: satellite
+      heading: A first ranking of districts from free public data
+      caption: Checked against surveys it never saw, in Ghana and six other countries.
+    - icon: map-location-dot
+      heading: A shortlist of where to look first
+      caption: Its worst third is right about half the time; chance is a third.
+    - icon: vials
+      heading: More reliable for some nutrients
+      caption: B12 and iron best; not yet vitamin A; not zinc.
+  - icon: clipboard-check
+    title: Alongside a new survey
+    items:
+    - icon: ranking-star
+      heading: Fills in the districts the survey did not reach
+      caption: Orders them better than regional averages.
+    - icon: ruler
+      heading: A rough district prevalence from a small national sample
+      caption: Usually within about 10 points.
+    - icon: draw-polygon
+      heading: Helps plan where to sample
+      caption: Which districts to check first; try designs on the dashboard.
+  images:
+  - {file: img/qr_dashboard.png, x: 10.95, y: 2.1, w: 1.9, caption: "Every district, five countries:\namertens.shinyapps.io/\nmicronutrient-burden", caption_size: 11, caption_width: 2.25, caption_height: 1.1}
+
+- title: What have we learned, and what comes next?
+  layout: two_panel
+  area_width: 9.7
+  heading_size: 14.5
+  text_size: 12
+  panels:
+  - icon: magnifying-glass-chart
+    title: What we have learned
+    items:
+    - icon: ranking-star
+      heading: Public data can rank a country's districts by deficiency
+      caption: "Inside a surveyed country, 67 of 100 district pairs in the survey's order; its regional averages, 62."
+    - icon: earth-africa
+      heading: Also in a country with no survey
+      caption: "62 of 100 pairs with the country's survey removed; checked against WHO data in six more countries. A level needs one national number."
+    - icon: ruler
+      heading: Where the survey can see districts, close to the best possible
+      caption: "B12: 73 of 100 pairs, against a ceiling of about 78."
+    - icon: circle-check
+      heading: The uncertainty we show has been checked
+      caption: "Prevalence bands hold the survey's value 90% of the time; rank ranges show stability only."
+  - icon: arrow-trend-up
+    title: What comes next
+    items:
+    - icon: vials
+      heading: More surveys in the pool
+      caption: "On average each added survey improved the ranking for the country held out."
+    - icon: flag-checkered
+      heading: The fifth survey is a real test
+      caption: "Two candidate models were written down before any new country's data were seen."
+    - icon: map-location-dot
+      heading: Plan the next survey with the model
+      caption: "A small national sample anchors the level; the ranking says where to look first."
+  images:
+  - {file: img/qr_dashboard.png, x: 10.95, y: 2.1, w: 1.9, caption: "Every district, five countries:\namertens.shinyapps.io/\nmicronutrient-burden", caption_size: 11, caption_width: 2.25, caption_height: 1.1}
+
+- title: Next steps
+  layout: cards
+  area_width: 9.7
+  heading_size: 18
+  text_size: 15
+  icon_size: 0.75
+  banner: Modelling extends a survey's reach. It does not replace the survey.
+  banner_size: 19
+  items:
+  - icon: vials
+    heading: Share your survey data
+    lines:
+    - "Recent, planned, or sitting in a drawer."
+    - "On average, each survey we added improved the ranking for countries held out."
+  - icon: map-location-dot
+    heading: Design the next survey with us
+    lines:
+    - "Where to sample, and how many communities per district."
+  - icon: circle-question
+    heading: Tell us what is good enough
+    lines:
+    - "How accurate must a district ranking be before you would use it?"
+  images:
+  - {file: img/qr_dashboard.png, x: 10.95, y: 2.1, w: 1.9, caption: "Try it:\namertens.shinyapps.io/\nmicronutrient-burden", caption_size: 11, caption_width: 2.25, caption_height: 0.9}
+
+- title: What we told you
+  layout: icon_rows
+  heading_size: 19
+  text_size: 14.5
+  image: {file: img/qr_dashboard.png, width: 2.2}
+  items:
+  - icon: satellite
+    heading: Free public data carry real signal about deficiency
+    caption: "Climate and soil alone rank a country held out; checked in six countries the model never saw"
+  - icon: scale-balanced
+    heading: A simple model does best
+    caption: "The untuned Domain-PC index matched or beat fourteen machine-learning methods"
+  - icon: map-location-dot
+    heading: It ranks districts no survey reached
+    caption: "68 of 100 district pairs right in Ghana; 70 with no Ghanaian data at all"
+  - icon: vials
+    heading: Some nutrients more than others
+    caption: "B12 and iron best; vitamin A not yet; folate within a country; zinc not at all"
+  - icon: handshake
+    heading: It extends surveys; it does not replace them
+    caption: "Share your survey, and design the next one with us"
+
+# ---- appendix
+- title: How can it help plan the next survey?
+  layout: icon_rows
+  heading_size: 18
+  text_size: 14
+  image: {file: ../../results/figures/mnf15_v4/v3_ceiling_by_nutrient.png, width: 4.3}
+  items:
+  - icon: ruler
+    heading: How close can any model get?
+    caption: "Most districts rest on one community of about 12 children, so even a perfect model could only agree up to the grey bars. Ours reaches 0.4 to 0.6."
+  - icon: vial
+    heading: Alongside a survey, a small national sample
+    caption: "About 40 blood draws per nutrient anchor the ranking; district figures then typically land within about 10 points."
+  - icon: map-location-dot
+    heading: Check the model's shortlist first
+    caption: "It says which unsurveyed districts to visit first. The dashboard's planning tab lets you try a design."
+
+- title: What can we learn about missing predictor domains?
+  layout: two_panel
+  heading_size: 15
+  text_size: 12.5
+  panels:
+  - icon: minus
+    title: What adds little across borders
+    items:
+    - icon: building-columns
+      heading: Fortification and supplementation
+      caption: "Mostly national figures: no difference between districts to learn from."
+    - icon: basket-shopping
+      heading: Food prices and household budget surveys
+      caption: "Few markets and few households per district; budget surveys make the held-out ranking worse."
+    - icon: book-open
+      heading: Schooling, water and sanitation, infant feeding
+      caption: "Help inside a country (schooling for vitamin A) but not across borders."
+    - icon: child
+      heading: Child growth, conflict, immunisation, access to care
+      caption: "Close to deficiency in theory; add almost nothing once climate, soil and infection are in."
+  - icon: circle-question
+    title: Likely reasons
+    items:
+    - icon: layer-group
+      heading: Overlap
+      caption: "Much of their district signal is already carried by climate, soil and infection."
+    - icon: globe
+      heading: National-only data
+      caption: "A single number per country cannot rank districts."
+    - icon: shuffle
+      heading: Different surveys, questions and years
+      caption: "Household survey indicators are measured differently from country to country, so they travel poorly."

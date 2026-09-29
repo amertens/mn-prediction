@@ -1,5 +1,48 @@
 # Dashboard roadmap — big-ticket items
 
+## Start here by question, and working buttons (2026-09-27, fifth deploy)
+
+Start here now answers the three questions a reader brings, one card each, in
+the order of the v4 MNF15 talk:
+
+- **National prevalence.** It needs a survey. A national-indicator model scored
+  on WHO's national survey database, leaving each country out, was typically 9
+  to 17 points off; for our four countries' vitamin A it was up to 29 points off.
+  The card also gives what SP-01 found for the national estimate from a
+  half-district survey.
+- **Prevalence in each district.** A rough estimate: typical error about 9
+  points, and the 90% ranges held the survey's figure 91% of the time (median
+  ±26). A 5% national sample is enough to scale it.
+- **Ranking.** 0.40 against 0.31 for the survey's regional averages; 0.30 in a
+  new country; 0.33 to 0.40 in the six-country check.
+
+Builder 05 carries the two national-track tables (`national_vmnis`,
+`national_levels`). The Technical notes "Limits" section states the national
+result.
+
+The "Where to start" buttons and the "What more data buys" button had never
+worked. `go_to()` runs inside module observers, so `nav_select()` needed
+`session = session`. `test_server.R` now checks both the tab each button asks
+for and the session argument.
+
+## Text review and concise version (2026-09-27, fourth deploy)
+
+Every page's text was reread for project jargon, AI-writing tells and
+overclaims (corrections listed on the cover of
+`dashboard/report/out/dashboard_text_review_A_full_v2_2026-09-27.docx`), then
+cut to a concise version: 2,481 words on the pages (from 10,139) plus a
+Technical notes page that replaces Methods and "What else was tried". The
+concise version is now the live dashboard; the full-text version is archived
+(`archive/dashboard/full_text_2026-09-27/`, see `archive/ARCHIVE_MANIFEST.md`).
+Map fading was replaced by cross-hatching. Review tooling:
+`dashboard/report/capture_dashboard_text.R` (headless-Chrome capture of every
+page's screenshot and text), `slice_screens.py`, `build_text_review_docx.js`.
+
+Still open: the national figures that set the district percentages come from
+`results/tables/national_estimates_all.csv` (1 September, older outcome
+definitions) and disagree with the district survey values in several cells
+(for example, Gambian children's iron 37.5% against a 62% district average).
+
 ## Policymaker revamp (2026-09-27)
 
 Before showing the app to policymakers. Plan and effort marks:

@@ -1,0 +1,243 @@
+# Illustrated slides of MNF15-talk-2026-09-v2.qmd (version 2, 27 September 2026), drawn IN
+# PLACE on the rendered deck by
+#   bash scripts/render_deck.sh docs/slides/MNF15-talk-2026-09-v2.qmd --forum --no-label --text 18,15 \
+#        --concept docs/slides/MNF15-talk-2026-09-v2.concept.yaml
+# Each entry is matched to the rendered slide with the same title; the qmd keeps that slide as
+# a title plus speaker notes. Layout options and the overlays (title_box, images, texts, dots,
+# boxes) are documented at the top of scripts/concept_slides/build_concept_slides.py.
+deck: MNF15-talk-2026-09-v2.qmd
+fill_figures: false
+slides:
+
+- title: title slide
+  layout: title
+  title_size: 30
+  logos:
+  - {file: img/logo_ucberkeley.png, width: 2.4}
+  - {file: img/logo_ucdavis.png, width: 2.4}
+  - {file: img/logo_mnforum.png, width: 2.0}
+  acknowledgement: We are grateful for the funding support of the Gates Foundation.
+  notes: "SONJA, about 15 seconds (29 words). Good morning. I'm Sonja Hess from UC Davis. This is joint work with Andrew Mertens at Berkeley, and with the four national survey teams whose data made it possible."
+
+# ---- slide 3a: Sonja's framework as published (full height, title in the left column)
+- title: We started from what causes deficiency
+  layout: freeform
+  title_box: [0.45, 0.45, 3.7, 2.1]
+  title_size: 28
+  images:
+  - {file: ../../results/figures/mnf15_v2/v2_framework_plain.png, x: 4.3, y: 0.3, w: 8.9}
+  texts:
+  - x: 0.5
+    y: 3.1
+    w: 3.7
+    h: 3.3
+    paras:
+    - {text: "What the model learns from", size: 17, bold: true, color: "0F7B8A"}
+    - {text: "The Gambia 2018: 30 districts", size: 15}
+    - {text: "Ghana 2017: 75 of 260 districts", size: 15}
+    - {text: "Sierra Leone 2013: 14 districts", size: 15}
+    - {text: "Malawi 2015-16: 87 Traditional Authorities", size: 15}
+    - {text: "206 districts where blood was drawn", size: 15, color: "666666"}
+  - {x: 0.5, y: 6.85, w: 3.8, h: 0.4, paras: [{text: "Framework adapted from Hess et al., Ann N Y Acad Sci 2023", size: 10, color: "808080"}]}
+
+# ---- slide 3b: the same figure with a coverage badge on each of her boxes
+- title: We started from what causes deficiency, not from what data exist
+  layout: freeform
+  title_box: [0.45, 0.4, 3.7, 2.2]
+  title_size: 26
+  images:
+  - {file: ../../results/figures/mnf15_v2/v2_framework_coverage.png, x: 4.3, y: 0.3, w: 8.9}
+  texts:
+  - {x: 0.5, y: 2.6, w: 3.75, h: 0.45, paras: [{text: "Is there a public, district-level measure?", size: 15, bold: true, color: "1A1A1A"}]}
+  - {x: 0.9, y: 3.05, w: 3.35, h: 0.4, paras: [{text: "Yes: a district-level public layer", size: 14}]}
+  - {x: 0.9, y: 3.43, w: 3.35, h: 0.62, paras: [{text: "Partly: national or modelled only, or part of the box", size: 14}]}
+  - {x: 0.9, y: 4.05, w: 3.35, h: 0.4, paras: [{text: "No: nothing public reaches it", size: 14}]}
+  - {x: 0.9, y: 4.43, w: 3.35, h: 0.4, paras: [{text: "The outcome the surveys measured", size: 14}]}
+  - x: 0.5
+    y: 4.95
+    w: 3.7
+    h: 1.9
+    paras:
+    - {text: "What the model learns from", size: 15, bold: true, color: "0F7B8A"}
+    - {text: "The Gambia 2018: 30 districts", size: 13}
+    - {text: "Ghana 2017: 75 of 260 districts", size: 13}
+    - {text: "Sierra Leone 2013: 14 districts", size: 13}
+    - {text: "Malawi 2015-16: 87 Traditional Authorities", size: 13}
+  - {x: 0.5, y: 6.85, w: 3.8, h: 0.4, paras: [{text: "Framework adapted from Hess et al., Ann N Y Acad Sci 2023", size: 10, color: "808080"}]}
+  dots:
+  - {x: 0.55, y: 3.13, d: 0.24, color: "2E7D32"}
+  - {x: 0.55, y: 3.51, d: 0.24, color: "E0A100"}
+  - {x: 0.55, y: 4.13, d: 0.24, color: "969696"}
+  boxes:
+  - {x: 0.55, y: 4.52, w: 0.24, h: 0.2, color: "0F7B8A", width_pt: 2.5}
+
+- title: Learn where blood was drawn, apply everywhere, test on what it never saw
+  layout: pipeline
+  banner: "Tested by hiding one district in five, then a whole region, then a whole country, and compared with the regional average programmes use today"
+  banner_size: 15
+  banner_height: 0.85
+  heading_size: 17
+  caption_size: 14.5
+  items:
+  - icon: vials
+    heading: Four national surveys
+    caption: "206 districts where blood was drawn, in The Gambia, Ghana, Sierra Leone and Malawi"
+  - icon: satellite
+    heading: 575 public layers
+    caption: "Climate, soil, crops and livestock, disease, food prices, household surveys: every district, 28 sources, none bought"
+  - icon: scale-balanced
+    heading: A simple weighted index
+    caption: "Learns which layers track deficiency where blood was drawn. Nothing tuned: 14 machine-learning alternatives did no better"
+  - icon: ranking-star
+    heading: Every district ranked
+    caption: "Including the districts no survey reached, and countries with no survey at all"
+
+- title: Making the next survey count for more
+  layout: icon_rows
+  heading_size: 18
+  text_size: 14
+  image: {file: ../../results/figures/mnf15_v2/v2_ceiling.png, width: 4.2}
+  items:
+  - icon: layer-group
+    heading: Put two or three clusters in a district, not one
+    caption: "Three districts in four rest on one cluster today. That caps what any model, and the survey's own district numbers, can show."
+  - icon: vial
+    heading: Before a full survey, take a small national sample
+    caption: "About 40 blood draws per nutrient anchor the ranking; district planning figures then typically land within about 10 points."
+  - icon: map-location-dot
+    heading: Confirm the model's shortlist first
+    caption: "The ranking says which unsurveyed districts to check first. The dashboard's planning tab lets you try a design."
+
+- title: What the model can and cannot do for you
+  layout: cards
+  area_width: 9.7
+  heading_size: 18
+  text_size: 16
+  icon_size: 0.75
+  items:
+  - icon: check@green
+    heading: Use it to
+    lines:
+    - Put districts in order to reach first
+    - Sequence a programme roll-out
+    - Choose which unsurveyed districts to confirm first
+  - icon: triangle-exclamation@amber
+    heading: Use with survey data
+    lines:
+    - "Planning prevalence: anchored to a survey, 90% bands of about 25 points either side"
+    - "Reaching the most deficient people: multiply the rate by population"
+  - icon: xmark@grey
+    heading: Do not use it to
+    lines:
+    - Replace a survey
+    - Judge whether a programme worked
+    - "Decide what to change: it says where, not why"
+  images:
+  - {file: img/qr_dashboard.png, x: 10.95, y: 2.1, w: 1.9, caption: "Every district, five countries:\namertens.shinyapps.io/\nmicronutrient-burden", caption_size: 11, caption_width: 2.25, caption_height: 1.1}
+
+- title: What we found, and what we ask
+  layout: two_panel
+  area_width: 9.7
+  heading_size: 15
+  text_size: 12.5
+  banner: Modelling extends a survey's reach. It does not replace the survey.
+  banner_size: 19
+  panels:
+  - icon: magnifying-glass-chart
+    title: What we found
+    items:
+    - icon: satellite
+      heading: Free public data carry real signal
+      caption: Much of it in climate and soil, measured everywhere, every year.
+    - icon: ranking-star
+      heading: Better than today's regional averages
+      caption: Inside a surveyed country, and in countries it never saw.
+    - icon: layer-group
+      heading: The limit today is surveys, not data
+      caption: On average, each added survey improved the ranking for countries held out.
+  - icon: handshake
+    title: What we ask
+    items:
+    - icon: vials
+      heading: Share your survey with the pool
+      caption: Recent, planned, or sitting in a drawer.
+    - icon: map-location-dot
+      heading: Design the next survey with us
+      caption: Where to sample, and how many clusters in a district.
+    - icon: circle-question
+      heading: Tell us what is good enough
+      caption: How accurate must a district ranking be before you would use it?
+  images:
+  - {file: img/qr_dashboard.png, x: 10.95, y: 2.3, w: 1.9, caption: "Try it:\namertens.shinyapps.io/\nmicronutrient-burden", caption_size: 11, caption_width: 2.25, caption_height: 0.9}
+
+# ---- appendix: the previous version's two illustrated slides, unchanged in content
+- title: Where the predictors come from
+  layout: grid
+  columns: 2
+  footnote: "575 district-level predictors from 28 public sources, linked to 554 districts in four countries. Number of predictors in brackets; every layer is public."
+  groups:
+  - icon: satellite
+    title: Climate, satellite imagery, greenness
+    count_of: [Satellite embedding, Climate and weather, Ecosystem productivity/greenness, Water and coast proximity]
+    caption: "TerraClimate rainfall and temperature; MODIS greenness; AlphaEarth satellite embedding; distance to water and coast"
+  - icon: mound
+    title: Soil chemistry
+    count_of: [Soil characteristics]
+    caption: "SoilGrids and iSDA: pH, organic carbon, texture, nutrient availability"
+  - icon: tractor
+    title: Crops and livestock
+    count_of: ["Agricultural production, land use", Livestock density]
+    caption: "MapSPAM crop mix and cropland; cattle, goat and poultry density (Gridded Livestock of the World)"
+  - icon: basket-shopping
+    title: Food prices, diet, fortification
+    count_of: [Food prices and supply, Market prices (RTFP), Household diet and consumption (HCES), "Dietary inadequacy (MODELLED SURFACE, HCES)", Food fortification and supplementation]
+    caption: "WFP and World Bank prices; household budget surveys; GFDx fortification coverage"
+  - icon: virus
+    title: Infectious disease and immunisation
+    count_of: [Infection and inflammation burden, Malaria incidence and treatment, Helminth burden and control, Infant and child morbidity/mortality, Child mortality, Adult and maternal mortality, Immunisation]
+    caption: "Malaria Atlas; WHO ESPEN helminths; IHME child morbidity and mortality; immunisation coverage"
+  - icon: child
+    title: Nutrition status and infant feeding
+    count_of: [Child anthropometry, Adult nutrition, Nutrition status (MODELLED SURFACE), Anaemia and haemoglobin, Infant and young child feeding]
+    caption: "Stunting and wasting; anaemia (modelled); infant and young child feeding (IHME, MICS, DHS)"
+  - icon: house-chimney
+    title: Households, schooling, water, health access
+    count_of: [Household assets and characteristics, "Education, employment, SES", Water and sanitation, "Fertility, reproductive health", Healthcare access]
+    caption: "Assets, schooling, employment; water and sanitation; fertility; access to care (MICS, DHS)"
+  - icon: city
+    title: Settlement, population, conflict
+    count_of: [Built environment, "Ruralness, population density, built environment", Conflict and insecurity]
+    caption: "Night lights, population density, built-up area (WorldPop, GHSL); ACLED conflict events"
+
+- title: How the model is built and how it is tested
+  layout: two_panel
+  heading_size: 15
+  text_size: 12
+  panels:
+  - icon: sliders
+    title: How the model is built
+    items:
+    - icon: arrow-down-wide-short
+      heading: Every layer becomes a within-country rank
+      caption: A level difference between surveys cannot act as signal.
+    - icon: layer-group
+      heading: Each family of layers is reduced to a few summary scores
+      caption: Learned from the predictors only, never from the outcome.
+    - icon: scale-balanced
+      heading: Each score is weighted by how well it tracked deficiency
+      caption: In the training districts, where blood was drawn.
+    - icon: lock
+      heading: The weighted sum, rescaled to the training districts' spread
+      caption: Nothing is tuned.
+  - icon: clipboard-check
+    title: How it is tested
+    items:
+    - icon: location-crosshairs
+      heading: One district in five is hidden
+      caption: Compared against the region's average, computed without that district.
+    - icon: draw-polygon
+      heading: A whole region is hidden
+      caption: Compared against a map of the neighbouring districts.
+    - icon: earth-africa
+      heading: A whole country is hidden
+      caption: Compared against chance, with countries kept whole.

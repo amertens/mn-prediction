@@ -83,8 +83,10 @@ than expected:
   than the rank-side 38% of VZ-01. They are retired from the prevalence
   displays as of this note.
 - **Honest widths are wide: median half-width 26 pp.** Iron cells sit at
-  ±30-37 pp; Ghana folate ±49; Malawi selenium ±56-59 (the strongest RANKING
-  cell has the widest LEVEL band — the rank-vs-level split in one number);
+  ±30-37 pp; Ghana folate ±49; Malawi selenium ±56-59 (a cell that ranks
+  better than the survey's regional averages, 0.43-0.45 vs 0.24-0.32, yet
+  carries the widest level band; corrected 27 Sep: it is not the strongest
+  ranking cell, which is Malawi women's B12 at 0.70);
   the rare-prevalence vitamin A cells are ±2-13 pp because the outcome is
   near zero. Much of the width is the coverage target's own noise: the bands
   cover the survey's measured district value, which mostly rests on one or
