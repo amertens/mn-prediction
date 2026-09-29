@@ -1993,3 +1993,86 @@ the same food-group definitions the other three countries use (so the column is
 pooled-comparable), and score it with MX-01's matched-versus-mismatched nutrient
 control. Three small GLSS7 files are now extracted to `data/LSMS/GHA_2017/` for
 whoever picks it up.
+
+---
+
+## HC-05 (2026-09-29) — three answers, and my "decisive" objection withdrawn
+
+### 1. MIMI district-level estimates for the other three countries
+
+**Malawi: yes, and openly licensed.** Tang et al., *BMC Nutrition* 2026, "The
+risk of dietary multiple micronutrient inadequacies is widespread and
+geographically varied in Malawi": IHS5 (April 2019 – April 2020), **15
+micronutrients**, "reported at national, regional and **district** levels",
+with district point prevalence and 95% CI in Additional Tables 2 and 3, **CC BY
+4.0**. Directly ingestible.
+
+**Gambia and Sierra Leone: no.** The Malawi paper covers only Malawi, and the
+MIMI published set is Ethiopia, Nigeria, Senegal, Rwanda and Malawi. The user's
+expectation was right for those two and wrong for Malawi.
+
+**So the `mimi_*` block can go from 1 country at admin-1 to 2 countries, one of
+them at the correct rung** — for the cost of transcribing a supplementary table.
+That is the cheapest available fix in this area and it should be done before any
+of the rest.
+
+### 2. The food consumption module is extracted
+
+`g7sec9b.dta`, **3.22 GB**, now at `data/LSMS/GHA_2017/`. Verified readable with
+`pandas.read_stata(chunksize=…, convert_categoricals=False)` — the categorical
+conversion fails only because `freqcd`'s value labels repeat, which is cosmetic.
+
+Structure is exactly what is needed: **household × item × six visits**, with
+`s9bqNa` amount spent, `s9bqNb` quantity acquired and `s9bqNc` unit for each
+visit N, plus `hid`, `clust` and `freqcd`. Item labels confirm it is the food
+diary ("Millet", "Fufu and light soup", …) mixed with non-food items, so the
+food-group mapping must select. The user is right that this is a one-time cost
+and it is now paid.
+
+### 3. Admin-1 versus Admin-2 — I was wrong, and the DHS route works
+
+I called the admin-1 broadcast a "decisive" objection. **It is not.** GLSS7 is
+district-identified:
+
+| | value |
+|---|---|
+| districts (`district` in `g7sec0`) | **214** |
+| enumeration areas (`clust`) | **1,000** |
+| households | 14,009 |
+| households per district | median **53** (IQR 40–73, min 8) |
+| **EAs per district** | median **4.0** (min 1, max 47) |
+
+The ten-region broadcast is a **choice in the builder**, which reads `region`
+when `district` was available in the same survey. And the comparison that
+matters: **GLSS7 has median 4 clusters per district where the biomarker survey
+has about one** (83% of Ghana's districts are single-cluster). So the covariate
+source is better clustered than the outcome it would predict.
+
+**The DHS method therefore applies directly.** DS-01 already does surveyPrev
+cluster-level BYM2 for DHS-derived Admin-2 predictors; GLSS7 has the cluster
+identifiers and enough EAs per district to support the same treatment, which is
+the standard answer to "the survey is designed at region level but I want
+district estimates".
+
+**One remaining blocker, and it is metadata not data.** The `district` codes are
+numeric and unlabelled — `g7loc_upd.dta` carries value-label sets for region,
+ecological zone and locality but none for district. A Ghana Statistical Service
+district code → name crosswalk is needed, and then a second crosswalk to the
+project's 260-district spine, because GLSS7's 214 districts predate the 2018
+redistricting (216 → 260, 10 → 16 regions). The project already holds the
+16-to-10 *region* crosswalk, so the district one is the missing piece.
+
+### Revised recommendation
+
+The prior is still unfavourable — the HCES block adds −0.0005 to the index, and
+dietary composition has failed from two other directions (MX-01, GN-01) — but
+the *reason I gave for not trying* was wrong, so the decision should be remade
+on the real prior rather than on a false constraint. Order:
+
+1. **Ingest Malawi's district-level MIMI estimates** (transcription, CC BY 4.0).
+   Cheapest, and fixes the `mimi_*` block's disjoint coverage at the right rung.
+2. **Obtain the GSS district code crosswalk** and map GLSS7's 214 to the spine's
+   260. Without this, nothing else in Ghana can reach Admin-2.
+3. **Then** stream `g7sec9b.dta` for the food-group indicators, with the other
+   three countries' definitions, and smooth to districts the DS-01 way.
+4. Score with MX-01's matched-versus-mismatched nutrient control.
