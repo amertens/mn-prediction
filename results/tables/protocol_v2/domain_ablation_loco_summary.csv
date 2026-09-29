@@ -1,43 +1,51 @@
 "target","domain","cells","drop","only","full","delta_drop"
-"level","Climate and weather",22,0.268,0.326,0.298,0.03
-"level","Soil characteristics",22,0.269,0.327,0.298,0.029
-"level","Anaemia and haemoglobin",22,0.28,0.173,0.298,0.018
-"level","Agricultural production, land use",22,0.285,0.171,0.298,0.013
-"level","Livestock density",22,0.286,0.228,0.298,0.012
-"level","Infection and inflammation burden",22,0.289,0.144,0.298,0.009
-"level","Household assets and characteristics",22,0.29,0.164,0.298,0.008
-"level","Ecosystem productivity/greenness",22,0.291,0.215,0.298,0.007
-"level","Child anthropometry",22,0.294,0.196,0.298,0.004
-"level","Immunisation",22,0.294,0.008,0.298,0.004
-"level","Water and coast proximity",22,0.295,-0.012,0.298,0.003
-"level","Built environment",22,0.297,0.092,0.298,0.002
-"level","Satellite embedding",22,0.296,0.199,0.298,0.002
-"level","Conflict and insecurity",22,0.298,-0.038,0.298,0
-"level","Food fortification and supplementation",22,0.298,0.027,0.298,0
-"level","Food prices and supply",22,0.298,0.011,0.298,0
-"level","Ruralness, population density, built environment",22,0.3,-0.087,0.298,-0.002
-"level","Infant and young child feeding",22,0.305,0.042,0.298,-0.006
-"level","Household diet and consumption (HCES)",22,0.306,-0.134,0.298,-0.008
-"level","Water and sanitation",22,0.308,0.021,0.298,-0.01
-"level","Education, employment, SES",22,0.311,0.095,0.298,-0.013
-"prev","Soil characteristics",22,0.171,0.254,0.196,0.025
-"prev","Infection and inflammation burden",22,0.178,0.101,0.196,0.018
-"prev","Climate and weather",22,0.184,0.233,0.196,0.012
-"prev","Livestock density",22,0.187,0.116,0.196,0.009
-"prev","Anaemia and haemoglobin",22,0.188,0.151,0.196,0.008
-"prev","Child anthropometry",22,0.188,0.148,0.196,0.008
-"prev","Agricultural production, land use",22,0.191,0.149,0.196,0.005
-"prev","Household assets and characteristics",22,0.192,0.115,0.196,0.004
-"prev","Food prices and supply",22,0.198,0.066,0.196,-0.002
-"prev","Food fortification and supplementation",22,0.199,-0.127,0.196,-0.003
-"prev","Infant and young child feeding",22,0.199,0.059,0.196,-0.003
-"prev","Education, employment, SES",22,0.2,0.051,0.196,-0.004
-"prev","Water and coast proximity",22,0.2,0.096,0.196,-0.004
-"prev","Ruralness, population density, built environment",22,0.201,-0.02,0.196,-0.005
-"prev","Ecosystem productivity/greenness",22,0.202,0.1,0.196,-0.006
-"prev","Conflict and insecurity",22,0.203,-0.008,0.196,-0.008
-"prev","Household diet and consumption (HCES)",22,0.204,-0.05,0.196,-0.008
-"prev","Satellite embedding",22,0.207,0.082,0.196,-0.011
-"prev","Immunisation",22,0.209,-0.072,0.196,-0.013
-"prev","Water and sanitation",22,0.209,-0.033,0.196,-0.013
-"prev","Built environment",22,0.213,0.051,0.196,-0.017
+"level","Soil characteristics",22,0.251,0.327,0.276,0.025
+"level","Anaemia and haemoglobin",22,0.257,0.156,0.276,0.019
+"level","Infection and inflammation burden",22,0.262,0.09,0.276,0.014
+"level","Climate and weather",22,0.263,0.326,0.276,0.013
+"level","Agricultural production, land use",22,0.264,0.242,0.276,0.012
+"level","Livestock density",22,0.266,0.228,0.276,0.009
+"level","Immunisation",22,0.27,-0.02,0.276,0.006
+"level","Built environment",22,0.272,0.087,0.276,0.004
+"level","Ecosystem productivity/greenness",22,0.272,0.215,0.276,0.004
+"level","Child anthropometry",22,0.274,0.203,0.276,0.002
+"level","Fertility, reproductive health",22,0.274,0.055,0.276,0.002
+"level","Infant and young child feeding",22,0.274,0.182,0.276,0.002
+"level","Education, employment, SES",22,0.275,0.16,0.276,0.001
+"level","Adult nutrition",22,0.276,0.197,0.276,0
+"level","Child mortality",22,0.276,-0.052,0.276,0
+"level","Conflict and insecurity",22,0.275,-0.038,0.276,0
+"level","Household assets and characteristics",22,0.276,0.131,0.276,0
+"level","Ruralness, population density, built environment",22,0.276,-0.087,0.276,0
+"level","Healthcare access",22,0.278,0.058,0.276,-0.002
+"level","Satellite embedding",22,0.278,0.199,0.276,-0.002
+"level","Food prices and supply",22,0.279,0.011,0.276,-0.003
+"level","Water and coast proximity",22,0.279,-0.012,0.276,-0.003
+"level","Household diet and consumption (HCES)",22,0.28,-0.134,0.276,-0.004
+"level","Water and sanitation",22,0.281,-0.011,0.276,-0.005
+"level","Food fortification and supplementation",22,0.283,0,0.276,-0.007
+"prev","Soil characteristics",22,0.143,0.254,0.168,0.025
+"prev","Climate and weather",22,0.148,0.233,0.168,0.02
+"prev","Agricultural production, land use",22,0.155,0.176,0.168,0.012
+"prev","Anaemia and haemoglobin",22,0.157,0.151,0.168,0.011
+"prev","Child anthropometry",22,0.157,0.149,0.168,0.011
+"prev","Infection and inflammation burden",22,0.157,0.036,0.168,0.011
+"prev","Livestock density",22,0.161,0.116,0.168,0.007
+"prev","Water and coast proximity",22,0.164,0.096,0.168,0.004
+"prev","Infant and young child feeding",22,0.165,0.16,0.168,0.003
+"prev","Built environment",22,0.166,0.074,0.168,0.002
+"prev","Ecosystem productivity/greenness",22,0.167,0.1,0.168,0.001
+"prev","Adult nutrition",22,0.168,0.106,0.168,0
+"prev","Food prices and supply",22,0.168,0.066,0.168,0
+"prev","Fertility, reproductive health",22,0.169,-0.019,0.168,-0.001
+"prev","Child mortality",22,0.17,-0.032,0.168,-0.002
+"prev","Immunisation",22,0.17,-0.111,0.168,-0.002
+"prev","Satellite embedding",22,0.171,0.082,0.168,-0.003
+"prev","Ruralness, population density, built environment",22,0.172,-0.02,0.168,-0.004
+"prev","Conflict and insecurity",22,0.173,-0.008,0.168,-0.005
+"prev","Healthcare access",22,0.173,-0.028,0.168,-0.005
+"prev","Household diet and consumption (HCES)",22,0.172,-0.05,0.168,-0.005
+"prev","Food fortification and supplementation",22,0.173,-0.082,0.168,-0.006
+"prev","Household assets and characteristics",22,0.175,0.074,0.168,-0.007
+"prev","Water and sanitation",22,0.175,-0.015,0.168,-0.007
+"prev","Education, employment, SES",22,0.176,0.118,0.168,-0.008
