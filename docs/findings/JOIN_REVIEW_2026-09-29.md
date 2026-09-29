@@ -238,17 +238,52 @@ answering the resolution question properly.
 
 ---
 
-## Recommended order of work
+## Fixed, same day
 
-1. Fix `pp` in script 32 and re-run AG-01 (defect 1). Until then its result is
-   unreproducible and a re-run silently empties it.
-2. Narrow the linter's `is_pair` test to the `by=` clause (defect 2) and
-   re-baseline.
-3. Triage the 59 grandfathered sites against the now-explicit rule, starting
+**Defect 1.** `pp` is now built from the same outcome-specific population the
+outcome side already uses, `admin2_population_v2(POP, cn, pop_for(on))`, and
+joined with `join_admin2_v2()` on the pair key, so a fan stops the run instead
+of passing silently. The blanket `tryCatch(error = function(e) NULL)` now
+reports each failure as a `[skip]` line, and the write refuses to overwrite the
+table with a 0-row frame.
+
+AG-01 re-runs clean and its **conclusion is unchanged**: the regional result is
+not sensitive to how regions are built.
+
+| target | scheme | cells | mean rho | positive |
+|---|---|---|---|---|
+| level | neff (record) | 22 | 0.320 | 17 |
+| level | pop | 22 | 0.316 | 17 |
+| level | pop_both | 22 | 0.274 | 16 |
+
+`pop` beats `neff` in 10 of 22 cells (median +0.000), `pop_both` in 6 of 22
+(median −0.049). The estimator of record is as good as either alternative.
+
+**104 of the 132 cells moved against the stale file, but that comparison is
+confounded and should not be read as the size of the bug.** Both inputs were
+regenerated after the 9 Sep run — `targets_v2.csv` and
+`predictors_admin2_shared.csv` on 29 Sep, carrying the vitamin A retinol
+rescale (VA-01) and the Malawi B12 unit fix (RP-01). The repaired run
+supersedes the stale one; the two effects cannot be separated from what is on
+disk now.
+
+**Defect 2.** The guard is now per-pattern. `by = "Admin2"` cannot fire on a
+pair key — it requires `"Admin2"` immediately after `by =` or `by = c(`, and
+`by = c("Admin1","Admin2")` has `"Admin1"` in that position — so it no longer
+takes the line-level `is_pair` test. The two positional patterns still do,
+because their `[^)]*` genuinely spans the Admin1 argument. A regression test in
+`tests/testthat/test-admin2-join-lint.R` pins the exact escaped form; it finds
+0 sites under the old logic and 1 under the new. Suite: 11 passing, and the
+scan is back to 59 sites / 0 new with the baseline untouched, because script 32
+is no longer a name-only join.
+
+## Still open
+
+1. Triage the 59 grandfathered sites against the now-explicit rule, starting
    with anything touching the 243-row Malawi predictor table (defect 3).
-4. Add a margin rule to `admin2_match_v2()` before it is ever pointed at a
+2. Add a margin rule to `admin2_match_v2()` before it is ever pointed at a
    large vocabulary (defect 4).
-5. Correct the testing claim in `CLAUDE.md`.
+3. Correct the testing claim in `CLAUDE.md`.
 
 Sierra Leone chiefdoms: **do not pursue.** The measurement above is the reason,
 and it is cheap to re-check if the survey is ever extended.

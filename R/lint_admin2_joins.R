@@ -63,13 +63,23 @@ ADMIN2_LINT_EXEMPT <- c(
 .admin2_lint_patterns <- function() {
   list(
     # by = "Admin2" / by="Admin2" / by = c("Admin2")
-    list(kind = "by_name_only",
+    #
+    # guard_pair = FALSE. This pattern CANNOT fire on a pair key: it demands
+    # "Admin2" immediately after `by =` or `by = c(`, and `by = c("Admin1",
+    # "Admin2")` has "Admin1" in that position. Suppressing it whenever the LINE
+    # mentions Admin1 is what hid
+    #   S[S$country == cn, c("Admin1","Admin2", PREDS)] |> left_join(pp, by = "Admin2")
+    # in scripts/protocol_v2/32_admin1_aggregation_weights.R, where the Admin1 is
+    # a selected column and the join is still name-only. (JOIN_REVIEW_2026-09-29)
+    list(kind = "by_name_only", guard_pair = FALSE,
          rx   = "\\bby(\\.[xy])?\\s*=\\s*(c\\s*\\(\\s*)?[\"']Admin2[\"']\\s*\\)?"),
     # dplyr positional join: left_join(x, y, "Admin2")
-    list(kind = "positional_join",
+    # guard_pair = TRUE: [^)]* happily spans the Admin1 argument of
+    # `by = c("Admin1", "Admin2")`, so this one does need the line-level test.
+    list(kind = "positional_join", guard_pair = TRUE,
          rx   = "\\b(inner|left|right|full|semi|anti)_join\\s*\\([^)]*,\\s*[\"']Admin2[\"']"),
-    # base positional merge: merge(x, y, "Admin2")
-    list(kind = "positional_merge",
+    # base positional merge: merge(x, y, "Admin2") - same span problem
+    list(kind = "positional_merge", guard_pair = TRUE,
          rx   = "\\bmerge\\s*\\([^)]*,\\s*[\"']Admin2[\"']\\s*[,)]")
   )
 }
@@ -142,7 +152,8 @@ scan_admin2_joins <- function(root = here::here(), dirs = ADMIN2_LINT_DIRS) {
       is_pair <- grepl("[\"']Admin1[\"']", code)
       is_comp <- .admin2_composite_no_admin1(code)
       for (p in pats) {
-        hit <- which(grepl(p$rx, code, perl = TRUE) & !is_pair)
+        keep <- if (isTRUE(p$guard_pair)) !is_pair else TRUE
+        hit <- which(grepl(p$rx, code, perl = TRUE) & keep)
         for (i in hit) {
           out[[length(out) + 1L]] <- data.frame(
             file = rel, line = i,

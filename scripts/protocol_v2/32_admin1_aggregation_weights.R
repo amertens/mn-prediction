@@ -44,7 +44,16 @@ build_a1 <- function(cn, on, target, scheme) {
   t <- t[is.finite(t$pop) & t$pop > 0, ]; if (!nrow(t)) return(NULL)
   wy <- if (scheme == "neff") t[[wcol]] else t$pop
   a1 <- t |> mutate(wy = wy) |> group_by(Admin1) |> summarise(y = wmean(.data[[ycol]], wy), w = sum(.data[[wcol]]), .groups = "drop") |> filter(is.finite(y))
-  sc <- S[S$country == cn, c("Admin1", "Admin2", PREDS)] |> left_join(pp, by = "Admin2")
+  # Predictor side. `pp` was undefined here until 2026-09-29, so build_a1() threw
+  # "object 'pp' not found" for every country, the tryCatch below swallowed it and
+  # the script wrote an EMPTY table over its own result. It is the same
+  # outcome-specific population the outcome side uses above, and it joins on the
+  # pair key: S is the 243-row Malawi predictor set, where TA Lundu, TA Ngabu,
+  # TA Pemba and TA Malemia each occur in two Admin1 regions, so a name-only join
+  # fans 243 rows to 251.
+  pp <- admin2_population_v2(POP, cn, pop_for(on))
+  sc <- join_admin2_v2(S[S$country == cn, c("Admin1", "Admin2", PREDS)], pp,
+                       what = paste("preds", cn, on), quiet = TRUE)
   x1 <- if (scheme == "pop_both") sc |> group_by(Admin1) |> summarise(across(all_of(PREDS), ~ wmean(.x, pop)), .groups = "drop")
         else sc |> group_by(Admin1) |> summarise(across(all_of(PREDS), ~ mean(.x, na.rm = TRUE)), .groups = "drop")
   c1 <- CENT[CENT$country == cn, ] |> group_by(Admin1) |> summarise(lon = mean(lon), lat = mean(lat), .groups = "drop")
@@ -55,7 +64,13 @@ build_a1 <- function(cn, on, target, scheme) {
 
 rows <- list()
 for (scheme in c("neff", "pop", "pop_both")) for (target in c("level", "prev")) for (on in unique(TG$outcome)) {
-  cl <- list(); for (cn in COUNTRIES) { z <- tryCatch(build_a1(cn, on, target, scheme), error = function(e) NULL); if (!is.null(z)) cl[[cn]] <- z }
+  # A bare error -> NULL hid the undefined `pp` for three weeks: every country
+  # failed, every combination was skipped, and the run still "succeeded". Report.
+  cl <- list(); for (cn in COUNTRIES) {
+    z <- tryCatch(build_a1(cn, on, target, scheme),
+                  error = function(e) { message(sprintf("  [skip] %s / %s / %s / %s: %s",
+                                                        scheme, target, on, cn, conditionMessage(e))); NULL })
+    if (!is.null(z)) cl[[cn]] <- z }
   if (length(cl) < 3) next
   common <- Reduce(intersect, lapply(cl, function(z) colnames(z$X))); if (length(common) < 20) next
   Y <- unlist(lapply(cl, function(z) as.numeric(scale(z$y_mod)))); Xm <- do.call(rbind, lapply(cl, function(z) z$X[, common, drop = FALSE]))
@@ -71,7 +86,14 @@ for (scheme in c("neff", "pop", "pop_both")) for (target in c("level", "prev")) 
     rows[[length(rows) + 1L]] <- data.frame(scheme = scheme, target = target, outcome = on, country = cn, n_units = length(k), spearman = s$spearman, thin = length(k) < 8, stringsAsFactors = FALSE) }
   cat("done", scheme, target, on, "\n")
 }
-R <- bind_rows(rows); write.csv(R, file.path(OUTDIR, "admin1_aggregation_weights.csv"), row.names = FALSE)
+R <- bind_rows(rows)
+# Never overwrite a real result with an empty frame. bind_rows(list()) is 0 rows,
+# so with the old blanket tryCatch a total failure wrote an empty CSV over the
+# previous run and reported nothing.
+if (!nrow(R)) stop("[AG-01] no cells were built - refusing to overwrite ",
+                   file.path(OUTDIR, "admin1_aggregation_weights.csv"),
+                   ". See the [skip] lines above for why each country failed.")
+write.csv(R, file.path(OUTDIR, "admin1_aggregation_weights.csv"), row.names = FALSE)
 cat("\n===== AG-01: regional transport (LOCO Spearman, domain_index) by aggregation scheme =====\n")
 print(as.data.frame(R |> group_by(target, scheme) |> summarise(cells = dplyr::n(), mean_rho = round(mean(spearman, na.rm = TRUE), 3),
   median_rho = round(median(spearman, na.rm = TRUE), 3), cells_positive = sum(spearman > 0, na.rm = TRUE), .groups = "drop") |> arrange(target, scheme)), row.names = FALSE)

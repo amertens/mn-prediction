@@ -32,6 +32,28 @@ test_that("the lint finds the sites it is supposed to find", {
   expect_false(any(grepl("^#", s$code)))
 })
 
+test_that("a name-only join is caught even when the line also names Admin1", {
+  # Regression, JOIN_REVIEW_2026-09-29. `is_pair` used to be decided by whether
+  # "Admin1" appeared ANYWHERE on the line, so selecting the pair columns and
+  # then joining on the name alone was invisible. That hid the one live defect
+  # in the protocol-v2 path for three weeks:
+  #   S[S$country == cn, c("Admin1","Admin2", PREDS)] |> left_join(pp, by = "Admin2")
+  # The `by = ...` pattern cannot fire on a genuine pair key, so it no longer
+  # takes the guard; the two positional patterns still do.
+  tmp <- withr::local_tempdir()
+  dir.create(file.path(tmp, "R"))
+  writeLines(c(
+    'sc <- S[S$country == cn, c("Admin1", "Admin2", PREDS)] |> left_join(pp, by = "Admin2")',
+    'ok <- dplyr::left_join(x[, c("Admin1", "Admin2")], y, by = c("Admin1", "Admin2"))',
+    'ok2 <- merge(x[, c("Admin1", "Admin2")], y, c("Admin1", "Admin2"))'
+  ), file.path(tmp, "R", "fake.R"))
+
+  s <- scan_admin2_joins(root = tmp, dirs = "R")
+  expect_equal(nrow(s), 1L)                       # only the first line is a defect
+  expect_equal(s$kind, "by_name_only")
+  expect_match(s$code, "left_join\\(pp, by = \"Admin2\"\\)")
+})
+
 test_that("comment stripping does not break on a hash inside a string", {
   expect_equal(.strip_r_comment('x <- "a#b"  # trailing'), 'x <- "a#b"  ')
   expect_equal(.strip_r_comment("# whole line"), "")
