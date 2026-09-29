@@ -53,9 +53,26 @@ targets::tar_meta(fields = any_of("error"), complete_only = TRUE)  # last-run er
 targets::tar_destroy()                                        # nuke the whole cache
 ```
 
-There is no test suite (no `testthat`) — correctness is checked by running
-targets and inspecting `results/tables/`, `tar_meta()` errors, and (for the
-dashboard) a manual `shiny::runApp("dashboard")` / `testServer` smoke check.
+There is a `testthat` suite of **structural guards** under `tests/testthat/`
+(14 files, 77 tests, all passing as of 2026-09-29). It does not test the
+science; it pins the invariants that have been broken before — the Admin-2
+name-only join lint and its baseline, the key/spine helpers, the leakage and
+DHS-measurement guards, unit counts, the calibration gate, the reliability
+ceiling and the Malawi selenium/iodine config. Run it with:
+
+```r
+testthat::test_dir("tests/testthat")                       # all of it
+testthat::test_file("tests/testthat/test-admin2-join-lint.R")   # one file
+```
+
+The repo is a targets pipeline, not a package, so there is no `library()` to
+load: `tests/testthat/helper-mnp.R` sources `R/` directly.
+
+**Correctness of the analysis is still checked by running targets** and
+inspecting `results/tables/`, `tar_meta()` errors, and (for the dashboard) a
+manual `shiny::runApp("dashboard")` / `testServer` smoke check. The suite
+catches structural regressions, not wrong numbers — a green suite says nothing
+about whether an estimate is right.
 
 ## Architecture
 

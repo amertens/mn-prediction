@@ -115,11 +115,28 @@ admin2_population_v2 <- function(POP, cn, col) {
 #'
 #' Exact match on the normalised key first, then the alias table (source key ->
 #' target name; metadata/crosswalks/<aliases>.csv with columns source, target),
-#' then Jaro-Winkler within `max_jw`. Every decision is written to
-#' `review_csv` (source, target, method, jw) so it can be checked line by line.
+#' then Jaro-Winkler within `max_jw` AND ahead of the runner-up by `min_margin`.
+#' Every decision is written to `review_csv` (source, target, method, jw, jw2,
+#' margin, runner_up) so it can be checked line by line.
 #'
-#' @return character vector of target names (NA where unmatched)
-admin2_match_v2 <- function(src, tgt, aliases_csv = NULL, max_jw = 0.15, review_csv = NULL, label = "match") {
+#' WHY THE MARGIN (JOIN_REVIEW_2026-09-29). `max_jw` alone is far looser than the
+#' separation between genuinely different districts: Ghana has 147 distinct
+#' district pairs within 0.15 of each other, Malawi 322. `Ahafo Ano South East`
+#' and `Ahafo Ano South West` are 0.024 apart, so a source spelling `Ahafo Ano
+#' South Est` sits 0.012 from BOTH and the old code silently took whichever
+#' which.min() returned first. Measured margins: the three fuzzy matches this
+#' project has ever made scored 0.318, 0.053 and 0.041, while every East/West
+#' typo scores exactly 0.000. A threshold of 0.02 accepts all the former and
+#' rejects all the latter.
+#'
+#' An ambiguous source is left UNMATCHED (`method = "ambiguous"`) rather than
+#' guessed. The review file names the runner-up, so the fix is one line in the
+#' alias CSV. `min_margin = 0` restores the old behaviour.
+#'
+#' @param max_jw largest accepted Jaro-Winkler distance to the best target
+#' @param min_margin how far the runner-up must sit beyond the best match
+#' @return character vector of target names (NA where unmatched or ambiguous)
+admin2_match_v2 <- function(src, tgt, aliases_csv = NULL, max_jw = 0.15, min_margin = 0.02, review_csv = NULL, label = "match") {
   src <- as.character(src); tgt <- unique(as.character(tgt))
   ks <- admin2_kk(src); kt <- admin2_kk(tgt)
   out <- rep(NA_character_, length(src)); method <- rep(NA_character_, length(src)); jw <- rep(NA_real_, length(src))
@@ -130,18 +147,39 @@ admin2_match_v2 <- function(src, tgt, aliases_csv = NULL, max_jw = 0.15, review_
     h <- is.na(out) & ks %in% names(a); out[h] <- unname(a[ks[h]]); method[h] <- "alias"
     bad <- unique(out[h][!out[h] %in% tgt]); if (length(bad)) stop("[admin2_match_v2] alias targets not in the target vocabulary: ", paste(bad, collapse = "; "))
   }
+  jw2 <- rep(NA_real_, length(src)); runner <- rep(NA_character_, length(src))
+  bestc <- rep(NA_character_, length(src))   # best candidate, recorded even when rejected
   i <- which(is.na(out) & !is.na(ks) & nzchar(ks))   # NA / empty sources stay unmatched
   if (length(i) && length(tgt)) {
     dm <- stringdist::stringdistmatrix(ks[i], kt, method = "jw", p = 0.1)
     dm <- matrix(dm, nrow = length(i))
+    # best and runner-up per source; with a single target there is no runner-up,
+    # so the margin is infinite and only max_jw binds.
     best <- vapply(seq_len(nrow(dm)), function(r) { z <- dm[r, ]; if (all(is.na(z))) NA_integer_ else which.min(z) }, 1L)
-    d <- vapply(seq_len(nrow(dm)), function(r) { z <- dm[r, ]; if (all(is.na(z))) NA_real_ else min(z, na.rm = TRUE) }, 0)
-    ok <- !is.na(d) & d <= max_jw; out[i[ok]] <- tgt[best[ok]]; method[i[ok]] <- "fuzzy"; jw[i] <- round(d, 3)
+    d    <- vapply(seq_len(nrow(dm)), function(r) { z <- dm[r, ]; if (all(is.na(z))) NA_real_ else min(z, na.rm = TRUE) }, 0)
+    sec  <- vapply(seq_len(nrow(dm)), function(r) { z <- sort(dm[r, ], na.last = NA); if (length(z) < 2) Inf else z[2] }, 0)
+    sec2 <- vapply(seq_len(nrow(dm)), function(r) { z <- dm[r, ]; if (all(is.na(z)) || length(z) < 2) NA_integer_ else order(z, na.last = NA)[2] }, 1L)
+    near  <- !is.na(d) & d <= max_jw
+    clear <- near & (sec - d) >= min_margin
+    amb   <- near & !clear
+    out[i[clear]] <- tgt[best[clear]]; method[i[clear]] <- "fuzzy"
+    method[i[amb]] <- "ambiguous"      # left unmatched on purpose; see the docs above
+    jw[i] <- round(d, 3); jw2[i] <- round(sec, 3)
+    bestc[i[!is.na(best)]] <- tgt[best[!is.na(best)]]
+    runner[i[!is.na(sec2)]] <- tgt[sec2[!is.na(sec2)]]
   }
-  rev <- data.frame(source = src, target = out, method = method, jw = jw, stringsAsFactors = FALSE)
+  rev <- data.frame(source = src, target = out, method = method, jw = jw,
+                    best_candidate = bestc, jw2 = jw2, margin = round(jw2 - jw, 3),
+                    runner_up = runner, stringsAsFactors = FALSE)
   rev <- rev[!duplicated(rev$source), ]
   if (!is.null(review_csv)) { dir.create(dirname(review_csv), showWarnings = FALSE, recursive = TRUE); write.csv(rev[order(is.na(rev$target), rev$method, rev$source), ], review_csv, row.names = FALSE) }
-  cat(sprintf("[admin2_match_v2] %-24s %3d exact, %3d alias, %3d fuzzy, %3d unmatched of %3d%s\n", label, sum(rev$method %in% "exact"), sum(rev$method %in% "alias"),
-              sum(rev$method %in% "fuzzy"), sum(is.na(rev$target)), nrow(rev), if (!is.null(review_csv)) paste0(" -> ", review_csv) else ""))
+  n_amb <- sum(rev$method %in% "ambiguous")
+  cat(sprintf("[admin2_match_v2] %-24s %3d exact, %3d alias, %3d fuzzy, %3d ambiguous, %3d unmatched of %3d%s\n", label, sum(rev$method %in% "exact"), sum(rev$method %in% "alias"),
+              sum(rev$method %in% "fuzzy"), n_amb, sum(is.na(rev$target)), nrow(rev), if (!is.null(review_csv)) paste0(" -> ", review_csv) else ""))
+  if (n_amb) {
+    a <- rev[rev$method %in% "ambiguous", ]
+    warning(sprintf("[admin2_match_v2] %s: %d source name(s) too close to call and left unmatched; add them to the alias CSV. %s",
+                    label, n_amb, paste(sprintf("%s (%s %.3f vs %s %.3f)", a$source, a$best_candidate, a$jw, a$runner_up, a$jw2)[seq_len(min(3, nrow(a)))], collapse = "; ")), call. = FALSE)
+  }
   out
 }
