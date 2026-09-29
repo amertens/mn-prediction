@@ -2076,3 +2076,141 @@ on the real prior rather than on a false constraint. Order:
 3. **Then** stream `g7sec9b.dta` for the food-group indicators, with the other
    three countries' definitions, and smooth to districts the DS-01 way.
 4. Score with MX-01's matched-versus-mismatched nutrient control.
+
+---
+
+## HC-06 — the four HCES tasks: Malawi MIMI lands, Ghana reaches the district but not its name
+
+*2026-09-29 · scripts 25, 26, 27, 28 (superseded), 29*
+
+Four tasks were set: ingest the MIMI Malawi district estimates, get the GSS
+district crosswalk, stream GLSS7's food module into food-group indicators, and
+score the result with the MX-01 matched-vs-mismatched control. Two are
+delivered, one is blocked on a named external artefact, and one is delivered
+for Malawi and waiting on the block for Ghana.
+
+### 1. Malawi MIMI district block — delivered
+
+`explore/out/26_mimi_malawi_admin2.csv`. Parsed from Additional files 3 and 4 of
+Tang et al., BMC Nutrition 2026 (IHS5 2019/20, CC BY 4.0): 37 columns covering
+vitamins A, C, E, B2, B3, B6, B9, B12 and Ca/Fe/Se/Zn. 27 of the paper's 31
+districts matched the spine; city and non-city parts of Blantyre, Lilongwe and
+Zomba were merged by household-weighted mean, Mzuzu city folded into Mzimba,
+"Tchisi" read as Ntchisi. **243 spine rows, 100% coverage.** Malawi's spine has
+Admin1 = district and Admin2 = Traditional Authority, so this joins at Admin1
+and broadcasts below — recorded in the metadata so it is never mistaken for a
+TA-level measurement.
+
+### 4. Scoring the Malawi block — the first dietary source with nutrient specificity
+
+`explore/scripts/27_mimi_mw_score.R`. On the level target, index+MIMI against
+index alone is **−0.0072 mean, better in 1 of 8 cells**: incrementally null, as
+every added domain has been.
+
+The control is the interesting half. Matching each outcome to *its own* nutrient
+column rather than a mismatched one gives **+0.054 mean, matched better in 6 of
+8 cells**, and `mimi_matched` alone scores 0.132 median against
+`mimi_mismatched` 0.023. MX-01 tested the same thing on the earlier dietary
+columns and got 6 of 18 — below chance. This is the first dietary source in the
+project where the nutrient-specific column beats the nutrient-mismatched one.
+It does not add to the index, but it is not noise either, which is a different
+finding from everything dietary that came before.
+
+### 2. The Ghana district crosswalk — blocked, and now precisely
+
+Not a search failure. GLSS7 labels **every** geographic variable — REGION,
+loc2, loc5, loc7, ez — **except `district`**, which is a disclosure control in
+the public release, not a lost file. No amount of scanning the archive will
+produce it.
+
+What the codes are is now settled. `district` = region×100 + the district's
+index in the official GSS 2010 PHC ordering within region, and the per-region
+slot counts match the 2010 PHC district counts **ten out of ten**:
+
+| region | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | total |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| GLSS7 max index | 22 | 20 | 16 | 25 | 26 | 30 | 27 | 26 | 13 | 11 | **216** |
+| PHC 2010 districts | 22 | 20 | 16 | 25 | 26 | 30 | 27 | 26 | 13 | 11 | **216** |
+
+214 of the 216 slots were sampled (Western and Ashanti each miss one). So this
+needs exactly one external artefact — **the GSS 2010 district list in official
+per-region order** — and then a second step to the project's 260-district
+spine, since the 2018 redistricting took Ghana from 216 districts and 10
+regions to 260 and 16. Guessing the within-region ordering is not on: it would
+scramble districts silently, which is the error class this folder exists to
+catch.
+
+**What that artefact is worth**, measured rather than asserted: the share of
+district-level variance in the diet indicators that lies *within* region — the
+part a region-only broadcast cannot represent — has median **0.616**, and the
+vitamin-A-relevant indicators are the worst affected (`any_dgl` 0.749,
+`any_vita_fv` 0.706, `any_dairy` 0.631). A region broadcast throws away about
+three-fifths of the signal, concentrated in exactly the variables that matter.
+
+### 3. The GLSS7 food module — built to district code, and a correction
+
+Script 25 streamed section 9b (3.22 GB, household × item × six visits) down to
+528,678 rows: 13,924 households, 484 items, 18.8 MB. Script 28 then built
+household indicators with the project's own `classify_item()` and
+`hh_from_items()` — **and got it wrong**, which is worth recording.
+
+GLSS7 labels items by **brand**. "Geisha", "Titus", "John West" are canned
+fish; "Peak", "Nido", "Cowbell", "Carnation" are milk; "Gino" is tomato paste.
+The project's classifier was written against the generic labels Malawi, The
+Gambia and Sierra Leone use, so it dumped 270 of 484 real foods into `misc` and
+understated every indicator.
+
+Script 29 fixes it from GLSS7's own structure rather than a new regex. Item
+codes run in contiguous blocks separated by numeric gaps, one food per block,
+each ending in "Other *X*" (10–23 imported rice, 58–62 bread, 95–101 beef). So:
+segment on the gaps, take each block's food by majority vote of the items the
+project classifier already resolves on their own generic labels, then re-run
+the **project's** `classify_item(label, code, block)` passing that block — its
+last line is `if (!is.na(block)) return(block)`, exactly the fallback this is
+for. No project logic edited; Ghana stays pooled-comparable.
+
+The first run needed a guard. A block vote propagates the classifier's false
+positives too: "Football game" matches `\bgame\b` and made a recreation block
+*meat*, "Duck soap" made a soap block *meat*, "Insecticides" matches `\binsect`
+and made a pesticide block *meat*, "Other fruit drink" made a juice block
+*fruit*. Every one sits beyond block 31. GLSS7's diary is ordered food first,
+then condiments (block 32, Maggi cube), salt, coffee, beverages, spirits,
+tobacco, non-food — so block 31 (spices) is the last food block. Voting is
+restricted to blocks 1–31: one structural cut, and it coincides with the
+project's own convention that condiments, stimulants and beverages are `misc`
+whatever plant they come from. The guard matters — it cut `any_meat`'s change
+from +0.286 to +0.018, which was the bogus blocks talking.
+
+51 brands rescued. District means, broken → fixed:
+
+| indicator | before | after | change |
+|---|---|---|---|
+| `any_dairy` | 0.295 | 0.475 | **+0.180** |
+| `any_fish` | 0.881 | 0.987 | **+0.107** |
+| `asf_purchase_share` | 0.162 | 0.253 | **+0.092** |
+| `hdds` | 8.55 | 8.89 | **+0.345** |
+| `any_meat` | 0.659 | 0.677 | +0.018 |
+
+`explore/out/29_glss7_district_diet.csv` — 214 district codes, median 53
+households and 4 EAs each. 38.4% of diary expenditure remains in `misc`, which
+is right: section 9b is a *frequently purchased items* diary and the residual is
+soap, kerosene, charcoal, trotro fares, phone cards, newspapers, haircuts.
+
+Two things to carry forward. First, the rescue reveals ASF purchase is
+near-universal in Ghana's diary — `any_fish` 0.987, `any_asf` 0.995, with sd
+0.027 and 0.013 across districts. The binaries are now *more accurate and less
+useful*; the continuous indicators (`hdds`, `asf_purchase_share`,
+`food_purch_value`) carry what signal there is. Second, **the production
+classifier has no pattern for "mackerel"** — block 17 is eight canned-mackerel
+brands with sentinel "Other mackerel", all falling to `misc`. Canned mackerel is
+a West African ASF staple; whether Malawi, The Gambia or Sierra Leone name it
+in their item lists is worth checking, since that would understate the
+production block too. Flagged as a separate task; not touched here.
+
+### Where this leaves the four tasks
+
+Delivered: the Malawi MIMI district block (1) and its scoring (4). Built to the
+last step it can reach: the Ghana food-group table at district code (3). Blocked
+on one named, obtainable file: the join to the spine (2), and with it the Ghana
+half of (4). Nothing here has been scored against outcomes in Ghana, because
+without the crosswalk it cannot be.

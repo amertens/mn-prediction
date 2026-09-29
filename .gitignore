@@ -90,3 +90,14 @@ __pycache__/
 
 # run logs (rebuild / rerun launchers write here)
 logs/
+
+# Rendered decks — rebuild from the tracked .qmd via scripts/policy_deck/
+# render_deck.sh (40/40b/41). Hand-made copies are NOT covered by these
+# patterns and stay tracked: *-ANM.pptx, *_ANM.pptx, *anm_reorder.pptx and
+# the curated "best slides" decks are not regenerable.
+docs/slides/MNF15-talk-2026-09-v[0-9].pptx
+docs/slides/MNF15-talk-2026-09-v[0-9]-review.pdf
+
+# GLSS7 section-9b intermediate — 18 MB, regenerates in ~4 min from the
+# 3.2 GB data/LSMS/GHA_2017/g7sec9b.dta via explore/scripts/25_glss7_food_stream.py
+explore/out/25_glss7_hh_item.csv

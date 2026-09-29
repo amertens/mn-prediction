@@ -1,0 +1,486 @@
+"code","item","block_id","g0","group_new","dgl","vita"
+1,"Dada Ba",1,"misc","misc",FALSE,FALSE
+2,"Oman Ba",1,"misc","misc",FALSE,FALSE
+3,"Mandela",1,"misc","misc",FALSE,FALSE
+4,"Gold Star",1,"misc","misc",FALSE,FALSE
+5,"Afife",1,"misc","misc",FALSE,FALSE
+6,"Other",1,"misc","misc",FALSE,FALSE
+10,"Jasmine Rice",2,"cereals","cereals",FALSE,FALSE
+11,"Basmati Rice",2,"cereals","cereals",FALSE,FALSE
+12,"Uncle Ben's Rice (imported)",2,"cereals","cereals",FALSE,FALSE
+13,"Lele Rice",2,"cereals","cereals",FALSE,FALSE
+14,"Royal Feast",2,"misc","cereals",FALSE,FALSE
+15,"Gino Rice",2,"cereals","cereals",FALSE,FALSE
+16,"Royal Aroma",2,"misc","cereals",FALSE,FALSE
+17,"Heaven",2,"misc","cereals",FALSE,FALSE
+18,"Cindy",2,"misc","cereals",FALSE,FALSE
+19,"Bella",2,"misc","cereals",FALSE,FALSE
+20,"Sultana",2,"misc","cereals",FALSE,FALSE
+21,"Mama's Pride",2,"misc","cereals",FALSE,FALSE
+22,"Red Eagle",2,"misc","cereals",FALSE,FALSE
+23,"Other imported rice",2,"cereals","cereals",FALSE,FALSE
+27,"Guinea corn/sorghum",3,"cereals","cereals",FALSE,FALSE
+28,"White maize grains",3,"cereals","cereals",FALSE,FALSE
+29,"Yellow maize grains",3,"cereals","cereals",FALSE,FALSE
+30,"Millet",3,"cereals","cereals",FALSE,FALSE
+31,"Millet flour",3,"cereals","cereals",FALSE,FALSE
+32,"Takoradi Flour Mill",3,"cereals","cereals",FALSE,FALSE
+33,"GMG",3,"misc","cereals",FALSE,FALSE
+34,"Wheat semolina,suji",3,"cereals","cereals",FALSE,FALSE
+35,"Corn dough",3,"misc","cereals",FALSE,FALSE
+36,"Maize",3,"cereals","cereals",FALSE,FALSE
+37,"Millet",3,"cereals","cereals",FALSE,FALSE
+38,"Rice",3,"cereals","cereals",FALSE,FALSE
+39,"Beans",3,"pulses_nuts","pulses_nuts",FALSE,FALSE
+40,"Mixed fruit",3,"fruit","fruit",FALSE,FALSE
+41,"Wheat",3,"cereals","cereals",FALSE,FALSE
+42,"Other",3,"misc","cereals",FALSE,FALSE
+47,"Good Morning",4,"misc","misc",FALSE,FALSE
+48,"Quaker oats",4,"misc","misc",FALSE,FALSE
+49,"Other oats",4,"misc","misc",FALSE,FALSE
+53,"Cassava - Kokonte",5,"roots","roots",FALSE,FALSE
+54,"Cassava dough",5,"roots","roots",FALSE,FALSE
+55,"Yellow gari",5,"roots","roots",FALSE,FALSE
+56,"White gari",5,"roots","roots",FALSE,FALSE
+58,"Sugar bread",6,"sugar","sugar",FALSE,FALSE
+59,"Whole wheat bread",6,"cereals","cereals",FALSE,FALSE
+60,"Butter bread",6,"oils","oils",FALSE,FALSE
+61,"Tea bread",6,"cereals","cereals",FALSE,FALSE
+62,"Other bread",6,"cereals","cereals",FALSE,FALSE
+67,"Picadilly biscuit",7,"cereals","cereals",FALSE,FALSE
+68,"Kings crackers",7,"misc","cereals",FALSE,FALSE
+69,"Malt and milk",7,"dairy","dairy",FALSE,FALSE
+70,"Cream crackers",7,"dairy","dairy",FALSE,FALSE
+71,"Short cake",7,"cereals","cereals",FALSE,FALSE
+72,"Perks biscuit",7,"cereals","cereals",FALSE,FALSE
+73,"Digestive biscuit",7,"cereals","cereals",FALSE,FALSE
+74,"Jack and Jill",7,"misc","cereals",FALSE,FALSE
+75,"Wafers",7,"misc","cereals",FALSE,FALSE
+76,"Ginger",7,"misc","cereals",FALSE,FALSE
+77,"Short Bread",7,"cereals","cereals",FALSE,FALSE
+78,"Other biscuits",7,"cereals","cereals",FALSE,FALSE
+83,"Indomie or instant noodles",8,"cereals","cereals",FALSE,FALSE
+84,"Cornflakes (Kellogg's)",8,"misc","cereals",FALSE,FALSE
+85,"Macaroni",8,"cereals","cereals",FALSE,FALSE
+86,"Spaghetti",8,"cereals","cereals",FALSE,FALSE
+87,"Maizena",8,"cereals","cereals",FALSE,FALSE
+88,"Couscous",8,"cereals","cereals",FALSE,FALSE
+89,"Other cereal products",8,"cereals","cereals",FALSE,FALSE
+95,"Beef with bones",9,"meat","meat",FALSE,FALSE
+96,"Beef without bones (steak)",9,"meat","meat",FALSE,FALSE
+97,"Cow leg , local",9,"misc","meat",FALSE,FALSE
+98,"Cow leg imported",9,"misc","meat",FALSE,FALSE
+99,"Cow face (head)",9,"misc","meat",FALSE,FALSE
+100,"Cow offals (towel)",9,"meat","meat",FALSE,FALSE
+101,"Other cow/beef product",9,"meat","meat",FALSE,FALSE
+105,"pork meat",10,"meat","meat",FALSE,FALSE
+106,"pork, ribs",10,"meat","meat",FALSE,FALSE
+107,"pork, shoulder",10,"meat","meat",FALSE,FALSE
+108,"pork , fillet",10,"meat","meat",FALSE,FALSE
+109,"Pork feet",10,"meat","meat",FALSE,FALSE
+110,"Other pork meat",10,"meat","meat",FALSE,FALSE
+115,"mutton mixed cut",11,"meat","meat",FALSE,FALSE
+116,"Goat , live",11,"meat","meat",FALSE,FALSE
+117,"Goat meat",11,"meat","meat",FALSE,FALSE
+118,"Local breed",11,"misc","meat",FALSE,FALSE
+119,"Poultry farm breed",11,"meat","meat",FALSE,FALSE
+120,"whole chicken broiler",11,"meat","meat",FALSE,FALSE
+121,"Chicken parts(thighs)",11,"meat","meat",FALSE,FALSE
+122,"Chicken parts(wings)",11,"meat","meat",FALSE,FALSE
+123,"Gizzard",11,"misc","meat",FALSE,FALSE
+124,"chicken breast without skin",11,"meat","meat",FALSE,FALSE
+125,"chicken breast with skin and bones",11,"meat","meat",FALSE,FALSE
+126,"Other chicken product",11,"meat","meat",FALSE,FALSE
+127,"Guinea fowl - live",11,"meat","meat",FALSE,FALSE
+131,"Lele corned Beef",12,"meat","meat",FALSE,FALSE
+132,"Exeter corned beef",12,"meat","meat",FALSE,FALSE
+133,"Bella corned beef",12,"meat","meat",FALSE,FALSE
+134,"Other corned beef",12,"meat","meat",FALSE,FALSE
+139,"Beef sausage",13,"meat","meat",FALSE,FALSE
+140,"Pork sausage",13,"meat","meat",FALSE,FALSE
+141,"Chicken sausage",13,"meat","meat",FALSE,FALSE
+142,"Bushmeat (Grasscutter)",13,"misc","meat",FALSE,FALSE
+143,"Game birds",13,"meat","meat",FALSE,FALSE
+144,"Other meat (dog, cat, etc.)",13,"meat","meat",FALSE,FALSE
+149,"Kpala (Starvids) frozen",14,"misc","fish",FALSE,FALSE
+150,"Shrimps",14,"fish","fish",FALSE,FALSE
+151,"Snails",14,"fish","fish",FALSE,FALSE
+152,"Crab",14,"fish","fish",FALSE,FALSE
+153,"Fish smoked (river)",14,"fish","fish",FALSE,FALSE
+154,"Fish smoked (sea)",14,"fish","fish",FALSE,FALSE
+155,"Herrings -smoked",14,"misc","fish",FALSE,FALSE
+156,"Salmon (smoked)",14,"misc","fish",FALSE,FALSE
+157,"Fish (fried)",14,"fish","fish",FALSE,FALSE
+158,"Dried fish - Koobi",14,"fish","fish",FALSE,FALSE
+159,"Fish (salted) e.g. Kako",14,"fish","fish",FALSE,FALSE
+160,"Tilapia (fresh and frozen)",14,"fish","fish",FALSE,FALSE
+161,"Other fish",14,"fish","fish",FALSE,FALSE
+165,"Titus",15,"misc","fish",FALSE,FALSE
+166,"Princess",15,"misc","fish",FALSE,FALSE
+167,"Obaapa",15,"misc","fish",FALSE,FALSE
+168,"Gino",15,"misc","fish",FALSE,FALSE
+169,"Smile",15,"misc","fish",FALSE,FALSE
+170,"Lele",15,"misc","fish",FALSE,FALSE
+171,"Vega",15,"misc","fish",FALSE,FALSE
+172,"Other sardines",15,"fish","fish",FALSE,FALSE
+176,"Star kist",16,"misc","misc",FALSE,FALSE
+177,"Vega",16,"misc","misc",FALSE,FALSE
+178,"Geisha",16,"misc","misc",FALSE,FALSE
+179,"Tesco",16,"misc","misc",FALSE,FALSE
+180,"John West",16,"misc","misc",FALSE,FALSE
+181,"Other",16,"misc","misc",FALSE,FALSE
+185,"African Queen",17,"misc","misc",FALSE,FALSE
+186,"Geisha",17,"misc","misc",FALSE,FALSE
+187,"Gino",17,"misc","misc",FALSE,FALSE
+188,"Ena pa",17,"misc","misc",FALSE,FALSE
+189,"Obaapa",17,"misc","misc",FALSE,FALSE
+190,"Delay",17,"misc","misc",FALSE,FALSE
+191,"Teacher",17,"misc","misc",FALSE,FALSE
+192,"Other mackerel",17,"misc","misc",FALSE,FALSE
+197,"Milk (Fresh)",18,"dairy","dairy",FALSE,FALSE
+198,"Nido (Sachet)",18,"misc","dairy",FALSE,FALSE
+199,"Peak (Sachet)",18,"misc","dairy",FALSE,FALSE
+200,"Milgro (Sachet)",18,"misc","dairy",FALSE,FALSE
+201,"Cowbell (Sachet)",18,"misc","dairy",FALSE,FALSE
+202,"Ideal (sachet)",18,"misc","dairy",FALSE,FALSE
+203,"Nunu (sachet)",18,"misc","dairy",FALSE,FALSE
+204,"Loya (sachet)",18,"misc","dairy",FALSE,FALSE
+205,"Miksi (sachet)",18,"misc","dairy",FALSE,FALSE
+206,"Vega (sachet)",18,"misc","dairy",FALSE,FALSE
+207,"Other powdered milk",18,"dairy","dairy",FALSE,FALSE
+301,"Ideal",19,"misc","dairy",FALSE,FALSE
+302,"Peak",19,"misc","dairy",FALSE,FALSE
+303,"Nunu",19,"misc","dairy",FALSE,FALSE
+304,"Vega",19,"misc","dairy",FALSE,FALSE
+305,"Carnation",19,"misc","dairy",FALSE,FALSE
+306,"Other milk",19,"dairy","dairy",FALSE,FALSE
+401,"Peak",20,"misc","dairy",FALSE,FALSE
+402,"Other tinned milk",20,"dairy","dairy",FALSE,FALSE
+407,"Fan Ice",21,"misc","misc",FALSE,FALSE
+408,"Fan Yoghurt",21,"dairy","dairy",FALSE,FALSE
+409,"FanDango",21,"misc","dairy",FALSE,FALSE
+410,"Fan Choco",21,"misc","dairy",FALSE,FALSE
+411,"Other ice cream",21,"sugar","sugar",FALSE,FALSE
+416,"Chicken eggs (fresh, single)",22,"eggs","eggs",FALSE,FALSE
+417,"Other eggs",22,"eggs","eggs",FALSE,FALSE
+421,"Margarine",23,"oils","oils",FALSE,FALSE
+422,"Coconut oil",23,"oils","oils",FALSE,FALSE
+423,"Groundnut oil",23,"oils","oils",FALSE,FALSE
+424,"Palm oil (red oil)",23,"oils","oils",FALSE,FALSE
+425,"Vegetable oil (eg. Frytol, Gino, Obaapa)",23,"oils","oils",FALSE,FALSE
+426,"Shea butter",23,"oils","oils",FALSE,FALSE
+427,"Palm kernel oil",23,"oils","oils",FALSE,FALSE
+428,"Other oils",23,"oils","oils",FALSE,FALSE
+432,"Coconut (fresh)",24,"fruit","fruit",FALSE,FALSE
+433,"Coconut (dried)",24,"fruit","fruit",FALSE,FALSE
+434,"Banana",24,"fruit","fruit",FALSE,FALSE
+435,"Oranges",24,"fruit","fruit",FALSE,FALSE
+436,"Pineapple",24,"fruit","fruit",FALSE,FALSE
+437,"Mango",24,"fruit","fruit",FALSE,TRUE
+438,"Water melon",24,"fruit","fruit",FALSE,FALSE
+439,"Avocado pear",24,"fruit","fruit",FALSE,FALSE
+440,"Apples (foreign)",24,"fruit","fruit",FALSE,FALSE
+441,"Grapes",24,"fruit","fruit",FALSE,FALSE
+442,"Sweet apple",24,"fruit","fruit",FALSE,FALSE
+443,"Lime",24,"fruit","fruit",FALSE,FALSE
+444,"Cashew",24,"fruit","fruit",FALSE,FALSE
+445,"Pawpaw",24,"fruit","fruit",FALSE,TRUE
+446,"Other fruits",24,"fruit","fruit",FALSE,FALSE
+452,"Canned or processed fruits",25,"fruit","fruit",FALSE,FALSE
+453,"Cocoyam leaves (kontomire) or Alefu",25,"veg","veg",TRUE,TRUE
+454,"Sweet pepper",25,"veg","veg",FALSE,FALSE
+455,"Carrot",25,"veg","veg",FALSE,TRUE
+456,"Garden eggs",25,"veg","veg",FALSE,FALSE
+457,"Okro (fresh)",25,"misc","veg",FALSE,FALSE
+458,"Pepper (fresh)",25,"veg","veg",FALSE,FALSE
+459,"Dried pepper (red)",25,"veg","veg",FALSE,FALSE
+460,"Powder Pepper",25,"misc","misc",FALSE,FALSE
+461,"Onions (large)",25,"veg","veg",FALSE,FALSE
+462,"Shallots",25,"misc","veg",FALSE,FALSE
+463,"Tomatoes (Fresh)",25,"veg","veg",FALSE,FALSE
+464,"Other vegetables",25,"veg","veg",FALSE,FALSE
+473,"Gino",26,"misc","misc",FALSE,FALSE
+474,"Obaapa",26,"misc","misc",FALSE,FALSE
+475,"Pomo",26,"misc","misc",FALSE,FALSE
+476,"Tam Tam",26,"misc","misc",FALSE,FALSE
+477,"Lele",26,"misc","misc",FALSE,FALSE
+478,"Bella",26,"misc","misc",FALSE,FALSE
+479,"Tasty tom",26,"misc","misc",FALSE,FALSE
+480,"Other tomato paste",26,"misc","misc",FALSE,FALSE
+485,"White beans (cowpea)",27,"pulses_nuts","pulses_nuts",FALSE,FALSE
+486,"Palm  nut (fruits)",27,"pulses_nuts","pulses_nuts",FALSE,FALSE
+487,"Groundnuts (shelled)",27,"pulses_nuts","pulses_nuts",FALSE,FALSE
+488,"Groundnut (paste)",27,"pulses_nuts","pulses_nuts",FALSE,FALSE
+489,"Agushie seeds (or milled)",27,"pulses_nuts","pulses_nuts",FALSE,FALSE
+491,"Plantain",28,"roots","roots",FALSE,FALSE
+492,"Cassava (fresh)",28,"roots","roots",FALSE,FALSE
+493,"Cocoyam",28,"roots","roots",FALSE,FALSE
+494,"Yam",28,"roots","roots",FALSE,FALSE
+495,"Water yam",28,"roots","roots",FALSE,FALSE
+496,"Taro",28,"roots","roots",FALSE,FALSE
+497,"Potatoes",28,"roots","roots",FALSE,FALSE
+498,"Other Tubers",28,"roots","roots",FALSE,FALSE
+503,"Cubed sugar",29,"sugar","sugar",FALSE,FALSE
+504,"Granulated sugar",29,"sugar","sugar",FALSE,FALSE
+505,"Honey",29,"sugar","sugar",FALSE,FALSE
+511,"Golden tree",30,"misc","misc",FALSE,FALSE
+512,"Other cholate",30,"misc","misc",FALSE,FALSE
+513,"Trident",30,"misc","misc",FALSE,FALSE
+514,"PK",30,"misc","misc",FALSE,FALSE
+515,"Bubble gum",30,"misc","misc",FALSE,FALSE
+516,"Mentos",30,"misc","misc",FALSE,FALSE
+517,"Other gums",30,"misc","misc",FALSE,FALSE
+518,"Other confectionery",30,"misc","misc",FALSE,FALSE
+523,"Garlic",31,"misc","misc",FALSE,FALSE
+524,"Ginger",31,"misc","misc",FALSE,FALSE
+525,"Vinegar",31,"misc","misc",FALSE,FALSE
+526,"Dawadawa",31,"misc","misc",FALSE,FALSE
+527,"Curry powder",31,"misc","misc",FALSE,FALSE
+528,"Chilli powder (black pepper)",31,"misc","misc",FALSE,FALSE
+529,"Other spices",31,"misc","misc",FALSE,FALSE
+535,"Maggi Cube",32,"misc","misc",FALSE,FALSE
+536,"Royco cube",32,"misc","misc",FALSE,FALSE
+537,"Onga cube",32,"misc","misc",FALSE,FALSE
+538,"Onga 3-in-1",32,"misc","misc",FALSE,FALSE
+539,"Benny",32,"misc","misc",FALSE,FALSE
+540,"Other condiments",32,"misc","misc",FALSE,FALSE
+545,"Anapuna iodated salt",33,"misc","misc",FALSE,FALSE
+546,"U2 iodated salt",33,"misc","misc",FALSE,FALSE
+547,"Other salt",33,"misc","misc",FALSE,FALSE
+550,"Nescafe",34,"misc","misc",FALSE,FALSE
+551,"Pure Cocoa Powder (eg. Brown gold)",34,"misc","misc",FALSE,FALSE
+552,"Tea bags, (eg. Lipton)",34,"misc","misc",FALSE,FALSE
+554,"Bournvita",35,"misc","misc",FALSE,FALSE
+555,"Cow bell (coffee, choco etc.)",35,"misc","misc",FALSE,FALSE
+556,"This way chocolate drink",35,"sugar","sugar",FALSE,FALSE
+557,"Country milk",35,"dairy","dairy",FALSE,FALSE
+558,"Ideal",35,"misc","misc",FALSE,FALSE
+559,"Milo",35,"misc","misc",FALSE,FALSE
+560,"Richoco",35,"misc","misc",FALSE,FALSE
+561,"Other beverage drinks",35,"misc","misc",FALSE,FALSE
+565,"Mineral water (bottled)",36,"misc","misc",FALSE,FALSE
+566,"Satchet water",36,"misc","misc",FALSE,FALSE
+567,"Coca Cola /Fanta/Sprite",36,"misc","misc",FALSE,FALSE
+568,"Pepsi/Mirinda",36,"misc","misc",FALSE,FALSE
+569,"Alvaro",36,"misc","misc",FALSE,FALSE
+570,"Other soft drinks",36,"misc","misc",FALSE,FALSE
+575,"Beta malt",37,"misc","misc",FALSE,FALSE
+576,"5 star",37,"misc","misc",FALSE,FALSE
+577,"Malta Guinness",37,"misc","misc",FALSE,FALSE
+578,"Malt schweppes",37,"misc","misc",FALSE,FALSE
+579,"Mighty malt",37,"misc","misc",FALSE,FALSE
+580,"Magic malt",37,"misc","misc",FALSE,FALSE
+581,"Giant malt",37,"misc","misc",FALSE,FALSE
+582,"Lion Malt",37,"misc","misc",FALSE,FALSE
+583,"Other bottled malt drinks",37,"misc","misc",FALSE,FALSE
+587,"Magic malt",38,"misc","misc",FALSE,FALSE
+588,"Malta Guinness",38,"misc","misc",FALSE,FALSE
+589,"Volco",38,"misc","misc",FALSE,FALSE
+590,"Giant malt",38,"misc","misc",FALSE,FALSE
+591,"Power malt",38,"misc","misc",FALSE,FALSE
+592,"Mighty malt",38,"misc","misc",FALSE,FALSE
+593,"Lion Malt",38,"misc","misc",FALSE,FALSE
+594,"Other canned malt drinks",38,"misc","misc",FALSE,FALSE
+605,"Don Simon",39,"misc","misc",FALSE,FALSE
+606,"Fru Telli",39,"misc","misc",FALSE,FALSE
+607,"Blue skies",39,"misc","misc",FALSE,FALSE
+608,"Junior",39,"misc","misc",FALSE,FALSE
+609,"Pure Heaven",39,"misc","misc",FALSE,FALSE
+610,"Kalipo",39,"misc","misc",FALSE,FALSE
+611,"Healthy Live",39,"misc","misc",FALSE,FALSE
+612,"Ceres",39,"misc","misc",FALSE,FALSE
+613,"Other fruit drink",39,"fruit","fruit",FALSE,FALSE
+618,"Gin",40,"misc","misc",FALSE,FALSE
+619,"Whisky",40,"misc","misc",FALSE,FALSE
+620,"Akpeteshie",40,"misc","misc",FALSE,FALSE
+621,"Bitters (eg. Alomo, Agya Appiah, HerbAfric etc.)",40,"veg","veg",FALSE,FALSE
+622,"Schnapps",40,"misc","misc",FALSE,FALSE
+623,"Other spirits",40,"misc","misc",FALSE,FALSE
+629,"Palm Wine",41,"misc","misc",FALSE,FALSE
+630,"Imported Wine",41,"misc","misc",FALSE,FALSE
+631,"Other local wine",41,"misc","misc",FALSE,FALSE
+635,"National beer (star/club)",42,"misc","misc",FALSE,FALSE
+636,"Dark beer (e.g. Guilder, Guinness)",42,"misc","misc",FALSE,FALSE
+637,"Beer (Imported)",42,"misc","misc",FALSE,FALSE
+638,"Traditional beer (Pito)",42,"misc","misc",FALSE,FALSE
+645,"Cigarette",43,"misc","misc",FALSE,FALSE
+646,"Tobacco (processed)",43,"misc","misc",FALSE,FALSE
+647,"Other tobacco products",43,"misc","misc",FALSE,FALSE
+650,"Kola Nuts",44,"misc","misc",FALSE,FALSE
+651,"Refuse collection",44,"misc","misc",FALSE,FALSE
+652,"Refuse disposal",44,"misc","misc",FALSE,FALSE
+653,"Expenditure on Public toilet",44,"misc","misc",FALSE,FALSE
+655,"Gas for household use not for car",45,"misc","misc",FALSE,FALSE
+657,"Kerosene",46,"misc","misc",FALSE,FALSE
+658,"Other fuel and power",46,"misc","misc",FALSE,FALSE
+660,"Charcoal",47,"misc","misc",FALSE,FALSE
+661,"Firewood",47,"misc","misc",FALSE,FALSE
+662,"Other solid fuel",47,"misc","misc",FALSE,FALSE
+663,"Ice block (household cooling and refrigeration only)",47,"misc","misc",FALSE,FALSE
+665,"Omo",48,"misc","misc",FALSE,FALSE
+666,"Ariel",48,"misc","misc",FALSE,FALSE
+667,"Yazz",48,"misc","misc",FALSE,FALSE
+668,"Kleesoft",48,"misc","misc",FALSE,FALSE
+669,"Sunlight powder",48,"misc","misc",FALSE,FALSE
+670,"Other washing powder",48,"misc","misc",FALSE,FALSE
+675,"Sunlight soap",49,"misc","misc",FALSE,FALSE
+676,"Key soap",49,"misc","misc",FALSE,FALSE
+677,"Ameen soap",49,"misc","misc",FALSE,FALSE
+678,"Duck soap",49,"meat","meat",FALSE,FALSE
+679,"BF",49,"misc","misc",FALSE,FALSE
+680,"Guardian",49,"misc","misc",FALSE,FALSE
+681,"Other washing soap",49,"misc","misc",FALSE,FALSE
+687,"Lux",50,"misc","misc",FALSE,FALSE
+688,"Rexona",50,"misc","misc",FALSE,FALSE
+689,"Medisoft",50,"misc","misc",FALSE,FALSE
+690,"Geshia",50,"misc","misc",FALSE,FALSE
+691,"Other bathing soap",50,"misc","misc",FALSE,FALSE
+692,"Bleaches",50,"misc","misc",FALSE,FALSE
+693,"Disinfectants and cleaners",50,"misc","misc",FALSE,FALSE
+695,"Insecticides-coils",51,"meat","meat",FALSE,FALSE
+696,"Insecticides-sprays",51,"meat","meat",FALSE,FALSE
+697,"Matches",51,"misc","misc",FALSE,FALSE
+698,"Household candles",51,"misc","misc",FALSE,FALSE
+699,"Brooms",51,"misc","misc",FALSE,FALSE
+703,"Paper napkins (tissue)",52,"misc","misc",FALSE,FALSE
+704,"Kitchen paper roll",52,"misc","misc",FALSE,FALSE
+705,"Toilet bowl cleaner",52,"misc","misc",FALSE,FALSE
+706,"Shoe polish and brush",52,"misc","misc",FALSE,FALSE
+708,"Laundry services",53,"misc","misc",FALSE,FALSE
+710,"Pain killers (paracetamol, APC, etc.)",54,"misc","misc",FALSE,FALSE
+711,"Antibiotics",54,"misc","misc",FALSE,FALSE
+712,"Artemether + Lumefantrine",54,"misc","misc",FALSE,FALSE
+713,"Artesunate ammodiaquin",54,"misc","misc",FALSE,FALSE
+714,"Other anti-malaria medicine",54,"misc","misc",FALSE,FALSE
+715,"Sulpha doxine",54,"misc","misc",FALSE,FALSE
+716,"Ibuprofen",54,"misc","misc",FALSE,FALSE
+717,"Metronidazole (Original)",54,"misc","misc",FALSE,FALSE
+718,"Metronidazole (Generic)",54,"misc","misc",FALSE,FALSE
+719,"Oral rehydration salts",54,"misc","misc",FALSE,FALSE
+722,"Absorbent cotton wool",55,"misc","misc",FALSE,FALSE
+723,"Disposable syringe for intramuscular injection",55,"misc","misc",FALSE,FALSE
+724,"Kiss condom",55,"misc","misc",FALSE,FALSE
+725,"Other condoms",55,"misc","misc",FALSE,FALSE
+800,"Kingdom Kookoo Capsules",56,"misc","misc",FALSE,FALSE
+801,"Adom tablets",56,"misc","misc",FALSE,FALSE
+802,"Abgeve syrup",56,"misc","misc",FALSE,FALSE
+803,"Other traditional drugs",56,"misc","misc",FALSE,FALSE
+807,"Adhesive strips",57,"misc","misc",FALSE,FALSE
+808,"Contraceptive pills",57,"misc","misc",FALSE,FALSE
+809,"Diapers",57,"misc","misc",FALSE,FALSE
+810,"Other Medical Products",57,"misc","misc",FALSE,FALSE
+820,"Petrol",58,"misc","misc",FALSE,FALSE
+821,"Diesel",58,"misc","misc",FALSE,FALSE
+822,"Gas",58,"misc","misc",FALSE,FALSE
+823,"Other lubricants",58,"misc","misc",FALSE,FALSE
+825,"Car Washing",59,"misc","misc",FALSE,FALSE
+826,"Street parking/parking spaces services",59,"misc","misc",FALSE,FALSE
+827,"Cost of travel by rail",59,"misc","misc",FALSE,FALSE
+829,"STC",60,"misc","misc",FALSE,FALSE
+830,"VIP",60,"misc","misc",FALSE,FALSE
+831,"VVIP",60,"misc","misc",FALSE,FALSE
+832,"Mass transport",60,"misc","misc",FALSE,FALSE
+833,"Mini bus",60,"misc","misc",FALSE,FALSE
+835,"Trotro (Intra-city)",61,"misc","misc",FALSE,FALSE
+836,"Mass transport (Intra-city)",61,"misc","misc",FALSE,FALSE
+837,"Taxi (intra-city)",61,"misc","misc",FALSE,FALSE
+838,"Other transport",61,"misc","misc",FALSE,FALSE
+842,"One way public transport trip",62,"misc","misc",FALSE,FALSE
+844,"River crossing (Big ferry)",63,"misc","misc",FALSE,FALSE
+845,"River crossing (Canoe)",63,"misc","misc",FALSE,FALSE
+846,"Domestic flight two way",63,"misc","misc",FALSE,FALSE
+847,"Domestic flight one way",63,"misc","misc",FALSE,FALSE
+848,"Other purchased transport services",63,"misc","misc",FALSE,FALSE
+849,"Porters (kayaye, male porters, etc.).",63,"misc","misc",FALSE,FALSE
+850,"Postage",63,"misc","misc",FALSE,FALSE
+851,"Other postal services (e.g. DHL)",63,"misc","misc",FALSE,FALSE
+853,"Prepaid Phone Card",64,"misc","misc",FALSE,FALSE
+854,"Internet Services at Cyber Cafe",64,"misc","misc",FALSE,FALSE
+855,"Fixed line",64,"misc","misc",FALSE,FALSE
+866,"Mobile",65,"misc","misc",FALSE,FALSE
+868,"Scanning (1 Page)",66,"misc","misc",FALSE,FALSE
+869,"Printing (1 Page)",66,"misc","misc",FALSE,FALSE
+870,"Photocopying",66,"misc","misc",FALSE,FALSE
+871,"Use of Gym facilities",66,"misc","misc",FALSE,FALSE
+872,"Football game",66,"meat","meat",FALSE,FALSE
+873,"Cinema/theatre/Video houses",66,"misc","misc",FALSE,FALSE
+874,"Rental of DVD Movie",66,"misc","misc",FALSE,FALSE
+875,"Safaribet",66,"misc","misc",FALSE,FALSE
+876,"National lotteries",66,"misc","misc",FALSE,FALSE
+877,"Other lotteries",66,"misc","misc",FALSE,FALSE
+880,"Crusading Guide",67,"misc","misc",FALSE,FALSE
+881,"Insight  News paper",67,"misc","misc",FALSE,FALSE
+882,"Other private paper",67,"misc","misc",FALSE,FALSE
+885,"National Daily Newspaper (Graphic)",68,"misc","misc",FALSE,FALSE
+886,"National Daily Newspaper (Times)",68,"misc","misc",FALSE,FALSE
+887,"Other newspaper",68,"misc","misc",FALSE,FALSE
+888,"Magazine",68,"misc","misc",FALSE,FALSE
+889,"Graphic Sports",68,"misc","misc",FALSE,FALSE
+890,"International Weekly Newspaper",68,"misc","misc",FALSE,FALSE
+891,"Exercise book",68,"misc","misc",FALSE,FALSE
+892,"Writing pads",68,"misc","misc",FALSE,FALSE
+893,"Other textbook, story books",68,"misc","misc",FALSE,FALSE
+894,"Other expenditure on education not Sec2A",68,"misc","misc",FALSE,FALSE
+895,"2B",68,"misc","misc",FALSE,FALSE
+896,"HB",68,"misc","misc",FALSE,FALSE
+897,"Bic",68,"misc","misc",FALSE,FALSE
+898,"Allwrite",68,"misc","misc",FALSE,FALSE
+899,"Pelikan",68,"misc","misc",FALSE,FALSE
+900,"Other pen",68,"misc","misc",FALSE,FALSE
+901,"Eraser",68,"misc","misc",FALSE,FALSE
+902,"Sharpener",68,"misc","misc",FALSE,FALSE
+903,"Other stationery",68,"misc","misc",FALSE,FALSE
+905,"Tinned Dog Food",69,"misc","misc",FALSE,FALSE
+906,"Tinned Cat Food",69,"misc","misc",FALSE,FALSE
+907,"Pizza",69,"misc","misc",FALSE,FALSE
+908,"Khebabs and other meats",69,"meat","meat",FALSE,FALSE
+909,"Cooked rice and stew",69,"cereals","cereals",FALSE,FALSE
+910,"Fufu and light soup",69,"roots","roots",FALSE,FALSE
+911,"Other prepared meals",69,"misc","misc",FALSE,FALSE
+915,"Cooked rice and stew",70,"cereals","cereals",FALSE,FALSE
+916,"Fufu and light soup",70,"roots","roots",FALSE,FALSE
+917,"Tuo zaafi",70,"cereals","cereals",FALSE,FALSE
+918,"Kenkey/Banku with fried fish/sauce",70,"fish","fish",FALSE,FALSE
+919,"Fried Plantain and beans (red red)",70,"pulses_nuts","pulses_nuts",FALSE,FALSE
+920,"Khebabs",70,"misc","misc",FALSE,FALSE
+921,"Other prepared meals",70,"misc","misc",FALSE,FALSE
+923,"Cost of bed occupancy in hotel/hostel",71,"misc","misc",FALSE,FALSE
+925,"Men's haircut",72,"misc","misc",FALSE,FALSE
+926,"Hair wash & styling",72,"misc","misc",FALSE,FALSE
+927,"Braiding",72,"misc","misc",FALSE,FALSE
+928,"Manicure & pedicure",72,"misc","misc",FALSE,FALSE
+929,"Other personal grooming services",72,"misc","misc",FALSE,FALSE
+935,"Darling",73,"misc","misc",FALSE,FALSE
+936,"Auntie lizy",73,"misc","misc",FALSE,FALSE
+937,"Ultra",73,"misc","misc",FALSE,FALSE
+938,"Other hair",73,"misc","misc",FALSE,FALSE
+939,"Wigs",73,"misc","misc",FALSE,FALSE
+941,"Orange",74,"fruit","fruit",FALSE,FALSE
+942,"Tango",74,"misc","misc",FALSE,FALSE
+943,"Rose",74,"misc","misc",FALSE,FALSE
+944,"Other toilet roll",74,"misc","misc",FALSE,FALSE
+949,"Pepsodent",75,"misc","misc",FALSE,FALSE
+950,"Close up",75,"misc","misc",FALSE,FALSE
+951,"Colgate",75,"misc","misc",FALSE,FALSE
+952,"Other toothpaste",75,"misc","misc",FALSE,FALSE
+960,"Blue ice",76,"misc","misc",FALSE,FALSE
+961,"Sure",76,"misc","misc",FALSE,FALSE
+962,"Rexona",76,"misc","misc",FALSE,FALSE
+963,"Fa",76,"misc","misc",FALSE,FALSE
+964,"Other deodorant",76,"misc","misc",FALSE,FALSE
+968,"Bic",77,"misc","misc",FALSE,FALSE
+969,"Lord",77,"misc","misc",FALSE,FALSE
+970,"Gillette",77,"misc","misc",FALSE,FALSE
+971,"Other erazor",77,"misc","misc",FALSE,FALSE
+975,"Queen Elizabeth",78,"misc","misc",FALSE,FALSE
+976,"Vasline",78,"misc","misc",FALSE,FALSE
+977,"Other",78,"misc","misc",FALSE,FALSE
+980,"Azura",79,"misc","misc",FALSE,FALSE
+981,"Dustin powder",79,"misc","misc",FALSE,FALSE
+982,"Stay powder",79,"misc","misc",FALSE,FALSE
+983,"Other skin powder",79,"misc","misc",FALSE,FALSE
+984,"Tampons",79,"misc","misc",FALSE,FALSE
+985,"Always",79,"misc","misc",FALSE,FALSE
+986,"Yazz",79,"misc","misc",FALSE,FALSE
+987,"Other sanitary pad",79,"misc","misc",FALSE,FALSE
+990,"Fee for money transfer",80,"misc","misc",FALSE,FALSE

@@ -1,0 +1,486 @@
+code,item
+1,       Dada Ba 
+2,       Oman Ba 
+3,       Mandela 
+4,       Gold Star       
+5,       Afife   
+6,       Other   
+10,       Jasmine Rice    
+11,       Basmati Rice    
+12,       Uncle Ben's Rice (imported)     
+13,       Lele Rice       
+14,       Royal Feast     
+15,       Gino Rice       
+16,       Royal Aroma     
+17,       Heaven  
+18,       Cindy   
+19,       Bella   
+20,       Sultana 
+21,       Mama's Pride    
+22,       Red Eagle       
+23,       Other imported rice     
+27,       Guinea corn/sorghum     
+28,       White maize grains      
+29,       Yellow maize grains     
+30,       Millet  
+31,       Millet flour    
+32,       Takoradi Flour Mill     
+33,       GMG     
+34,"       Wheat semolina,suji     "
+35,       Corn dough      
+36,       Maize   
+37,       Millet  
+38,       Rice    
+39,       Beans   
+40,       Mixed fruit     
+41,       Wheat   
+42,       Other   
+47,       Good Morning    
+48,       Quaker oats     
+49,       Other oats      
+53,       Cassava - Kokonte       
+54,       Cassava dough   
+55,       Yellow gari     
+56,       White gari      
+58,       Sugar bread     
+59,       Whole wheat bread       
+60,       Butter bread    
+61,       Tea bread       
+62,       Other bread     
+67,       Picadilly biscuit       
+68,       Kings crackers  
+69,       Malt and milk   
+70,       Cream crackers  
+71,       Short cake      
+72,       Perks biscuit   
+73,       Digestive biscuit       
+74,       Jack and Jill   
+75,       Wafers  
+76,       Ginger  
+77,       Short Bread     
+78,       Other biscuits  
+83,       Indomie or instant noodles      
+84,       Cornflakes (Kellogg's)  
+85,       Macaroni        
+86,       Spaghetti       
+87,       Maizena 
+88,       Couscous        
+89,       Other cereal products   
+95,       Beef with bones 
+96,       Beef without bones (steak)      
+97,"       Cow leg , local "
+98,       Cow leg imported        
+99,       Cow face (head) 
+100,       Cow offals (towel)      
+101,       Other cow/beef product  
+105,       pork meat       
+106,"       pork, ribs      "
+107,"       pork, shoulder  "
+108,"       pork , fillet   "
+109,       Pork feet       
+110,       Other pork meat 
+115,       mutton mixed cut        
+116,"       Goat , live     "
+117,       Goat meat       
+118,       Local breed     
+119,       Poultry farm breed      
+120,       whole chicken broiler   
+121,       Chicken parts(thighs)   
+122,       Chicken parts(wings)    
+123,       Gizzard 
+124,       chicken breast without skin     
+125,       chicken breast with skin and bones      
+126,       Other chicken product   
+127,       Guinea fowl - live      
+131,       Lele corned Beef        
+132,       Exeter corned beef      
+133,       Bella corned beef       
+134,       Other corned beef       
+139,       Beef sausage    
+140,       Pork sausage    
+141,       Chicken sausage 
+142,       Bushmeat (Grasscutter)  
+143,       Game birds      
+144,"       Other meat (dog, cat, etc.)     "
+149,       Kpala (Starvids) frozen 
+150,       Shrimps 
+151,       Snails  
+152,       Crab    
+153,       Fish smoked (river)     
+154,       Fish smoked (sea)       
+155,       Herrings -smoked        
+156,       Salmon (smoked) 
+157,       Fish (fried)    
+158,       Dried fish - Koobi      
+159,       Fish (salted) e.g. Kako 
+160,       Tilapia (fresh and frozen)      
+161,       Other fish      
+165,       Titus   
+166,       Princess        
+167,       Obaapa  
+168,       Gino    
+169,       Smile   
+170,       Lele    
+171,       Vega    
+172,       Other sardines  
+176,       Star kist       
+177,       Vega    
+178,       Geisha  
+179,       Tesco   
+180,       John West       
+181,       Other   
+185,       African Queen   
+186,       Geisha  
+187,       Gino    
+188,       Ena pa  
+189,       Obaapa  
+190,       Delay   
+191,       Teacher 
+192,       Other mackerel  
+197,       Milk (Fresh)    
+198,       Nido (Sachet)   
+199,       Peak (Sachet)   
+200,       Milgro (Sachet) 
+201,       Cowbell (Sachet)        
+202,       Ideal (sachet)  
+203,       Nunu (sachet)   
+204,       Loya (sachet)   
+205,       Miksi (sachet)  
+206,       Vega (sachet)   
+207,       Other powdered milk     
+301,       Ideal   
+302,       Peak    
+303,       Nunu    
+304,       Vega    
+305,       Carnation       
+306,       Other milk      
+401,       Peak    
+402,       Other tinned milk       
+407,       Fan Ice 
+408,       Fan Yoghurt     
+409,       FanDango        
+410,       Fan Choco       
+411,       Other ice cream 
+416,"       Chicken eggs (fresh, single)    "
+417,       Other eggs      
+421,       Margarine       
+422,       Coconut oil     
+423,       Groundnut oil   
+424,       Palm oil (red oil)      
+425,"       Vegetable oil (eg. Frytol, Gino, Obaapa)        "
+426,       Shea butter     
+427,       Palm kernel oil 
+428,       Other oils      
+432,       Coconut (fresh) 
+433,       Coconut (dried) 
+434,       Banana  
+435,       Oranges 
+436,       Pineapple       
+437,       Mango   
+438,       Water melon     
+439,       Avocado pear    
+440,       Apples (foreign)        
+441,       Grapes  
+442,       Sweet apple     
+443,       Lime    
+444,       Cashew  
+445,       Pawpaw  
+446,       Other fruits    
+452,       Canned or processed fruits      
+453,       Cocoyam leaves (kontomire) or Alefu     
+454,       Sweet pepper    
+455,       Carrot  
+456,       Garden eggs     
+457,       Okro (fresh)    
+458,       Pepper (fresh)  
+459,       Dried pepper (red)      
+460,       Powder Pepper   
+461,       Onions (large)  
+462,       Shallots        
+463,       Tomatoes (Fresh)        
+464,       Other vegetables        
+473,       Gino    
+474,       Obaapa  
+475,       Pomo    
+476,       Tam Tam 
+477,       Lele    
+478,       Bella   
+479,       Tasty tom       
+480,       Other tomato paste      
+485,       White beans (cowpea)    
+486,       Palm  nut (fruits)      
+487,       Groundnuts (shelled)    
+488,       Groundnut (paste)       
+489,       Agushie seeds (or milled)       
+491,       Plantain        
+492,       Cassava (fresh) 
+493,       Cocoyam 
+494,       Yam     
+495,       Water yam       
+496,       Taro    
+497,       Potatoes        
+498,       Other Tubers    
+503,       Cubed sugar     
+504,       Granulated sugar        
+505,       Honey   
+511,       Golden tree     
+512,       Other cholate   
+513,       Trident 
+514,       PK      
+515,       Bubble gum      
+516,       Mentos  
+517,       Other gums      
+518,       Other confectionery     
+523,       Garlic  
+524,       Ginger  
+525,       Vinegar 
+526,       Dawadawa        
+527,       Curry powder    
+528,       Chilli powder (black pepper)    
+529,       Other spices    
+535,       Maggi Cube      
+536,       Royco cube      
+537,       Onga cube       
+538,       Onga 3-in-1     
+539,       Benny   
+540,       Other condiments        
+545,       Anapuna iodated salt    
+546,       U2 iodated salt 
+547,       Other salt      
+550,       Nescafe 
+551,       Pure Cocoa Powder (eg. Brown gold)      
+552,"       Tea bags, (eg. Lipton)  "
+554,       Bournvita       
+555,"       Cow bell (coffee, choco etc.)   "
+556,       This way chocolate drink        
+557,       Country milk    
+558,       Ideal   
+559,       Milo    
+560,       Richoco 
+561,       Other beverage drinks   
+565,       Mineral water (bottled) 
+566,       Satchet water   
+567,       Coca Cola /Fanta/Sprite 
+568,       Pepsi/Mirinda   
+569,       Alvaro  
+570,       Other soft drinks       
+575,       Beta malt       
+576,       5 star  
+577,       Malta Guinness  
+578,       Malt schweppes  
+579,       Mighty malt     
+580,       Magic malt      
+581,       Giant malt      
+582,       Lion Malt       
+583,       Other bottled malt drinks       
+587,       Magic malt      
+588,       Malta Guinness  
+589,       Volco   
+590,       Giant malt      
+591,       Power malt      
+592,       Mighty malt     
+593,       Lion Malt       
+594,       Other canned malt drinks        
+605,       Don Simon       
+606,       Fru Telli       
+607,       Blue skies      
+608,       Junior  
+609,       Pure Heaven     
+610,       Kalipo  
+611,       Healthy Live    
+612,       Ceres   
+613,       Other fruit drink       
+618,       Gin     
+619,       Whisky  
+620,       Akpeteshie      
+621,"       Bitters (eg. Alomo, Agya Appiah, HerbAfric etc.)        "
+622,       Schnapps        
+623,       Other spirits   
+629,       Palm Wine       
+630,       Imported Wine   
+631,       Other local wine        
+635,       National beer (star/club)       
+636,"       Dark beer (e.g. Guilder, Guinness)      "
+637,       Beer (Imported) 
+638,       Traditional beer (Pito) 
+645,       Cigarette       
+646,       Tobacco (processed)     
+647,       Other tobacco products  
+650,       Kola Nuts       
+651,       Refuse collection       
+652,       Refuse disposal 
+653,       Expenditure on Public toilet    
+655,       Gas for household use not for car       
+657,       Kerosene        
+658,       Other fuel and power    
+660,       Charcoal        
+661,       Firewood        
+662,       Other solid fuel        
+663,       Ice block (household cooling and refrigeration only)    
+665,       Omo     
+666,       Ariel   
+667,       Yazz    
+668,       Kleesoft        
+669,       Sunlight powder 
+670,       Other washing powder    
+675,       Sunlight soap   
+676,       Key soap        
+677,       Ameen soap      
+678,       Duck soap       
+679,       BF      
+680,       Guardian        
+681,       Other washing soap      
+687,       Lux     
+688,       Rexona  
+689,       Medisoft        
+690,       Geshia  
+691,       Other bathing soap      
+692,       Bleaches        
+693,       Disinfectants and cleaners      
+695,       Insecticides-coils      
+696,       Insecticides-sprays     
+697,       Matches 
+698,       Household candles       
+699,       Brooms  
+703,       Paper napkins (tissue)  
+704,       Kitchen paper roll      
+705,       Toilet bowl cleaner     
+706,       Shoe polish and brush   
+708,       Laundry services        
+710,"       Pain killers (paracetamol, APC, etc.)   "
+711,       Antibiotics     
+712,       Artemether + Lumefantrine       
+713,       Artesunate ammodiaquin  
+714,       Other anti-malaria medicine     
+715,       Sulpha doxine   
+716,       Ibuprofen       
+717,       Metronidazole (Original)        
+718,       Metronidazole (Generic) 
+719,       Oral rehydration salts  
+722,       Absorbent cotton wool   
+723,       Disposable syringe for intramuscular injection  
+724,       Kiss condom     
+725,       Other condoms   
+800,       Kingdom Kookoo Capsules 
+801,       Adom tablets    
+802,       Abgeve syrup    
+803,       Other traditional drugs 
+807,       Adhesive strips 
+808,       Contraceptive pills     
+809,       Diapers 
+810,       Other Medical Products  
+820,       Petrol  
+821,       Diesel  
+822,       Gas     
+823,       Other lubricants        
+825,       Car Washing     
+826,       Street parking/parking spaces services  
+827,       Cost of travel by rail  
+829,       STC     
+830,       VIP     
+831,       VVIP    
+832,       Mass transport  
+833,       Mini bus        
+835,       Trotro (Intra-city)     
+836,       Mass transport (Intra-city)     
+837,       Taxi (intra-city)       
+838,       Other transport 
+842,       One way public transport trip   
+844,       River crossing (Big ferry)      
+845,       River crossing (Canoe)  
+846,       Domestic flight two way 
+847,       Domestic flight one way 
+848,       Other purchased transport services      
+849,"       Porters (kayaye, male porters, etc.).   "
+850,       Postage 
+851,       Other postal services (e.g. DHL)        
+853,       Prepaid Phone Card      
+854,       Internet Services at Cyber Cafe 
+855,       Fixed line      
+866,       Mobile  
+868,       Scanning (1 Page)       
+869,       Printing (1 Page)       
+870,       Photocopying    
+871,       Use of Gym facilities   
+872,       Football game   
+873,       Cinema/theatre/Video houses     
+874,       Rental of DVD Movie     
+875,       Safaribet       
+876,       National lotteries      
+877,       Other lotteries 
+880,       Crusading Guide 
+881,       Insight  News paper     
+882,       Other private paper     
+885,       National Daily Newspaper (Graphic)      
+886,       National Daily Newspaper (Times)        
+887,       Other newspaper 
+888,       Magazine        
+889,       Graphic Sports  
+890,       International Weekly Newspaper  
+891,       Exercise book   
+892,       Writing pads    
+893,"       Other textbook, story books     "
+894,       Other expenditure on education not Sec2A        
+895,       2B      
+896,       HB      
+897,       Bic     
+898,       Allwrite        
+899,       Pelikan 
+900,       Other pen       
+901,       Eraser  
+902,       Sharpener       
+903,       Other stationery        
+905,       Tinned Dog Food 
+906,       Tinned Cat Food 
+907,       Pizza   
+908,       Khebabs and other meats 
+909,       Cooked rice and stew    
+910,       Fufu and light soup     
+911,       Other prepared meals    
+915,       Cooked rice and stew    
+916,       Fufu and light soup     
+917,       Tuo zaafi       
+918,       Kenkey/Banku with fried fish/sauce      
+919,       Fried Plantain and beans (red red)      
+920,       Khebabs 
+921,       Other prepared meals    
+923,       Cost of bed occupancy in hotel/hostel   
+925,       Men's haircut   
+926,       Hair wash & styling     
+927,       Braiding        
+928,       Manicure & pedicure     
+929,       Other personal grooming services        
+935,       Darling 
+936,       Auntie lizy     
+937,       Ultra   
+938,       Other hair      
+939,       Wigs    
+941,       Orange  
+942,       Tango   
+943,       Rose    
+944,       Other toilet roll       
+949,       Pepsodent       
+950,       Close up        
+951,       Colgate 
+952,       Other toothpaste        
+960,       Blue ice        
+961,       Sure    
+962,       Rexona  
+963,       Fa      
+964,       Other deodorant 
+968,       Bic     
+969,       Lord    
+970,       Gillette        
+971,       Other erazor    
+975,       Queen Elizabeth 
+976,       Vasline 
+977,       Other   
+980,       Azura   
+981,       Dustin powder   
+982,       Stay powder     
+983,       Other skin powder       
+984,       Tampons 
+985,       Always  
+986,       Yazz    
+987,       Other sanitary pad      
+990,       Fee for money transfer  
