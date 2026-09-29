@@ -7,6 +7,9 @@
 # (XV-01/02), stability ensembles and WHO exceedance on every district (UE-01),
 # survey planner with SP-01 validation, searchable importance with ranges,
 # What-more-data-buys, Malawi selenium/iodine, country briefs.
+# Text review 2026-09-27: short on-page text, with the detail on a Technical
+# notes page; the full-text version is archived at
+# archive/dashboard/full_text_2026-09-27/ (see archive/ARCHIVE_MANIFEST.md).
 #
 # To run locally:
 #   Rscript dashboard/data-raw/05_build_protocol_v2_bundles.R   # data, once
@@ -46,7 +49,7 @@ ui <- page_navbar(
     nav_panel(title = "The data behind it", icon = bsicons::bs_icon("journal-text"),
               navset_card_tab(
                 nav_panel(title = "What tracks which nutrient", icon = bsicons::bs_icon("clipboard2-pulse"), mod_nutrient_signal_ui("nutrient")),
-                nav_panel(title = "Predictor catalogue", icon = bsicons::bs_icon("journal-text"), mod_catalogue_ui("catalogue"))))
+                nav_panel(title = "Data layer catalogue", icon = bsicons::bs_icon("journal-text"), mod_catalogue_ui("catalogue"))))
   ),
 
   nav_menu(
@@ -55,10 +58,10 @@ ui <- page_navbar(
     nav_panel(title = "Tested in six more countries", icon = bsicons::bs_icon("globe-americas"), mod_external_ui("external")),
     nav_panel(title = "What the ranking buys", icon = bsicons::bs_icon("bullseye"), mod_targeting_ui("targeting")),
     nav_panel(title = "What more data buys", icon = bsicons::bs_icon("graph-up-arrow"), mod_roadmap_ui("roadmap")),
-    nav_panel(title = "Methods", icon = bsicons::bs_icon("info-circle"), mod_methods_ui("methods"))
   ),
 
   nav_panel(title = "Plan a survey", icon = bsicons::bs_icon("cash-coin"), mod_survey_design_ui("planning")),
+  nav_panel(title = "Technical notes", icon = bsicons::bs_icon("journal-text"), mod_technical_ui("technical")),
 
   nav_spacer(),
   nav_item(popover(tags$button(class = "btn btn-link", bsicons::bs_icon("book"), " Glossary"),
@@ -67,10 +70,13 @@ ui <- page_navbar(
                    about_content, title = NULL, placement = "bottom", options = list(html = TRUE, container = "body"))),
 
   footer = div(style = "text-align: center; color: #888; font-size: 0.8em; padding: 8px;",
-               sprintf("Micronutrient Burden Dashboard | %s | data built %s", PROTOCOL_LABEL, data_build_time))
+               sprintf("Micronutrient Burden Dashboard | data built %s", data_build_time))
 )
 
 server <- function(input, output, session) {
+  # Modules call this from their own observers, where Shiny's current session is
+  # the module's namespaced proxy; every update here names the top-level session
+  # or it would target "start-main_nav" and silently do nothing.
   go_to <- function(tab, country = NULL, outcome = NULL) {
     if (!is.null(country)) {
       updateSelectInput(session, "map-country", selected = country)
@@ -80,7 +86,7 @@ server <- function(input, output, session) {
       updateSelectInput(session, "map-outcome", selected = outcome)
       updateSelectInput(session, "targeting-outcome", selected = outcome)
     }
-    nav_select("main_nav", tab)
+    nav_select("main_nav", tab, session = session)
   }
 
   # ── URL state ──────────────────────────────────────────────────────────────
@@ -89,7 +95,7 @@ server <- function(input, output, session) {
   # apart, because choosing a country repopulates its outcome choices.
   q0 <- isolate(parseQueryString(session$clientData$url_search))
   apply_query <- function(q) {
-    if (!is.null(q$tab)) try(nav_select("main_nav", q$tab), silent = TRUE)
+    if (!is.null(q$tab)) try(nav_select("main_nav", q$tab, session = session), silent = TRUE)
     pairs <- c(country = "map-country", outcome = "map-outcome", layer = "map-layer", level = "map-admin_level",
                dcountry = "district-country", district = "district-district", doutcome = "district-outcome",
                civ = "civ-outcome",
@@ -139,7 +145,7 @@ server <- function(input, output, session) {
   mod_external_server("external")
   mod_targeting_server("targeting")
   mod_roadmap_server("roadmap", go_to = go_to)
-  mod_methods_server("methods")
+  mod_technical_server("technical")
   mod_survey_design_server("planning")
 }
 

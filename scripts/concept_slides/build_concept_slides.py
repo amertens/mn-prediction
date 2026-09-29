@@ -18,11 +18,20 @@ the speaker notes of the slides it replaces) and `<deck>.quantities.json`
 `<spec>.pptx`, one preview PNG per slide under `concept_previews/`, and
 `<spec>-PLACEMENT.md`. Icons are read from docs/slides/img/icons/.
 
-Layouts: pipeline (cards in a row with arrows), cards (cards with a heading and
-lines), checklist (status tile, question, answer), icon_rows (icon, heading,
-caption; optional image on the right), two_panel (two headed columns of icon
-items; optional `banner` statement beneath), grid (groups of items in two columns).
-checklist takes heading_size, text_size, heading_width and an optional footnote.
+Layouts: pipeline (cards in a row with arrows; optional `banner` beneath), cards
+(cards with a heading and lines), checklist (status tile, question, answer),
+icon_rows (icon, heading, caption; optional image on the right), two_panel (two
+headed columns of icon items; optional `banner` statement beneath), grid (groups
+of items in two columns), freeform (nothing but the overlays below).
+checklist takes heading_size, text_size, heading_width and an optional footnote;
+cards and two_panel take `area_width` (inches) to leave room on the right.
+
+Overlays, on any layout (added 2026-09-27 for the v2 MNF15 deck): `title_box`
+[x, y, w, h] and `title_size` move and resize the slide title; `images` (file
+relative to the spec, x, y, w or h, optional caption), `texts` (x, y, w, h,
+paras of text/size/bold/color, optional align and anchor), `dots` (legend
+circles: x, y, d, color) and `boxes` (outlined rectangles: x, y, w, h, color,
+width_pt, optional fill), all in inches. cards also take an optional `banner` (v4).
 """
 import copy
 import json
@@ -152,10 +161,19 @@ def icon_file(item, colour="blue"):
 
 
 # ---- layouts -------------------------------------------------------------------------------
+def draw_banner(slide, spec, Q, x, y, w, h):
+    """A blue rounded band with a centred white statement (two_panel and pipeline)."""
+    rounded_box(slide, x, y, w, h, fill=BLUE, radius=0.12)
+    textbox(slide, x + Inches(0.3), y, w - Inches(0.6), h, [(fill_text(spec["banner"], Q), spec.get("banner_size", 20), True, WHITE)],
+            anchor=MSO_ANCHOR.MIDDLE, align=PP_ALIGN.CENTER)
+
+
 def layout_pipeline(slide, spec, Q, icons):
     items = spec["items"]; n = len(items)
     ncol = 3 if n > 4 else n; nrow = -(-n // ncol)
-    gap = Inches(0.55); cw = (W - gap * (ncol - 1)) / ncol; ch = (H - Inches(0.3) * (nrow - 1)) / nrow
+    banner = spec.get("banner"); bh = Inches(spec.get("banner_height", 0.72)) if banner else 0
+    HH = H - bh - (Inches(0.22) if banner else 0)   # the cards stop above the banner
+    gap = Inches(0.55); cw = (W - gap * (ncol - 1)) / ncol; ch = (HH - Inches(0.3) * (nrow - 1)) / nrow
     if ncol >= 4 and nrow == 1:
         ch = min(ch, Inches(3.6))
     for k, it in enumerate(items):
@@ -166,26 +184,32 @@ def layout_pipeline(slide, spec, Q, icons):
             isz = Inches(0.6)
             icon(slide, icon_file(it), x + (cw - isz) / 2, y + Inches(0.2), isz, icons)
             textbox(slide, x + Inches(0.12), y + Inches(0.85), cw - Inches(0.24), Inches(0.8),
-                    [(f"{k + 1}. {fill_text(it['heading'], Q)}", 15, True, BLUE)], anchor=MSO_ANCHOR.MIDDLE, align=PP_ALIGN.CENTER)
+                    [(f"{k + 1}. {fill_text(it['heading'], Q)}", spec.get("heading_size", 15), True, BLUE)], anchor=MSO_ANCHOR.MIDDLE, align=PP_ALIGN.CENTER)
             textbox(slide, x + Inches(0.15), y + Inches(1.7), cw - Inches(0.3), ch - Inches(1.8),
-                    [(fill_text(it.get("caption", ""), Q), 12.5, False, TEXT)])
+                    [(fill_text(it.get("caption", ""), Q), spec.get("caption_size", 12.5), False, TEXT)])
         else:
             isz = Inches(0.62)
             icon(slide, icon_file(it), x + Inches(0.2), y + Inches(0.18), isz, icons)
             textbox(slide, x + Inches(0.95), y + Inches(0.12), cw - Inches(1.05), Inches(0.75),
-                    [(f"{k + 1}. {fill_text(it['heading'], Q)}", 17, True, BLUE)], anchor=MSO_ANCHOR.MIDDLE)
+                    [(f"{k + 1}. {fill_text(it['heading'], Q)}", spec.get("heading_size", 17), True, BLUE)], anchor=MSO_ANCHOR.MIDDLE)
             textbox(slide, x + Inches(0.2), y + Inches(0.92), cw - Inches(0.35), ch - Inches(1.0),
-                    [(fill_text(it.get("caption", ""), Q), 13, False, TEXT)])
+                    [(fill_text(it.get("caption", ""), Q), spec.get("caption_size", 13), False, TEXT)])
         if c < ncol - 1 and k < n - 1:
             ar = slide.shapes.add_shape(MSO_SHAPE.CHEVRON, x + cw + Inches(0.14), y + ch / 2 - Inches(0.16), Inches(0.28), Inches(0.32))
             ar.fill.solid(); ar.fill.fore_color.rgb = LIGHT; ar.line.fill.background()
+    if banner:
+        draw_banner(slide, spec, Q, X0, Y0 + H - bh, W, bh)
 
 
 def layout_cards(slide, spec, Q, icons):
     items = spec["items"]; n = len(items)
     hs = spec.get("heading_size", 20); ts = spec.get("text_size", 14); isz = Inches(spec.get("icon_size", 1.0))
-    gap = Inches(0.45 if n <= 3 else 0.25); cw = (W - gap * (n - 1)) / n; ch = H
+    WW = Inches(spec["area_width"]) if spec.get("area_width") else W
+    banner = spec.get("banner"); bh = Inches(spec.get("banner_height", 0.72)) if banner else 0
+    gap = Inches(0.45 if n <= 3 else 0.25); cw = (WW - gap * (n - 1)) / n; ch = H - bh - (Inches(0.22) if banner else 0)
     pad = Inches(0.3 if n <= 3 else 0.15)
+    if banner:   # v4: a statement beneath the cards, as pipeline and two_panel
+        draw_banner(slide, spec, Q, X0, Y0 + H - bh, WW, bh)
     for k, it in enumerate(items):
         x = X0 + k * (cw + gap); y = Y0
         rounded_box(slide, x, y, cw, ch)
@@ -247,7 +271,8 @@ def layout_icon_rows(slide, spec, Q, icons, deck_dir):
 
 
 def layout_two_panel(slide, spec, Q, icons):
-    panels = spec["panels"]; gap = Inches(0.5); pw = (W - gap) / 2
+    WW = Inches(spec["area_width"]) if spec.get("area_width") else W
+    panels = spec["panels"]; gap = Inches(0.5); pw = (WW - gap) / 2
     banner = spec.get("banner"); bh = Inches(spec.get("banner_height", 0.72)) if banner else 0
     PH = H - bh - (Inches(0.22) if banner else 0)   # panel height; the banner sits below both panels
     for j, pn in enumerate(panels):
@@ -269,10 +294,7 @@ def layout_two_panel(slide, spec, Q, icons):
                 paras.append((fill_text(it["caption"], Q), ts, False, TEXT))
             textbox(slide, tx, yy, pw - (tx - x) - Inches(0.15), rh, paras, anchor=MSO_ANCHOR.MIDDLE)
     if banner:
-        by = Y0 + H - bh
-        rounded_box(slide, X0, by, W, bh, fill=BLUE, radius=0.12)
-        textbox(slide, X0 + Inches(0.3), by, W - Inches(0.6), bh, [(fill_text(banner, Q), spec.get("banner_size", 20), True, WHITE)],
-                anchor=MSO_ANCHOR.MIDDLE, align=PP_ALIGN.CENTER)
+        draw_banner(slide, spec, Q, X0, Y0 + H - bh, WW, bh)
 
 
 def layout_grid(slide, spec, Q, icons):
@@ -317,7 +339,62 @@ def layout_title(slide, spec, Q, icons, deck_dir):
         slide.notes_slide.notes_text_frame.text = fill_text(spec["notes"], Q)
 
 
-LAYOUTS = {"pipeline": layout_pipeline, "cards": layout_cards, "checklist": layout_checklist, "two_panel": layout_two_panel, "grid": layout_grid}
+def layout_freeform(slide, spec, Q, icons):
+    """No base layout: the slide is built from the overlays alone (see overlays())."""
+    return None
+
+
+def overlays(slide, spec, Q, deck_dir):
+    """Title box, images, texts, legend dots and outlined boxes, on top of any layout (inches)."""
+    tb = spec.get("title_box")
+    if tb and slide.shapes.title is not None:
+        t = slide.shapes.title
+        t.left, t.top, t.width, t.height = [int(Inches(v)) for v in tb]
+        t.text_frame.word_wrap = True
+        for p in t.text_frame.paragraphs:
+            p.alignment = PP_ALIGN.LEFT
+            for r in p.runs:
+                if spec.get("title_size"):
+                    r.font.size = Pt(spec["title_size"])
+    for d in spec.get("boxes", []):
+        sh = slide.shapes.add_shape(MSO_SHAPE.RECTANGLE, Inches(d["x"]), Inches(d["y"]), Inches(d["w"]), Inches(d["h"]))
+        if d.get("fill"):   # v4: a filled legend square
+            sh.fill.solid(); sh.fill.fore_color.rgb = RGBColor.from_string(d["fill"])
+        else:
+            sh.fill.background()
+        sh.line.color.rgb = RGBColor.from_string(d.get("color", "0F7B8A")); sh.line.width = Pt(d.get("width_pt", 2.5))
+        sh.shadow.inherit = False
+    for im in spec.get("images", []):
+        kw = {}
+        if "w" in im:
+            kw["width"] = Inches(im["w"])
+        if "h" in im:
+            kw["height"] = Inches(im["h"])
+        pic = slide.shapes.add_picture(os.path.join(deck_dir, im["file"]), Inches(im["x"]), Inches(im["y"]), **kw)
+        if im.get("caption"):   # "\n" in the caption starts a new line (keeps a URL from breaking mid-word)
+            cw = Inches(im.get("caption_width", pic.width / Inches(1) + 0.6))
+            box = textbox(slide, pic.left + (pic.width - cw) / 2, pic.top + pic.height + Inches(0.04), cw, Inches(im.get("caption_height", 0.8)),
+                          [(fill_text(line, Q), im.get("caption_size", 12), False, TEXT) for line in str(im["caption"]).split("\n")],
+                          align=PP_ALIGN.CENTER)
+            for p in box.text_frame.paragraphs[1:]:
+                p.space_before = Pt(0)
+    for d in spec.get("dots", []):
+        sz = Inches(d.get("d", 0.22))
+        sh = slide.shapes.add_shape(MSO_SHAPE.OVAL, Inches(d["x"]), Inches(d["y"]), sz, sz)
+        sh.fill.solid(); sh.fill.fore_color.rgb = RGBColor.from_string(d["color"]); sh.line.fill.background(); sh.shadow.inherit = False
+    for t in spec.get("texts", []):
+        paras = [(fill_text(p["text"], Q), p.get("size", 16), p.get("bold", False), RGBColor.from_string(p.get("color", "333333")))
+                 for p in t["paras"]]
+        anchor = {"top": MSO_ANCHOR.TOP, "middle": MSO_ANCHOR.MIDDLE, "bottom": MSO_ANCHOR.BOTTOM}[t.get("anchor", "top")]
+        align = {"left": PP_ALIGN.LEFT, "center": PP_ALIGN.CENTER, "right": PP_ALIGN.RIGHT}[t.get("align", "left")]
+        box = textbox(slide, Inches(t["x"]), Inches(t["y"]), Inches(t["w"]), Inches(t["h"]), paras, anchor=anchor, align=align)
+        if t.get("space_before"):
+            for p in box.text_frame.paragraphs[1:]:
+                p.space_before = Pt(t["space_before"])
+
+
+LAYOUTS = {"pipeline": layout_pipeline, "cards": layout_cards, "checklist": layout_checklist, "two_panel": layout_two_panel, "grid": layout_grid,
+           "freeform": layout_freeform}
 
 
 # ---- deck ---------------------------------------------------------------------------------
@@ -334,6 +411,7 @@ def draw(slide, s, Q, icons, deck_dir):
         layout_title(slide, s, Q, icons, deck_dir)
     else:
         LAYOUTS[s["layout"]](slide, s, Q, icons)
+    overlays(slide, s, Q, deck_dir)
 
 
 def build_in_place(spec_path, pptx):

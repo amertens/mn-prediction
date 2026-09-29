@@ -28,18 +28,19 @@ level_skill <- function(rho) {
   col <- c(none = "#b2182b", weak = "#e08214", moderate = "#4393c3", good = "#1a9850", unknown = "#999999")[band]
   list(band = band, colour = unname(col), rho = rho)
 }
+skill_word <- c(none = "not informative", weak = "weak", moderate = "moderate", good = "good", unknown = "not available")
 level_skill_badge <- function(rho) {
   ls <- level_skill(rho)
   htmltools::tags$span(style = sprintf("display:inline-block; padding:1px 7px; border-radius:9px; color:white; background:%s; font-size:0.85em;", ls$colour),
-                       sprintf("level skill: %s (ρ = %s)", ls$band, fmt_num(rho, 2)))
+                       sprintf("District percentages: %s (%s)", skill_word[[ls$band]], fmt_num(rho, 2)))
 }
 level_skill_text <- function(rho) {
   switch(level_skill(rho)$band,
-    none = "The model has no out-of-sample level skill for this outcome here: every district's planning prevalence sits at the national figure. Read the ranking, not the percentages.",
-    weak = "Weak level skill: the planning prevalence varies little between districts and its spread is mostly the national figure. Read the ranking first.",
-    moderate = "Moderate level skill: the planning prevalence carries about a third to a half of the true between-district spread.",
-    good = "Good level skill: the planning prevalence carries half or more of the true between-district spread.",
-    "Level skill not available for this cell.")
+    none = "Percentages not informative here: use the ranking.",
+    weak = "Percentages weak here: use the ranking first.",
+    moderate = "Percentages moderately reliable.",
+    good = "Percentages reliable.",
+    "Not available for this country and outcome.")
 }
 
 # GADM ships inland water as Admin-2 polygons (Lake Malawi, eight features).
@@ -155,25 +156,46 @@ decompose_district <- function(ck, oc, admin1, admin2) {
   out
 }
 
-#' The recurring honesty line for stability ranges (VZ-01). Used verbatim
-#' wherever a resampling range or exceedance chance is shown, so the app never
-#' oversells its uncertainty as calibrated coverage.
+#' The standard sentence wherever a rank range from re-estimation is shown:
+#' it measures how firmly a district is placed, and the coverage check says
+#' how far to trust it.
 stability_note <- function() {
-  paste("Ranges and chances from refitting on resampled training data measure STABILITY - how much the answer moves",
-        "under a different training draw - not calibrated coverage: checked against held-out countries, a 90% rank",
-        sprintf("range covers the survey's own rank about %s of the time",
-                if (is.finite(Q$stab_cov)) fmt_pct(Q$stab_cov, 0) else "40%"))
+  sprintf(paste("The rank range shows how far a district's rank moves when the model is re-estimated on different",
+                "samples of the surveyed districts. It shows how firmly the model places the district. It is not a",
+                "confidence interval: when tested in countries left out of the model, the survey's rank fell inside",
+                "the range %s of the time"),
+          if (is.finite(Q$stab_cov)) fmt_pct(Q$stab_cov, 0) else "less than half")
 }
 
-#' The companion line for the CALIBRATED prevalence quantities (CP-01):
-#' unlike the stability ranges, these are checked to cover.
+#' The standard sentence wherever a checked prevalence range or threshold
+#' chance is shown.
 calibrated_note <- function() {
-  sprintf(paste("The calibrated band and threshold chances come from out-of-fold conformal residuals on the surveyed",
-                "districts (CP-01): checked by leave-one-out, the 90%% band covers the survey's own measured district",
-                "value %s of the time (the resampling bands they replace covered %s). Coverage is against the survey's",
-                "value, so it includes the survey's own noise; unsurveyed districts inherit their cell's width."),
-          if (is.finite(Q$cal_cov)) fmt_pct(Q$cal_cov, 0) else "about 90%",
-          if (is.finite(Q$stabprev_cov)) fmt_pct(Q$stabprev_cov, 0) else "far less")
+  sprintf(paste("The range comes from how far the model's estimates missed the survey's own figures in districts the",
+                "model had not seen. In that check, 90%% ranges contained the survey figure %s of the time. A single",
+                "district's survey figure is itself uncertain, so part of the width comes from the survey. Districts",
+                "without survey data get the same width as the surveyed districts in their country."),
+          if (is.finite(Q$cal_cov)) fmt_pct(Q$cal_cov, 0) else "about 90%")
+}
+
+#' Cross-hatching for polygons (map overlay): diagonal lines in both
+#' directions, clipped to the flagged polygons, drawn with addPolylines.
+#' Planar geometry is enough at this scale and avoids slow spherical unions.
+hatch_lines <- function(polys, n_lines = 70) {
+  if (is.null(polys) || !nrow(polys)) return(NULL)
+  old <- suppressMessages(sf::sf_use_s2(FALSE)); on.exit(suppressMessages(sf::sf_use_s2(old)))
+  g <- sf::st_union(sf::st_make_valid(sf::st_geometry(polys)))
+  bb <- sf::st_bbox(g); w <- bb[["xmax"]] - bb[["xmin"]]; h <- bb[["ymax"]] - bb[["ymin"]]
+  step <- max(w, h) / n_lines
+  offs <- seq(-h, w, by = step)
+  mk <- function(sign) lapply(offs, function(o) {
+    if (sign > 0) sf::st_linestring(rbind(c(bb[["xmin"]] + o, bb[["ymin"]]), c(bb[["xmin"]] + o + h, bb[["ymax"]])))
+    else sf::st_linestring(rbind(c(bb[["xmin"]] + o, bb[["ymax"]]), c(bb[["xmin"]] + o + h, bb[["ymin"]])))
+  })
+  lines <- sf::st_sfc(c(mk(1), mk(-1)), crs = sf::st_crs(polys))
+  out <- suppressWarnings(sf::st_intersection(lines, g))
+  out <- out[!sf::st_is_empty(out)]
+  if (!length(out)) return(NULL)
+  sf::st_cast(sf::st_sf(geometry = out), "MULTILINESTRING")
 }
 
 #' Mean over cells with a 95% interval across cells.
@@ -186,7 +208,7 @@ cell_ci <- function(d, val, by) {
 }
 
 #' Horizontal dot-and-interval plot (plotly).
-forest_plotly <- function(d, y, null = NA, xlab = "Ranking accuracy (mean over cells, 95% interval)",
+forest_plotly <- function(d, y, null = NA, xlab = "Ranking accuracy (average over country-outcome pairs, with 95% interval)",
                           colour = PROXY_COL, height = NULL) {
   d <- as.data.frame(d)
   d <- d[is.finite(d$est), , drop = FALSE]
@@ -195,7 +217,7 @@ forest_plotly <- function(d, y, null = NA, xlab = "Ranking accuracy (mean over c
     add_segments(x = ~lo, xend = ~hi, y = ~.data[[y]], yend = ~.data[[y]],
                  line = list(color = "#9a9a9a", width = 2), showlegend = FALSE, hoverinfo = "none") |>
     add_markers(x = ~est, y = ~.data[[y]], marker = list(color = colour, size = 11),
-                text = ~sprintf("%s<br>%.2f (%.2f to %.2f), %d cells", .data[[y]], est, lo, hi, n),
+                text = ~sprintf("%s<br>%.2f (%.2f to %.2f), %d country-outcome pairs", .data[[y]], est, lo, hi, n),
                 hoverinfo = "text", showlegend = FALSE)
   shapes <- if (is.finite(null)) list(list(type = "line", x0 = null, x1 = null, y0 = 0, y1 = 1, yref = "paper",
                                            line = list(color = "#666", dash = "dash"))) else list()

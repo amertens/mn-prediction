@@ -21,16 +21,19 @@ testServer(mod_map_explorer_server, args = list(id = "map"), {
   note(sum(d$surveyed, na.rm = TRUE) == 75, sprintf("%d surveyed districts carry a survey estimate", sum(d$surveyed, na.rm = TRUE)))
   note(renders(output$headline), "headline renders")
   h <- paste(as.character(output$headline$html), collapse = "")
-  note(grepl("level skill: (none|weak|moderate|good)", h), "headline carries the level-skill badge (IS-01)")
+  note(grepl("District percentages: (not informative|weak|moderate|good)", h), "headline carries the district-percentage reliability badge")
   session$setInputs(layer = "prev_anchored")
-  note(grepl("Level skill", output$caption), "caption names the level skill on the planning-prevalence layer")
+  note(grepl("Estimated prevalence", output$caption), "caption explains the estimated-prevalence layer")
   session$setInputs(layer = "priority", admin_level = "admin1")
   note(nrow(map_data()) == 16, sprintf("Ghana aggregates to %d regions", nrow(map_data())))
   session$setInputs(country = "malawi", outcome = "child_zinc", admin_level = "admin2")
   note(nrow(map_data()) > 200, "Malawi zinc draws")
-  session$setInputs(country = "ghana", outcome = "child_vitA", layer = "rank_width", fade_unstable = TRUE)
+  session$setInputs(country = "ghana", outcome = "child_vitA", layer = "rank_width", hatch_unstable = TRUE)
   d <- map_data()
-  note(sum(is.finite(d$rank_width)) > 200, sprintf("stability range joined for %d Ghana districts", sum(is.finite(d$rank_width))))
+  note(sum(is.finite(d$rank_width)) > 200, sprintf("rank range joined for %d Ghana districts", sum(is.finite(d$rank_width))))
+  hl <- hatch_lines(d[is.finite(d$width_share) & d$width_share > HATCH_SHARE, ])
+  note(!is.null(hl) && nrow(hl) > 0, sprintf("cross-hatching built for %d unstable Ghana districts", sum(d$width_share > HATCH_SHARE, na.rm = TRUE)))
+  note(grepl("Hatched", output$caption), "caption explains the cross-hatching")
   session$setInputs(layer = "p_modplus_cal")
   note(sum(is.finite(d$p_modplus_cal)) > 200, "calibrated WHO exceedance joined (CP-01)")
   note(sum(is.finite(d$prev_cal_lo)) > 200, "calibrated prevalence band joined (CP-01)")
@@ -48,10 +51,28 @@ testServer(mod_district_server, args = list(id = "district"), {
 })
 
 cat("\nStart here\n")
-testServer(mod_start_here_server, args = list(id = "start", go_to = function(...) invisible(NULL)), {
-  note(renders(output$hero), "hero renders")
-  note(renders(output$example), "worked example renders")
-  note(renders(output$checklist), "checklist renders")
+went <- character(0)
+testServer(mod_start_here_server, args = list(id = "start", go_to = function(tab, ...) went <<- c(went, tab)), {
+  note(renders(output$answers), "the three answer cards render")
+  a <- paste(as.character(output$answers$html), collapse = "")
+  note(all(vapply(c("National prevalence", "Prevalence in each district", "Ranking districts"), grepl, logical(1), x = a, fixed = TRUE)),
+       "cards cover national, district prevalence and ranking")
+  note(!grepl("NA|—", a), "no missing numbers on the cards")
+  session$setInputs(go_plan = 1); session$setInputs(go_map = 1); session$setInputs(go_trust = 1); session$setInputs(go_tech = 1)
+  note(identical(went, c("Plan a survey", "Map explorer", "How well it works", "Technical notes")),
+       sprintf("buttons ask for the right tabs (%s)", paste(went, collapse = ", ")))
+})
+tabs <- local({ src <- readLines("app.R"); m <- regmatches(src, regexpr('nav_panel\\(title = "[^"]+"', src))
+  sub('nav_panel\\(title = "', "", sub('"$', "", m)) })
+note(all(went %in% tabs), "every button target is a real tab title")
+note(any(grepl("nav_select\\(\"main_nav\", tab, session = session\\)", readLines("app.R"))),
+     "go_to names the top-level session (a module's own session would target start-main_nav)")
+
+cat("\nTechnical notes\n")
+testServer(mod_technical_server, args = list(id = "technical"), {
+  note(!is.null(output$perf), "results table renders")
+  note(!is.null(output$outcomes), "survey table renders")
+  note(renders(output$weights), "weighting table renders")
 })
 
 cat("\nCatalogue\n")

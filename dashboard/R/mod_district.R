@@ -1,9 +1,6 @@
 # =============================================================================
-# Module: District profiles
+# Module: District profiles (concise version)
 # =============================================================================
-# One district across every outcome its country measured: rank, how sure,
-# planning prevalence, and the survey's own figure, then the predictors behind
-# the score for a chosen outcome.
 
 mod_district_ui <- function(id) {
   ns <- NS(id)
@@ -12,7 +9,7 @@ mod_district_ui <- function(id) {
       width = 320, title = "Choose a district",
       selectInput(ns("country"), "Country", choices = country_choices, selected = "ghana"),
       selectizeInput(ns("district"), "District", choices = NULL),
-      selectInput(ns("outcome"), "Outcome for the drivers", choices = outcome_choices, selected = "child_vitA"),
+      selectInput(ns("outcome"), "Outcome for the breakdown", choices = outcome_choices, selected = "child_vitA"),
       hr(),
       uiOutput(ns("summary"))
     ),
@@ -21,16 +18,12 @@ mod_district_ui <- function(id) {
       card(card_header("Where this district ranks, by outcome"),
            card_body(plotlyOutput(ns("profile"), height = "320px"),
                      reactableOutput(ns("table")),
-                     methods_note("Priority score 100 means ranked worst in the country. The chance of being in the worst fifth",
-                                  " exists for surveyed districts only (out-of-fold, calibration checked). ", calibrated_note(),
-                                  " The rank-across-refits range is different: ", stability_note(),
-                                  ". The survey estimate carries a 95 percent range from its own effective sample size."))),
-      card(card_header("What drives the score for the chosen outcome"),
+                     p(style = "font-size:0.85em; color:#666;", "100 = ranked worst in the country. Ranges are explained in Technical notes."))),
+      card(card_header("What moves this district's score"),
            card_body(plotlyOutput(ns("drivers"), height = "380px"),
-                     methods_note("The model's score is a weighted sum of the district's predictors, so each bar is that",
-                                  " predictor's exact contribution to the district's distance from the country's surveyed mean,",
-                                  " on the model's own scale. Red pushes toward more deficiency, blue toward less. These are",
-                                  " markers of where deficiency is, not causes.")))
+                     p(style = "font-size:0.85em; color:#666;",
+                       "Each bar is one data layer's contribution. Red pushes toward more deficiency, blue toward less.",
+                       " They show where deficiency is likely, not what causes it.")))
     )
   )
 }
@@ -68,12 +61,9 @@ mod_district_server <- function(id) {
       d <- rows(); req(nrow(d) > 0)
       tagList(
         h5(d$Admin2[1], style = "margin-top:0;"), p(em(d$Admin1[1])),
-        p(if (isTRUE(d$surveyed[1])) sprintf("Surveyed: %s respondents in %s clusters.", fmt_count(d$n_resp[1]), d$n_clusters[1])
-          else "No survey clusters in this district; every figure is the model's."),
-        p(sprintf("In the worst fifth for %d of %d outcomes.", sum(d$rank_worst <= ceiling(d$n_districts / 5)), nrow(d))),
-        if (is.finite(d$population[1])) p(sprintf("Children 6 to 59 months: %s; women 15 to 49: %s.",
-                                                  fmt_count(g1(d$population[startsWith(d$outcome, "child_")])),
-                                                  fmt_count(g1(d$population[startsWith(d$outcome, "women_")]))), style = "font-size:0.9em; color:#555;")
+        p(if (isTRUE(d$surveyed[1])) sprintf("Surveyed: %s people in %s clusters.", fmt_count(d$n_resp[1]), d$n_clusters[1])
+          else "Not surveyed: all figures come from the model."),
+        p(sprintf("In the worst fifth for %d of %d outcomes.", sum(d$rank_worst <= ceiling(d$n_districts / 5)), nrow(d)))
       )
     })
 
@@ -83,10 +73,9 @@ mod_district_server <- function(id) {
       plot_ly(d) |>
         add_segments(x = 0, xend = 100, y = ~label, yend = ~label, line = list(color = "#e6e6e6", width = 6), showlegend = FALSE, hoverinfo = "none") |>
         add_markers(x = ~priority, y = ~label, marker = list(color = PROXY_COL, size = 13),
-                    text = ~sprintf("%s<br>priority %.0f, rank %d of %d<br>planning prevalence %s (level skill %s)%s", label, priority, rank_worst, n_districts,
-                                    fmt_pct(prev_anchored), level_skill, ifelse(is.finite(p_worst_fifth), sprintf("<br>chance of worst fifth %s", fmt_pct(p_worst_fifth, 0)), "")),
+                    text = ~sprintf("%s<br>priority %.0f, rank %d of %d<br>estimated prevalence %s", label, priority, rank_worst, n_districts, fmt_pct(prev_anchored)),
                     hoverinfo = "text", showlegend = FALSE) |>
-        layout(xaxis = list(title = "Priority score (100 = ranked worst in the country; dotted line = worst fifth)", range = c(-2, 102)),
+        layout(xaxis = list(title = "Priority score (100 = ranked worst; dotted line = worst fifth)", range = c(-2, 102)),
                yaxis = list(title = ""), margin = list(l = 10, r = 10, t = 10, b = 50),
                shapes = list(list(type = "line", x0 = 80, x1 = 80, y0 = 0, y1 = 1, yref = "paper",
                                   line = list(color = "#b2182b", dash = "dot")))) |> config(displayModeBar = FALSE)
@@ -95,25 +84,23 @@ mod_district_server <- function(id) {
     output$table <- renderReactable({
       d <- rows(); req(nrow(d) > 0)
       t <- data.frame(Outcome = d$label, Rank = sprintf("%d of %d", d$rank_worst, d$n_districts),
-                      `Rank across refits` = ifelse(is.finite(d$rank_lo), sprintf("%d to %d", round(d$rank_lo), round(d$rank_hi)), "—"),
-                      `Chance of worst fifth` = ifelse(is.finite(d$p_worst_fifth), fmt_pct(d$p_worst_fifth, 0), "—"),
-                      `Planning prevalence (90% calibrated)` = ifelse(is.finite(d$prev_cal_lo), sprintf("%s (%s to %s)", fmt_pct(d$prev_anchored), fmt_pct(d$prev_cal_lo), fmt_pct(d$prev_cal_hi)), fmt_pct(d$prev_anchored)),
-                      `At or above WHO moderate` = ifelse(is.finite(d$p_modplus_cal), fmt_pct(d$p_modplus_cal, 0), "—"),
-                      `Level skill` = sprintf("%s (%s)", d$level_skill, fmt_num(d$rho_train, 2)),
-                      `Survey estimate` = ifelse(is.finite(d$survey_prev), sprintf("%s (%s to %s)", fmt_pct(d$survey_prev), fmt_pct(d$survey_lo, 0), fmt_pct(d$survey_hi, 0)), "not surveyed"),
-                      `WHO class` = d$who_class, check.names = FALSE)
+                      `Rank range` = ifelse(is.finite(d$rank_lo), sprintf("%d to %d", round(d$rank_lo), round(d$rank_hi)), "—"),
+                      `Estimated prevalence (checked range)` = ifelse(is.finite(d$prev_cal_lo), sprintf("%s (%s to %s)", fmt_pct(d$prev_anchored), fmt_pct(d$prev_cal_lo), fmt_pct(d$prev_cal_hi)), fmt_pct(d$prev_anchored)),
+                      `Percentages` = skill_word[d$level_skill],
+                      `Survey estimate` = ifelse(is.finite(d$survey_prev), fmt_pct(d$survey_prev), "not surveyed"),
+                      check.names = FALSE)
       reactable(t, compact = TRUE, striped = TRUE, defaultPageSize = 11, rownames = FALSE)
     })
 
     output$drivers <- renderPlotly({
       d <- rows(); req(nrow(d) > 0, input$outcome)
       dec <- decompose_district(input$country, input$outcome, d$Admin1[1], d$Admin2[1])
-      validate(need(!is.null(dec) && nrow(dec) > 0, "No fit for this country and outcome."))
+      validate(need(!is.null(dec) && nrow(dec) > 0, "No model for this country and outcome."))
       top <- head(dec, 12); top$label <- unique_labels(top$label, top$column); top$label <- factor(top$label, levels = rev(top$label))
       plot_ly(top, x = ~contribution, y = ~label, type = "bar", orientation = "h",
               marker = list(color = ifelse(top$contribution > 0, "#b2182b", "#2166ac")),
               text = ~sprintf("%s<br>%s<br>contribution %+.2f", column, source, contribution), hoverinfo = "text") |>
-        layout(xaxis = list(title = sprintf("Contribution to the score, %s (model scale; total %+.2f)", outcome_short[[input$outcome]], attr(dec, "total"))),
+        layout(xaxis = list(title = sprintf("Contribution to the score, %s", outcome_short[[input$outcome]])),
                yaxis = list(title = ""), margin = list(l = 10, r = 10, t = 10, b = 50)) |> config(displayModeBar = FALSE)
     })
   })

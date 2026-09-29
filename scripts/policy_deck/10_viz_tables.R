@@ -45,13 +45,17 @@ S  <- read.csv("data/covariates/harmonized/predictors_admin2_shared.csv", check.
 MD <- read.csv("data/covariates/harmonized/predictors_admin2_shared_metadata.csv")
 PREDS <- drop_near_outcome_v2(intersect(MD$column, names(S)), MD); domain_of <- stats::setNames(MD$domain, MD$column)
 COUNTRIES <- c("Gambia", "Ghana", "Malawi")
+# optional overrides (v4 MNF15 deck, 27 Sep): VZ_A_OUTCOMES / VZ_A_COUNTRIES for block A and
+# VZ_B2_PAIRS = "Country:outcome:file.csv;..." for block B2. Unset, the script does what it always did.
+env_list <- function(v, sep = ",") { x <- Sys.getenv(v); if (nzchar(x)) strsplit(x, sep)[[1]] else NULL }
+if (!is.null(env_list("VZ_A_COUNTRIES"))) COUNTRIES <- env_list("VZ_A_COUNTRIES")
 
 # an urbanicity composite: mean of within-country ranks of night lights, population density, built surface, urban land cover
 urb_cols <- intersect(c("ntl_ccnl", "wpop_log_density_survey_year", "built_surface", "lcover_urban_frac_t0"), names(S))
 S$urbanicity <- ave(seq_len(nrow(S)), S$country, FUN = function(i) { m <- sapply(urb_cols, function(cc) rank(S[[cc]][i], na.last = "keep") / sum(is.finite(S[[cc]][i]))); rowMeans(m, na.rm = TRUE) })
 
 # ── A. in-fill out-of-fold predictions, child iron ────────────────────────────
-if ("A" %in% BLOCKS) for (OUTC in c("child_iron", "women_iron")) {
+if ("A" %in% BLOCKS) for (OUTC in (if (!is.null(env_list("VZ_A_OUTCOMES"))) env_list("VZ_A_OUTCOMES") else c("child_iron", "women_iron"))) {
   cat("A. out-of-fold", OUTC, "\n"); rows <- list()
   for (cn in COUNTRIES) {
     t <- TG[TG$country == cn & TG$outcome == OUTC & is.finite(TG$y_prev) & is.finite(TG$n_eff), ]
@@ -104,9 +108,11 @@ if ("B2" %in% BLOCKS) {
   POP  <- readRDS("dashboard/data/admin2_population.rds")
   metaD <- readRDS("dashboard/data/metadata.rds")
   LBL2 <- c(Gambia = "Gambia", Ghana = "Ghana", Malawi = "Malawi", SierraLeone = "Sierra Leone")
-  for (pair in list(c("Ghana", "child_vitA", "exceedance_ghana_vitA_cal.csv"),
-                    c("Ghana", "women_iron", "deploy_ghana_women_iron_cal.csv"),
-                    c("Malawi", "women_iron", "deploy_malawi_women_iron_cal.csv"))) {
+  B2_PAIRS <- if (!is.null(env_list("VZ_B2_PAIRS", ";"))) lapply(env_list("VZ_B2_PAIRS", ";"), function(z) strsplit(z, ":")[[1]]) else
+    list(c("Ghana", "child_vitA", "exceedance_ghana_vitA_cal.csv"),
+         c("Ghana", "women_iron", "deploy_ghana_women_iron_cal.csv"),
+         c("Malawi", "women_iron", "deploy_malawi_women_iron_cal.csv"))
+  for (pair in B2_PAIRS) {
     CN <- pair[1]; ON <- pair[2]; cat("B2. calibrated deployment", CN, ON, "\n")
     all_s <- S[S$country == CN & !is_water_admin2(S$Admin2), ]
     t <- TG[TG$country == CN & TG$outcome == ON & is.finite(TG$y_prev) & is.finite(TG$n_eff), ]

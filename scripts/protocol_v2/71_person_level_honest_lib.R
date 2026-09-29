@@ -77,7 +77,10 @@ load_cell71 <- function(outcome) {
   gw <- gw[allowed_under_arm(gw, "questionnaire") & !gw %in% outcome_vars & !grepl(IL01_LEAK, gw) &
            !(grepl(IL01_DATE, gw) & !grepl("age|Age", gw)) & !grepl(IL02_DROP, gw)]
   gw <- gw[vapply(gw, function(k) { v <- .v2_num(d[[k]]); mean(is.finite(v)) >= 0.7 && isTRUE(stats::sd(v, na.rm = TRUE) > 0) && length(unique(v[is.finite(v)])) >= 2 }, TRUE)]
-  Xs <- as.matrix(as.data.frame(lapply(d[gw], .v2_num))); Xs <- apply(Xs, 2, function(v) { v[!is.finite(v)] <- stats::median(v, na.rm = TRUE); v })
+  # Malawi's store data carries no gw_ questionnaire columns: an empty survey set, and the survey arms are skipped
+  Xs <- if (length(gw)) as.matrix(as.data.frame(lapply(d[gw], .v2_num))) else matrix(numeric(0), nrow = nrow(d), ncol = 0)
+  if (ncol(Xs)) { Xs <- apply(Xs, 2, function(v) { v[!is.finite(v)] <- stats::median(v, na.rm = TRUE); v })
+    if (is.null(dim(Xs))) Xs <- matrix(Xs, ncol = 1, dimnames = list(NULL, gw)) }
   # IL-01's proxies: domain PCs over the country's rows of the shared table
   Sx <- S71[S71$country == COUNTRY71, ]; Dm <- domain_representation_v2(prep_predictors_v2(as.matrix(Sx[, PREDS71, drop = FALSE])), dom71)
   colnames(Dm) <- paste0("px_", colnames(Dm)); Xp <- Dm[match(dist, paste(Sx$Admin1, Sx$Admin2, sep = "||")), , drop = FALSE]

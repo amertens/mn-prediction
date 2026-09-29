@@ -14,7 +14,7 @@
 # knew every district's TRUE prevalence would reach.
 #
 #   NW=17 REPS=5 BOOT=1000 IL_CACHE=<local dir> Rscript scripts/protocol_v2/71_person_level_honest.R
-#   IL_HONEST_COUNTRY=Ghana (default)
+#   IL_HONEST_COUNTRY=Ghana (default); other countries write il02_honest_*_<Country>.csv
 # -> results/tables/protocol_v2/il02_honest_person_level.csv          aggregate metrics only
 # -> results/tables/protocol_v2/il02_honest_survey_columns.csv        the survey columns used
 # -> $IL_CACHE/il02_honest_person_predictions.rds                     respondent-level; never commit
@@ -27,12 +27,14 @@ OUTDIR <- "results/tables/protocol_v2"; CACHE <- Sys.getenv("IL_CACHE", tempdir(
 NW <- as.integer(Sys.getenv("NW", "17")); REPS <- as.integer(Sys.getenv("REPS", "5")); B <- as.integer(Sys.getenv("BOOT", "1000"))
 source(LIB)
 TYPES <- c("bin", "cont")
+TAG <- if (COUNTRY71 == "Ghana") "" else paste0("_", COUNTRY71)   # Ghana keeps the original file names
 cat(sprintf("%s: outcomes %s\n", COUNTRY71, paste(OUTS71, collapse = ", ")))
 cols <- bind_rows(lapply(OUTS71, function(o) { cl <- load_cell71(o)
   cat(sprintf("  %-12s survey columns %3d | proxy PCs %3d | index PCs %3d | districts %d | concentration: %s\n", o, length(cl$survey_cols),
               ncol(cl$Xp), ncol(cl$Dix), length(cl$keys), cl$cont_src))
-  data.frame(country = COUNTRY71, outcome = o, column = cl$survey_cols, concentration_source = cl$cont_src) }))
-write.csv(cols, file.path(OUTDIR, "il02_honest_survey_columns.csv"), row.names = FALSE)
+  data.frame(country = COUNTRY71, outcome = o, column = if (length(cl$survey_cols)) cl$survey_cols else NA_character_,
+             concentration_source = cl$cont_src) }))
+write.csv(cols, file.path(OUTDIR, paste0("il02_honest_survey_columns", TAG, ".csv")), row.names = FALSE)
 # workers read these compact per-outcome matrices instead of each loading the store's
 # full outcome datasets (ten workers doing that ran the machine out of memory)
 CELLS <- file.path(CACHE, paste0("il02_honest_cells_", COUNTRY71, ".rds"))
@@ -43,6 +45,11 @@ if (file.exists(cache_file) && Sys.getenv("IL_REUSE", "0") == "1") {
   K <- readRDS(cache_file); P <- K$P; IDX <- K$IDX; CEIL <- K$CEIL
 } else {
   tasks <- expand.grid(type = TYPES, outcome = OUTS71, set = c("survey", "proxies", "both"), rep = seq_len(REPS), stringsAsFactors = FALSE)
+  # no questionnaire columns (Malawi's store data): proxy-based arms only
+  n_svy <- vapply(OUTS71, function(o) length(load_cell71(o)$survey_cols), 0L)
+  tasks <- tasks[!(tasks$set %in% c("survey", "both") & n_svy[tasks$outcome] < 2), ]
+  # IL_SETS (comma list) restricts the SuperLearner arms, e.g. IL_SETS=proxies for the proxy-only figures
+  tasks <- tasks[tasks$set %in% trimws(strsplit(Sys.getenv("IL_SETS", "survey,proxies,both"), ",")[[1]]), ]
   tasks <- tasks[order(tasks$set == "proxies"), ]
   cl <- makePSOCKcluster(NW)
   clusterExport(cl, c("LIB", "ROOT", "tasks", "CELLS"))
@@ -68,7 +75,8 @@ auc_w <- function(y, p, fold) { a_ <- 0; den <- 0
   for (f in unique(fold)) { i <- which(fold == f); n1 <- sum(y[i] == 1); n0 <- sum(y[i] == 0); if (!n1 || !n0) next
     a_ <- a_ + auc1(y[i], p[i]) * n1 * n0; den <- den + n1 * n0 }; if (den == 0) NA_real_ else a_ / den }
 avg <- bind_rows(P, IDX) |> group_by(type, outcome, set, row) |> summarise(y = first(y), pred = mean(pred), .groups = "drop")
-nulls <- P |> filter(set == "survey") |> group_by(type, outcome, row) |> summarise(null = mean(null), .groups = "drop")
+nulls <- P |> filter(set == "proxies") |>   # every arm shares the folds, so any arm's null is the null
+  group_by(type, outcome, row) |> summarise(null = mean(null), .groups = "drop")
 within_auc <- bind_rows(P, IDX) |> filter(type == "bin") |> group_by(outcome, set, rep) |>
   summarise(a = auc_w(y, pred, fold), .groups = "drop") |> group_by(outcome, set) |>
   summarise(auc_within = mean(a, na.rm = TRUE), .groups = "drop") |> mutate(type = "bin")
@@ -105,6 +113,6 @@ for (tp in TYPES) for (o in OUTS71) {
   }
 }
 M <- bind_rows(out) |> left_join(within_auc, by = c("type", "outcome", "set"))
-write.csv(M, file.path(OUTDIR, "il02_honest_person_level.csv"), row.names = FALSE)
+write.csv(M, file.path(OUTDIR, paste0("il02_honest_person_level", TAG, ".csv")), row.names = FALSE)
 options(width = 200)
 print(as.data.frame(M |> mutate(across(c(mean_outcome, skill, lo, hi, auc, auc_within, between_district_share, true_prevalence_ceiling_auc), ~ round(.x, 3)))), row.names = FALSE)

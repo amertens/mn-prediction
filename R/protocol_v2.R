@@ -163,15 +163,31 @@ rank_normalize_v2 <- function(x) {
   out
 }
 
+#' Z-score a column (mean 0, sd 1); the NS-01 comparator to rank_normalize_v2
+zscore_v2 <- function(x) {
+  ok <- is.finite(x)
+  out <- rep(NA_real_, length(x))
+  if (sum(ok) > 2 && stats::sd(x[ok]) > 0) {
+    out[ok] <- (x[ok] - mean(x[ok])) / stats::sd(x[ok])
+  }
+  out
+}
+
 #' Rank-normalise a predictor matrix within country, then median-impute
 #'
 #' Median imputation on the rank-normal scale is imputation to 0. Columns below
 #' `min_cov` coverage are dropped rather than imputed. Both steps are
 #' outcome-independent (fix 4's companion to complete-case removal, which the
 #' audit found silently deletes Ghana's entire 153-column DHS block).
+#'
+#' V2_PREP_SCALE=z z-scores the columns instead (missing values to the column
+#' median), a sensitivity arm (NS-01, 2026-09-28) for whether ranking helps
+#' in-country, where fix 3's between-country argument does not apply. Default
+#' "rank" is the protocol.
 prep_predictors_v2 <- function(X, min_cov = 0.70) {
   X <- as.matrix(X)
-  Xr <- apply(X, 2, rank_normalize_v2)
+  z_scale <- identical(Sys.getenv("V2_PREP_SCALE", "rank"), "z")
+  Xr <- apply(X, 2, if (z_scale) zscore_v2 else rank_normalize_v2)
   if (is.null(dim(Xr))) Xr <- matrix(Xr, nrow = nrow(X))
   cov_j <- colMeans(is.finite(Xr))
   keep <- cov_j >= min_cov &
@@ -179,6 +195,10 @@ prep_predictors_v2 <- function(X, min_cov = 0.70) {
             stats::sd(z[is.finite(z)]) > 0)
   keep[is.na(keep)] <- FALSE
   Xr <- Xr[, keep, drop = FALSE]
+  if (z_scale) for (j in seq_len(ncol(Xr))) {
+    miss <- !is.finite(Xr[, j])
+    if (any(miss)) Xr[miss, j] <- stats::median(Xr[!miss, j])
+  }
   Xr[!is.finite(Xr)] <- 0
   colnames(Xr) <- colnames(X)[keep]
   Xr

@@ -16,10 +16,14 @@
 # =============================================================================
 suppressPackageStartupMessages({library(dplyr); library(ggplot2)})
 setwd("C:/Users/andre/OneDrive/Documents/mn-prediction")
-M <- read.csv("results/tables/protocol_v2/il02_honest_person_level.csv", stringsAsFactors = FALSE)
-SRC <- read.csv("results/tables/protocol_v2/il02_honest_survey_columns.csv", stringsAsFactors = FALSE) |> distinct(outcome, concentration_source)
+# IL_HONEST_COUNTRY picks the country; Ghana keeps the original file names, others carry a _<Country> tag
+CN <- Sys.getenv("IL_HONEST_COUNTRY", "Ghana"); TAG <- if (CN == "Ghana") "" else paste0("_", CN)
+M <- read.csv(paste0("results/tables/protocol_v2/il02_honest_person_level", TAG, ".csv"), stringsAsFactors = FALSE)
+SRC <- read.csv(paste0("results/tables/protocol_v2/il02_honest_survey_columns", TAG, ".csv"), stringsAsFactors = FALSE) |> distinct(outcome, concentration_source)
 FIGDIR <- "results/figures"; dir.create(FIGDIR, showWarnings = FALSE)
-COUNTRY <- M$country[1]
+SY <- read.csv("metadata/survey_years.csv", stringsAsFactors = FALSE)
+YEAR <- gsub("-", "–", sub(" \\(.*", "", sub(".*Survey ", "", SY$survey[SY$country == CN])))
+COUNTRY <- paste(switch(CN, Gambia = "The Gambia", SierraLeone = "Sierra Leone", CN), YEAR)
 
 INK <- "#0b0b0b"; INK2 <- "#52514e"; MUTED <- "#8a8983"; GRID <- "#e9e8e4"; SURF <- "#fcfcfb"
 MODEL_SETS <- c(index = "Index", survey = "Survey only", proxies = "Proxies", both = "Survey + proxies")
@@ -48,7 +52,7 @@ draw <- function(d, ceiling_label, xlab, title, subtitle, caption, file, height 
     scale_colour_manual(values = cols, name = NULL, drop = TRUE) +
     scale_shape_manual(values = shapes, name = NULL, drop = TRUE) +
     scale_x_continuous(limits = xr, breaks = scales::breaks_pretty(6), labels = function(x) paste0(x, "%")) +
-    labs(x = xlab, y = NULL, title = title, subtitle = subtitle, caption = caption) +
+    labs(x = xlab, y = NULL, title = title, subtitle = if (NOTES) subtitle, caption = if (NOTES) caption) +
     theme_minimal(base_size = 12) +
     theme(plot.background = element_rect(fill = SURF, colour = NA), panel.background = element_rect(fill = SURF, colour = NA),
           text = element_text(colour = INK), axis.text = element_text(colour = INK2), axis.text.y = element_text(size = 10.5),
@@ -61,6 +65,9 @@ draw <- function(d, ceiling_label, xlab, title, subtitle, caption, file, height 
   invisible(p)
 }
 
+# Subtitles and bottom notes are off for the slides (PI, 28 Sep); IL02_FIG_NOTES=1 restores them for an appendix.
+# The note text below is kept either way, for speaker notes.
+NOTES <- identical(Sys.getenv("IL02_FIG_NOTES", "0"), "1")
 SUB <- paste0("Every model is scored on districts it never saw (5 folds blocked by district, averaged over 5 fold draws). ",
               "Bars: 95% cluster-bootstrap intervals.")
 wv <- M[M$type == "bin" & M$outcome == "women_vitA" & M$set == "index", ]
@@ -81,15 +88,17 @@ CAP_SRC <- paste0("Concentrations on the log scale: ", paste(unique(plain_src(SR
 CAP_JAN <- paste0("Women's vitamin A: ", cases_wva, " cases. The January 2026 version of this figure (20\u201367%) scored the models on their own training data.")
 
 # all four model families
-draw(prep("bin", NUT_B, ceil_b), ceil_b, XB, paste0("Predicting which individuals are deficient, ", COUNTRY, " 2017 (current data and models)"), SUB,
-     paste0(CAP_CEIL_B, "\n", CAP_JAN), file.path(FIGDIR, "il02_person_level_brier_honest.png"))
-draw(prep("cont", NUT_C, ceil_c), ceil_c, XC, paste0("Predicting individual biomarker concentrations, ", COUNTRY, " 2017 (current data and models)"), SUB,
-     paste0(CAP_SRC, "\n", CAP_CEIL_C), file.path(FIGDIR, "il02_person_level_mse_honest.png"))
+if (any(M$set == "survey")) {   # needs the questionnaire arms (Malawi's store data has none)
+  draw(prep("bin", NUT_B, ceil_b), ceil_b, XB, paste0("Predicting which individuals are deficient, ", COUNTRY, " (current data and models)"), SUB,
+       paste0(CAP_CEIL_B, "\n", CAP_JAN), file.path(FIGDIR, paste0("il02_person_level_brier_honest", TAG, ".png")))
+  draw(prep("cont", NUT_C, ceil_c), ceil_c, XC, paste0("Predicting individual biomarker concentrations, ", COUNTRY, " (current data and models)"), SUB,
+       paste0(CAP_SRC, "\n", CAP_CEIL_C), file.path(FIGDIR, paste0("il02_person_level_mse_honest", TAG, ".png")))
+}
 # proxy-only: the district-level models the project deploys (no respondent's own survey answers)
 PX <- c("index", "proxies")
-draw(prep("bin", NUT_B, ceil_b, PX), ceil_b, XB, paste0("Predicting which individuals are deficient from district proxies alone, ", COUNTRY, " 2017"), SUB,
+draw(prep("bin", NUT_B, ceil_b, PX), ceil_b, XB, paste0("Predicting which individuals are deficient from district proxies alone, ", COUNTRY), SUB,
      paste0(CAP_CEIL_B, "\nIndex: the PCA domain index, calibrated to respondents. Proxies: SuperLearner on the district's domain components. Women's vitamin A: ", cases_wva, " cases."),
-     file.path(FIGDIR, "il02_person_level_brier_proxy_only.png"), height = 5.6)
-draw(prep("cont", NUT_C, ceil_c, PX), ceil_c, XC, paste0("Predicting individual biomarker concentrations from district proxies alone, ", COUNTRY, " 2017"), SUB,
-     paste0(CAP_SRC, "\n", CAP_CEIL_C), file.path(FIGDIR, "il02_person_level_mse_proxy_only.png"), height = 5.6)
+     file.path(FIGDIR, paste0("il02_person_level_brier_proxy_only", TAG, ".png")), height = 5.6)
+draw(prep("cont", NUT_C, ceil_c, PX), ceil_c, XC, paste0("Predicting individual biomarker concentrations from district proxies alone, ", COUNTRY), SUB,
+     paste0(CAP_SRC, "\n", CAP_CEIL_C), file.path(FIGDIR, paste0("il02_person_level_mse_proxy_only", TAG, ".png")), height = 5.6)
 cat("figures written\n")

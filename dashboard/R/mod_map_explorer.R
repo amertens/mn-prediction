@@ -1,16 +1,14 @@
 # =============================================================================
-# Module: Map explorer
+# Module: Map explorer (concise version)
 # =============================================================================
-# One estimator, four views: the priority ranking, how sure the model is about
-# each surveyed district, the planning prevalence anchored to the national
-# survey, and the survey's own estimate. A click gives the district's numbers
-# and the predictors that push it up or down the list.
+
+HATCH_SHARE <- 0.5   # cross-hatch when the rank range spans more than half the list
 
 mod_map_explorer_ui <- function(id) {
   ns <- NS(id)
   layout_sidebar(
     sidebar = sidebar(
-      width = 340, title = "Map controls",
+      width = 330, title = "Map controls",
       selectInput(ns("country"), "Country", choices = country_choices, selected = "ghana"),
       selectInput(ns("outcome"), "Outcome", choices = outcome_choices, selected = "child_vitA"),
       uiOutput(ns("outcome_caveat")),
@@ -18,16 +16,16 @@ mod_map_explorer_ui <- function(id) {
                    selected = "admin2", inline = TRUE),
       selectInput(ns("layer"), "What to show",
                   choices = list(
-                    "The ranking" = c("Priority score (model)" = "priority",
-                                      "How sure: chance of being in the worst fifth (surveyed districts)" = "p_worst_fifth",
-                                      "How firmly ranked: places the rank moves across refits" = "rank_width"),
-                    "Percentages" = c("Planning prevalence (ranking anchored to the national survey)" = "prev_anchored",
-                                      "Chance at or above the WHO 'moderate' line (calibrated)" = "p_modplus_cal",
-                                      "Survey estimate (surveyed districts only)" = "survey_prev",
-                                      "WHO severity class (planning prevalence)" = "who_class",
-                                      "People affected (planning prevalence x population)" = "people_affected")),
+                    "The ranking" = c("Priority score (100 = ranked worst)" = "priority",
+                                      "How often placed in the worst fifth" = "p_worst_fifth",
+                                      "Rank range when re-estimated" = "rank_width"),
+                    "Percentages" = c("Estimated prevalence" = "prev_anchored",
+                                      "Chance of being at or above WHO 'moderate'" = "p_modplus_cal",
+                                      "Survey estimate" = "survey_prev",
+                                      "WHO severity class" = "who_class",
+                                      "People affected" = "people_affected")),
                   selected = "priority"),
-      checkboxInput(ns("fade_unstable"), "Fade districts the model cannot place firmly", value = FALSE),
+      checkboxInput(ns("hatch_unstable"), "Cross-hatch districts that are not firmly ranked", value = FALSE),
       hr(),
       uiOutput(ns("headline")),
       hr(),
@@ -40,11 +38,7 @@ mod_map_explorer_ui <- function(id) {
       card_header("District ranking of micronutrient deficiency",
                   downloadButton(ns("download"), "Download CSV", class = "btn-sm btn-outline-primary float-end")),
       card_body(padding = 0, leafletOutput(ns("map"), height = "650px")),
-      card_footer(textOutput(ns("caption")),
-                  tags$small(class = "text-muted",
-                             "The model is fitted on the surveyed districts of this country and applied to every district.",
-                             " Surveyed districts are in-sample here; the accuracy quoted on How well it works comes from fits",
-                             " in which each district was hidden."))
+      card_footer(textOutput(ns("caption")))
     )
   )
 }
@@ -81,21 +75,16 @@ mod_map_explorer_server <- function(id) {
       d <- idx_districts[idx_districts$country_key == input$country & idx_districts$outcome == input$outcome, ]
       k <- ceiling(nat$n_districts / 5)
       worst <- d[order(d$rank_worst), ][seq_len(k), ]
-      firm <- sum(d$p_worst_fifth >= 0.8, na.rm = TRUE); scored <- sum(is.finite(d$p_worst_fifth))
       tagList(
         h5(meta$countries[[input$country]], style = "margin-top:0;"),
         p(em(meta$outcome_labels[[input$outcome]])),
-        p("National prevalence, from the survey: ", tags$span(style = "font-size:1.2em; color:#C8641E;", strong(fmt_pct(nat$national_prev)))),
-        p(sprintf("%d of %d districts were surveyed. The model ranks all %d.", nat$n_surveyed, nat$n_districts, nat$n_districts),
-          style = "font-size:0.9em; color:#555;"),
+        p("National prevalence (survey): ", tags$span(style = "font-size:1.2em; color:#C8641E;", strong(fmt_pct(nat$national_prev)))),
+        p(sprintf("%d of %d districts surveyed.", nat$n_surveyed, nat$n_districts), style = "font-size:0.9em; color:#555;"),
         p(level_skill_badge(nat$rho_train), style = "margin-bottom:2px;"),
         p(level_skill_text(nat$rho_train), style = "font-size:0.82em; color:#555;"),
         p(strong(sprintf("Worst fifth (%d districts): ", k)),
-          paste(head(worst$Admin2, 8), collapse = ", "), if (k > 8) sprintf(" and %d more", k - 8) else "",
-          style = "font-size:0.9em;"),
-        if (scored > 0) p(sprintf("Of %d surveyed districts, %d are in the worst fifth in at least 80 percent of refits.", scored, firm),
-                          style = "font-size:0.85em; color:#555;")
-        else p("How sure: not scored for this country (its 14 districts cannot be cross-validated).", style = "font-size:0.85em; color:#555;")
+          paste(head(worst$Admin2, 6), collapse = ", "), if (k > 6) sprintf(" and %d more", k - 6) else "",
+          style = "font-size:0.9em;")
       )
     })
 
@@ -107,19 +96,19 @@ mod_map_explorer_server <- function(id) {
       legend_title <- "Priority score"; pal <- NULL; fill <- rep("#d9d9d9", nrow(df)); lab_fmt <- labelFormat()
       if (layer == "who_class") {
         pal <- colorFactor(unname(who_colors), levels = names(who_colors), na.color = "#cccccc")
-        fill <- pal(df$who_class); legend_title <- "WHO class (planning prevalence)"
+        fill <- pal(df$who_class); legend_title <- "WHO class"
       } else if (layer == "priority") {
         pal <- colorNumeric("YlOrRd", domain = c(0, 100), na.color = "#d9d9d9"); fill <- pal(vals)
       } else if (layer == "p_worst_fifth") {
         pal <- colorNumeric(c("#f7fbff", "#9ecae1", "#08519c"), domain = c(0, 1), na.color = "#d9d9d9"); fill <- pal(vals)
-        legend_title <- "Chance of worst fifth"; lab_fmt <- labelFormat(transform = function(x) round(100 * x), suffix = "%")
+        legend_title <- "In worst fifth (share of runs)"; lab_fmt <- labelFormat(transform = function(x) round(100 * x), suffix = "%")
       } else if (layer == "rank_width") {
         nz <- vals[is.finite(vals)]
         if (length(nz)) { pal <- colorNumeric(c("#252525", "#bdbdbd", "#f7f7f7"), domain = range(nz), na.color = "#d9d9d9"); fill <- pal(vals) }
-        legend_title <- "Places the rank moves (dark = firm)"
+        legend_title <- "Places the rank moves"
       } else if (layer == "p_modplus_cal") {
         pal <- colorNumeric(c("#f7fbff", "#fdae61", "#d7191c"), domain = c(0, 1), na.color = "#d9d9d9"); fill <- pal(vals)
-        legend_title <- "Chance at or above 'moderate' (calibrated)"; lab_fmt <- labelFormat(transform = function(x) round(100 * x), suffix = "%")
+        legend_title <- "Chance at or above 'moderate'"; lab_fmt <- labelFormat(transform = function(x) round(100 * x), suffix = "%")
       } else if (layer == "people_affected") {
         nz <- vals[is.finite(vals) & vals > 0]
         if (length(nz)) { pal <- colorNumeric("YlOrRd", domain = log10(range(pmax(nz, 1))), na.color = "#d9d9d9")
@@ -128,32 +117,37 @@ mod_map_explorer_server <- function(id) {
       } else {
         nz <- vals[is.finite(vals)]
         if (length(nz)) { pal <- colorNumeric("YlOrRd", domain = range(nz), na.color = "#d9d9d9"); fill <- pal(vals) }
-        legend_title <- if (layer == "prev_anchored") "Planning prevalence" else "Survey estimate"
+        legend_title <- if (layer == "prev_anchored") "Estimated prevalence" else "Survey estimate"
         lab_fmt <- labelFormat(transform = function(x) round(100 * x, 1), suffix = "%")
       }
       surveyed <- isTRUE(input$admin_level == "admin2") & !is.na(df$surveyed) & df$surveyed
       if (input$admin_level == "admin1") surveyed <- df$n_surveyed > 0 & !is.na(df$n_surveyed)
       name <- df[[area_col()]]
       sub <- if (area_col() == "Admin2") ifelse(is.na(df$Admin1), "", df$Admin1) else rep("", nrow(df))
-      rng <- if ("rank_lo" %in% names(df)) ifelse(is.finite(df$rank_lo), sprintf("<br/>Rank across refits: %s to %s", round(df$rank_lo), round(df$rank_hi)), "") else ""
-      labels <- sprintf(paste0("<strong>%s</strong><br/>%s<br/>Priority score: %s (rank %s of %s)%s<br/>Planning prevalence: %s<br/>",
-                               "Survey estimate: %s<br/>Chance of worst fifth: %s<br/>Population: %s"),
-                        name, sub, fmt_num(df$priority, 0), ifelse(is.finite(df$rank_worst), df$rank_worst, "—"),
-                        if (area_col() == "Admin2") df$n_districts else nrow(df), rng,
-                        fmt_pct(df$prev_anchored), ifelse(is.finite(df$survey_prev), fmt_pct(df$survey_prev), "not surveyed"),
-                        ifelse(is.finite(df$p_worst_fifth), fmt_pct(df$p_worst_fifth, 0), "—"), fmt_count(df$population)) |> lapply(HTML)
-      op <- if (isTRUE(input$fade_unstable) && "width_share" %in% names(df))
-        0.82 * (1 - 0.65 * pmin(ifelse(is.finite(df$width_share), df$width_share, 0.5), 1)) else 0.78
+      labels <- sprintf("<strong>%s</strong><br/>%s<br/>Rank %s of %s<br/>Estimated prevalence: %s<br/>Survey estimate: %s",
+                        name, sub, ifelse(is.finite(df$rank_worst), df$rank_worst, "—"),
+                        if (area_col() == "Admin2") df$n_districts else nrow(df),
+                        fmt_pct(df$prev_anchored), ifelse(is.finite(df$survey_prev), fmt_pct(df$survey_prev), "not surveyed")) |> lapply(HTML)
       m <- leaflet(df) |> addProviderTiles(providers$Esri.WorldGrayCanvas) |>
-        addPolygons(fillColor = fill, fillOpacity = op, color = ifelse(surveyed, "#1a1a1a", "#9aa0a6"),
+        addPolygons(fillColor = fill, fillOpacity = 0.78, color = ifelse(surveyed, "#1a1a1a", "#9aa0a6"),
                     weight = ifelse(surveyed, 1.6, 0.5), opacity = 1,
                     highlightOptions = highlightOptions(weight = 3, color = "#333", bringToFront = TRUE),
                     label = labels, labelOptions = labelOptions(textsize = "13px", direction = "auto"),
-                    layerId = name) |>
-        addControl(position = "bottomleft", html = HTML(paste0(
+                    layerId = name)
+      hatch_key <- ""
+      if (isTRUE(input$hatch_unstable) && input$admin_level == "admin2" && "width_share" %in% names(df)) {
+        flag <- is.finite(df$width_share) & df$width_share > HATCH_SHARE
+        hl <- if (any(flag)) hatch_lines(df[flag, ]) else NULL
+        if (!is.null(hl)) m <- m |> addPolylines(data = hl, color = "#1a1a1a", weight = 0.9, opacity = 0.8, options = pathOptions(interactive = FALSE))
+        hatch_key <- paste0("<br/><span style='display:inline-block;width:16px;height:11px;vertical-align:middle;",
+                            "background:repeating-linear-gradient(45deg,#222 0 1px,transparent 1px 4px),",
+                            "repeating-linear-gradient(-45deg,#222 0 1px,transparent 1px 4px);'></span> not firmly ranked")
+      }
+      m <- m |> addControl(position = "bottomleft", html = HTML(paste0(
           "<div style='background:rgba(255,255,255,0.88);padding:4px 8px;border-radius:4px;font-size:11px;line-height:1.5;'>",
           "<span style='display:inline-block;width:16px;border-top:3px solid #1a1a1a;vertical-align:middle;'></span> surveyed<br/>",
-          "<span style='display:inline-block;width:16px;border-top:2px solid #9aa0a6;vertical-align:middle;'></span> no survey clusters</div>")))
+          "<span style='display:inline-block;width:16px;border-top:2px solid #9aa0a6;vertical-align:middle;'></span> not surveyed",
+          hatch_key, "</div>")))
       if (layer == "who_class") m <- m |> addLegend(colors = unname(who_colors), labels = names(who_colors), opacity = 0.78, title = legend_title, position = "bottomright")
       else if (!is.null(pal)) {
         lv <- if (layer == "people_affected") log10(pmax(vals[is.finite(vals) & vals > 0], 1)) else if (layer == "priority") c(0, 100) else if (layer %in% c("p_worst_fifth", "p_modplus_cal")) c(0, 1) else vals[is.finite(vals)]
@@ -168,46 +162,35 @@ mod_map_explorer_server <- function(id) {
 
     output$district_detail <- renderUI({
       area <- clicked(); df <- map_data()
-      if (is.null(area) || is.null(df)) return(p(em("Click a district for its numbers and what drives them."), style = "color:#888;"))
+      if (is.null(area) || is.null(df)) return(p(em("Click a district for its figures."), style = "color:#888;"))
       row <- df[df[[area_col()]] == area, , drop = FALSE]; if (!nrow(row)) return(NULL)
       row <- row[1, ]
       dec <- if (area_col() == "Admin2") decompose_district(input$country, input$outcome, row$Admin1, row$Admin2) else NULL
       tagList(
         h5(area, style = "margin-top:0;"),
         if (area_col() == "Admin2" && !is.na(row$Admin1)) p(em(row$Admin1)),
-        p(strong("Priority score: "), fmt_num(row$priority, 0),
-          if (is.finite(row$rank_worst)) sprintf(" (ranked %d of %d, 1 = worst)", row$rank_worst, if (area_col() == "Admin2") row$n_districts else nrow(df)) else ""),
-        if (is.finite(row$p_worst_fifth)) p(strong("Chance of being in the worst fifth: "), fmt_pct(row$p_worst_fifth, 0),
-                                             tags$small(" (40 refits, district hidden each time)")),
-        if (is.finite(row$rank_lo)) p(strong("How firmly ranked: "),
-                                      sprintf("rank stays between %d and %d across %s refits", round(row$rank_lo), round(row$rank_hi),
-                                              if (!is.null(UE$meta)) UE$meta$draws_cell else "200"),
-                                      tags$small(" (stability, not a confidence interval)")),
-        p(strong("Planning prevalence: "), fmt_pct(row$prev_anchored),
-          if (is.finite(row$prev_cal_lo)) tags$small(sprintf(" (90%% calibrated range %s to %s: where a survey visit's own estimate would land)",
-                                                             fmt_pct(row$prev_cal_lo), fmt_pct(row$prev_cal_hi)))
-          else tags$small(" (ranking anchored to the national survey)")),
-        if (is.finite(row$p_modplus_cal)) p(strong("Chance at or above the WHO 'moderate' line: "), fmt_pct(row$p_modplus_cal, 0),
-                                            tags$small(sprintf(" (calibrated%s)",
-                                                               if (is.finite(row$p_severe_cal) && row$p_severe_cal > 0.005) sprintf("; severe %s", fmt_pct(row$p_severe_cal, 0)) else ""))),
+        p(strong("Rank: "), if (is.finite(row$rank_worst)) sprintf("%d of %d (1 = worst)", row$rank_worst, if (area_col() == "Admin2") row$n_districts else nrow(df)) else "—"),
+        if (is.finite(row$rank_lo)) p(strong("Rank range: "), sprintf("%d to %d", round(row$rank_lo), round(row$rank_hi))),
+        p(strong("Estimated prevalence: "), fmt_pct(row$prev_anchored),
+          if (is.finite(row$prev_cal_lo)) sprintf(" (checked range %s to %s)", fmt_pct(row$prev_cal_lo), fmt_pct(row$prev_cal_hi)) else ""),
+        if (is.finite(row$p_modplus_cal)) p(strong("Chance at or above WHO 'moderate': "), fmt_pct(row$p_modplus_cal, 0)),
         if (isTRUE(row$surveyed) || (area_col() == "Admin1" && isTRUE(row$n_surveyed > 0)))
           p(strong("Survey estimate: "), fmt_pct(row$survey_prev),
-            if (area_col() == "Admin2" && is.finite(row$survey_lo)) sprintf(" (95%% range %s to %s; %s respondents in %s clusters)",
+            if (area_col() == "Admin2" && is.finite(row$survey_lo)) sprintf(" (%s to %s; %s people, %s clusters)",
                                                                              fmt_pct(row$survey_lo, 0), fmt_pct(row$survey_hi, 0), fmt_count(row$n_resp), row$n_clusters) else "")
-        else p(em("No survey clusters here; the model's ranking is all there is."), style = "color:#888;"),
-        p(strong("WHO class (planning prevalence): "), row$who_class),
-        if (is.finite(row$population)) p(strong("Population in the group: "), fmt_count(row$population),
-                                         if (is.finite(row$people_affected)) sprintf(", about %s affected", fmt_count(row$people_affected)) else ""),
+        else p(em("Not surveyed: the model is the only estimate."), style = "color:#888;"),
+        if (is.finite(row$population)) p(strong("People in this group: "), fmt_count(row$population),
+                                         if (is.finite(row$people_affected)) sprintf(" (about %s affected)", fmt_count(row$people_affected)) else ""),
         if (!is.null(dec) && nrow(dec)) {
-          top <- head(dec, 6)
+          top <- head(dec, 5)
           tagList(
-            h6("What pushes this district up or down the list", style = "margin-top:10px;"),
+            h6("What moves it up (▲) or down (▼) the list", style = "margin-top:10px;"),
             tags$table(class = "table table-sm", style = "font-size:0.8em;",
                        tags$tbody(lapply(seq_len(nrow(top)), function(i) tags$tr(
                          tags$td(style = if (top$contribution[i] > 0) "color:#b2182b;" else "color:#2166ac;",
                                  if (top$contribution[i] > 0) "▲" else "▼"),
-                         tags$td(top$label[i]), tags$td(style = "color:#777;", top$source[i]))))),
-            tags$small(style = "color:#777;", "Up means the predictor pushes the district toward more deficiency. These are the exact parts of the model's score, not causes of deficiency.")
+                         tags$td(top$label[i]))))),
+            tags$small(style = "color:#777;", "Parts of the model's score, not causes of deficiency.")
           )
         }
       )
@@ -215,25 +198,17 @@ mod_map_explorer_server <- function(id) {
 
     output$caption <- renderText({
       nat <- idx_national[idx_national$country_key == input$country & idx_national$outcome == input$outcome, ]
-      skill <- if (nrow(nat) && input$layer %in% c("prev_anchored", "who_class", "people_affected"))
-        sprintf(" Level skill %s (rho = %s): %s", level_skill(nat$rho_train)$band, fmt_num(g1(nat$rho_train), 2),
-                if (level_skill(nat$rho_train)$band %in% c("none", "weak")) "read the ranking layer, not this one." else "the spread is rho times the survey's.")
-      else ""
-      sprintf("%s, survey year %s, %s. %s. Grey areas have no prediction.%s",
-              meta$countries[[input$country]], meta$survey_years[[input$country]],
-              if (input$admin_level == "admin1") "regions (population-weighted from districts)" else "districts",
-              switch(input$layer,
-                     priority = "Colour: the model's priority score, 100 = ranked worst in the country",
-                     p_worst_fifth = "Colour: share of 40 refits in which the district fell in the worst fifth; surveyed districts only",
-                     rank_width = paste("Colour: how many places the district's rank moves across refits on resampled training data;",
-                                        "dark districts are firmly placed.", stability_note()),
-                     prev_anchored = sprintf("Colour: planning prevalence, the ranking anchored to the national survey figure of %s", fmt_pct(g1(nat$national_prev))),
-                     p_modplus_cal = paste("Colour: calibrated chance that the district sits at or above the WHO 'moderate public-health",
-                                           "problem' line.", calibrated_note()),
-                     survey_prev = "Colour: the survey's own district estimate; blank where the survey had no clusters",
-                     who_class = "Colour: WHO severity class of the planning prevalence",
-                     people_affected = "Colour: planning prevalence times the population of the group, log scale", ""),
-              skill)
+      hatch <- if (isTRUE(input$hatch_unstable) && input$admin_level == "admin2") " Hatched: not firmly ranked." else ""
+      paste0(switch(input$layer,
+                    priority = "Priority score: 100 = ranked worst in the country.",
+                    p_worst_fifth = "How often the district was placed in the worst fifth in 40 test runs (surveyed districts only). This overstates certainty.",
+                    rank_width = "How far the rank moves when the model is re-estimated. Dark = firmly placed. Not a confidence interval.",
+                    prev_anchored = sprintf("Estimated prevalence, based on the national survey figure of %s.", fmt_pct(g1(nat$national_prev))),
+                    p_modplus_cal = sprintf("Chance of being at or above the WHO 'moderate' level. Checked: 90%% ranges held the survey's figure %s of the time.", pc(Q$cal_cov)),
+                    survey_prev = "The survey's own estimate (surveyed districts only).",
+                    who_class = "WHO severity class of the estimated prevalence.",
+                    people_affected = "Estimated number of people affected (log scale).", ""),
+             hatch, " Details in Technical notes.")
     })
 
     output$download <- downloadHandler(
@@ -243,7 +218,7 @@ mod_map_explorer_server <- function(id) {
     output$brief <- downloadHandler(
       filename = function() sprintf("brief_%s_%s.html", input$country, Sys.Date()),
       content = function(file) {
-        src <- file.path("briefs", sprintf("brief_%s.html", input$country))
+        src <- file.path(BRIEF_DIR, sprintf("brief_%s.html", input$country))
         validate(need(file.exists(src), "Brief not built: run dashboard/data-raw/07_build_country_briefs.R"))
         file.copy(src, file, overwrite = TRUE)
       })

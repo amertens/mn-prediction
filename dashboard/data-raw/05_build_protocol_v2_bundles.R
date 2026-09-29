@@ -293,6 +293,11 @@ ev <- list(
   planner_summary = rd(P2, "survey_planner_validation_summary.csv"),
   # CP-01: conformal prevalence bands, per-cell widths and coverage checks (script 66)
   conformal_prev = rd(P2, "conformal_prev_cells.csv"),
+  # national track: can a national level be predicted without the country's
+  # survey? WHO VMNIS panels left out country by country, and our four
+  # countries' vitamin A predicted from national indicators (Start here)
+  national_vmnis  = rd("results/tables", "national_vmnis_loco.csv"),
+  national_levels = rd("results/tables", "national_composition_levels.csv"),
   # every back-projected weight, every scope, for the searchable importance explorer
   importance_all = { ic <- rd(P2, "index_importance_columns.csv")
     if (!is.null(ic)) ic[, intersect(c("scope", "country", "outcome", "target", "n_train", "column", "beta", "beta_std",

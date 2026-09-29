@@ -4,7 +4,10 @@
     {
       "name": "dashboard",
       "runtimeExecutable": "C:\\Program Files\\R\\R-4.4.2\\bin\\Rscript.exe",
-      "runtimeArgs": ["-e", "shiny::runApp('dashboard', port = 7791)"],
+      "runtimeArgs": [
+        "-e",
+        "shiny::runApp('dashboard', port = 7791)"
+      ],
       "port": 7791
     }
   ]

@@ -10,7 +10,7 @@
 suppressPackageStartupMessages({library(dplyr); library(ggplot2); library(grid)})
 setwd("C:/Users/andre/OneDrive/Documents/mn-prediction")
 
-OUT   <- "results/figures/policy_deck"; dir.create(OUT, recursive = TRUE, showWarnings = FALSE)
+OUT   <- Sys.getenv("FIG_OUT", "results/figures/policy_deck"); LBL <- Sys.getenv("INDEX_LABEL", "Proxy index"); dir.create(OUT, recursive = TRUE, showWarnings = FALSE)
 PROXY <- "#0F7B8A"; GEO <- "#6A51A3"; INK <- "#1A1A1A"
 
 M <- read.csv("results/tables/cluster_level/mbg_comparison_cells.csv", stringsAsFactors = FALSE)
@@ -21,25 +21,25 @@ agg <- function(est, tgt, arm, col)
 D <- bind_rows(
   data.frame(panel = "Ranking accuracy (higher is better)",
              measure = "Districts inside\na surveyed country",
-             model = "Proxy index",            v = agg("infill", "level", "domain_index", "rho_agg")),
+             model = LBL,            v = agg("infill", "level", "domain_index", "rho_agg")),
   data.frame(panel = "Ranking accuracy (higher is better)",
              measure = "Districts inside\na surveyed country",
              model = "Geostatistical model",   v = agg("infill", "level", "mbg", "rho_agg")),
   data.frame(panel = "Ranking accuracy (higher is better)",
              measure = "A whole region\nheld out",
-             model = "Proxy index",            v = agg("region", "level", "domain_index", "rho_agg")),
+             model = LBL,            v = agg("region", "level", "domain_index", "rho_agg")),
   data.frame(panel = "Ranking accuracy (higher is better)",
              measure = "A whole region\nheld out",
              model = "Geostatistical model",   v = agg("region", "level", "mbg", "rho_agg")),
   data.frame(panel = "Ranking accuracy (higher is better)",
              measure = "Ranking on\nprevalence",
-             model = "Proxy index",            v = agg("infill", "prev", "domain_index", "rho_agg")),
+             model = LBL,            v = agg("infill", "prev", "domain_index", "rho_agg")),
   data.frame(panel = "Ranking accuracy (higher is better)",
              measure = "Ranking on\nprevalence",
              model = "Geostatistical model",   v = agg("infill", "prev", "mbg", "rho_agg")),
   data.frame(panel = "Error in the prevalence number (lower is better)",
              measure = "Percentage points\nout, per district",
-             model = "Proxy index",            v = agg("infill", "prev", "domain_index", "wmae_agg")),
+             model = LBL,            v = agg("infill", "prev", "domain_index", "wmae_agg")),
   data.frame(panel = "Error in the prevalence number (lower is better)",
              measure = "Percentage points\nout, per district",
              model = "Geostatistical model",   v = agg("infill", "prev", "mbg", "wmae_agg")))
@@ -52,8 +52,8 @@ held out",
 prevalence",
                                               "Percentage points
 out, per district")))
-D$model <- factor(D$model, levels = c("Proxy index", "Geostatistical model"))
-FILL <- c("Proxy index" = PROXY, "Geostatistical model" = GEO)
+D$model <- factor(D$model, levels = c(LBL, "Geostatistical model"))
+FILL <- stats::setNames(c(PROXY, GEO), c(LBL, "Geostatistical model"))
 
 base_theme <- function(base = 18) theme_minimal(base_size = base) +
   theme(text = element_text(colour = INK),
@@ -95,7 +95,7 @@ leg <- ggplot(RK, aes(v, measure, fill = model)) + geom_col() +
 p <- patchwork::wrap_plots(pL, pR, widths = c(1.75, 1)) +
   patchwork::plot_annotation(
     subtitle = "It also needs survey clusters, so it cannot run where there is no survey at all.",
-    caption = "Same 24 country-outcome combinations, same district folds. The proxy index ranks better in 20 of the 24; on prevalence the two tie.",
+    caption = paste0("Same 24 country-outcome combinations, same district folds. The ", if (LBL == "Proxy index") "proxy index" else LBL, " ranks better in 20 of the 24; on prevalence the two tie."),
     theme = theme(plot.subtitle = element_text(size = 17, colour = "grey20", margin = margin(b = 10)),
                   plot.caption = element_text(size = 12, colour = "grey45", hjust = 0),
                   plot.margin = margin(12, 18, 8, 12))) +

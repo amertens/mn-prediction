@@ -41,6 +41,10 @@ for f in 01_figures_main 02_figure_ghana_map 03_figure_geostat 04_civ_climate_so
   run "deck_${f}" "scripts/policy_deck/${f}.R"
 done
 
-step "3. dashboard bundles"
-run dashboard_bundles dashboard/data-raw/05_build_protocol_v2_bundles.R
+if [ "${SKIP_DASHBOARD:-0}" = "1" ]; then   # 2026-09-27: the dashboard has its own owner; rebuild its bundles separately
+  step "3. dashboard bundles skipped (SKIP_DASHBOARD=1)"
+else
+  step "3. dashboard bundles"
+  run dashboard_bundles dashboard/data-raw/05_build_protocol_v2_bundles.R
+fi
 step "done - render docs/slides/*.qmd and run dashboard/deploy.R once the numbers are checked"

@@ -25,6 +25,7 @@ suppressPackageStartupMessages({
 })
 
 DATA_DIR <- "data"
+BRIEF_DIR <- "briefs"
 `%||%` <- function(a, b) if (is.null(a) || (length(a) == 1 && is.na(a))) b else a
 .rds <- function(f) { p <- file.path(DATA_DIR, f); if (file.exists(p)) readRDS(p) else NULL }
 
@@ -67,12 +68,12 @@ outcome_short <- c(child_vitA = "Vitamin A, children", women_vitA = "Vitamin A, 
                    child_zinc = "Zinc, children", women_zinc = "Zinc, women",
                    child_selenium = "Selenium, children", women_selenium = "Selenium, women",
                    women_iodine = "Iodine, women")
-# Comparator names follow the talk's terminology (18 Sep): the survey's own
-# regional average is what "geographic interpolation" delivers.
-arm_label <- c(domain_index = "Proxy index (this dashboard)", spatial_plus_domain = "Neighbour smoother + proxies",
-               spatial = "Neighbour smoother alone", domain_enet = "Penalised regression, domain components",
-               raw_enet = "Penalised regression, all columns", region_mean_jk = "Geographic interpolation (survey's regional average)",
-               null_train_mean = "No information (training mean)")
+# Method names as a first-time reader sees them. One name per method,
+# everywhere in the app.
+arm_label <- c(domain_index = "This model (public data)", spatial_plus_domain = "Neighbouring districts + public data",
+               spatial = "Neighbouring districts' average", domain_enet = "Regression on the same data groups",
+               raw_enet = "Regression on all data layers", region_mean_jk = "Survey's regional averages",
+               null_train_mean = "No information (same value everywhere)")
 # Domain names as displayed (18 Sep terminology; the data-side names are fixed
 # by the DP-01 prefix rule, so the mapping is display-only)
 domain_display <- c("Infection and inflammation burden" = "Infectious disease burden",
@@ -203,6 +204,46 @@ local({
     Q$cal_half_med <<- stats::median(CPc$half_width_pp, na.rm = TRUE)
     Q$stabprev_cov <<- mean(CPc$stability_band_coverage, na.rm = TRUE)
   }
+  # quantities the reader-facing text quotes (text review, 2026-09-27)
+  if (!is.null(BC)) {
+    s <- BC$spearman[BC$estimand == "infill" & BC$target == "level" & BC$arm == "domain_index"]
+    s <- s[is.finite(s)]; Q$weak_mean <<- mean(s[s < 0.5]); Q$weak_n <<- sum(s < 0.5)
+  }
+  if (!is.null(SEp)) {
+    sl <- SEp[SEp$analysis == "protocol" & SEp$estimand == "infill" & SEp$target == "level" &
+                SEp$outcome %in% c("child_selenium", "women_selenium"), ]
+    Q$se_idx_lo <<- min(sl$spearman[sl$arm == "domain_index"]); Q$se_idx_hi <<- max(sl$spearman[sl$arm == "domain_index"])
+    Q$se_jk_lo  <<- min(sl$spearman[sl$arm == "region_mean_jk"]); Q$se_jk_hi <<- max(sl$spearman[sl$arm == "region_mean_jk"])
+  }
+  RCs <- .tbl("risk_summary")
+  if (!is.null(RCs)) {
+    r <- RCs[RCs$scheme == "who_vitA" & RCs$arm == "region_mean_jk" & RCs$estimand == "infill", ]
+    Q$band_exact_jk <<- g1(r$exact_admin2); Q$band_w1_jk <<- g1(r$within1_admin2)
+  }
+  PVt <- .tbl("planner_validation")
+  Q$plan_transport <<- if (!is.null(PVt)) mean(PVt$spearman_transport_only, na.rm = TRUE) else NA
+  Q$plan_pps <<- if (!is.null(PS)) g1(PS$spearman[PS$fraction == 0.5 & PS$arm == "pps"]) else NA
+  # Start here, the three questions (national level, district prevalence, ranking)
+  if (!is.null(PVt)) {
+    at <- function(a, col) mean(abs(PVt[[col]][PVt$arm == a & PVt$fraction == 0.5]), na.rm = TRUE)
+    Q$nat_bias_random <<- at("random", "nat_bias_pp");  Q$nat_ci_random <<- at("random", "nat_ci_pp")
+    Q$nat_bias_strat  <<- at("spread_model", "nat_strat_bias_pp"); Q$nat_ci_strat <<- at("spread_model", "nat_strat_ci_pp")
+    Q$nat_bias_ext    <<- at("extremes_model", "nat_bias_pp")
+  }
+  NV <- .tbl("national_vmnis")
+  if (!is.null(NV)) {
+    NV$model[is.na(NV$model) | NV$model == ""] <- "null"
+    best <- tapply(NV$mae_pp[NV$model != "null"], NV$panel[NV$model != "null"], min)
+    Q$natpred_lo <<- min(best); Q$natpred_hi <<- max(best)
+    Q$natpred_ctry_lo <<- min(NV$n_countries); Q$natpred_ctry_hi <<- max(NV$n_countries)
+    nul <- tapply(NV$mae_pp[NV$model == "null"], NV$panel[NV$model == "null"], min)[names(best)]
+    Q$natpred_panels <<- length(best); Q$natpred_nobetter <<- sum(best > nul - 0.5, na.rm = TRUE)
+  }
+  NL <- .tbl("national_levels")
+  Q$natpred_own_hi <<- if (!is.null(NL)) max(NL$vmnis_err_pp, na.rm = TRUE) else NA
+  if (!is.null(CPc)) Q$prev_err <<- mean(CPc$median_abs_err_pp, na.rm = TRUE)
+  SMq <- .tbl("survey_design_meta")
+  if (!is.null(SMq)) { Q$anchor_n_lo <<- 0.05 * min(SMq$n_raw, na.rm = TRUE); Q$anchor_n_hi <<- 0.05 * max(SMq$n_raw, na.rm = TRUE) }
 })
 Q$n_predictors <- if (!is.null(CAT)) nrow(CAT$variables) else 570
 Q$n_domains    <- if (!is.null(CAT)) nrow(CAT$domains) else 28
@@ -219,44 +260,42 @@ who_colors <- c("Low" = "#2c7bb6", "Mild" = "#abd9e9", "Moderate" = "#fdae61",
 PROXY_COL <- "#0F7B8A"; SURVEY_COL <- "#C8641E"; GREY_COL <- "#8c8c8c"
 
 # ── Caveats ────────────────────────────────────────────────────────────────
+selenium_caveat <- paste("Selenium was measured in Malawi only, so this ranking cannot be checked in other countries.",
+                         "With each district hidden in turn, the model ranks selenium better than the survey's own",
+                         "regional averages do; selenium in food follows soil geology, which the data layers capture.",
+                         "WHO has no severity bands for selenium, so no severity class is shown.")
+zinc_caveat <- paste("Zinc was measured in Malawi only, so this ranking cannot be checked in other countries.",
+                     "Most of the difference between districts reflects the time of day blood was drawn rather than",
+                     "place, and the model ranks zinc no better than chance.")
 biomarker_caveats <- list(
-  women_vitA   = paste("Vitamin A in women rests on retinol-binding protein, a weaker marker in women",
-                       "and one moved by inflammation. Prevalence is under 3 percent in every survey, so the",
-                       "district ranking has little to work with; the reliability ceiling for this outcome is low."),
-  child_vitA   = paste("Vitamin A is measured by retinol-binding protein, adjusted for inflammation and converted",
-                       "to retinol with each survey's own calibration line before the 0.70 cut-off."),
-  women_b12    = paste("B12 is measured by serum B12, a marker of limited specificity, and in three countries only.",
-                       "Read district differences as indicative."),
-  women_folate = paste("Folate is measured in three countries only. National prevalence ranges from 19 to 79 percent",
-                       "across them, so the level, more than the ranking, is the fragile part."),
-  child_zinc   = paste("Zinc is measured in Malawi only, so nothing about it can be checked across borders. The",
-                       "district differences are largely the time of the blood draw, not geography."),
-  women_zinc   = paste("Zinc is measured in Malawi only, so nothing about it can be checked across borders. The",
-                       "district differences are largely the time of the blood draw, not geography."),
-  child_selenium = paste("Selenium is measured in Malawi only (2015-16 MNS), so this ranking has no cross-border check.",
-                         "It is also the strongest in-country signal on this dashboard: soil selenium follows geology,",
-                         "and the model recovers the gradient with each district hidden in turn. No WHO severity bands",
-                         "exist for selenium, so no severity class is shown."),
-  women_selenium = paste("Selenium is measured in Malawi only (2015-16 MNS), so this ranking has no cross-border check.",
-                         "It is also the strongest in-country signal on this dashboard: soil selenium follows geology,",
-                         "and the model recovers the gradient with each district hidden in turn. No WHO severity bands",
-                         "exist for selenium, so no severity class is shown."),
-  women_iodine = paste("Iodine insufficiency (urinary iodine below 100 microgram per litre) is measured in Malawi only,",
-                       "so this ranking has no cross-border check, and salt iodisation can move it faster than any",
-                       "geography. Read it as in-country, single-survey evidence.")
+  women_vitA   = paste("Vitamin A deficiency in women is below 3% in every survey, so there is little difference",
+                       "between districts to rank. The marker used (retinol-binding protein) is also affected by",
+                       "inflammation. Treat this ranking as weak."),
+  child_vitA   = paste("Vitamin A is measured with retinol-binding protein, adjusted for inflammation and converted",
+                       "to a retinol value with each survey's own conversion, then compared with the 0.70 cut-off."),
+  women_b12    = paste("B12 was measured in three of the four countries (not The Gambia) with serum B12, an imperfect",
+                       "marker. Treat district differences as indicative."),
+  women_folate = paste("Folate was measured in three of the four countries. National prevalence ranges from 19% to",
+                       "79% between them, so the percentages are less certain than the ranking."),
+  child_zinc   = zinc_caveat,
+  women_zinc   = zinc_caveat,
+  child_selenium = selenium_caveat,
+  women_selenium = selenium_caveat,
+  women_iodine = paste("Iodine (urinary iodine below 100 micrograms per litre) was measured in Malawi only, so this",
+                       "ranking cannot be checked in other countries. Salt iodisation can change iodine status quickly,",
+                       "so treat this as a single-survey result.")
 )
 GENERAL_CAVEAT <- paste(
-  "The four surveys were run between 2013 and 2018 by different teams, so levels are not comparable",
-  "across countries. The model carries rankings across borders; it does not carry levels, and a",
-  "prevalence figure needs a national survey number to anchor it. Rankings in a country with no",
-  "survey are rougher than inside a surveyed country; How well it works has the numbers.")
+  "The four surveys were carried out between 2013 and 2018 by different teams, so prevalence levels are not",
+  "directly comparable between countries. The ranking of districts carries over to a new country; prevalence",
+  "levels do not, and need at least a national survey figure. Rankings for a country without a survey are less",
+  "accurate than for a surveyed country (see How well it works).")
 
 # ── Site banner ────────────────────────────────────────────────────────────
 # The headline is the talks' thesis line (18 Sep terminology decisions).
 SITE_SCOPE_HEADLINE <- "Modelling extends a survey's reach. It does not replace the survey."
-SITE_SCOPE_BODY <- paste("Working district estimates from public data, scored against four biomarker surveys:",
-                         "the model ranks districts, and any percentage is a planning figure anchored to the national survey.")
-SITE_SCOPE_POINTER <- "How well it works shows what the ranking reaches and where it stops."
+SITE_SCOPE_BODY <- "The model ranks districts; percentages are planning estimates based on the national survey figure."
+SITE_SCOPE_POINTER <- ""
 site_banner <- div(
   class = "alert alert-info",
   style = "margin:0 0 10px;border-radius:0;text-align:center;font-size:0.88em;padding:6px 12px;",
@@ -268,73 +307,121 @@ site_banner <- div(
 # ── About and glossary ─────────────────────────────────────────────────────
 about_content <- div(
   h5("About this dashboard", style = "margin-top: 0;"),
-  p("District rankings of micronutrient deficiency for The Gambia, Ghana, Sierra Leone and Malawi,",
-    " built from public data and scored against the four national biomarker surveys, with a ranking",
-    " for Cote d'Ivoire, which has no survey. It is for ministries, funders and researchers deciding where",
-    " to look first and where the next survey should sample."),
+  p("This dashboard ranks the districts of The Gambia, Ghana, Sierra Leone and Malawi by how likely they are to",
+    " have high levels of micronutrient deficiency. It uses public data and is checked against each country's",
+    " national biomarker survey. It also ranks the districts of Cote d'Ivoire, which has not had such a survey.",
+    " It is meant for ministries, funders and researchers deciding where to focus and where a future survey",
+    " should collect samples."),
   h6("Method"),
-  p(sprintf(paste("To every district we attach %d public data layers in %d groups: satellite imagery, climate,",
-                  "soil, crops, livestock, malaria and other morbidity, prices, and summaries from the public MICS",
-                  "and household budget surveys. The DHS aggregates are held out as a check, so every layer the model",
-                  "uses is one a country without a recent DHS can rebuild.",
-                  "Each group is summarised into a few axes, weighted by how well it tracked deficiency where",
-                  "blood was drawn, and summed. Nothing is tuned. Every district is scored with itself hidden",
-                  "from the model, every country with the whole country hidden, and every method is compared",
-                  "with the survey's own regional average, a neighbour smoother, and a permutation null."),
-            Q$n_predictors, Q$n_domains)),
-  h6("What it reaches"),
+  p(sprintf(paste("Each district is described by %d public data layers in %d groups, including satellite imagery,",
+                  "climate, soil, crops, livestock, malaria and other diseases, food prices, and summaries of public",
+                  "household surveys. The model uses %s of these layers. It leaves out summaries of the DHS surveys, so",
+                  "that it relies only on data a country without a recent DHS survey could also collect. The layers in",
+                  "each group are condensed into a few scores, each score is weighted by how closely it followed",
+                  "deficiency in the surveyed districts, and the weighted scores are added up. No setting was adjusted",
+                  "to improve the results. Every accuracy figure comes from districts, regions or whole countries that",
+                  "were hidden from the model while it was built."),
+            Q$n_predictors, Q$n_domains, if (is.finite(Q$n_in_model)) Q$n_in_model else "383")),
+  h6("Accuracy in brief"),
   tags$ul(
-    tags$li(sprintf("Inside a surveyed country: ranking accuracy %s against %s for the survey's own regional averages and %s for chance.",
+    tags$li(sprintf("Inside a surveyed country, the model's ranking matches the survey's at %s, compared with %s for the survey's own regional averages and at most %s for a random ranking.",
                     f2(Q$infill), f2(Q$infill_jk), f2(Q$null_d))),
-    tags$li(sprintf("In a country never used in training: %s with everything, %s from climate and soil alone, positive in %s of %s country-outcome pairs.",
-                    f2(Q$tr), f2(Q$cs), Q$tr_pos, Q$tr_n)),
-    tags$li(sprintf("A perfect predictor could reach about %s given the survey's own noise; the model is about two-thirds of the way.",
+    tags$li(sprintf("In a country left out of the model, it scores %s with all data layers and %s with climate and soil layers only. The climate-and-soil version was chosen after seeing these results, so it is now being tested on new surveys.",
+                    f2(Q$tr), f2(Q$cs))),
+    tags$li(sprintf("Most districts have only one or two survey clusters, so even a perfect model would reach only about %s against the survey's district figures. This model reaches about two thirds of that.",
                     f2(Q$ceiling_level))),
-    tags$li(sprintf("Checked against WHO-deposited surveys in six countries never used in training (two continents): %s in Africa, %s in South Asia.",
+    tags$li(sprintf("Compared with survey results held by the WHO for six more countries, the ranking scored %s in four African countries and %s in Pakistan and India (regional results).",
                     f2(Q$xv_level), f2(Q$xv_off)))
   ),
   h6("Citation"),
   p(em("Mertens et al. (in preparation). What geospatial covariates can and cannot do for sub-national",
        " micronutrient estimation: a protocol-first re-analysis of four national biomarker surveys.")),
   h6("Surveys"),
-  p("The Gambia 2018, Ghana 2017, Sierra Leone 2013, Malawi 2015 to 2016. Vitamin A and iron in children",
-    " and women; folate and B12 in women in three countries; zinc in Malawi."),
-  p(em(sprintf("Data build: %s (%s)", data_build_time, PROTOCOL_LABEL)), style = "color: #888; font-size: 0.85em;")
+  p("The Gambia 2018, Ghana 2017, Sierra Leone 2013 and Malawi 2015 to 2016. Vitamin A and iron in children",
+    " and women; folate and B12 in women in three countries; zinc, selenium and iodine in Malawi only."),
+  p(em(sprintf("Data built %s. Analysis version for the project team: %s.", data_build_time, PROTOCOL_LABEL)), style = "color: #888; font-size: 0.85em;")
 )
 
 glossary_content <- div(
   h5("Glossary", style = "margin-top: 0;"),
   tags$dl(
     tags$dt("Priority score"),
-    tags$dd("Where a district sits in its country's ranking, from 100 (ranked worst) to near 0 (ranked best).",
-            " It is the model's output. It says which districts are likely worst, not how bad."),
+    tags$dd("A district's place in its country's ranking, from 100 (ranked worst) down to near 0 (ranked best).",
+            " It shows which districts are likely to be worse off, not how severe the problem is."),
     tags$dt("Ranking accuracy"),
-    tags$dd("How closely the model's order of districts matches the survey's, from 0 to 1 (Spearman correlation).",
-            " Differences under 0.03 are ties over a few dozen districts."),
-    tags$dt("Chance level"),
-    tags$dd(sprintf("What a ranking reaches with no information, measured by shuffling the outcome: %s across districts, %s across regions.",
+    tags$dd("How closely the model's order of districts matches the survey's order, from 0 (no better than a random",
+            " order) to 1 (the same order). It is a Spearman correlation. Differences smaller than 0.03 are ties."),
+    tags$dt("Random ranking"),
+    tags$dd(sprintf("The score a random order of districts reaches in 95%% of tries: %s for districts and %s for regions.",
                     f2(Q$null_d), f2(Q$null_a1))),
-    tags$dt("Reliability ceiling"),
-    tags$dd("The best ranking accuracy a perfect predictor could reach, because the survey's own district values rest",
-            " on one or two clusters and are themselves noisy."),
-    tags$dt("Chance of being in the worst fifth"),
-    tags$dd("The model was refitted on 40 random splits with the district hidden each time; this is how often the",
-            " district landed in the worst fifth. Computed for surveyed districts, where there is a survey to check against."),
-    tags$dt("Planning prevalence"),
-    tags$dd("The ranking turned into a percentage by anchoring it to the country's national survey prevalence.",
-            " The order comes from the model; the level comes from the survey. The spread between districts is",
-            " the survey's spread times the model's level skill (rho, its out-of-sample correlation in that",
-            " country and outcome, estimated on the surveyed districts); where rho is near zero every district",
-            " sits at the national figure and only the ranking should be read."),
-    tags$dt("Level skill"),
-    tags$dd("rho, the out-of-sample correlation between the model's score and the survey's district values,",
-            " estimated by nested cross-validation on the surveyed districts. Bands: none below 0.10, weak to 0.30,",
-            " moderate to 0.50, good above. It scales the planning prevalence; it does not change the ranking."),
-    tags$dt("In-fill, region, transport"),
-    tags$dd("The three tests: a district hidden inside a surveyed country; a whole region hidden; a whole country hidden."),
-    tags$dt("Percentage points (pp)"),
-    tags$dd("The plain gap between two percentages. From 20 to 23 percent is 3 points."),
+    tags$dt("Best achievable score"),
+    tags$dd("The highest ranking accuracy any model could reach against the survey's district figures. It is below 1",
+            " because most districts have only one or two survey clusters, so the survey figures are themselves uncertain."),
+    tags$dt("Estimated prevalence"),
+    tags$dd("The model's ranking converted into a percentage using the country's national survey figure. The order of",
+            " districts comes from the model and the overall level from the survey. Where the model's district",
+            " percentages are not informative, every district is shown close to the national figure."),
+    tags$dt("Reliability of the district percentages"),
+    tags$dd("How well the model's district percentages matched the survey's district figures in districts the model had",
+            " not seen, as a correlation from 0 to 1: below 0.10 not informative, 0.10 to 0.30 weak, 0.30 to 0.50",
+            " moderate, above 0.50 good. It affects the percentages, not the ranking."),
+    tags$dt("Checked 90% range"),
+    tags$dd(sprintf(paste("A range around each estimated prevalence, built from how far the model's estimates missed the",
+                          "survey figures in districts the model had not seen. In that check, 90%% ranges contained the",
+                          "survey figure %s of the time. Districts without survey data get the same width as the",
+                          "surveyed districts in their country."), pc(Q$cal_cov))),
+    tags$dt("Rank range when re-estimated"),
+    tags$dd(sprintf(paste("How far a district's rank moves when the model is re-estimated on different samples of the",
+                          "surveyed districts. It shows how firmly the model places a district. It is not a confidence",
+                          "interval: in countries left out of the model, the survey's rank fell inside this range %s of the time."),
+                    pc(Q$stab_cov))),
+    tags$dt("Placed in the worst fifth (share of runs)"),
+    tags$dd(sprintf(paste("How often a surveyed district was placed in its country's worst fifth when the model was",
+                          "re-estimated 40 times with that district hidden. It points in the right direction but overstates",
+                          "certainty: districts placed there in at least 80%% of runs were in the survey's worst fifth %s of",
+                          "the time, against 20%% by chance."), pc(Q$cal_top))),
+    tags$dt("The three tests"),
+    tags$dd("District hidden: one district is hidden and predicted from the rest of its country. Region hidden: a whole",
+            " region is hidden. Country left out: the model is built without that country, which is the situation of a",
+            " country with no survey."),
+    tags$dt("Percentage points"),
+    tags$dd("The difference between two percentages. From 20% to 23% is 3 percentage points."),
     tags$dt("District and region"),
-    tags$dd("District is the second administrative level; region the first. Rankings are made for districts.")
+    tags$dd("District is the second administrative level and region the first. Rankings are made for districts.")
   )
 )
+
+
+# ── Concise version: shorter caveats, About and Glossary ──────────────────
+# The full caveats stay available to the Technical notes page.
+biomarker_caveats_long <- biomarker_caveats
+biomarker_caveats <- list(
+  women_vitA = "Below 3% in every survey, so there is little to rank. Treat as weak.",
+  child_vitA = "Measured with retinol-binding protein, adjusted for inflammation.",
+  women_b12 = "Measured in three countries (not The Gambia). Treat as indicative.",
+  women_folate = "Measured in three countries. The percentages are less certain than the ranking.",
+  child_zinc = "Malawi only. The model ranks zinc no better than chance.",
+  women_zinc = "Malawi only. The model ranks zinc no better than chance.",
+  child_selenium = "Malawi only, so it cannot be checked in another country. No WHO bands exist.",
+  women_selenium = "Malawi only, so it cannot be checked in another country. No WHO bands exist.",
+  women_iodine = "Malawi only. Salt iodisation can change iodine status quickly.")
+about_content <- div(
+  h5("About this dashboard", style = "margin-top: 0;"),
+  p("District rankings of micronutrient deficiency for The Gambia, Ghana, Sierra Leone, Malawi and Cote d'Ivoire,",
+    " made from public data and checked against national biomarker surveys. For ministries, funders and researchers",
+    " deciding where to focus and where to survey next."),
+  p("Method, tests and limits: see Technical notes."),
+  h6("Citation"),
+  p(em("Mertens et al. (in preparation). What geospatial covariates can and cannot do for sub-national",
+       " micronutrient estimation: a protocol-first re-analysis of four national biomarker surveys.")),
+  p(em(sprintf("Data built %s.", data_build_time)), style = "color: #888; font-size: 0.85em;"))
+glossary_content <- div(
+  h5("Glossary", style = "margin-top: 0;"),
+  tags$dl(
+    tags$dt("Priority score"), tags$dd("Place in the country's ranking: 100 = ranked worst."),
+    tags$dt("Ranking accuracy"), tags$dd("Match between the model's order of districts and the survey's: 0 = random, 1 = the same."),
+    tags$dt("Estimated prevalence"), tags$dd("The ranking converted to a percentage using the national survey figure."),
+    tags$dt("Checked range"), tags$dd(sprintf("A range that held the survey's own figure %s of the time in tests.", pc(Q$cal_cov))),
+    tags$dt("Rank range"), tags$dd("How far a rank moves when the model is re-estimated. Not a confidence interval."),
+    tags$dt("Country left out"), tags$dd("A test where the model is built without that country, as for a country with no survey."),
+    tags$dt("More"), tags$dd("Technical notes has full definitions.")))

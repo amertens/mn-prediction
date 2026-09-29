@@ -15,7 +15,10 @@ setwd("C:/Users/andre/OneDrive/Documents/mn-prediction")
 
 P2  <- "results/tables/protocol_v2"
 CL  <- "results/tables/cluster_level"
-OUT <- "results/figures/policy_deck"
+OUT <- Sys.getenv("FIG_OUT", "results/figures/policy_deck")   # v3 MNF15 deck: FIG_OUT=results/figures/mnf15_v3
+LBL   <- Sys.getenv("INDEX_LABEL", "Proxy index")           # v3: INDEX_LABEL="Domain-PC index"
+LBL_M <- Sys.getenv("INDEX_LABEL", "Proxy model")
+ADD_SL <- identical(Sys.getenv("ADD_SL"), "1")               # v3: add the full SuperLearner ensemble (SL-06 run) to figure 1
 dir.create(OUT, recursive = TRUE, showWarnings = FALSE)
 
 rd <- function(...) read.csv(file.path(...), stringsAsFactors = FALSE, check.names = FALSE)
@@ -53,7 +56,7 @@ save16x9 <- function(p, file, w = 12.2, h = 6.3, dpi = 200) {
 BM <- rd(P2, "benchmarks_v2_summary.csv")
 WS <- rd(P2, "weight_sources_summary.csv")
 
-lab_map <- c(domain_index        = "Proxy index (what we propose)",
+lab_map <- c(domain_index        = paste0(LBL, " (what we propose)"),
              spatial_plus_domain = "Neighbour smoother + proxies",
              spatial             = "Neighbour smoother alone",
              domain_enet         = "Penalised regression",
@@ -80,6 +83,19 @@ for (est in names(panels)) {
     data.frame(estimand = est, method = "Twenty public layers", value = get_ws(est, "sparse20"))
 }
 F1 <- bind_rows(rows)
+SL_CAP <- NULL
+if (ADD_SL) {
+  # SL-06 (script 56): the full 12-learner SuperLearner (NNLS-weighted) and the index on the SAME folds of one run, level target.
+  raws <- list.files(P2, pattern = "^weight_sources_raw_sl_(country|gambia|ghana|malawi[0-9]|sierraleone)[.]csv$", full.names = TRUE)
+  SLR <- bind_rows(lapply(raws, rd)) |> filter(target == "level", arm %in% c("sl_nnls", "domain_index"))
+  SLC <- SLR |> group_by(estimand, country, outcome, arm) |> summarise(sp = mean(spearman, na.rm = TRUE), .groups = "drop") |>
+    tidyr::pivot_wider(names_from = arm, values_from = sp) |> filter(is.finite(sl_nnls), is.finite(domain_index)) |>
+    group_by(estimand) |> summarise(sl = mean(sl_nnls), idx = mean(domain_index), n = dplyr::n(), .groups = "drop")
+  F1 <- bind_rows(F1, data.frame(estimand = SLC$estimand, method = "Full SuperLearner (12 learners)", value = SLC$sl))
+  SL_CAP <- sprintf("Full SuperLearner: random forest, boosting, lasso, ridge, elastic net, PC-HAL, the index and five others, NNLS-weighted.
+From a separate run with the same design; in that run the index scored %s.",
+                    paste(sprintf("%.2f", SLC$idx[match(c("infill", "region", "country"), SLC$estimand)]), collapse = ", "))
+}
 
 # region_mean_jk and the smoothers are undefined outside a surveyed country;
 # the benchmark table simply has no row, so keep them as an explicit label.
@@ -89,7 +105,7 @@ F1$value_plot <- ifelse(F1$cannot, NA_real_, F1$value)
 ord <- F1 |> filter(estimand == "infill") |> arrange(value_plot) |> pull(method)
 F1$method   <- factor(F1$method, levels = ord)
 F1$estimand <- factor(panels[F1$estimand], levels = unname(panels))
-F1$col <- ifelse(F1$method == "Proxy index (what we propose)", PROXY,
+F1$col <- ifelse(F1$method == paste0(LBL, " (what we propose)"), PROXY,
           ifelse(F1$method == "Survey's own regional average", SURVEY, OTHER))
 
 chance <- data.frame(estimand = factor(unname(panels), levels = unname(panels)),
@@ -110,9 +126,9 @@ p1 <- ggplot(F1, aes(x = value_plot, y = method)) +
   facet_wrap(~ estimand) +
   labs(
        subtitle = "Does the predicted order of districts match the survey's? Grey band = chance.",
-       x = "Ranking accuracy", y = NULL) +
+       x = "Ranking accuracy", y = NULL, caption = SL_CAP) +
   theme_deck()
-save16x9(p1, "fig1_model_comparison.png", h = 6.6)
+save16x9(p1, "fig1_model_comparison.png", h = if (ADD_SL) 7.0 else 6.6)
 
 # =============================================================================
 # FIGURE 2 - "simpler wins" strip
@@ -133,7 +149,7 @@ gv <- function(a) if (a %in% names(sl_cell)) mean(sl_cell[[a]], na.rm = TRUE) el
 # (-0.19); it is the null, not a method, so it is described in the caption
 # rather than plotted on the same axis.
 F2 <- data.frame(
-  method = c("Proxy index (no tuning)",
+  method = c(paste0(LBL, " (no tuning)"),
              "Machine-learning ensemble,\ntuned for ranking",
              "Random forest",
              "Machine-learning ensemble,\ntuned for error",
@@ -145,7 +161,7 @@ F2 <- data.frame(
              gv("enet")))
 F2 <- F2[is.finite(F2$value), ]
 F2$method <- factor(F2$method, levels = F2$method[order(F2$value)])
-F2$col <- ifelse(grepl("^Proxy index", F2$method), PROXY, OTHER)
+F2$col <- ifelse(startsWith(as.character(F2$method), LBL), PROXY, OTHER)
 
 p2 <- ggplot(F2, aes(x = value, y = method)) +
   annotate("rect", xmin = -Inf, xmax = CHANCE_D, ymin = -Inf, ymax = Inf, fill = "grey88") +
@@ -298,12 +314,11 @@ save16x9(p5, "fig5_learning_curve.png", h = 6.2)
 NT <- rd(P2, "nce_targeting_summary.csv") |> filter(estimand == "infill")
 gcap <- function(a) { x <- NT$mean_capture[NT$arm == a]; if (!length(x)) NA_real_ else x }
 F6 <- data.frame(
-  who = c("Perfect knowledge", "Proxy model", "Survey's regional averages", "No information"),
+  who = c("Perfect knowledge", LBL_M, "Survey's regional averages", "No information"),
   v   = c(gcap("oracle_ceiling"), gcap("domain_index"), gcap("region_mean_jk"), gcap("null_train_mean")))
 F6 <- F6[is.finite(F6$v), ]
 F6$who <- factor(F6$who, levels = rev(F6$who))
-F6$col <- c("Perfect knowledge" = OTHER, "Proxy model" = PROXY,
-            "Survey's regional averages" = SURVEY, "No information" = OTHER)[as.character(F6$who)]
+F6$col <- stats::setNames(c(OTHER, PROXY, SURVEY, OTHER), c("Perfect knowledge", LBL_M, "Survey's regional averages", "No information"))[as.character(F6$who)]
 
 p6 <- ggplot(F6, aes(v, who, fill = col)) +
   geom_col(width = 0.66) +

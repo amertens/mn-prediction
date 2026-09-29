@@ -51,3 +51,4 @@ koppen_static,^koppen_,static,Koppen-Geiger 1991-2020 climate classification.
 aez_static,^aez16_,static,IFPRI / HarvestChoice agro-ecological zones (2009 delineation).
 water_static,^wdist_,static,Distance to surface water / coast from the JRC GSW occurrence layer (1984-2021) and LSIB.
 soil_static,^(soil_|soilgrids_|elevation$),static,"Soil properties (iSDA 2020 product, SoilGrids v2) and SRTM elevation: static."
+fpn_year,^fpn_,per_country:Gambia=2018;Ghana=2017;Malawi=2017;SierraLeone=2017,"Food Prices for Nutrition national series, nearest available FPN year to the survey year: Gambia and Ghana match exactly, Malawi is one year after its 2016 survey and Sierra Leone four years after its 2013 survey (the CoHD series starts in 2017). National values, broadcast; subnational = FALSE (FPN-01)."

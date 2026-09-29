@@ -26,28 +26,14 @@ mod_nutrient_signal_ui <- function(id) {
       icon = bsicons::bs_icon("clipboard2-pulse"),
       div(
         p(class = "lead",
-          "Different nutrients have different geographies. These are the ",
-          "conditions that travel with each one across all four surveyed ",
-          "countries."),
-        p("Read the last column first. It says in how many of the four ",
-          "countries the indicator pointed the same way. Four out of four means ",
-          "the pattern held in countries with different diets, different ",
-          "farming and different survey teams, which is a stronger claim than ",
-          "any single significance test at these sample sizes."),
+          "The conditions that go with each nutrient in the four surveyed countries."),
+        p("'Countries agreeing' shows in how many of the four countries the link points the same way."),
         reactable::reactableOutput(ns("headline")),
         tags$br(),
         div(class = "alert alert-warning border",
-          tags$strong("How to read these. "),
-          "These are district-level associations, and several run ",
-          tags$strong("opposite"), " to what individual-level nutrition would ",
-          "predict. Districts where more households eat legumes or keep cattle ",
-          "have ", tags$em("more"), " deficiency, not less. That is because ",
-          "legume-eating and cattle-keeping mark rural subsistence districts, ",
-          "which are poorer and more deficient. It is not evidence that ",
-          "legumes or cattle harm anyone. Treating these as dietary effects ",
-          "would be an ecological fallacy. Use them to decide ",
-          tags$em("where"), " to look, never ", tags$em("what"),
-          " to change.")
+          "These are links between districts, not effects of diet. For example, districts where more households keep ",
+          "cattle have more deficiency because they are poorer. Use them to decide ",
+          tags$em("where"), " to look, not ", tags$em("what"), " to change.")
       )
     ),
 
@@ -55,17 +41,12 @@ mod_nutrient_signal_ui <- function(id) {
       title = "Indicator families",
       icon = bsicons::bs_icon("grid-3x3-gap"),
       div(
-        p("Each of the 19 indicator families, scored against each nutrient. ",
-          "Positive strength means the family tracks ", tags$em("more"),
-          " deficiency."),
+        p("A positive strength means the family goes with more deficiency."),
         selectInput(ns("dom_scale"), "Outcome measured as",
                     choices = c("Deficiency prevalence",
                                 "Biomarker concentration"), width = "320px"),
         reactable::reactableOutput(ns("domains")),
-        p(class = "text-muted mt-2",
-          "No single family is decisive; the signal is spread across many ",
-          "indicators, each carrying a little. So there is no shortcut ",
-          "indicator to collect instead of a survey.")
+        p(class = "text-muted mt-2", "No single family is decisive.")
       )
     ),
 
@@ -83,13 +64,7 @@ mod_nutrient_signal_ui <- function(id) {
                         value = TRUE)
         ),
         reactable::reactableOutput(ns("indicators")),
-        p(class = "text-muted mt-2",
-          "Sorted by strength of association. Positive strength means the ",
-          "indicator tracks MORE deficiency. No malaria burden indicator ",
-          "reaches the top of any list; it was tested for and not found. The ",
-          "strongest malaria-domain signal is indoor ",
-          "residual spraying coverage, which marks where control programmes ",
-          "operate rather than where transmission is high.")
+        p(class = "text-muted mt-2", "Sorted by strength. A positive strength means more deficiency.")
       )
     )
   )
@@ -99,7 +74,7 @@ mod_nutrient_signal_server <- function(id) {
   moduleServer(id, function(input, output, session) {
 
     bundle <- reactive({
-      p <- file.path("data", "nutrient_signal.rds")
+      p <- file.path(DATA_DIR, "nutrient_signal.rds")
       if (!file.exists(p)) return(NULL)
       readRDS(p)
     })

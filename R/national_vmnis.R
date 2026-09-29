@@ -88,8 +88,33 @@ vmnis_national <- function(path = here::here("data", "national",
 # noise to be papered over with a median. Missingness indicators, kNN
 # imputation and screening all happen INSIDE the fold, on training rows only.
 # ---------------------------------------------------------------------------
+#' SuperLearner over the national candidates (NAT-SL, 2026-09-28): mean, ridge,
+#' lasso, elastic net and random forest, NNLS weights, inner folds grouped by
+#' country so a country's surveys never split across folds. Logit scale in and
+#' out. Every learner is a local wrapper so the lookup does not depend on
+#' SuperLearner being attached.
+.nat_sl_predict <- function(Xtr, ytr, Xte, id) {
+  if (!requireNamespace("SuperLearner", quietly = TRUE)) return(rep(NA_real_, nrow(Xte)))
+  SL.nat_mean  <- function(...) SuperLearner::SL.mean(...)
+  SL.nat_ridge <- function(...) SuperLearner::SL.glmnet(..., alpha = 0)
+  SL.nat_lasso <- function(...) SuperLearner::SL.glmnet(..., alpha = 1)
+  SL.nat_enet  <- function(...) SuperLearner::SL.glmnet(..., alpha = 0.5)
+  SL.nat_rf    <- function(...) SuperLearner::SL.ranger(..., num.trees = 800, min.node.size = 5)
+  All <- SuperLearner::All   # the default screen, looked up by name in `env`
+  lib <- c("SL.nat_mean", "SL.nat_ridge", "SL.nat_lasso", "SL.nat_enet", "SL.nat_rf")
+  nm <- make.names(colnames(Xtr), unique = TRUE)
+  Xtr <- as.data.frame(Xtr); Xte <- as.data.frame(Xte); names(Xtr) <- names(Xte) <- nm
+  fit <- tryCatch(suppressWarnings(SuperLearner::SuperLearner(
+           Y = ytr, X = Xtr, newX = Xte, family = stats::gaussian(), SL.library = lib,
+           method = "method.NNLS", id = id, cvControl = list(V = min(5L, length(unique(id)))),
+           env = environment())), error = function(e) { message("  [national SL] ", conditionMessage(e)); NULL })
+  if (is.null(fit)) return(rep(NA_real_, nrow(Xte)))
+  as.numeric(fit$SL.predict)
+}
+
 fit_national_loco <- function(d, vars, log_vars, label, source = "wdi",
-                              screen_k = 150L, knn_k = 5L, min_countries = 12L) {
+                              screen_k = 150L, knn_k = 5L, min_countries = 12L,
+                              sl = FALSE) {
   d <- d[is.finite(d$prev), , drop = FALSE]
   if (!nrow(d)) return(NULL)
 
@@ -110,8 +135,8 @@ fit_national_loco <- function(d, vars, log_vars, label, source = "wdi",
   for (v in intersect(log_vars, colnames(X))) X[, v] <- log1p(pmax(X[, v], 0))
   y <- .nat_logit(d$prev)
 
-  preds <- matrix(NA_real_, nrow(d), 3,
-                  dimnames = list(NULL, c("null", "ridge", "rf")))
+  arms <- c("null", "ridge", "rf", if (sl) "sl")
+  preds <- matrix(NA_real_, nrow(d), length(arms), dimnames = list(NULL, arms))
   n_used <- n_mi <- integer(0)
   for (ho in ctys) {
     te <- which(d$iso3c == ho); tr <- setdiff(seq_len(nrow(d)), te)
@@ -138,6 +163,7 @@ fit_national_loco <- function(d, vars, log_vars, label, source = "wdi",
     if (!is.null(rf))
       preds[te, "rf"] <- .nat_ilogit(stats::predict(
         rf, data = data.frame(Xte))$predictions)
+    if (sl) preds[te, "sl"] <- .nat_ilogit(.nat_sl_predict(Xtr, y[tr], Xte, d$iso3c[tr]))
   }
 
   metrics <- dplyr::bind_rows(lapply(colnames(preds), function(k) {
@@ -159,10 +185,9 @@ fit_national_loco <- function(d, vars, log_vars, label, source = "wdi",
   }))
 
   list(metrics = metrics,
-       predictions = data.frame(panel = label, iso3c = d$iso3c, year = d$year,
-                                observed = d$prev, n_svy = d$n_svy,
-                                null = preds[, "null"], ridge = preds[, "ridge"],
-                                rf = preds[, "rf"], stringsAsFactors = FALSE))
+       predictions = cbind(data.frame(panel = label, iso3c = d$iso3c, year = d$year,
+                                      observed = d$prev, n_svy = d$n_svy, stringsAsFactors = FALSE),
+                           as.data.frame(preds)))
 }
 
 
@@ -175,7 +200,9 @@ fit_national_loco <- function(d, vars, log_vars, label, source = "wdi",
 # where VMNIS does happen to hold it -- and predicts at the requested year.
 # ---------------------------------------------------------------------------
 predict_national_level <- function(d, vars, log_vars, iso3c, year,
-                                   cov_df, screen_k = 150L, knn_k = 5L) {
+                                   cov_df, screen_k = 150L, knn_k = 5L,
+                                   learner = c("ridge", "sl")) {
+  learner <- match.arg(learner)
   .m <- function(x) if (all(is.na(x))) NA_real_ else mean(x, na.rm = TRUE)
   tr <- d[is.finite(d$prev) & d$iso3c != iso3c, , drop = FALSE] |>
     dplyr::group_by(iso3c, year) |>
@@ -205,6 +232,8 @@ predict_national_level <- function(d, vars, log_vars, iso3c, year,
   Xi <- knn_impute_fold(X, itr, k = knn_k)
   Xf <- if (is.null(MI)) Xi else cbind(Xi, MI)
   sel <- prescreen_cols(Xf[itr, , drop = FALSE], y, screen_k)
+  if (learner == "sl")
+    return(.nat_ilogit(.nat_sl_predict(Xf[itr, sel, drop = FALSE], y, Xf[ite, sel, drop = FALSE], tr$iso3c)))
   cvm <- tryCatch(glmnet::cv.glmnet(Xf[itr, sel, drop = FALSE], y,
                                     alpha = 0, nfolds = 5),
                   error = function(e) NULL)
