@@ -21,9 +21,10 @@
 # THE ONE THING MISSING is the district NAME. GLSS7 labels every geographic
 # variable - REGION, loc2, loc5, loc7, ez - EXCEPT `district`, which is a
 # disclosure control in the public release, not a lost file. The codes are
-# region*100 + the district's index in the official GSS 2010 PHC ordering
-# within region; the per-region slot counts match the 2010 PHC district counts
-# ten out of ten (22/20/16/25/26/30/27/26/13/11 = 216). So this writes the
+# region*100 + the district's index in the official GSS ordering within region.
+# The 216 districts are the set created 28 June 2012 (NOT a 2010 census set,
+# which had 170); per-region counts 22/20/16/25/26/30/27/26/13/11 = 216. The
+# ordering is not alphabetical - see HC-07. So this writes the
 # finished district-level table keyed by CODE, and the join to the project's
 # 260-district spine waits on one external artefact: the GSS 2010 district
 # list in official per-region order.

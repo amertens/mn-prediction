@@ -2130,11 +2130,10 @@ slot counts match the 2010 PHC district counts **ten out of ten**:
 | region | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | total |
 |---|---|---|---|---|---|---|---|---|---|---|---|
 | GLSS7 max index | 22 | 20 | 16 | 25 | 26 | 30 | 27 | 26 | 13 | 11 | **216** |
-| PHC 2010 districts | 22 | 20 | 16 | 25 | 26 | 30 | 27 | 26 | 13 | 11 | **216** |
 
 214 of the 216 slots were sampled (Western and Ashanti each miss one). So this
-needs exactly one external artefact — **the GSS 2010 district list in official
-per-region order** — and then a second step to the project's 260-district
+needs exactly one external artefact — **the GSS 216-district list (2012–2018) in
+official per-region order** — and then a second step to the project's 260-district
 spine, since the 2018 redistricting took Ghana from 216 districts and 10
 regions to 260 and 16. Guessing the within-region ordering is not on: it would
 scramble districts silently, which is the error class this folder exists to
@@ -2214,3 +2213,88 @@ last step it can reach: the Ghana food-group table at district code (3). Blocked
 on one named, obtainable file: the join to the spine (2), and with it the Ghana
 half of (4). Nothing here has been scored against outcomes in Ghana, because
 without the crosswalk it cannot be.
+
+---
+
+## HC-07 — hunting the GSS district list: a correction, a falsified shortcut, and two anchors
+
+*2026-09-29 · no new code; sources checked, HC-06 corrected*
+
+### The correction
+
+HC-06 called the 216 districts the "GSS 2010 PHC" set and said the per-region
+slot counts matched the 2010 census "ten out of ten". **Both are wrong, and the
+check was circular** — the counts I compared against were numbers I had supplied
+from memory, so the match tested nothing.
+
+Ghana's **216 districts date from 28 June 2012** and ran until the 2018
+reorganisation. The 2010 census enumerated **170**. GLSS7 (2016/17) therefore
+uses the 2012 set, and GLSS6 (2012/13) uses the same one. The structural claim
+survives — `district` = region×100 + an index running 1..k within region, 216
+slots, 214 sampled — but the era label and the "verified" status do not. The
+artefact needed is the **GSS 216-district list (2012–2018) in official
+per-region order**, not a 2010 list. Corrected in `explore/FINDINGS.md` and the
+memory note; the HC-06 commit message (85adaa7) is immutable and still carries
+the wrong label.
+
+### GSS does not publish the map
+
+Checked directly, not inferred:
+
+- **GLSS6** (`microdata.statsghana.gov.gh` catalog 72) exposes a full data
+  dictionary, and `district` **does not exist** — neither `SEC0` (20 variables:
+  Region, Clust, Nh, Hid, Intcode, dates, …) nor `g6loc` (10 variables: Clust,
+  Nh, Hid, Hhsize, Region, Loc2, Ez, Loc5, …) contains it. GLSS6 dropped the
+  variable outright.
+- **GLSS7** (catalog 97) has no data dictionary at all — study description only,
+  geographic coverage stated as "National, Regional".
+- DataFirst's mirror (catalog 855) 500s on its data-dictionary endpoint.
+
+So this is a consistent disclosure policy across rounds, not an oversight in one
+file. GLSS7 leaving the numeric code in place looks like the anomaly.
+
+### The cheap reconstruction is falsified
+
+The post-2018 pcode set (`metadata/crosswalks/gadm41_gid2_to_pcode.csv`,
+GH0101 = Asunafo North …) numbers districts **alphabetically within region**, so
+the obvious hypothesis was that the 2012 codes did too. GLSS7's own survey
+weights refute it.
+
+Weighted population per district (Σ WTA_S × hhsize) totals 27.9m against a ~29m
+2017 estimate, so the weights are well calibrated. Two districts are then
+unmistakable:
+
+| code | weighted pop | urban share | can only be |
+|---|---|---|---|
+| **304** | 1,676k | 1.00 | Accra Metropolitan |
+| **614** | 1,806k | 1.00 | Kumasi Metropolitan |
+
+Alphabetically, Accra Metropolitan is first in Greater Accra and would be 301.
+It is 304. **The ordering is not alphabetical**, and a name-sorted
+reconstruction would have silently scrambled districts — the failure mode HC-06
+refused to risk, now confirmed as real rather than hypothetical.
+
+Those two are **certain anchors**: any candidate list can be checked against
+them in seconds before anything is joined.
+
+### What population matching can and cannot do
+
+It cannot *infer* the assignment. Within region, adjacent districts differ by a
+median of only 4–8% in weighted population, well inside the sampling error of
+~53 households per district. Only the extremes separate.
+
+It can *test* a proposed ordering, because a wrong one gives near-zero
+correlation across all 214 while a right one gives a high correlation — an
+aggregate check needs far less precision than per-district identification. So
+the workflow once a candidate list exists is: anchor-check on 304 and 614,
+then correlate weighted population against census population across all 214.
+
+### Untried
+
+The **GLSS7 Questionnaire and Manual** (ZIP, 3.9 MB, under related-materials on
+catalog 97). Interviewers wrote the district code on the cover sheet, so a code
+list plausibly sits in the manual. Not downloaded — needs the go-ahead.
+
+Other routes, in rough order of promise: the 2012 Legislative Instruments that
+created the 46 new districts (they are numbered), IPUMS International's Ghana
+geography documentation, and asking GSS directly.
