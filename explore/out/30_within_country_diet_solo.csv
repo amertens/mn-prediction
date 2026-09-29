@@ -1,0 +1,229 @@
+"country","outcome","target","domain","n_cols","spearman"
+"Gambia","child_iron","level","Adult nutrition",3,0.231145717463849
+"Gambia","child_iron","level","Food prices and supply",11,0.405161290322581
+"Gambia","child_iron","level","Household diet and consumption (HCES)",14,0.310300333704116
+"Gambia","child_iron","level","Infant and young child feeding",24,0.511857619577308
+"Gambia","child_iron","level","Market prices (RTFP)",6,0.139488320355951
+"Gambia","child_iron","prev","Adult nutrition",3,0.277338971568203
+"Gambia","child_iron","prev","Food prices and supply",11,0.290265882316789
+"Gambia","child_iron","prev","Household diet and consumption (HCES)",14,0.301346091529863
+"Gambia","child_iron","prev","Infant and young child feeding",24,0.563488711908247
+"Gambia","child_iron","prev","Market prices (RTFP)",6,0.156991879934636
+"Gambia","child_vitA","level","Adult nutrition",3,0.436440489432703
+"Gambia","child_vitA","level","Food prices and supply",11,0.480845383759733
+"Gambia","child_vitA","level","Household diet and consumption (HCES)",14,0.514616240266963
+"Gambia","child_vitA","level","Infant and young child feeding",24,0.624249165739711
+"Gambia","child_vitA","level","Market prices (RTFP)",6,0.41944382647386
+"Gambia","child_vitA","prev","Adult nutrition",3,0.271559188421233
+"Gambia","child_vitA","prev","Food prices and supply",11,0.351247433821969
+"Gambia","child_vitA","prev","Household diet and consumption (HCES)",14,0.369487979652937
+"Gambia","child_vitA","prev","Infant and young child feeding",24,0.470779801923073
+"Gambia","child_vitA","prev","Market prices (RTFP)",6,0.269911080495114
+"Gambia","women_iron","level","Adult nutrition",3,0.527252502780868
+"Gambia","women_iron","level","Food prices and supply",11,0.581090100111235
+"Gambia","women_iron","level","Household diet and consumption (HCES)",14,0.46825361512792
+"Gambia","women_iron","level","Infant and young child feeding",24,0.575661846496107
+"Gambia","women_iron","level","Market prices (RTFP)",6,0.393325917686318
+"Gambia","women_iron","prev","Adult nutrition",3,0.55741935483871
+"Gambia","women_iron","prev","Food prices and supply",11,0.642002224694105
+"Gambia","women_iron","prev","Household diet and consumption (HCES)",14,0.577441601779755
+"Gambia","women_iron","prev","Infant and young child feeding",24,0.699399332591769
+"Gambia","women_iron","prev","Market prices (RTFP)",6,0.559955506117909
+"Gambia","women_vitA","level","Adult nutrition",3,0.5453170189099
+"Gambia","women_vitA","level","Food prices and supply",11,0.549677419354839
+"Gambia","women_vitA","level","Household diet and consumption (HCES)",14,0.439110122358176
+"Gambia","women_vitA","level","Infant and young child feeding",24,0.528320355951057
+"Gambia","women_vitA","level","Market prices (RTFP)",6,0.472525027808676
+"Gambia","women_vitA","prev","Adult nutrition",3,0.431427777376131
+"Gambia","women_vitA","prev","Food prices and supply",11,0.24728778449767
+"Gambia","women_vitA","prev","Household diet and consumption (HCES)",14,0.016191741440823
+"Gambia","women_vitA","prev","Infant and young child feeding",24,0.28661728979451
+"Gambia","women_vitA","prev","Market prices (RTFP)",6,0.125568128188179
+"Ghana","child_iron","level","Adult nutrition",3,0.485778093883357
+"Ghana","child_iron","level","Dietary inadequacy (MODELLED SURFACE, HCES)",6,0.403347318960581
+"Ghana","child_iron","level","Food prices and supply",7,0.475297297297297
+"Ghana","child_iron","level","Household diet and consumption (HCES)",3,0.313545296629008
+"Ghana","child_iron","level","Infant and young child feeding",24,0.438426742532006
+"Ghana","child_iron","prev","Adult nutrition",3,0.572005469839687
+"Ghana","child_iron","prev","Dietary inadequacy (MODELLED SURFACE, HCES)",6,0.446256881374145
+"Ghana","child_iron","prev","Food prices and supply",7,0.512955525074033
+"Ghana","child_iron","prev","Household diet and consumption (HCES)",3,0.401042830179184
+"Ghana","child_iron","prev","Infant and young child feeding",24,0.475445003557439
+"Ghana","child_vitA","level","Adult nutrition",3,0.346347083926031
+"Ghana","child_vitA","level","Dietary inadequacy (MODELLED SURFACE, HCES)",6,0.269589942603997
+"Ghana","child_vitA","level","Food prices and supply",7,0.376150782361309
+"Ghana","child_vitA","level","Household diet and consumption (HCES)",3,0.227684184530533
+"Ghana","child_vitA","level","Infant and young child feeding",24,0.399371266002845
+"Ghana","child_vitA","prev","Adult nutrition",3,0.3020551565362
+"Ghana","child_vitA","prev","Dietary inadequacy (MODELLED SURFACE, HCES)",6,0.159910126246836
+"Ghana","child_vitA","prev","Food prices and supply",7,0.228697013587247
+"Ghana","child_vitA","prev","Household diet and consumption (HCES)",3,0.265443142813911
+"Ghana","child_vitA","prev","Infant and young child feeding",24,0.29680018455478
+"Ghana","women_b12","level","Adult nutrition",3,0.565462304409673
+"Ghana","women_b12","level","Dietary inadequacy (MODELLED SURFACE, HCES)",6,0.55155751308924
+"Ghana","women_b12","level","Food prices and supply",7,0.497032716927454
+"Ghana","women_b12","level","Household diet and consumption (HCES)",3,0.477492155735085
+"Ghana","women_b12","level","Infant and young child feeding",24,0.576953058321479
+"Ghana","women_b12","prev","Adult nutrition",3,0.330288663747181
+"Ghana","women_b12","prev","Dietary inadequacy (MODELLED SURFACE, HCES)",6,0.216758711914523
+"Ghana","women_b12","prev","Food prices and supply",7,0.15608158315572
+"Ghana","women_b12","prev","Household diet and consumption (HCES)",3,0.169686592501929
+"Ghana","women_b12","prev","Infant and young child feeding",24,0.314871498598329
+"Ghana","women_folate","level","Adult nutrition",3,0.414446657183499
+"Ghana","women_folate","level","Dietary inadequacy (MODELLED SURFACE, HCES)",6,0.327301968488986
+"Ghana","women_folate","level","Food prices and supply",7,0.0783897581792319
+"Ghana","women_folate","level","Household diet and consumption (HCES)",3,0.246992410994686
+"Ghana","women_folate","level","Infant and young child feeding",24,0.285209103840683
+"Ghana","women_folate","prev","Adult nutrition",3,0.274459996149494
+"Ghana","women_folate","prev","Dietary inadequacy (MODELLED SURFACE, HCES)",6,0.206468277140806
+"Ghana","women_folate","prev","Food prices and supply",7,-0.057999340928745
+"Ghana","women_folate","prev","Household diet and consumption (HCES)",3,0.0895795428750912
+"Ghana","women_folate","prev","Infant and young child feeding",24,0.0907360309025088
+"Ghana","women_iron","level","Adult nutrition",3,0.0472290184921764
+"Ghana","women_iron","level","Dietary inadequacy (MODELLED SURFACE, HCES)",6,0.246034910890586
+"Ghana","women_iron","level","Food prices and supply",7,0.355362731152205
+"Ghana","women_iron","level","Household diet and consumption (HCES)",3,-0.165076444785035
+"Ghana","women_iron","level","Infant and young child feeding",24,0.08049786628734
+"Ghana","women_iron","prev","Adult nutrition",3,0.080565261368486
+"Ghana","women_iron","prev","Dietary inadequacy (MODELLED SURFACE, HCES)",6,0.154065716586392
+"Ghana","women_iron","prev","Food prices and supply",7,0.150520933918648
+"Ghana","women_iron","prev","Household diet and consumption (HCES)",3,-0.177872614597718
+"Ghana","women_iron","prev","Infant and young child feeding",24,0.0097392428881426
+"Ghana","women_vitA","level","Adult nutrition",3,0.223530583214794
+"Ghana","women_vitA","level","Dietary inadequacy (MODELLED SURFACE, HCES)",6,0.277376802158402
+"Ghana","women_vitA","level","Food prices and supply",7,0.427735419630156
+"Ghana","women_vitA","level","Household diet and consumption (HCES)",3,0.0690946813077633
+"Ghana","women_vitA","level","Infant and young child feeding",24,0.235007112375533
+"Ghana","women_vitA","prev","Adult nutrition",3,0.0391283678597766
+"Ghana","women_vitA","prev","Dietary inadequacy (MODELLED SURFACE, HCES)",6,0.0786008731158456
+"Ghana","women_vitA","prev","Food prices and supply",7,0.0917764827825178
+"Ghana","women_vitA","prev","Household diet and consumption (HCES)",3,0.0208411877956965
+"Ghana","women_vitA","prev","Infant and young child feeding",24,0.0972592684361433
+"Malawi","child_iron","level","Adult nutrition",3,-0.0435882481592185
+"Malawi","child_iron","level","Food prices and supply",8,0.197712692279653
+"Malawi","child_iron","level","Household diet and consumption (HCES)",15,0.148188379383247
+"Malawi","child_iron","level","Infant and young child feeding",24,0.248501859007071
+"Malawi","child_iron","level","Market prices (RTFP)",6,-0.223414376321353
+"Malawi","child_iron","prev","Adult nutrition",3,-0.13241372225591
+"Malawi","child_iron","prev","Food prices and supply",8,0.065880799827189
+"Malawi","child_iron","prev","Household diet and consumption (HCES)",15,0.177554287175643
+"Malawi","child_iron","prev","Infant and young child feeding",24,0.0941437021716152
+"Malawi","child_iron","prev","Market prices (RTFP)",6,-0.195155212999921
+"Malawi","child_vitA","level","Adult nutrition",3,0.0944029306699715
+"Malawi","child_vitA","level","Food prices and supply",8,0.143136254283006
+"Malawi","child_vitA","level","Household diet and consumption (HCES)",15,0.0697966027557046
+"Malawi","child_vitA","level","Infant and young child feeding",24,0.027883283516804
+"Malawi","child_vitA","level","Market prices (RTFP)",6,0.154572792884742
+"Malawi","child_vitA","prev","Adult nutrition",3,0.0470937891899784
+"Malawi","child_vitA","prev","Food prices and supply",8,0.210702631401144
+"Malawi","child_vitA","prev","Household diet and consumption (HCES)",15,0.0183246167914595
+"Malawi","child_vitA","prev","Infant and young child feeding",24,0.185476535558356
+"Malawi","child_vitA","prev","Market prices (RTFP)",6,0.0791613926109601
+"Malawi","child_zinc","level","Adult nutrition",3,0.0107457898957498
+"Malawi","child_zinc","level","Food prices and supply",8,0.0122840271196326
+"Malawi","child_zinc","level","Household diet and consumption (HCES)",15,0.0375555879565503
+"Malawi","child_zinc","level","Infant and young child feeding",24,-0.139744477655464
+"Malawi","child_zinc","level","Market prices (RTFP)",6,-0.122807465189181
+"Malawi","child_zinc","prev","Adult nutrition",3,0.0659586537433334
+"Malawi","child_zinc","prev","Food prices and supply",8,0.0747511353663875
+"Malawi","child_zinc","prev","Household diet and consumption (HCES)",15,0.10793192812076
+"Malawi","child_zinc","prev","Infant and young child feeding",24,-0.0610304883048441
+"Malawi","child_zinc","prev","Market prices (RTFP)",6,0.0194437367069071
+"Malawi","women_b12","level","Adult nutrition",3,0.0659163811329008
+"Malawi","women_b12","level","Food prices and supply",8,0.276569220675075
+"Malawi","women_b12","level","Household diet and consumption (HCES)",15,0.498017059123715
+"Malawi","women_b12","level","Infant and young child feeding",24,0.555422103958591
+"Malawi","women_b12","level","Market prices (RTFP)",6,0.434198439892105
+"Malawi","women_b12","prev","Adult nutrition",3,0.0998648049973465
+"Malawi","women_b12","prev","Food prices and supply",8,0.194947157318569
+"Malawi","women_b12","prev","Household diet and consumption (HCES)",15,0.439653207419818
+"Malawi","women_b12","prev","Infant and young child feeding",24,0.423717530758766
+"Malawi","women_b12","prev","Market prices (RTFP)",6,0.302290862903334
+"Malawi","women_folate","level","Adult nutrition",3,0.256400816505067
+"Malawi","women_folate","level","Food prices and supply",8,0.0658635270102792
+"Malawi","women_folate","level","Household diet and consumption (HCES)",15,0.42092294233433
+"Malawi","women_folate","level","Infant and young child feeding",24,0.326516366552453
+"Malawi","women_folate","level","Market prices (RTFP)",6,0.369581541153313
+"Malawi","women_folate","prev","Adult nutrition",3,0.234341901373623
+"Malawi","women_folate","prev","Food prices and supply",8,0.0580921922227872
+"Malawi","women_folate","prev","Household diet and consumption (HCES)",15,0.408385247252094
+"Malawi","women_folate","prev","Infant and young child feeding",24,0.248771423882574
+"Malawi","women_folate","prev","Market prices (RTFP)",6,0.418152952732712
+"Malawi","women_iron","level","Adult nutrition",3,0.0834220310563534
+"Malawi","women_iron","level","Food prices and supply",8,0.160691113217176
+"Malawi","women_iron","level","Household diet and consumption (HCES)",15,0.279452504191879
+"Malawi","women_iron","level","Infant and young child feeding",24,0.164046438725669
+"Malawi","women_iron","level","Market prices (RTFP)",6,-0.230491361084785
+"Malawi","women_iron","prev","Adult nutrition",3,0.0345416433276032
+"Malawi","women_iron","prev","Food prices and supply",8,0.181369313634462
+"Malawi","women_iron","prev","Household diet and consumption (HCES)",15,0.128854760145483
+"Malawi","women_iron","prev","Infant and young child feeding",24,0.189202899600149
+"Malawi","women_iron","prev","Market prices (RTFP)",6,0.0492683776669705
+"Malawi","women_vitA","level","Adult nutrition",3,0.301468980097689
+"Malawi","women_vitA","level","Food prices and supply",8,0.229323102719253
+"Malawi","women_vitA","level","Household diet and consumption (HCES)",15,0.0997976962892761
+"Malawi","women_vitA","level","Infant and young child feeding",24,0.103688853247795
+"Malawi","women_vitA","level","Market prices (RTFP)",6,0.155857694831231
+"Malawi","women_vitA","prev","Adult nutrition",3,0.1874262967121
+"Malawi","women_vitA","prev","Food prices and supply",8,0.0115873401645811
+"Malawi","women_vitA","prev","Household diet and consumption (HCES)",15,0.0611947146720777
+"Malawi","women_vitA","prev","Infant and young child feeding",24,0.149085397368888
+"Malawi","women_vitA","prev","Market prices (RTFP)",6,0.0823388954608973
+"Malawi","women_zinc","level","Adult nutrition",3,0.0450164258608315
+"Malawi","women_zinc","level","Food prices and supply",8,0.119109130592522
+"Malawi","women_zinc","level","Household diet and consumption (HCES)",15,-0.147654131982523
+"Malawi","women_zinc","level","Infant and young child feeding",24,0.0926947068187195
+"Malawi","women_zinc","level","Market prices (RTFP)",6,0.0620227729410323
+"Malawi","women_zinc","prev","Adult nutrition",3,0.102283774843929
+"Malawi","women_zinc","prev","Food prices and supply",8,0.0770034750027825
+"Malawi","women_zinc","prev","Household diet and consumption (HCES)",15,-0.150710394515751
+"Malawi","women_zinc","prev","Infant and young child feeding",24,0.0399583869513162
+"Malawi","women_zinc","prev","Market prices (RTFP)",6,0.112730489674442
+"SierraLeone","child_iron","level","Adult nutrition",3,NA
+"SierraLeone","child_iron","level","Food prices and supply",10,NA
+"SierraLeone","child_iron","level","Household diet and consumption (HCES)",15,NA
+"SierraLeone","child_iron","level","Infant and young child feeding",24,NA
+"SierraLeone","child_iron","prev","Adult nutrition",3,NA
+"SierraLeone","child_iron","prev","Food prices and supply",10,NA
+"SierraLeone","child_iron","prev","Household diet and consumption (HCES)",15,NA
+"SierraLeone","child_iron","prev","Infant and young child feeding",24,NA
+"SierraLeone","child_vitA","level","Adult nutrition",3,NA
+"SierraLeone","child_vitA","level","Food prices and supply",10,NA
+"SierraLeone","child_vitA","level","Household diet and consumption (HCES)",15,NA
+"SierraLeone","child_vitA","level","Infant and young child feeding",24,NA
+"SierraLeone","child_vitA","prev","Adult nutrition",3,NA
+"SierraLeone","child_vitA","prev","Food prices and supply",10,NA
+"SierraLeone","child_vitA","prev","Household diet and consumption (HCES)",15,NA
+"SierraLeone","child_vitA","prev","Infant and young child feeding",24,NA
+"SierraLeone","women_b12","level","Adult nutrition",3,NA
+"SierraLeone","women_b12","level","Food prices and supply",10,NA
+"SierraLeone","women_b12","level","Household diet and consumption (HCES)",15,NA
+"SierraLeone","women_b12","level","Infant and young child feeding",24,NA
+"SierraLeone","women_b12","prev","Adult nutrition",3,NA
+"SierraLeone","women_b12","prev","Food prices and supply",10,NA
+"SierraLeone","women_b12","prev","Household diet and consumption (HCES)",15,NA
+"SierraLeone","women_b12","prev","Infant and young child feeding",24,NA
+"SierraLeone","women_folate","level","Adult nutrition",3,NA
+"SierraLeone","women_folate","level","Food prices and supply",10,NA
+"SierraLeone","women_folate","level","Household diet and consumption (HCES)",15,NA
+"SierraLeone","women_folate","level","Infant and young child feeding",24,NA
+"SierraLeone","women_folate","prev","Adult nutrition",3,NA
+"SierraLeone","women_folate","prev","Food prices and supply",10,NA
+"SierraLeone","women_folate","prev","Household diet and consumption (HCES)",15,NA
+"SierraLeone","women_folate","prev","Infant and young child feeding",24,NA
+"SierraLeone","women_iron","level","Adult nutrition",3,NA
+"SierraLeone","women_iron","level","Food prices and supply",10,NA
+"SierraLeone","women_iron","level","Household diet and consumption (HCES)",15,NA
+"SierraLeone","women_iron","level","Infant and young child feeding",24,NA
+"SierraLeone","women_iron","prev","Adult nutrition",3,NA
+"SierraLeone","women_iron","prev","Food prices and supply",10,NA
+"SierraLeone","women_iron","prev","Household diet and consumption (HCES)",15,NA
+"SierraLeone","women_iron","prev","Infant and young child feeding",24,NA
+"SierraLeone","women_vitA","level","Adult nutrition",3,NA
+"SierraLeone","women_vitA","level","Food prices and supply",10,NA
+"SierraLeone","women_vitA","level","Household diet and consumption (HCES)",15,NA
+"SierraLeone","women_vitA","level","Infant and young child feeding",24,NA
+"SierraLeone","women_vitA","prev","Adult nutrition",3,NA
+"SierraLeone","women_vitA","prev","Food prices and supply",10,NA
+"SierraLeone","women_vitA","prev","Household diet and consumption (HCES)",15,NA
+"SierraLeone","women_vitA","prev","Infant and young child feeding",24,NA

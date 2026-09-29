@@ -144,3 +144,106 @@ intake.
    region), which do not require the intersect and can use all 15 HCES columns
    in Malawi, Sierra Leone and Gambia today. That is a test that can be run
    without waiting for Ghana.
+
+---
+
+## DC-01 — the within-country test, run: diet predicts, but adds nothing
+
+*2026-09-29 · `explore/scripts/30_within_country_diet.R` · answers recommendation 4 above*
+
+Three predictor sets per country × outcome × target, identical rows and
+identical folds, scored with the estimator of record (zero-tuning domain
+index): **full** (533 columns), **nodiet** (467, the six dietary domains
+removed), **diet** (66, those domains alone). Agricultural production is
+remotely sensed and already known load-bearing, so it stays in `nodiet` —
+this measures the survey-derived dietary block specifically.
+
+### The dietary block is a strong predictor on its own
+
+| estimand | full (533 cols) | nodiet (467) | **diet alone (66)** |
+|---|---|---|---|
+| in-fill | 0.372 | 0.374 | **0.288** |
+| region | 0.316 | 0.322 | **0.251** |
+
+Sixty-six dietary columns reach **77% of what all 533 reach** in-fill, and 79%
+under region extrapolation. Whatever else is true, "diet does not predict
+micronutrient status" is not.
+
+### But it adds nothing on top of everything else
+
+| estimand | cells where full > nodiet | median Δ |
+|---|---|---|
+| in-fill | 14 of 36 | **−0.0030** |
+| region | 15 of 36 | **−0.0027** |
+
+A clean null. The dietary block is **redundant with the rest, not weak** — the
+same signature Adult nutrition shows under LOCO (0.197 alone, 0.000 to remove).
+The remotely sensed climate/soil/satellite block already carries the
+information diet carries.
+
+### The LOCO verdict was an artefact, and here is the size of it
+
+Identical domains, scored alone:
+
+| domain | LOCO (alone) | **within-country (alone, level)** | columns it got under LOCO |
+|---|---|---|---|
+| Food prices and supply | 0.011 | **0.316** | 4 of 12 |
+| Infant and young child feeding | 0.042 | **0.306** | 24 of 24 |
+| Dietary inadequacy (MIMI) | *not evaluable* | **0.302** | 0 of 6 |
+| Household diet (HCES) | **−0.134** | **0.263** | 2 of 15 |
+| Adult nutrition | 0.197 | 0.244 | 3 of 3 |
+| Market prices (RTFP) | *not evaluable* | 0.155 | 0 of 6 |
+
+Household diet goes from −0.134 to +0.263; MIMI, which LOCO literally cannot
+see, scores 0.302 within Ghana on six columns. The two domains LOCO evaluated
+in full (IYCF, Adult nutrition) are the two whose LOCO and within-country
+scores are closest — exactly what the coverage explanation predicts.
+
+### Gambia is the standout, and Ghana is where diet hurts
+
+| country × target | diet adds | median Δ | diet alone |
+|---|---|---|---|
+| **Gambia** level (region) | **3 of 4** | **+0.0082** | **+0.632** |
+| **Gambia** prev (region) | **3 of 4** | **+0.0106** | **+0.588** |
+| Gambia level (in-fill) | 1 of 4 | −0.0024 | +0.602 |
+| Malawi level (in-fill) | 4 of 8 | +0.0013 | +0.210 |
+| Malawi prev (in-fill) | 5 of 8 | +0.0050 | +0.141 |
+| **Ghana** level (region) | **0 of 6** | **−0.0212** | +0.310 |
+| Ghana level (in-fill) | 0 of 6 | −0.0075 | +0.339 |
+
+Gambia is the only country where the dietary block **reliably adds** — 3 of 4
+cells on both targets under region extrapolation — and its solo score, 0.602
+in-fill and 0.632 region, is far above the pooled full-model median. Gambia
+also has the most dietary columns of any country (58, against Ghana's 43).
+
+Ghana is the mirror image: diet never adds and actively hurts under region
+extrapolation (−0.021). Ghana is the country whose HCES block is crippled — 12
+of the 13 lost HCES columns are lost to Ghana alone. A block that is 20%
+populated is worse than no block, because the domain axis is built from
+whatever happens to be present.
+
+### Sierra Leone cannot be evaluated at all
+
+All 72 Sierra Leone rows are NA. With 14 districts, 5-fold CV leaves ~11 in
+training, below the harness's `length(tr) < 12` floor, so every fold is
+skipped; leave-one-region-out over 4 provinces fails the same way. This is the
+same constraint the chiefdom analysis hit from the other side — Sierra Leone
+has the best-measured areas in the project and too few of them to fit anything
+within country.
+
+### What this changes
+
+1. **Retract the dietary verdict.** "Diet is not an important predictor" was
+   measuring the 4-country intersect, not diet. The honest statement is that
+   the dietary block predicts about as well as everything else and is
+   redundant with it.
+2. **A dietary-only model is a viable cheap instrument.** 66 survey-derived
+   columns reach 77% of a 533-column model that needs the full GEE stack. For a
+   programme that already runs an HCES or DHS but has no remote-sensing
+   pipeline, that is the more useful result than the marginal-contribution null.
+3. **Gambia deserves a closer look.** Diet alone at 0.602/0.632 is the highest
+   single-block score seen anywhere in this folder. Whether that is real or a
+   30-district artefact is worth one probe.
+4. **Fixing Ghana's HCES block is now doubly motivated** — it restores 22
+   columns to LOCO *and* removes the one country where the dietary block is
+   actively harmful.
