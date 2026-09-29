@@ -1,0 +1,5 @@
+"estimand","target","arm","paired","mean_diff","median_diff","cells_better"
+"country","level","hapc_lasso",22,0.00276104537033839,0.000520548942445742,11
+"country","prev","hapc_lasso",22,-0.0157711549585458,-0.0278935995184749,6
+"country","level","hapc_ridge",22,-0.054976789424201,-0.0256755674157438,8
+"country","prev","hapc_ridge",22,-0.105518821477289,-0.107216055624323,6

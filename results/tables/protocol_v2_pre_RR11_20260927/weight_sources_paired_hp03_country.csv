@@ -1,0 +1,11 @@
+"estimand","target","arm","paired","mean_diff","median_diff","cells_better"
+"country","level","hapc_lasso",22,0.00276104537033839,0.000520548942445742,11
+"country","prev","hapc_lasso",22,-0.0157711549585458,-0.0278935995184749,6
+"country","level","hal_group",22,-0.0489455748896397,-0.0676441641758402,7
+"country","prev","hal_group",21,-0.0520608522543117,-0.0591561845249606,10
+"country","level","hal_lasso",22,-0.0878354577483696,-0.079841316162733,6
+"country","prev","hal_lasso",18,-0.0627701874728419,-0.0698220537174976,7
+"country","level","hapc_lasso_xy",22,0.0024268683011326,-0.00659765254793322,10
+"country","prev","hapc_lasso_xy",22,-0.00811605945595013,-0.0244941274936434,7
+"country","level","hapc_xy_only",21,-0.108870702732572,-0.106008616248891,8
+"country","prev","hapc_xy_only",21,-0.160366410943234,-0.16356373843405,5

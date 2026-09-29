@@ -1,0 +1,21 @@
+panel,source,model,n_cov_pool,n_mi_added,n_cov_used,n_surveys,n_countries,mean_prev_pp,mae_pp,rmse_pp,pearson,spearman
+Vitamin A | Preschool-age children,wdi+flunet,null,20,8,28,108,69,24.9,16.23,21.77,-0.637,-0.836
+Vitamin A | Preschool-age children,wdi+flunet,ridge,20,8,28,108,69,24.9,13.17,17.95,0.54,0.64
+Vitamin A | Preschool-age children,wdi+flunet,rf,20,8,28,108,69,24.9,11.99,16.07,0.646,0.628
+Vitamin A | Preschool-age children,wdi+flunet,sl,20,8,28,108,69,24.9,12.94,17.55,0.573,0.61
+Zinc | Preschool-age children,wdi+flunet,null,20,5,25,41,30,31.7,16.19,20.47,-0.881,-0.894
+Zinc | Preschool-age children,wdi+flunet,ridge,20,5,25,41,30,31.7,16.2,21.07,0.001,-0.057
+Zinc | Preschool-age children,wdi+flunet,rf,20,5,25,41,30,31.7,16.77,21.67,-0.068,0.004
+Zinc | Preschool-age children,wdi+flunet,sl,20,5,25,41,30,31.7,16.94,21.56,-0.247,-0.265
+Vitamin A | Non-pregnant women (NPW),wdi+flunet,null,20,9,29,29,22,11.7,9,15.86,-0.705,-0.835
+Vitamin A | Non-pregnant women (NPW),wdi+flunet,ridge,20,9,29,29,22,11.7,8.59,15.86,-0.031,0.084
+Vitamin A | Non-pregnant women (NPW),wdi+flunet,rf,20,9,29,29,22,11.7,9.11,16.29,-0.135,-0.012
+Vitamin A | Non-pregnant women (NPW),wdi+flunet,sl,20,9,29,29,22,11.7,8.97,15.96,-0.079,0.141
+Folate | Non-pregnant women (NPW),wdi+flunet,null,20,8,28,32,28,28.5,20.94,27.13,-0.847,-0.97
+Folate | Non-pregnant women (NPW),wdi+flunet,ridge,20,8,28,32,28,28.5,20.05,26,0.2,0.269
+Folate | Non-pregnant women (NPW),wdi+flunet,rf,20,8,28,32,28,28.5,17.36,22.59,0.481,0.418
+Folate | Non-pregnant women (NPW),wdi+flunet,sl,20,8,28,32,28,28.5,18.24,23.9,0.381,0.299
+Vitamin B12 | Non-pregnant women (NPW),wdi+flunet,null,20,8,28,23,21,16.4,9.37,12,-0.85,-0.937
+Vitamin B12 | Non-pregnant women (NPW),wdi+flunet,ridge,20,8,28,23,21,16.4,9.91,12.74,-0.574,-0.817
+Vitamin B12 | Non-pregnant women (NPW),wdi+flunet,rf,20,8,28,23,21,16.4,10.3,13.62,-0.63,-0.524
+Vitamin B12 | Non-pregnant women (NPW),wdi+flunet,sl,20,8,28,23,21,16.4,9.63,12.59,-0.85,-0.936

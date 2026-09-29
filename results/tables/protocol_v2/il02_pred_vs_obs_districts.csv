@@ -1,0 +1,352 @@
+"country","outcome","target","arm","Admin1","Admin2","observed","predicted","n_eff","n_raw"
+"Gambia","women_iron","prev","domain_index_cal","Banjul","Banjul",0.341679554197563,0.333304503392308,183.523044363638,222
+"Gambia","women_iron","prev","domain_index_cal","Banjul","Kanifing",0.300794478115473,0.297997616732173,117.075968306889,139
+"Gambia","women_iron","prev","domain_index_cal","Lower River","Jarra East",0.664604561556188,0.566512320390842,39.3548274768504,42
+"Gambia","women_iron","prev","domain_index_cal","Lower River","Jarra West",0.437857706397502,0.523536626465345,56.4307245776568,61
+"Gambia","women_iron","prev","domain_index_cal","Lower River","Kiang Central",0.473684210526316,0.536349054104704,18.1741629160361,19
+"Gambia","women_iron","prev","domain_index_cal","Lower River","Kiang East",0.85,0.514008568868223,19.0846136493807,20
+"Gambia","women_iron","prev","domain_index_cal","Maccarthy Island","Fulladu West",0.496143900023372,0.619105229583601,75.0483872194878,147
+"Gambia","women_iron","prev","domain_index_cal","Maccarthy Island","Lower Saloum",0.487748530115695,0.621488898405516,20.2374197989013,25
+"Gambia","women_iron","prev","domain_index_cal","Maccarthy Island","Niamina Dankunku",0.75,0.573772700630244,19.0846136493807,20
+"Gambia","women_iron","prev","domain_index_cal","Maccarthy Island","Niamina East",0.652173913043478,0.604086201458422,21.7898363381078,23
+"Gambia","women_iron","prev","domain_index_cal","Maccarthy Island","Niani",0.598938247168865,0.658581827214851,31.4595448021583,41
+"Gambia","women_iron","prev","domain_index_cal","Maccarthy Island","Nianija",0.476674958461976,0.652358502805643,20.5080672208104,21
+"Gambia","women_iron","prev","domain_index_cal","Maccarthy Island","Sami",0.736842105263158,0.65207116290168,18.1741629160361,19
+"Gambia","women_iron","prev","domain_index_cal","Maccarthy Island","Upper Saloum",0.714285714285714,0.638789906473655,13.5551484685998,14
+"Gambia","women_iron","prev","domain_index_cal","North Bank","Central Baddibu",0.454545454545455,0.493114474951293,30.5334321750115,33
+"Gambia","women_iron","prev","domain_index_cal","North Bank","Jokadu",0.583333333333333,0.464188742381244,11.6757754631412,12
+"Gambia","women_iron","prev","domain_index_cal","North Bank","Lower Baddibu",0.409090909090909,0.483069724452227,20.8924190394759,22
+"Gambia","women_iron","prev","domain_index_cal","North Bank","Lower Nuimi",0.350435538566017,0.458991881570098,25.3656989136079,28
+"Gambia","women_iron","prev","domain_index_cal","North Bank","Upper Baddibu",0.543438159069387,0.513308147249715,34.6154779971798,38
+"Gambia","women_iron","prev","domain_index_cal","North Bank","Upper Nuimi",0.25,0.483953561533414,15.4162363121154,16
+"Gambia","women_iron","prev","domain_index_cal","Upper River","Fulladu East",0.474229966064334,0.581919679514848,116.311025732485,150
+"Gambia","women_iron","prev","domain_index_cal","Upper River","Kantora",0.8125,0.587102896145463,15.4162363121154,16
+"Gambia","women_iron","prev","domain_index_cal","Upper River","Sandu",0.666666666666667,0.635644812272242,14.487961316475,15
+"Gambia","women_iron","prev","domain_index_cal","Upper River","Wuli",0.727272727272727,0.622513957358096,10.7291476057078,11
+"Gambia","women_iron","prev","domain_index_cal","Western","Foni Bintang Karanai",0.35,0.423581029476671,19.0846136493807,20
+"Gambia","women_iron","prev","domain_index_cal","Western","Foni Brefet",0.3125,0.405790535164924,15.4162363121154,16
+"Gambia","women_iron","prev","domain_index_cal","Western","Kombo Central",0.367154654744198,0.382759605271444,39.04012158869,41
+"Gambia","women_iron","prev","domain_index_cal","Western","Kombo East",0.428571428571429,0.391430368115715,26.2132950565122,28
+"Gambia","women_iron","prev","domain_index_cal","Western","Kombo Saint Mary",0.363182132424259,0.34357407949129,70.7105708673432,94
+"Gambia","women_iron","prev","domain_index_cal","Western","Kombo South",0.357142857142857,0.367410533802627,26.2132950565122,28
+"Gambia","women_iron","prev","null_train_mean","Banjul","Banjul",0.341679554197563,0.518085701908407,183.523044363638,222
+"Gambia","women_iron","prev","null_train_mean","Banjul","Kanifing",0.300794478115473,0.515936660309739,117.075968306889,139
+"Gambia","women_iron","prev","null_train_mean","Lower River","Jarra East",0.664604561556188,0.51264569279986,39.3548274768504,42
+"Gambia","women_iron","prev","null_train_mean","Lower River","Jarra West",0.437857706397502,0.524426646578237,56.4307245776568,61
+"Gambia","women_iron","prev","null_train_mean","Lower River","Kiang Central",0.473684210526316,0.518391704412226,18.1741629160361,19
+"Gambia","women_iron","prev","null_train_mean","Lower River","Kiang East",0.85,0.503356060690311,19.0846136493807,20
+"Gambia","women_iron","prev","null_train_mean","Maccarthy Island","Fulladu West",0.496143900023372,0.519177072941344,75.0483872194878,147
+"Gambia","women_iron","prev","null_train_mean","Maccarthy Island","Lower Saloum",0.487748530115695,0.52523392524838,20.2374197989013,25
+"Gambia","women_iron","prev","null_train_mean","Maccarthy Island","Niamina Dankunku",0.75,0.505583920542135,19.0846136493807,20
+"Gambia","women_iron","prev","null_train_mean","Maccarthy Island","Niamina East",0.652173913043478,0.513155289093473,21.7898363381078,23
+"Gambia","women_iron","prev","null_train_mean","Maccarthy Island","Niani",0.598938247168865,0.509777719070053,31.4595448021583,41
+"Gambia","women_iron","prev","null_train_mean","Maccarthy Island","Nianija",0.476674958461976,0.513825226327558,20.5080672208104,21
+"Gambia","women_iron","prev","null_train_mean","Maccarthy Island","Sami",0.736842105263158,0.504087894391453,18.1741629160361,19
+"Gambia","women_iron","prev","null_train_mean","Maccarthy Island","Upper Saloum",0.714285714285714,0.509017344134397,13.5551484685998,14
+"Gambia","women_iron","prev","null_train_mean","North Bank","Central Baddibu",0.454545454545455,0.511967526531921,30.5334321750115,33
+"Gambia","women_iron","prev","null_train_mean","North Bank","Jokadu",0.583333333333333,0.509359309346159,11.6757754631412,12
+"Gambia","women_iron","prev","null_train_mean","North Bank","Lower Baddibu",0.409090909090909,0.51933218026668,20.8924190394759,22
+"Gambia","women_iron","prev","null_train_mean","North Bank","Lower Nuimi",0.350435538566017,0.519522648094745,25.3656989136079,28
+"Gambia","women_iron","prev","null_train_mean","North Bank","Upper Baddibu",0.543438159069387,0.51572482146294,34.6154779971798,38
+"Gambia","women_iron","prev","null_train_mean","North Bank","Upper Nuimi",0.25,0.522872756948543,15.4162363121154,16
+"Gambia","women_iron","prev","null_train_mean","Upper River","Fulladu East",0.474229966064334,0.510080179417518,116.311025732485,150
+"Gambia","women_iron","prev","null_train_mean","Upper River","Kantora",0.8125,0.503249466358865,15.4162363121154,16
+"Gambia","women_iron","prev","null_train_mean","Upper River","Sandu",0.666666666666667,0.513374894138397,14.487961316475,15
+"Gambia","women_iron","prev","null_train_mean","Upper River","Wuli",0.727272727272727,0.495790982097532,10.7291476057078,11
+"Gambia","women_iron","prev","null_train_mean","Western","Foni Bintang Karanai",0.35,0.521782163934593,19.0846136493807,20
+"Gambia","women_iron","prev","null_train_mean","Western","Foni Brefet",0.3125,0.521684063656552,15.4162363121154,16
+"Gambia","women_iron","prev","null_train_mean","Western","Kombo Central",0.367154654744198,0.518251491725342,39.04012158869,41
+"Gambia","women_iron","prev","null_train_mean","Western","Kombo East",0.428571428571429,0.521599599566034,26.2132950565122,28
+"Gambia","women_iron","prev","null_train_mean","Western","Kombo Saint Mary",0.363182132424259,0.514533028889762,70.7105708673432,94
+"Gambia","women_iron","prev","null_train_mean","Western","Kombo South",0.357142857142857,0.519665735763713,26.2132950565122,28
+"Gambia","women_iron","prev","region_mean_jk","Banjul","Banjul",0.341679554197563,0.300794478115473,183.523044363638,222
+"Gambia","women_iron","prev","region_mean_jk","Banjul","Kanifing",0.300794478115473,0.341679554197563,117.075968306889,139
+"Gambia","women_iron","prev","region_mean_jk","Lower River","Jarra East",0.664604561556188,0.633887674082822,39.3548274768504,42
+"Gambia","women_iron","prev","region_mean_jk","Lower River","Jarra West",0.437857706397502,0.701964464519837,56.4307245776568,61
+"Gambia","women_iron","prev","region_mean_jk","Lower River","Kiang Central",0.473684210526316,0.681559581522231,18.1741629160361,19
+"Gambia","women_iron","prev","region_mean_jk","Lower River","Kiang East",0.85,0.530028978784452,19.0846136493807,20
+"Gambia","women_iron","prev","region_mean_jk","Maccarthy Island","Fulladu West",0.496143900023372,0.63401311006752,75.0483872194878,147
+"Gambia","women_iron","prev","region_mean_jk","Maccarthy Island","Lower Saloum",0.487748530115695,0.637235786788368,20.2374197989013,25
+"Gambia","women_iron","prev","region_mean_jk","Maccarthy Island","Niamina Dankunku",0.75,0.603243934215218,19.0846136493807,20
+"Gambia","women_iron","prev","region_mean_jk","Maccarthy Island","Niamina East",0.652173913043478,0.615705060708536,21.7898363381078,23
+"Gambia","women_iron","prev","region_mean_jk","Maccarthy Island","Niani",0.598938247168865,0.620625285212018,31.4595448021583,41
+"Gambia","women_iron","prev","region_mean_jk","Maccarthy Island","Nianija",0.476674958461976,0.635603970483163,20.5080672208104,21
+"Gambia","women_iron","prev","region_mean_jk","Maccarthy Island","Sami",0.736842105263158,0.611431942034356,18.1741629160361,19
+"Gambia","women_iron","prev","region_mean_jk","Maccarthy Island","Upper Saloum",0.714285714285714,0.606059491343597,13.5551484685998,14
+"Gambia","women_iron","prev","region_mean_jk","North Bank","Central Baddibu",0.454545454545455,0.405278860868005,30.5334321750115,33
+"Gambia","women_iron","prev","region_mean_jk","North Bank","Jokadu",0.583333333333333,0.39979282922727,11.6757754631412,12
+"Gambia","women_iron","prev","region_mean_jk","North Bank","Lower Baddibu",0.409090909090909,0.434101513189322,20.8924190394759,22
+"Gambia","women_iron","prev","region_mean_jk","North Bank","Lower Nuimi",0.350435538566017,0.433995894252316,25.3656989136079,28
+"Gambia","women_iron","prev","region_mean_jk","North Bank","Upper Baddibu",0.543438159069387,0.398975224687634,34.6154779971798,38
+"Gambia","women_iron","prev","region_mean_jk","North Bank","Upper Nuimi",0.25,0.467407595449747,15.4162363121154,16
+"Gambia","women_iron","prev","region_mean_jk","Upper River","Fulladu East",0.474229966064334,0.7399425212317,116.311025732485,150
+"Gambia","women_iron","prev","region_mean_jk","Upper River","Kantora",0.8125,0.615425440392512,15.4162363121154,16
+"Gambia","women_iron","prev","region_mean_jk","Upper River","Sandu",0.666666666666667,0.698937291559365,14.487961316475,15
+"Gambia","women_iron","prev","region_mean_jk","Upper River","Wuli",0.727272727272727,0.645579961062322,10.7291476057078,11
+"Gambia","women_iron","prev","region_mean_jk","Western","Foni Bintang Karanai",0.35,0.360441787677622,19.0846136493807,20
+"Gambia","women_iron","prev","region_mean_jk","Western","Foni Brefet",0.3125,0.368057877629017,15.4162363121154,16
+"Gambia","women_iron","prev","region_mean_jk","Western","Kombo Central",0.367154654744198,0.354044780948835,39.04012158869,41
+"Gambia","women_iron","prev","region_mean_jk","Western","Kombo East",0.428571428571429,0.350266608452439,26.2132950565122,28
+"Gambia","women_iron","prev","region_mean_jk","Western","Kombo Saint Mary",0.363182132424259,0.360949791138558,70.7105708673432,94
+"Gambia","women_iron","prev","region_mean_jk","Western","Kombo South",0.357142857142857,0.360601105737693,26.2132950565122,28
+"Malawi","women_b12","level","null_train_mean","Balaka","TA Kalembo",-6.39670983007977,-5.9802908789711,2.51429324819759,4
+"Malawi","women_b12","level","null_train_mean","Balaka","TA Nsamala",-5.85528075734616,-5.98188949791339,2.79662011172852,5
+"Malawi","women_b12","level","null_train_mean","Blantyre","Blantyre City",-6.14972203401289,-5.96692731722039,5.83035586417704,11
+"Malawi","women_b12","level","null_train_mean","Blantyre","TA Kuntaja",-5.46966875973396,-5.98136441546402,1.67088829410991,2
+"Malawi","women_b12","level","null_train_mean","Chikwawa","TA Kasisi",-5.89970432527189,-5.97103765555994,3.20834735316472,7
+"Malawi","women_b12","level","null_train_mean","Chikwawa","TA Lundu",-6.02556347466167,-5.95064841693463,3.60657597902847,10
+"Malawi","women_b12","level","null_train_mean","Chiradzulu","TA Kadewere",-5.6859938779187,-5.97721229568236,3.49413489166909,9
+"Malawi","women_b12","level","null_train_mean","Chiradzulu","TA Mpama",-6.06664919281357,-5.95990918226481,3.36307305044492,8
+"Malawi","women_b12","level","null_train_mean","Chiradzulu","TA Nchema",-6.20220364415696,-5.9755727706162,3.7041014524615,11
+"Malawi","women_b12","level","null_train_mean","Chitipa","Chitipa Boma",-5.99567747807671,-5.95705698613492,2.1521788197849,3
+"Malawi","women_b12","level","null_train_mean","Chitipa","Nyika N.P. - Chitipa",-5.56314550206265,-5.97496213764389,2.51429324819759,4
+"Malawi","women_b12","level","null_train_mean","Chitipa","TA Mwabulambya",-5.56046265154216,-5.97093465678905,3.99195911775449,15
+"Malawi","women_b12","level","null_train_mean","Chitipa","TA Mwenemisuku",-5.91092414542184,-5.97474402740657,6.02806841148518,12
+"Malawi","women_b12","level","null_train_mean","Chitipa","TA Mwenewenya",-5.81475822313033,-5.97225996028393,3.20834735316472,7
+"Malawi","women_b12","level","null_train_mean","Dedza","TA Kaphuka",-5.55327764139644,-5.98575107737679,3.02291286368247,6
+"Malawi","women_b12","level","null_train_mean","Dedza","TA Pemba",-5.6735262137417,-5.98752707737919,3.49413489166909,9
+"Malawi","women_b12","level","null_train_mean","Dedza","TA Tambala",-5.63152090028637,-5.98457245528672,3.7041014524615,11
+"Malawi","women_b12","level","null_train_mean","Dowa","SC Kayembe",-5.64345424108241,-5.98485258124134,3.02291286368247,6
+"Malawi","women_b12","level","null_train_mean","Dowa","SC Mkukula",-5.46179535987765,-5.98128850333327,3.7041014524615,11
+"Malawi","women_b12","level","null_train_mean","Dowa","SC Mponela",-5.7983966199117,-5.9783936374824,3.49413489166909,9
+"Malawi","women_b12","level","null_train_mean","Dowa","TA Dzoole",-5.63695501950867,-5.98001393198723,3.36307305044492,8
+"Malawi","women_b12","level","null_train_mean","Karonga","Karonga Town",-6.12041481249101,-5.9749081702014,3.7894946012561,12
+"Malawi","women_b12","level","null_train_mean","Karonga","TA Kilupula",-6.44622928037921,-5.96291174681635,5.01421795117588,8
+"Malawi","women_b12","level","null_train_mean","Karonga","TA Kyungu",-6.40628867318525,-5.95787860491597,9.11679519220615,21
+"Malawi","women_b12","level","null_train_mean","Karonga","TA Wasambo",-6.93630450727557,-5.97450287001424,3.02291286368247,6
+"Malawi","women_b12","level","null_train_mean","Kasungu","SC Kawamba",-5.71251847269219,-5.96699793748107,3.20834735316472,7
+"Malawi","women_b12","level","null_train_mean","Kasungu","TA Kaluluma",-5.56601502199916,-5.98668362726872,3.60657597902847,10
+"Malawi","women_b12","level","null_train_mean","Kasungu","TA Mwase",-5.82686151407005,-5.98040967700463,3.02291286368247,6
+"Malawi","women_b12","level","null_train_mean","Kasungu","TA Santhe",-5.6739389824984,-5.97955376847916,3.20834735316472,7
+"Malawi","women_b12","level","null_train_mean","Lilongwe","Lilongwe City",-5.65417914961448,-5.97949418436249,1.67088829410991,2
+"Malawi","women_b12","level","null_train_mean","Lilongwe","TA Chiseka",-5.54803395440993,-5.9655590179235,3.36307305044492,8
+"Malawi","women_b12","level","null_train_mean","Lilongwe","TA Kabudula",-5.65457175309114,-5.98993612556755,3.49413489166909,9
+"Malawi","women_b12","level","null_train_mean","Lilongwe","TA Khongoni",-5.64804747142519,-5.97707392924601,3.02291286368247,6
+"Malawi","women_b12","level","null_train_mean","Machinga","TA Kawinga",-6.15366139771447,-5.96711583437885,3.36307305044492,8
+"Malawi","women_b12","level","null_train_mean","Mangochi","SC Chowe",-5.59755437841184,-5.97701720291594,3.36307305044492,8
+"Malawi","women_b12","level","null_train_mean","Mangochi","TA Mponda",-6.94365883531802,-5.95899380970351,2.79662011172852,5
+"Malawi","women_b12","level","null_train_mean","Mangochi","TA Nankumba",-6.37879538934654,-5.95575031950477,3.7041014524615,11
+"Malawi","women_b12","level","null_train_mean","Mchinji","SC Dambe",-5.74035411138509,-5.9718920522433,3.7894946012561,12
+"Malawi","women_b12","level","null_train_mean","Mchinji","SC Mduwa",-5.51990748670628,-5.96972021300389,3.02291286368247,6
+"Malawi","women_b12","level","null_train_mean","Mchinji","TA Mlonyeni",-5.6347111368744,-5.96753552388165,3.49413489166909,9
+"Malawi","women_b12","level","null_train_mean","Mchinji","TA Zulu",-5.49541105861864,-5.97146137197586,3.36307305044492,8
+"Malawi","women_b12","level","null_train_mean","Mulanje","SC Juma",-6.33722166797787,-5.96192682984975,2.79662011172852,5
+"Malawi","women_b12","level","null_train_mean","Mulanje","TA Mabuka",-6.12805237810009,-5.98694710314741,7.00097928346111,22
+"Malawi","women_b12","level","null_train_mean","Mwanza","Majete Game Reserve - Mwanza",-5.27471422998985,-5.98858423095459,3.7041014524615,11
+"Malawi","women_b12","level","null_train_mean","Mwanza","TA Nthache",-5.80409756467929,-5.97490467126206,3.60657597902847,10
+"Malawi","women_b12","level","null_train_mean","Mzimba","Mzimba Boma",-6.09092974893196,-5.96103529751087,3.36307305044492,8
+"Malawi","women_b12","level","null_train_mean","Mzimba","Mzuzu City",-6.04490265925643,-5.9660946381673,6.05916587670002,13
+"Malawi","women_b12","level","null_train_mean","Mzimba","TA Chindi",-5.77105282789907,-5.97916179660087,6.49835656619281,17
+"Malawi","women_b12","level","null_train_mean","Mzimba","TA M'Mbelwa",-5.28267200503877,-5.97904959401362,3.36307305044492,8
+"Malawi","women_b12","level","null_train_mean","Mzimba","TA Mabulabo",-5.15152176807453,-5.98810355160986,3.02291286368247,6
+"Malawi","women_b12","level","null_train_mean","Mzimba","TA Mtwalo",-5.59762720581284,-5.96988500163041,3.7041014524615,11
+"Malawi","women_b12","level","null_train_mean","Neno","TA Ngozi",-5.66599453351904,-5.97437438489543,4.26808620189128,15
+"Malawi","women_b12","level","null_train_mean","Neno","TA Symon",-5.77353521493662,-5.9756980052742,3.49413489166909,9
+"Malawi","women_b12","level","null_train_mean","Nkhata Bay","SC Malanda",-6.65994430037497,-5.974063628404,2.79662011172852,5
+"Malawi","women_b12","level","null_train_mean","Nkhata Bay","TA Fukamapiri",-6.41308619440074,-5.95807312894888,2.79662011172852,5
+"Malawi","women_b12","level","null_train_mean","Nkhata Bay","TA Kabunduli",-6.71706602819427,-5.9562792394351,2.79662011172852,5
+"Malawi","women_b12","level","null_train_mean","Nkhata Bay","TA Musisya",-6.96895505303013,-5.96829768745849,2.51429324819759,4
+"Malawi","women_b12","level","null_train_mean","Nkhata Bay","TA Timbiri",-6.76463120523913,-5.95913804341344,8.8951331884112,25
+"Malawi","women_b12","level","null_train_mean","Nkhotakota","Nkhotakota Boma",-6.91258049475827,-5.95915348511568,3.02291286368247,6
+"Malawi","women_b12","level","null_train_mean","Nkhotakota","TA Kanyenda",-6.81937094321181,-5.95908020165657,3.49413489166909,9
+"Malawi","women_b12","level","null_train_mean","Nkhotakota","TA Malenga Chanzi",-6.29836003104922,-5.96717741178767,3.02291286368247,6
+"Malawi","women_b12","level","null_train_mean","Nkhotakota","TA Mwadzama",-6.68099309003274,-5.97100559040018,3.49413489166909,9
+"Malawi","women_b12","level","null_train_mean","Nsanje","Nsanje Boma",-6.12203805134775,-5.98582541914823,3.02291286368247,6
+"Malawi","women_b12","level","null_train_mean","Nsanje","SC Mbenje",-6.27507460834355,-5.96035211087981,3.49413489166909,9
+"Malawi","women_b12","level","null_train_mean","Nsanje","TA Ndamera",-6.57480296033596,-5.96984650596298,2.1521788197849,3
+"Malawi","women_b12","level","null_train_mean","Ntcheu","SC Goodson Ganya",-5.87151882851317,-5.96931400997031,3.7041014524615,11
+"Malawi","women_b12","level","null_train_mean","Ntcheu","SC Makwangwala",-5.62589962769079,-5.97369553824468,3.7041014524615,11
+"Malawi","women_b12","level","null_train_mean","Ntcheu","TA Njolomole",-5.44673256351279,-5.98791903058743,3.49413489166909,9
+"Malawi","women_b12","level","null_train_mean","Ntcheu","TA Phambala",-5.68129445232943,-5.97024697019415,3.60657597902847,10
+"Malawi","women_b12","level","null_train_mean","Ntchisi","SC Chilooko",-5.46931925302883,-5.96955511298856,3.20834735316472,7
+"Malawi","women_b12","level","null_train_mean","Ntchisi","SC Nthondo",-5.66173205061664,-5.98271408792049,3.36307305044492,8
+"Malawi","women_b12","level","null_train_mean","Ntchisi","TA Kalumo",-5.39970135816653,-5.97665871200014,3.02291286368247,6
+"Malawi","women_b12","level","null_train_mean","Phalombe","TA Mkhumba",-6.04151058254994,-5.96808406686315,6.21788233996551,25
+"Malawi","women_b12","level","null_train_mean","Rumphi","Rumphi Boma",-5.86168068747584,-5.95701930722138,6.79132450073378,17
+"Malawi","women_b12","level","null_train_mean","Rumphi","SC Chapinduka",-7.51573147411254,-5.9622427686231,3.36307305044492,8
+"Malawi","women_b12","level","null_train_mean","Rumphi","SC Kachulu",-6.53164060648825,-5.97141423357367,3.02291286368247,6
+"Malawi","women_b12","level","null_train_mean","Rumphi","SC Mwankhunikira",-6.17055655646882,-5.98298711961117,3.02291286368247,6
+"Malawi","women_b12","level","null_train_mean","Rumphi","TA Chikulamayembe",-5.83512578087943,-5.97749819611577,6.5633734668993,15
+"Malawi","women_b12","level","null_train_mean","Salima","SC Kambwiri",-5.75120802957388,-5.97397119146523,3.02291286368247,6
+"Malawi","women_b12","level","null_train_mean","Salima","TA Karonga",-6.32420729376762,-5.96681235939058,3.20834735316472,7
+"Malawi","women_b12","level","null_train_mean","Salima","TA Khombedza",-5.33817044490058,-5.99003815127648,2.1521788197849,3
+"Malawi","women_b12","level","null_train_mean","Salima","TA Maganga",-6.53103753070318,-5.95240607600354,3.60657597902847,10
+"Malawi","women_b12","level","null_train_mean","Thyolo","SC Mbawela",-5.85381675332203,-5.98921729506153,3.86488677462878,13
+"Malawi","women_b12","level","null_train_mean","Thyolo","TA Bvumbwe",-6.01096607176087,-5.96828389505269,4.04600139799185,16
+"Malawi","women_b12","level","null_train_mean","Thyolo","TA Nchilamwela",-6.05302669771905,-5.98006973968451,1.67088829410991,2
+"Malawi","women_b12","level","null_train_mean","Zomba","SC Mbiza",-5.91945146004473,-5.96655011791724,3.20834735316472,7
+"Malawi","women_b12","level","null_train_mean","Zomba","TA Malemia",-5.96582749746988,-5.98682473658688,5.82209392861155,11
+"Malawi","women_b12","level","raw_enet","Balaka","TA Kalembo",-6.39670983007977,-5.99590909347473,2.51429324819759,4
+"Malawi","women_b12","level","raw_enet","Balaka","TA Nsamala",-5.85528075734616,-6.03144415433047,2.79662011172852,5
+"Malawi","women_b12","level","raw_enet","Blantyre","Blantyre City",-6.14972203401289,-6.12368678333872,5.83035586417704,11
+"Malawi","women_b12","level","raw_enet","Blantyre","TA Kuntaja",-5.46966875973396,-5.99537491288006,1.67088829410991,2
+"Malawi","women_b12","level","raw_enet","Chikwawa","TA Kasisi",-5.89970432527189,-5.98384326946511,3.20834735316472,7
+"Malawi","women_b12","level","raw_enet","Chikwawa","TA Lundu",-6.02556347466167,-6.1669816753726,3.60657597902847,10
+"Malawi","women_b12","level","raw_enet","Chiradzulu","TA Kadewere",-5.6859938779187,-5.94225944405,3.49413489166909,9
+"Malawi","women_b12","level","raw_enet","Chiradzulu","TA Mpama",-6.06664919281357,-5.94720394724362,3.36307305044492,8
+"Malawi","women_b12","level","raw_enet","Chiradzulu","TA Nchema",-6.20220364415696,-5.82707536955765,3.7041014524615,11
+"Malawi","women_b12","level","raw_enet","Chitipa","Chitipa Boma",-5.99567747807671,-5.75103912063663,2.1521788197849,3
+"Malawi","women_b12","level","raw_enet","Chitipa","Nyika N.P. - Chitipa",-5.56314550206265,-5.76550422356786,2.51429324819759,4
+"Malawi","women_b12","level","raw_enet","Chitipa","TA Mwabulambya",-5.56046265154216,-5.77205909146081,3.99195911775449,15
+"Malawi","women_b12","level","raw_enet","Chitipa","TA Mwenemisuku",-5.91092414542184,-6.06005221135986,6.02806841148518,12
+"Malawi","women_b12","level","raw_enet","Chitipa","TA Mwenewenya",-5.81475822313033,-5.74045490473844,3.20834735316472,7
+"Malawi","women_b12","level","raw_enet","Dedza","TA Kaphuka",-5.55327764139644,-5.68208979617256,3.02291286368247,6
+"Malawi","women_b12","level","raw_enet","Dedza","TA Pemba",-5.6735262137417,-5.65886532857944,3.49413489166909,9
+"Malawi","women_b12","level","raw_enet","Dedza","TA Tambala",-5.63152090028637,-5.78268538328059,3.7041014524615,11
+"Malawi","women_b12","level","raw_enet","Dowa","SC Kayembe",-5.64345424108241,-5.58038616207808,3.02291286368247,6
+"Malawi","women_b12","level","raw_enet","Dowa","SC Mkukula",-5.46179535987765,-5.68480143172359,3.7041014524615,11
+"Malawi","women_b12","level","raw_enet","Dowa","SC Mponela",-5.7983966199117,-5.76939083864262,3.49413489166909,9
+"Malawi","women_b12","level","raw_enet","Dowa","TA Dzoole",-5.63695501950867,-5.67908466445051,3.36307305044492,8
+"Malawi","women_b12","level","raw_enet","Karonga","Karonga Town",-6.12041481249101,-6.4301379652741,3.7894946012561,12
+"Malawi","women_b12","level","raw_enet","Karonga","TA Kilupula",-6.44622928037921,-6.25782571436556,5.01421795117588,8
+"Malawi","women_b12","level","raw_enet","Karonga","TA Kyungu",-6.40628867318525,-6.17610185554063,9.11679519220615,21
+"Malawi","women_b12","level","raw_enet","Karonga","TA Wasambo",-6.93630450727557,-6.3327166060266,3.02291286368247,6
+"Malawi","women_b12","level","raw_enet","Kasungu","SC Kawamba",-5.71251847269219,-5.75840349908375,3.20834735316472,7
+"Malawi","women_b12","level","raw_enet","Kasungu","TA Kaluluma",-5.56601502199916,-5.64009985837516,3.60657597902847,10
+"Malawi","women_b12","level","raw_enet","Kasungu","TA Mwase",-5.82686151407005,-5.75170755779299,3.02291286368247,6
+"Malawi","women_b12","level","raw_enet","Kasungu","TA Santhe",-5.6739389824984,-5.70197108107796,3.20834735316472,7
+"Malawi","women_b12","level","raw_enet","Lilongwe","Lilongwe City",-5.65417914961448,-6.13130272810685,1.67088829410991,2
+"Malawi","women_b12","level","raw_enet","Lilongwe","TA Chiseka",-5.54803395440993,-5.68695277796297,3.36307305044492,8
+"Malawi","women_b12","level","raw_enet","Lilongwe","TA Kabudula",-5.65457175309114,-5.55891824168785,3.49413489166909,9
+"Malawi","women_b12","level","raw_enet","Lilongwe","TA Khongoni",-5.64804747142519,-5.63506666724688,3.02291286368247,6
+"Malawi","women_b12","level","raw_enet","Machinga","TA Kawinga",-6.15366139771447,-6.2256920874814,3.36307305044492,8
+"Malawi","women_b12","level","raw_enet","Mangochi","SC Chowe",-5.59755437841184,-6.44674930588702,3.36307305044492,8
+"Malawi","women_b12","level","raw_enet","Mangochi","TA Mponda",-6.94365883531802,-6.02418156931212,2.79662011172852,5
+"Malawi","women_b12","level","raw_enet","Mangochi","TA Nankumba",-6.37879538934654,-6.05532272747735,3.7041014524615,11
+"Malawi","women_b12","level","raw_enet","Mchinji","SC Dambe",-5.74035411138509,-5.6333117362891,3.7894946012561,12
+"Malawi","women_b12","level","raw_enet","Mchinji","SC Mduwa",-5.51990748670628,-5.58718656510231,3.02291286368247,6
+"Malawi","women_b12","level","raw_enet","Mchinji","TA Mlonyeni",-5.6347111368744,-5.68047114905838,3.49413489166909,9
+"Malawi","women_b12","level","raw_enet","Mchinji","TA Zulu",-5.49541105861864,-5.65941973261974,3.36307305044492,8
+"Malawi","women_b12","level","raw_enet","Mulanje","SC Juma",-6.33722166797787,-5.94857737459196,2.79662011172852,5
+"Malawi","women_b12","level","raw_enet","Mulanje","TA Mabuka",-6.12805237810009,-6.11591945302474,7.00097928346111,22
+"Malawi","women_b12","level","raw_enet","Mwanza","Majete Game Reserve - Mwanza",-5.27471422998985,-5.95124860100549,3.7041014524615,11
+"Malawi","women_b12","level","raw_enet","Mwanza","TA Nthache",-5.80409756467929,-5.84677367158843,3.60657597902847,10
+"Malawi","women_b12","level","raw_enet","Mzimba","Mzimba Boma",-6.09092974893196,-5.82165139339337,3.36307305044492,8
+"Malawi","women_b12","level","raw_enet","Mzimba","Mzuzu City",-6.04490265925643,-6.33893809350462,6.05916587670002,13
+"Malawi","women_b12","level","raw_enet","Mzimba","TA Chindi",-5.77105282789907,-5.60787361664209,6.49835656619281,17
+"Malawi","women_b12","level","raw_enet","Mzimba","TA M'Mbelwa",-5.28267200503877,-5.71763555982576,3.36307305044492,8
+"Malawi","women_b12","level","raw_enet","Mzimba","TA Mabulabo",-5.15152176807453,-5.72655804012676,3.02291286368247,6
+"Malawi","women_b12","level","raw_enet","Mzimba","TA Mtwalo",-5.59762720581284,-5.82254825037796,3.7041014524615,11
+"Malawi","women_b12","level","raw_enet","Neno","TA Ngozi",-5.66599453351904,-5.70449392739287,4.26808620189128,15
+"Malawi","women_b12","level","raw_enet","Neno","TA Symon",-5.77353521493662,-5.71392256139888,3.49413489166909,9
+"Malawi","women_b12","level","raw_enet","Nkhata Bay","SC Malanda",-6.65994430037497,-6.69146575410293,2.79662011172852,5
+"Malawi","women_b12","level","raw_enet","Nkhata Bay","TA Fukamapiri",-6.41308619440074,-6.58830146815296,2.79662011172852,5
+"Malawi","women_b12","level","raw_enet","Nkhata Bay","TA Kabunduli",-6.71706602819427,-6.49489649019094,2.79662011172852,5
+"Malawi","women_b12","level","raw_enet","Nkhata Bay","TA Musisya",-6.96895505303013,-6.58711701286809,2.51429324819759,4
+"Malawi","women_b12","level","raw_enet","Nkhata Bay","TA Timbiri",-6.76463120523913,-6.61875188363854,8.8951331884112,25
+"Malawi","women_b12","level","raw_enet","Nkhotakota","Nkhotakota Boma",-6.91258049475827,-6.35301737125336,3.02291286368247,6
+"Malawi","women_b12","level","raw_enet","Nkhotakota","TA Kanyenda",-6.81937094321181,-6.47654799629551,3.49413489166909,9
+"Malawi","women_b12","level","raw_enet","Nkhotakota","TA Malenga Chanzi",-6.29836003104922,-6.39976429847605,3.02291286368247,6
+"Malawi","women_b12","level","raw_enet","Nkhotakota","TA Mwadzama",-6.68099309003274,-6.1741064870517,3.49413489166909,9
+"Malawi","women_b12","level","raw_enet","Nsanje","Nsanje Boma",-6.12203805134775,-6.27597831969443,3.02291286368247,6
+"Malawi","women_b12","level","raw_enet","Nsanje","SC Mbenje",-6.27507460834355,-6.23902727758189,3.49413489166909,9
+"Malawi","women_b12","level","raw_enet","Nsanje","TA Ndamera",-6.57480296033596,-6.07941484695733,2.1521788197849,3
+"Malawi","women_b12","level","raw_enet","Ntcheu","SC Goodson Ganya",-5.87151882851317,-5.77167029180146,3.7041014524615,11
+"Malawi","women_b12","level","raw_enet","Ntcheu","SC Makwangwala",-5.62589962769079,-5.79084905575256,3.7041014524615,11
+"Malawi","women_b12","level","raw_enet","Ntcheu","TA Njolomole",-5.44673256351279,-5.72280648549265,3.49413489166909,9
+"Malawi","women_b12","level","raw_enet","Ntcheu","TA Phambala",-5.68129445232943,-5.78835631647719,3.60657597902847,10
+"Malawi","women_b12","level","raw_enet","Ntchisi","SC Chilooko",-5.46931925302883,-5.5773584611024,3.20834735316472,7
+"Malawi","women_b12","level","raw_enet","Ntchisi","SC Nthondo",-5.66173205061664,-5.63009770186404,3.36307305044492,8
+"Malawi","women_b12","level","raw_enet","Ntchisi","TA Kalumo",-5.39970135816653,-5.62541571688006,3.02291286368247,6
+"Malawi","women_b12","level","raw_enet","Phalombe","TA Mkhumba",-6.04151058254994,-5.92516960906348,6.21788233996551,25
+"Malawi","women_b12","level","raw_enet","Rumphi","Rumphi Boma",-5.86168068747584,-6.10134633967317,6.79132450073378,17
+"Malawi","women_b12","level","raw_enet","Rumphi","SC Chapinduka",-7.51573147411254,-6.45875645191591,3.36307305044492,8
+"Malawi","women_b12","level","raw_enet","Rumphi","SC Kachulu",-6.53164060648825,-6.17046826346662,3.02291286368247,6
+"Malawi","women_b12","level","raw_enet","Rumphi","SC Mwankhunikira",-6.17055655646882,-6.29960551533298,3.02291286368247,6
+"Malawi","women_b12","level","raw_enet","Rumphi","TA Chikulamayembe",-5.83512578087943,-5.87628474384678,6.5633734668993,15
+"Malawi","women_b12","level","raw_enet","Salima","SC Kambwiri",-5.75120802957388,-5.9435387639239,3.02291286368247,6
+"Malawi","women_b12","level","raw_enet","Salima","TA Karonga",-6.32420729376762,-5.94418046749535,3.20834735316472,7
+"Malawi","women_b12","level","raw_enet","Salima","TA Khombedza",-5.33817044490058,-6.15872476532228,2.1521788197849,3
+"Malawi","women_b12","level","raw_enet","Salima","TA Maganga",-6.53103753070318,-6.08138456930804,3.60657597902847,10
+"Malawi","women_b12","level","raw_enet","Thyolo","SC Mbawela",-5.85381675332203,-5.98737619035839,3.86488677462878,13
+"Malawi","women_b12","level","raw_enet","Thyolo","TA Bvumbwe",-6.01096607176087,-5.97050477572949,4.04600139799185,16
+"Malawi","women_b12","level","raw_enet","Thyolo","TA Nchilamwela",-6.05302669771905,-6.14980317298605,1.67088829410991,2
+"Malawi","women_b12","level","raw_enet","Zomba","SC Mbiza",-5.91945146004473,-5.87195165554726,3.20834735316472,7
+"Malawi","women_b12","level","raw_enet","Zomba","TA Malemia",-5.96582749746988,-6.18606412928358,5.82209392861155,11
+"Malawi","women_b12","level","region_mean_jk","Balaka","TA Kalembo",-6.39670983007977,-5.92920197499902,2.51429324819759,4
+"Malawi","women_b12","level","region_mean_jk","Balaka","TA Nsamala",-5.85528075734616,-6.14577360409246,2.79662011172852,5
+"Malawi","women_b12","level","region_mean_jk","Blantyre","Blantyre City",-6.14972203401289,-5.62307848198371,5.83035586417704,11
+"Malawi","women_b12","level","region_mean_jk","Blantyre","TA Kuntaja",-5.46966875973396,-6.09911577397897,1.67088829410991,2
+"Malawi","women_b12","level","region_mean_jk","Chikwawa","TA Kasisi",-5.89970432527189,-6.01693496432523,3.20834735316472,7
+"Malawi","women_b12","level","region_mean_jk","Chikwawa","TA Lundu",-6.02556347466167,-5.90366172987442,3.60657597902847,10
+"Malawi","women_b12","level","region_mean_jk","Chiradzulu","TA Kadewere",-5.6859938779187,-6.13442641848527,3.49413489166909,9
+"Malawi","women_b12","level","region_mean_jk","Chiradzulu","TA Mpama",-6.06664919281357,-5.94409876103783,3.36307305044492,8
+"Malawi","women_b12","level","region_mean_jk","Chiradzulu","TA Nchema",-6.20220364415696,-5.87632153536614,3.7041014524615,11
+"Malawi","women_b12","level","region_mean_jk","Chitipa","Chitipa Boma",-5.99567747807671,-5.71388068173543,2.1521788197849,3
+"Malawi","women_b12","level","region_mean_jk","Chitipa","Nyika N.P. - Chitipa",-5.56314550206265,-5.8158372418086,2.51429324819759,4
+"Malawi","women_b12","level","region_mean_jk","Chitipa","TA Mwabulambya",-5.56046265154216,-5.82972569834322,3.99195911775449,15
+"Malawi","women_b12","level","region_mean_jk","Chitipa","TA Mwenemisuku",-5.91092414542184,-5.73822923857313,6.02806841148518,12
+"Malawi","women_b12","level","region_mean_jk","Chitipa","TA Mwenewenya",-5.81475822313033,-5.734961693719,3.20834735316472,7
+"Malawi","women_b12","level","region_mean_jk","Dedza","TA Kaphuka",-5.55327764139644,-5.69217024351302,3.02291286368247,6
+"Malawi","women_b12","level","region_mean_jk","Dedza","TA Pemba",-5.6735262137417,-5.63385785461212,3.49413489166909,9
+"Malawi","women_b12","level","region_mean_jk","Dedza","TA Tambala",-5.63152090028637,-5.66478510290155,3.7041014524615,11
+"Malawi","women_b12","level","region_mean_jk","Dowa","SC Kayembe",-5.64345424108241,-5.63215369877887,3.02291286368247,6
+"Malawi","women_b12","level","region_mean_jk","Dowa","SC Mkukula",-5.46179535987765,-5.67151806714009,3.7041014524615,11
+"Malawi","women_b12","level","region_mean_jk","Dowa","SC Mponela",-5.7983966199117,-5.60138680783232,3.49413489166909,9
+"Malawi","women_b12","level","region_mean_jk","Dowa","TA Dzoole",-5.63695501950867,-5.62502052119076,3.36307305044492,8
+"Malawi","women_b12","level","region_mean_jk","Karonga","Karonga Town",-6.12041481249101,-6.58877190995164,3.7894946012561,12
+"Malawi","women_b12","level","region_mean_jk","Karonga","TA Kilupula",-6.44622928037921,-6.54067091439298,5.01421795117588,8
+"Malawi","women_b12","level","region_mean_jk","Karonga","TA Kyungu",-6.40628867318525,-6.5472527100881,9.11679519220615,21
+"Malawi","women_b12","level","region_mean_jk","Karonga","TA Wasambo",-6.93630450727557,-6.35079645088927,3.02291286368247,6
+"Malawi","women_b12","level","region_mean_jk","Kasungu","SC Kawamba",-5.71251847269219,-5.66135390461303,3.20834735316472,7
+"Malawi","women_b12","level","region_mean_jk","Kasungu","TA Kaluluma",-5.56601502199916,-5.73079311183159,3.60657597902847,10
+"Malawi","women_b12","level","region_mean_jk","Kasungu","TA Mwase",-5.82686151407005,-5.6477394433818,3.02291286368247,6
+"Malawi","women_b12","level","region_mean_jk","Kasungu","TA Santhe",-5.6739389824984,-5.69661719100683,3.20834735316472,7
+"Malawi","women_b12","level","region_mean_jk","Lilongwe","Lilongwe City",-5.65417914961448,-5.62123264065959,1.67088829410991,2
+"Malawi","women_b12","level","region_mean_jk","Lilongwe","TA Chiseka",-5.54803395440993,-5.65207482221985,3.36307305044492,8
+"Malawi","women_b12","level","region_mean_jk","Lilongwe","TA Kabudula",-5.65457175309114,-5.61426907610771,3.49413489166909,9
+"Malawi","women_b12","level","region_mean_jk","Lilongwe","TA Khongoni",-5.64804747142519,-5.62601771883471,3.02291286368247,6
+"Malawi","women_b12","level","region_mean_jk","Machinga","TA Kawinga",-6.15366139771447,-5.96711583437885,3.36307305044492,8
+"Malawi","women_b12","level","region_mean_jk","Mangochi","SC Chowe",-5.59755437841184,-6.5649567043487,3.36307305044492,8
+"Malawi","women_b12","level","region_mean_jk","Mangochi","TA Mponda",-6.94365883531802,-5.94839082049276,2.79662011172852,5
+"Malawi","women_b12","level","region_mean_jk","Mangochi","TA Nankumba",-6.37879538934654,-6.10703097603604,3.7041014524615,11
+"Malawi","women_b12","level","region_mean_jk","Mchinji","SC Dambe",-5.74035411138509,-5.55998513871524,3.7894946012561,12
+"Malawi","women_b12","level","region_mean_jk","Mchinji","SC Mduwa",-5.51990748670628,-5.65495141148214,3.02291286368247,6
+"Malawi","women_b12","level","region_mean_jk","Mchinji","TA Mlonyeni",-5.6347111368744,-5.62074085541392,3.49413489166909,9
+"Malawi","women_b12","level","region_mean_jk","Mchinji","TA Zulu",-5.49541105861864,-5.66472457202375,3.36307305044492,8
+"Malawi","women_b12","level","region_mean_jk","Mulanje","SC Juma",-6.33722166797787,-6.11147953527396,2.79662011172852,5
+"Malawi","women_b12","level","region_mean_jk","Mulanje","TA Mabuka",-6.12805237810009,-6.29973189616396,7.00097928346111,22
+"Malawi","women_b12","level","region_mean_jk","Mwanza","Majete Game Reserve - Mwanza",-5.27471422998985,-5.88072218122103,3.7041014524615,11
+"Malawi","women_b12","level","region_mean_jk","Mwanza","TA Nthache",-5.80409756467929,-5.56309218040736,3.60657597902847,10
+"Malawi","women_b12","level","region_mean_jk","Mzimba","Mzimba Boma",-6.09092974893196,-5.56936902917528,3.36307305044492,8
+"Malawi","women_b12","level","region_mean_jk","Mzimba","Mzuzu City",-6.04490265925643,-5.5705426776154,6.05916587670002,13
+"Malawi","women_b12","level","region_mean_jk","Mzimba","TA Chindi",-5.77105282789907,-5.64376887182363,6.49835656619281,17
+"Malawi","women_b12","level","region_mean_jk","Mzimba","TA M'Mbelwa",-5.28267200503877,-5.72639987876756,3.36307305044492,8
+"Malawi","women_b12","level","region_mean_jk","Mzimba","TA Mabulabo",-5.15152176807453,-5.76010682296114,3.02291286368247,6
+"Malawi","women_b12","level","region_mean_jk","Mzimba","TA Mtwalo",-5.59762720581284,-5.65964747327166,3.7041014524615,11
+"Malawi","women_b12","level","region_mean_jk","Neno","TA Ngozi",-5.66599453351904,-5.82849812083152,4.26808620189128,15
+"Malawi","women_b12","level","region_mean_jk","Neno","TA Symon",-5.77353521493662,-5.75321964383922,3.49413489166909,9
+"Malawi","women_b12","level","region_mean_jk","Nkhata Bay","SC Malanda",-6.65994430037497,-6.740481624146,2.79662011172852,5
+"Malawi","women_b12","level","region_mean_jk","Nkhata Bay","TA Fukamapiri",-6.41308619440074,-6.80331587673193,2.79662011172852,5
+"Malawi","women_b12","level","region_mean_jk","Nkhata Bay","TA Kabunduli",-6.71706602819427,-6.72838427473813,2.79662011172852,5
+"Malawi","women_b12","level","region_mean_jk","Nkhata Bay","TA Musisya",-6.96895505303013,-6.63551965908303,2.51429324819759,4
+"Malawi","women_b12","level","region_mean_jk","Nkhata Bay","TA Timbiri",-6.76463120523913,-6.72885064847417,8.8951331884112,25
+"Malawi","women_b12","level","region_mean_jk","Nkhotakota","Nkhotakota Boma",-6.91258049475827,-6.6187063410471,3.02291286368247,6
+"Malawi","women_b12","level","region_mean_jk","Nkhotakota","TA Kanyenda",-6.81937094321181,-6.61654774080617,3.49413489166909,9
+"Malawi","women_b12","level","region_mean_jk","Nkhotakota","TA Malenga Chanzi",-6.29836003104922,-6.79965436509028,3.02291286368247,6
+"Malawi","women_b12","level","region_mean_jk","Nkhotakota","TA Mwadzama",-6.68099309003274,-6.69569101260429,3.49413489166909,9
+"Malawi","women_b12","level","region_mean_jk","Nsanje","Nsanje Boma",-6.12203805134775,-6.42493878433975,3.02291286368247,6
+"Malawi","women_b12","level","region_mean_jk","Nsanje","SC Mbenje",-6.27507460834355,-6.37105875129127,3.49413489166909,9
+"Malawi","women_b12","level","region_mean_jk","Nsanje","TA Ndamera",-6.57480296033596,-6.20620815769544,2.1521788197849,3
+"Malawi","women_b12","level","region_mean_jk","Ntcheu","SC Goodson Ganya",-5.87151882851317,-5.5756838613021,3.7041014524615,11
+"Malawi","women_b12","level","region_mean_jk","Ntcheu","SC Makwangwala",-5.62589962769079,-5.6665152814518,3.7041014524615,11
+"Malawi","women_b12","level","region_mean_jk","Ntcheu","TA Njolomole",-5.44673256351279,-5.74076575541133,3.49413489166909,9
+"Malawi","women_b12","level","region_mean_jk","Ntcheu","TA Phambala",-5.68129445232943,-5.65922376433596,3.60657597902847,10
+"Malawi","women_b12","level","region_mean_jk","Ntchisi","SC Chilooko",-5.46931925302883,-5.54381823901409,3.20834735316472,7
+"Malawi","women_b12","level","region_mean_jk","Ntchisi","SC Nthondo",-5.66173205061664,-5.43451030559768,3.36307305044492,8
+"Malawi","women_b12","level","region_mean_jk","Ntchisi","TA Kalumo",-5.39970135816653,-5.57514629170213,3.02291286368247,6
+"Malawi","women_b12","level","region_mean_jk","Phalombe","TA Mkhumba",-6.04151058254994,-5.96808406686315,6.21788233996551,25
+"Malawi","women_b12","level","region_mean_jk","Rumphi","Rumphi Boma",-5.86168068747584,-6.50748807940124,6.79132450073378,17
+"Malawi","women_b12","level","region_mean_jk","Rumphi","SC Chapinduka",-7.51573147411254,-6.09607800141301,3.36307305044492,8
+"Malawi","women_b12","level","region_mean_jk","Rumphi","SC Kachulu",-6.53164060648825,-6.41856535328806,3.02291286368247,6
+"Malawi","women_b12","level","region_mean_jk","Rumphi","SC Mwankhunikira",-6.17055655646882,-6.49392361399194,3.02291286368247,6
+"Malawi","women_b12","level","region_mean_jk","Rumphi","TA Chikulamayembe",-5.83512578087943,-6.54075680971684,6.5633734668993,15
+"Malawi","women_b12","level","region_mean_jk","Salima","SC Kambwiri",-5.75120802957388,-5.92185675916456,3.02291286368247,6
+"Malawi","women_b12","level","region_mean_jk","Salima","TA Karonga",-6.32420729376762,-5.87347200172588,3.20834735316472,7
+"Malawi","women_b12","level","region_mean_jk","Salima","TA Khombedza",-5.33817044490058,-6.18994531710629,2.1521788197849,3
+"Malawi","women_b12","level","region_mean_jk","Salima","TA Maganga",-6.53103753070318,-5.7658908589387,3.60657597902847,10
+"Malawi","women_b12","level","region_mean_jk","Thyolo","SC Mbawela",-5.85381675332203,-6.02568729084623,3.86488677462878,13
+"Malawi","women_b12","level","region_mean_jk","Thyolo","TA Bvumbwe",-6.01096607176087,-5.95342172552054,4.04600139799185,16
+"Malawi","women_b12","level","region_mean_jk","Thyolo","TA Nchilamwela",-6.05302669771905,-5.95596381030728,1.67088829410991,2
+"Malawi","women_b12","level","region_mean_jk","Zomba","SC Mbiza",-5.91945146004473,-5.96582749746988,3.20834735316472,7
+"Malawi","women_b12","level","region_mean_jk","Zomba","TA Malemia",-5.96582749746988,-5.91945146004473,5.82209392861155,11

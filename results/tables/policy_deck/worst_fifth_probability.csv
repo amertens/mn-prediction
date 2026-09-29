@@ -1,274 +1,274 @@
 "country","outcome","Admin1","Admin2","n_districts","k_worst","obs_prev","obs_worst_fifth","pred_mean","p_worst_fifth","draws"
-"Gambia","child_vitA","Banjul","Banjul",30,6,0.0747119309212328,FALSE,0.0120284517602887,0,40
-"Gambia","child_vitA","Banjul","Kanifing",30,6,0.129379459724291,FALSE,0.00674241630721795,0,40
-"Gambia","child_vitA","Lower River","Jarra East",30,6,0.208221526787354,FALSE,0.197662177179225,0,40
-"Gambia","child_vitA","Lower River","Jarra West",30,6,0.0755206393695848,FALSE,0.109358448668242,0,40
-"Gambia","child_vitA","Lower River","Kiang Central",30,6,0.208333333333333,FALSE,0.121951695720739,0,40
-"Gambia","child_vitA","Lower River","Kiang East",30,6,0.227272727272727,FALSE,0.121652538880153,0,40
-"Gambia","child_vitA","Maccarthy Island","Fulladu West",30,6,0.322404265149205,TRUE,0.340852000572964,0.075,40
-"Gambia","child_vitA","Maccarthy Island","Lower Saloum",30,6,0.178749949951543,FALSE,0.335783518761354,0.125,40
-"Gambia","child_vitA","Maccarthy Island","Niamina Dankunku",30,6,0.382352941176471,TRUE,0.214725400734018,0,40
-"Gambia","child_vitA","Maccarthy Island","Niamina East",30,6,0.25,FALSE,0.329125855483926,0.1,40
-"Gambia","child_vitA","Maccarthy Island","Niani",30,6,0.307965738346523,TRUE,0.505280802262046,1,40
-"Gambia","child_vitA","Maccarthy Island","Nianija",30,6,0.136160861272839,FALSE,0.462747840584132,1,40
-"Gambia","child_vitA","Maccarthy Island","Sami",30,6,0.388888888888889,TRUE,0.509563567388464,1,40
-"Gambia","child_vitA","Maccarthy Island","Upper Saloum",30,6,0.3,FALSE,0.422939816878921,0.825,40
-"Gambia","child_vitA","North Bank","Central Baddibu",30,6,0.357142857142857,TRUE,0.0735644523294781,0,40
-"Gambia","child_vitA","North Bank","Jokadu",30,6,0.142857142857143,FALSE,0.081090419457347,0,40
-"Gambia","child_vitA","North Bank","Lower Baddibu",30,6,0,FALSE,0.114752918067237,0,40
-"Gambia","child_vitA","North Bank","Lower Nuimi",30,6,0,FALSE,0.106654410826989,0,40
-"Gambia","child_vitA","North Bank","Upper Baddibu",30,6,0.0887310206459296,FALSE,0.120739672706851,0,40
-"Gambia","child_vitA","North Bank","Upper Nuimi",30,6,0.222222222222222,FALSE,0.0713720993000955,0,40
-"Gambia","child_vitA","Upper River","Fulladu East",30,6,0.246336969602765,FALSE,0.231318635904889,0.025,40
-"Gambia","child_vitA","Upper River","Kantora",30,6,0.5625,TRUE,0.276305562547463,0.025,40
-"Gambia","child_vitA","Upper River","Sandu",30,6,0.25,FALSE,0.418574419987758,0.825,40
-"Gambia","child_vitA","Upper River","Wuli",30,6,0.111111111111111,FALSE,0.522622094740216,1,40
-"Gambia","child_vitA","Western","Foni Bintang Karanai",30,6,0,FALSE,0.0510936231221262,0,40
-"Gambia","child_vitA","Western","Foni Brefet",30,6,0,FALSE,0.0401314830307188,0,40
-"Gambia","child_vitA","Western","Kombo Central",30,6,0.174231843559703,FALSE,0.0241931300810666,0,40
-"Gambia","child_vitA","Western","Kombo East",30,6,0.1,FALSE,0.02353548501781,0,40
-"Gambia","child_vitA","Western","Kombo Saint Mary",30,6,0.128387617887681,FALSE,0.0179829593344455,0,40
-"Gambia","child_vitA","Western","Kombo South",30,6,0.0526315789473684,FALSE,0.0248482378301014,0,40
-"Gambia","women_vitA","Banjul","Banjul",30,6,0,FALSE,0.00370710880278862,0,40
-"Gambia","women_vitA","Banjul","Kanifing",30,6,0.0132270263647896,FALSE,0.00179165936096588,0,40
-"Gambia","women_vitA","Lower River","Jarra East",30,6,0.141791677971889,TRUE,0.0200461785254714,0,40
-"Gambia","women_vitA","Lower River","Jarra West",30,6,0,FALSE,0.0134461952548702,0,40
-"Gambia","women_vitA","Lower River","Kiang Central",30,6,0,FALSE,0.0132828190055,0,40
-"Gambia","women_vitA","Lower River","Kiang East",30,6,0,FALSE,0.0140998034070907,0,40
-"Gambia","women_vitA","Maccarthy Island","Fulladu West",30,6,0.0218873492044434,FALSE,0.0564322931615667,0.375,40
-"Gambia","women_vitA","Maccarthy Island","Lower Saloum",30,6,0.0118656087318595,FALSE,0.0453376389913512,0.075,40
-"Gambia","women_vitA","Maccarthy Island","Niamina Dankunku",30,6,0,FALSE,0.04264289090936,0.025,40
-"Gambia","women_vitA","Maccarthy Island","Niamina East",30,6,0.130434782608696,TRUE,0.0422181897395266,0,40
-"Gambia","women_vitA","Maccarthy Island","Niani",30,6,0.101351662685147,TRUE,0.081555285385627,0.975,40
-"Gambia","women_vitA","Maccarthy Island","Nianija",30,6,0.0477098880449538,FALSE,0.0732927934944466,0.775,40
-"Gambia","women_vitA","Maccarthy Island","Sami",30,6,0.0526315789473684,FALSE,0.0902480820586964,0.975,40
-"Gambia","women_vitA","Maccarthy Island","Upper Saloum",30,6,0.0714285714285714,TRUE,0.0625323394633231,0.775,40
-"Gambia","women_vitA","North Bank","Central Baddibu",30,6,0.0606060606060606,FALSE,0.0101973121728061,0,40
-"Gambia","women_vitA","North Bank","Jokadu",30,6,0,FALSE,0.0105856966610989,0,40
-"Gambia","women_vitA","North Bank","Lower Baddibu",30,6,0,FALSE,0.0124548080427454,0,40
-"Gambia","women_vitA","North Bank","Lower Nuimi",30,6,0,FALSE,0.0082826054989409,0,40
-"Gambia","women_vitA","North Bank","Upper Baddibu",30,6,0.030561624570692,FALSE,0.0138283049078945,0,40
-"Gambia","women_vitA","North Bank","Upper Nuimi",30,6,0,FALSE,0.00982254262641061,0,40
-"Gambia","women_vitA","Upper River","Fulladu East",30,6,0.0251968204454412,FALSE,0.04350026788074,0.15,40
-"Gambia","women_vitA","Upper River","Kantora",30,6,0.176470588235294,TRUE,0.0464416813424475,0.125,40
-"Gambia","women_vitA","Upper River","Sandu",30,6,0,FALSE,0.0999228680615284,0.975,40
-"Gambia","women_vitA","Upper River","Wuli",30,6,0.0909090909090909,TRUE,0.0734074528283661,0.775,40
-"Gambia","women_vitA","Western","Foni Bintang Karanai",30,6,0,FALSE,0.00612269533444651,0,40
-"Gambia","women_vitA","Western","Foni Brefet",30,6,0.0588235294117647,FALSE,0.00322821337148323,0,40
-"Gambia","women_vitA","Western","Kombo Central",30,6,0,FALSE,0.00381783419560532,0,40
-"Gambia","women_vitA","Western","Kombo East",30,6,0,FALSE,0.00363119805462707,0,40
-"Gambia","women_vitA","Western","Kombo Saint Mary",30,6,0.0132030698826296,FALSE,0.00347275821181767,0,40
-"Gambia","women_vitA","Western","Kombo South",30,6,0,FALSE,0.00413149439660804,0,40
-"Gambia","child_iron","Banjul","Banjul",30,6,0.473593738668456,FALSE,0.356921600298836,0,40
-"Gambia","child_iron","Banjul","Kanifing",30,6,0.473611993521602,FALSE,0.296822208876839,0,40
-"Gambia","child_iron","Lower River","Jarra East",30,6,0.803331843115757,TRUE,0.722587961499018,0,40
-"Gambia","child_iron","Lower River","Jarra West",30,6,0.359107369139993,FALSE,0.694625874079788,0,40
-"Gambia","child_iron","Lower River","Kiang Central",30,6,0.666666666666667,FALSE,0.677113808837067,0,40
-"Gambia","child_iron","Lower River","Kiang East",30,6,0.772727272727273,FALSE,0.67490564237582,0,40
-"Gambia","child_iron","Maccarthy Island","Fulladu West",30,6,0.724936871605935,FALSE,0.754612514636347,0.025,40
-"Gambia","child_iron","Maccarthy Island","Lower Saloum",30,6,0.634062462463658,FALSE,0.804506904820129,0.825,40
-"Gambia","child_iron","Maccarthy Island","Niamina Dankunku",30,6,0.764705882352941,FALSE,0.764703838266902,0.1,40
-"Gambia","child_iron","Maccarthy Island","Niamina East",30,6,0.714285714285714,FALSE,0.773493811388804,0.175,40
-"Gambia","child_iron","Maccarthy Island","Niani",30,6,0.671920634424059,FALSE,0.838440232854812,0.95,40
-"Gambia","child_iron","Maccarthy Island","Nianija",30,6,0.590402153182099,FALSE,0.852823357854582,1,40
-"Gambia","child_iron","Maccarthy Island","Sami",30,6,0.944444444444444,TRUE,0.792091553857745,0.675,40
-"Gambia","child_iron","Maccarthy Island","Upper Saloum",30,6,0.888888888888889,TRUE,0.8132809918835,1,40
-"Gambia","child_iron","North Bank","Central Baddibu",30,6,0.642857142857143,FALSE,0.683957259971695,0,40
-"Gambia","child_iron","North Bank","Jokadu",30,6,0.785714285714286,TRUE,0.621504452961133,0,40
-"Gambia","child_iron","North Bank","Lower Baddibu",30,6,0.666666666666667,FALSE,0.648344527009806,0,40
-"Gambia","child_iron","North Bank","Lower Nuimi",30,6,0.574655145648432,FALSE,0.608035770164916,0,40
-"Gambia","child_iron","North Bank","Upper Baddibu",30,6,0.707440350601493,FALSE,0.670535782399942,0,40
-"Gambia","child_iron","North Bank","Upper Nuimi",30,6,0.444444444444444,FALSE,0.634061861588149,0,40
-"Gambia","child_iron","Upper River","Fulladu East",30,6,0.608320856214532,FALSE,0.698421458950369,0,40
-"Gambia","child_iron","Upper River","Kantora",30,6,0.866666666666667,TRUE,0.697821457022417,0.025,40
-"Gambia","child_iron","Upper River","Sandu",30,6,0.4375,FALSE,0.817480540493947,0.825,40
-"Gambia","child_iron","Upper River","Wuli",30,6,0.777777777777778,TRUE,0.771513350553005,0.4,40
-"Gambia","child_iron","Western","Foni Bintang Karanai",30,6,0.470588235294118,FALSE,0.517179373040503,0,40
-"Gambia","child_iron","Western","Foni Brefet",30,6,0.636363636363636,FALSE,0.431148032999334,0,40
-"Gambia","child_iron","Western","Kombo Central",30,6,0.330018248151879,FALSE,0.447065902659276,0,40
-"Gambia","child_iron","Western","Kombo East",30,6,0.6,FALSE,0.424097978169303,0,40
-"Gambia","child_iron","Western","Kombo Saint Mary",30,6,0.634709256775542,FALSE,0.34694135317005,0,40
-"Gambia","child_iron","Western","Kombo South",30,6,0.473684210526316,FALSE,0.4029322152035,0,40
-"Gambia","women_iron","Banjul","Banjul",30,6,0.34413119665356,FALSE,0.258459294004703,0,40
-"Gambia","women_iron","Banjul","Kanifing",30,6,0.300794478115473,FALSE,0.225452891194942,0,40
-"Gambia","women_iron","Lower River","Jarra East",30,6,0.651585939619729,FALSE,0.594158534451055,0,40
-"Gambia","women_iron","Lower River","Jarra West",30,6,0.437857706397502,FALSE,0.525338091138046,0,40
-"Gambia","women_iron","Lower River","Kiang Central",30,6,0.5,FALSE,0.537653241380673,0,40
-"Gambia","women_iron","Lower River","Kiang East",30,6,0.80952380952381,TRUE,0.523311164873257,0,40
-"Gambia","women_iron","Maccarthy Island","Fulladu West",30,6,0.496143900023372,FALSE,0.66801605980714,0.3,40
-"Gambia","women_iron","Maccarthy Island","Lower Saloum",30,6,0.550593280436593,FALSE,0.662012908868984,0.25,40
-"Gambia","women_iron","Maccarthy Island","Niamina Dankunku",30,6,0.75,TRUE,0.608645993448994,0,40
-"Gambia","women_iron","Maccarthy Island","Niamina East",30,6,0.652173913043478,FALSE,0.648665724790852,0.025,40
-"Gambia","women_iron","Maccarthy Island","Niani",30,6,0.60276989598107,FALSE,0.725053199806135,1,40
-"Gambia","women_iron","Maccarthy Island","Nianija",30,6,0.476674958461976,FALSE,0.714090652841115,0.975,40
-"Gambia","women_iron","Maccarthy Island","Sami",30,6,0.736842105263158,TRUE,0.727464890240257,0.975,40
-"Gambia","women_iron","Maccarthy Island","Upper Saloum",30,6,0.714285714285714,TRUE,0.698168982903704,0.9,40
-"Gambia","women_iron","North Bank","Central Baddibu",30,6,0.454545454545455,FALSE,0.489443267783841,0,40
-"Gambia","women_iron","North Bank","Jokadu",30,6,0.583333333333333,FALSE,0.446580699184077,0,40
-"Gambia","women_iron","North Bank","Lower Baddibu",30,6,0.363636363636364,FALSE,0.474598722464825,0,40
-"Gambia","women_iron","North Bank","Lower Nuimi",30,6,0.341670558544721,FALSE,0.443475412896964,0,40
-"Gambia","women_iron","North Bank","Upper Baddibu",30,6,0.534998037732374,FALSE,0.511461107142494,0,40
-"Gambia","women_iron","North Bank","Upper Nuimi",30,6,0.294117647058824,FALSE,0.460651784240517,0,40
-"Gambia","women_iron","Upper River","Fulladu East",30,6,0.471649059364638,FALSE,0.613670578888403,0,40
-"Gambia","women_iron","Upper River","Kantora",30,6,0.823529411764706,TRUE,0.626167432833779,0,40
-"Gambia","women_iron","Upper River","Sandu",30,6,0.666666666666667,FALSE,0.690042275800336,0.725,40
-"Gambia","women_iron","Upper River","Wuli",30,6,0.727272727272727,TRUE,0.704636390322153,0.85,40
-"Gambia","women_iron","Western","Foni Bintang Karanai",30,6,0.35,FALSE,0.384174391959888,0,40
-"Gambia","women_iron","Western","Foni Brefet",30,6,0.294117647058824,FALSE,0.35845300463417,0,40
-"Gambia","women_iron","Western","Kombo Central",30,6,0.367154654744198,FALSE,0.326482720445372,0,40
-"Gambia","women_iron","Western","Kombo East",30,6,0.428571428571429,FALSE,0.328170236048049,0,40
-"Gambia","women_iron","Western","Kombo Saint Mary",30,6,0.367386107828314,FALSE,0.26997131475654,0,40
-"Gambia","women_iron","Western","Kombo South",30,6,0.344827586206897,FALSE,0.309670394119236,0,40
-"Ghana","child_vitA","Ahafo","Asunafo North",75,15,0.157894736842105,FALSE,0.0918410050039423,0,40
-"Ghana","child_vitA","Ahafo","Tano North",75,15,0.224148692697136,FALSE,0.0826343056639455,0,40
-"Ghana","child_vitA","Ashanti","Adansi Asokwa",75,15,0.0625,FALSE,0.0768062517710996,0,40
-"Ghana","child_vitA","Ashanti","Asante-Akim South",75,15,0.230769230769231,FALSE,0.0780497968548781,0,40
-"Ghana","child_vitA","Ashanti","Asokore-Mampong",75,15,0.277777777777778,FALSE,0.0613234157857982,0,40
-"Ghana","child_vitA","Ashanti","Asokwa",75,15,0.4,TRUE,0.0615605510911105,0,40
-"Ghana","child_vitA","Ashanti","Atwima-Mponua",75,15,0.375,FALSE,0.0736445215539384,0,40
-"Ghana","child_vitA","Ashanti","Atwima-Nwabiagya South",75,15,0.0909090909090909,FALSE,0.0915852813241177,0,40
-"Ghana","child_vitA","Ashanti","Bekwai",75,15,0.375,FALSE,0.0626213804040045,0,40
-"Ghana","child_vitA","Ashanti","Kumasi",75,15,0.203507009234008,FALSE,0.0484400915243655,0,40
-"Ghana","child_vitA","Ashanti","Kwadaso",75,15,0,FALSE,0.0994644036150678,0,40
-"Ghana","child_vitA","Ashanti","Obuasi",75,15,0.176470588235294,FALSE,0.0623455471897024,0,40
-"Ghana","child_vitA","Ashanti","Sekyere Kumawu",75,15,0.333333333333333,FALSE,0.0849044964472242,0,40
-"Ghana","child_vitA","Ashanti","Sekyere South",75,15,0.214285714285714,FALSE,0.0695476203783782,0,40
-"Ghana","child_vitA","Bono","Dormaa West",75,15,0.125,FALSE,0.0987206814570229,0,40
-"Ghana","child_vitA","Bono","Sunyani West",75,15,0.166666666666667,FALSE,0.102854196008066,0,40
-"Ghana","child_vitA","Bono","Wenchi",75,15,0.0909090909090909,FALSE,0.150902443589789,0,40
-"Ghana","child_vitA","Bono East","Kintampo North",75,15,0.263157894736842,FALSE,0.263758022171245,0,40
-"Ghana","child_vitA","Bono East","Sene West",75,15,0.142857142857143,FALSE,0.220596005962955,0,40
-"Ghana","child_vitA","Bono East","Techiman",75,15,0.153846153846154,FALSE,0.0943338514092448,0,40
-"Ghana","child_vitA","Central","Agona West",75,15,0.476190476190476,TRUE,0.0529869140073962,0,40
-"Ghana","child_vitA","Central","Asikuma-Odoben-Brakwa",75,15,0.210526315789474,FALSE,0.0606607902521004,0,40
-"Ghana","child_vitA","Central","Awutu Senya West",75,15,0.166666666666667,FALSE,0.0781693556564646,0,40
-"Ghana","child_vitA","Central","Mfantseman",75,15,0.333333333333333,FALSE,0.0571472914514902,0,40
-"Ghana","child_vitA","Central","Twifo-Atti-Morkwa",75,15,0.25,FALSE,0.0816749360157498,0,40
-"Ghana","child_vitA","Central","Twifo-Hemang-Lower Denkyira",75,15,0.166666666666667,FALSE,0.0732000428043642,0,40
-"Ghana","child_vitA","Eastern","Abuakwa South",75,15,0.222222222222222,FALSE,0.0511431549235574,0,40
-"Ghana","child_vitA","Eastern","Akwapem North",75,15,0.21591190100746,FALSE,0.0483717035499978,0,40
-"Ghana","child_vitA","Eastern","Atiwa East",75,15,0.1,FALSE,0.0893842259480188,0,40
-"Ghana","child_vitA","Eastern","Denkyembour",75,15,0.5,TRUE,0.0603081519287025,0,40
-"Ghana","child_vitA","Eastern","Kwahu Afram Plains North",75,15,0.237950476403701,FALSE,0.200596448809402,0,40
-"Ghana","child_vitA","Greater Accra","Ablekuma Central",75,15,0,FALSE,0.0418564800384085,0,40
-"Ghana","child_vitA","Greater Accra","Ablekuma North",75,15,0.411645422943221,TRUE,0.0175514571128583,0,40
-"Ghana","child_vitA","Greater Accra","Ashaiman",75,15,0,FALSE,0.040380228913861,0,40
-"Ghana","child_vitA","Greater Accra","Ayawaso West",75,15,0,FALSE,0.056395860807922,0,40
-"Ghana","child_vitA","Greater Accra","Ga East",75,15,0,FALSE,0.051119620578662,0,40
-"Ghana","child_vitA","Greater Accra","La-Dade-Kotopon",75,15,0.153846153846154,FALSE,0.0540706332887303,0,40
-"Ghana","child_vitA","Greater Accra","Tema West",75,15,0.2,FALSE,0.0417417390835818,0,40
-"Ghana","child_vitA","Greater Accra","Weija Gbawe",75,15,0.248278700955435,FALSE,0.0453736391127284,0,40
-"Ghana","child_vitA","North East","Chereponi",75,15,0.333333333333333,FALSE,0.800838447361667,1,40
-"Ghana","child_vitA","North East","West Mamprusi",75,15,0.521739130434783,TRUE,0.796009103572808,1,40
-"Ghana","child_vitA","North East","Yunyoo-Nasuan",75,15,0.2,FALSE,0.809582589500508,1,40
-"Ghana","child_vitA","Northern","Gushegu",75,15,0.7,TRUE,0.769979825126057,0.975,40
-"Ghana","child_vitA","Northern","Kpandai",75,15,0.333333333333333,FALSE,0.577220856094047,0.05,40
-"Ghana","child_vitA","Northern","Nanumba South",75,15,0.0909090909090909,FALSE,0.64631347133195,0.325,40
-"Ghana","child_vitA","Northern","Sagnerigu",75,15,0.507085742791694,TRUE,0.610756451512349,0.075,40
-"Ghana","child_vitA","Northern","Savelugu",75,15,0.470588235294118,TRUE,0.76102166992114,0.95,40
-"Ghana","child_vitA","Northern","Tamale",75,15,0.48,TRUE,0.673374361573001,0.575,40
-"Ghana","child_vitA","Northern","Tatale Sanguli",75,15,0.32,FALSE,0.633021456664666,0.225,40
-"Ghana","child_vitA","Northern","Tolon",75,15,0.59375,TRUE,0.717024465011749,0.85,40
-"Ghana","child_vitA","Oti","Nkwanta South",75,15,0.142857142857143,FALSE,0.254168503792388,0,40
-"Ghana","child_vitA","Savannah","Bole",75,15,1,TRUE,0.450488203372401,0,40
-"Ghana","child_vitA","Savannah","Central Gonja",75,15,0.255184301246354,FALSE,0.658376633054656,0.425,40
-"Ghana","child_vitA","Savannah","North East Gonja",75,15,0.181818181818182,FALSE,0.684545648720565,0.625,40
-"Ghana","child_vitA","Savannah","Sawla-Tuna-Kalba",75,15,0.333333333333333,FALSE,0.64193771614986,0.425,40
-"Ghana","child_vitA","Upper East","Bawku West",75,15,0.333333333333333,FALSE,0.775269653593546,1,40
-"Ghana","child_vitA","Upper East","Binduri",75,15,0.502529510961214,TRUE,0.77969380093577,1,40
-"Ghana","child_vitA","Upper East","Builsa South",75,15,0.571428571428571,TRUE,0.714983478433007,0.9,40
-"Ghana","child_vitA","Upper East","Kasena Nankana East",75,15,0.379617540895477,FALSE,0.70425655734711,0.8,40
-"Ghana","child_vitA","Upper East","Talensi",75,15,0.384615384615385,TRUE,0.72782074616741,0.925,40
-"Ghana","child_vitA","Upper West","Jirapa",75,15,0.111111111111111,FALSE,0.670989530779148,0.525,40
-"Ghana","child_vitA","Upper West","Lambussie-Karni",75,15,0.142857142857143,FALSE,0.679817289036168,0.675,40
-"Ghana","child_vitA","Upper West","Sissala East",75,15,0.470588235294118,TRUE,0.636695878217981,0.4,40
-"Ghana","child_vitA","Upper West","Wa East",75,15,0.0714285714285714,FALSE,0.631830540895476,0.275,40
-"Ghana","child_vitA","Upper West","Wa Municipal",75,15,0.350422832980972,FALSE,0.521599862178739,0,40
-"Ghana","child_vitA","Volta","Afadzato South",75,15,0.173913043478261,FALSE,0.111811153110708,0,40
-"Ghana","child_vitA","Volta","Akatsi South",75,15,0.375,FALSE,0.106179199295015,0,40
-"Ghana","child_vitA","Volta","Ho Municipal",75,15,0,FALSE,0.131915142444831,0,40
-"Ghana","child_vitA","Volta","South Tongu",75,15,0,FALSE,0.181868654794366,0,40
-"Ghana","child_vitA","Western","Effia Kwesimintsim",75,15,0.285714285714286,FALSE,0.0377455644209656,0,40
-"Ghana","child_vitA","Western","Ellembelle",75,15,0.277777777777778,FALSE,0.0619674114753472,0,40
-"Ghana","child_vitA","Western","Jomoro",75,15,0.375,FALSE,0.0747008327315275,0,40
-"Ghana","child_vitA","Western","Mpohor",75,15,0,FALSE,0.0745510724520575,0,40
-"Ghana","child_vitA","Western","Prestea-Huni Valley",75,15,0.166666666666667,FALSE,0.0668293861369586,0,40
-"Ghana","child_vitA","Western North","Sefwi-Akontombra",75,15,0.210526315789474,FALSE,0.0731993384388392,0,40
-"Ghana","women_vitA","Ahafo","Asunafo North",75,15,0,FALSE,0.0016642113477953,0,40
-"Ghana","women_vitA","Ahafo","Tano North",75,15,0,FALSE,0.00185027896995124,0,40
-"Ghana","women_vitA","Ashanti","Adansi Asokwa",75,15,0,FALSE,0.00431705832859135,0,40
-"Ghana","women_vitA","Ashanti","Asante-Akim South",75,15,0,FALSE,0.00288088635824364,0,40
-"Ghana","women_vitA","Ashanti","Asokore-Mampong",75,15,0,FALSE,0.0105973981337398,0,40
-"Ghana","women_vitA","Ashanti","Asokwa",75,15,0,FALSE,0.0140871708556949,0.025,40
-"Ghana","women_vitA","Ashanti","Atwima-Mponua",75,15,0,FALSE,0.00259199506118028,0,40
-"Ghana","women_vitA","Ashanti","Atwima-Nwabiagya South",75,15,0,FALSE,0.00507258344019281,0,40
-"Ghana","women_vitA","Ashanti","Bekwai",75,15,0.142857142857143,TRUE,0.00271757304092507,0,40
-"Ghana","women_vitA","Ashanti","Kumasi",75,15,0,FALSE,0.011127985452695,0.05,40
-"Ghana","women_vitA","Ashanti","Kwadaso",75,15,0.0666666666666667,TRUE,0.00565893096532737,0,40
-"Ghana","women_vitA","Ashanti","Obuasi",75,15,0,FALSE,0.00709703438204283,0,40
-"Ghana","women_vitA","Ashanti","Sekyere Kumawu",75,15,0,FALSE,0.00288672514592308,0,40
-"Ghana","women_vitA","Ashanti","Sekyere South",75,15,0,FALSE,0.00304127557223026,0,40
-"Ghana","women_vitA","Bono","Dormaa West",75,15,0,FALSE,0.00162817416758499,0,40
-"Ghana","women_vitA","Bono","Sunyani West",75,15,0,FALSE,0.00237249389582912,0,40
-"Ghana","women_vitA","Bono","Wenchi",75,15,0,FALSE,0.00317169046025291,0,40
-"Ghana","women_vitA","Bono East","Kintampo North",75,15,0,FALSE,0.00534979061889573,0,40
-"Ghana","women_vitA","Bono East","Sene West",75,15,0,FALSE,0.00316581838902743,0,40
-"Ghana","women_vitA","Bono East","Techiman",75,15,0,FALSE,0.00241146334699866,0,40
-"Ghana","women_vitA","Central","Agona West",75,15,0.0909090909090909,TRUE,0.00371049846577386,0,40
-"Ghana","women_vitA","Central","Asikuma-Odoben-Brakwa",75,15,0.05,FALSE,0.00308793935714368,0,40
-"Ghana","women_vitA","Central","Awutu Senya West",75,15,0,FALSE,0.0101979616571736,0,40
-"Ghana","women_vitA","Central","Mfantseman",75,15,0,FALSE,0.00898874877732939,0,40
-"Ghana","women_vitA","Central","Twifo-Atti-Morkwa",75,15,0,FALSE,0.00578240674479148,0,40
-"Ghana","women_vitA","Central","Twifo-Hemang-Lower Denkyira",75,15,0,FALSE,0.00453767240491924,0,40
-"Ghana","women_vitA","Eastern","Abuakwa South",75,15,0,FALSE,0.00443828606382371,0,40
-"Ghana","women_vitA","Eastern","Akwapem North",75,15,0,FALSE,0.00430699915617023,0,40
-"Ghana","women_vitA","Eastern","Atiwa East",75,15,0.2,TRUE,0.00289459098005942,0,40
-"Ghana","women_vitA","Eastern","Denkyembour",75,15,0.0666666666666667,TRUE,0.00492190437325258,0,40
-"Ghana","women_vitA","Eastern","Kwahu Afram Plains North",75,15,0,FALSE,0.011832364281778,0,40
-"Ghana","women_vitA","Greater Accra","Ablekuma Central",75,15,0,FALSE,0.0772995182142896,0.725,40
-"Ghana","women_vitA","Greater Accra","Ablekuma North",75,15,0.0565343659244918,FALSE,0.0454222773559141,0.475,40
-"Ghana","women_vitA","Greater Accra","Ashaiman",75,15,0,FALSE,0.0509858652483915,0.55,40
-"Ghana","women_vitA","Greater Accra","Ayawaso West",75,15,0,FALSE,0.0475135179182646,0.525,40
-"Ghana","women_vitA","Greater Accra","Ga East",75,15,0,FALSE,0.0287682942894018,0.35,40
-"Ghana","women_vitA","Greater Accra","La-Dade-Kotopon",75,15,0.111111111111111,TRUE,0.0295153589660015,0.3,40
-"Ghana","women_vitA","Greater Accra","Tema West",75,15,0.153846153846154,TRUE,0.028781748723608,0.325,40
-"Ghana","women_vitA","Greater Accra","Weija Gbawe",75,15,0.0421285208173838,FALSE,0.027997044864062,0.3,40
-"Ghana","women_vitA","North East","Chereponi",75,15,0,FALSE,0.0915913889451797,0.95,40
-"Ghana","women_vitA","North East","West Mamprusi",75,15,0,FALSE,0.101628293273714,0.975,40
-"Ghana","women_vitA","North East","Yunyoo-Nasuan",75,15,0.0833333333333333,TRUE,0.0481433340680176,0.625,40
-"Ghana","women_vitA","Northern","Gushegu",75,15,0.222222222222222,TRUE,0.0219732484389933,0.1,40
-"Ghana","women_vitA","Northern","Kpandai",75,15,0,FALSE,0.0181212510920044,0,40
-"Ghana","women_vitA","Northern","Nanumba South",75,15,0,FALSE,0.0276019337981168,0.075,40
-"Ghana","women_vitA","Northern","Sagnerigu",75,15,0.102927473989318,TRUE,0.0595849907745321,0.75,40
-"Ghana","women_vitA","Northern","Savelugu",75,15,0.0625,FALSE,0.049319615603698,0.625,40
-"Ghana","women_vitA","Northern","Tamale",75,15,0,FALSE,0.0915249889123624,0.95,40
-"Ghana","women_vitA","Northern","Tatale Sanguli",75,15,0,FALSE,0.025865070072199,0.1,40
-"Ghana","women_vitA","Northern","Tolon",75,15,0.230769230769231,TRUE,0.0346385598921053,0.45,40
-"Ghana","women_vitA","Oti","Nkwanta South",75,15,0,FALSE,0.00471712995812438,0,40
-"Ghana","women_vitA","Savannah","Bole",75,15,0.2,TRUE,0.00525227356520598,0,40
-"Ghana","women_vitA","Savannah","Central Gonja",75,15,0,FALSE,0.0257702912624019,0.175,40
-"Ghana","women_vitA","Savannah","North East Gonja",75,15,0,FALSE,0.0255356343797634,0.225,40
-"Ghana","women_vitA","Savannah","Sawla-Tuna-Kalba",75,15,0,FALSE,0.020031179662572,0.025,40
-"Ghana","women_vitA","Upper East","Bawku West",75,15,0,FALSE,0.113625333875407,0.975,40
-"Ghana","women_vitA","Upper East","Binduri",75,15,0,FALSE,0.170928683312304,1,40
-"Ghana","women_vitA","Upper East","Builsa South",75,15,0,FALSE,0.0449357521100222,0.6,40
-"Ghana","women_vitA","Upper East","Kasena Nankana East",75,15,0.0975820379965458,TRUE,0.0472500015780994,0.55,40
-"Ghana","women_vitA","Upper East","Talensi",75,15,0.166666666666667,TRUE,0.0401517576582554,0.475,40
-"Ghana","women_vitA","Upper West","Jirapa",75,15,0,FALSE,0.0432887654613213,0.625,40
-"Ghana","women_vitA","Upper West","Lambussie-Karni",75,15,0,FALSE,0.0311089337049223,0.35,40
-"Ghana","women_vitA","Upper West","Sissala East",75,15,0,FALSE,0.0215630372281805,0.225,40
-"Ghana","women_vitA","Upper West","Wa East",75,15,0.1,TRUE,0.00773655153845673,0,40
-"Ghana","women_vitA","Upper West","Wa Municipal",75,15,0,FALSE,0.0426910779170644,0.525,40
-"Ghana","women_vitA","Volta","Afadzato South",75,15,0,FALSE,0.00536229785126155,0,40
-"Ghana","women_vitA","Volta","Akatsi South",75,15,0,FALSE,0.011199836712395,0,40
-"Ghana","women_vitA","Volta","Ho Municipal",75,15,0,FALSE,0.00682779640759381,0,40
-"Ghana","women_vitA","Volta","South Tongu",75,15,0,FALSE,0.0174878091048697,0.025,40
-"Ghana","women_vitA","Western","Effia Kwesimintsim",75,15,0,FALSE,0.00573438918154848,0,40
-"Ghana","women_vitA","Western","Ellembelle",75,15,0,FALSE,0.00333043135923107,0,40
-"Ghana","women_vitA","Western","Jomoro",75,15,0,FALSE,0.00459450727014366,0,40
-"Ghana","women_vitA","Western","Mpohor",75,15,0,FALSE,0.00337627535667143,0,40
-"Ghana","women_vitA","Western","Prestea-Huni Valley",75,15,0.0588235294117647,FALSE,0.00202520516794969,0,40
-"Ghana","women_vitA","Western North","Sefwi-Akontombra",75,15,0,FALSE,0.00193540474265754,0,40
+"Gambia","child_vitA","Banjul","Banjul",30,6,0.0732972712183685,FALSE,0.0119429865317095,0,40
+"Gambia","child_vitA","Banjul","Kanifing",30,6,0.107981805291804,FALSE,0.00726942269263022,0,40
+"Gambia","child_vitA","Lower River","Jarra East",30,6,0.213293120835692,FALSE,0.181736731963809,0,40
+"Gambia","child_vitA","Lower River","Jarra West",30,6,0.0755206393695848,FALSE,0.099782844561541,0,40
+"Gambia","child_vitA","Lower River","Kiang Central",30,6,0.173913043478261,FALSE,0.111139482454997,0,40
+"Gambia","child_vitA","Lower River","Kiang East",30,6,0.181818181818182,FALSE,0.111308409141038,0,40
+"Gambia","child_vitA","Maccarthy Island","Fulladu West",30,6,0.286129198649575,TRUE,0.333730868603781,0.125,40
+"Gambia","child_vitA","Maccarthy Island","Lower Saloum",30,6,0.180474806145845,FALSE,0.326229751371523,0.1,40
+"Gambia","child_vitA","Maccarthy Island","Niamina Dankunku",30,6,0.382352941176471,TRUE,0.202965246727766,0,40
+"Gambia","child_vitA","Maccarthy Island","Niamina East",30,6,0.25,FALSE,0.31357016592455,0.05,40
+"Gambia","child_vitA","Maccarthy Island","Niani",30,6,0.307965738346523,TRUE,0.485524964402114,1,40
+"Gambia","child_vitA","Maccarthy Island","Nianija",30,6,0.136160861272839,FALSE,0.444069964320427,1,40
+"Gambia","child_vitA","Maccarthy Island","Sami",30,6,0.388888888888889,TRUE,0.485771132120188,1,40
+"Gambia","child_vitA","Maccarthy Island","Upper Saloum",30,6,0.3,TRUE,0.412257473759339,0.85,40
+"Gambia","child_vitA","North Bank","Central Baddibu",30,6,0.285714285714286,FALSE,0.0739829047476649,0,40
+"Gambia","child_vitA","North Bank","Jokadu",30,6,0.142857142857143,FALSE,0.0758340753739319,0,40
+"Gambia","child_vitA","North Bank","Lower Baddibu",30,6,0,FALSE,0.107115352979711,0,40
+"Gambia","child_vitA","North Bank","Lower Nuimi",30,6,0,FALSE,0.101513948334956,0,40
+"Gambia","child_vitA","North Bank","Upper Baddibu",30,6,0.0887310206459296,FALSE,0.114964034195656,0,40
+"Gambia","child_vitA","North Bank","Upper Nuimi",30,6,0.222222222222222,FALSE,0.0650276441672733,0,40
+"Gambia","child_vitA","Upper River","Fulladu East",30,6,0.248995738340061,FALSE,0.234305388156711,0.025,40
+"Gambia","child_vitA","Upper River","Kantora",30,6,0.533333333333333,TRUE,0.276746923542201,0.025,40
+"Gambia","child_vitA","Upper River","Sandu",30,6,0.266666666666667,FALSE,0.397894658471237,0.825,40
+"Gambia","child_vitA","Upper River","Wuli",30,6,0.111111111111111,FALSE,0.502281001478558,1,40
+"Gambia","child_vitA","Western","Foni Bintang Karanai",30,6,0,FALSE,0.0458082449940214,0,40
+"Gambia","child_vitA","Western","Foni Brefet",30,6,0,FALSE,0.0355657987526248,0,40
+"Gambia","child_vitA","Western","Kombo Central",30,6,0.174231843559703,FALSE,0.0233712326261164,0,40
+"Gambia","child_vitA","Western","Kombo East",30,6,0.0555555555555556,FALSE,0.0231829646052131,0,40
+"Gambia","child_vitA","Western","Kombo Saint Mary",30,6,0.141447690164046,FALSE,0.0178490217673511,0,40
+"Gambia","child_vitA","Western","Kombo South",30,6,0.0526315789473684,FALSE,0.0246001496074978,0,40
+"Gambia","women_vitA","Banjul","Banjul",30,6,0,FALSE,0.00332843387623376,0,40
+"Gambia","women_vitA","Banjul","Kanifing",30,6,0.0132270263647896,FALSE,0.00167194287081722,0,40
+"Gambia","women_vitA","Lower River","Jarra East",30,6,0.144624661523268,TRUE,0.0201750852918759,0,40
+"Gambia","women_vitA","Lower River","Jarra West",30,6,0,FALSE,0.0135284821548622,0,40
+"Gambia","women_vitA","Lower River","Kiang Central",30,6,0,FALSE,0.0133021982991203,0,40
+"Gambia","women_vitA","Lower River","Kiang East",30,6,0,FALSE,0.0142762487904804,0,40
+"Gambia","women_vitA","Maccarthy Island","Fulladu West",30,6,0.0218873492044434,FALSE,0.0567077085896718,0.35,40
+"Gambia","women_vitA","Maccarthy Island","Lower Saloum",30,6,0.0138916672365152,FALSE,0.0446206010332931,0.075,40
+"Gambia","women_vitA","Maccarthy Island","Niamina Dankunku",30,6,0,FALSE,0.0434073769401152,0.025,40
+"Gambia","women_vitA","Maccarthy Island","Niamina East",30,6,0.130434782608696,TRUE,0.04302803926616,0,40
+"Gambia","women_vitA","Maccarthy Island","Niani",30,6,0.110890239857999,TRUE,0.081683569603172,0.975,40
+"Gambia","women_vitA","Maccarthy Island","Nianija",30,6,0.0477098880449538,FALSE,0.0741043356797668,0.8,40
+"Gambia","women_vitA","Maccarthy Island","Sami",30,6,0.0526315789473684,FALSE,0.0921183098760584,0.975,40
+"Gambia","women_vitA","Maccarthy Island","Upper Saloum",30,6,0.0714285714285714,TRUE,0.0646330065501075,0.775,40
+"Gambia","women_vitA","North Bank","Central Baddibu",30,6,0.0606060606060606,FALSE,0.0105152539851209,0,40
+"Gambia","women_vitA","North Bank","Jokadu",30,6,0,FALSE,0.010580233717589,0,40
+"Gambia","women_vitA","North Bank","Lower Baddibu",30,6,0,FALSE,0.0121930824681989,0,40
+"Gambia","women_vitA","North Bank","Lower Nuimi",30,6,0,FALSE,0.00821411916050811,0,40
+"Gambia","women_vitA","North Bank","Upper Baddibu",30,6,0.030561624570692,FALSE,0.013736050493377,0,40
+"Gambia","women_vitA","North Bank","Upper Nuimi",30,6,0,FALSE,0.00975155078052672,0,40
+"Gambia","women_vitA","Upper River","Fulladu East",30,6,0.0255321727132044,FALSE,0.0434038186090019,0.175,40
+"Gambia","women_vitA","Upper River","Kantora",30,6,0.1875,TRUE,0.0463302297831302,0.1,40
+"Gambia","women_vitA","Upper River","Sandu",30,6,0,FALSE,0.100581574737333,0.975,40
+"Gambia","women_vitA","Upper River","Wuli",30,6,0.0909090909090909,TRUE,0.0742171712493511,0.775,40
+"Gambia","women_vitA","Western","Foni Bintang Karanai",30,6,0,FALSE,0.0059954099000422,0,40
+"Gambia","women_vitA","Western","Foni Brefet",30,6,0.0625,FALSE,0.00306887761305335,0,40
+"Gambia","women_vitA","Western","Kombo Central",30,6,0,FALSE,0.00373451227106384,0,40
+"Gambia","women_vitA","Western","Kombo East",30,6,0,FALSE,0.00355491260448943,0,40
+"Gambia","women_vitA","Western","Kombo Saint Mary",30,6,0.00664540481338959,FALSE,0.00344384179183059,0,40
+"Gambia","women_vitA","Western","Kombo South",30,6,0,FALSE,0.00398227545289115,0,40
+"Gambia","child_iron","Banjul","Banjul",30,6,0.441182643515898,FALSE,0.368438228170227,0,40
+"Gambia","child_iron","Banjul","Kanifing",30,6,0.479908666579605,FALSE,0.297967862510592,0,40
+"Gambia","child_iron","Lower River","Jarra East",30,6,0.79854165129774,TRUE,0.728960178869865,0,40
+"Gambia","child_iron","Lower River","Jarra West",30,6,0.359107369139993,FALSE,0.696097584120474,0,40
+"Gambia","child_iron","Lower River","Kiang Central",30,6,0.652173913043478,FALSE,0.687699855940941,0,40
+"Gambia","child_iron","Lower River","Kiang East",30,6,0.772727272727273,FALSE,0.672804749051805,0,40
+"Gambia","child_iron","Maccarthy Island","Fulladu West",30,6,0.732635337130024,FALSE,0.76663119770315,0.05,40
+"Gambia","child_iron","Maccarthy Island","Lower Saloum",30,6,0.64018087853175,FALSE,0.800341748955028,0.625,40
+"Gambia","child_iron","Maccarthy Island","Niamina Dankunku",30,6,0.764705882352941,FALSE,0.7673615308316,0.1,40
+"Gambia","child_iron","Maccarthy Island","Niamina East",30,6,0.714285714285714,FALSE,0.782626988937155,0.225,40
+"Gambia","child_iron","Maccarthy Island","Niani",30,6,0.662558323714245,FALSE,0.840616412338722,0.975,40
+"Gambia","child_iron","Maccarthy Island","Nianija",30,6,0.590402153182099,FALSE,0.854761967594952,1,40
+"Gambia","child_iron","Maccarthy Island","Sami",30,6,0.944444444444444,TRUE,0.803013379382738,0.75,40
+"Gambia","child_iron","Maccarthy Island","Upper Saloum",30,6,0.9,TRUE,0.805842990368816,0.775,40
+"Gambia","child_iron","North Bank","Central Baddibu",30,6,0.642857142857143,FALSE,0.667023304380275,0,40
+"Gambia","child_iron","North Bank","Jokadu",30,6,0.785714285714286,TRUE,0.595027740326121,0,40
+"Gambia","child_iron","North Bank","Lower Baddibu",30,6,0.625,FALSE,0.634051858088562,0,40
+"Gambia","child_iron","North Bank","Lower Nuimi",30,6,0.574655145648432,FALSE,0.589983954174971,0,40
+"Gambia","child_iron","North Bank","Upper Baddibu",30,6,0.707440350601493,FALSE,0.652843543067394,0,40
+"Gambia","child_iron","North Bank","Upper Nuimi",30,6,0.444444444444444,FALSE,0.629546928970194,0,40
+"Gambia","child_iron","Upper River","Fulladu East",30,6,0.604093377634168,FALSE,0.724507662129079,0.025,40
+"Gambia","child_iron","Upper River","Kantora",30,6,0.866666666666667,TRUE,0.711645946886878,0.025,40
+"Gambia","child_iron","Upper River","Sandu",30,6,0.466666666666667,FALSE,0.83190989682478,0.9,40
+"Gambia","child_iron","Upper River","Wuli",30,6,0.777777777777778,TRUE,0.791747477967613,0.55,40
+"Gambia","child_iron","Western","Foni Bintang Karanai",30,6,0.470588235294118,FALSE,0.539433276939299,0,40
+"Gambia","child_iron","Western","Foni Brefet",30,6,0.666666666666667,FALSE,0.45686383813836,0,40
+"Gambia","child_iron","Western","Kombo Central",30,6,0.359025837972549,FALSE,0.488594590396618,0,40
+"Gambia","child_iron","Western","Kombo East",30,6,0.666666666666667,FALSE,0.441680059614582,0,40
+"Gambia","child_iron","Western","Kombo Saint Mary",30,6,0.699274274059516,FALSE,0.351067881906693,0,40
+"Gambia","child_iron","Western","Kombo South",30,6,0.473684210526316,FALSE,0.442165680586943,0,40
+"Gambia","women_iron","Banjul","Banjul",30,6,0.341679554197563,FALSE,0.252496066353351,0,40
+"Gambia","women_iron","Banjul","Kanifing",30,6,0.300794478115473,FALSE,0.217004269173071,0,40
+"Gambia","women_iron","Lower River","Jarra East",30,6,0.664604561556188,FALSE,0.594417739222826,0,40
+"Gambia","women_iron","Lower River","Jarra West",30,6,0.437857706397502,FALSE,0.526347767152307,0,40
+"Gambia","women_iron","Lower River","Kiang Central",30,6,0.473684210526316,FALSE,0.544778147027222,0,40
+"Gambia","women_iron","Lower River","Kiang East",30,6,0.85,TRUE,0.51755695536863,0,40
+"Gambia","women_iron","Maccarthy Island","Fulladu West",30,6,0.496143900023372,FALSE,0.670145609423438,0.275,40
+"Gambia","women_iron","Maccarthy Island","Lower Saloum",30,6,0.487748530115695,FALSE,0.671151525245265,0.375,40
+"Gambia","women_iron","Maccarthy Island","Niamina Dankunku",30,6,0.75,TRUE,0.61072263292991,0,40
+"Gambia","women_iron","Maccarthy Island","Niamina East",30,6,0.652173913043478,FALSE,0.653162434039058,0.025,40
+"Gambia","women_iron","Maccarthy Island","Niani",30,6,0.598938247168865,FALSE,0.729722546067536,0.95,40
+"Gambia","women_iron","Maccarthy Island","Nianija",30,6,0.476674958461976,FALSE,0.716224719319846,0.95,40
+"Gambia","women_iron","Maccarthy Island","Sami",30,6,0.736842105263158,TRUE,0.732266230642527,0.975,40
+"Gambia","women_iron","Maccarthy Island","Upper Saloum",30,6,0.714285714285714,TRUE,0.70433065413248,0.9,40
+"Gambia","women_iron","North Bank","Central Baddibu",30,6,0.454545454545455,FALSE,0.495573508246508,0,40
+"Gambia","women_iron","North Bank","Jokadu",30,6,0.583333333333333,FALSE,0.450351505143949,0,40
+"Gambia","women_iron","North Bank","Lower Baddibu",30,6,0.409090909090909,FALSE,0.47100616823587,0,40
+"Gambia","women_iron","North Bank","Lower Nuimi",30,6,0.350435538566017,FALSE,0.438971144853128,0,40
+"Gambia","women_iron","North Bank","Upper Baddibu",30,6,0.543438159069387,FALSE,0.516436049549443,0,40
+"Gambia","women_iron","North Bank","Upper Nuimi",30,6,0.25,FALSE,0.466726411701906,0,40
+"Gambia","women_iron","Upper River","Fulladu East",30,6,0.474229966064334,FALSE,0.613749948152023,0,40
+"Gambia","women_iron","Upper River","Kantora",30,6,0.8125,TRUE,0.632975519628971,0,40
+"Gambia","women_iron","Upper River","Sandu",30,6,0.666666666666667,FALSE,0.692662274011919,0.7,40
+"Gambia","women_iron","Upper River","Wuli",30,6,0.727272727272727,TRUE,0.708637415328679,0.85,40
+"Gambia","women_iron","Western","Foni Bintang Karanai",30,6,0.35,FALSE,0.382808343463472,0,40
+"Gambia","women_iron","Western","Foni Brefet",30,6,0.3125,FALSE,0.348233997638657,0,40
+"Gambia","women_iron","Western","Kombo Central",30,6,0.367154654744198,FALSE,0.32450595998723,0,40
+"Gambia","women_iron","Western","Kombo East",30,6,0.428571428571429,FALSE,0.323775406038189,0,40
+"Gambia","women_iron","Western","Kombo Saint Mary",30,6,0.363182132424259,FALSE,0.264865175200202,0,40
+"Gambia","women_iron","Western","Kombo South",30,6,0.357142857142857,FALSE,0.302447839904439,0,40
+"Ghana","child_vitA","Ahafo","Asunafo North",75,15,0.105263157894737,FALSE,0.0234773808026477,0,40
+"Ghana","child_vitA","Ahafo","Tano North",75,15,0.128580345377627,FALSE,0.0236377712752654,0,40
+"Ghana","child_vitA","Ashanti","Adansi Asokwa",75,15,0,FALSE,0.0177528673093246,0,40
+"Ghana","child_vitA","Ashanti","Asante-Akim South",75,15,0,FALSE,0.0229120963496138,0,40
+"Ghana","child_vitA","Ashanti","Asokore-Mampong",75,15,0.166666666666667,FALSE,0.0112791210273529,0,40
+"Ghana","child_vitA","Ashanti","Asokwa",75,15,0,FALSE,0.0168962932756395,0,40
+"Ghana","child_vitA","Ashanti","Atwima-Mponua",75,15,0.155781646299285,FALSE,0.0183978892102759,0,40
+"Ghana","child_vitA","Ashanti","Atwima-Nwabiagya South",75,15,0,FALSE,0.0218248118778622,0,40
+"Ghana","child_vitA","Ashanti","Bekwai",75,15,0.25,TRUE,0.0141715677973815,0,40
+"Ghana","child_vitA","Ashanti","Kumasi",75,15,0.0736806851346825,FALSE,0.00949895901289645,0,40
+"Ghana","child_vitA","Ashanti","Kwadaso",75,15,0,FALSE,0.0170290215202485,0,40
+"Ghana","child_vitA","Ashanti","Obuasi",75,15,0.117647058823529,FALSE,0.0115727133272464,0,40
+"Ghana","child_vitA","Ashanti","Sekyere Kumawu",75,15,0.25,TRUE,0.0217701708458266,0,40
+"Ghana","child_vitA","Ashanti","Sekyere South",75,15,0,FALSE,0.0200853638496359,0,40
+"Ghana","child_vitA","Bono","Dormaa West",75,15,0.0625,FALSE,0.0281395149376414,0,40
+"Ghana","child_vitA","Bono","Sunyani West",75,15,0,FALSE,0.0379842473599021,0,40
+"Ghana","child_vitA","Bono","Wenchi",75,15,0.0909090909090909,FALSE,0.0529595386641257,0,40
+"Ghana","child_vitA","Bono East","Kintampo North",75,15,0.210526315789474,FALSE,0.112173668011771,0,40
+"Ghana","child_vitA","Bono East","Sene West",75,15,0.142857142857143,FALSE,0.0902591015969412,0,40
+"Ghana","child_vitA","Bono East","Techiman",75,15,0.0769230769230769,FALSE,0.0261728822363445,0,40
+"Ghana","child_vitA","Central","Agona West",75,15,0.19047619047619,FALSE,0.0168307055410376,0,40
+"Ghana","child_vitA","Central","Asikuma-Odoben-Brakwa",75,15,0.105263157894737,FALSE,0.0174989997098542,0,40
+"Ghana","child_vitA","Central","Awutu Senya West",75,15,0.0833333333333333,FALSE,0.0291076011213532,0,40
+"Ghana","child_vitA","Central","Mfantseman",75,15,0.333333333333333,TRUE,0.0167201922890752,0,40
+"Ghana","child_vitA","Central","Twifo-Atti-Morkwa",75,15,0.125,FALSE,0.0252499070807423,0,40
+"Ghana","child_vitA","Central","Twifo-Hemang-Lower Denkyira",75,15,0,FALSE,0.0245450732470524,0,40
+"Ghana","child_vitA","Eastern","Abuakwa South",75,15,0.222222222222222,FALSE,0.0141374194233481,0,40
+"Ghana","child_vitA","Eastern","Akwapem North",75,15,0.143941267338307,FALSE,0.0197361501712993,0,40
+"Ghana","child_vitA","Eastern","Atiwa East",75,15,0.1,FALSE,0.0246765202030334,0,40
+"Ghana","child_vitA","Eastern","Denkyembour",75,15,0.285714285714286,TRUE,0.0197009188277154,0,40
+"Ghana","child_vitA","Eastern","Kwahu Afram Plains North",75,15,0.171082953764386,FALSE,0.103645052979186,0,40
+"Ghana","child_vitA","Greater Accra","Ablekuma Central",75,15,0,FALSE,0.0126988393321424,0,40
+"Ghana","child_vitA","Greater Accra","Ablekuma North",75,15,0.201663631849032,FALSE,0.00672259733495355,0,40
+"Ghana","child_vitA","Greater Accra","Ashaiman",75,15,0,FALSE,0.0156984289379182,0,40
+"Ghana","child_vitA","Greater Accra","Ayawaso West",75,15,0,FALSE,0.0180214100362547,0,40
+"Ghana","child_vitA","Greater Accra","Ga East",75,15,0,FALSE,0.0158253352711226,0,40
+"Ghana","child_vitA","Greater Accra","La-Dade-Kotopon",75,15,0.153846153846154,FALSE,0.0152428397398905,0,40
+"Ghana","child_vitA","Greater Accra","Tema West",75,15,0.1,FALSE,0.0169814893885815,0,40
+"Ghana","child_vitA","Greater Accra","Weija Gbawe",75,15,0.16551913397029,FALSE,0.0188948426635813,0,40
+"Ghana","child_vitA","North East","Chereponi",75,15,0.166666666666667,FALSE,0.580500315558155,1,40
+"Ghana","child_vitA","North East","West Mamprusi",75,15,0.347826086956522,TRUE,0.539492002538054,1,40
+"Ghana","child_vitA","North East","Yunyoo-Nasuan",75,15,0,FALSE,0.561416663020469,1,40
+"Ghana","child_vitA","Northern","Gushegu",75,15,0.3,TRUE,0.550271306870309,1,40
+"Ghana","child_vitA","Northern","Kpandai",75,15,0,FALSE,0.360436116554031,0.2,40
+"Ghana","child_vitA","Northern","Nanumba South",75,15,0.0909090909090909,FALSE,0.373208798324586,0.35,40
+"Ghana","child_vitA","Northern","Sagnerigu",75,15,0.198303320823741,FALSE,0.3463713831798,0.2,40
+"Ghana","child_vitA","Northern","Savelugu",75,15,0.352941176470588,TRUE,0.541708341621663,1,40
+"Ghana","child_vitA","Northern","Tamale",75,15,0.36,TRUE,0.392165683415933,0.525,40
+"Ghana","child_vitA","Northern","Tatale Sanguli",75,15,0.16,FALSE,0.365089673341196,0.3,40
+"Ghana","child_vitA","Northern","Tolon",75,15,0.375,TRUE,0.470563320732268,1,40
+"Ghana","child_vitA","Oti","Nkwanta South",75,15,0,FALSE,0.135767563451535,0,40
+"Ghana","child_vitA","Savannah","Bole",75,15,0.25,TRUE,0.303426687705734,0.025,40
+"Ghana","child_vitA","Savannah","Central Gonja",75,15,0.177592150623177,FALSE,0.418543758589361,0.725,40
+"Ghana","child_vitA","Savannah","North East Gonja",75,15,0.181818181818182,FALSE,0.42748587061807,0.775,40
+"Ghana","child_vitA","Savannah","Sawla-Tuna-Kalba",75,15,0.277777777777778,TRUE,0.374855557085889,0.4,40
+"Ghana","child_vitA","Upper East","Bawku West",75,15,0.222222222222222,FALSE,0.477925438973291,0.925,40
+"Ghana","child_vitA","Upper East","Binduri",75,15,0.202698145025295,FALSE,0.492135115487279,0.975,40
+"Ghana","child_vitA","Upper East","Builsa South",75,15,0.285714285714286,TRUE,0.419793957669534,0.775,40
+"Ghana","child_vitA","Upper East","Kasena Nankana East",75,15,0.080254972736349,FALSE,0.444620909345254,0.9,40
+"Ghana","child_vitA","Upper East","Talensi",75,15,0.384615384615385,TRUE,0.380971733799727,0.4,40
+"Ghana","child_vitA","Upper West","Jirapa",75,15,0,FALSE,0.381956112075553,0.475,40
+"Ghana","child_vitA","Upper West","Lambussie-Karni",75,15,0.142857142857143,FALSE,0.368201897573513,0.4,40
+"Ghana","child_vitA","Upper West","Sissala East",75,15,0.176470588235294,FALSE,0.377253035250945,0.475,40
+"Ghana","child_vitA","Upper West","Wa East",75,15,0,FALSE,0.360782637793304,0.175,40
+"Ghana","child_vitA","Upper West","Wa Municipal",75,15,0.233615221987315,FALSE,0.216128632425566,0,40
+"Ghana","child_vitA","Volta","Afadzato South",75,15,0.130434782608696,FALSE,0.0491083288857972,0,40
+"Ghana","child_vitA","Volta","Akatsi South",75,15,0.375,TRUE,0.059486002612027,0,40
+"Ghana","child_vitA","Volta","Ho Municipal",75,15,0,FALSE,0.0540974885831263,0,40
+"Ghana","child_vitA","Volta","South Tongu",75,15,0,FALSE,0.128203633750676,0,40
+"Ghana","child_vitA","Western","Effia Kwesimintsim",75,15,0,FALSE,0.0111850006399674,0,40
+"Ghana","child_vitA","Western","Ellembelle",75,15,0.166666666666667,FALSE,0.0135797832196491,0,40
+"Ghana","child_vitA","Western","Jomoro",75,15,0.25,TRUE,0.0173419606049823,0,40
+"Ghana","child_vitA","Western","Mpohor",75,15,0,FALSE,0.0156214554084638,0,40
+"Ghana","child_vitA","Western","Prestea-Huni Valley",75,15,0.0555555555555556,FALSE,0.0179748354920687,0,40
+"Ghana","child_vitA","Western North","Sefwi-Akontombra",75,15,0.0526315789473684,FALSE,0.0195062276809078,0,40
+"Ghana","women_vitA","Ahafo","Asunafo North",75,15,0,TRUE,0.00289684226680508,0,40
+"Ghana","women_vitA","Ahafo","Tano North",75,15,0,TRUE,0.00358848906168378,0,40
+"Ghana","women_vitA","Ashanti","Adansi Asokwa",75,15,0,TRUE,0.00273527061497825,0,40
+"Ghana","women_vitA","Ashanti","Asante-Akim South",75,15,0,FALSE,0.00261367781096069,0,40
+"Ghana","women_vitA","Ashanti","Asokore-Mampong",75,15,0,FALSE,0.00647692863339413,0,40
+"Ghana","women_vitA","Ashanti","Asokwa",75,15,0,FALSE,0.0066017884420752,0,40
+"Ghana","women_vitA","Ashanti","Atwima-Mponua",75,15,0,FALSE,0.00276362418812813,0,40
+"Ghana","women_vitA","Ashanti","Atwima-Nwabiagya South",75,15,0,FALSE,0.00379387015291113,0,40
+"Ghana","women_vitA","Ashanti","Bekwai",75,15,0,FALSE,0.00315398086795532,0,40
+"Ghana","women_vitA","Ashanti","Kumasi",75,15,0,FALSE,0.005378066657573,0,40
+"Ghana","women_vitA","Ashanti","Kwadaso",75,15,0.0666666666666667,TRUE,0.00361309289814814,0,40
+"Ghana","women_vitA","Ashanti","Obuasi",75,15,0,FALSE,0.00359419295864954,0,40
+"Ghana","women_vitA","Ashanti","Sekyere Kumawu",75,15,0,FALSE,0.00336780917548649,0,40
+"Ghana","women_vitA","Ashanti","Sekyere South",75,15,0,FALSE,0.0034553662747255,0,40
+"Ghana","women_vitA","Bono","Dormaa West",75,15,0,FALSE,0.00340282113405903,0,40
+"Ghana","women_vitA","Bono","Sunyani West",75,15,0,FALSE,0.00436438077370745,0,40
+"Ghana","women_vitA","Bono","Wenchi",75,15,0,FALSE,0.00533703322736071,0,40
+"Ghana","women_vitA","Bono East","Kintampo North",75,15,0,FALSE,0.00820050750510188,0,40
+"Ghana","women_vitA","Bono East","Sene West",75,15,0,FALSE,0.00477568083993954,0,40
+"Ghana","women_vitA","Bono East","Techiman",75,15,0,FALSE,0.00434321000512467,0,40
+"Ghana","women_vitA","Central","Agona West",75,15,0.0909090909090909,TRUE,0.00235468230065459,0,40
+"Ghana","women_vitA","Central","Asikuma-Odoben-Brakwa",75,15,0,FALSE,0.00254344670576216,0,40
+"Ghana","women_vitA","Central","Awutu Senya West",75,15,0,FALSE,0.00421053338550235,0,40
+"Ghana","women_vitA","Central","Mfantseman",75,15,0,FALSE,0.00379758474910652,0,40
+"Ghana","women_vitA","Central","Twifo-Atti-Morkwa",75,15,0,FALSE,0.00239353037413868,0,40
+"Ghana","women_vitA","Central","Twifo-Hemang-Lower Denkyira",75,15,0,FALSE,0.00228578236823997,0,40
+"Ghana","women_vitA","Eastern","Abuakwa South",75,15,0,FALSE,0.00263036951018025,0,40
+"Ghana","women_vitA","Eastern","Akwapem North",75,15,0,FALSE,0.00303429637383154,0,40
+"Ghana","women_vitA","Eastern","Atiwa East",75,15,0.133333333333333,TRUE,0.00210549933699808,0,40
+"Ghana","women_vitA","Eastern","Denkyembour",75,15,0,FALSE,0.00350796075231238,0,40
+"Ghana","women_vitA","Eastern","Kwahu Afram Plains North",75,15,0,FALSE,0.00704228375807446,0,40
+"Ghana","women_vitA","Greater Accra","Ablekuma Central",75,15,0,FALSE,0.010940424748225,0.075,40
+"Ghana","women_vitA","Greater Accra","Ablekuma North",75,15,0,FALSE,0.0123441937338581,0.025,40
+"Ghana","women_vitA","Greater Accra","Ashaiman",75,15,0,FALSE,0.00845751868717792,0,40
+"Ghana","women_vitA","Greater Accra","Ayawaso West",75,15,0,FALSE,0.00924733668980233,0,40
+"Ghana","women_vitA","Greater Accra","Ga East",75,15,0,FALSE,0.00609965564980106,0,40
+"Ghana","women_vitA","Greater Accra","La-Dade-Kotopon",75,15,0,FALSE,0.0127427773524699,0.075,40
+"Ghana","women_vitA","Greater Accra","Tema West",75,15,0.0769230769230769,TRUE,0.005470337939888,0,40
+"Ghana","women_vitA","Greater Accra","Weija Gbawe",75,15,0.0421285208173838,TRUE,0.0047921457491394,0,40
+"Ghana","women_vitA","North East","Chereponi",75,15,0,FALSE,0.0463563452238439,0.975,40
+"Ghana","women_vitA","North East","West Mamprusi",75,15,0,FALSE,0.0469390834602771,0.925,40
+"Ghana","women_vitA","North East","Yunyoo-Nasuan",75,15,0.0833333333333333,TRUE,0.0312310148452931,0.7,40
+"Ghana","women_vitA","Northern","Gushegu",75,15,0.111111111111111,TRUE,0.0230180631238041,0.35,40
+"Ghana","women_vitA","Northern","Kpandai",75,15,0,FALSE,0.0162198348694453,0,40
+"Ghana","women_vitA","Northern","Nanumba South",75,15,0,FALSE,0.0192450853180901,0.05,40
+"Ghana","women_vitA","Northern","Sagnerigu",75,15,0.102927473989318,TRUE,0.0228305249397084,0.2,40
+"Ghana","women_vitA","Northern","Savelugu",75,15,0,FALSE,0.0390992594932118,0.925,40
+"Ghana","women_vitA","Northern","Tamale",75,15,0,FALSE,0.0377255241114595,0.925,40
+"Ghana","women_vitA","Northern","Tatale Sanguli",75,15,0,FALSE,0.0211098507659305,0.15,40
+"Ghana","women_vitA","Northern","Tolon",75,15,0,FALSE,0.035461149058163,0.775,40
+"Ghana","women_vitA","Oti","Nkwanta South",75,15,0,FALSE,0.00685342062093464,0,40
+"Ghana","women_vitA","Savannah","Bole",75,15,0.2,TRUE,0.00881290268927815,0,40
+"Ghana","women_vitA","Savannah","Central Gonja",75,15,0,FALSE,0.0205264801157013,0.125,40
+"Ghana","women_vitA","Savannah","North East Gonja",75,15,0,FALSE,0.0211768449370467,0.175,40
+"Ghana","women_vitA","Savannah","Sawla-Tuna-Kalba",75,15,0,FALSE,0.0252046655580294,0.475,40
+"Ghana","women_vitA","Upper East","Bawku West",75,15,0,FALSE,0.0770863079401465,1,40
+"Ghana","women_vitA","Upper East","Binduri",75,15,0,FALSE,0.0977897040136979,1,40
+"Ghana","women_vitA","Upper East","Builsa South",75,15,0,FALSE,0.0459913648373266,0.95,40
+"Ghana","women_vitA","Upper East","Kasena Nankana East",75,15,0.0975820379965458,TRUE,0.0438427872586173,0.95,40
+"Ghana","women_vitA","Upper East","Talensi",75,15,0.166666666666667,TRUE,0.0397847829079752,0.85,40
+"Ghana","women_vitA","Upper West","Jirapa",75,15,0,FALSE,0.0414420377040573,0.925,40
+"Ghana","women_vitA","Upper West","Lambussie-Karni",75,15,0,FALSE,0.041455893256383,0.9,40
+"Ghana","women_vitA","Upper West","Sissala East",75,15,0,FALSE,0.030505918030584,0.675,40
+"Ghana","women_vitA","Upper West","Wa East",75,15,0.1,TRUE,0.0147943418012758,0.025,40
+"Ghana","women_vitA","Upper West","Wa Municipal",75,15,0,FALSE,0.0346154374741405,0.8,40
+"Ghana","women_vitA","Volta","Afadzato South",75,15,0,FALSE,0.0049074184699147,0,40
+"Ghana","women_vitA","Volta","Akatsi South",75,15,0,FALSE,0.00734762770765003,0,40
+"Ghana","women_vitA","Volta","Ho Municipal",75,15,0,FALSE,0.00540625967428141,0,40
+"Ghana","women_vitA","Volta","South Tongu",75,15,0,FALSE,0.00910416846415699,0,40
+"Ghana","women_vitA","Western","Effia Kwesimintsim",75,15,0,FALSE,0.00287353718647955,0,40
+"Ghana","women_vitA","Western","Ellembelle",75,15,0,FALSE,0.00191759712448601,0,40
+"Ghana","women_vitA","Western","Jomoro",75,15,0,FALSE,0.0026576487240462,0,40
+"Ghana","women_vitA","Western","Mpohor",75,15,0,FALSE,0.00184210372427795,0,40
+"Ghana","women_vitA","Western","Prestea-Huni Valley",75,15,0,FALSE,0.0018285083205212,0,40
+"Ghana","women_vitA","Western North","Sefwi-Akontombra",75,15,0,FALSE,0.00214221666191675,0,40
 "Ghana","child_iron","Ahafo","Asunafo North",75,15,0,FALSE,0.0637645230567732,0,40
 "Ghana","child_iron","Ahafo","Tano North",75,15,0.172896872182537,FALSE,0.0635186315898194,0,40
 "Ghana","child_iron","Ashanti","Adansi Asokwa",75,15,0.125,FALSE,0.0218207747024379,0,40
@@ -344,405 +344,405 @@
 "Ghana","child_iron","Western","Mpohor",75,15,0,FALSE,0.0131283487283307,0,40
 "Ghana","child_iron","Western","Prestea-Huni Valley",75,15,0,FALSE,0.0179681647863813,0,40
 "Ghana","child_iron","Western North","Sefwi-Akontombra",75,15,0,FALSE,0.0340817649545033,0,40
-"Ghana","women_iron","Ahafo","Asunafo North",75,15,0.0714285714285714,FALSE,0.00438594240378034,0,40
-"Ghana","women_iron","Ahafo","Tano North",75,15,0.0467951238694455,FALSE,0.011439771188795,0,40
-"Ghana","women_iron","Ashanti","Adansi Asokwa",75,15,0.0625,FALSE,0.00791376706076771,0,40
-"Ghana","women_iron","Ashanti","Asante-Akim South",75,15,0.136363636363636,FALSE,0.00703754531694572,0,40
-"Ghana","women_iron","Ashanti","Asokore-Mampong",75,15,0.214285714285714,FALSE,0.0519128348555444,0,40
-"Ghana","women_iron","Ashanti","Asokwa",75,15,0,FALSE,0.102869439469311,0.025,40
-"Ghana","women_iron","Ashanti","Atwima-Mponua",75,15,0.0562944396132795,FALSE,0.00765020886893573,0,40
-"Ghana","women_iron","Ashanti","Atwima-Nwabiagya South",75,15,0.142857142857143,FALSE,0.027868129902059,0,40
-"Ghana","women_iron","Ashanti","Bekwai",75,15,0.142857142857143,FALSE,0.0151165822645014,0,40
-"Ghana","women_iron","Ashanti","Kumasi",75,15,0.220256494574153,FALSE,0.0600441993782996,0,40
-"Ghana","women_iron","Ashanti","Kwadaso",75,15,0.2,FALSE,0.0655752186116528,0,40
-"Ghana","women_iron","Ashanti","Obuasi",75,15,0,FALSE,0.0482728515765538,0,40
-"Ghana","women_iron","Ashanti","Sekyere Kumawu",75,15,0.142857142857143,FALSE,0.0169695485977342,0,40
-"Ghana","women_iron","Ashanti","Sekyere South",75,15,0,FALSE,0.0186778267837801,0,40
-"Ghana","women_iron","Bono","Dormaa West",75,15,0.111111111111111,FALSE,0.00750832866235039,0,40
-"Ghana","women_iron","Bono","Sunyani West",75,15,0,FALSE,0.0171321215464034,0,40
-"Ghana","women_iron","Bono","Wenchi",75,15,0,FALSE,0.0220524997286607,0,40
-"Ghana","women_iron","Bono East","Kintampo North",75,15,0.133333333333333,FALSE,0.0256313613446677,0,40
-"Ghana","women_iron","Bono East","Sene West",75,15,0.0833333333333333,FALSE,0.0126583864640768,0,40
-"Ghana","women_iron","Bono East","Techiman",75,15,0.0769230769230769,FALSE,0.0128343484411487,0,40
-"Ghana","women_iron","Central","Agona West",75,15,0.181818181818182,FALSE,0.021438527242578,0,40
-"Ghana","women_iron","Central","Asikuma-Odoben-Brakwa",75,15,0.15,FALSE,0.0100890377583419,0,40
-"Ghana","women_iron","Central","Awutu Senya West",75,15,0.0909090909090909,FALSE,0.0791392497749093,0.025,40
-"Ghana","women_iron","Central","Mfantseman",75,15,0,FALSE,0.0753451415310729,0,40
-"Ghana","women_iron","Central","Twifo-Atti-Morkwa",75,15,0.111111111111111,FALSE,0.00895096542702509,0,40
-"Ghana","women_iron","Central","Twifo-Hemang-Lower Denkyira",75,15,0.333333333333333,TRUE,0.0079439263984531,0,40
-"Ghana","women_iron","Eastern","Abuakwa South",75,15,0.2,FALSE,0.0144608425738248,0,40
-"Ghana","women_iron","Eastern","Akwapem North",75,15,0.179102919403212,FALSE,0.0402080845503981,0,40
-"Ghana","women_iron","Eastern","Atiwa East",75,15,0.0714285714285714,FALSE,0.0132699745053959,0,40
-"Ghana","women_iron","Eastern","Denkyembour",75,15,0.266666666666667,TRUE,0.0159416509365393,0,40
-"Ghana","women_iron","Eastern","Kwahu Afram Plains North",75,15,0.14000487588725,FALSE,0.0816520624720789,0,40
-"Ghana","women_iron","Greater Accra","Ablekuma Central",75,15,0.2,FALSE,0.331475781221575,0.625,40
-"Ghana","women_iron","Greater Accra","Ablekuma North",75,15,0.0565343659244918,FALSE,0.458980037397692,0.9,40
-"Ghana","women_iron","Greater Accra","Ashaiman",75,15,0.307692307692308,TRUE,0.301542623796904,0.525,40
-"Ghana","women_iron","Greater Accra","Ayawaso West",75,15,0,FALSE,0.361668830812499,0.725,40
-"Ghana","women_iron","Greater Accra","Ga East",75,15,0.333333333333333,TRUE,0.160817375407575,0.15,40
-"Ghana","women_iron","Greater Accra","La-Dade-Kotopon",75,15,0.111111111111111,FALSE,0.44456978264025,0.9,40
-"Ghana","women_iron","Greater Accra","Tema West",75,15,0.153846153846154,FALSE,0.339918303875721,0.625,40
-"Ghana","women_iron","Greater Accra","Weija Gbawe",75,15,0.0823258696656562,FALSE,0.339513345158309,0.675,40
-"Ghana","women_iron","North East","Chereponi",75,15,0.142857142857143,FALSE,0.314446495832682,0.675,40
-"Ghana","women_iron","North East","West Mamprusi",75,15,0.4,TRUE,0.282926356604988,0.675,40
-"Ghana","women_iron","North East","Yunyoo-Nasuan",75,15,0,FALSE,0.377482919703727,0.85,40
-"Ghana","women_iron","Northern","Gushegu",75,15,0.25,TRUE,0.145750260258688,0.05,40
-"Ghana","women_iron","Northern","Kpandai",75,15,0,FALSE,0.120632484031724,0,40
-"Ghana","women_iron","Northern","Nanumba South",75,15,0.2,FALSE,0.113551762149641,0.025,40
-"Ghana","women_iron","Northern","Sagnerigu",75,15,0.316334049122847,TRUE,0.427684131643757,0.975,40
-"Ghana","women_iron","Northern","Savelugu",75,15,0.375,TRUE,0.267125095605305,0.525,40
-"Ghana","women_iron","Northern","Tamale",75,15,0.166666666666667,FALSE,0.34640324101415,0.925,40
-"Ghana","women_iron","Northern","Tatale Sanguli",75,15,0,FALSE,0.130811269471957,0,40
-"Ghana","women_iron","Northern","Tolon",75,15,0.230769230769231,TRUE,0.279954780094937,0.55,40
-"Ghana","women_iron","Oti","Nkwanta South",75,15,0,FALSE,0.0365408871436257,0,40
-"Ghana","women_iron","Savannah","Bole",75,15,0,FALSE,0.0792552584865595,0,40
-"Ghana","women_iron","Savannah","Central Gonja",75,15,0.0704313498940882,FALSE,0.118599742472811,0,40
-"Ghana","women_iron","Savannah","North East Gonja",75,15,0.1,FALSE,0.0948658704041817,0,40
-"Ghana","women_iron","Savannah","Sawla-Tuna-Kalba",75,15,0,FALSE,0.0789738344108277,0,40
-"Ghana","women_iron","Upper East","Bawku West",75,15,0.181818181818182,FALSE,0.405607635501266,0.875,40
-"Ghana","women_iron","Upper East","Binduri",75,15,0.24920936116382,TRUE,0.553591753195221,0.95,40
-"Ghana","women_iron","Upper East","Builsa South",75,15,0.5,TRUE,0.135899253326486,0.15,40
-"Ghana","women_iron","Upper East","Kasena Nankana East",75,15,0.420768566493955,TRUE,0.271225398326649,0.525,40
-"Ghana","women_iron","Upper East","Talensi",75,15,0.25,TRUE,0.300185694420444,0.725,40
-"Ghana","women_iron","Upper West","Jirapa",75,15,0,FALSE,0.202925113337216,0.2,40
-"Ghana","women_iron","Upper West","Lambussie-Karni",75,15,0,FALSE,0.21569483884116,0.2,40
-"Ghana","women_iron","Upper West","Sissala East",75,15,0.142857142857143,FALSE,0.0652753675966445,0,40
-"Ghana","women_iron","Upper West","Wa East",75,15,0,FALSE,0.0827934478616324,0,40
-"Ghana","women_iron","Upper West","Wa Municipal",75,15,0.151631477927063,FALSE,0.151983191887433,0.05,40
-"Ghana","women_iron","Volta","Afadzato South",75,15,0.166666666666667,FALSE,0.0422424998514367,0,40
-"Ghana","women_iron","Volta","Akatsi South",75,15,0.25,TRUE,0.219304745979415,0.325,40
-"Ghana","women_iron","Volta","Ho Municipal",75,15,0.125,FALSE,0.0574272736677193,0,40
-"Ghana","women_iron","Volta","South Tongu",75,15,0.25,TRUE,0.292825128348808,0.575,40
-"Ghana","women_iron","Western","Effia Kwesimintsim",75,15,0,FALSE,0.0347016367393673,0,40
-"Ghana","women_iron","Western","Ellembelle",75,15,0,FALSE,0.00519729723773938,0,40
-"Ghana","women_iron","Western","Jomoro",75,15,0,FALSE,0.00554926866260144,0,40
-"Ghana","women_iron","Western","Mpohor",75,15,0,FALSE,0.00860775843578813,0,40
-"Ghana","women_iron","Western","Prestea-Huni Valley",75,15,0.0588235294117647,FALSE,0.00646983995104251,0,40
-"Ghana","women_iron","Western North","Sefwi-Akontombra",75,15,0,FALSE,0.00433181640980627,0,40
-"Ghana","women_folate","Ahafo","Asunafo North",75,15,0.428571428571429,FALSE,0.542970919648951,0,40
-"Ghana","women_folate","Ahafo","Tano North",75,15,0.443562231759657,FALSE,0.534318135290683,0,40
-"Ghana","women_folate","Ashanti","Adansi Asokwa",75,15,0.333333333333333,FALSE,0.0946079171650925,0,40
-"Ghana","women_folate","Ashanti","Asante-Akim South",75,15,0.8,TRUE,0.145780264220581,0,40
-"Ghana","women_folate","Ashanti","Asokore-Mampong",75,15,0.375,FALSE,0.181612425695093,0,40
-"Ghana","women_folate","Ashanti","Asokwa",75,15,0.666666666666667,FALSE,0.141912069860409,0,40
-"Ghana","women_folate","Ashanti","Atwima-Mponua",75,15,0.376873414802859,FALSE,0.306169641264324,0,40
-"Ghana","women_folate","Ashanti","Atwima-Nwabiagya South",75,15,0.8,TRUE,0.114613499562311,0,40
-"Ghana","women_folate","Ashanti","Bekwai",75,15,0.333333333333333,FALSE,0.102450434936928,0,40
-"Ghana","women_folate","Ashanti","Kumasi",75,15,0.738733962464214,FALSE,0.106753470711201,0,40
-"Ghana","women_folate","Ashanti","Kwadaso",75,15,0.375,FALSE,0.140114195690208,0,40
-"Ghana","women_folate","Ashanti","Obuasi",75,15,0,FALSE,0.0792411138885224,0,40
-"Ghana","women_folate","Ashanti","Sekyere Kumawu",75,15,0.714285714285714,FALSE,0.378369296128624,0,40
-"Ghana","women_folate","Ashanti","Sekyere South",75,15,0.333333333333333,FALSE,0.213342771303138,0,40
-"Ghana","women_folate","Bono","Dormaa West",75,15,0.6,FALSE,0.496768568845443,0,40
-"Ghana","women_folate","Bono","Sunyani West",75,15,0.75,FALSE,0.466170535597694,0,40
-"Ghana","women_folate","Bono","Wenchi",75,15,0.875,TRUE,0.77908942924715,0,40
-"Ghana","women_folate","Bono East","Kintampo North",75,15,1,TRUE,0.894393673292293,0.025,40
-"Ghana","women_folate","Bono East","Sene West",75,15,0.714285714285714,FALSE,0.929699790894795,0.25,40
-"Ghana","women_folate","Bono East","Techiman",75,15,0.625,FALSE,0.561010654641511,0,40
-"Ghana","women_folate","Central","Agona West",75,15,0.2,FALSE,0.104746267889676,0,40
-"Ghana","women_folate","Central","Asikuma-Odoben-Brakwa",75,15,0.555555555555556,FALSE,0.10210235200716,0,40
-"Ghana","women_folate","Central","Awutu Senya West",75,15,0.6,FALSE,0.225128483545479,0,40
-"Ghana","women_folate","Central","Mfantseman",75,15,0,FALSE,0.161626793987208,0,40
-"Ghana","women_folate","Central","Twifo-Atti-Morkwa",75,15,0.833333333333333,TRUE,0.0693025817118467,0,40
-"Ghana","women_folate","Central","Twifo-Hemang-Lower Denkyira",75,15,1,TRUE,0.0659789845018553,0,40
-"Ghana","women_folate","Eastern","Abuakwa South",75,15,0.75,FALSE,0.07869604352702,0,40
-"Ghana","women_folate","Eastern","Akwapem North",75,15,0.243904024200743,FALSE,0.322936222230086,0,40
-"Ghana","women_folate","Eastern","Atiwa East",75,15,0.777777777777778,FALSE,0.168722965640061,0,40
-"Ghana","women_folate","Eastern","Denkyembour",75,15,0.571428571428571,FALSE,0.119043490693998,0,40
-"Ghana","women_folate","Eastern","Kwahu Afram Plains North",75,15,0.78178148618062,FALSE,0.931098688401678,0.35,40
-"Ghana","women_folate","Greater Accra","Ablekuma Central",75,15,0.714285714285714,FALSE,0.0633148730225914,0,40
-"Ghana","women_folate","Greater Accra","Ablekuma North",75,15,0.574815688587437,FALSE,0.11392593673328,0,40
-"Ghana","women_folate","Greater Accra","Ashaiman",75,15,0.75,FALSE,0.109567964369445,0,40
-"Ghana","women_folate","Greater Accra","Ayawaso West",75,15,0.4,FALSE,0.179044888043081,0,40
-"Ghana","women_folate","Greater Accra","Ga East",75,15,0.333333333333333,FALSE,0.110051865740338,0,40
-"Ghana","women_folate","Greater Accra","La-Dade-Kotopon",75,15,0.2,FALSE,0.220670607991484,0,40
-"Ghana","women_folate","Greater Accra","Tema West",75,15,0.833333333333333,TRUE,0.0726149480165725,0,40
-"Ghana","women_folate","Greater Accra","Weija Gbawe",75,15,0.40256110773217,FALSE,0.148242397604413,0,40
-"Ghana","women_folate","North East","Chereponi",75,15,0.333333333333333,FALSE,0.980422395729284,1,40
-"Ghana","women_folate","North East","West Mamprusi",75,15,0.666666666666667,FALSE,0.97053199400777,0.925,40
-"Ghana","women_folate","North East","Yunyoo-Nasuan",75,15,0.285714285714286,FALSE,0.970858689713907,0.9,40
-"Ghana","women_folate","Northern","Gushegu",75,15,0.6,FALSE,0.981292883668833,1,40
-"Ghana","women_folate","Northern","Kpandai",75,15,1,TRUE,0.967322801334235,0.925,40
-"Ghana","women_folate","Northern","Nanumba South",75,15,0.75,FALSE,0.971766680916564,0.975,40
-"Ghana","women_folate","Northern","Sagnerigu",75,15,0.606318992131621,FALSE,0.895097740126789,0.025,40
-"Ghana","women_folate","Northern","Savelugu",75,15,0.625,FALSE,0.976665819687372,0.975,40
-"Ghana","women_folate","Northern","Tamale",75,15,0.857142857142857,TRUE,0.886920682175731,0,40
-"Ghana","women_folate","Northern","Tatale Sanguli",75,15,0.8,TRUE,0.972481562709298,0.975,40
-"Ghana","women_folate","Northern","Tolon",75,15,0.375,FALSE,0.973369636820867,0.975,40
-"Ghana","women_folate","Oti","Nkwanta South",75,15,1,TRUE,0.930923637646183,0.325,40
-"Ghana","women_folate","Savannah","Bole",75,15,0.666666666666667,FALSE,0.970590604017138,0.925,40
-"Ghana","women_folate","Savannah","Central Gonja",75,15,1,TRUE,0.957270899260645,0.75,40
-"Ghana","women_folate","Savannah","North East Gonja",75,15,0.6,FALSE,0.983674955758895,1,40
-"Ghana","women_folate","Savannah","Sawla-Tuna-Kalba",75,15,0.666666666666667,FALSE,0.977369877867291,1,40
-"Ghana","women_folate","Upper East","Bawku West",75,15,1,TRUE,0.732673790844119,0,40
-"Ghana","women_folate","Upper East","Binduri",75,15,0.878172588832487,TRUE,0.654324378281595,0.025,40
-"Ghana","women_folate","Upper East","Builsa South",75,15,1,TRUE,0.878461344831776,0.15,40
-"Ghana","women_folate","Upper East","Kasena Nankana East",75,15,0.233280881195909,FALSE,0.850107866715433,0.05,40
-"Ghana","women_folate","Upper East","Talensi",75,15,0.142857142857143,FALSE,0.912420314555228,0.2,40
-"Ghana","women_folate","Upper West","Jirapa",75,15,0.2,FALSE,0.899562368696788,0.125,40
-"Ghana","women_folate","Upper West","Lambussie-Karni",75,15,0,FALSE,0.926169590781757,0.375,40
-"Ghana","women_folate","Upper West","Sissala East",75,15,0.75,FALSE,0.895872704791593,0.225,40
-"Ghana","women_folate","Upper West","Wa East",75,15,0.333333333333333,FALSE,0.94467084549351,0.525,40
-"Ghana","women_folate","Upper West","Wa Municipal",75,15,0.300632911392405,FALSE,0.782386746383705,0,40
-"Ghana","women_folate","Volta","Afadzato South",75,15,0.7,FALSE,0.706602449692461,0,40
-"Ghana","women_folate","Volta","Akatsi South",75,15,0.25,FALSE,0.798612405056311,0.025,40
-"Ghana","women_folate","Volta","Ho Municipal",75,15,0.75,FALSE,0.399925352880258,0,40
-"Ghana","women_folate","Volta","South Tongu",75,15,0.75,FALSE,0.652223544393177,0,40
-"Ghana","women_folate","Western","Effia Kwesimintsim",75,15,0,FALSE,0.0145853670789975,0,40
-"Ghana","women_folate","Western","Ellembelle",75,15,0,FALSE,0.0246224017835113,0,40
-"Ghana","women_folate","Western","Jomoro",75,15,0,FALSE,0.0537775415884531,0,40
-"Ghana","women_folate","Western","Mpohor",75,15,0.254884678747941,FALSE,0.0140258464305341,0,40
-"Ghana","women_folate","Western","Prestea-Huni Valley",75,15,0,FALSE,0.0555620442930795,0,40
-"Ghana","women_folate","Western North","Sefwi-Akontombra",75,15,0,FALSE,0.235976200608352,0,40
-"Ghana","women_b12","Ahafo","Asunafo North",75,15,0,FALSE,0.0143814127687322,0,40
-"Ghana","women_b12","Ahafo","Tano North",75,15,0.102145922746781,FALSE,0.0120255253578461,0,40
-"Ghana","women_b12","Ashanti","Adansi Asokwa",75,15,0,FALSE,0.00449938430512906,0,40
-"Ghana","women_b12","Ashanti","Asante-Akim South",75,15,0,FALSE,0.0069445159693164,0,40
-"Ghana","women_b12","Ashanti","Asokore-Mampong",75,15,0.125,FALSE,0.00399719759563929,0,40
-"Ghana","women_b12","Ashanti","Asokwa",75,15,0,FALSE,0.0070162811074173,0,40
-"Ghana","women_b12","Ashanti","Atwima-Mponua",75,15,0,FALSE,0.00980217140672469,0,40
-"Ghana","women_b12","Ashanti","Atwima-Nwabiagya South",75,15,0,FALSE,0.00725891481155167,0,40
-"Ghana","women_b12","Ashanti","Bekwai",75,15,0.166666666666667,FALSE,0.00415285654209128,0,40
-"Ghana","women_b12","Ashanti","Kumasi",75,15,0.130633018767893,FALSE,0.00240302886326256,0,40
-"Ghana","women_b12","Ashanti","Kwadaso",75,15,0,FALSE,0.00599243451579335,0,40
-"Ghana","women_b12","Ashanti","Obuasi",75,15,0,FALSE,0.00463556408127652,0,40
-"Ghana","women_b12","Ashanti","Sekyere Kumawu",75,15,0,FALSE,0.0153428969765984,0,40
-"Ghana","women_b12","Ashanti","Sekyere South",75,15,0.166666666666667,FALSE,0.00540390863207359,0,40
-"Ghana","women_b12","Bono","Dormaa West",75,15,0,FALSE,0.0185095393744201,0,40
-"Ghana","women_b12","Bono","Sunyani West",75,15,0,FALSE,0.0265580220261639,0,40
-"Ghana","women_b12","Bono","Wenchi",75,15,0.125,FALSE,0.0342660383675786,0,40
-"Ghana","women_b12","Bono East","Kintampo North",75,15,0.166666666666667,FALSE,0.0630642081582732,0,40
-"Ghana","women_b12","Bono East","Sene West",75,15,0,FALSE,0.0732698864032232,0,40
-"Ghana","women_b12","Bono East","Techiman",75,15,0.25,TRUE,0.0164389087868485,0,40
-"Ghana","women_b12","Central","Agona West",75,15,0,FALSE,0.00468943739553244,0,40
-"Ghana","women_b12","Central","Asikuma-Odoben-Brakwa",75,15,0,FALSE,0.00383769097674275,0,40
-"Ghana","women_b12","Central","Awutu Senya West",75,15,0,FALSE,0.00715120133734966,0,40
-"Ghana","women_b12","Central","Mfantseman",75,15,0,FALSE,0.00293691452692424,0,40
-"Ghana","women_b12","Central","Twifo-Atti-Morkwa",75,15,0,FALSE,0.00601494186693874,0,40
-"Ghana","women_b12","Central","Twifo-Hemang-Lower Denkyira",75,15,0,FALSE,0.00493775769329406,0,40
-"Ghana","women_b12","Eastern","Abuakwa South",75,15,0.25,TRUE,0.00328192829528899,0,40
-"Ghana","women_b12","Eastern","Akwapem North",75,15,0,FALSE,0.00751946547037527,0,40
-"Ghana","women_b12","Eastern","Atiwa East",75,15,0.111111111111111,FALSE,0.0057189120113304,0,40
-"Ghana","women_b12","Eastern","Denkyembour",75,15,0,FALSE,0.008171363191845,0,40
-"Ghana","women_b12","Eastern","Kwahu Afram Plains North",75,15,0,FALSE,0.0921171616141304,0,40
-"Ghana","women_b12","Greater Accra","Ablekuma Central",75,15,0,FALSE,0.00130013196634282,0,40
-"Ghana","women_b12","Greater Accra","Ablekuma North",75,15,0,FALSE,0.00138319385101957,0,40
-"Ghana","women_b12","Greater Accra","Ashaiman",75,15,0,FALSE,0.00218527297435845,0,40
-"Ghana","women_b12","Greater Accra","Ayawaso West",75,15,0.2,TRUE,0.00129382332573284,0,40
-"Ghana","women_b12","Greater Accra","Ga East",75,15,0,FALSE,0.001979354447751,0,40
-"Ghana","women_b12","Greater Accra","La-Dade-Kotopon",75,15,0,FALSE,0.00211874787143161,0,40
-"Ghana","women_b12","Greater Accra","Tema West",75,15,0,FALSE,0.00292616761324186,0,40
-"Ghana","women_b12","Greater Accra","Weija Gbawe",75,15,0.0778132643820082,FALSE,0.00150840517739039,0,40
-"Ghana","women_b12","North East","Chereponi",75,15,1,TRUE,0.365476619528573,1,40
-"Ghana","women_b12","North East","West Mamprusi",75,15,0.166666666666667,FALSE,0.369852433182678,0.9,40
-"Ghana","women_b12","North East","Yunyoo-Nasuan",75,15,0.428571428571429,TRUE,0.390100608595374,0.925,40
-"Ghana","women_b12","Northern","Gushegu",75,15,0.4,TRUE,0.489225534921864,1,40
-"Ghana","women_b12","Northern","Kpandai",75,15,0.5,TRUE,0.284271118205327,0.9,40
-"Ghana","women_b12","Northern","Nanumba South",75,15,0.25,TRUE,0.3265125495193,0.975,40
-"Ghana","women_b12","Northern","Sagnerigu",75,15,0,FALSE,0.356055901187042,0.95,40
-"Ghana","women_b12","Northern","Savelugu",75,15,0.25,TRUE,0.42898932475543,0.975,40
-"Ghana","women_b12","Northern","Tamale",75,15,0.285714285714286,TRUE,0.325337174654155,0.9,40
-"Ghana","women_b12","Northern","Tatale Sanguli",75,15,0.4,TRUE,0.338214672326492,0.975,40
-"Ghana","women_b12","Northern","Tolon",75,15,0.25,TRUE,0.372945758640336,0.975,40
-"Ghana","women_b12","Oti","Nkwanta South",75,15,0,FALSE,0.137596634176413,0.05,40
-"Ghana","women_b12","Savannah","Bole",75,15,0,FALSE,0.24186644827946,0.7,40
-"Ghana","women_b12","Savannah","Central Gonja",75,15,0,FALSE,0.328931449729041,1,40
-"Ghana","women_b12","Savannah","North East Gonja",75,15,0.2,FALSE,0.389532086875889,0.975,40
-"Ghana","women_b12","Savannah","Sawla-Tuna-Kalba",75,15,0.166666666666667,FALSE,0.307260851671202,0.9,40
-"Ghana","women_b12","Upper East","Bawku West",75,15,0,FALSE,0.151059620610668,0.075,40
-"Ghana","women_b12","Upper East","Binduri",75,15,0,FALSE,0.198192570155779,0.4,40
-"Ghana","women_b12","Upper East","Builsa South",75,15,0,FALSE,0.161563032422379,0.075,40
-"Ghana","women_b12","Upper East","Kasena Nankana East",75,15,0,FALSE,0.12649984534398,0,40
-"Ghana","women_b12","Upper East","Talensi",75,15,0,FALSE,0.18456884777665,0.15,40
-"Ghana","women_b12","Upper West","Jirapa",75,15,0,FALSE,0.12921364462474,0,40
-"Ghana","women_b12","Upper West","Lambussie-Karni",75,15,0,FALSE,0.142541258359305,0.025,40
-"Ghana","women_b12","Upper West","Sissala East",75,15,0.25,TRUE,0.124060611571601,0.05,40
-"Ghana","women_b12","Upper West","Wa East",75,15,0,FALSE,0.171485120374523,0.1,40
-"Ghana","women_b12","Upper West","Wa Municipal",75,15,0,FALSE,0.131717176800177,0.025,40
-"Ghana","women_b12","Volta","Afadzato South",75,15,0.1,FALSE,0.0192899502737885,0,40
-"Ghana","women_b12","Volta","Akatsi South",75,15,0,FALSE,0.0303605114128245,0,40
-"Ghana","women_b12","Volta","Ho Municipal",75,15,0.25,TRUE,0.0142908097990693,0,40
-"Ghana","women_b12","Volta","South Tongu",75,15,0,FALSE,0.0213091789019334,0,40
-"Ghana","women_b12","Western","Effia Kwesimintsim",75,15,0,FALSE,0.00148632413028184,0,40
-"Ghana","women_b12","Western","Ellembelle",75,15,0,FALSE,0.00197130366044593,0,40
-"Ghana","women_b12","Western","Jomoro",75,15,0,FALSE,0.00332292296916513,0,40
-"Ghana","women_b12","Western","Mpohor",75,15,0.254884678747941,TRUE,0.00101155882828072,0,40
-"Ghana","women_b12","Western","Prestea-Huni Valley",75,15,0,FALSE,0.00233959374059136,0,40
-"Ghana","women_b12","Western North","Sefwi-Akontombra",75,15,0,FALSE,0.0060179551861909,0,40
-"Malawi","child_vitA","Balaka","TA Kalembo",87,18,0,TRUE,0.0104990566341781,0.85,40
-"Malawi","child_vitA","Balaka","TA Nsamala",87,18,0,TRUE,0.00998665248714643,0.9,40
-"Malawi","child_vitA","Blantyre","Blantyre City",87,18,0,TRUE,0.0024575483983189,0,40
-"Malawi","child_vitA","Blantyre","TA Kuntaja",87,18,0,TRUE,0.00722759444889501,0.125,40
-"Malawi","child_vitA","Chikwawa","TA Kasisi",87,18,0,TRUE,0.0101168526022076,0.775,40
-"Malawi","child_vitA","Chikwawa","TA Lundu",87,18,0,TRUE,0.00806333128306858,0.325,40
-"Malawi","child_vitA","Chiradzulu","TA Kadewere",87,18,0,TRUE,0.00683988090051085,0.025,40
-"Malawi","child_vitA","Chiradzulu","TA Mpama",87,18,0,TRUE,0.00492813626738423,0,40
-"Malawi","child_vitA","Chiradzulu","TA Nchema",87,18,0,TRUE,0.00623059483512628,0,40
-"Malawi","child_vitA","Chitipa","Chitipa Boma",87,18,0,TRUE,0.00256803467438476,0,40
-"Malawi","child_vitA","Chitipa","Nyika N.P. - Chitipa",87,18,0,TRUE,0.00404553254965024,0,40
-"Malawi","child_vitA","Chitipa","TA Mwabulambya",87,18,0,TRUE,0.0036247597101143,0,40
-"Malawi","child_vitA","Chitipa","TA Mwenemisuku",87,18,0,TRUE,0.00344684875293924,0,40
-"Malawi","child_vitA","Chitipa","TA Mwenewenya",87,18,0,FALSE,0.00367793491260739,0,40
-"Malawi","child_vitA","Dedza","TA Kaphuka",87,18,0,FALSE,0.00697913697165659,0,40
-"Malawi","child_vitA","Dedza","TA Pemba",87,18,0,FALSE,0.00932154842073802,0.7,40
-"Malawi","child_vitA","Dedza","TA Tambala",87,18,0,FALSE,0.0084632373463915,0.475,40
-"Malawi","child_vitA","Dowa","SC Kayembe",87,18,0,FALSE,0.00719245632773914,0.15,40
-"Malawi","child_vitA","Dowa","SC Mkukula",87,18,0,FALSE,0.00604966477633369,0,40
-"Malawi","child_vitA","Dowa","SC Mponela",87,18,0,FALSE,0.00559727658223738,0,40
-"Malawi","child_vitA","Dowa","TA Dzoole",87,18,0,FALSE,0.00604609248246457,0,40
-"Malawi","child_vitA","Karonga","Karonga Town",87,18,0,FALSE,0.00251804124952539,0,40
-"Malawi","child_vitA","Karonga","TA Kilupula",87,18,0,FALSE,0.00332931900977403,0,40
-"Malawi","child_vitA","Karonga","TA Kyungu",87,18,0,FALSE,0.00354317129106578,0,40
-"Malawi","child_vitA","Karonga","TA Wasambo",87,18,0,FALSE,0.0034005343495392,0,40
-"Malawi","child_vitA","Kasungu","SC Kawamba",87,18,0,FALSE,0.00766513291190823,0.25,40
-"Malawi","child_vitA","Kasungu","TA Kaluluma",87,18,0,FALSE,0.00375005062782287,0,40
-"Malawi","child_vitA","Kasungu","TA Mwase",87,18,0,FALSE,0.00604287049197736,0,40
-"Malawi","child_vitA","Kasungu","TA Santhe",87,18,0,FALSE,0.00747025272924469,0.275,40
-"Malawi","child_vitA","Lilongwe","Lilongwe City",87,18,0,FALSE,0.00273361469594872,0,40
-"Malawi","child_vitA","Lilongwe","TA Chiseka",87,18,0,FALSE,0.00666139149462808,0,40
-"Malawi","child_vitA","Lilongwe","TA Kabudula",87,18,0,FALSE,0.00711640347979854,0.1,40
-"Malawi","child_vitA","Lilongwe","TA Khongoni",87,18,0,FALSE,0.00802377504330482,0.45,40
-"Malawi","child_vitA","Machinga","TA Kawinga",87,18,0.0555555555555556,TRUE,0.00633408982250811,0,40
-"Malawi","child_vitA","Mangochi","SC Chowe",87,18,0,FALSE,0.0101743745062218,0.825,40
-"Malawi","child_vitA","Mangochi","TA Mponda",87,18,0,FALSE,0.00845132541171077,0.425,40
-"Malawi","child_vitA","Mangochi","TA Nankumba",87,18,0,FALSE,0.0107151107096281,0.875,40
-"Malawi","child_vitA","Mchinji","SC Dambe",87,18,0.0476190476190476,TRUE,0.00566105198477638,0,40
-"Malawi","child_vitA","Mchinji","SC Mduwa",87,18,0,FALSE,0.00952169982401164,0.825,40
-"Malawi","child_vitA","Mchinji","TA Mlonyeni",87,18,0,FALSE,0.00710465001822862,0.1,40
-"Malawi","child_vitA","Mchinji","TA Zulu",87,18,0,FALSE,0.008453469956214,0.7,40
-"Malawi","child_vitA","Mulanje","SC Juma",87,18,0,FALSE,0.00895792425547382,0.625,40
-"Malawi","child_vitA","Mulanje","TA Mabuka",87,18,0,FALSE,0.00599234968060617,0,40
-"Malawi","child_vitA","Mwanza","Majete Game Reserve - Mwanza",87,18,0,FALSE,0.0101536552419457,0.725,40
-"Malawi","child_vitA","Mwanza","TA Nthache",87,18,0,FALSE,0.00769608659531419,0.3,40
-"Malawi","child_vitA","Mzimba","Mzimba Boma",87,18,0,FALSE,0.00211864674592262,0,40
-"Malawi","child_vitA","Mzimba","Mzuzu City",87,18,0,FALSE,0.00149092887255718,0,40
-"Malawi","child_vitA","Mzimba","TA Chindi",87,18,0,FALSE,0.00390196253752024,0,40
-"Malawi","child_vitA","Mzimba","TA M'Mbelwa",87,18,0,FALSE,0.00349096574890917,0,40
-"Malawi","child_vitA","Mzimba","TA Mabulabo",87,18,0,FALSE,0.00331965564109429,0,40
-"Malawi","child_vitA","Mzimba","TA Mtwalo",87,18,0,FALSE,0.00287289057925096,0,40
-"Malawi","child_vitA","Neno","TA Ngozi",87,18,0.00727907305799676,TRUE,0.00538700494918825,0,40
-"Malawi","child_vitA","Neno","TA Symon",87,18,0,FALSE,0.0110829521687709,0.9,40
-"Malawi","child_vitA","Nkhata Bay","SC Malanda",87,18,0,FALSE,0.00348720400401572,0,40
-"Malawi","child_vitA","Nkhata Bay","TA Fukamapiri",87,18,0,FALSE,0.00404174811963968,0,40
-"Malawi","child_vitA","Nkhata Bay","TA Kabunduli",87,18,0,FALSE,0.00350434309680975,0,40
-"Malawi","child_vitA","Nkhata Bay","TA Musisya",87,18,0,FALSE,0.00393581740931542,0,40
-"Malawi","child_vitA","Nkhata Bay","TA Timbiri",87,18,0,FALSE,0.00334499506099359,0,40
-"Malawi","child_vitA","Nkhotakota","Nkhotakota Boma",87,18,0,FALSE,0.00453678907908374,0,40
-"Malawi","child_vitA","Nkhotakota","TA Kanyenda",87,18,0,FALSE,0.00598711239222624,0,40
-"Malawi","child_vitA","Nkhotakota","TA Malenga Chanzi",87,18,0,FALSE,0.00658973888838879,0,40
-"Malawi","child_vitA","Nkhotakota","TA Mwadzama",87,18,0,FALSE,0.00825077186487046,0.425,40
-"Malawi","child_vitA","Nsanje","Nsanje Boma",87,18,0,FALSE,0.00590701003698217,0,40
-"Malawi","child_vitA","Nsanje","SC Mbenje",87,18,0,FALSE,0.00729845668356169,0.175,40
-"Malawi","child_vitA","Nsanje","TA Ndamera",87,18,0,FALSE,0.00773814924269222,0.25,40
-"Malawi","child_vitA","Ntcheu","SC Goodson Ganya",87,18,0,FALSE,0.00917061522899099,0.7,40
-"Malawi","child_vitA","Ntcheu","SC Makwangwala",87,18,0.0769230769230769,TRUE,0.00681643538972594,0,40
-"Malawi","child_vitA","Ntcheu","TA Njolomole",87,18,0,FALSE,0.00695283095650441,0,40
-"Malawi","child_vitA","Ntcheu","TA Phambala",87,18,0,FALSE,0.0104365663172536,0.8,40
-"Malawi","child_vitA","Ntchisi","SC Chilooko",87,18,0,FALSE,0.0060964987983898,0,40
-"Malawi","child_vitA","Ntchisi","SC Nthondo",87,18,0,FALSE,0.00757609762183841,0.1,40
-"Malawi","child_vitA","Ntchisi","TA Kalumo",87,18,0,FALSE,0.00574674304503305,0,40
-"Malawi","child_vitA","Phalombe","TA Mkhumba",87,18,0,FALSE,0.00876814154060212,0.625,40
-"Malawi","child_vitA","Rumphi","Rumphi Boma",87,18,0,FALSE,0.00187314391047957,0,40
-"Malawi","child_vitA","Rumphi","SC Chapinduka",87,18,0,FALSE,0.00300408729826407,0,40
-"Malawi","child_vitA","Rumphi","SC Kachulu",87,18,0,FALSE,0.00274287490451786,0,40
-"Malawi","child_vitA","Rumphi","SC Mwankhunikira",87,18,0,FALSE,0.00308766467141208,0,40
-"Malawi","child_vitA","Rumphi","TA Chikulamayembe",87,18,0,FALSE,0.00283599692413518,0,40
-"Malawi","child_vitA","Salima","SC Kambwiri",87,18,0.0769230769230769,TRUE,0.0077101382881902,0.1,40
-"Malawi","child_vitA","Salima","TA Karonga",87,18,0,FALSE,0.0146441215099517,0.9,40
-"Malawi","child_vitA","Salima","TA Khombedza",87,18,0,FALSE,0.0118947701753933,0.85,40
-"Malawi","child_vitA","Salima","TA Maganga",87,18,0,FALSE,0.0123757849931529,0.85,40
-"Malawi","child_vitA","Thyolo","SC Mbawela",87,18,0,FALSE,0.00728009923872706,0,40
-"Malawi","child_vitA","Thyolo","TA Bvumbwe",87,18,0,FALSE,0.00517134535263837,0,40
-"Malawi","child_vitA","Thyolo","TA Nchilamwela",87,18,0,FALSE,0.00569752375263658,0,40
-"Malawi","child_vitA","Zomba","SC Mbiza",87,18,0,FALSE,0.00824872396743572,0.525,40
-"Malawi","child_vitA","Zomba","TA Malemia",87,18,0,FALSE,0.00648000155404402,0,40
-"Malawi","women_vitA","Balaka","TA Kalembo",87,18,0,TRUE,0.00637476698286441,0.35,40
-"Malawi","women_vitA","Balaka","TA Nsamala",87,18,0,TRUE,0.00573320782681358,0.025,40
-"Malawi","women_vitA","Blantyre","Blantyre City",87,18,0,TRUE,0.00413548453491574,0,40
-"Malawi","women_vitA","Blantyre","TA Kuntaja",87,18,0,TRUE,0.00561964202774745,0.125,40
-"Malawi","women_vitA","Chikwawa","TA Kasisi",87,18,0,TRUE,0.0101114032886703,0.725,40
-"Malawi","women_vitA","Chikwawa","TA Lundu",87,18,0,TRUE,0.0146035621790679,0.8,40
-"Malawi","women_vitA","Chiradzulu","TA Kadewere",87,18,0,TRUE,0.00474277737899923,0,40
-"Malawi","women_vitA","Chiradzulu","TA Mpama",87,18,0,TRUE,0.00381108583841405,0,40
-"Malawi","women_vitA","Chiradzulu","TA Nchema",87,18,0,TRUE,0.00422904878306245,0,40
-"Malawi","women_vitA","Chitipa","Chitipa Boma",87,18,0,TRUE,0.00403155586179596,0,40
-"Malawi","women_vitA","Chitipa","Nyika N.P. - Chitipa",87,18,0,TRUE,0.00388943819842978,0,40
-"Malawi","women_vitA","Chitipa","TA Mwabulambya",87,18,0,TRUE,0.00425348285047285,0,40
-"Malawi","women_vitA","Chitipa","TA Mwenemisuku",87,18,0,TRUE,0.00333285421655936,0,40
-"Malawi","women_vitA","Chitipa","TA Mwenewenya",87,18,0,TRUE,0.00371271678538186,0,40
-"Malawi","women_vitA","Dedza","TA Kaphuka",87,18,0,TRUE,0.00506432011131404,0,40
-"Malawi","women_vitA","Dedza","TA Pemba",87,18,0,TRUE,0.00592403299896483,0.1,40
-"Malawi","women_vitA","Dedza","TA Tambala",87,18,0,FALSE,0.00484023367033881,0,40
-"Malawi","women_vitA","Dowa","SC Kayembe",87,18,0,FALSE,0.00728736289771811,0.75,40
-"Malawi","women_vitA","Dowa","SC Mkukula",87,18,0,FALSE,0.00546237461038213,0,40
-"Malawi","women_vitA","Dowa","SC Mponela",87,18,0,FALSE,0.00604471863633011,0.125,40
-"Malawi","women_vitA","Dowa","TA Dzoole",87,18,0,FALSE,0.005854007397274,0.15,40
-"Malawi","women_vitA","Karonga","Karonga Town",87,18,0,FALSE,0.00555470367733357,0.025,40
-"Malawi","women_vitA","Karonga","TA Kilupula",87,18,0,FALSE,0.00436707354583097,0,40
-"Malawi","women_vitA","Karonga","TA Kyungu",87,18,0,FALSE,0.00439090412138905,0,40
-"Malawi","women_vitA","Karonga","TA Wasambo",87,18,0,FALSE,0.00494210330329541,0,40
-"Malawi","women_vitA","Kasungu","SC Kawamba",87,18,0,FALSE,0.00839359043491029,0.8,40
-"Malawi","women_vitA","Kasungu","TA Kaluluma",87,18,0,FALSE,0.00592594860332968,0.1,40
-"Malawi","women_vitA","Kasungu","TA Mwase",87,18,0,FALSE,0.0068011153172642,0.75,40
-"Malawi","women_vitA","Kasungu","TA Santhe",87,18,0,FALSE,0.00888349928455023,0.75,40
-"Malawi","women_vitA","Lilongwe","Lilongwe City",87,18,0,FALSE,0.00419099102610284,0,40
-"Malawi","women_vitA","Lilongwe","TA Chiseka",87,18,0,FALSE,0.00621939773390377,0.25,40
-"Malawi","women_vitA","Lilongwe","TA Kabudula",87,18,0,FALSE,0.00693934211713757,0.8,40
-"Malawi","women_vitA","Lilongwe","TA Khongoni",87,18,0,FALSE,0.00774887893351498,0.75,40
-"Malawi","women_vitA","Machinga","TA Kawinga",87,18,0,FALSE,0.00933306232289188,0.9,40
-"Malawi","women_vitA","Mangochi","SC Chowe",87,18,0,FALSE,0.00572807647018999,0,40
-"Malawi","women_vitA","Mangochi","TA Mponda",87,18,0,FALSE,0.00569465825780117,0,40
-"Malawi","women_vitA","Mangochi","TA Nankumba",87,18,0,FALSE,0.00548793449874967,0,40
-"Malawi","women_vitA","Mchinji","SC Dambe",87,18,0.0833333333333333,TRUE,0.00418560522669375,0,40
-"Malawi","women_vitA","Mchinji","SC Mduwa",87,18,0,FALSE,0.00843951958646115,0.85,40
-"Malawi","women_vitA","Mchinji","TA Mlonyeni",87,18,0,FALSE,0.0066875344556104,0.625,40
-"Malawi","women_vitA","Mchinji","TA Zulu",87,18,0,FALSE,0.00798023672797558,0.8,40
-"Malawi","women_vitA","Mulanje","SC Juma",87,18,0,FALSE,0.00648277191449934,0.2,40
-"Malawi","women_vitA","Mulanje","TA Mabuka",87,18,0,FALSE,0.00520576274067007,0.1,40
-"Malawi","women_vitA","Mwanza","Majete Game Reserve - Mwanza",87,18,0,FALSE,0.00636924333004881,0.35,40
-"Malawi","women_vitA","Mwanza","TA Nthache",87,18,0,FALSE,0.00430806868636839,0,40
-"Malawi","women_vitA","Mzimba","Mzimba Boma",87,18,0,FALSE,0.00418472252822538,0,40
-"Malawi","women_vitA","Mzimba","Mzuzu City",87,18,0,FALSE,0.00286120275638431,0,40
-"Malawi","women_vitA","Mzimba","TA Chindi",87,18,0,FALSE,0.00606558376729309,0.1,40
-"Malawi","women_vitA","Mzimba","TA M'Mbelwa",87,18,0,FALSE,0.00665558879646936,0.525,40
-"Malawi","women_vitA","Mzimba","TA Mabulabo",87,18,0,FALSE,0.00438678800266042,0,40
-"Malawi","women_vitA","Mzimba","TA Mtwalo",87,18,0,FALSE,0.00411764950723472,0,40
-"Malawi","women_vitA","Neno","TA Ngozi",87,18,0,FALSE,0.00469649275007487,0,40
-"Malawi","women_vitA","Neno","TA Symon",87,18,0,FALSE,0.00784586882554572,0.775,40
-"Malawi","women_vitA","Nkhata Bay","SC Malanda",87,18,0,FALSE,0.00332211297750151,0,40
-"Malawi","women_vitA","Nkhata Bay","TA Fukamapiri",87,18,0,FALSE,0.00359404454635706,0,40
-"Malawi","women_vitA","Nkhata Bay","TA Kabunduli",87,18,0,FALSE,0.00352186757485638,0,40
-"Malawi","women_vitA","Nkhata Bay","TA Musisya",87,18,0,FALSE,0.00431108084622083,0,40
-"Malawi","women_vitA","Nkhata Bay","TA Timbiri",87,18,0,FALSE,0.00347887710364952,0,40
-"Malawi","women_vitA","Nkhotakota","Nkhotakota Boma",87,18,0,FALSE,0.00513611393731582,0,40
-"Malawi","women_vitA","Nkhotakota","TA Kanyenda",87,18,0,FALSE,0.00540062614695902,0,40
-"Malawi","women_vitA","Nkhotakota","TA Malenga Chanzi",87,18,0,FALSE,0.00604106944160349,0.05,40
-"Malawi","women_vitA","Nkhotakota","TA Mwadzama",87,18,0,FALSE,0.00611625526446386,0,40
-"Malawi","women_vitA","Nsanje","Nsanje Boma",87,18,0,FALSE,0.0188756975308654,0.875,40
-"Malawi","women_vitA","Nsanje","SC Mbenje",87,18,0.111111111111111,TRUE,0.00392711097494805,0,40
-"Malawi","women_vitA","Nsanje","TA Ndamera",87,18,0,FALSE,0.0186170735686515,0.9,40
-"Malawi","women_vitA","Ntcheu","SC Goodson Ganya",87,18,0,FALSE,0.00396735823953851,0,40
-"Malawi","women_vitA","Ntcheu","SC Makwangwala",87,18,0,FALSE,0.00500590850885799,0,40
-"Malawi","women_vitA","Ntcheu","TA Njolomole",87,18,0,FALSE,0.00337227611116357,0,40
-"Malawi","women_vitA","Ntcheu","TA Phambala",87,18,0,FALSE,0.00487554791813179,0,40
-"Malawi","women_vitA","Ntchisi","SC Chilooko",87,18,0,FALSE,0.00434394901538621,0,40
-"Malawi","women_vitA","Ntchisi","SC Nthondo",87,18,0,FALSE,0.00432200632612368,0,40
-"Malawi","women_vitA","Ntchisi","TA Kalumo",87,18,0,FALSE,0.00478532109350639,0,40
-"Malawi","women_vitA","Phalombe","TA Mkhumba",87,18,0,FALSE,0.00770252416359268,0.9,40
-"Malawi","women_vitA","Rumphi","Rumphi Boma",87,18,0,FALSE,0.00319327174833593,0,40
-"Malawi","women_vitA","Rumphi","SC Chapinduka",87,18,0,FALSE,0.00307859604263466,0,40
-"Malawi","women_vitA","Rumphi","SC Kachulu",87,18,0,FALSE,0.00232934005128319,0,40
-"Malawi","women_vitA","Rumphi","SC Mwankhunikira",87,18,0,FALSE,0.00272959534411547,0,40
-"Malawi","women_vitA","Rumphi","TA Chikulamayembe",87,18,0,FALSE,0.00349121132946057,0,40
-"Malawi","women_vitA","Salima","SC Kambwiri",87,18,0,FALSE,0.00594980740777305,0,40
-"Malawi","women_vitA","Salima","TA Karonga",87,18,0,FALSE,0.0064966231210981,0.4,40
-"Malawi","women_vitA","Salima","TA Khombedza",87,18,0,FALSE,0.00791928311955434,0.625,40
-"Malawi","women_vitA","Salima","TA Maganga",87,18,0,FALSE,0.00734175479461763,0.7,40
-"Malawi","women_vitA","Thyolo","SC Mbawela",87,18,0,FALSE,0.00683347005231832,0.775,40
-"Malawi","women_vitA","Thyolo","TA Bvumbwe",87,18,0,FALSE,0.00527949067608467,0,40
-"Malawi","women_vitA","Thyolo","TA Nchilamwela",87,18,0,FALSE,0.00592683487791326,0.175,40
-"Malawi","women_vitA","Zomba","SC Mbiza",87,18,0,FALSE,0.00473269529700126,0,40
-"Malawi","women_vitA","Zomba","TA Malemia",87,18,0,FALSE,0.00452103702371297,0,40
+"Ghana","women_iron","Ahafo","Asunafo North",75,15,0.0714285714285714,FALSE,0.00436019962227834,0,40
+"Ghana","women_iron","Ahafo","Tano North",75,15,0.0467951238694455,FALSE,0.0113249502852763,0,40
+"Ghana","women_iron","Ashanti","Adansi Asokwa",75,15,0.0625,FALSE,0.00783946552159239,0,40
+"Ghana","women_iron","Ashanti","Asante-Akim South",75,15,0.136363636363636,FALSE,0.0069321738887518,0,40
+"Ghana","women_iron","Ashanti","Asokore-Mampong",75,15,0.153846153846154,FALSE,0.051059800193612,0,40
+"Ghana","women_iron","Ashanti","Asokwa",75,15,0,FALSE,0.0931623538907877,0.025,40
+"Ghana","women_iron","Ashanti","Atwima-Mponua",75,15,0.0562944396132795,FALSE,0.00766034704996369,0,40
+"Ghana","women_iron","Ashanti","Atwima-Nwabiagya South",75,15,0.142857142857143,FALSE,0.0261387680076258,0,40
+"Ghana","women_iron","Ashanti","Bekwai",75,15,0.142857142857143,FALSE,0.0145406170932521,0,40
+"Ghana","women_iron","Ashanti","Kumasi",75,15,0.211255611510035,FALSE,0.051849360980968,0,40
+"Ghana","women_iron","Ashanti","Kwadaso",75,15,0.2,FALSE,0.0572803681714525,0,40
+"Ghana","women_iron","Ashanti","Obuasi",75,15,0,FALSE,0.0448001734100899,0,40
+"Ghana","women_iron","Ashanti","Sekyere Kumawu",75,15,0.133333333333333,FALSE,0.0167432323695893,0,40
+"Ghana","women_iron","Ashanti","Sekyere South",75,15,0,FALSE,0.0179545308630404,0,40
+"Ghana","women_iron","Bono","Dormaa West",75,15,0.111111111111111,FALSE,0.00748691038207178,0,40
+"Ghana","women_iron","Bono","Sunyani West",75,15,0,FALSE,0.0165944070243139,0,40
+"Ghana","women_iron","Bono","Wenchi",75,15,0,FALSE,0.0216202950031324,0,40
+"Ghana","women_iron","Bono East","Kintampo North",75,15,0.133333333333333,FALSE,0.0253359638958908,0,40
+"Ghana","women_iron","Bono East","Sene West",75,15,0.0833333333333333,FALSE,0.013222910306841,0,40
+"Ghana","women_iron","Bono East","Techiman",75,15,0.0769230769230769,FALSE,0.0123494551660558,0,40
+"Ghana","women_iron","Central","Agona West",75,15,0.181818181818182,FALSE,0.0213548373521745,0,40
+"Ghana","women_iron","Central","Asikuma-Odoben-Brakwa",75,15,0.15,FALSE,0.0102361324881897,0,40
+"Ghana","women_iron","Central","Awutu Senya West",75,15,0.0909090909090909,FALSE,0.0818943284521228,0.025,40
+"Ghana","women_iron","Central","Mfantseman",75,15,0,FALSE,0.0779590052911107,0,40
+"Ghana","women_iron","Central","Twifo-Atti-Morkwa",75,15,0.111111111111111,FALSE,0.00928004894718692,0,40
+"Ghana","women_iron","Central","Twifo-Hemang-Lower Denkyira",75,15,0.333333333333333,TRUE,0.00824426822719131,0,40
+"Ghana","women_iron","Eastern","Abuakwa South",75,15,0.2,FALSE,0.0144953954552978,0,40
+"Ghana","women_iron","Eastern","Akwapem North",75,15,0.169012696924735,FALSE,0.0411456284098379,0,40
+"Ghana","women_iron","Eastern","Atiwa East",75,15,0.0666666666666667,FALSE,0.0136946819035379,0,40
+"Ghana","women_iron","Eastern","Denkyembour",75,15,0.266666666666667,TRUE,0.0161632657889245,0,40
+"Ghana","women_iron","Eastern","Kwahu Afram Plains North",75,15,0.143179694482742,FALSE,0.0790490053871791,0,40
+"Ghana","women_iron","Greater Accra","Ablekuma Central",75,15,0.1875,FALSE,0.33516137834238,0.625,40
+"Ghana","women_iron","Greater Accra","Ablekuma North",75,15,0.0602325761287162,FALSE,0.458329266194358,0.9,40
+"Ghana","women_iron","Greater Accra","Ashaiman",75,15,0.307692307692308,TRUE,0.307576314166128,0.55,40
+"Ghana","women_iron","Greater Accra","Ayawaso West",75,15,0,FALSE,0.363673886428788,0.775,40
+"Ghana","women_iron","Greater Accra","Ga East",75,15,0.333333333333333,TRUE,0.163295758924152,0.125,40
+"Ghana","women_iron","Greater Accra","La-Dade-Kotopon",75,15,0.111111111111111,FALSE,0.446290788526815,0.925,40
+"Ghana","women_iron","Greater Accra","Tema West",75,15,0.153846153846154,FALSE,0.338321459385688,0.65,40
+"Ghana","women_iron","Greater Accra","Weija Gbawe",75,15,0.0775338752872863,FALSE,0.351978042916504,0.675,40
+"Ghana","women_iron","North East","Chereponi",75,15,0.142857142857143,FALSE,0.302169389148504,0.675,40
+"Ghana","women_iron","North East","West Mamprusi",75,15,0.4,TRUE,0.269532586086034,0.65,40
+"Ghana","women_iron","North East","Yunyoo-Nasuan",75,15,0,FALSE,0.364516807418151,0.775,40
+"Ghana","women_iron","Northern","Gushegu",75,15,0.222222222222222,TRUE,0.142649237259502,0.05,40
+"Ghana","women_iron","Northern","Kpandai",75,15,0,FALSE,0.117270634514365,0,40
+"Ghana","women_iron","Northern","Nanumba South",75,15,0.2,FALSE,0.107024497876943,0,40
+"Ghana","women_iron","Northern","Sagnerigu",75,15,0.316334049122847,TRUE,0.390636684676573,0.925,40
+"Ghana","women_iron","Northern","Savelugu",75,15,0.375,TRUE,0.254480256989282,0.475,40
+"Ghana","women_iron","Northern","Tamale",75,15,0.117647058823529,FALSE,0.341827982792021,0.9,40
+"Ghana","women_iron","Northern","Tatale Sanguli",75,15,0,FALSE,0.1268271753575,0,40
+"Ghana","women_iron","Northern","Tolon",75,15,0.230769230769231,TRUE,0.265352038834388,0.525,40
+"Ghana","women_iron","Oti","Nkwanta South",75,15,0,FALSE,0.0374522903119084,0,40
+"Ghana","women_iron","Savannah","Bole",75,15,0,FALSE,0.0784552632545619,0,40
+"Ghana","women_iron","Savannah","Central Gonja",75,15,0.0734179756109801,FALSE,0.113080579937483,0,40
+"Ghana","women_iron","Savannah","North East Gonja",75,15,0.1,FALSE,0.0922400104784208,0,40
+"Ghana","women_iron","Savannah","Sawla-Tuna-Kalba",75,15,0,FALSE,0.0762339370048392,0,40
+"Ghana","women_iron","Upper East","Bawku West",75,15,0.181818181818182,FALSE,0.393566678522959,0.875,40
+"Ghana","women_iron","Upper East","Binduri",75,15,0.24920936116382,TRUE,0.544705636200239,0.925,40
+"Ghana","women_iron","Upper East","Builsa South",75,15,0.5,TRUE,0.132992868241608,0.15,40
+"Ghana","women_iron","Upper East","Kasena Nankana East",75,15,0.420768566493955,TRUE,0.262185692639122,0.55,40
+"Ghana","women_iron","Upper East","Talensi",75,15,0.25,TRUE,0.28757781326015,0.675,40
+"Ghana","women_iron","Upper West","Jirapa",75,15,0,FALSE,0.19643349893716,0.175,40
+"Ghana","women_iron","Upper West","Lambussie-Karni",75,15,0,FALSE,0.210030832441644,0.2,40
+"Ghana","women_iron","Upper West","Sissala East",75,15,0.142857142857143,FALSE,0.062485391521135,0,40
+"Ghana","women_iron","Upper West","Wa East",75,15,0,FALSE,0.0799481360526378,0,40
+"Ghana","women_iron","Upper West","Wa Municipal",75,15,0.14502065167508,FALSE,0.139161912991786,0.05,40
+"Ghana","women_iron","Volta","Afadzato South",75,15,0.166666666666667,FALSE,0.0434176404915367,0,40
+"Ghana","women_iron","Volta","Akatsi South",75,15,0.25,TRUE,0.233939615937911,0.4,40
+"Ghana","women_iron","Volta","Ho Municipal",75,15,0.125,FALSE,0.0583139633139951,0,40
+"Ghana","women_iron","Volta","South Tongu",75,15,0.25,TRUE,0.313486484776736,0.75,40
+"Ghana","women_iron","Western","Effia Kwesimintsim",75,15,0,FALSE,0.0339647800941372,0,40
+"Ghana","women_iron","Western","Ellembelle",75,15,0,FALSE,0.00532115728816126,0,40
+"Ghana","women_iron","Western","Jomoro",75,15,0,FALSE,0.00560200450377132,0,40
+"Ghana","women_iron","Western","Mpohor",75,15,0,FALSE,0.00880856734497852,0,40
+"Ghana","women_iron","Western","Prestea-Huni Valley",75,15,0.0588235294117647,FALSE,0.00682161241080019,0,40
+"Ghana","women_iron","Western North","Sefwi-Akontombra",75,15,0,FALSE,0.00440126856022936,0,40
+"Ghana","women_folate","Ahafo","Asunafo North",75,15,0.428571428571429,FALSE,0.540168825625182,0,40
+"Ghana","women_folate","Ahafo","Tano North",75,15,0.443562231759657,FALSE,0.53486245728471,0,40
+"Ghana","women_folate","Ashanti","Adansi Asokwa",75,15,0.333333333333333,FALSE,0.0937151650775791,0,40
+"Ghana","women_folate","Ashanti","Asante-Akim South",75,15,0.8,TRUE,0.144438875838658,0,40
+"Ghana","women_folate","Ashanti","Asokore-Mampong",75,15,0.375,FALSE,0.183665444858826,0,40
+"Ghana","women_folate","Ashanti","Asokwa",75,15,0.666666666666667,FALSE,0.143691036968407,0,40
+"Ghana","women_folate","Ashanti","Atwima-Mponua",75,15,0.376873414802859,FALSE,0.304661007747784,0,40
+"Ghana","women_folate","Ashanti","Atwima-Nwabiagya South",75,15,0.8,TRUE,0.115072105931344,0,40
+"Ghana","women_folate","Ashanti","Bekwai",75,15,0.333333333333333,FALSE,0.10261918566939,0,40
+"Ghana","women_folate","Ashanti","Kumasi",75,15,0.738733962464214,FALSE,0.108069116918043,0,40
+"Ghana","women_folate","Ashanti","Kwadaso",75,15,0.375,FALSE,0.142348000591995,0,40
+"Ghana","women_folate","Ashanti","Obuasi",75,15,0,FALSE,0.0797261269125218,0,40
+"Ghana","women_folate","Ashanti","Sekyere Kumawu",75,15,0.714285714285714,FALSE,0.379198434150385,0,40
+"Ghana","women_folate","Ashanti","Sekyere South",75,15,0.333333333333333,FALSE,0.214187915441524,0,40
+"Ghana","women_folate","Bono","Dormaa West",75,15,0.6,FALSE,0.496651790496829,0,40
+"Ghana","women_folate","Bono","Sunyani West",75,15,0.75,FALSE,0.467771530449578,0,40
+"Ghana","women_folate","Bono","Wenchi",75,15,0.875,TRUE,0.778732273266255,0,40
+"Ghana","women_folate","Bono East","Kintampo North",75,15,1,TRUE,0.8938374399987,0.025,40
+"Ghana","women_folate","Bono East","Sene West",75,15,0.714285714285714,FALSE,0.928992396596539,0.25,40
+"Ghana","women_folate","Bono East","Techiman",75,15,0.625,FALSE,0.562103747209212,0,40
+"Ghana","women_folate","Central","Agona West",75,15,0.2,FALSE,0.10315824032961,0,40
+"Ghana","women_folate","Central","Asikuma-Odoben-Brakwa",75,15,0.555555555555556,FALSE,0.0995239226756107,0,40
+"Ghana","women_folate","Central","Awutu Senya West",75,15,0.6,FALSE,0.223554923520493,0,40
+"Ghana","women_folate","Central","Mfantseman",75,15,0,FALSE,0.159536799128566,0,40
+"Ghana","women_folate","Central","Twifo-Atti-Morkwa",75,15,0.8,TRUE,0.0693644457860841,0,40
+"Ghana","women_folate","Central","Twifo-Hemang-Lower Denkyira",75,15,1,TRUE,0.0646878355971822,0,40
+"Ghana","women_folate","Eastern","Abuakwa South",75,15,0.75,FALSE,0.0781139774385088,0,40
+"Ghana","women_folate","Eastern","Akwapem North",75,15,0.243904024200743,FALSE,0.322966877565765,0,40
+"Ghana","women_folate","Eastern","Atiwa East",75,15,0.777777777777778,FALSE,0.166916269035667,0,40
+"Ghana","women_folate","Eastern","Denkyembour",75,15,0.571428571428571,FALSE,0.117618894157664,0,40
+"Ghana","women_folate","Eastern","Kwahu Afram Plains North",75,15,0.78178148618062,FALSE,0.930965310842585,0.35,40
+"Ghana","women_folate","Greater Accra","Ablekuma Central",75,15,0.714285714285714,FALSE,0.0645445439598237,0,40
+"Ghana","women_folate","Greater Accra","Ablekuma North",75,15,0.574815688587437,FALSE,0.116080834732043,0,40
+"Ghana","women_folate","Greater Accra","Ashaiman",75,15,0.75,FALSE,0.111721026209795,0,40
+"Ghana","women_folate","Greater Accra","Ayawaso West",75,15,0.4,FALSE,0.181689320798968,0,40
+"Ghana","women_folate","Greater Accra","Ga East",75,15,0.333333333333333,FALSE,0.111938460667479,0,40
+"Ghana","women_folate","Greater Accra","La-Dade-Kotopon",75,15,0.2,FALSE,0.224416604697512,0,40
+"Ghana","women_folate","Greater Accra","Tema West",75,15,0.833333333333333,TRUE,0.0731188612084411,0,40
+"Ghana","women_folate","Greater Accra","Weija Gbawe",75,15,0.418907509945688,FALSE,0.150160495159341,0,40
+"Ghana","women_folate","North East","Chereponi",75,15,0.333333333333333,FALSE,0.980261891906269,1,40
+"Ghana","women_folate","North East","West Mamprusi",75,15,0.666666666666667,FALSE,0.970337722476728,0.925,40
+"Ghana","women_folate","North East","Yunyoo-Nasuan",75,15,0.285714285714286,FALSE,0.970783557148223,0.9,40
+"Ghana","women_folate","Northern","Gushegu",75,15,0.6,FALSE,0.98107198251998,1,40
+"Ghana","women_folate","Northern","Kpandai",75,15,1,TRUE,0.966917433263697,0.925,40
+"Ghana","women_folate","Northern","Nanumba South",75,15,0.75,FALSE,0.971422993760241,0.975,40
+"Ghana","women_folate","Northern","Sagnerigu",75,15,0.606318992131621,FALSE,0.895421531952091,0.025,40
+"Ghana","women_folate","Northern","Savelugu",75,15,0.625,FALSE,0.976499237069208,0.975,40
+"Ghana","women_folate","Northern","Tamale",75,15,0.857142857142857,TRUE,0.887338904442935,0,40
+"Ghana","women_folate","Northern","Tatale Sanguli",75,15,0.8,TRUE,0.97210387578948,0.975,40
+"Ghana","women_folate","Northern","Tolon",75,15,0.375,FALSE,0.973213699084242,0.975,40
+"Ghana","women_folate","Oti","Nkwanta South",75,15,1,TRUE,0.929819095962369,0.3,40
+"Ghana","women_folate","Savannah","Bole",75,15,0.666666666666667,FALSE,0.970189640935463,0.925,40
+"Ghana","women_folate","Savannah","Central Gonja",75,15,1,TRUE,0.956680394075205,0.75,40
+"Ghana","women_folate","Savannah","North East Gonja",75,15,0.6,FALSE,0.98343538469388,1,40
+"Ghana","women_folate","Savannah","Sawla-Tuna-Kalba",75,15,0.666666666666667,FALSE,0.97706358902489,1,40
+"Ghana","women_folate","Upper East","Bawku West",75,15,1,TRUE,0.735104349750821,0,40
+"Ghana","women_folate","Upper East","Binduri",75,15,0.878172588832487,TRUE,0.658466569679441,0.025,40
+"Ghana","women_folate","Upper East","Builsa South",75,15,1,TRUE,0.878826276778563,0.15,40
+"Ghana","women_folate","Upper East","Kasena Nankana East",75,15,0.233280881195909,FALSE,0.851518497758893,0.05,40
+"Ghana","women_folate","Upper East","Talensi",75,15,0.142857142857143,FALSE,0.912850908405709,0.225,40
+"Ghana","women_folate","Upper West","Jirapa",75,15,0.2,FALSE,0.90001332551749,0.125,40
+"Ghana","women_folate","Upper West","Lambussie-Karni",75,15,0,FALSE,0.926360193836318,0.375,40
+"Ghana","women_folate","Upper West","Sissala East",75,15,0.75,FALSE,0.896386776773089,0.225,40
+"Ghana","women_folate","Upper West","Wa East",75,15,0.333333333333333,FALSE,0.944530223441802,0.525,40
+"Ghana","women_folate","Upper West","Wa Municipal",75,15,0.300632911392405,FALSE,0.78388459949686,0,40
+"Ghana","women_folate","Volta","Afadzato South",75,15,0.7,FALSE,0.704411987674722,0,40
+"Ghana","women_folate","Volta","Akatsi South",75,15,0.25,FALSE,0.798439622472772,0.025,40
+"Ghana","women_folate","Volta","Ho Municipal",75,15,0.75,FALSE,0.398624367952521,0,40
+"Ghana","women_folate","Volta","South Tongu",75,15,0.75,FALSE,0.652703226182623,0,40
+"Ghana","women_folate","Western","Effia Kwesimintsim",75,15,0,FALSE,0.0145949990718577,0,40
+"Ghana","women_folate","Western","Ellembelle",75,15,0,FALSE,0.0238969628573091,0,40
+"Ghana","women_folate","Western","Jomoro",75,15,0,FALSE,0.0523640405117231,0,40
+"Ghana","women_folate","Western","Mpohor",75,15,0.254884678747941,FALSE,0.0137643041480908,0,40
+"Ghana","women_folate","Western","Prestea-Huni Valley",75,15,0,FALSE,0.0540923935364249,0,40
+"Ghana","women_folate","Western North","Sefwi-Akontombra",75,15,0,FALSE,0.232436261476516,0,40
+"Ghana","women_b12","Ahafo","Asunafo North",75,15,0,FALSE,0.0143890030955869,0,40
+"Ghana","women_b12","Ahafo","Tano North",75,15,0.102145922746781,FALSE,0.0120314172156805,0,40
+"Ghana","women_b12","Ashanti","Adansi Asokwa",75,15,0,FALSE,0.0045006804554282,0,40
+"Ghana","women_b12","Ashanti","Asante-Akim South",75,15,0,FALSE,0.00694708384289437,0,40
+"Ghana","women_b12","Ashanti","Asokore-Mampong",75,15,0.125,FALSE,0.00399828073579771,0,40
+"Ghana","women_b12","Ashanti","Asokwa",75,15,0,FALSE,0.00701893997552426,0,40
+"Ghana","women_b12","Ashanti","Atwima-Mponua",75,15,0,FALSE,0.00980669592488595,0,40
+"Ghana","women_b12","Ashanti","Atwima-Nwabiagya South",75,15,0,FALSE,0.00726190054470168,0,40
+"Ghana","women_b12","Ashanti","Bekwai",75,15,0.166666666666667,FALSE,0.00415376310523162,0,40
+"Ghana","women_b12","Ashanti","Kumasi",75,15,0.130633018767893,FALSE,0.00240351312663073,0,40
+"Ghana","women_b12","Ashanti","Kwadaso",75,15,0,FALSE,0.00599477452471704,0,40
+"Ghana","women_b12","Ashanti","Obuasi",75,15,0,FALSE,0.004637221496177,0,40
+"Ghana","women_b12","Ashanti","Sekyere Kumawu",75,15,0,FALSE,0.0153503410567507,0,40
+"Ghana","women_b12","Ashanti","Sekyere South",75,15,0.166666666666667,FALSE,0.00540594813968094,0,40
+"Ghana","women_b12","Bono","Dormaa West",75,15,0,FALSE,0.0185208507080332,0,40
+"Ghana","women_b12","Bono","Sunyani West",75,15,0,FALSE,0.0265720840443681,0,40
+"Ghana","women_b12","Bono","Wenchi",75,15,0.125,FALSE,0.0342850847480589,0,40
+"Ghana","women_b12","Bono East","Kintampo North",75,15,0.166666666666667,FALSE,0.0631092196490978,0,40
+"Ghana","women_b12","Bono East","Sene West",75,15,0,FALSE,0.0733242154340128,0,40
+"Ghana","women_b12","Bono East","Techiman",75,15,0.25,TRUE,0.0164482529586163,0,40
+"Ghana","women_b12","Central","Agona West",75,15,0,FALSE,0.00469114551577901,0,40
+"Ghana","women_b12","Central","Asikuma-Odoben-Brakwa",75,15,0,FALSE,0.00383892197510444,0,40
+"Ghana","women_b12","Central","Awutu Senya West",75,15,0,FALSE,0.00715420858297423,0,40
+"Ghana","women_b12","Central","Mfantseman",75,15,0,FALSE,0.00293757171922213,0,40
+"Ghana","women_b12","Central","Twifo-Atti-Morkwa",75,15,0,FALSE,0.00601696785420289,0,40
+"Ghana","women_b12","Central","Twifo-Hemang-Lower Denkyira",75,15,0,FALSE,0.00493942701639513,0,40
+"Ghana","women_b12","Eastern","Abuakwa South",75,15,0.25,TRUE,0.0032828371673351,0,40
+"Ghana","women_b12","Eastern","Akwapem North",75,15,0,FALSE,0.0075226197106314,0,40
+"Ghana","women_b12","Eastern","Atiwa East",75,15,0.111111111111111,FALSE,0.00572081239326558,0,40
+"Ghana","women_b12","Eastern","Denkyembour",75,15,0,FALSE,0.00817467541811867,0,40
+"Ghana","women_b12","Eastern","Kwahu Afram Plains North",75,15,0,FALSE,0.0921870787867869,0,40
+"Ghana","women_b12","Greater Accra","Ablekuma Central",75,15,0,FALSE,0.00130033779444469,0,40
+"Ghana","women_b12","Greater Accra","Ablekuma North",75,15,0,FALSE,0.00138342269449719,0,40
+"Ghana","women_b12","Greater Accra","Ashaiman",75,15,0,FALSE,0.00218571247400714,0,40
+"Ghana","women_b12","Greater Accra","Ayawaso West",75,15,0.2,TRUE,0.00129399688671221,0,40
+"Ghana","women_b12","Greater Accra","Ga East",75,15,0,FALSE,0.00197970842263574,0,40
+"Ghana","women_b12","Greater Accra","La-Dade-Kotopon",75,15,0,FALSE,0.00211923411707279,0,40
+"Ghana","women_b12","Greater Accra","Tema West",75,15,0,FALSE,0.00292692066054647,0,40
+"Ghana","women_b12","Greater Accra","Weija Gbawe",75,15,0.0809729509307181,FALSE,0.00150840517739039,0,40
+"Ghana","women_b12","North East","Chereponi",75,15,1,TRUE,0.36577359603915,1,40
+"Ghana","women_b12","North East","West Mamprusi",75,15,0.166666666666667,FALSE,0.37010435110877,0.9,40
+"Ghana","women_b12","North East","Yunyoo-Nasuan",75,15,0.428571428571429,TRUE,0.390367464760364,0.925,40
+"Ghana","women_b12","Northern","Gushegu",75,15,0.4,TRUE,0.489549582854143,1,40
+"Ghana","women_b12","Northern","Kpandai",75,15,0.5,TRUE,0.284480960414956,0.9,40
+"Ghana","women_b12","Northern","Nanumba South",75,15,0.25,TRUE,0.326746565761921,0.975,40
+"Ghana","women_b12","Northern","Sagnerigu",75,15,0,FALSE,0.356263241864671,0.95,40
+"Ghana","women_b12","Northern","Savelugu",75,15,0.25,TRUE,0.429265719227824,0.975,40
+"Ghana","women_b12","Northern","Tamale",75,15,0.285714285714286,TRUE,0.325595615560839,0.9,40
+"Ghana","women_b12","Northern","Tatale Sanguli",75,15,0.4,TRUE,0.338461102208183,0.975,40
+"Ghana","women_b12","Northern","Tolon",75,15,0.25,TRUE,0.373214821951086,0.975,40
+"Ghana","women_b12","Oti","Nkwanta South",75,15,0,FALSE,0.137702395508261,0.05,40
+"Ghana","women_b12","Savannah","Bole",75,15,0,FALSE,0.242047009046853,0.7,40
+"Ghana","women_b12","Savannah","Central Gonja",75,15,0,FALSE,0.329166279330006,1,40
+"Ghana","women_b12","Savannah","North East Gonja",75,15,0.2,FALSE,0.389833403769883,0.975,40
+"Ghana","women_b12","Savannah","Sawla-Tuna-Kalba",75,15,0.166666666666667,FALSE,0.307491705582728,0.9,40
+"Ghana","women_b12","Upper East","Bawku West",75,15,0,FALSE,0.151190235225786,0.075,40
+"Ghana","women_b12","Upper East","Binduri",75,15,0,FALSE,0.198333238590082,0.4,40
+"Ghana","women_b12","Upper East","Builsa South",75,15,0,FALSE,0.161672604163419,0.075,40
+"Ghana","women_b12","Upper East","Kasena Nankana East",75,15,0,FALSE,0.126595214639026,0,40
+"Ghana","women_b12","Upper East","Talensi",75,15,0,FALSE,0.184720362421006,0.15,40
+"Ghana","women_b12","Upper West","Jirapa",75,15,0,FALSE,0.129317320716949,0,40
+"Ghana","women_b12","Upper West","Lambussie-Karni",75,15,0,FALSE,0.142644833139517,0.025,40
+"Ghana","women_b12","Upper West","Sissala East",75,15,0.25,TRUE,0.124158329567623,0.05,40
+"Ghana","women_b12","Upper West","Wa East",75,15,0,FALSE,0.171615981129763,0.1,40
+"Ghana","women_b12","Upper West","Wa Municipal",75,15,0,FALSE,0.131816597453979,0.025,40
+"Ghana","women_b12","Volta","Afadzato South",75,15,0.1,FALSE,0.0193008374170986,0,40
+"Ghana","women_b12","Volta","Akatsi South",75,15,0,FALSE,0.0303772652143798,0,40
+"Ghana","women_b12","Volta","Ho Municipal",75,15,0.25,TRUE,0.0142990275894837,0,40
+"Ghana","women_b12","Volta","South Tongu",75,15,0,FALSE,0.0213220017916622,0,40
+"Ghana","women_b12","Western","Effia Kwesimintsim",75,15,0,FALSE,0.00148654690401664,0,40
+"Ghana","women_b12","Western","Ellembelle",75,15,0,FALSE,0.0019716855574966,0,40
+"Ghana","women_b12","Western","Jomoro",75,15,0,FALSE,0.00332388698904033,0,40
+"Ghana","women_b12","Western","Mpohor",75,15,0.254884678747941,TRUE,0.0010116510535588,0,40
+"Ghana","women_b12","Western","Prestea-Huni Valley",75,15,0,FALSE,0.00234021492045262,0,40
+"Ghana","women_b12","Western North","Sefwi-Akontombra",75,15,0,FALSE,0.00602030351782091,0,40
+"Malawi","child_vitA","Balaka","TA Kalembo",87,18,0.142857142857143,FALSE,0.317970584170862,1,40
+"Malawi","child_vitA","Balaka","TA Nsamala",87,18,0,FALSE,0.389021359098916,1,40
+"Malawi","child_vitA","Blantyre","Blantyre City",87,18,0.113276277259165,FALSE,0.0101360563462616,0,40
+"Malawi","child_vitA","Blantyre","TA Kuntaja",87,18,0.5,TRUE,0.0372902010745984,0,40
+"Malawi","child_vitA","Chikwawa","TA Kasisi",87,18,0,FALSE,0.0795046876348481,0.15,40
+"Malawi","child_vitA","Chikwawa","TA Lundu",87,18,0,FALSE,0.0705087964066179,0.275,40
+"Malawi","child_vitA","Chiradzulu","TA Kadewere",87,18,0,FALSE,0.0747089636222826,0.15,40
+"Malawi","child_vitA","Chiradzulu","TA Mpama",87,18,0,FALSE,0.0292322614557334,0,40
+"Malawi","child_vitA","Chiradzulu","TA Nchema",87,18,0.230769230769231,TRUE,0.0276302683085989,0,40
+"Malawi","child_vitA","Chitipa","Chitipa Boma",87,18,0,FALSE,0.0153211300461761,0,40
+"Malawi","child_vitA","Chitipa","Nyika N.P. - Chitipa",87,18,0.1,FALSE,0.000494021094074991,0,40
+"Malawi","child_vitA","Chitipa","TA Mwabulambya",87,18,0,FALSE,0.00607021173160013,0,40
+"Malawi","child_vitA","Chitipa","TA Mwenemisuku",87,18,0.0593890980947765,FALSE,0.00115065975152634,0,40
+"Malawi","child_vitA","Chitipa","TA Mwenewenya",87,18,0,FALSE,0.00170443535775166,0,40
+"Malawi","child_vitA","Dedza","TA Kaphuka",87,18,0.1,FALSE,0.0282997763009553,0,40
+"Malawi","child_vitA","Dedza","TA Pemba",87,18,0.125,FALSE,0.0337280441297305,0,40
+"Malawi","child_vitA","Dedza","TA Tambala",87,18,0.166666666666667,TRUE,0.0245657605017451,0,40
+"Malawi","child_vitA","Dowa","SC Kayembe",87,18,0.125,FALSE,0.0652447394281159,0.15,40
+"Malawi","child_vitA","Dowa","SC Mkukula",87,18,0,FALSE,0.0615411516917836,0.025,40
+"Malawi","child_vitA","Dowa","SC Mponela",87,18,0,FALSE,0.0992289850253831,0.35,40
+"Malawi","child_vitA","Dowa","TA Dzoole",87,18,0,FALSE,0.126325088128528,0.525,40
+"Malawi","child_vitA","Karonga","Karonga Town",87,18,0.0909090909090909,FALSE,0.071210719246031,0.175,40
+"Malawi","child_vitA","Karonga","TA Kilupula",87,18,0.054774095456297,FALSE,0.0175162982754052,0,40
+"Malawi","child_vitA","Karonga","TA Kyungu",87,18,0.120392538988681,FALSE,0.0133513010028496,0,40
+"Malawi","child_vitA","Karonga","TA Wasambo",87,18,0.133333333333333,FALSE,0.0248877893657031,0,40
+"Malawi","child_vitA","Kasungu","SC Kawamba",87,18,0,FALSE,0.065571722451355,0.1,40
+"Malawi","child_vitA","Kasungu","TA Kaluluma",87,18,0,FALSE,0.0190997513189391,0,40
+"Malawi","child_vitA","Kasungu","TA Mwase",87,18,0.111111111111111,FALSE,0.0368507856333987,0,40
+"Malawi","child_vitA","Kasungu","TA Santhe",87,18,0.1,FALSE,0.0452341804424888,0.025,40
+"Malawi","child_vitA","Lilongwe","Lilongwe City",87,18,0.2,TRUE,0.0402723131798929,0,40
+"Malawi","child_vitA","Lilongwe","TA Chiseka",87,18,0,FALSE,0.0219797438674947,0,40
+"Malawi","child_vitA","Lilongwe","TA Kabudula",87,18,0,FALSE,0.070946436079372,0.025,40
+"Malawi","child_vitA","Lilongwe","TA Khongoni",87,18,0,FALSE,0.0717618120315053,0.15,40
+"Malawi","child_vitA","Machinga","TA Kawinga",87,18,0.277777777777778,TRUE,0.213411987518536,0.95,40
+"Malawi","child_vitA","Mangochi","SC Chowe",87,18,0,FALSE,0.309855330140105,0.975,40
+"Malawi","child_vitA","Mangochi","TA Mponda",87,18,0.142857142857143,FALSE,0.18697625541273,0.95,40
+"Malawi","child_vitA","Mangochi","TA Nankumba",87,18,0.470588235294118,TRUE,0.170487771158455,0.85,40
+"Malawi","child_vitA","Mchinji","SC Dambe",87,18,0.238095238095238,TRUE,0.0571794220491689,0.075,40
+"Malawi","child_vitA","Mchinji","SC Mduwa",87,18,0.142857142857143,FALSE,0.0592676054381984,0.15,40
+"Malawi","child_vitA","Mchinji","TA Mlonyeni",87,18,0,FALSE,0.0700650574448426,0.05,40
+"Malawi","child_vitA","Mchinji","TA Zulu",87,18,0.166666666666667,TRUE,0.0436612260466161,0,40
+"Malawi","child_vitA","Mulanje","SC Juma",87,18,0.142857142857143,FALSE,0.0759814809180164,0.1,40
+"Malawi","child_vitA","Mulanje","TA Mabuka",87,18,0,FALSE,0.0145316923560459,0,40
+"Malawi","child_vitA","Mwanza","Majete Game Reserve - Mwanza",87,18,0.0909090909090909,FALSE,0.0355846904663793,0,40
+"Malawi","child_vitA","Mwanza","TA Nthache",87,18,0,FALSE,0.0155175528346176,0,40
+"Malawi","child_vitA","Mzimba","Mzimba Boma",87,18,0.166666666666667,TRUE,0.0068196375523709,0,40
+"Malawi","child_vitA","Mzimba","Mzuzu City",87,18,0,FALSE,0.00555688386943999,0,40
+"Malawi","child_vitA","Mzimba","TA Chindi",87,18,0,FALSE,0.0241246957964009,0,40
+"Malawi","child_vitA","Mzimba","TA M'Mbelwa",87,18,0.105263157894737,FALSE,0.0227061341953528,0,40
+"Malawi","child_vitA","Mzimba","TA Mabulabo",87,18,0.111111111111111,FALSE,0.0108602071263754,0,40
+"Malawi","child_vitA","Mzimba","TA Mtwalo",87,18,0,FALSE,0.00891587024346568,0,40
+"Malawi","child_vitA","Neno","TA Ngozi",87,18,0.00727907305799676,FALSE,0.015547245678568,0,40
+"Malawi","child_vitA","Neno","TA Symon",87,18,0,FALSE,0.198832842438018,0.925,40
+"Malawi","child_vitA","Nkhata Bay","SC Malanda",87,18,0,FALSE,0.0107589564376874,0,40
+"Malawi","child_vitA","Nkhata Bay","TA Fukamapiri",87,18,0,FALSE,0.0106312187426003,0,40
+"Malawi","child_vitA","Nkhata Bay","TA Kabunduli",87,18,0.294117647058824,TRUE,0.000798463871333085,0,40
+"Malawi","child_vitA","Nkhata Bay","TA Musisya",87,18,0,FALSE,0.0025064604477643,0,40
+"Malawi","child_vitA","Nkhata Bay","TA Timbiri",87,18,0.0540683861218703,FALSE,0.00257278843080517,0,40
+"Malawi","child_vitA","Nkhotakota","Nkhotakota Boma",87,18,0.333333333333333,TRUE,0.113275982841348,0.425,40
+"Malawi","child_vitA","Nkhotakota","TA Kanyenda",87,18,0.0666666666666667,FALSE,0.122703928319909,0.625,40
+"Malawi","child_vitA","Nkhotakota","TA Malenga Chanzi",87,18,0.111111111111111,FALSE,0.163300954137787,0.825,40
+"Malawi","child_vitA","Nkhotakota","TA Mwadzama",87,18,0.0526315789473684,FALSE,0.318940322235885,1,40
+"Malawi","child_vitA","Nsanje","Nsanje Boma",87,18,0,FALSE,0.0845524462413882,0.225,40
+"Malawi","child_vitA","Nsanje","SC Mbenje",87,18,0.1875,TRUE,0.0301564097968298,0.025,40
+"Malawi","child_vitA","Nsanje","TA Ndamera",87,18,0,FALSE,0.0483019907906653,0.05,40
+"Malawi","child_vitA","Ntcheu","SC Goodson Ganya",87,18,0.0769230769230769,FALSE,0.106823381021452,0.275,40
+"Malawi","child_vitA","Ntcheu","SC Makwangwala",87,18,0.230769230769231,TRUE,0.110324996797315,0.325,40
+"Malawi","child_vitA","Ntcheu","TA Njolomole",87,18,0.0666666666666667,FALSE,0.0358115643379055,0,40
+"Malawi","child_vitA","Ntcheu","TA Phambala",87,18,0.153846153846154,TRUE,0.0513130831397248,0,40
+"Malawi","child_vitA","Ntchisi","SC Chilooko",87,18,0,FALSE,0.0374660084515067,0,40
+"Malawi","child_vitA","Ntchisi","SC Nthondo",87,18,0.0588235294117647,FALSE,0.0137851727585945,0,40
+"Malawi","child_vitA","Ntchisi","TA Kalumo",87,18,0.0833333333333333,FALSE,0.0364606936111451,0,40
+"Malawi","child_vitA","Phalombe","TA Mkhumba",87,18,0.0429703581094047,FALSE,0.115296624940174,0.375,40
+"Malawi","child_vitA","Rumphi","Rumphi Boma",87,18,0,FALSE,0.0223437516226579,0,40
+"Malawi","child_vitA","Rumphi","SC Chapinduka",87,18,0,FALSE,0.000975453400149615,0,40
+"Malawi","child_vitA","Rumphi","SC Kachulu",87,18,0,FALSE,0.00181210354789211,0,40
+"Malawi","child_vitA","Rumphi","SC Mwankhunikira",87,18,0,FALSE,0.00290197899396037,0,40
+"Malawi","child_vitA","Rumphi","TA Chikulamayembe",87,18,0.0731055164815137,FALSE,0.00405348792115568,0,40
+"Malawi","child_vitA","Salima","SC Kambwiri",87,18,0.153846153846154,TRUE,0.215314523852251,0.9,40
+"Malawi","child_vitA","Salima","TA Karonga",87,18,0,FALSE,0.436647207703324,1,40
+"Malawi","child_vitA","Salima","TA Khombedza",87,18,0.363636363636364,TRUE,0.33600627378717,1,40
+"Malawi","child_vitA","Salima","TA Maganga",87,18,0.166666666666667,TRUE,0.360775823703974,1,40
+"Malawi","child_vitA","Thyolo","SC Mbawela",87,18,0,FALSE,0.0111361248212866,0,40
+"Malawi","child_vitA","Thyolo","TA Bvumbwe",87,18,0,FALSE,0.0116321782215061,0,40
+"Malawi","child_vitA","Thyolo","TA Nchilamwela",87,18,0,FALSE,0.00791298281789801,0,40
+"Malawi","child_vitA","Zomba","SC Mbiza",87,18,0.357142857142857,TRUE,0.153071831623951,0.825,40
+"Malawi","child_vitA","Zomba","TA Malemia",87,18,0.0865031819182787,FALSE,0.0309743065812946,0,40
+"Malawi","women_vitA","Balaka","TA Kalembo",87,18,0,TRUE,0.010334314020649,0,40
+"Malawi","women_vitA","Balaka","TA Nsamala",87,18,0,TRUE,0.00907728279929608,0,40
+"Malawi","women_vitA","Blantyre","Blantyre City",87,18,0,TRUE,0.00378578899432599,0,40
+"Malawi","women_vitA","Blantyre","TA Kuntaja",87,18,0,TRUE,0.00953245554028353,0.025,40
+"Malawi","women_vitA","Chikwawa","TA Kasisi",87,18,0.166666666666667,TRUE,0.0119971670088178,0.275,40
+"Malawi","women_vitA","Chikwawa","TA Lundu",87,18,0,TRUE,0.0351205570744502,0.925,40
+"Malawi","women_vitA","Chiradzulu","TA Kadewere",87,18,0,TRUE,0.0133019149273566,0.275,40
+"Malawi","women_vitA","Chiradzulu","TA Mpama",87,18,0,TRUE,0.0108645522946249,0.125,40
+"Malawi","women_vitA","Chiradzulu","TA Nchema",87,18,0,TRUE,0.0109208539007802,0.15,40
+"Malawi","women_vitA","Chitipa","Chitipa Boma",87,18,0,FALSE,0.00173416968271895,0,40
+"Malawi","women_vitA","Chitipa","Nyika N.P. - Chitipa",87,18,0,FALSE,0.00477729198318224,0,40
+"Malawi","women_vitA","Chitipa","TA Mwabulambya",87,18,0,FALSE,0.00289146633655047,0,40
+"Malawi","women_vitA","Chitipa","TA Mwenemisuku",87,18,0,FALSE,0.00387282895172402,0,40
+"Malawi","women_vitA","Chitipa","TA Mwenewenya",87,18,0,FALSE,0.00380900618531137,0,40
+"Malawi","women_vitA","Dedza","TA Kaphuka",87,18,0.166666666666667,TRUE,0.0111719111963703,0.1,40
+"Malawi","women_vitA","Dedza","TA Pemba",87,18,0,FALSE,0.0278331311011095,0.875,40
+"Malawi","women_vitA","Dedza","TA Tambala",87,18,0.1,TRUE,0.0141641591904966,0.425,40
+"Malawi","women_vitA","Dowa","SC Kayembe",87,18,0,FALSE,0.0136176813770792,0.35,40
+"Malawi","women_vitA","Dowa","SC Mkukula",87,18,0,FALSE,0.0124783967937993,0.25,40
+"Malawi","women_vitA","Dowa","SC Mponela",87,18,0,FALSE,0.010989227608738,0.15,40
+"Malawi","women_vitA","Dowa","TA Dzoole",87,18,0,FALSE,0.0117920492136813,0.175,40
+"Malawi","women_vitA","Karonga","Karonga Town",87,18,0,FALSE,0.00138433114489609,0,40
+"Malawi","women_vitA","Karonga","TA Kilupula",87,18,0,FALSE,0.002098039440697,0,40
+"Malawi","women_vitA","Karonga","TA Kyungu",87,18,0,FALSE,0.00228884964772008,0,40
+"Malawi","women_vitA","Karonga","TA Wasambo",87,18,0,FALSE,0.00201109585422388,0,40
+"Malawi","women_vitA","Kasungu","SC Kawamba",87,18,0,FALSE,0.0175476483014865,0.65,40
+"Malawi","women_vitA","Kasungu","TA Kaluluma",87,18,0,FALSE,0.00575946002602759,0,40
+"Malawi","women_vitA","Kasungu","TA Mwase",87,18,0,FALSE,0.0110763589133347,0.175,40
+"Malawi","women_vitA","Kasungu","TA Santhe",87,18,0.125,TRUE,0.00750830400918155,0.025,40
+"Malawi","women_vitA","Lilongwe","Lilongwe City",87,18,0,FALSE,0.00296654572524596,0,40
+"Malawi","women_vitA","Lilongwe","TA Chiseka",87,18,0,FALSE,0.0176941917268894,0.65,40
+"Malawi","women_vitA","Lilongwe","TA Kabudula",87,18,0,FALSE,0.0208362375224494,0.775,40
+"Malawi","women_vitA","Lilongwe","TA Khongoni",87,18,0,FALSE,0.02012567393732,0.725,40
+"Malawi","women_vitA","Machinga","TA Kawinga",87,18,0,FALSE,0.0125505571011334,0.375,40
+"Malawi","women_vitA","Mangochi","SC Chowe",87,18,0,FALSE,0.00981511655345581,0,40
+"Malawi","women_vitA","Mangochi","TA Mponda",87,18,0,FALSE,0.00801798949965849,0,40
+"Malawi","women_vitA","Mangochi","TA Nankumba",87,18,0,FALSE,0.0115435779565357,0.075,40
+"Malawi","women_vitA","Mchinji","SC Dambe",87,18,0.0833333333333333,TRUE,0.00788876561210322,0.025,40
+"Malawi","women_vitA","Mchinji","SC Mduwa",87,18,0,FALSE,0.0161196309845931,0.675,40
+"Malawi","women_vitA","Mchinji","TA Mlonyeni",87,18,0,FALSE,0.0099366060754437,0.075,40
+"Malawi","women_vitA","Mchinji","TA Zulu",87,18,0,FALSE,0.0134349118958451,0.375,40
+"Malawi","women_vitA","Mulanje","SC Juma",87,18,0,FALSE,0.0164820103981015,0.625,40
+"Malawi","women_vitA","Mulanje","TA Mabuka",87,18,0,FALSE,0.0133621829819708,0.275,40
+"Malawi","women_vitA","Mwanza","Majete Game Reserve - Mwanza",87,18,0,FALSE,0.0206695905901054,0.725,40
+"Malawi","women_vitA","Mwanza","TA Nthache",87,18,0.1,TRUE,0.0102275660938599,0,40
+"Malawi","women_vitA","Mzimba","Mzimba Boma",87,18,0,FALSE,0.00167455175096709,0,40
+"Malawi","women_vitA","Mzimba","Mzuzu City",87,18,0,FALSE,0.000827221673237575,0,40
+"Malawi","women_vitA","Mzimba","TA Chindi",87,18,0,FALSE,0.00407120838259296,0,40
+"Malawi","women_vitA","Mzimba","TA M'Mbelwa",87,18,0,FALSE,0.00321780979198518,0,40
+"Malawi","women_vitA","Mzimba","TA Mabulabo",87,18,0,FALSE,0.00382043393451029,0,40
+"Malawi","women_vitA","Mzimba","TA Mtwalo",87,18,0,FALSE,0.00300394532065443,0,40
+"Malawi","women_vitA","Neno","TA Ngozi",87,18,0,FALSE,0.0223756352900048,0.875,40
+"Malawi","women_vitA","Neno","TA Symon",87,18,0,FALSE,0.0165266237072803,0.725,40
+"Malawi","women_vitA","Nkhata Bay","SC Malanda",87,18,0,FALSE,0.001745694788482,0,40
+"Malawi","women_vitA","Nkhata Bay","TA Fukamapiri",87,18,0,FALSE,0.00202036828174638,0,40
+"Malawi","women_vitA","Nkhata Bay","TA Kabunduli",87,18,0,FALSE,0.00240607355515925,0,40
+"Malawi","women_vitA","Nkhata Bay","TA Musisya",87,18,0,FALSE,0.00290781812251851,0,40
+"Malawi","women_vitA","Nkhata Bay","TA Timbiri",87,18,0,FALSE,0.00168705208847204,0,40
+"Malawi","women_vitA","Nkhotakota","Nkhotakota Boma",87,18,0,FALSE,0.00221576020088133,0,40
+"Malawi","women_vitA","Nkhotakota","TA Kanyenda",87,18,0,FALSE,0.00374205690268004,0,40
+"Malawi","women_vitA","Nkhotakota","TA Malenga Chanzi",87,18,0,FALSE,0.00385899062936589,0,40
+"Malawi","women_vitA","Nkhotakota","TA Mwadzama",87,18,0,FALSE,0.00627567919187579,0,40
+"Malawi","women_vitA","Nsanje","Nsanje Boma",87,18,0,FALSE,0.0330694100161665,0.9,40
+"Malawi","women_vitA","Nsanje","SC Mbenje",87,18,0.111111111111111,TRUE,0.00555454146010832,0,40
+"Malawi","women_vitA","Nsanje","TA Ndamera",87,18,0,FALSE,0.0527473702699079,0.975,40
+"Malawi","women_vitA","Ntcheu","SC Goodson Ganya",87,18,0,FALSE,0.0114499618678597,0.1,40
+"Malawi","women_vitA","Ntcheu","SC Makwangwala",87,18,0,FALSE,0.0127290805049428,0.1,40
+"Malawi","women_vitA","Ntcheu","TA Njolomole",87,18,0,FALSE,0.0110098417276716,0.1,40
+"Malawi","women_vitA","Ntcheu","TA Phambala",87,18,0,FALSE,0.0124917155947261,0.075,40
+"Malawi","women_vitA","Ntchisi","SC Chilooko",87,18,0,FALSE,0.0128027992981667,0.275,40
+"Malawi","women_vitA","Ntchisi","SC Nthondo",87,18,0.125,TRUE,0.00960963673579881,0,40
+"Malawi","women_vitA","Ntchisi","TA Kalumo",87,18,0,FALSE,0.0140661177423678,0.375,40
+"Malawi","women_vitA","Phalombe","TA Mkhumba",87,18,0,FALSE,0.015902610920619,0.625,40
+"Malawi","women_vitA","Rumphi","Rumphi Boma",87,18,0,FALSE,0.000935331043736762,0,40
+"Malawi","women_vitA","Rumphi","SC Chapinduka",87,18,0,FALSE,0.00195217608199616,0,40
+"Malawi","women_vitA","Rumphi","SC Kachulu",87,18,0,FALSE,0.00182580151281299,0,40
+"Malawi","women_vitA","Rumphi","SC Mwankhunikira",87,18,0,FALSE,0.00179392599362817,0,40
+"Malawi","women_vitA","Rumphi","TA Chikulamayembe",87,18,0,FALSE,0.00199321399736428,0,40
+"Malawi","women_vitA","Salima","SC Kambwiri",87,18,0,FALSE,0.0146227548494197,0.45,40
+"Malawi","women_vitA","Salima","TA Karonga",87,18,0,FALSE,0.0123734484826652,0.1,40
+"Malawi","women_vitA","Salima","TA Khombedza",87,18,0,FALSE,0.0130171516016134,0.125,40
+"Malawi","women_vitA","Salima","TA Maganga",87,18,0,FALSE,0.0104262598995528,0.05,40
+"Malawi","women_vitA","Thyolo","SC Mbawela",87,18,0,FALSE,0.0358865976219425,0.975,40
+"Malawi","women_vitA","Thyolo","TA Bvumbwe",87,18,0.0666666666666667,TRUE,0.00899099557962987,0,40
+"Malawi","women_vitA","Thyolo","TA Nchilamwela",87,18,0,FALSE,0.0214295911972731,0.85,40
+"Malawi","women_vitA","Zomba","SC Mbiza",87,18,0.142857142857143,TRUE,0.00503418710635479,0,40
+"Malawi","women_vitA","Zomba","TA Malemia",87,18,0,FALSE,0.00797716735878906,0,40
 "Malawi","child_iron","Balaka","TA Kalembo",87,18,0.571428571428571,TRUE,0.186382288447926,0.125,40
 "Malawi","child_iron","Balaka","TA Nsamala",87,18,0.333333333333333,TRUE,0.202931878951884,0.225,40
 "Malawi","child_iron","Blantyre","Blantyre City",87,18,0.443361861370418,TRUE,0.498027860296753,0.95,40
@@ -917,351 +917,351 @@
 "Malawi","women_iron","Thyolo","TA Nchilamwela",87,18,0,FALSE,0.0910662701042683,0.025,40
 "Malawi","women_iron","Zomba","SC Mbiza",87,18,0,FALSE,0.341097751209497,0.75,40
 "Malawi","women_iron","Zomba","TA Malemia",87,18,0.449251873670891,TRUE,0.132724193510654,0.075,40
-"Malawi","women_folate","Balaka","TA Kalembo",87,18,0,FALSE,0.41922493741028,0.725,40
-"Malawi","women_folate","Balaka","TA Nsamala",87,18,0,FALSE,0.357581190714043,0.425,40
-"Malawi","women_folate","Blantyre","Blantyre City",87,18,0.304238343866717,FALSE,0.261192011637382,0.075,40
-"Malawi","women_folate","Blantyre","TA Kuntaja",87,18,0,FALSE,0.515467363133521,0.975,40
-"Malawi","women_folate","Chikwawa","TA Kasisi",87,18,0.428571428571429,TRUE,0.721199332987733,1,40
-"Malawi","women_folate","Chikwawa","TA Lundu",87,18,0.666666666666667,TRUE,0.918693932746037,1,40
-"Malawi","women_folate","Chiradzulu","TA Kadewere",87,18,0.222222222222222,FALSE,0.140908341483891,0,40
-"Malawi","women_folate","Chiradzulu","TA Mpama",87,18,0.25,FALSE,0.178045271487506,0,40
-"Malawi","women_folate","Chiradzulu","TA Nchema",87,18,0.166666666666667,FALSE,0.123502611233209,0,40
-"Malawi","women_folate","Chitipa","Chitipa Boma",87,18,0,FALSE,0.0093722968909046,0,40
-"Malawi","women_folate","Chitipa","Nyika N.P. - Chitipa",87,18,0.25,FALSE,0.00103541072560653,0,40
-"Malawi","women_folate","Chitipa","TA Mwabulambya",87,18,0,FALSE,0.0075130343820957,0,40
-"Malawi","women_folate","Chitipa","TA Mwenemisuku",87,18,0,FALSE,0.0126463777400466,0,40
-"Malawi","women_folate","Chitipa","TA Mwenewenya",87,18,0,FALSE,0.00556636296026473,0,40
-"Malawi","women_folate","Dedza","TA Kaphuka",87,18,0.166666666666667,FALSE,0.00729116624152051,0,40
-"Malawi","women_folate","Dedza","TA Pemba",87,18,0,FALSE,0.00692367139829664,0,40
-"Malawi","women_folate","Dedza","TA Tambala",87,18,0,FALSE,0.0264910631088886,0,40
-"Malawi","women_folate","Dowa","SC Kayembe",87,18,0,FALSE,0.011317106484651,0,40
-"Malawi","women_folate","Dowa","SC Mkukula",87,18,0.0909090909090909,FALSE,0.0202622849611031,0,40
-"Malawi","women_folate","Dowa","SC Mponela",87,18,0,FALSE,0.0210361095517398,0,40
-"Malawi","women_folate","Dowa","TA Dzoole",87,18,0.375,FALSE,0.00774712960151196,0,40
-"Malawi","women_folate","Karonga","Karonga Town",87,18,0.416666666666667,TRUE,0.349059224275411,0.35,40
-"Malawi","women_folate","Karonga","TA Kilupula",87,18,0.0853774777161616,FALSE,0.208267919969758,0,40
-"Malawi","women_folate","Karonga","TA Kyungu",87,18,0.296278827780419,FALSE,0.113945891748645,0,40
-"Malawi","women_folate","Karonga","TA Wasambo",87,18,0.333333333333333,FALSE,0.255166618933872,0.075,40
-"Malawi","women_folate","Kasungu","SC Kawamba",87,18,0.111111111111111,FALSE,0.00685140119618022,0,40
-"Malawi","women_folate","Kasungu","TA Kaluluma",87,18,0,FALSE,0.00696993521730992,0,40
-"Malawi","women_folate","Kasungu","TA Mwase",87,18,0.142857142857143,FALSE,0.0118105490562999,0,40
-"Malawi","women_folate","Kasungu","TA Santhe",87,18,0,FALSE,0.0124671462827551,0,40
-"Malawi","women_folate","Lilongwe","Lilongwe City",87,18,0,FALSE,0.0591461954433801,0,40
-"Malawi","women_folate","Lilongwe","TA Chiseka",87,18,0.333333333333333,FALSE,0.00822388873858665,0,40
-"Malawi","women_folate","Lilongwe","TA Kabudula",87,18,0.125,FALSE,0.00902501037211235,0,40
-"Malawi","women_folate","Lilongwe","TA Khongoni",87,18,0.166666666666667,FALSE,0.00914184678288494,0,40
-"Malawi","women_folate","Machinga","TA Kawinga",87,18,0,FALSE,0.321830817349042,0.175,40
-"Malawi","women_folate","Mangochi","SC Chowe",87,18,0,FALSE,0.486873291740054,0.9,40
-"Malawi","women_folate","Mangochi","TA Mponda",87,18,0.2,FALSE,0.306169723103867,0.225,40
-"Malawi","women_folate","Mangochi","TA Nankumba",87,18,0.545454545454545,TRUE,0.182977958771174,0,40
-"Malawi","women_folate","Mchinji","SC Dambe",87,18,0.0833333333333333,FALSE,0.0107081639600823,0,40
-"Malawi","women_folate","Mchinji","SC Mduwa",87,18,0.166666666666667,FALSE,0.00619069945890893,0,40
-"Malawi","women_folate","Mchinji","TA Mlonyeni",87,18,0,FALSE,0.0141675029420854,0,40
-"Malawi","women_folate","Mchinji","TA Zulu",87,18,0,FALSE,0.0143192895870931,0,40
-"Malawi","women_folate","Mulanje","SC Juma",87,18,0.4,TRUE,0.199265081917497,0,40
-"Malawi","women_folate","Mulanje","TA Mabuka",87,18,0.17239048555191,FALSE,0.385982324550466,0.5,40
-"Malawi","women_folate","Mwanza","Majete Game Reserve - Mwanza",87,18,0,FALSE,0.612754482754303,1,40
-"Malawi","women_folate","Mwanza","TA Nthache",87,18,0.2,FALSE,0.166226938993612,0,40
-"Malawi","women_folate","Mzimba","Mzimba Boma",87,18,0,FALSE,0.0113513434764646,0,40
-"Malawi","women_folate","Mzimba","Mzuzu City",87,18,0.441031694146442,TRUE,0.0143825015424374,0,40
-"Malawi","women_folate","Mzimba","TA Chindi",87,18,0,FALSE,0.00530879947274897,0,40
-"Malawi","women_folate","Mzimba","TA M'Mbelwa",87,18,0.125,FALSE,0.00468594202733592,0,40
-"Malawi","women_folate","Mzimba","TA Mabulabo",87,18,0,FALSE,0.0107526444125113,0,40
-"Malawi","women_folate","Mzimba","TA Mtwalo",87,18,0.25,FALSE,0.00870166333739958,0,40
-"Malawi","women_folate","Neno","TA Ngozi",87,18,0.113310566828954,FALSE,0.10796763689519,0,40
-"Malawi","women_folate","Neno","TA Symon",87,18,0.444444444444444,TRUE,0.481875894205786,0.9,40
-"Malawi","women_folate","Nkhata Bay","SC Malanda",87,18,0.2,FALSE,0.263082828207573,0.15,40
-"Malawi","women_folate","Nkhata Bay","TA Fukamapiri",87,18,0,FALSE,0.309124119144806,0.225,40
-"Malawi","women_folate","Nkhata Bay","TA Kabunduli",87,18,0,FALSE,0.0659168961632094,0,40
-"Malawi","women_folate","Nkhata Bay","TA Musisya",87,18,0.5,TRUE,0.049702923532567,0,40
-"Malawi","women_folate","Nkhata Bay","TA Timbiri",87,18,0.145439725456382,FALSE,0.196489818511006,0,40
-"Malawi","women_folate","Nkhotakota","Nkhotakota Boma",87,18,0.666666666666667,TRUE,0.621868603925339,0.975,40
-"Malawi","women_folate","Nkhotakota","TA Kanyenda",87,18,0.625,TRUE,0.416612091546099,0.625,40
-"Malawi","women_folate","Nkhotakota","TA Malenga Chanzi",87,18,0.333333333333333,FALSE,0.484280444321923,0.775,40
-"Malawi","women_folate","Nkhotakota","TA Mwadzama",87,18,0.444444444444444,TRUE,0.337702294395317,0.375,40
-"Malawi","women_folate","Nsanje","Nsanje Boma",87,18,0.333333333333333,FALSE,0.892386292858306,1,40
-"Malawi","women_folate","Nsanje","SC Mbenje",87,18,0.444444444444444,TRUE,0.921463609958911,1,40
-"Malawi","women_folate","Nsanje","TA Ndamera",87,18,0.4,FALSE,0.776418301796256,1,40
-"Malawi","women_folate","Ntcheu","SC Goodson Ganya",87,18,0,FALSE,0.0687244146102147,0,40
-"Malawi","women_folate","Ntcheu","SC Makwangwala",87,18,0.181818181818182,FALSE,0.092656342795449,0,40
-"Malawi","women_folate","Ntcheu","TA Njolomole",87,18,0.111111111111111,FALSE,0.0192350536025889,0,40
-"Malawi","women_folate","Ntcheu","TA Phambala",87,18,0.363636363636364,FALSE,0.0484672948027113,0,40
-"Malawi","women_folate","Ntchisi","SC Chilooko",87,18,0,FALSE,0.0123163447411369,0,40
-"Malawi","women_folate","Ntchisi","SC Nthondo",87,18,0,FALSE,0.0252571746903748,0,40
-"Malawi","women_folate","Ntchisi","TA Kalumo",87,18,0,FALSE,0.00853684382692106,0,40
-"Malawi","women_folate","Phalombe","TA Mkhumba",87,18,0.149261675482729,FALSE,0.320069115000849,0.2,40
-"Malawi","women_folate","Rumphi","Rumphi Boma",87,18,0.40325323136528,TRUE,0.0318242677534573,0,40
-"Malawi","women_folate","Rumphi","SC Chapinduka",87,18,0.5,TRUE,0.0304898324947429,0,40
-"Malawi","women_folate","Rumphi","SC Kachulu",87,18,0,FALSE,0.0147794843569212,0,40
-"Malawi","women_folate","Rumphi","SC Mwankhunikira",87,18,0.142857142857143,FALSE,0.0178363345884101,0,40
-"Malawi","women_folate","Rumphi","TA Chikulamayembe",87,18,0.531100157178045,TRUE,0.0109526796162093,0,40
-"Malawi","women_folate","Salima","SC Kambwiri",87,18,0.333333333333333,FALSE,0.352792618650668,0.375,40
-"Malawi","women_folate","Salima","TA Karonga",87,18,1,TRUE,0.313955377624124,0.2,40
-"Malawi","women_folate","Salima","TA Khombedza",87,18,0.333333333333333,FALSE,0.501167405503923,0.85,40
-"Malawi","women_folate","Salima","TA Maganga",87,18,0.5,TRUE,0.585729686207703,0.95,40
-"Malawi","women_folate","Thyolo","SC Mbawela",87,18,0.153846153846154,FALSE,0.402032162736793,0.525,40
-"Malawi","women_folate","Thyolo","TA Bvumbwe",87,18,0.3125,FALSE,0.304065595253941,0.075,40
-"Malawi","women_folate","Thyolo","TA Nchilamwela",87,18,0.5,TRUE,0.360942381340261,0.3,40
-"Malawi","women_folate","Zomba","SC Mbiza",87,18,0.125,FALSE,0.126204918267781,0,40
-"Malawi","women_folate","Zomba","TA Malemia",87,18,0,FALSE,0.296364399399345,0.075,40
-"Malawi","women_b12","Balaka","TA Kalembo",87,18,0,FALSE,0.0169043830531981,0,40
-"Malawi","women_b12","Balaka","TA Nsamala",87,18,0,FALSE,0.0199472632301907,0,40
-"Malawi","women_b12","Blantyre","Blantyre City",87,18,0,FALSE,0.00396165542253988,0,40
-"Malawi","women_b12","Blantyre","TA Kuntaja",87,18,0,FALSE,0.0137774495087547,0,40
-"Malawi","women_b12","Chikwawa","TA Kasisi",87,18,0.142857142857143,FALSE,0.0103295510349564,0,40
-"Malawi","women_b12","Chikwawa","TA Lundu",87,18,0,FALSE,0.00345358112166173,0,40
-"Malawi","women_b12","Chiradzulu","TA Kadewere",87,18,0.111111111111111,FALSE,0.0222118996258756,0,40
-"Malawi","women_b12","Chiradzulu","TA Mpama",87,18,0,FALSE,0.0162974443531815,0,40
-"Malawi","women_b12","Chiradzulu","TA Nchema",87,18,0,FALSE,0.0306171563093415,0,40
-"Malawi","women_b12","Chitipa","Chitipa Boma",87,18,0,FALSE,0.0833318106486555,0,40
-"Malawi","women_b12","Chitipa","Nyika N.P. - Chitipa",87,18,0,FALSE,0.198604239436507,0.2,40
-"Malawi","women_b12","Chitipa","TA Mwabulambya",87,18,0.2,FALSE,0.0577408610089965,0,40
-"Malawi","women_b12","Chitipa","TA Mwenemisuku",87,18,0.0830726595710174,FALSE,0.0335211166179834,0,40
-"Malawi","women_b12","Chitipa","TA Mwenewenya",87,18,0.285714285714286,TRUE,0.0428181975396245,0,40
-"Malawi","women_b12","Dedza","TA Kaphuka",87,18,0,FALSE,0.287321337296477,0.925,40
-"Malawi","women_b12","Dedza","TA Pemba",87,18,0.111111111111111,FALSE,0.374295052878414,1,40
-"Malawi","women_b12","Dedza","TA Tambala",87,18,0.0909090909090909,FALSE,0.197780086051946,0.075,40
-"Malawi","women_b12","Dowa","SC Kayembe",87,18,0.142857142857143,FALSE,0.444636236438956,1,40
-"Malawi","women_b12","Dowa","SC Mkukula",87,18,0.272727272727273,TRUE,0.212162661732149,0.075,40
-"Malawi","women_b12","Dowa","SC Mponela",87,18,0.222222222222222,TRUE,0.238370505854257,0.225,40
-"Malawi","women_b12","Dowa","TA Dzoole",87,18,0.25,TRUE,0.324941861803506,1,40
-"Malawi","women_b12","Karonga","Karonga Town",87,18,0.0833333333333333,FALSE,0.00356085143149211,0,40
-"Malawi","women_b12","Karonga","TA Kilupula",87,18,0,FALSE,0.00853765332927109,0,40
-"Malawi","women_b12","Karonga","TA Kyungu",87,18,0,FALSE,0.0153686722480426,0,40
-"Malawi","women_b12","Karonga","TA Wasambo",87,18,0,FALSE,0.00912625358291879,0,40
-"Malawi","women_b12","Kasungu","SC Kawamba",87,18,0.222222222222222,FALSE,0.430792888572816,1,40
-"Malawi","women_b12","Kasungu","TA Kaluluma",87,18,0.1,FALSE,0.291625020912328,0.775,40
-"Malawi","women_b12","Kasungu","TA Mwase",87,18,0.142857142857143,FALSE,0.318998231142468,1,40
-"Malawi","women_b12","Kasungu","TA Santhe",87,18,0.111111111111111,FALSE,0.464354833084328,1,40
-"Malawi","women_b12","Lilongwe","Lilongwe City",87,18,0,FALSE,0.0675098461941628,0,40
-"Malawi","women_b12","Lilongwe","TA Chiseka",87,18,0.222222222222222,FALSE,0.295745350423035,0.85,40
-"Malawi","women_b12","Lilongwe","TA Kabudula",87,18,0.333333333333333,TRUE,0.49417505025537,1,40
-"Malawi","women_b12","Lilongwe","TA Khongoni",87,18,0.166666666666667,FALSE,0.56329197621397,1,40
-"Malawi","women_b12","Machinga","TA Kawinga",87,18,0,FALSE,0.0118239321831068,0,40
-"Malawi","women_b12","Mangochi","SC Chowe",87,18,0.25,TRUE,0.00530003661022689,0,40
-"Malawi","women_b12","Mangochi","TA Mponda",87,18,0,FALSE,0.0134389906607307,0,40
-"Malawi","women_b12","Mangochi","TA Nankumba",87,18,0,FALSE,0.0217729187059883,0,40
-"Malawi","women_b12","Mchinji","SC Dambe",87,18,0.166666666666667,FALSE,0.520997175394961,1,40
-"Malawi","women_b12","Mchinji","SC Mduwa",87,18,0.333333333333333,TRUE,0.490821719034862,1,40
-"Malawi","women_b12","Mchinji","TA Mlonyeni",87,18,0.222222222222222,FALSE,0.316086041964503,1,40
-"Malawi","women_b12","Mchinji","TA Zulu",87,18,0.125,FALSE,0.425968929802134,1,40
-"Malawi","women_b12","Mulanje","SC Juma",87,18,0,FALSE,0.018361883996172,0,40
-"Malawi","women_b12","Mulanje","TA Mabuka",87,18,0,FALSE,0.00306695712729396,0,40
-"Malawi","women_b12","Mwanza","Majete Game Reserve - Mwanza",87,18,0.636363636363636,TRUE,0.0157580391126017,0,40
-"Malawi","women_b12","Mwanza","TA Nthache",87,18,0.3,TRUE,0.0227512042993226,0,40
-"Malawi","women_b12","Mzimba","Mzimba Boma",87,18,0,FALSE,0.119481302796457,0,40
-"Malawi","women_b12","Mzimba","Mzuzu City",87,18,0.0912778140974905,FALSE,0.00850342655810414,0,40
-"Malawi","women_b12","Mzimba","TA Chindi",87,18,0.116006202334424,FALSE,0.260251057073037,0.55,40
-"Malawi","women_b12","Mzimba","TA M'Mbelwa",87,18,0.625,TRUE,0.213127838978712,0.225,40
-"Malawi","women_b12","Mzimba","TA Mabulabo",87,18,0.5,TRUE,0.119555089113245,0,40
-"Malawi","women_b12","Mzimba","TA Mtwalo",87,18,0.166666666666667,FALSE,0.102403678502918,0,40
-"Malawi","women_b12","Neno","TA Ngozi",87,18,0.213424399350852,FALSE,0.0439052492124863,0,40
-"Malawi","women_b12","Neno","TA Symon",87,18,0.111111111111111,FALSE,0.0184772914140321,0,40
-"Malawi","women_b12","Nkhata Bay","SC Malanda",87,18,0,FALSE,0.00171659923320087,0,40
-"Malawi","women_b12","Nkhata Bay","TA Fukamapiri",87,18,0,FALSE,0.00286143075061983,0,40
-"Malawi","women_b12","Nkhata Bay","TA Kabunduli",87,18,0,FALSE,0.0100459971935879,0,40
-"Malawi","women_b12","Nkhata Bay","TA Musisya",87,18,0,FALSE,0.00821266353048737,0,40
-"Malawi","women_b12","Nkhata Bay","TA Timbiri",87,18,0,FALSE,0.00255294571253606,0,40
-"Malawi","women_b12","Nkhotakota","Nkhotakota Boma",87,18,0,FALSE,0.00335789669573036,0,40
-"Malawi","women_b12","Nkhotakota","TA Kanyenda",87,18,0,FALSE,0.00694539311861688,0,40
-"Malawi","women_b12","Nkhotakota","TA Malenga Chanzi",87,18,0,FALSE,0.00882275059898856,0,40
-"Malawi","women_b12","Nkhotakota","TA Mwadzama",87,18,0,FALSE,0.0209113821851202,0,40
-"Malawi","women_b12","Nsanje","Nsanje Boma",87,18,0,FALSE,0.00230811182358835,0,40
-"Malawi","women_b12","Nsanje","SC Mbenje",87,18,0,FALSE,0.00168634059779838,0,40
-"Malawi","women_b12","Nsanje","TA Ndamera",87,18,0,FALSE,0.00562714224818013,0,40
-"Malawi","women_b12","Ntcheu","SC Goodson Ganya",87,18,0.0909090909090909,FALSE,0.102667796537182,0,40
-"Malawi","women_b12","Ntcheu","SC Makwangwala",87,18,0.272727272727273,TRUE,0.0543315503433316,0,40
-"Malawi","women_b12","Ntcheu","TA Njolomole",87,18,0.444444444444444,TRUE,0.100069057346954,0,40
-"Malawi","women_b12","Ntcheu","TA Phambala",87,18,0.0909090909090909,FALSE,0.0763626637140975,0,40
-"Malawi","women_b12","Ntchisi","SC Chilooko",87,18,0.285714285714286,TRUE,0.371558315242348,1,40
-"Malawi","women_b12","Ntchisi","SC Nthondo",87,18,0.25,TRUE,0.205406653445549,0.1,40
-"Malawi","women_b12","Ntchisi","TA Kalumo",87,18,0.25,TRUE,0.432259974788707,1,40
-"Malawi","women_b12","Phalombe","TA Mkhumba",87,18,0,FALSE,0.0132458007377038,0,40
-"Malawi","women_b12","Rumphi","Rumphi Boma",87,18,0.0612841116294001,FALSE,0.0196229578692902,0,40
-"Malawi","women_b12","Rumphi","SC Chapinduka",87,18,0,FALSE,0.0113995154584361,0,40
-"Malawi","women_b12","Rumphi","SC Kachulu",87,18,0,FALSE,0.0363478969551798,0,40
-"Malawi","women_b12","Rumphi","SC Mwankhunikira",87,18,0.142857142857143,FALSE,0.0249111605717727,0,40
-"Malawi","women_b12","Rumphi","TA Chikulamayembe",87,18,0,FALSE,0.0754588539894719,0,40
-"Malawi","women_b12","Salima","SC Kambwiri",87,18,0.166666666666667,FALSE,0.0340648444791581,0,40
-"Malawi","women_b12","Salima","TA Karonga",87,18,0,FALSE,0.0405084386818365,0,40
-"Malawi","women_b12","Salima","TA Khombedza",87,18,0.333333333333333,TRUE,0.0281745286214684,0,40
-"Malawi","women_b12","Salima","TA Maganga",87,18,0,FALSE,0.0164345784869985,0,40
-"Malawi","women_b12","Thyolo","SC Mbawela",87,18,0,FALSE,0.0124239455630195,0,40
-"Malawi","women_b12","Thyolo","TA Bvumbwe",87,18,0.0625,FALSE,0.0101821489229112,0,40
-"Malawi","women_b12","Thyolo","TA Nchilamwela",87,18,0,FALSE,0.00646476454727619,0,40
-"Malawi","women_b12","Zomba","SC Mbiza",87,18,0.25,TRUE,0.0196881615163578,0,40
-"Malawi","women_b12","Zomba","TA Malemia",87,18,0.0869389052531686,FALSE,0.00577451840862726,0,40
-"Malawi","child_zinc","Balaka","TA Kalembo",87,18,0.857142857142857,TRUE,0.879043761160303,0.75,40
-"Malawi","child_zinc","Balaka","TA Nsamala",87,18,0.833333333333333,TRUE,0.887320156454921,0.75,40
-"Malawi","child_zinc","Blantyre","Blantyre City",87,18,0.550142640185422,FALSE,0.726712861779469,0.1,40
-"Malawi","child_zinc","Blantyre","TA Kuntaja",87,18,1,TRUE,0.68869561971509,0,40
-"Malawi","child_zinc","Chikwawa","TA Kasisi",87,18,0.7,FALSE,0.581796727006247,0.025,40
-"Malawi","child_zinc","Chikwawa","TA Lundu",87,18,0.25,FALSE,0.894959891553451,0.8,40
-"Malawi","child_zinc","Chiradzulu","TA Kadewere",87,18,0.875,TRUE,0.891867686093083,0.75,40
-"Malawi","child_zinc","Chiradzulu","TA Mpama",87,18,0.666666666666667,FALSE,0.891570244819686,0.8,40
-"Malawi","child_zinc","Chiradzulu","TA Nchema",87,18,0.923076923076923,TRUE,0.9051033445104,0.825,40
-"Malawi","child_zinc","Chitipa","Chitipa Boma",87,18,0.6,FALSE,0.361685123733389,0,40
-"Malawi","child_zinc","Chitipa","Nyika N.P. - Chitipa",87,18,0.8,TRUE,0.0276672879745972,0,40
-"Malawi","child_zinc","Chitipa","TA Mwabulambya",87,18,0.428571428571429,FALSE,0.218873326922163,0,40
-"Malawi","child_zinc","Chitipa","TA Mwenemisuku",87,18,0.510665949389338,FALSE,0.119182243838525,0,40
-"Malawi","child_zinc","Chitipa","TA Mwenewenya",87,18,0.666666666666667,FALSE,0.0908810871184397,0,40
-"Malawi","child_zinc","Dedza","TA Kaphuka",87,18,0.5,FALSE,0.603632105278353,0,40
-"Malawi","child_zinc","Dedza","TA Pemba",87,18,0.6875,FALSE,0.626740180463362,0,40
-"Malawi","child_zinc","Dedza","TA Tambala",87,18,0.777777777777778,FALSE,0.406584571319922,0,40
-"Malawi","child_zinc","Dowa","SC Kayembe",87,18,0.125,FALSE,0.690087277114591,0,40
-"Malawi","child_zinc","Dowa","SC Mkukula",87,18,0.555555555555556,FALSE,0.585937154906084,0,40
-"Malawi","child_zinc","Dowa","SC Mponela",87,18,0.714285714285714,FALSE,0.571756221936253,0,40
-"Malawi","child_zinc","Dowa","TA Dzoole",87,18,0.333333333333333,FALSE,0.721662143184995,0.075,40
-"Malawi","child_zinc","Karonga","Karonga Town",87,18,0.636363636363636,FALSE,0.626903252557974,0,40
-"Malawi","child_zinc","Karonga","TA Kilupula",87,18,0.792534422080424,TRUE,0.372947391610412,0,40
-"Malawi","child_zinc","Karonga","TA Kyungu",87,18,0.296716807464536,FALSE,0.416227889163079,0,40
-"Malawi","child_zinc","Karonga","TA Wasambo",87,18,0.733333333333333,FALSE,0.393982518611627,0,40
-"Malawi","child_zinc","Kasungu","SC Kawamba",87,18,0.571428571428571,FALSE,0.370557860301264,0,40
-"Malawi","child_zinc","Kasungu","TA Kaluluma",87,18,0.375,FALSE,0.300901104428076,0,40
-"Malawi","child_zinc","Kasungu","TA Mwase",87,18,0.666666666666667,FALSE,0.405162686749137,0,40
-"Malawi","child_zinc","Kasungu","TA Santhe",87,18,0.4,FALSE,0.49528927774535,0,40
-"Malawi","child_zinc","Lilongwe","Lilongwe City",87,18,0.7,FALSE,0.427269376573022,0,40
-"Malawi","child_zinc","Lilongwe","TA Chiseka",87,18,0.833333333333333,TRUE,0.363217571708925,0,40
-"Malawi","child_zinc","Lilongwe","TA Kabudula",87,18,0.428571428571429,FALSE,0.628804232364095,0,40
-"Malawi","child_zinc","Lilongwe","TA Khongoni",87,18,0.375,FALSE,0.581250013244595,0,40
-"Malawi","child_zinc","Machinga","TA Kawinga",87,18,0.388888888888889,FALSE,0.92632736213825,1,40
-"Malawi","child_zinc","Mangochi","SC Chowe",87,18,0.9,TRUE,0.870631033643398,0.65,40
-"Malawi","child_zinc","Mangochi","TA Mponda",87,18,0.857142857142857,TRUE,0.833257978657118,0.425,40
-"Malawi","child_zinc","Mangochi","TA Nankumba",87,18,0.3125,FALSE,0.900641851201371,0.875,40
-"Malawi","child_zinc","Mchinji","SC Dambe",87,18,0.857142857142857,TRUE,0.326758486444185,0,40
-"Malawi","child_zinc","Mchinji","SC Mduwa",87,18,0.714285714285714,FALSE,0.459998382408223,0,40
-"Malawi","child_zinc","Mchinji","TA Mlonyeni",87,18,0.454545454545455,FALSE,0.593842517128266,0,40
-"Malawi","child_zinc","Mchinji","TA Zulu",87,18,0.727272727272727,FALSE,0.431173085827692,0,40
-"Malawi","child_zinc","Mulanje","SC Juma",87,18,0.928571428571429,TRUE,0.925605957795647,0.975,40
-"Malawi","child_zinc","Mulanje","TA Mabuka",87,18,0.541689192299562,FALSE,0.869630335552529,0.675,40
-"Malawi","child_zinc","Mwanza","Majete Game Reserve - Mwanza",87,18,0.6,FALSE,0.751276835063336,0.075,40
-"Malawi","child_zinc","Mwanza","TA Nthache",87,18,0.5,FALSE,0.779889549446036,0.025,40
-"Malawi","child_zinc","Mzimba","Mzimba Boma",87,18,0.666666666666667,FALSE,0.225501792348785,0,40
-"Malawi","child_zinc","Mzimba","Mzuzu City",87,18,0.451983534492502,FALSE,0.296222071455221,0.025,40
-"Malawi","child_zinc","Mzimba","TA Chindi",87,18,0.483441611857985,FALSE,0.16995895288033,0,40
-"Malawi","child_zinc","Mzimba","TA M'Mbelwa",87,18,0.333333333333333,FALSE,0.281286285800471,0,40
-"Malawi","child_zinc","Mzimba","TA Mabulabo",87,18,0.888888888888889,TRUE,0.212838820716002,0,40
-"Malawi","child_zinc","Mzimba","TA Mtwalo",87,18,0.142857142857143,FALSE,0.222350918713051,0,40
-"Malawi","child_zinc","Neno","TA Ngozi",87,18,0.759033088809115,FALSE,0.724700159244102,0.025,40
-"Malawi","child_zinc","Neno","TA Symon",87,18,0.428571428571429,FALSE,0.919662547598852,1,40
-"Malawi","child_zinc","Nkhata Bay","SC Malanda",87,18,0.428571428571429,FALSE,0.655242246079792,0.125,40
-"Malawi","child_zinc","Nkhata Bay","TA Fukamapiri",87,18,0.75,FALSE,0.463123124603026,0,40
-"Malawi","child_zinc","Nkhata Bay","TA Kabunduli",87,18,0.818181818181818,TRUE,0.0906239019355983,0,40
-"Malawi","child_zinc","Nkhata Bay","TA Musisya",87,18,0.384615384615385,FALSE,0.266064737038694,0,40
-"Malawi","child_zinc","Nkhata Bay","TA Timbiri",87,18,0.772574451184001,FALSE,0.272323314889795,0,40
-"Malawi","child_zinc","Nkhotakota","Nkhotakota Boma",87,18,1,TRUE,0.673668089498421,0.05,40
-"Malawi","child_zinc","Nkhotakota","TA Kanyenda",87,18,0.666666666666667,FALSE,0.789717330397894,0.25,40
-"Malawi","child_zinc","Nkhotakota","TA Malenga Chanzi",87,18,0.666666666666667,FALSE,0.807952328666392,0.325,40
-"Malawi","child_zinc","Nkhotakota","TA Mwadzama",87,18,0.578947368421053,FALSE,0.804802989929694,0.325,40
-"Malawi","child_zinc","Nsanje","Nsanje Boma",87,18,0.25,FALSE,0.875048450170653,0.675,40
-"Malawi","child_zinc","Nsanje","SC Mbenje",87,18,0.764705882352941,FALSE,0.562545289370318,0.025,40
-"Malawi","child_zinc","Nsanje","TA Ndamera",87,18,0.6,FALSE,0.68745884737571,0.15,40
-"Malawi","child_zinc","Ntcheu","SC Goodson Ganya",87,18,0.583333333333333,FALSE,0.794121563534725,0.125,40
-"Malawi","child_zinc","Ntcheu","SC Makwangwala",87,18,0.333333333333333,FALSE,0.870166307671799,0.625,40
-"Malawi","child_zinc","Ntcheu","TA Njolomole",87,18,0.0666666666666667,FALSE,0.788900496836492,0.125,40
-"Malawi","child_zinc","Ntcheu","TA Phambala",87,18,0.769230769230769,FALSE,0.679390018159893,0,40
-"Malawi","child_zinc","Ntchisi","SC Chilooko",87,18,0.8,TRUE,0.41935477019244,0,40
-"Malawi","child_zinc","Ntchisi","SC Nthondo",87,18,0.705882352941177,FALSE,0.527526154463963,0,40
-"Malawi","child_zinc","Ntchisi","TA Kalumo",87,18,0.916666666666667,TRUE,0.428711157117703,0,40
-"Malawi","child_zinc","Phalombe","TA Mkhumba",87,18,0.688478699948951,FALSE,0.934858452039503,0.95,40
-"Malawi","child_zinc","Rumphi","Rumphi Boma",87,18,0.347126637611102,FALSE,0.359503076497981,0,40
-"Malawi","child_zinc","Rumphi","SC Chapinduka",87,18,0.181818181818182,FALSE,0.113021224184356,0,40
-"Malawi","child_zinc","Rumphi","SC Kachulu",87,18,0.333333333333333,FALSE,0.14518787001555,0,40
-"Malawi","child_zinc","Rumphi","SC Mwankhunikira",87,18,0.2,FALSE,0.142061274781736,0,40
-"Malawi","child_zinc","Rumphi","TA Chikulamayembe",87,18,0.380471042407071,FALSE,0.112072951807463,0,40
-"Malawi","child_zinc","Salima","SC Kambwiri",87,18,0,FALSE,0.873733259482234,0.7,40
-"Malawi","child_zinc","Salima","TA Karonga",87,18,0.714285714285714,FALSE,0.73466051281198,0.15,40
-"Malawi","child_zinc","Salima","TA Khombedza",87,18,0.636363636363636,FALSE,0.798109513777973,0.225,40
-"Malawi","child_zinc","Salima","TA Maganga",87,18,0.454545454545455,FALSE,0.875921316091219,0.7,40
-"Malawi","child_zinc","Thyolo","SC Mbawela",87,18,0.2,FALSE,0.823562073578552,0.35,40
-"Malawi","child_zinc","Thyolo","TA Bvumbwe",87,18,0.727272727272727,FALSE,0.568564464404028,0,40
-"Malawi","child_zinc","Thyolo","TA Nchilamwela",87,18,0,FALSE,0.843918431393842,0.375,40
-"Malawi","child_zinc","Zomba","SC Mbiza",87,18,0.571428571428571,FALSE,0.963900259517793,1,40
-"Malawi","child_zinc","Zomba","TA Malemia",87,18,0.868507424475984,TRUE,0.784212254514469,0.125,40
-"Malawi","women_zinc","Balaka","TA Kalembo",87,18,0.8,FALSE,0.634136119994294,0,40
-"Malawi","women_zinc","Balaka","TA Nsamala",87,18,0.833333333333333,FALSE,0.689893455997469,0,40
-"Malawi","women_zinc","Blantyre","Blantyre City",87,18,0.921695337546687,TRUE,0.99218746217291,0.95,40
-"Malawi","women_zinc","Blantyre","TA Kuntaja",87,18,1,TRUE,0.971301938903899,0.775,40
-"Malawi","women_zinc","Chikwawa","TA Kasisi",87,18,0.857142857142857,FALSE,0.585938238978672,0,40
-"Malawi","women_zinc","Chikwawa","TA Lundu",87,18,0.3,FALSE,0.972205535430363,0.775,40
-"Malawi","women_zinc","Chiradzulu","TA Kadewere",87,18,0.777777777777778,FALSE,0.992925594762367,1,40
-"Malawi","women_zinc","Chiradzulu","TA Mpama",87,18,1,TRUE,0.993484692402608,1,40
-"Malawi","women_zinc","Chiradzulu","TA Nchema",87,18,0.916666666666667,TRUE,0.992520391873921,1,40
-"Malawi","women_zinc","Chitipa","Chitipa Boma",87,18,1,TRUE,0.836161820353895,0.075,40
-"Malawi","women_zinc","Chitipa","Nyika N.P. - Chitipa",87,18,1,TRUE,0.403596704912589,0,40
-"Malawi","women_zinc","Chitipa","TA Mwabulambya",87,18,0.6875,FALSE,0.889007740213023,0.225,40
-"Malawi","women_zinc","Chitipa","TA Mwenemisuku",87,18,0.545977695031243,FALSE,0.941109131324255,0.375,40
-"Malawi","women_zinc","Chitipa","TA Mwenewenya",87,18,0.714285714285714,FALSE,0.930875128686786,0.425,40
-"Malawi","women_zinc","Dedza","TA Kaphuka",87,18,0.333333333333333,FALSE,0.707277175358663,0,40
-"Malawi","women_zinc","Dedza","TA Pemba",87,18,0.666666666666667,FALSE,0.673026197002169,0,40
-"Malawi","women_zinc","Dedza","TA Tambala",87,18,0.818181818181818,FALSE,0.265883030428706,0,40
-"Malawi","women_zinc","Dowa","SC Kayembe",87,18,0.428571428571429,FALSE,0.446766413615255,0,40
-"Malawi","women_zinc","Dowa","SC Mkukula",87,18,0.272727272727273,FALSE,0.596712641040312,0,40
-"Malawi","women_zinc","Dowa","SC Mponela",87,18,0.8,FALSE,0.406709395137346,0,40
-"Malawi","women_zinc","Dowa","TA Dzoole",87,18,0.125,FALSE,0.678316678566067,0,40
-"Malawi","women_zinc","Karonga","Karonga Town",87,18,1,TRUE,0.632765949825137,0,40
-"Malawi","women_zinc","Karonga","TA Kilupula",87,18,0.808962462860269,FALSE,0.796858521224613,0.1,40
-"Malawi","women_zinc","Karonga","TA Kyungu",87,18,0.286440222740951,FALSE,0.884506872188499,0.125,40
-"Malawi","women_zinc","Karonga","TA Wasambo",87,18,0.833333333333333,FALSE,0.571814560814365,0,40
-"Malawi","women_zinc","Kasungu","SC Kawamba",87,18,0.555555555555556,FALSE,0.25813412091789,0,40
-"Malawi","women_zinc","Kasungu","TA Kaluluma",87,18,0.4,FALSE,0.337805839373463,0,40
-"Malawi","women_zinc","Kasungu","TA Mwase",87,18,0.571428571428571,FALSE,0.262930414459094,0,40
-"Malawi","women_zinc","Kasungu","TA Santhe",87,18,0.5,FALSE,0.313095964456954,0,40
-"Malawi","women_zinc","Lilongwe","Lilongwe City",87,18,1,TRUE,0.676944466923086,0,40
-"Malawi","women_zinc","Lilongwe","TA Chiseka",87,18,0.777777777777778,FALSE,0.707395003172788,0.025,40
-"Malawi","women_zinc","Lilongwe","TA Kabudula",87,18,0.875,FALSE,0.537443772482953,0.025,40
-"Malawi","women_zinc","Lilongwe","TA Khongoni",87,18,0.285714285714286,FALSE,0.724427319702584,0.05,40
-"Malawi","women_zinc","Machinga","TA Kawinga",87,18,0.75,FALSE,0.365292327823751,0,40
-"Malawi","women_zinc","Mangochi","SC Chowe",87,18,0.375,FALSE,0.584828213511476,0,40
-"Malawi","women_zinc","Mangochi","TA Mponda",87,18,0.6,FALSE,0.570968282867669,0,40
-"Malawi","women_zinc","Mangochi","TA Nankumba",87,18,0.363636363636364,FALSE,0.615316479684868,0,40
-"Malawi","women_zinc","Mchinji","SC Dambe",87,18,1,TRUE,0.160983583481241,0,40
-"Malawi","women_zinc","Mchinji","SC Mduwa",87,18,0.5,FALSE,0.453793674328855,0,40
-"Malawi","women_zinc","Mchinji","TA Mlonyeni",87,18,0.777777777777778,FALSE,0.421188639776079,0,40
-"Malawi","women_zinc","Mchinji","TA Zulu",87,18,0.375,FALSE,0.55149721553145,0,40
-"Malawi","women_zinc","Mulanje","SC Juma",87,18,0.8,FALSE,0.934336377955331,0.3,40
-"Malawi","women_zinc","Mulanje","TA Mabuka",87,18,0.473138640981174,FALSE,0.991387032800822,1,40
-"Malawi","women_zinc","Mwanza","Majete Game Reserve - Mwanza",87,18,1,TRUE,0.864469046592503,0.125,40
-"Malawi","women_zinc","Mwanza","TA Nthache",87,18,0.8,FALSE,0.987669817111731,0.975,40
-"Malawi","women_zinc","Mzimba","Mzimba Boma",87,18,0.625,FALSE,0.811332067502949,0.125,40
-"Malawi","women_zinc","Mzimba","Mzuzu City",87,18,0.752825355317154,FALSE,0.964576537290695,0.675,40
-"Malawi","women_zinc","Mzimba","TA Chindi",87,18,0.839937976655756,FALSE,0.365596892188339,0,40
-"Malawi","women_zinc","Mzimba","TA M'Mbelwa",87,18,0.375,FALSE,0.64749812098127,0,40
-"Malawi","women_zinc","Mzimba","TA Mabulabo",87,18,1,TRUE,0.377978882311848,0,40
-"Malawi","women_zinc","Mzimba","TA Mtwalo",87,18,0.166666666666667,FALSE,0.776982403764219,0.05,40
-"Malawi","women_zinc","Neno","TA Ngozi",87,18,0.880091066017518,TRUE,0.957426279271392,0.625,40
-"Malawi","women_zinc","Neno","TA Symon",87,18,0.444444444444444,FALSE,0.950709736777827,0.575,40
-"Malawi","women_zinc","Nkhata Bay","SC Malanda",87,18,0.4,FALSE,0.889922228122926,0.275,40
-"Malawi","women_zinc","Nkhata Bay","TA Fukamapiri",87,18,1,TRUE,0.470442807435876,0,40
-"Malawi","women_zinc","Nkhata Bay","TA Kabunduli",87,18,1,TRUE,0.470776805447609,0,40
-"Malawi","women_zinc","Nkhata Bay","TA Musisya",87,18,1,TRUE,0.5793020786156,0,40
-"Malawi","women_zinc","Nkhata Bay","TA Timbiri",87,18,0.565684366104056,FALSE,0.876509138973571,0.2,40
-"Malawi","women_zinc","Nkhotakota","Nkhotakota Boma",87,18,0.333333333333333,FALSE,0.574157144373613,0,40
-"Malawi","women_zinc","Nkhotakota","TA Kanyenda",87,18,0.444444444444444,FALSE,0.432260772801425,0,40
-"Malawi","women_zinc","Nkhotakota","TA Malenga Chanzi",87,18,0.5,FALSE,0.212152616335854,0,40
-"Malawi","women_zinc","Nkhotakota","TA Mwadzama",87,18,0.5,FALSE,0.179316898586119,0,40
-"Malawi","women_zinc","Nsanje","Nsanje Boma",87,18,0.333333333333333,FALSE,0.937328692386423,0.425,40
-"Malawi","women_zinc","Nsanje","SC Mbenje",87,18,0.666666666666667,FALSE,0.830481144239714,0.125,40
-"Malawi","women_zinc","Nsanje","TA Ndamera",87,18,0.5,FALSE,0.918967161816161,0.35,40
-"Malawi","women_zinc","Ntcheu","SC Goodson Ganya",87,18,0.727272727272727,FALSE,0.736281858621928,0,40
-"Malawi","women_zinc","Ntcheu","SC Makwangwala",87,18,0.636363636363636,FALSE,0.835123116399905,0,40
-"Malawi","women_zinc","Ntcheu","TA Njolomole",87,18,0.333333333333333,FALSE,0.932894992899992,0.2,40
-"Malawi","women_zinc","Ntcheu","TA Phambala",87,18,0.636363636363636,FALSE,0.892212940036003,0.025,40
-"Malawi","women_zinc","Ntchisi","SC Chilooko",87,18,0.714285714285714,FALSE,0.399427818270084,0,40
-"Malawi","women_zinc","Ntchisi","SC Nthondo",87,18,0.75,FALSE,0.526247684768627,0,40
-"Malawi","women_zinc","Ntchisi","TA Kalumo",87,18,1,TRUE,0.290103412153831,0,40
-"Malawi","women_zinc","Phalombe","TA Mkhumba",87,18,0.813857615299332,FALSE,0.940556619505503,0.325,40
-"Malawi","women_zinc","Rumphi","Rumphi Boma",87,18,0.448985613690143,FALSE,0.82502770011474,0.125,40
-"Malawi","women_zinc","Rumphi","SC Chapinduka",87,18,0.25,FALSE,0.804991951069733,0.15,40
-"Malawi","women_zinc","Rumphi","SC Kachulu",87,18,0.333333333333333,FALSE,0.846579752738686,0.15,40
-"Malawi","women_zinc","Rumphi","SC Mwankhunikira",87,18,0.142857142857143,FALSE,0.840780051010772,0.125,40
-"Malawi","women_zinc","Rumphi","TA Chikulamayembe",87,18,0.33779968564391,FALSE,0.545535954633354,0.025,40
-"Malawi","women_zinc","Salima","SC Kambwiri",87,18,0.166666666666667,FALSE,0.764000466994815,0.025,40
-"Malawi","women_zinc","Salima","TA Karonga",87,18,0.571428571428571,FALSE,0.477790346099015,0.025,40
-"Malawi","women_zinc","Salima","TA Khombedza",87,18,1,TRUE,0.0978288975385394,0,40
-"Malawi","women_zinc","Salima","TA Maganga",87,18,0.363636363636364,FALSE,0.589452198604414,0.025,40
-"Malawi","women_zinc","Thyolo","SC Mbawela",87,18,0.384615384615385,FALSE,0.971824476278604,0.75,40
-"Malawi","women_zinc","Thyolo","TA Bvumbwe",87,18,0.8125,FALSE,0.977505796209407,0.95,40
-"Malawi","women_zinc","Thyolo","TA Nchilamwela",87,18,1,TRUE,0.948540309736582,0.5,40
-"Malawi","women_zinc","Zomba","SC Mbiza",87,18,0.625,FALSE,0.980905785910438,0.925,40
-"Malawi","women_zinc","Zomba","TA Malemia",87,18,0.818843515791139,FALSE,0.9770117167652,0.925,40
+"Malawi","women_folate","Balaka","TA Kalembo",87,18,0,FALSE,0.420028232010113,0.7,40
+"Malawi","women_folate","Balaka","TA Nsamala",87,18,0,FALSE,0.360769731010508,0.375,40
+"Malawi","women_folate","Blantyre","Blantyre City",87,18,0.360732401781694,FALSE,0.268502407602005,0.075,40
+"Malawi","women_folate","Blantyre","TA Kuntaja",87,18,0,FALSE,0.532388589381071,1,40
+"Malawi","women_folate","Chikwawa","TA Kasisi",87,18,0.428571428571429,TRUE,0.704441356836835,1,40
+"Malawi","women_folate","Chikwawa","TA Lundu",87,18,0.666666666666667,TRUE,0.913364200190868,1,40
+"Malawi","women_folate","Chiradzulu","TA Kadewere",87,18,0.222222222222222,FALSE,0.146263852574372,0,40
+"Malawi","women_folate","Chiradzulu","TA Mpama",87,18,0.25,FALSE,0.192959205641662,0,40
+"Malawi","women_folate","Chiradzulu","TA Nchema",87,18,0.181818181818182,FALSE,0.125056423687124,0,40
+"Malawi","women_folate","Chitipa","Chitipa Boma",87,18,0,FALSE,0.0101532156769709,0,40
+"Malawi","women_folate","Chitipa","Nyika N.P. - Chitipa",87,18,0.25,FALSE,0.000982685438582276,0,40
+"Malawi","women_folate","Chitipa","TA Mwabulambya",87,18,0,FALSE,0.00763168231878148,0,40
+"Malawi","women_folate","Chitipa","TA Mwenemisuku",87,18,0,FALSE,0.013031402279348,0,40
+"Malawi","women_folate","Chitipa","TA Mwenewenya",87,18,0,FALSE,0.00545717951973409,0,40
+"Malawi","women_folate","Dedza","TA Kaphuka",87,18,0.166666666666667,FALSE,0.00703836320616606,0,40
+"Malawi","women_folate","Dedza","TA Pemba",87,18,0,FALSE,0.0063312765553682,0,40
+"Malawi","women_folate","Dedza","TA Tambala",87,18,0,FALSE,0.0249391530332417,0,40
+"Malawi","women_folate","Dowa","SC Kayembe",87,18,0,FALSE,0.0100233058559308,0,40
+"Malawi","women_folate","Dowa","SC Mkukula",87,18,0.0909090909090909,FALSE,0.0196506036503991,0,40
+"Malawi","women_folate","Dowa","SC Mponela",87,18,0,FALSE,0.0206944008429461,0,40
+"Malawi","women_folate","Dowa","TA Dzoole",87,18,0.375,FALSE,0.00735211307837432,0,40
+"Malawi","women_folate","Karonga","Karonga Town",87,18,0.416666666666667,TRUE,0.381187652982343,0.5,40
+"Malawi","women_folate","Karonga","TA Kilupula",87,18,0.116361483170348,FALSE,0.211631514462045,0,40
+"Malawi","women_folate","Karonga","TA Kyungu",87,18,0.313007853582024,FALSE,0.117008476680744,0,40
+"Malawi","women_folate","Karonga","TA Wasambo",87,18,0.333333333333333,FALSE,0.271511898456392,0.075,40
+"Malawi","women_folate","Kasungu","SC Kawamba",87,18,0,FALSE,0.00686125916498312,0,40
+"Malawi","women_folate","Kasungu","TA Kaluluma",87,18,0,FALSE,0.00581417470581198,0,40
+"Malawi","women_folate","Kasungu","TA Mwase",87,18,0.166666666666667,FALSE,0.00951974361598841,0,40
+"Malawi","women_folate","Kasungu","TA Santhe",87,18,0,FALSE,0.0095958123811771,0,40
+"Malawi","women_folate","Lilongwe","Lilongwe City",87,18,0,FALSE,0.0663826239917025,0,40
+"Malawi","women_folate","Lilongwe","TA Chiseka",87,18,0.375,FALSE,0.00721138023039711,0,40
+"Malawi","women_folate","Lilongwe","TA Kabudula",87,18,0.125,FALSE,0.0085297670955309,0,40
+"Malawi","women_folate","Lilongwe","TA Khongoni",87,18,0.166666666666667,FALSE,0.00824358803784707,0,40
+"Malawi","women_folate","Machinga","TA Kawinga",87,18,0,FALSE,0.310244688341612,0.175,40
+"Malawi","women_folate","Mangochi","SC Chowe",87,18,0,FALSE,0.485534777134524,0.825,40
+"Malawi","women_folate","Mangochi","TA Mponda",87,18,0.2,FALSE,0.309201642314698,0.2,40
+"Malawi","women_folate","Mangochi","TA Nankumba",87,18,0.545454545454545,TRUE,0.180260879951677,0,40
+"Malawi","women_folate","Mchinji","SC Dambe",87,18,0.0833333333333333,FALSE,0.00903275375745076,0,40
+"Malawi","women_folate","Mchinji","SC Mduwa",87,18,0.166666666666667,FALSE,0.0054215643096764,0,40
+"Malawi","women_folate","Mchinji","TA Mlonyeni",87,18,0,FALSE,0.0129064401201641,0,40
+"Malawi","women_folate","Mchinji","TA Zulu",87,18,0,FALSE,0.0127072634153306,0,40
+"Malawi","women_folate","Mulanje","SC Juma",87,18,0.4,TRUE,0.188250101203477,0,40
+"Malawi","women_folate","Mulanje","TA Mabuka",87,18,0.17239048555191,FALSE,0.388329527067794,0.475,40
+"Malawi","women_folate","Mwanza","Majete Game Reserve - Mwanza",87,18,0,FALSE,0.599993722768935,1,40
+"Malawi","women_folate","Mwanza","TA Nthache",87,18,0.2,FALSE,0.163210914482789,0,40
+"Malawi","women_folate","Mzimba","Mzimba Boma",87,18,0,FALSE,0.0117958229154426,0,40
+"Malawi","women_folate","Mzimba","Mzuzu City",87,18,0.441031694146442,TRUE,0.0157733291616246,0,40
+"Malawi","women_folate","Mzimba","TA Chindi",87,18,0,FALSE,0.00468059571109503,0,40
+"Malawi","women_folate","Mzimba","TA M'Mbelwa",87,18,0.125,FALSE,0.00423719631217671,0,40
+"Malawi","women_folate","Mzimba","TA Mabulabo",87,18,0,FALSE,0.0102213898889767,0,40
+"Malawi","women_folate","Mzimba","TA Mtwalo",87,18,0.272727272727273,FALSE,0.00829344837689779,0,40
+"Malawi","women_folate","Neno","TA Ngozi",87,18,0.113310566828954,FALSE,0.104755087775974,0,40
+"Malawi","women_folate","Neno","TA Symon",87,18,0.444444444444444,TRUE,0.463231495958974,0.85,40
+"Malawi","women_folate","Nkhata Bay","SC Malanda",87,18,0.2,FALSE,0.278221830553247,0.15,40
+"Malawi","women_folate","Nkhata Bay","TA Fukamapiri",87,18,0,FALSE,0.319972505941796,0.225,40
+"Malawi","women_folate","Nkhata Bay","TA Kabunduli",87,18,0,FALSE,0.0667567438936573,0,40
+"Malawi","women_folate","Nkhata Bay","TA Musisya",87,18,0.5,TRUE,0.0503651772210041,0,40
+"Malawi","women_folate","Nkhata Bay","TA Timbiri",87,18,0.154621034565214,FALSE,0.205901691398867,0,40
+"Malawi","women_folate","Nkhotakota","Nkhotakota Boma",87,18,0.666666666666667,TRUE,0.636057206073007,0.975,40
+"Malawi","women_folate","Nkhotakota","TA Kanyenda",87,18,0.625,TRUE,0.410889972319995,0.6,40
+"Malawi","women_folate","Nkhotakota","TA Malenga Chanzi",87,18,0.333333333333333,FALSE,0.483099948910243,0.8,40
+"Malawi","women_folate","Nkhotakota","TA Mwadzama",87,18,0.444444444444444,TRUE,0.327601022365163,0.325,40
+"Malawi","women_folate","Nsanje","Nsanje Boma",87,18,0.333333333333333,FALSE,0.882134113185615,1,40
+"Malawi","women_folate","Nsanje","SC Mbenje",87,18,0.444444444444444,TRUE,0.910140486829546,1,40
+"Malawi","women_folate","Nsanje","TA Ndamera",87,18,0.333333333333333,FALSE,0.768629057974475,1,40
+"Malawi","women_folate","Ntcheu","SC Goodson Ganya",87,18,0,FALSE,0.0692885924027334,0,40
+"Malawi","women_folate","Ntcheu","SC Makwangwala",87,18,0.181818181818182,FALSE,0.0934949209314658,0,40
+"Malawi","women_folate","Ntcheu","TA Njolomole",87,18,0.111111111111111,FALSE,0.0199762550915981,0,40
+"Malawi","women_folate","Ntcheu","TA Phambala",87,18,0.4,TRUE,0.0460628590756836,0,40
+"Malawi","women_folate","Ntchisi","SC Chilooko",87,18,0,FALSE,0.0112951425652918,0,40
+"Malawi","women_folate","Ntchisi","SC Nthondo",87,18,0,FALSE,0.0230842946388542,0,40
+"Malawi","women_folate","Ntchisi","TA Kalumo",87,18,0,FALSE,0.00793681297595521,0,40
+"Malawi","women_folate","Phalombe","TA Mkhumba",87,18,0.149261675482729,FALSE,0.319273098315513,0.2,40
+"Malawi","women_folate","Rumphi","Rumphi Boma",87,18,0.370228037831637,FALSE,0.0379431303326908,0,40
+"Malawi","women_folate","Rumphi","SC Chapinduka",87,18,0.5,TRUE,0.0316792835158492,0,40
+"Malawi","women_folate","Rumphi","SC Kachulu",87,18,0,FALSE,0.015699425313586,0,40
+"Malawi","women_folate","Rumphi","SC Mwankhunikira",87,18,0.166666666666667,FALSE,0.0178935212029287,0,40
+"Malawi","women_folate","Rumphi","TA Chikulamayembe",87,18,0.531100157178045,TRUE,0.0109598908321782,0,40
+"Malawi","women_folate","Salima","SC Kambwiri",87,18,0.333333333333333,FALSE,0.361390192367889,0.4,40
+"Malawi","women_folate","Salima","TA Karonga",87,18,1,TRUE,0.318891730074937,0.2,40
+"Malawi","women_folate","Salima","TA Khombedza",87,18,0.333333333333333,FALSE,0.504072288449773,0.85,40
+"Malawi","women_folate","Salima","TA Maganga",87,18,0.555555555555556,TRUE,0.58077528356986,0.925,40
+"Malawi","women_folate","Thyolo","SC Mbawela",87,18,0.153846153846154,FALSE,0.403000118368873,0.525,40
+"Malawi","women_folate","Thyolo","TA Bvumbwe",87,18,0.3125,FALSE,0.316069494822626,0.125,40
+"Malawi","women_folate","Thyolo","TA Nchilamwela",87,18,0.5,TRUE,0.365710688607289,0.375,40
+"Malawi","women_folate","Zomba","SC Mbiza",87,18,0.142857142857143,FALSE,0.129967173144141,0,40
+"Malawi","women_folate","Zomba","TA Malemia",87,18,0,FALSE,0.315021421730127,0.075,40
+"Malawi","women_b12","Balaka","TA Kalembo",87,18,0,FALSE,0.0175335968045904,0,40
+"Malawi","women_b12","Balaka","TA Nsamala",87,18,0,FALSE,0.0216799761387432,0,40
+"Malawi","women_b12","Blantyre","Blantyre City",87,18,0,FALSE,0.00384046331313432,0,40
+"Malawi","women_b12","Blantyre","TA Kuntaja",87,18,0,FALSE,0.0147889574933284,0,40
+"Malawi","women_b12","Chikwawa","TA Kasisi",87,18,0.142857142857143,FALSE,0.0107923413467724,0,40
+"Malawi","women_b12","Chikwawa","TA Lundu",87,18,0,FALSE,0.00362016453118417,0,40
+"Malawi","women_b12","Chiradzulu","TA Kadewere",87,18,0.111111111111111,FALSE,0.0229822397675977,0,40
+"Malawi","women_b12","Chiradzulu","TA Mpama",87,18,0,FALSE,0.0177638833176394,0,40
+"Malawi","women_b12","Chiradzulu","TA Nchema",87,18,0,FALSE,0.0341018282072455,0,40
+"Malawi","women_b12","Chitipa","Chitipa Boma",87,18,0,FALSE,0.0865847085797537,0,40
+"Malawi","women_b12","Chitipa","Nyika N.P. - Chitipa",87,18,0,FALSE,0.149363433476527,0.15,40
+"Malawi","women_b12","Chitipa","TA Mwabulambya",87,18,0.2,FALSE,0.0500402171342679,0,40
+"Malawi","women_b12","Chitipa","TA Mwenemisuku",87,18,0.0897296996223269,FALSE,0.0272792672304385,0,40
+"Malawi","women_b12","Chitipa","TA Mwenewenya",87,18,0.285714285714286,TRUE,0.0363111127850198,0,40
+"Malawi","women_b12","Dedza","TA Kaphuka",87,18,0,FALSE,0.301124867245236,1,40
+"Malawi","women_b12","Dedza","TA Pemba",87,18,0.111111111111111,FALSE,0.40196435044635,1,40
+"Malawi","women_b12","Dedza","TA Tambala",87,18,0.0909090909090909,FALSE,0.204053871268707,0.325,40
+"Malawi","women_b12","Dowa","SC Kayembe",87,18,0.166666666666667,FALSE,0.392233933055042,1,40
+"Malawi","women_b12","Dowa","SC Mkukula",87,18,0.272727272727273,TRUE,0.194165233942959,0.2,40
+"Malawi","women_b12","Dowa","SC Mponela",87,18,0.222222222222222,TRUE,0.20781620631625,0.225,40
+"Malawi","women_b12","Dowa","TA Dzoole",87,18,0.25,TRUE,0.287773804338552,0.925,40
+"Malawi","women_b12","Karonga","Karonga Town",87,18,0.0833333333333333,FALSE,0.0027657011155935,0,40
+"Malawi","women_b12","Karonga","TA Kilupula",87,18,0,FALSE,0.00666677671052791,0,40
+"Malawi","women_b12","Karonga","TA Kyungu",87,18,0,FALSE,0.0120861535869498,0,40
+"Malawi","women_b12","Karonga","TA Wasambo",87,18,0,FALSE,0.0071705852755548,0,40
+"Malawi","women_b12","Kasungu","SC Kawamba",87,18,0.142857142857143,FALSE,0.312000928520605,0.975,40
+"Malawi","women_b12","Kasungu","TA Kaluluma",87,18,0.1,FALSE,0.207882238373434,0.4,40
+"Malawi","women_b12","Kasungu","TA Mwase",87,18,0,FALSE,0.266558686852808,0.925,40
+"Malawi","women_b12","Kasungu","TA Santhe",87,18,0,FALSE,0.407919781492025,1,40
+"Malawi","women_b12","Lilongwe","Lilongwe City",87,18,0,FALSE,0.0577932167693007,0,40
+"Malawi","women_b12","Lilongwe","TA Chiseka",87,18,0.25,TRUE,0.297251284398591,1,40
+"Malawi","women_b12","Lilongwe","TA Kabudula",87,18,0.333333333333333,TRUE,0.484284966844349,1,40
+"Malawi","women_b12","Lilongwe","TA Khongoni",87,18,0.166666666666667,FALSE,0.543258585012783,1,40
+"Malawi","women_b12","Machinga","TA Kawinga",87,18,0,FALSE,0.00929775154413957,0,40
+"Malawi","women_b12","Mangochi","SC Chowe",87,18,0.25,TRUE,0.00520973794388464,0,40
+"Malawi","women_b12","Mangochi","TA Mponda",87,18,0,FALSE,0.0142432583907279,0,40
+"Malawi","women_b12","Mangochi","TA Nankumba",87,18,0,FALSE,0.0222554892317753,0,40
+"Malawi","women_b12","Mchinji","SC Dambe",87,18,0.166666666666667,FALSE,0.462763256553936,1,40
+"Malawi","women_b12","Mchinji","SC Mduwa",87,18,0.333333333333333,TRUE,0.457596945738138,1,40
+"Malawi","women_b12","Mchinji","TA Mlonyeni",87,18,0.222222222222222,FALSE,0.299428034366979,1,40
+"Malawi","women_b12","Mchinji","TA Zulu",87,18,0.125,FALSE,0.401664149522142,1,40
+"Malawi","women_b12","Mulanje","SC Juma",87,18,0,FALSE,0.0178222281537319,0,40
+"Malawi","women_b12","Mulanje","TA Mabuka",87,18,0,FALSE,0.00297435003950435,0,40
+"Malawi","women_b12","Mwanza","Majete Game Reserve - Mwanza",87,18,0.636363636363636,TRUE,0.0152572560363589,0,40
+"Malawi","women_b12","Mwanza","TA Nthache",87,18,0.3,TRUE,0.0229123375409386,0,40
+"Malawi","women_b12","Mzimba","Mzimba Boma",87,18,0,FALSE,0.102722907534744,0,40
+"Malawi","women_b12","Mzimba","Mzuzu City",87,18,0.0912778140974905,FALSE,0.00567468351389126,0,40
+"Malawi","women_b12","Mzimba","TA Chindi",87,18,0.116006202334424,FALSE,0.216758357557877,0.5,40
+"Malawi","women_b12","Mzimba","TA M'Mbelwa",87,18,0.625,TRUE,0.168134678863978,0.125,40
+"Malawi","women_b12","Mzimba","TA Mabulabo",87,18,0.5,TRUE,0.0944716512299739,0,40
+"Malawi","women_b12","Mzimba","TA Mtwalo",87,18,0.181818181818182,FALSE,0.0782913256108325,0,40
+"Malawi","women_b12","Neno","TA Ngozi",87,18,0.213424399350852,FALSE,0.0492845905548417,0,40
+"Malawi","women_b12","Neno","TA Symon",87,18,0.111111111111111,FALSE,0.019594939259658,0,40
+"Malawi","women_b12","Nkhata Bay","SC Malanda",87,18,0,FALSE,0.00127356725722213,0,40
+"Malawi","women_b12","Nkhata Bay","TA Fukamapiri",87,18,0,FALSE,0.00217406455082617,0,40
+"Malawi","women_b12","Nkhata Bay","TA Kabunduli",87,18,0,FALSE,0.0071808900601404,0,40
+"Malawi","women_b12","Nkhata Bay","TA Musisya",87,18,0,FALSE,0.00522271390164909,0,40
+"Malawi","women_b12","Nkhata Bay","TA Timbiri",87,18,0,FALSE,0.00187397771220899,0,40
+"Malawi","women_b12","Nkhotakota","Nkhotakota Boma",87,18,0,FALSE,0.00254207447282106,0,40
+"Malawi","women_b12","Nkhotakota","TA Kanyenda",87,18,0,FALSE,0.00482582928524517,0,40
+"Malawi","women_b12","Nkhotakota","TA Malenga Chanzi",87,18,0,FALSE,0.00624337028793841,0,40
+"Malawi","women_b12","Nkhotakota","TA Mwadzama",87,18,0,FALSE,0.0162319486199149,0,40
+"Malawi","women_b12","Nsanje","Nsanje Boma",87,18,0,FALSE,0.00233209725422287,0,40
+"Malawi","women_b12","Nsanje","SC Mbenje",87,18,0,FALSE,0.00146285437487447,0,40
+"Malawi","women_b12","Nsanje","TA Ndamera",87,18,0,FALSE,0.00579052777062236,0,40
+"Malawi","women_b12","Ntcheu","SC Goodson Ganya",87,18,0.0909090909090909,FALSE,0.123850778740019,0,40
+"Malawi","women_b12","Ntcheu","SC Makwangwala",87,18,0.272727272727273,TRUE,0.0613883529581671,0,40
+"Malawi","women_b12","Ntcheu","TA Njolomole",87,18,0.444444444444444,TRUE,0.110707864063849,0,40
+"Malawi","women_b12","Ntcheu","TA Phambala",87,18,0.1,FALSE,0.0873391249158126,0,40
+"Malawi","women_b12","Ntchisi","SC Chilooko",87,18,0.285714285714286,TRUE,0.332689464493175,1,40
+"Malawi","women_b12","Ntchisi","SC Nthondo",87,18,0.25,TRUE,0.187175671981205,0.25,40
+"Malawi","women_b12","Ntchisi","TA Kalumo",87,18,0.166666666666667,FALSE,0.40502190657222,1,40
+"Malawi","women_b12","Phalombe","TA Mkhumba",87,18,0,FALSE,0.0123266967476517,0,40
+"Malawi","women_b12","Rumphi","Rumphi Boma",87,18,0.0644978457564797,FALSE,0.0134811266616586,0,40
+"Malawi","women_b12","Rumphi","SC Chapinduka",87,18,0,FALSE,0.00664021854428097,0,40
+"Malawi","women_b12","Rumphi","SC Kachulu",87,18,0,FALSE,0.0236483241794553,0,40
+"Malawi","women_b12","Rumphi","SC Mwankhunikira",87,18,0,FALSE,0.0235134266904359,0,40
+"Malawi","women_b12","Rumphi","TA Chikulamayembe",87,18,0,FALSE,0.0521934008606163,0,40
+"Malawi","women_b12","Salima","SC Kambwiri",87,18,0.166666666666667,FALSE,0.0362078621013852,0,40
+"Malawi","women_b12","Salima","TA Karonga",87,18,0,FALSE,0.0428299935945315,0,40
+"Malawi","women_b12","Salima","TA Khombedza",87,18,0.333333333333333,TRUE,0.0265178437617655,0,40
+"Malawi","women_b12","Salima","TA Maganga",87,18,0,FALSE,0.0154043578163628,0,40
+"Malawi","women_b12","Thyolo","SC Mbawela",87,18,0,FALSE,0.012200719366813,0,40
+"Malawi","women_b12","Thyolo","TA Bvumbwe",87,18,0.0625,FALSE,0.0106158595258313,0,40
+"Malawi","women_b12","Thyolo","TA Nchilamwela",87,18,0,FALSE,0.00686254099769196,0,40
+"Malawi","women_b12","Zomba","SC Mbiza",87,18,0.285714285714286,TRUE,0.0216601340551637,0,40
+"Malawi","women_b12","Zomba","TA Malemia",87,18,0.0869389052531686,FALSE,0.00599609915816944,0,40
+"Malawi","child_zinc","Balaka","TA Kalembo",87,18,0.857142857142857,TRUE,0.879781000888124,0.75,40
+"Malawi","child_zinc","Balaka","TA Nsamala",87,18,0.833333333333333,TRUE,0.888042212158512,0.775,40
+"Malawi","child_zinc","Blantyre","Blantyre City",87,18,0.550142640185422,FALSE,0.723658957926538,0.1,40
+"Malawi","child_zinc","Blantyre","TA Kuntaja",87,18,1,TRUE,0.690284027262659,0,40
+"Malawi","child_zinc","Chikwawa","TA Kasisi",87,18,0.7,FALSE,0.590301402343481,0.025,40
+"Malawi","child_zinc","Chikwawa","TA Lundu",87,18,0.25,FALSE,0.896993583215546,0.8,40
+"Malawi","child_zinc","Chiradzulu","TA Kadewere",87,18,0.875,TRUE,0.892046696448683,0.775,40
+"Malawi","child_zinc","Chiradzulu","TA Mpama",87,18,0.666666666666667,FALSE,0.890857934445395,0.8,40
+"Malawi","child_zinc","Chiradzulu","TA Nchema",87,18,0.923076923076923,TRUE,0.904713604592543,0.85,40
+"Malawi","child_zinc","Chitipa","Chitipa Boma",87,18,0.6,FALSE,0.361306486354735,0,40
+"Malawi","child_zinc","Chitipa","Nyika N.P. - Chitipa",87,18,0.8,TRUE,0.02765881233628,0,40
+"Malawi","child_zinc","Chitipa","TA Mwabulambya",87,18,0.428571428571429,FALSE,0.218714946450467,0,40
+"Malawi","child_zinc","Chitipa","TA Mwenemisuku",87,18,0.510665949389338,FALSE,0.11852704757163,0,40
+"Malawi","child_zinc","Chitipa","TA Mwenewenya",87,18,0.666666666666667,FALSE,0.0905991250863974,0,40
+"Malawi","child_zinc","Dedza","TA Kaphuka",87,18,0.5,FALSE,0.60484528275889,0,40
+"Malawi","child_zinc","Dedza","TA Pemba",87,18,0.6875,FALSE,0.629190697159564,0,40
+"Malawi","child_zinc","Dedza","TA Tambala",87,18,0.777777777777778,FALSE,0.410724549402277,0,40
+"Malawi","child_zinc","Dowa","SC Kayembe",87,18,0.125,FALSE,0.690511639600998,0,40
+"Malawi","child_zinc","Dowa","SC Mkukula",87,18,0.555555555555556,FALSE,0.587486572819655,0,40
+"Malawi","child_zinc","Dowa","SC Mponela",87,18,0.714285714285714,FALSE,0.57336119653263,0,40
+"Malawi","child_zinc","Dowa","TA Dzoole",87,18,0.333333333333333,FALSE,0.722241405235301,0.075,40
+"Malawi","child_zinc","Karonga","Karonga Town",87,18,0.636363636363636,FALSE,0.626513591007527,0,40
+"Malawi","child_zinc","Karonga","TA Kilupula",87,18,0.792534422080424,TRUE,0.37057126025059,0,40
+"Malawi","child_zinc","Karonga","TA Kyungu",87,18,0.296716807464536,FALSE,0.414607719853672,0,40
+"Malawi","child_zinc","Karonga","TA Wasambo",87,18,0.733333333333333,FALSE,0.393498200024736,0,40
+"Malawi","child_zinc","Kasungu","SC Kawamba",87,18,0.571428571428571,FALSE,0.373198644193134,0,40
+"Malawi","child_zinc","Kasungu","TA Kaluluma",87,18,0.375,FALSE,0.301573801902666,0,40
+"Malawi","child_zinc","Kasungu","TA Mwase",87,18,0.666666666666667,FALSE,0.407568605867331,0,40
+"Malawi","child_zinc","Kasungu","TA Santhe",87,18,0.4,FALSE,0.499399853789399,0,40
+"Malawi","child_zinc","Lilongwe","Lilongwe City",87,18,0.7,FALSE,0.427515891829331,0,40
+"Malawi","child_zinc","Lilongwe","TA Chiseka",87,18,0.833333333333333,TRUE,0.365187970636963,0,40
+"Malawi","child_zinc","Lilongwe","TA Kabudula",87,18,0.428571428571429,FALSE,0.630395582870561,0,40
+"Malawi","child_zinc","Lilongwe","TA Khongoni",87,18,0.375,FALSE,0.583166996239895,0,40
+"Malawi","child_zinc","Machinga","TA Kawinga",87,18,0.388888888888889,FALSE,0.926181125262955,1,40
+"Malawi","child_zinc","Mangochi","SC Chowe",87,18,0.9,TRUE,0.870062560437584,0.625,40
+"Malawi","child_zinc","Mangochi","TA Mponda",87,18,0.857142857142857,TRUE,0.833688794398778,0.45,40
+"Malawi","child_zinc","Mangochi","TA Nankumba",87,18,0.3125,FALSE,0.900728251650345,0.875,40
+"Malawi","child_zinc","Mchinji","SC Dambe",87,18,0.857142857142857,TRUE,0.330592433291679,0,40
+"Malawi","child_zinc","Mchinji","SC Mduwa",87,18,0.714285714285714,FALSE,0.461416433513162,0,40
+"Malawi","child_zinc","Mchinji","TA Mlonyeni",87,18,0.454545454545455,FALSE,0.593585323876795,0,40
+"Malawi","child_zinc","Mchinji","TA Zulu",87,18,0.727272727272727,FALSE,0.432854546904932,0,40
+"Malawi","child_zinc","Mulanje","SC Juma",87,18,0.928571428571429,TRUE,0.926180502097766,1,40
+"Malawi","child_zinc","Mulanje","TA Mabuka",87,18,0.541689192299562,FALSE,0.868251905652943,0.65,40
+"Malawi","child_zinc","Mwanza","Majete Game Reserve - Mwanza",87,18,0.6,FALSE,0.753932353861792,0.075,40
+"Malawi","child_zinc","Mwanza","TA Nthache",87,18,0.5,FALSE,0.779629838302352,0.025,40
+"Malawi","child_zinc","Mzimba","Mzimba Boma",87,18,0.666666666666667,FALSE,0.226206458219118,0,40
+"Malawi","child_zinc","Mzimba","Mzuzu City",87,18,0.451983534492502,FALSE,0.289875405287361,0,40
+"Malawi","child_zinc","Mzimba","TA Chindi",87,18,0.483441611857985,FALSE,0.171559791079468,0,40
+"Malawi","child_zinc","Mzimba","TA M'Mbelwa",87,18,0.333333333333333,FALSE,0.283319724203767,0,40
+"Malawi","child_zinc","Mzimba","TA Mabulabo",87,18,0.888888888888889,TRUE,0.213761767423596,0,40
+"Malawi","child_zinc","Mzimba","TA Mtwalo",87,18,0.142857142857143,FALSE,0.221946803998589,0,40
+"Malawi","child_zinc","Neno","TA Ngozi",87,18,0.759033088809115,FALSE,0.72561480631828,0.025,40
+"Malawi","child_zinc","Neno","TA Symon",87,18,0.428571428571429,FALSE,0.920212981085547,1,40
+"Malawi","child_zinc","Nkhata Bay","SC Malanda",87,18,0.428571428571429,FALSE,0.642904449553044,0.1,40
+"Malawi","child_zinc","Nkhata Bay","TA Fukamapiri",87,18,0.75,FALSE,0.452812567854364,0,40
+"Malawi","child_zinc","Nkhata Bay","TA Kabunduli",87,18,0.818181818181818,TRUE,0.088443733665594,0,40
+"Malawi","child_zinc","Nkhata Bay","TA Musisya",87,18,0.384615384615385,FALSE,0.25788995535081,0,40
+"Malawi","child_zinc","Nkhata Bay","TA Timbiri",87,18,0.763477595784406,FALSE,0.272323314889795,0,40
+"Malawi","child_zinc","Nkhotakota","Nkhotakota Boma",87,18,1,TRUE,0.669938547314743,0.05,40
+"Malawi","child_zinc","Nkhotakota","TA Kanyenda",87,18,0.666666666666667,FALSE,0.786217997037578,0.2,40
+"Malawi","child_zinc","Nkhotakota","TA Malenga Chanzi",87,18,0.666666666666667,FALSE,0.805817301253215,0.325,40
+"Malawi","child_zinc","Nkhotakota","TA Mwadzama",87,18,0.578947368421053,FALSE,0.802578383342246,0.3,40
+"Malawi","child_zinc","Nsanje","Nsanje Boma",87,18,0.25,FALSE,0.876868350661228,0.675,40
+"Malawi","child_zinc","Nsanje","SC Mbenje",87,18,0.764705882352941,FALSE,0.562863594680635,0.025,40
+"Malawi","child_zinc","Nsanje","TA Ndamera",87,18,0.6,FALSE,0.694930801210087,0.15,40
+"Malawi","child_zinc","Ntcheu","SC Goodson Ganya",87,18,0.583333333333333,FALSE,0.795080139689211,0.15,40
+"Malawi","child_zinc","Ntcheu","SC Makwangwala",87,18,0.333333333333333,FALSE,0.870617967083614,0.625,40
+"Malawi","child_zinc","Ntcheu","TA Njolomole",87,18,0.0666666666666667,FALSE,0.788551940569292,0.125,40
+"Malawi","child_zinc","Ntcheu","TA Phambala",87,18,0.769230769230769,FALSE,0.679155317773939,0,40
+"Malawi","child_zinc","Ntchisi","SC Chilooko",87,18,0.8,TRUE,0.421000156625168,0,40
+"Malawi","child_zinc","Ntchisi","SC Nthondo",87,18,0.705882352941177,FALSE,0.527750504912393,0,40
+"Malawi","child_zinc","Ntchisi","TA Kalumo",87,18,0.916666666666667,TRUE,0.431057921904921,0,40
+"Malawi","child_zinc","Phalombe","TA Mkhumba",87,18,0.688478699948951,FALSE,0.935005330215165,0.95,40
+"Malawi","child_zinc","Rumphi","Rumphi Boma",87,18,0.347126637611102,FALSE,0.357982823686109,0,40
+"Malawi","child_zinc","Rumphi","SC Chapinduka",87,18,0.181818181818182,FALSE,0.109780684950516,0,40
+"Malawi","child_zinc","Rumphi","SC Kachulu",87,18,0.333333333333333,FALSE,0.141660186395004,0,40
+"Malawi","child_zinc","Rumphi","SC Mwankhunikira",87,18,0.2,FALSE,0.139559107754781,0,40
+"Malawi","child_zinc","Rumphi","TA Chikulamayembe",87,18,0.380471042407071,FALSE,0.111524367246789,0,40
+"Malawi","child_zinc","Salima","SC Kambwiri",87,18,0,FALSE,0.873694471295495,0.7,40
+"Malawi","child_zinc","Salima","TA Karonga",87,18,0.714285714285714,FALSE,0.736140267561532,0.15,40
+"Malawi","child_zinc","Salima","TA Khombedza",87,18,0.636363636363636,FALSE,0.799537732363538,0.275,40
+"Malawi","child_zinc","Salima","TA Maganga",87,18,0.454545454545455,FALSE,0.875753569564287,0.675,40
+"Malawi","child_zinc","Thyolo","SC Mbawela",87,18,0.2,FALSE,0.824466649484274,0.35,40
+"Malawi","child_zinc","Thyolo","TA Bvumbwe",87,18,0.727272727272727,FALSE,0.568973353305796,0,40
+"Malawi","child_zinc","Thyolo","TA Nchilamwela",87,18,0,FALSE,0.842731087827426,0.375,40
+"Malawi","child_zinc","Zomba","SC Mbiza",87,18,0.571428571428571,FALSE,0.963600862315265,1,40
+"Malawi","child_zinc","Zomba","TA Malemia",87,18,0.868507424475984,TRUE,0.782817533204761,0.125,40
+"Malawi","women_zinc","Balaka","TA Kalembo",87,18,1,TRUE,0.651244859888658,0,40
+"Malawi","women_zinc","Balaka","TA Nsamala",87,18,0.8,FALSE,0.77750730051442,0,40
+"Malawi","women_zinc","Blantyre","Blantyre City",87,18,0.907154934521129,TRUE,0.99278518768695,0.925,40
+"Malawi","women_zinc","Blantyre","TA Kuntaja",87,18,1,TRUE,0.975836935529578,0.8,40
+"Malawi","women_zinc","Chikwawa","TA Kasisi",87,18,0.857142857142857,FALSE,0.699897573517617,0.025,40
+"Malawi","women_zinc","Chikwawa","TA Lundu",87,18,0.3,FALSE,0.987781116305145,0.875,40
+"Malawi","women_zinc","Chiradzulu","TA Kadewere",87,18,0.777777777777778,FALSE,0.994048685382529,1,40
+"Malawi","women_zinc","Chiradzulu","TA Mpama",87,18,1,TRUE,0.994845153796744,1,40
+"Malawi","women_zinc","Chiradzulu","TA Nchema",87,18,0.909090909090909,TRUE,0.994059837698738,1,40
+"Malawi","women_zinc","Chitipa","Chitipa Boma",87,18,1,TRUE,0.741804820003057,0,40
+"Malawi","women_zinc","Chitipa","Nyika N.P. - Chitipa",87,18,1,TRUE,0.294546716968796,0,40
+"Malawi","women_zinc","Chitipa","TA Mwabulambya",87,18,0.642857142857143,FALSE,0.844055240315851,0.15,40
+"Malawi","women_zinc","Chitipa","TA Mwenemisuku",87,18,0.50959454943349,FALSE,0.920164639654666,0.3,40
+"Malawi","women_zinc","Chitipa","TA Mwenewenya",87,18,0.714285714285714,FALSE,0.896250412978158,0.325,40
+"Malawi","women_zinc","Dedza","TA Kaphuka",87,18,0.333333333333333,FALSE,0.692263607676351,0,40
+"Malawi","women_zinc","Dedza","TA Pemba",87,18,0.666666666666667,FALSE,0.669798657154992,0,40
+"Malawi","women_zinc","Dedza","TA Tambala",87,18,0.818181818181818,FALSE,0.267463342729792,0,40
+"Malawi","women_zinc","Dowa","SC Kayembe",87,18,0.333333333333333,FALSE,0.445741659345934,0,40
+"Malawi","women_zinc","Dowa","SC Mkukula",87,18,0.272727272727273,FALSE,0.558298033225187,0,40
+"Malawi","women_zinc","Dowa","SC Mponela",87,18,0.777777777777778,FALSE,0.330545729677991,0,40
+"Malawi","women_zinc","Dowa","TA Dzoole",87,18,0.125,FALSE,0.603587847783632,0,40
+"Malawi","women_zinc","Karonga","Karonga Town",87,18,1,TRUE,0.563560656710971,0,40
+"Malawi","women_zinc","Karonga","TA Kilupula",87,18,0.739633779804418,FALSE,0.795310457180161,0.025,40
+"Malawi","women_zinc","Karonga","TA Kyungu",87,18,0.301688932306747,FALSE,0.855622653427592,0.075,40
+"Malawi","women_zinc","Karonga","TA Wasambo",87,18,0.833333333333333,FALSE,0.502372947017039,0,40
+"Malawi","women_zinc","Kasungu","SC Kawamba",87,18,0.428571428571429,FALSE,0.20230997800462,0,40
+"Malawi","women_zinc","Kasungu","TA Kaluluma",87,18,0.4,FALSE,0.210711342739695,0,40
+"Malawi","women_zinc","Kasungu","TA Mwase",87,18,0.666666666666667,FALSE,0.178091169169446,0,40
+"Malawi","women_zinc","Kasungu","TA Santhe",87,18,0.375,FALSE,0.26541347024738,0,40
+"Malawi","women_zinc","Lilongwe","Lilongwe City",87,18,1,TRUE,0.583888357082827,0,40
+"Malawi","women_zinc","Lilongwe","TA Chiseka",87,18,0.75,FALSE,0.656436519831574,0,40
+"Malawi","women_zinc","Lilongwe","TA Kabudula",87,18,0.833333333333333,FALSE,0.476601272503664,0,40
+"Malawi","women_zinc","Lilongwe","TA Khongoni",87,18,0.333333333333333,FALSE,0.634277666209805,0.025,40
+"Malawi","women_zinc","Machinga","TA Kawinga",87,18,0.75,FALSE,0.449041735848415,0,40
+"Malawi","women_zinc","Mangochi","SC Chowe",87,18,0.375,FALSE,0.684978956748537,0,40
+"Malawi","women_zinc","Mangochi","TA Mponda",87,18,0.6,FALSE,0.658331243617164,0,40
+"Malawi","women_zinc","Mangochi","TA Nankumba",87,18,0.363636363636364,FALSE,0.713209581764815,0,40
+"Malawi","women_zinc","Mchinji","SC Dambe",87,18,1,TRUE,0.118434797316214,0,40
+"Malawi","women_zinc","Mchinji","SC Mduwa",87,18,0.5,FALSE,0.345828198408654,0,40
+"Malawi","women_zinc","Mchinji","TA Mlonyeni",87,18,0.777777777777778,FALSE,0.321759652075729,0,40
+"Malawi","women_zinc","Mchinji","TA Zulu",87,18,0.375,FALSE,0.469848015849637,0,40
+"Malawi","women_zinc","Mulanje","SC Juma",87,18,0.75,FALSE,0.962817459963422,0.575,40
+"Malawi","women_zinc","Mulanje","TA Mabuka",87,18,0.473138640981174,FALSE,0.994308754738889,1,40
+"Malawi","women_zinc","Mwanza","Majete Game Reserve - Mwanza",87,18,1,TRUE,0.902119883935399,0.15,40
+"Malawi","women_zinc","Mwanza","TA Nthache",87,18,0.777777777777778,FALSE,0.990414897497374,0.975,40
+"Malawi","women_zinc","Mzimba","Mzimba Boma",87,18,0.625,FALSE,0.728813485238121,0.1,40
+"Malawi","women_zinc","Mzimba","Mzuzu City",87,18,0.727997567884445,FALSE,0.947509293491743,0.425,40
+"Malawi","women_zinc","Mzimba","TA Chindi",87,18,0.832561328514676,FALSE,0.256174148285227,0,40
+"Malawi","women_zinc","Mzimba","TA M'Mbelwa",87,18,0.375,FALSE,0.493548974497682,0,40
+"Malawi","women_zinc","Mzimba","TA Mabulabo",87,18,1,TRUE,0.28281139093308,0,40
+"Malawi","women_zinc","Mzimba","TA Mtwalo",87,18,0.0909090909090909,FALSE,0.679426836853601,0,40
+"Malawi","women_zinc","Neno","TA Ngozi",87,18,0.880091066017518,FALSE,0.966200049239553,0.625,40
+"Malawi","women_zinc","Neno","TA Symon",87,18,0.444444444444444,FALSE,0.965717965600746,0.675,40
+"Malawi","women_zinc","Nkhata Bay","SC Malanda",87,18,0.4,FALSE,0.871711502445385,0.2,40
+"Malawi","women_zinc","Nkhata Bay","TA Fukamapiri",87,18,1,TRUE,0.4344684955766,0,40
+"Malawi","women_zinc","Nkhata Bay","TA Kabunduli",87,18,1,TRUE,0.392292044638562,0,40
+"Malawi","women_zinc","Nkhata Bay","TA Musisya",87,18,1,TRUE,0.531155829270657,0,40
+"Malawi","women_zinc","Nkhata Bay","TA Timbiri",87,18,0.599654396460158,FALSE,0.857889842238726,0.125,40
+"Malawi","women_zinc","Nkhotakota","Nkhotakota Boma",87,18,0.333333333333333,FALSE,0.593374551138846,0,40
+"Malawi","women_zinc","Nkhotakota","TA Kanyenda",87,18,0.571428571428571,FALSE,0.379632129097906,0,40
+"Malawi","women_zinc","Nkhotakota","TA Malenga Chanzi",87,18,0.333333333333333,FALSE,0.315864070798519,0,40
+"Malawi","women_zinc","Nkhotakota","TA Mwadzama",87,18,0.5,FALSE,0.178058223907316,0,40
+"Malawi","women_zinc","Nsanje","Nsanje Boma",87,18,0.333333333333333,FALSE,0.972011419369772,0.625,40
+"Malawi","women_zinc","Nsanje","SC Mbenje",87,18,0.666666666666667,FALSE,0.917625081094607,0.35,40
+"Malawi","women_zinc","Nsanje","TA Ndamera",87,18,0.666666666666667,FALSE,0.938176830369951,0.4,40
+"Malawi","women_zinc","Ntcheu","SC Goodson Ganya",87,18,0.7,FALSE,0.744371174967767,0,40
+"Malawi","women_zinc","Ntcheu","SC Makwangwala",87,18,0.636363636363636,FALSE,0.851757496175598,0,40
+"Malawi","women_zinc","Ntcheu","TA Njolomole",87,18,0.333333333333333,FALSE,0.926048161555848,0.1,40
+"Malawi","women_zinc","Ntcheu","TA Phambala",87,18,0.6,FALSE,0.901759629980657,0,40
+"Malawi","women_zinc","Ntchisi","SC Chilooko",87,18,0.714285714285714,FALSE,0.324248774436799,0,40
+"Malawi","women_zinc","Ntchisi","SC Nthondo",87,18,0.75,FALSE,0.473992853920124,0,40
+"Malawi","women_zinc","Ntchisi","TA Kalumo",87,18,1,TRUE,0.240074108658962,0,40
+"Malawi","women_zinc","Phalombe","TA Mkhumba",87,18,0.838383490993167,FALSE,0.958351094589322,0.55,40
+"Malawi","women_zinc","Rumphi","Rumphi Boma",87,18,0.405276872084624,FALSE,0.737085681428068,0.075,40
+"Malawi","women_zinc","Rumphi","SC Chapinduka",87,18,0.25,FALSE,0.725898832034074,0.05,40
+"Malawi","women_zinc","Rumphi","SC Kachulu",87,18,0.333333333333333,FALSE,0.74786144865094,0.075,40
+"Malawi","women_zinc","Rumphi","SC Mwankhunikira",87,18,0,FALSE,0.779156021597811,0,40
+"Malawi","women_zinc","Rumphi","TA Chikulamayembe",87,18,0.33779968564391,FALSE,0.400203550725169,0,40
+"Malawi","women_zinc","Salima","SC Kambwiri",87,18,0.166666666666667,FALSE,0.833499293803229,0.1,40
+"Malawi","women_zinc","Salima","TA Karonga",87,18,0.571428571428571,FALSE,0.586083299690733,0.05,40
+"Malawi","women_zinc","Salima","TA Khombedza",87,18,1,TRUE,0.110924189664832,0,40
+"Malawi","women_zinc","Salima","TA Maganga",87,18,0.4,FALSE,0.651504679671408,0.025,40
+"Malawi","women_zinc","Thyolo","SC Mbawela",87,18,0.363636363636364,FALSE,0.981391362957532,0.775,40
+"Malawi","women_zinc","Thyolo","TA Bvumbwe",87,18,0.8,FALSE,0.982328886560717,0.925,40
+"Malawi","women_zinc","Thyolo","TA Nchilamwela",87,18,1,TRUE,0.961680160967673,0.625,40
+"Malawi","women_zinc","Zomba","SC Mbiza",87,18,0.571428571428571,FALSE,0.987275902441048,0.95,40
+"Malawi","women_zinc","Zomba","TA Malemia",87,18,0.818843515791139,FALSE,0.983753992208276,0.95,40

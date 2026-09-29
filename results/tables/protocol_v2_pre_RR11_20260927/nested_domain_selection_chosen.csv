@@ -1,0 +1,45 @@
+"target","outcome","heldout","n_chosen","chosen","inner_rho"
+"level","child_vitA","Gambia",2,"Climate and weather | Infection and inflammation burden",0.424
+"level","child_vitA","Ghana",5,"Climate and weather | Ecosystem productivity/greenness | Child anthropometry | Infection and inflammation burden | Immunisation",0.556
+"level","child_vitA","Malawi",4,"Satellite embedding | Soil characteristics | Climate and weather | Food prices and supply",0.518
+"level","child_vitA","SierraLeone",5,"Climate and weather | Household assets and characteristics | Child anthropometry | Infection and inflammation burden | Anaemia and haemoglobin",0.476
+"level","women_vitA","Gambia",5,"Climate and weather | Infection and inflammation burden | Anaemia and haemoglobin | Ruralness, population density, built environment | Household diet and consumption (HCES)",0.354
+"level","women_vitA","Ghana",4,"Climate and weather | Anaemia and haemoglobin | Food prices and supply | Infant and young child feeding",0.514
+"level","women_vitA","Malawi",4,"Soil characteristics | Agricultural production, land use | Anaemia and haemoglobin | Household diet and consumption (HCES)",0.637
+"level","women_vitA","SierraLeone",5,"Climate and weather | Anaemia and haemoglobin | Ecosystem productivity/greenness | Food fortification and supplementation | Infant and young child feeding",0.533
+"level","child_iron","Gambia",5,"Soil characteristics | Satellite embedding | Immunisation | Anaemia and haemoglobin | Agricultural production, land use",0.419
+"level","child_iron","Ghana",4,"Soil characteristics | Agricultural production, land use | Livestock density | Anaemia and haemoglobin",0.463
+"level","child_iron","Malawi",5,"Livestock density | Household diet and consumption (HCES) | Food fortification and supplementation | Soil characteristics | Water and coast proximity",0.558
+"level","child_iron","SierraLeone",3,"Soil characteristics | Agricultural production, land use | Climate and weather",0.456
+"level","women_iron","Gambia",3,"Soil characteristics | Immunisation | Food prices and supply",0.415
+"level","women_iron","Ghana",4,"Satellite embedding | Infection and inflammation burden | Agricultural production, land use | Livestock density",0.383
+"level","women_iron","Malawi",3,"Infection and inflammation burden | Livestock density | Food fortification and supplementation",0.542
+"level","women_iron","SierraLeone",5,"Soil characteristics | Anaemia and haemoglobin | Infection and inflammation burden | Infant and young child feeding | Agricultural production, land use",0.554
+"level","women_folate","Ghana",3,"Agricultural production, land use | Ecosystem productivity/greenness | Immunisation",0.701
+"level","women_folate","Malawi",5,"Anaemia and haemoglobin | Built environment | Food prices and supply | Livestock density | Conflict and insecurity",0.49
+"level","women_folate","SierraLeone",1,"Anaemia and haemoglobin",0.336
+"level","women_b12","Ghana",1,"Education, employment, SES",0.679
+"level","women_b12","Malawi",3,"Child anthropometry | Immunisation | Conflict and insecurity",0.886
+"level","women_b12","SierraLeone",3,"Infant and young child feeding | Satellite embedding | Livestock density",0.634
+"prev","child_vitA","Gambia",3,"Ecosystem productivity/greenness | Agricultural production, land use | Anaemia and haemoglobin",0.367
+"prev","child_vitA","Ghana",2,"Climate and weather | Child anthropometry",0.437
+"prev","child_vitA","Malawi",1,"Soil characteristics",0.511
+"prev","child_vitA","SierraLeone",4,"Child anthropometry | Household assets and characteristics | Ecosystem productivity/greenness | Food prices and supply",0.461
+"prev","women_vitA","Gambia",4,"Infection and inflammation burden | Agricultural production, land use | Household assets and characteristics | Food prices and supply",0.348
+"prev","women_vitA","Ghana",4,"Climate and weather | Food fortification and supplementation | Child anthropometry | Water and sanitation",0.41
+"prev","women_vitA","Malawi",4,"Infection and inflammation burden | Climate and weather | Child anthropometry | Ruralness, population density, built environment",0.419
+"prev","women_vitA","SierraLeone",5,"Climate and weather | Child anthropometry | Agricultural production, land use | Food prices and supply | Soil characteristics",0.314
+"prev","child_iron","Gambia",1,"Water and coast proximity",0.36
+"prev","child_iron","Ghana",5,"Soil characteristics | Agricultural production, land use | Infant and young child feeding | Livestock density | Immunisation",0.389
+"prev","child_iron","Malawi",2,"Water and coast proximity | Food fortification and supplementation",0.606
+"prev","child_iron","SierraLeone",4,"Soil characteristics | Climate and weather | Water and coast proximity | Conflict and insecurity",0.441
+"prev","women_iron","Gambia",3,"Agricultural production, land use | Food prices and supply | Immunisation",0.338
+"prev","women_iron","Ghana",5,"Infection and inflammation burden | Livestock density | Agricultural production, land use | Anaemia and haemoglobin | Food fortification and supplementation",0.478
+"prev","women_iron","Malawi",3,"Infection and inflammation burden | Agricultural production, land use | Infant and young child feeding",0.549
+"prev","women_iron","SierraLeone",5,"Soil characteristics | Infection and inflammation burden | Agricultural production, land use | Food fortification and supplementation | Anaemia and haemoglobin",0.562
+"prev","women_folate","Ghana",1,"Built environment",0.547
+"prev","women_folate","Malawi",3,"Anaemia and haemoglobin | Ruralness, population density, built environment | Food prices and supply",0.442
+"prev","women_folate","SierraLeone",3,"Anaemia and haemoglobin | Food fortification and supplementation | Food prices and supply",0.296
+"prev","women_b12","Ghana",1,"Food fortification and supplementation",0.597
+"prev","women_b12","Malawi",1,"Conflict and insecurity",0.402
+"prev","women_b12","SierraLeone",4,"Infant and young child feeding | Water and coast proximity | Child anthropometry | Livestock density",0.473
