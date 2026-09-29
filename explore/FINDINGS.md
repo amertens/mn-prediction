@@ -1642,3 +1642,82 @@ country here — three countries, three counts — and the cell-level test treat
 nested cells as independent. It is a country effect (consistent with the
 project's own "Ghana teaches, Gambia learnable") and the design cannot separate
 the two.
+
+---
+
+## ZW-01 (2026-09-28) — why zinc is unpredicted, and a correction to HR-02
+
+**Answer: there is no Admin-2 geography in zinc to predict.** Its reproducible
+between-unit variation is *within-district cluster* variation, which Admin-2
+covariates cannot reach by construction.
+
+Nested variance components of the continuous biomarker (district / cluster-
+within-district / residual, moment-matched), against what the index achieves:
+
+| cell | district share | cluster share | achieved |
+|---|---|---|---|
+| Malawi women_selenium | **0.669** | 0.046 | — |
+| Malawi child_selenium | **0.544** | 0.117 | — |
+| Malawi **women_b12** | **0.417** | 0.040 | **0.694** |
+| Malawi women_folate | 0.341 | 0.000 | 0.412 |
+| Malawi women_zinc | 0.113 | 0.124 | **−0.007** |
+| Malawi **child_zinc** | **0.000** | **0.172** | **−0.105** |
+| Malawi women_vitA | 0.000 | 0.053 | 0.302 |
+
+The ordering is the story: the well-predicted cells (B12 0.417, folate 0.341,
+selenium 0.544–0.669) are the ones with real district geography; zinc has the
+**largest cluster share in the study (0.172)** and a district share
+indistinguishable from zero. This confirms ZN-02 — "district 0 | TA 0 | cluster
+0.013 … almost nothing separates districts" — by an independent route and on
+women as well as children.
+
+### The correction: HR-02's zinc headroom was an artefact of my own metric
+
+HR-02 called zinc "the single most concentrated opportunity", with r_max 0.80
+and headroom 0.906. That was wrong, and wrong for a reason I should have caught:
+**`r_max = sqrt(split-half reliability)` counts cluster effects as district
+signal wherever a district is a single cluster** — and 85% of Malawi districts
+are. The split-half is an upper bound, not a ceiling.
+
+Worse, **the project already had the right number and I did not use it.**
+`results/tables/protocol_v2/variance_components_ceiling.csv` (VC-01, script 34)
+carries `ceiling_vc`, a cluster-adjusted honest ceiling, alongside
+`ceiling_within_vc`, the split-half bound, and `cluster_share_of_ceiling`. For
+Malawi child zinc on the level it reports:
+
+- honest ceiling `ceiling_vc` = **0.000**
+- split-half ceiling `ceiling_within_vc` = 0.770
+- `cluster_share_of_ceiling` = **1.000**
+
+So the project's own table says 100% of child zinc's apparent ceiling is cluster
+effect and the attainable district correlation is zero. My 0.906 of "headroom"
+does not exist. Zinc is not the largest opportunity in the study; it is the
+clearest case of *no* opportunity, and the record said so before I started.
+
+### What that does to the binding-constraint numbers
+
+HR-02's headroom used the inflated split-half bound throughout. On the honest
+ceiling, averaged over the 27 admin-2 cells:
+
+| | prevalence | level |
+|---|---|---|
+| honest ceiling (`ceiling_vc`) | 0.474 | **0.591** |
+| split-half bound (`ceiling_within_vc`) | 0.592 | 0.735 |
+| achieved (index) | 0.301 | **0.399** |
+| **r_share against the honest ceiling** | **0.64** | **0.68** |
+| index at or above the honest ceiling | 2 of 27 | 1 of 27 |
+| cluster share of the split-half bound | 0.217 | 0.214 |
+
+So the model is getting about **68% of what is honestly attainable on the
+level**, not the 54% HR-02 reported. **The remaining headroom is roughly
+0.19, not 0.35 — about half what I claimed.** That tightens the
+binding-constraint conclusion rather than changing its direction: the
+observation-count argument stands (it rests on TC-02's monotone dose–response,
+MT-01's shrinkage signature and EB-01's null, none of which used r_max), but
+there is materially less room left than I said.
+
+**Process note, second occurrence.** After LT-01 I wrote a standing rule for this
+folder: search `docs/findings/` and `scripts/protocol_v2/` for the question
+before running a probe. I did not apply it to HR-02, and an existing results
+table contradicted my headline. The rule needs to extend to *results tables*,
+not just findings documents and scripts.
