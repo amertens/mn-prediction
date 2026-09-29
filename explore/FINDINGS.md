@@ -1721,3 +1721,212 @@ folder: search `docs/findings/` and `scripts/protocol_v2/` for the question
 before running a probe. I did not apply it to HR-02, and an existing results
 table contradicted my headline. The rule needs to extend to *results tables*,
 not just findings documents and scripts.
+
+---
+
+## PL-01 (2026-09-29) — the plasmode route, and what it can and cannot settle
+
+**Question.** If we had 20 countries with a variance structure like these four
+rather than 4, what would predictive performance look like — or is the problem
+the district ground truth?
+
+### The simulation, and two failures worth recording
+
+Real pooled Admin-2 axes (206 districts × 93 axes), imposed truth, only the
+outcome generated. Truth `y_c = D_c(β̄ + δ_c) + district effect + country
+offset`, `δ_c ~ N(0, Σ_β)`; observed `y = truth + sampling error` from each
+district's own measured `n_eff`. Factorial: countries {3,4,6,10,20} × noise
+multiplier {0, 0.5, 1, 2}, scored by leave-one-country-out Spearman **against
+the true district value**, 40 replicates.
+
+**Failure 1.** The first version generated the truth as a deterministic function
+of the covariates, so every signal level scored ~0.87 and the calibration grid
+was flat. There was no irreducible district heterogeneity for a model to miss.
+Fixed by making `signal` the correlation between the linear predictor and the
+truth, with `sqrt(1 − signal²)` of district noise.
+
+**Failure 2.** `Σ_β` was first estimated as the raw across-country SD of the
+four fitted weight vectors. That is not between-country heterogeneity — it is
+that plus the sampling noise of each country's own weight estimate. The index
+weights are Fisher-z × √(n−3) with unit sampling variance by construction, so
+the moment correction is `τ² = max(var − 1, 0)`, exactly the estimator EB-01
+used. Applying it moved the mean SD from 1.52 to 1.07, with 20 of 93 axes
+floored to zero.
+
+### Result: both parameterisations say the same thing, and it is assumption-driven
+
+| countries | raw Σ_β, real noise | corrected Σ_β, real noise |
+|---|---|---|
+| 3 | 0.381 | 0.263 |
+| 4 | 0.393 | 0.309 |
+| 6 | 0.361 | 0.287 |
+| 10 | 0.382 | 0.294 |
+| 20 | 0.377 | 0.300 |
+
+**Transport saturates by about four to six countries under both estimates**, and
+removing district measurement noise entirely buys essentially nothing on
+transport (−0.003 corrected, −0.040 raw). The mechanism is clear and is not a
+bug: once β̄ is estimated well, the irreducible error is the *new* country's own
+deviation δ_new, which does not shrink with more training countries.
+
+**But the simulation fails the one check available.** TC-02 measured +0.05 per
+country over 1→2→3 on real data. Averaged beyond four countries the simulation
+gives about **+0.002 per country**, inside Monte-Carlo error of zero. It can be
+calibrated to reproduce the observed transport *level* (0.30) or, presumably,
+the observed *slope*, but four countries do not supply enough observed
+quantities to pin down both. **That is the objection I raised before running it,
+now demonstrated rather than argued: Σ_β is the parameter that governs the
+answer and it is not identified at n = 4.**
+
+**Verdict on the method.** A plasmode cannot answer "what would 20 real
+countries give". It can answer "what follows *if* between-country heterogeneity
+is as these four imply", and the answer is saturation by four to six — but that
+is the assumption speaking. Worth keeping as a stated if-then, not a forecast.
+
+### The arithmetic that does answer the second half
+
+Available without simulating anything, level target, domain index, on the 16
+cells with all three quantities:
+
+| quantity | value |
+|---|---|
+| transport (country held out) | 0.298 |
+| in-fill (country's own survey) | 0.399 |
+| honest ceiling (`ceiling_vc`) | 0.564 |
+| **transport → in-fill gap** | **+0.107** |
+| **in-fill → ceiling gap** | **+0.192** |
+| further headroom above the ceiling | +0.352 |
+
+and by nutrient:
+
+| nutrient | transport | in-fill | ceiling | countries could buy | measurement could buy |
+|---|---|---|---|---|---|
+| B12 | 0.518 | 0.630 | 0.766 | 0.112 | 0.136 |
+| folate | 0.006 | 0.398 | 0.746 | **0.392** | 0.348 |
+| iron | 0.334 | 0.427 | 0.613 | 0.093 | 0.186 |
+| vitamin A | 0.423 | 0.446 | 0.610 | **0.024** | 0.164 |
+
+**The two constraints act on different estimands, and that reconciles the
+simulation with the arithmetic.** Transport is limited by between-country
+heterogeneity, so more countries and better measurement both saturate there —
+which is what the simulation shows. In-fill is limited by district measurement,
+where +0.192 remains and the ceiling itself would rise with more clusters per
+district. Since the deployment case is a country with no survey, i.e. transport,
+**the saturating lever is the one that matters for deployment**.
+
+Nutrient-specific reading: **vitamin A is already at its transport asymptote**
+(0.423 against an in-fill 0.446), so more countries buy it almost nothing.
+Folate's huge apparent country gap is the assay incomparability already on the
+record, not something more countries would fix unless assays harmonise. And for
+zinc none of this applies, because ZW-01 showed there is no district signal to
+reach.
+
+---
+
+## MM-01 (2026-09-29) — MIMI: what it is, whether it shares our problem, and what is worth taking
+
+**What it is.** MIMI, *Modelling and Mapping the Risk of Inadequate
+Micronutrient Intake*, Gates Foundation INV-037325 with EPSRC; WFP and LSHTM
+(Frances Knight, Kevin Tang). Code at `github.com/WFP-VAM/mimi-ml`. **Both PDFs
+supplied are MIMI outputs** — the Bayesian SAE paper (arXiv 2604.14971) and the
+machine-learning paper (Voukelatou et al., *Scientific Reports* 16:4104, 2026).
+
+**It does not share our data problem, because it is not predicting our
+quantity.**
+
+| | this project | MIMI |
+|---|---|---|
+| outcome | measured biomarker | *modelled* inadequate intake from HCES food consumption |
+| unit | district (often one cluster) | household |
+| predictors | 383 external geospatial and administrative layers | household food-group consumption and SES from the **same HCES**, plus climate |
+| learning n | 14–87 districts × 4 countries | thousands of households × 2 countries |
+
+MIMI is explicit about the choice: biomarkers "are influenced by multiple
+factors beyond diet", so they target intake, "a modifiable risk that can be
+directly addressed through food-based interventions".
+
+**The comparability warning that matters.** MIMI-ML reports ROC AUC 0.71–0.87.
+That is **not comparable to our 0.40 Spearman**, because their target is
+computed from the HCES food consumption module and their features include
+household consumption of food groups from that same module. A large part of
+that AUC is recovering a function of the feature source rather than predicting
+an independent measurement. Their genuinely comparable case — deployment where
+no HCES exists, with features from WFP VAM data instead — is stated as future
+work and is untested. Anyone placing 0.87 beside 0.40 is comparing different
+things, and we should say so before someone else does.
+
+**They do share our deeper problem.** Their limitations are ours: household data
+masks individual variation; only two countries, wanting more; and "in real world
+applications, where there are no actual data to validate the machine learning
+outputs" — the same absence of ground truth, resolved the same way, as a
+shortlist prompting "more in-depth context-specific assessments" rather than a
+measurement. That is our deck's "a shortlist, not a measurement", independently
+arrived at.
+
+**Methods worth taking: little, and we have already tested most of it.** The
+SAE paper's three distinctive techniques were assessed and two were tested:
+joint variance–mean smoothing and phantom-cluster augmentation are null for our
+estimand (VF-01, because A and D are jointly estimated so misspecifying D is
+absorbed), and the CV reliability bands are useful presentationally (CV-01).
+The ML paper is XGBoost, which SL-06 already tested and the index beat. The one
+small borrowing is **SHAP** for importance, which is more standard and more
+communicable than our back-projected index weights.
+
+**The real opportunity is complementarity, not method transfer.** MIMI predicts
+*intake* (what you intervene on); we predict *status* (what you measure
+outcomes with). MIMI's ADM2 estimates for Ethiopia and Nigeria overlap the
+countries in our XV-01 external validation, so **their surfaces are a second,
+independent comparator for our external check** — a better use than treating
+them as a competitor.
+
+---
+
+## HC-03 (2026-09-29) — have we adequately used HCES? No, and the gap is coverage before method
+
+The store holds 21 HCES-derived columns: 6 MIMI modelled inadequacy percentages
+(Tang et al. 2026) and 15 own-derived consumption indicators (`hces_hdds`,
+`hces_any_asf/fish/meat/eggs/dairy/pulses_nuts/fruit/veg/dgl/vita_fv`,
+`hces_food_share`, `hces_own_prod_share`, `hces_log_cons_pae_rel`,
+`hces_asf_purchase_share`).
+
+**Three problems, in order of how cheaply they can be fixed.**
+
+**1. The two blocks have disjoint country coverage, so neither is usable
+across countries.**
+
+| block | Gambia | Ghana | Malawi | Sierra Leone |
+|---|---|---|---|---|
+| `mimi_*` (6 cols) | **0** | 260 districts, 8–10 distinct values | **0** | **0** |
+| `hces_*` (15 cols) | 37 | **0** | 243 | 14 |
+
+MIMI exists only for Ghana; the own-derived HCES block exists everywhere *but*
+Ghana. **No country has both.** So in a Ghana cell the `hces_*` columns are
+all-missing and dropped, and in every other cell the `mimi_*` columns are. That
+is why `mimi_matched` scores −0.196 against a null of −0.199: in three of four
+countries there is nothing there at all, and in Ghana the values have 8–10
+distinct levels over 260 districts, i.e. admin-1 resolution broadcast down.
+
+**2. Ghana's own HCES (GLSS7) produces zero columns**, although it is listed as
+a source. Same class of defect as the recorded "food-price data on disk reaches
+0 model columns".
+
+**3. We compute food-group indicators, not nutrient intake.** MIMI's method is
+HCES quantities × food composition → apparent intake per adult-female-equivalent
+→ probability of inadequacy. Ours is binary "any X consumed" plus a diversity
+score plus expenditure shares. The mechanistically right variable has not been
+built for the three countries whose microdata we hold.
+
+**What the evidence says about doing the work.** The HCES block alone reaches
+0.235 in-fill on the level — real signal — but adds nothing to the index
+(`index_plus_hces` −0.0005, 8 of 18 cells, 1 of 3 countries). And dietary
+composition has now failed twice from other directions: MX-01 (crop production ×
+composition table) and GN-01 (measured grain chemistry). Consumption is one step
+closer to intake than either, so the prior is not hopeless — but it is not
+favourable.
+
+**Recommended order.** Fix the coverage before building the method: Ghana's
+GLSS7 block, and MIMI's surfaces for the other three countries if they exist at
+district resolution. Both are cheap and both are prerequisites for any fair test.
+Only then is the full intake computation worth the effort, and it should be
+scored with MX-01's matched-versus-mismatched nutrient control, which is what
+made that probe readable.
